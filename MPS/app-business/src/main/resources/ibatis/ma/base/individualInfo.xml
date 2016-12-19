@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="individualInfo">
+    <typeAlias alias="individualInfo" type="com.pay.base.model.IndividualInfo"/>
+
+		<insert id="create" parameterClass="individualInfo">
+				<selectKey resultClass="java.lang.Long" keyProperty="individualId">
+						SELECT SEQ_IND_IND_ID.nextval as individualId FROM dual 
+    	</selectKey>
+				insert into T_INDIVIDUAL_INFO
+				(
+				INDIVIDUAL_ID,
+				MEMBER_CODE,
+				TEL ,
+				FAX ,
+				QQ ,
+				MSN ,
+				PROVINCE ,
+				CITY ,
+				ADDR ,
+				ZIP ,
+				CER_TYPE ,
+				CER_CODE ,
+				NAME ,
+				EMAIL,
+				MOBILE,
+				SEX,
+				PROFESSION,
+				COUNTRY 
+
+
+				)
+				values
+				(
+				#individualId#,
+				#memberCode#,
+				#tel#,
+				#fax#,
+				#qq#,
+				#msn#,
+				#province#,
+				#city#,
+				#addr#,
+				#zip#,
+				#cerType#,
+				#cerCode#,
+				#name#,
+				#email#,
+				#mobile#,
+				#sex#,
+				#profession#,
+				#country#
+				)
+		</insert>
+
+
+   <select id="queryIndividualInfoByMemberCode" parameterClass="java.lang.Long" resultClass="individualInfo">
+        select 
+          INDIVIDUAL_ID   as individualId, 
+          MEMBER_CODE     as memberCode, 
+          TEL, 
+          MOBILE, 
+          FAX, 
+          QQ, 
+          MSN, 
+          PROVINCE, 
+          CITY, 
+          ADDR, 
+          ZIP, 
+          CER_TYPE      as cerType,
+            CER_CODE      as cerCode, 
+            NAME, 
+            EMAIL, 
+            CREATE_DATE     as createDate, 
+            UPDATE_DATE     as updateDate,
+            MOBILE
+        from 
+          T_INDIVIDUAL_INFO
+        where 
+          MEMBER_CODE = #memberCode#
+    </select>
+    
+
+     <update id="update" parameterClass="individualInfo">
+        update T_INDIVIDUAL_INFO
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="tel">
+                TEL = #tel#
+            </isNotNull>
+            <isNotNull prepend="," property="fax">
+                FAX = #fax#
+            </isNotNull>
+            <isNotNull prepend="," property="qq">
+                QQ = #qq#
+            </isNotNull>
+            <isNotNull prepend="," property="msn">
+                MSN = #msn#
+            </isNotNull>
+            <isNotNull prepend="," property="province">
+                PROVINCE = #province#
+            </isNotNull>
+            <isNotNull prepend="," property="city">
+                CITY = #city#
+            </isNotNull>
+            <isNotNull prepend="," property="addr">
+                ADDR = #addr#
+            </isNotNull>
+            <isNotNull prepend="," property="zip">
+                ZIP = #zip#
+            </isNotNull>
+            <isNotNull prepend="," property="cerType">
+                CER_TYPE = #cerType#
+            </isNotNull>
+            <isNotNull prepend="," property="cerCode">
+                CER_CODE = #cerCode#
+            </isNotNull>
+            <isNotNull prepend="," property="name">
+                NAME = #name#
+            </isNotNull>
+            <isNotNull prepend="," property="email">
+                EMAIL = #email#
+            </isNotNull>
+            <isNotNull prepend="," property="mobile">
+                MOBILE = #mobile#
+            </isNotNull>
+            <isNotNull prepend="," property="updateDate">
+                UPDATE_DATE = SYSDATE
+            </isNotNull>
+        </dynamic>
+        where MEMBER_CODE = #memberCode#
+    </update>
+    
+    <select id="getCountByEmail" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+          <![CDATA[
+      select count(*) from T_INDIVIDUAL_INFO  t where   exists 
+          (select MEMBER_CODE from t_member where status !=4 and t.member_code=MEMBER_CODE) and t.EMAIL=#value#
+         ]]>
+    </select>
+    
+     <select id="getCountByMobile" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+           <![CDATA[
+     select count(*) from T_INDIVIDUAL_INFO  t where   exists 
+          (select MEMBER_CODE from t_member where status !=4 and t.member_code=MEMBER_CODE)  and t.MOBILE=#value#  
+         ]]>
+    </select>
+    
+
+   
+</sqlMap>

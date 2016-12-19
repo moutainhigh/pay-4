@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="messagereceive">
+	<typeAlias alias="messagereceive" type="com.pay.app.model.MessageReceive" />
+
+	<insert id="create" parameterClass="messagereceive">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			seq_messagereceive_ID.nextval as ID from dual 
+		</selectKey>
+		insert into
+		t_messagereceive
+		(
+		id,
+		readFlag,
+		status,
+		readTime,
+		title,
+		messageContextId,
+		sendTime,
+		sendName,
+		userId
+		)
+		values
+		(
+		#id#,
+		#readFlag#,
+		#status#,
+		#readTime#,
+		#title#,
+		#messageContextId#,
+		#sendTime#,
+		#sendName#,
+		#userId#
+		)
+	</insert>
+	<delete id="delete">
+		delete from
+		t_messagereceive
+		where
+		ID = #id#
+    </delete>
+    
+    <delete id="clean" parameterClass="java.lang.String">
+		Delete From t_messagereceive m
+		Where userId=#userId#
+    </delete>
+
+	<delete id="deletes" parameterClass="java.util.List">
+		delete from
+		t_messagereceive
+		where
+		ID
+		in
+		<iterate open="(" close=")" conjunction=",">
+			#ids[]#
+            </iterate>
+	</delete>
+	<update id="update" parameterClass="messagereceive">
+		update
+		t_messagereceive
+		set
+		readFlag = #readFlag#,
+		status = #status#,
+		readTime = #readTime#,
+		title = #title#,
+		messageContextId = #messageContextId#,
+		sendTime = #messageContextId#,
+		sendName = #sendName#,
+		userId = #userId#
+		where
+		ID = #id#
+    </update>
+    
+    <update id="updateById" parameterClass="java.lang.String">
+		update
+		t_messagereceive
+		set
+		readFlag = 1
+		where
+		ID = #id#
+    </update>
+    
+	<select id="count" resultClass="java.lang.Integer">
+		select
+		count(id)
+		from
+		t_messagereceive
+    </select>
+    
+	<select id="findById" resultClass="messagereceive"
+		parameterClass="java.lang.Long">
+		select
+		id,
+		readFlag,
+		status,
+		readTime,
+		title,
+		messageContextId,
+		sendTime,
+		sendName,
+		userId
+		from
+		t_messagereceive
+		where
+		ID = #id#
+    </select>
+    
+    <select id="queryOnMsg" resultClass="messagereceive"
+		parameterClass="java.util.Map">
+		select
+		id,
+		readFlag,
+		status,
+		readTime,
+		title,
+		messageContextId,
+		sendTime,
+		sendName,
+		userId
+		from
+		t_messagereceive
+		where
+		userId = #membercode# 
+		and 
+		id = ( select min(id) from t_messagereceive where id &gt; #id# )
+    </select>
+    
+     <select id="queryNextMsg" resultClass="messagereceive"
+		parameterClass="java.util.Map">
+		select
+		id,
+		readFlag,
+		status,
+		readTime,
+		title,
+		messageContextId,
+		sendTime,
+		sendName,
+		userId
+		from
+		t_messagereceive
+		where
+		userId = #membercode# 
+		and 
+		id = ( select max(id) from t_messagereceive where id &lt; #id# )
+    </select>
+    
+	<select id="read" resultClass="messagereceive" parameterClass="java.lang.Long">
+		select
+		ID
+		from
+		t_messagereceive
+		where
+		ID = #id#
+    </select>
+
+	<select id="loadAll" resultClass="messagereceive"
+		parameterClass="java.util.List">
+		select 
+		id,
+		readFlag,
+		status,
+		readTime,
+		title,
+		messageContextId,
+		sendTime,
+		sendName,
+		userId 
+		from 
+		t_messagereceive
+    </select>
+
+	<select id="unReadCount" resultClass="java.lang.Integer"
+		parameterClass="java.lang.String">
+		Select
+		Count(*)
+		from
+		t_messagereceive
+		where
+		readflag=0 and
+		userId=#userId# 
+    </select>
+
+	<select id="findMessageList" resultClass="messagereceive"
+		parameterClass="java.lang.String">
+		select
+		id, 
+		readFlag, 
+		status, 
+		readTime,
+		title,
+		messageContextId,
+		sendTime,
+	    sendName,
+		userId
+		from
+		t_messagereceive
+		where
+		userId =
+		#userId#
+    </select>
+    
+    <select id="findMessageByContextId" resultClass="messagereceive"
+		parameterClass="java.util.Map">
+		select
+			id, 
+			readFlag, 
+			status, 
+			readTime,
+			title,
+			messageContextId,
+			sendTime,
+		    sendName,
+			userId
+		from
+			t_messagereceive
+		where
+			messageContextId =#contextId#
+		and
+		  userId =#memberCode#
+    </select>
+    
+
+	<select id="queryMessageCount" resultClass="java.lang.Integer"
+		parameterClass="java.lang.String">
+		select
+		count(*)
+		from
+		t_messagereceive
+		where
+		userId = #userId#
+    </select>
+    
+    <select id="countById" resultClass="java.lang.Integer"	
+		parameterClass="java.lang.String">
+		 select Count(*) From  t_messagereceive Where userId = #userId#
+    </select>
+
+	<select id="queryMessageByPage" resultClass="messagereceive"
+		parameterClass="com.pay.app.dto.MessageReceiveDTO">
+		Select * from ( 
+         select Rownum rn,A.* From ( 
+          select * from 
+           t_messagereceive Where userId=#userId# order by Id desc ) A  Where Rownum &lt;= #endNum#) 
+            where rn &gt; #beginNum#
+	</select>
+	
+	<select id="queryTopF" resultClass="messagereceive"
+		parameterClass="java.lang.Long">
+		Select  * From 
+		   t_messagereceive  Where userId=#userId# And rownum &lt;=5  Order By readtime Desc
+	</select>
+	
+
+	<select id="queryByRn" resultClass="messagereceive"
+		parameterClass="java.util.HashMap">
+		 Select * from ( 
+          select Rownum rn,A.* From (
+           select * from 
+            t_messagereceive Where userId=#membercode# order by Id desc ) A ) Where rn = #rn#
+    </select>
+
+</sqlMap>

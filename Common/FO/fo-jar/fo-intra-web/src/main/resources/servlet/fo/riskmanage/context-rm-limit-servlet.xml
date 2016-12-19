@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 风控限额限次Controller基类 -->
+	<bean name="rm_limit_baseController" class="com.pay.fo.controller.riskmanage.rmlimit.RiskConctrolBaseController"
+		abstract="true" parent="abstractBaseController">
+		<property name="rmUserLevelService" ref="rm_limit_userlevelservice" />
+		<property name="rmRiskLevelService" ref="rm_limit_risklevelservice" />
+		<property name="rmBusinessService" ref="rm_limit_businessservice" />
+		<property name="rmMccCategoryService" ref="rm_limit_mcccategoryservice" />
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+	</bean>
+
+	<!-- 商户定制限额 -->
+	<bean name="/rm_limit_businesslimitcustom.htm"
+		class="com.pay.fo.controller.riskmanage.rmlimit.businesslimitcustom.BusinessLimitCustomController"
+		parent="rm_limit_baseController">
+		<property name="rmBusinessLimitCustomService" ref="rm_limit_businesslimitcustomservice" />
+		<property name="urlMap">
+			<map>
+				<entry key="businessLimitCustomCreate" value="/riskcontrol/limit/businessLimitCustomCreate" />
+				<entry key="businessLimitCustomList" value="/riskcontrol/limit/businessLimitCustomList" />
+				<entry key="businessLimitCustomInit" value="/riskcontrol/limit/businessLimitCustomInit" />
+				<entry key="businessLimitCustomUpdate" value="/riskcontrol/limit/businessLimitCustomUpdate" />
+			</map>
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+	</bean>
+	
+	
+	<!-- 商户定制限额 -->
+	<bean name="/rm_limit_userlimitcustom.htm"
+		class="com.pay.fo.controller.riskmanage.rmlimit.userlimitcustom.UserLimitCustomController"
+		parent="rm_limit_baseController">
+		<property name="rmUserLimitCustomService" ref="rm_limit_userlimitcustomservice" />
+		<property name="urlMap">
+			<map>
+				<entry key="userLimitCustomCreate" value="/riskcontrol/usercustom/userLimitCustomCreate" />
+				<entry key="userLimitCustomList" value="/riskcontrol/usercustom/userLimitCustomList" />
+				<entry key="userLimitCustomInit" value="/riskcontrol/usercustom/userLimitCustomInit" />
+				<entry key="userLimitCustomUpdate" value="/riskcontrol/usercustom/userLimitCustomUpdate" />
+			</map>
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+	</bean>
+	
+	<!-- 商户限额 -->
+	<bean name="/rm_limit_businesslimit.htm"
+		class="com.pay.fo.controller.riskmanage.rmlimit.businesslimit.BusinessLimitController"
+		parent="rm_limit_baseController">
+		<property name="rmBusinesslimitService" ref="rm_limit_businesslimitservice" />
+		<property name="urlMap">
+			<map>
+				<entry key="businessLimitCreate" value="/riskcontrol/limit/businessLimitCreate" />
+				<entry key="businessLimitList" value="/riskcontrol/limit/businessLimitList" />
+				<entry key="businessLimitInit" value="/riskcontrol/limit/businessLimitInit" />
+				<entry key="businessLimitUpdate" value="/riskcontrol/limit/businessLimitUpdate" />
+			</map>
+		</property>
+	</bean>
+	
+	<!-- 用户限额 -->
+	<bean name="/rm_limit_userlimit.htm"
+		class="com.pay.fo.controller.riskmanage.rmlimit.userlimit.UserLimitController"
+		parent="rm_limit_baseController">
+		<property name="rmUserLimitService" ref="rm_limit_userlimitservice" />
+		<property name="urlMap">
+			<map>
+				<entry key="userLimitCreate" value="/riskcontrol/limit/userLimitCreate" />
+				<entry key="userLimitList" value="/riskcontrol/limit/userLimitList" />
+				<entry key="userLimitInit" value="/riskcontrol/limit/userLimitInit" />
+				<entry key="userLimitUpdate" value="/riskcontrol/limit/userLimitUpdate" />
+			</map>
+		</property>
+	</bean>	
+	
+	<!-- 直营限额 -->
+	<bean name="/rm_limit_syslimit.htm"
+		class="com.pay.fo.controller.riskmanage.rmlimit.innerlimit.InnerLimitController"
+		parent="rm_limit_baseController">
+		<property name="rmInnerLimitService" ref="rm_rmInnerLimitService" />
+		<property name="urlMap">
+			<map>
+				<entry key="innerLimitCreate" value="/riskcontrol/limit/sysLimitCreate" />
+				<entry key="innerLimitList" value="/riskcontrol/limit/sysLimitList" />
+				<entry key="innerLimitInit" value="/riskcontrol/limit/sysLimitInit" />
+				<entry key="innerLimitUpdate" value="/riskcontrol/limit/sysLimitUpdate" />
+			</map>
+		</property>
+	</bean>
+	
+</beans>
+

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义帮助中心个人服务、商户服务 映射-->
+    <bean 
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+			<!--
+				<prop key="/perservice.htm">perServiceController</prop>
+				<prop key="/prepaidcard.htm">prepaidCardHelpController</prop>
+				<prop key="/mgmtPC.htm">prepaidCardHelpController</prop>
+				<prop key="/intropc.htm">prepaidCardHelpController</prop>
+				<prop key="/merchantsrv.htm">merchantServiceHelpController</prop>
+				<prop key="/pmtpro.htm">merchantServiceHelpController</prop>
+				<prop key="/indussol.htm">merchantServiceHelpController</prop>
+				<prop key="/actarea.htm">activityAreaController</prop>
+				-->
+				<prop key="/specialmerchant.htm">specialmerchantController</prop>
+				<prop key="/viewdetail.htm">specialmerchantController</prop>
+			</props>
+		</property>
+	</bean>
+	<!--
+	<bean id="perServiceController"  class="com.pay.app.controller.help.PerServiceController">
+			<property name="methodNameResolver">
+				<ref bean="paramResolver"/>
+			</property>
+			<property name="indexView">
+				<value>/help/personal/per_service</value>
+			</property>
+	</bean>
+	-->
+	<!-- 预付卡 -->
+	<!--
+	 <bean id="prepaidCardHelpController" class="com.pay.app.controller.help.PrepaidCardHelpController">
+		 <property name="methodNameResolver" ref="prepaidCardHelpMethodNameResolver">
+		 </property>
+	 	<property name="mgmtprepaidcardViewPrefix">
+	 		<value>/help/prepaidcard/</value>
+	 	</property>
+		<property name="mgmtprepaidcardIndex">
+			<value>card_process</value>
+		</property>
+		<property name="introprepaidcardViewPrefix">
+			<value>/help/prepaidcard/</value>
+		</property>
+		<property name="introprepaidcardIndex">
+			<value>card_newgen</value>
+		</property>
+	</bean>
+	-->
+	
+	 <bean id="specialmerchantController" class="com.pay.app.controller.help.SpecialmerchantController">
+		 <property name="methodNameResolver" ref="prepaidCardHelpMethodNameResolver">
+		 </property>
+		 <property name="specialmerchantService" ref="specialmerchantService">
+		 </property>
+		 <property name="bankAcctService"  ref="app-bankAcctServiceFacade">
+		</property>
+		<property name="introprepaidcardViewPrefix">
+			<value>/help/prepaidcard/</value>
+		</property>
+		<property name="introprepaidcardIndex">
+			<value>card_newgen</value>
+		</property>
+	</bean>
+	
+	<bean id="prepaidCardHelpMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver" >
+		<property name="mappings">
+			<props>
+			<!--
+				<prop key="/prepaidcard.htm">introprepaidcard</prop>
+				<prop key="/mgmtPC.htm">mgmtprepaidcard</prop>
+				<prop key="/intropc.htm">introprepaidcard</prop>
+				-->
+				<prop key="/specialmerchant.htm">indexspecialmerchant</prop>
+				<prop key="/viewdetail.htm">viewdetail</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 商户服务 -->
+	<!--
+	 <bean id="merchantServiceHelpController" class="com.pay.app.controller.help.MerchantServiceHelpController">
+	 	<property name="methodNameResolver" ref="merchantServiceHelpMethodNameResolver">
+		</property>
+	 	<property name="paymentproductsViewPrefix">
+	 		<value>/help/merchantservice/</value>
+	 	</property>
+		<property name="paymentproductsIndex">
+			<value>pmtpro_bank</value>
+		</property>
+		<property name="indusSolutionViewPrefix">
+			<value>/help/merchantservice/</value>
+		</property>
+		<property name="indusSolutionIndex">
+			<value>sol_hotel</value>
+		</property>
+	</bean>
+	-->
+	<!--
+	<bean id="merchantServiceHelpMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver" >
+		<property name="mappings">
+			<props>
+				<prop key="/merchantsrv.htm">paymentproducts</prop>
+				<prop key="/pmtpro.htm">paymentproducts</prop>
+				<prop key="/indussol.htm">indusSolution</prop>
+			</props>
+		</property>
+	</bean>
+	-->
+	<!-- 活动专区 -->
+	<!--
+	<bean id="activityAreaController" class="com.pay.app.controller.help.ActivityAreaController">
+		 <property name="methodNameResolver" ref="activityAreaMethodNameResolver">
+		 </property>
+	 	<property name="activityAreaViewPrefix">
+	 		<value>/help/activityarea/</value>
+	 	</property>
+		<property name="activityAreaIndex">
+			<value>comingsoon</value>
+		</property>
+	</bean>
+	<bean id="activityAreaMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver" >
+		<property name="mappings">
+			<props>
+				<prop key="/actarea.htm">activityArea</prop>
+			</props>
+		</property>
+	</bean>
+	-->
+</beans>

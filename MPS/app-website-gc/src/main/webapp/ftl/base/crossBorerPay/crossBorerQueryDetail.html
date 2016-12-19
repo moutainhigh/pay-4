@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>跨境付款明细查询</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<script type="text/javascript"
+	src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<link
+	href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css"
+	type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css"
+	href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css"
+	href="<@sp.static/>/mps/css/main.css" />
+<link
+	href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css"
+	type="text/css" rel="stylesheet" />
+<link href="<@sp.static/>/css/pay/public.css?v=20101230.css"
+	rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=20101230.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=20101230.css"
+	rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/website.js"></script>
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico"
+	rel="shortcut icon" />
+<script>
+	$(function() {
+		$("#tabs").tabs({
+			collapsible : true
+		});
+	});
+	function downwExcel(){
+		$("#bspQuery_from").attr("action","${rc.contextPath}/CrossBorerQueryDetailController/crossBorerDownload.do");
+		$("#bspQuery_from").submit();
+		$("#bspQuery_from").attr("action","${rc.contextPath}/CrossBorerQueryDetailController/query.do");
+	}
+</script>
+</head>
+<body>
+	<#include "/include/topbar.html"> <@sp.head mCode="corp_CrossBorerPayController"/>
+	
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span > <a href="${rc.contextPath}/corp/CrossBorerPayController/into.do">跨境付款</a></span> 
+					<span><a href="${rc.contextPath}/corp/CrossBorerQueryController/into.do">跨境付款查询</a></span> 
+			     	<span class="current"> <a href="${rc.contextPath}/corp/CrossBorerQueryDetailController/into.do">跨境付款明细查询</a></span>
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="seccon">
+							<div class="bgbox">
+								<form id="bspQuery_from" class="form single" action="${rc.contextPath}/CrossBorerQueryDetailController/query.do " method="post">
+									<table class="tab01 formtable">
+										<colgroup>
+											<col width="100px;" />
+											<col width="450px;"/>
+											<col width="100px;" />
+											<col />
+										</colgroup>
+										<tr>
+											<td><div align="right">批次号：</div></td>
+											<td><div>
+													<input id="batchNo" name="data['batchNo']" type="text" style="width: 200px">
+											</div></td>
+											<td><div align="right">商户订单号：</div></td>
+											<td><div>		<input id="orderId" name="data['orderId']" type="text" style="width: 200px"></div></td>
+										</tr>
+										<tr>
+											<td><div align="right">提交时间：</div></td>
+											<td colspan="1">
+												<input class="Wdate" type="text"
+												id="startTime" name="data['beginCreateDate']" readonly="readonly"
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})"
+												value="${stValue!''}"> 至 <input
+												class="Wdate" type="text" id="endCreateDate" name="data['endCreateDate']"
+												readonly="readonly"
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'startTime\')}',maxDate:'%y-%M-%d %H:%m:%s'})"
+												value="${eValue!''}">
+											</td>
+											<td><div align="right">出款状态：</div></td>
+											<td colspan="1">
+												<select style="width: 120px" class="" name="data['outStatus']" size="1">
+													<option value="">——请选择——</option>
+													<option value="0">待出款</option>
+													<option value="1">出款中</option>
+													<option value="2">审核拒绝</option>
+													<option value="3">出款成功</option>
+													<option value="4">出款失败</option>
+												</select>
+											</td>
+										</tr>
+											<tr>
+											<td colspan="4" style="">
+												<div class="divquery">
+													<!-- <input type="hidden" name="queryPro" id="queryPro">  -->
+													<input type="submit" class="btn_blue" value="查  询"
+														alt="查  询">
+												</div>
+												<div class="divdown">
+													<input type="button" class="btn_blue2" value="下载" alt="下载"
+														onclick="javascript:downwExcel() ;" />
+												</div>
+											</td>
+										</tr>
+									</table>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div id="resultListDiv" class="listFence" style="margin-top: 10px">
+						<!--余额明细 str-->
+						<div class="barg_table mb20">
+							<table
+								style="width: 100%; overflow: hidden; line-height: 25px;style="
+								text-align:center" class="tab03">
+								<tr>
+									<th width="10%">批次号</th>
+									<th width="10%">流水号</th>
+									<th width="10%">商户订单号</th>
+									<th width="12%">汇款金额</th>
+									<th width="17%">提交时间</th>
+									<th width="7%">业务类型</th>
+									<th width="12%">汇款费用</th>
+									<th width="12%">付款金额</th>
+									<th width="7%">付款人</th>
+									<th width="7%">收款人</th>
+									<th width="10%">出款状态</th>
+								</tr>
+									<#if infoList?exists> <#list infoList as ls>
+								<tr>
+									<td>${ls.batchNo}</td>
+									<td>${ls.detailNo}</td>
+									<td>${ls.orderId}</td>
+									<td>${((ls.remitAmount?default(0)/1000))?string(",##0.000")} ${ls.remitCurrencyCode}</td>
+									<td>${ls.createDate?datetime}</td>
+									<td>
+											<#if ls.type =="1">
+													货物贸易
+											<#elseif ls.type =="2">
+													机票旅游
+											<#elseif ls.type =="3">
+													酒店住宿
+											<#else>
+													留学教育
+											</#if>
+									</td>
+									<td>${((ls.remitExpense?default(0)/1000))?string(",##0.000")} CNY </td>
+									<td>${((ls.payAmount?default(0)/1000))?string(",##0.000")} CNY </td>
+									<td>${ls.drawee}</td>
+									<td>${ls.cheques}</td>
+									<td>
+											<#if ls.outStatus =="0">
+													待出款
+											<#elseif ls.outStatus =="1">
+													出款中
+											<#elseif ls.outStatus =="2">
+													审核拒绝
+											<#elseif ls.outStatus == "3">
+												            出款成功
+											<#elseif ls.outStatus == "4">
+													出款失败
+											</#if>
+									 </td>
+								</tr>
+								</#list> </#if>
+							</table>
+							<div style="text-align: right">
+							  <!--分页 str -->
+									<#if pu?exists>
+									<@sp.pagination pu=pu/>
+								</#if>
+							   	<!--分页 end -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

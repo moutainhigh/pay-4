@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="productconfig">
+	
+	<resultMap class="com.pay.poss.featuremenu.model.Menu" id="menuMap">
+		<result property="menuId" column="MENU_ID" />
+		<result property="type" column="TYPE" />
+		<result property="hierarchy" column="HIERARCHY" />
+		<result property="parentId" column="PARENT_ID" />
+		<result property="orderId" column="ORDER_ID" />
+		<result property="name" column="NAME" />
+		<result property="url" column="URL" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="status" column="STATUS" />
+		<result property="createDate" column="CREATE_DATE" />
+		<result property="updateDate" column="UPDATE_DATE" />
+		<result property="displayFlag" column="DISPLAY_FLAG" />
+		<result property="menuCode" column="MENU_CODE" />
+		<result property="securityLevel" column="SECURITY_LEVEL" />
+	</resultMap>
+	<!-- 查询树所用的level字段 -->
+	<resultMap class="com.pay.poss.featuremenu.model.Menu" id="menuTreeMap" extends="menuMap">
+		<result property="level" column="LEVEL"/>
+	</resultMap>
+	
+	<typeAlias alias="product" type="com.pay.poss.membermanager.model.Product"/>
+	
+	<resultMap class="com.pay.poss.membermanager.model.Product" id="productMap" >
+		<result property="id" column="ID" />
+		<result property="name" column="NAME" />
+		<result property="description" column="DESCRIPTION" />
+		<result property="allowObject" column="ALLOW_OBJECT" />
+		<result property="immediacyPass" column="IMMEDIACY_PASS" />
+		<result property="type" column="TYPE" />
+		<result property="isDefault" column="IS_DEFAULT" />
+		<result property="activationMode" column="ACTIVATION_MODE" />
+		<result property="productCode" column="PRODUCT_CODE" />
+		<result property="productType" column="PRODUCT_TYPE" />
+		<result property="productOrder" column="PRODUCT_ORDER" />
+	</resultMap>
+	
+	
+	
+	<!--查询大菜单 根路径默认是0  -->
+	<select id="getBaseMenu" parameterClass="map" resultMap="menuMap" >
+		select t.* FROM T_MENU t where t.type = #type# and t.parent_id = #parentId#
+	</select>
+	
+	<!--根据根ID查询所有的结点 -->
+	<select id="getMenuTreeByRootId" parameterClass="map" resultMap="menuTreeMap">
+	select t.*,level
+                  FROM T_MENU t            
+        Start with t.menu_id = #rootId#
+    Connect by prior t.menu_id = t.PARENT_ID
+	</select>
+	
+	
+	
+	<!--查询所有产品 -->
+	<select id="getProducts" parameterClass="map" resultMap="productMap">
+		select t.* from t_product t  where t.allow_object = #type#  
+		<isNotEmpty property="isDefault">
+			and t.is_default = #isDefault#
+		</isNotEmpty>
+		order by t.product_type, t.product_order
+	</select>
+	
+	<!--查询所有产品 -->
+	<select id="getProductMenuTree" parameterClass="long" resultMap="menuTreeMap">
+		select m.*,level from t_menu m where m.menu_id in ( 
+			select pm.menu_id from t_product t join t_product_menu pm on pm.product_id = t.id
+			and t.id = #productId#
+		) 
+		 Start with m.parent_id = 0
+		Connect by prior m.menu_id = m.PARENT_ID
+	</select>
+	
+	<select id="getMemberProducts" parameterClass="long" resultMap="productMap">
+		select p.*
+       FROM t_member_product t join  t_product p  on p.id = t.product_id
+       WHERE t.member_code= #memberCode# and t.status=1
+      
+	</select>
+	
+	<delete id="removeMemberCurProducts" parameterClass="long">
+		delete 
+        FROM t_member_product t 
+       WHERE t.member_code= #memberCode# 
+	</delete>
+	
+	<insert id="createMemberProduc" parameterClass="com.pay.poss.membermanager.model.MemberProduct">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_MEMBER_PRODUCT_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_MEMBER_PRODUCT (ID, MEMBER_CODE, PRODUCT_ID, STATUS, CREATION_DATE)
+        values (#id#, #memberCode#, #productId#, #status#, SYSDATE)
+    </insert>
+	
+	<select id="getByProductId" parameterClass="long" resultMap="productMap">
+		select t.* from t_product t where t.id = #productId#
+	</select>
+	
+	    <select id="existsProductCodeFilterId" resultClass="int" parameterClass="map">
+    	select 1 from dual 
+where exists (select 1 from t_product t where   t.product_code = #productCode#
+ <isNotEmpty property="id">
+    		and t.id != #id#
+    	</isNotEmpty>
+    	)
+    
+    </select>
+    
+    	<select id="selectProductId" resultClass="long" >
+   	
+			SELECT SEQ_PRODUCT_ID.nextval FROM DUAL
+	</select>
+	
+	 <insert id="insertProduct" parameterClass="product">
+	 	
+        insert into T_PRODUCT (ID, NAME, DESCRIPTION, ALLOW_OBJECT, IMMEDIACY_PASS, TYPE,
+            IS_DEFAULT, ACTIVATION_MODE,product_code,PRODUCT_TYPE,PRODUCT_ORDER)
+        values (#id#, #name#, #description#, #allowObject#, #immediacyPass#, #type#, #isDefault#,
+            #activationMode#,#productCode#,#productType#,#productOrder#)
+    </insert>
+     <insert id="updateProduct" parameterClass="product">
+	 	
+        update  T_PRODUCT 
+        set name = #name#,
+        DESCRIPTION =#description#,
+        PRODUCT_CODE = #productCode#,
+        PRODUCT_TYPE = #productType#,
+        PRODUCT_ORDER = #productOrder#,
+        ACTIVATION_MODE = #activationMode#,
+        ALLOW_OBJECT =  #allowObject#,
+        TYPE = #type#,
+        IMMEDIACY_PASS =  #immediacyPass#,
+       	IS_DEFAULT =  #isDefault#
+        where ID = #id#
+        
+    </insert>
+   
+
+	
+</sqlMap>

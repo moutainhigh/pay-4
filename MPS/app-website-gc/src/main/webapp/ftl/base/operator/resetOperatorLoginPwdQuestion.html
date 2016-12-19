@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+<#escape x as x?html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorpNew.ftl">
+<meta charset="utf-8">
+<title>${modify_operator_pwd}</title>
+<meta name="Keywords" content="${add_operator_Keywords}" />
+<meta name="Description" content="${add_operator_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/b_rights.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/register/corpCompletionInfo.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#answer").focus();
+		$("#paypasswordform_second").submit(function(){
+			if($("#answer").val()==''){
+				$.pay.alert("对不起，安全问题答案不能为空!");
+				return false;
+			}
+		});
+	});
+</script>
+</head>
+<body>
+	<#include "/include/topbar.html">
+	<@sp.head mCode="corp_operatorManage"/>
+	<!--导航 end-->
+	<div class="container" style="padding-top: 50px; padding-bottom: 15px;width:960px;">
+		<form action="${rc.contextPath}/corp/operatorManage.htm" method="post"
+			name="paypassword" id="paypasswordform_second" autocomplete="off" >
+			<input type="hidden" id="method" name="method"
+				value="showUpdateLoginPwdByQuestion" /> <input type="hidden"
+				id="operatorName" name="operatorName" value="${operatorName}" />
+			<div class="mod_box_a">
+				<p class="top">
+					<i></i>
+				</p>
+				<div class="con_box has_bg secure_box">
+					<div class="tit_box">
+						<h3 class="title font14">
+							<span class="ico_dot2"></span><strong>通过安全问题重置操作员登录密码</strong>
+						</h3>
+					</div>
+					<div class="pay_login">
+					<table style="width:100%;line-height: 30px;padding-bottom: 10px">
+					   <tr>
+					      <td colspan="2">
+					         <font color=red>${returninfo?default('')}</font>
+					      </td>
+					   </tr>
+					   <tr>
+					      <td width="300"><span class="red" style="float:right;">*</span><font style="float:right;">安全问题：</font></td>
+					      <td>${safequestion?default('')}<input type="hidden" name="safequestion" value="${safequestion?default('')}" /></td>
+					   </tr>
+					   <tr>
+					     <td width="300"><span class="red" style="float:right">*</span><font style="float:right;">您的答案：</font></td>
+					     <td><input type="hidden" name="questionId" value="${questionId?default('')}" />
+					        <input class="txtType1" type="text" id="answer" value="" name="safeanswer" autocomplete="off" />
+					     </td>
+					   </tr>
+					   <tr><td colspan="2">  </td></tr>
+					   <tr>
+					     <td width="300"></td>
+					     <td><button type="submit" class="btn_blue">下一步</button></td>
+					   </tr>
+					</table>
+					</div>
+				</div>
+				<p class="bot">
+					<i></i>
+				</p>
+			</div>
+		</form>
+	</div>
+	<!--主内容 end -->
+	<#include "/include/myfoot.html">
+</body>
+</#escape>
+</html>

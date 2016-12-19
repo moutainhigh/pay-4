@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acct">
+		<typeAlias alias="spEnumInfo" type="com.pay.base.model.SpEnumInfo" />
+		<typeAlias alias="specialMerchant" type="com.pay.base.model.SpecialMerchant" />
+		<typeAlias alias="specialMerchantCity" type="com.pay.base.model.SpecialMerchantCity" />
+		<typeAlias alias="CardType" type="com.pay.base.model.CardType" />
+		
+		<select id="getSpEnumInfo" parameterClass="java.util.Map" resultClass="spEnumInfo">
+			select  
+   		       t.enum_id enumId,
+               t.enum_name enumName,
+               t.enum_code enumCode,
+               t.enum_type enumType,
+               t.value1 value1,
+               t.value2 value2 
+               from t_sp_enum_info t
+               WHERE (1=1)
+			    <isNotEmpty property="enumType" prepend="and">       
+			    <isEqual property="enumType" compareValue="1">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+			    <isEqual property="enumType" compareValue="2">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+   		       </isNotEmpty>
+		</select>
+		
+		<select id="getSpecialMerchantCityCode" parameterClass="java.util.Map" resultClass="specialMerchantCity">
+			select 
+			    distinct(t.province_code) province_code
+			    from t_sp_merchant t
+		</select>
+	
+	    <select id="querySpecialmerchantSum"  parameterClass="specialMerchant"  resultClass="int">
+               select      
+                nvl(count(*), 0) sum
+                from 
+                (select 
+                t.*
+                from t_sp_merchant t where 
+                t.sp_merchant_id in (
+                     select a.sp_merchant_id as id
+                     from T_SP_MERCHANT a  
+                 <isNotEmpty property="card_type_id"> 
+	                 ,T_SP_MERCHANT_CARD b
+                </isNotEmpty>  
+                   where 1=1
+                <isNotEmpty property="card_type_id" prepend="and"> 
+	                 a.sp_merchant_id=b.sp_merchant_id
+                     and b.card_type_id=#card_type_id#
+                </isNotEmpty>   
+                <isNotEmpty property="sp_merchant_name" prepend="and"> 
+                   a.sp_merchant_name like  '%'||#sp_merchant_name#||'%'
+                </isNotEmpty>
+                <isNotEmpty property="province_code" prepend="and"> 
+                   a.province_code =  #province_code#
+                </isNotEmpty>
+                <isNotEmpty property="range_id" prepend="and"> 
+                    <isNotEqual property="range_id" compareValue="0">
+                    <![CDATA[
+	               a.range_id = #range_id#
+	                ]]>
+	                 </isNotEqual>
+                </isNotEmpty>
+                 ) ) tt , t_sp_enum_info ttt where tt.range_id=ttt.enum_code
+        </select>
+        
+        <select id="querySpecialMerchantList" parameterClass="java.util.Map"
+		resultClass="specialMerchant">
+		 select         tt.sp_merchant_id sp_merchant_id,
+                tt.sp_merchant_name sp_merchant_name,
+                tt.province_code province_code,
+                tt.range_id range_id,
+                tt.merchant_intro merchant_intro,
+                tt.addr addr,
+                tt.tel tel,
+                tt.website_url website_url,
+                tt.value1 value1,
+                tt.value2 value2,
+                tt.sp_merchant_logo sp_merchant_logo,
+                ttt.enum_name range_name
+                from 
+                (select         rownum rn,
+                t.sp_merchant_id sp_merchant_id,
+                t.sp_merchant_name sp_merchant_name,
+                t.province_code province_code,
+                t.range_id range_id,
+                t.merchant_intro merchant_intro,
+                t.addr addr,
+                t.tel tel,
+                t.website_url website_url,
+                t.value1 value1,
+                t.value2 value2,
+                t.sp_merchant_logo sp_merchant_logo
+                from t_sp_merchant t  where 
+                t.sp_merchant_id in (
+                     select a.sp_merchant_id as id
+                     from T_SP_MERCHANT a 
+                  <isNotEmpty property="card_type_id"> 
+	                 ,T_SP_MERCHANT_CARD b
+                  </isNotEmpty>     
+                   where 1=1
+                  <isNotEmpty property="card_type_id" prepend="and"> 
+	                 a.sp_merchant_id=b.sp_merchant_id
+                     and b.card_type_id=#card_type_id#
+                </isNotEmpty>   
+                 <isNotEmpty property="sp_merchant_name" prepend="and"> 
+                   a.sp_merchant_name like  '%'||#sp_merchant_name#||'%'
+                 </isNotEmpty>
+                 <isNotEmpty property="province_code" prepend="and"> 
+                   a.province_code =  #province_code#
+                 </isNotEmpty>
+                 <isNotEmpty property="range_id" prepend="and"> 
+                    <isNotEqual property="range_id" compareValue="0">
+                    <![CDATA[
+	               a.range_id = #range_id#
+	                ]]>
+	                 </isNotEqual>
+                </isNotEmpty>
+                 ) ) tt , t_sp_enum_info ttt where tt.range_id=ttt.enum_code and rn between #start# and #end#
+	</select>
+	
+	 <select id="queryCardTypeList" parameterClass="java.util.Map"
+		resultClass="CardType">
+		       select 
+                      t.sp_merchant_id sp_merchant_id,
+                      t.sp_merchant_card_id card_type_id,
+                      t.discount_info discount_info,
+                      tt.enum_name card_name 
+                      from t_sp_merchant_card t,
+                           t_sp_enum_info tt 
+                      where t.card_type_id=tt.enum_code
+                      <isNotEmpty property="sp_merchant_id" prepend="and"> 
+                            t.sp_merchant_id=#sp_merchant_id#
+                       </isNotEmpty>
+	</select>
+	
+	<select id="getSpecialMerchantdetail" parameterClass="java.util.Map"
+		resultClass="specialMerchant">
+             select        
+                t.sp_merchant_id sp_merchant_id,
+                t.sp_merchant_name sp_merchant_name,
+                t.province_code province_code,
+                t.range_id range_id,
+                t.merchant_intro merchant_intro,
+                t.addr addr,
+                t.tel tel,
+                t.website_url website_url,
+                t.value1 value1,
+                t.value2 value2,
+                t.sp_merchant_logo sp_merchant_logo
+                from t_sp_merchant t where  1=1
+                       <isNotEmpty property="sp_merchant_id" prepend="and"> 
+                            t.sp_merchant_id=#sp_merchant_id#
+                       </isNotEmpty>
+	</select>
+</sqlMap>

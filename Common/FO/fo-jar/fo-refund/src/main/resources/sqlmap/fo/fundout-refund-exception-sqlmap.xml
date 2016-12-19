@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundexception">
+	<select id="getRefundExceptionInfoList" parameterClass="java.util.Map" resultClass="com.pay.poss.refund.model.RefundExceptionInfo">
+	    select b.MEMBER_CODE memberCode,
+	       b.MEMBER_NAME memberName,
+	       b.ORDER_KY orderKy,
+	       b.APPLY_AMOUNT applyAmount,
+	       b.APPLY_TIME applyTime,
+	       a.WORKFLOW_KY workflowKy,
+	       decode(trim(nvl(a.workflow_ky,'')),'','未关联','未分配') reason,
+	       a.STATUS status
+		  from refund_workorder a,
+		       refund_order_m b
+		 	where a.refund_m_ky=b.order_ky
+		   and (trim(a.workflow_ky) is null or exists (select c.execution_id_ from jbpm4_task c 
+		                                                             where c.execution_id_=a.workflow_ky
+		                                                               and trim(c.assignee_) is null))
+		
+		   and a.status=0
+		   and b.status=101
+		   <dynamic>
+			   	<isNotEmpty prepend="and" property="businessSeq">
+			   		b.order_ky=#businessSeq#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="memberNo">
+			   		b.member_code=#memberNo#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="startTime">
+			   		b.apply_time>=#startTime#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="endTime">
+			   		#endTime#>=b.apply_time
+			   	</isNotEmpty>
+		   </dynamic>
+	     order by applyTime
+  	</select>
+  	
+  	<select id="getRefundExceptionInfoList_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+ 		 select count(*)
+		  from refund_workorder a,
+		       refund_order_m b
+		 	where a.refund_m_ky=b.order_ky
+		   and (trim(a.workflow_ky) is null or exists (select c.execution_id_ from jbpm4_task c 
+		                                                             where c.execution_id_=a.workflow_ky
+		                                                               and trim(c.assignee_) is null))
+		
+		   and a.status=0
+		   and b.status=101
+		   <dynamic>
+			   	<isNotEmpty prepend="and" property="businessSeq">
+			   		b.order_ky=#businessSeq#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="memberNo">
+			   		b.member_code=#memberNo#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="startTime">
+			   		b.apply_time>=#startTime#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="endTime">
+			   		#endTime#>=b.apply_time
+			   	</isNotEmpty>
+		   </dynamic>
+  	</select>
+</sqlMap>

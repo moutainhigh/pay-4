@@ -1,0 +1,639 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="poss_persionmember">
+	<typeAlias alias="persionmember" type="com.pay.poss.personmanager.model.Member" />
+	<typeAlias alias="memberSearchDto" type="com.pay.poss.personmanager.dto.PersonMemberSearchDto" />
+	<typeAlias alias="personMemberInfoDto" type="com.pay.poss.personmanager.dto.PersonMemberInfoDto" />
+	<typeAlias alias="personalAcctInfoSearchDto" type="com.pay.poss.personmanager.dto.PersonalAcctInfoSearchDto" />
+	<typeAlias alias="personalLoginHistoryDto" type="com.pay.poss.personmanager.dto.PersonalLoginHistoryDto" />
+	<typeAlias alias="personalAcctAssociateDto" type="com.pay.poss.personmanager.dto.PersonalAcctAssociateDto" />
+    <typeAlias alias="personalAcctBalanceDto" type="com.pay.poss.personmanager.dto.PersonalAcctBalanceDto" />
+    <typeAlias alias="personalAcctTradeTotalDto" type="com.pay.poss.personmanager.dto.PersonalAcctTradeTotalDto" />
+    <typeAlias alias="acctAttribDto" type="com.pay.acc.acctattrib.dto.AcctAttribDto" />
+
+	<sql id="COMMON_CONDITION_SELECT_DETAIL">
+		<isNotEmpty prepend="and" property="memberCode">
+			t.member_code=#memberCode#
+	   </isNotEmpty>
+		<isNotEmpty prepend="and" property="userName">
+			i.name=#userName#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="loginName">
+			t.login_name=#loginName#
+	   </isNotEmpty>
+
+		<!-- 注册时间 -->
+		<isNotEmpty property="registerStartDate" prepend="and">
+		<![CDATA[
+            t.create_date  >= #registerStartDate#
+        ]]>
+		</isNotEmpty>
+		<isNotEmpty property="registerEndDate" prepend="and">
+        <![CDATA[
+             t.create_date  < #registerEndDate#
+        ]]>
+		</isNotEmpty>
+		<isNotEmpty property="idcStatus" prepend="and">
+			<!-- 是实名认证状态为1 -->
+			<isEqual property="idcStatus" compareValue="1">
+	        <![CDATA[
+	            idc.status  = #idcStatus#
+	        ]]>
+			</isEqual>
+			<!-- 不是实名认证 -->
+			<isEqual property="idcStatus" compareValue="0">
+	        <![CDATA[
+	           (idc.status is null or idc.status=0)
+	        ]]>
+			</isEqual>
+		</isNotEmpty>
+	</sql>
+
+	<sql id="COMMON.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="COMMON.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 where (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	<sql id="commonPersonalAcctBalanceFrom">
+			from (
+               SELECT    
+                  tbd.payer_full_mem_acctcode ,
+                  tbd.payee_full_mem_acctcode,
+                  tbd.amount,
+                  tbd.order_id,
+                  tbd.deal_type,
+                  tbd.payee_fee,
+                  tbd.payer_fee,
+                  tbd.create_date,
+                  tbd.deal_code,
+                  ta.acct_code
+                  
+             FROM t_balance_deal tbd, t_acct ta,t_member tm
+                  WHERE(tbd.payer_full_mem_acctcode = ta.acct_code OR tbd.payee_full_mem_acctcode = ta.acct_code)
+                    and ta.member_code = tm.member_code
+                    and tbd.amount > 0
+                    and tm.login_name = #loginName#
+                    and tm.login_name in (select login_name from t_member where type=1 and login_name=#loginName#)
+                 <isNotEmpty property="acctCode">
+   	 				<![CDATA[   and ta.acct_code = #acctCode#	]]>
+  				 </isNotEmpty>
+  				 <isNotEmpty property="endDate">
+			    	<![CDATA[
+			    	and tbd.create_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+	        		and tbd.create_date <=TO_DATE(#endDate# , 'yyyy-mm-dd')+ 1
+			    	]]>
+  				  </isNotEmpty>
+  				  <isNotEmpty property="startDate">
+			    	  <isEmpty property="endDate">
+					    	<![CDATA[
+					    	and tbd.create_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+					    	and tbd.create_date <= TO_DATE(#startDate# , 'yyyy-mm-dd ')+1 
+					    	]]>
+				      </isEmpty>
+  				   </isNotEmpty>
+  				   
+  				   <isNotNull property="dealTypes">
+						and tbd.deal_type in
+						<iterate open="(" close=")" conjunction="," property="dealTypes">
+							$dealTypes[]$
+						</iterate>
+					</isNotNull>
+			       <isNotEmpty property="dealType">
+			       		and tbd.deal_type = #dealType#
+			       </isNotEmpty>
+               )
+		</sql>
+	<sql id="DETAIL_SELECT_MEMBER">
+	   	<![CDATA[
+		select t.member_code memberCode,
+		       t.service_level_code serviceLevelCode,
+		       t.status status,
+		       t.login_name loginName,
+		       i.name userName,
+		       t.create_date createDate,
+		       t.update_date updateDate,
+		       idc.status idcStatus
+		  from t_member t,
+		       t_individual_info i,
+		       (select b.member_code, max(b.status) status
+		          from t_idc_verify_base b
+		         group by b.member_code) idc
+		 where t.member_code = i.member_code
+		   and idc.member_code(+) = t.member_code
+	   	 ]]>
+	</sql>
+
+	<sql id="DETAIL_COUNT_PERSON_MEMBER">
+		<![CDATA[
+		select count(1)
+		  from t_member t,
+		       t_individual_info i,
+		       (select b.member_code, max(b.status) status
+		          from t_idc_verify_base b
+		         group by b.member_code) idc
+		 where t.member_code = i.member_code
+		   and idc.member_code(+) = t.member_code
+	   ]]>
+	</sql>
+
+	<select id="selectPossMember" resultClass="memberSearchDto"
+		parameterClass="memberSearchDto">
+		<include refid="COMMON.PAGING_START" />
+		<include refid="DETAIL_SELECT_MEMBER" />
+		<include refid="COMMON_CONDITION_SELECT_DETAIL" />
+		<include refid="COMMON.PAGING_END" />
+	</select>
+	<select id="countPossMember" resultClass="int" parameterClass="memberSearchDto">
+		<include refid="DETAIL_COUNT_PERSON_MEMBER" />
+		<include refid="COMMON_CONDITION_SELECT_DETAIL" />
+	</select>
+	     
+      <select id="selectMemberLoginIp" resultClass="personalLoginHistoryDto" parameterClass="map">
+	   select * from(
+	       select rownum linenum,t1.*
+	       from (select tul.login_ip loginIp, 
+	       			 to_char(tul.login_date,'yyyy-mm-dd hh24:mi:ss') loginDate
+	               from t_user_log tul
+	               where 1=1
+	               <isNotEmpty property="memberCode">
+           		   		<![CDATA[   and tul.member_code=#memberCode# ]]>
+       			   </isNotEmpty>
+	              order by tul.login_date desc)t1
+	              where rownum=1
+      	)
+	</select>
+	<select id="selectMemberBankAcct" resultClass="personMemberInfoDto" parameterClass="map">
+		  select tmba.bank_acct_id bankAcct,tmba.status status from t_member_bank_acct tmba 
+        	where 1=1
+        	and tmba.is_primary_bankacct=1
+    	<isNotEmpty property="memberCode">
+            <![CDATA[ and  tmba.member_code =#memberCode# ]]>
+        </isNotEmpty>
+	</select>
+	<select id="selectPersonlMemberInfoDetail" resultClass="personMemberInfoDto" parameterClass="map">
+		 select  memb.login_name loginName,
+		 		 memb.member_code memberCode,
+		         memb.service_level_code levelCode,
+		         memb.sso_user_id  ssoId,
+		         to_char(memb.create_date,'yyyy-mm-dd hh24:mi:ss') createDateName,
+		         info.name userName,
+		         info.email email ,
+		         info.mobile mobile,
+		         info.addr address,
+		         info.cer_code cerCode,
+		         info.country country,
+		         info.profession profession,
+		         info.sex sex
+	      from   t_member memb ,t_individual_info info 
+	        where  memb.member_code = info.member_code
+    	<isNotEmpty property="memberCode">
+            <![CDATA[   and memb.member_code=#memberCode# ]]>
+        </isNotEmpty>
+	</select>
+	<select id="selectPersonlMemberInfo" resultClass="personMemberInfoDto" parameterClass="map">
+		<include refid="COMMON.PAGING_START" />
+		select memb.login_name loginName,
+	       memb.member_code memberCode,
+	       memb.status status,
+	       info.name userName,
+	       info.email email ,
+	       info.mobile mobile,
+	       to_char(memb.create_date,'yyyy-mm-dd hh24:mi:ss') createDateName
+	  from t_individual_info info, t_member memb 
+	  where info.member_code = memb.member_code 
+	 	<isNotEmpty property="loginName">
+    		<![CDATA[   and memb.login_name like #loginName#||'%'	]]>
+    	</isNotEmpty>
+    	<isNotNull property="memberCode">
+            <![CDATA[   and memb.member_code=#memberCode# ]]>
+        </isNotNull>
+    	<isNotEmpty property="userName">
+    		<![CDATA[   and info.name=#userName# ]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="status">
+    		<![CDATA[   and  memb.status=#status# ]]>
+    	</isNotEmpty>
+    	order by memb.update_date desc
+    	<include refid="COMMON.PAGING_END" />
+	</select>
+	<select id="countPersonlMemberInfo" resultClass="int" parameterClass="map">
+		select count(1)
+		  from t_individual_info info, t_member memb
+		  where info.member_code = memb.member_code 		  	
+		 	<isNotEmpty property="loginName">
+	    		<![CDATA[  and memb.login_name like #loginName#||'%' ]]>
+	    	</isNotEmpty>
+	    	<isNotNull property="memberCode">
+            	<![CDATA[   and memb.member_code=#memberCode# ]]>
+        	</isNotNull>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[   and info.name=#userName# ]]>
+	    	</isNotEmpty>
+	    	<isNotEmpty property="status">
+    			<![CDATA[   and  memb.status=#status# ]]>
+    		</isNotEmpty>
+	</select>
+	
+	<select id="queryPersonalAcctInfoList" resultClass="personalAcctInfoSearchDto" parameterClass="map">
+		<include refid="COMMON.PAGING_START" />
+		select * from (
+		   select 
+			 decode(#cusSerFlag#,'customerSer','******',acct.acct_code) acctCode,
+		     acct.member_code memberCode,
+		     atype.name typeName,
+		     decode(acct.status,0,'无效',1,'有效',2,'冻结')status,
+		     decode(attr.cur_code,'CNY','人民币','USD','美元','JPY','日元','EUR','欧元')curCode,
+		     decode(#cusSerFlag#,'customerSer','******',to_char(nvl(acct.balance/1000,0),'FM99,999,999,999,999,990.00'))  balance,
+		     decode(attr.frozen,0,'是',1,'否')frozen,
+		     decode(attr.allow_transfer_in,0,'否',1,'是') allowTransferIn,
+		     decode(attr.allow_transfer_out,0,'否',1,'是')allowTransferOut, 
+		     decode(attr.allow_in,0,'是',1,'否')allowIn,
+		     decode(attr.allow_out,0,'是',1,'否') allowOut,
+		     to_char(acct.create_date,'yyyy-mm-dd hh24:mi:ss') createDate,
+		     attr.update_date orderDate
+		  from t_acct_attrib attr, t_acct acct, t_acct_type atype
+		 where attr.acct_code = acct.acct_code
+		   and acct.acct_type_id = atype.acct_type_id
+		   and attr.type=1
+		   
+		    <isEmpty property="cusSerFlag">
+			    <isNotEmpty property="acctCode">
+		    		<![CDATA[ and  acct.acct_code=#acctCode# ]]>
+		    	</isNotEmpty>
+	    	</isEmpty>
+	    	<isNotEmpty property="type">
+	    		<![CDATA[ and  acct.acct_type_id = #type# ]]>
+	    	</isNotEmpty>
+		   )a,(
+		  select memb.member_code,memb.login_name loginName,info.name userName from t_member memb , t_individual_info info
+		   where memb.member_code = info.member_code  and memb.type=1
+		   	<isNotEmpty property="loginName">
+    			<![CDATA[   and memb.login_name like #loginName#||'%'	]]>
+    		</isNotEmpty>
+    		<isEmpty property="cusSerFlag">
+		    	<isNotEmpty property="memberCode">
+	            	<![CDATA[   and memb.member_code=#memberCode# ]]>
+	        	</isNotEmpty>
+        	</isEmpty>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[   and info.name=#userName# ]]>
+	    	</isNotEmpty>
+		   )b
+		where a.memberCode = b.member_code
+		order by a.orderDate desc
+    	<include refid="COMMON.PAGING_END" />
+	</select>
+	
+	<select id="countPersonalAcctInfo" resultClass="int" parameterClass="map">
+		select count(1) from (
+		   select acct.member_code
+		  from t_acct_attrib attr, t_acct acct, t_acct_type atype
+		 where attr.acct_code = acct.acct_code
+		   and acct.acct_type_id = atype.acct_type_id
+		   and attr.type=1
+		    <isEmpty property="cusSerFlag">
+			    <isNotEmpty property="acctCode">
+		    		<![CDATA[ and  acct.acct_code=#acctCode# ]]>
+		    	</isNotEmpty>
+	    	</isEmpty>
+		   )a,(
+		  select memb.member_code from t_member memb , t_individual_info info
+		   where memb.member_code = info.member_code and memb.type=1
+		    <isNotEmpty property="loginName">
+    			<![CDATA[   and memb.login_name like #loginName#||'%'	]]>
+    		</isNotEmpty>
+    		<isEmpty property="cusSerFlag">
+		    	<isNotEmpty property="memberCode">
+	            	<![CDATA[   and memb.member_code=#memberCode# ]]>
+	        	</isNotEmpty>
+        	</isEmpty>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[   and info.name=#userName# ]]>
+	    	</isNotEmpty>
+		   )b
+		where a.member_code = b.member_code
+	</select>
+	<select id="queryPersonalLoginHistoryList" resultClass="personalLoginHistoryDto" parameterClass="map">
+		<include refid="COMMON.PAGING_START" />
+		select ulog.name name ,
+		       ulog.login_name loginName,
+		       ulog.member_code memberCode,
+		       ulog.login_ip loginIp,
+		       ulog.action_url actionUrl,
+		       ulog.login_date loginDate,
+		       decode(ulog.log_type,1,'登录',2,'支付',3,'付款',4,'充值',5,'确认付款',6,'余额查询',7,'交易查询',8,'设置安全问题',
+		       9,'修改支付密码',10,'订阅通知',11,'添加联系人',12,'找回支付密码',13,'修改问候语',14,'提现',15,'补全资料',16,'注册成功',
+		       17,'安全登录',18,'口令卡登录',19,'登录失败') logType,
+		       decode(memb.type,1,'个人会员',2,'企业会员') memberType 
+		  from t_user_log ulog,t_member memb
+		 where 1 = 1
+		 	and ulog.member_code = memb.member_code
+		 	<isNotEmpty property="loginType">
+	    		<![CDATA[and ulog.log_type = #loginType#  ]]>
+	    	</isNotEmpty>
+		  	<isNotEmpty property="memberType">
+	    		<![CDATA[and memb.type = #memberType#  ]]>
+	    	</isNotEmpty>
+		   <isNotEmpty property="loginName">
+	    		<![CDATA[  and ulog.login_name = #loginName# ]]>
+	    	</isNotEmpty>
+	    	<isNotNull property="memberCode">
+            	<![CDATA[   and ulog.member_code = #memberCode# ]]>
+        	</isNotNull>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[   and ulog.name = #userName# ]]>
+	    	</isNotEmpty>
+		   <isNotEmpty property="endDate">
+		    	<![CDATA[
+		    	and ulog.login_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+        		and ulog.login_date <=TO_DATE(#endDate# , 'yyyy-mm-dd')+ 1
+		    	]]>
+	    	</isNotEmpty>
+	    	 <isNotEmpty property="startDate">
+	    	  <isEmpty property="endDate">
+		    	<![CDATA[
+		    	and ulog.login_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+		    	and ulog.login_date <= TO_DATE(#startDate# , 'yyyy-mm-dd ')+1 
+		    	]]>
+		    	</isEmpty>
+	    	</isNotEmpty>
+		order by ulog.update_date desc
+    	<include refid="COMMON.PAGING_END" />
+	</select>
+	<select id="countPersonalLoginHistory" resultClass="int" parameterClass="map">
+		select count(1)
+		  from t_user_log ulog,t_member memb
+		 where 1 = 1
+		 	and ulog.member_code = memb.member_code
+		 	<isNotEmpty property="loginType">
+	    		<![CDATA[and ulog.log_type = #loginType#  ]]>
+	    	</isNotEmpty>
+		  	<isNotEmpty property="memberType">
+	    		<![CDATA[and memb.type = #memberType#  ]]>
+	    	</isNotEmpty>
+		   <isNotEmpty property="loginName">
+	    		<![CDATA[   and ulog.login_name = #loginName# ]]>
+	    	</isNotEmpty>
+	    	<isNotNull property="memberCode">
+            	<![CDATA[   and ulog.member_code = #memberCode# ]]>
+        	</isNotNull>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[   and ulog.name = #userName# ]]>
+	    	</isNotEmpty>
+		    <isNotEmpty property="endDate">
+		    	<![CDATA[
+		    	and ulog.login_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+        		and ulog.login_date <=TO_DATE(#endDate# , 'yyyy-mm-dd')+ 1
+		    	]]>
+	    	</isNotEmpty>
+	    	<isNotEmpty property="startDate">
+	    	  <isEmpty property="endDate">
+		    	<![CDATA[
+		    	and ulog.login_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+		    	and ulog.login_date <= TO_DATE(#startDate# , 'yyyy-mm-dd ')+1 
+		    	]]>
+		    	</isEmpty>
+	    	</isNotEmpty>
+	</select>
+	
+	<select id="queryPersonalAcctAssociatelist" resultClass="personalAcctAssociateDto" parameterClass="map">
+		<include refid="COMMON.PAGING_START" />
+			select memb.member_code memberCode,
+		       memb.login_name loginName,
+		       decode(memb.status ,0,'创建',1,'激活',2,'冻结','3','未激活','4','删除状态')memberStatus ,
+		       acct.acct_code acctCode,
+		       decode(acct.status,0,'无效',1,'有效',2,'冻结')acctStatus,
+		       ulog.name userName,
+		       ulog.action_url actionUrl,
+		       ulog.login_date loginDate,
+           	   ulog.login_ip loginIp
+		    from t_member memb ,t_acct acct,t_user_log ulog
+          where memb.member_code = acct.member_code 
+          and memb.member_code = ulog.member_code
+		    <isNotEmpty property="loginName">
+	    		<![CDATA[and  ulog.login_name like #loginName#||'%'	]]>
+	    	</isNotEmpty>
+		    <isNotEmpty property="memberCode">
+	    		<![CDATA[and  ulog.member_code = #memberCode# ]]>
+	    	</isNotEmpty>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[and  ulog.name = #userName# ]]>
+	    	</isNotEmpty>
+		    <isNotEmpty property="loginIp">
+	    		<![CDATA[and  ulog.login_ip = #loginIp# ]]>
+	    	</isNotEmpty>  
+    	<include refid="COMMON.PAGING_END" />
+	</select>
+	<select id="countqueryPersonalAcctAssociate" resultClass="int" parameterClass="map">
+		select count(1)
+		    from t_member memb ,t_acct acct,t_user_log ulog
+          where memb.member_code = acct.member_code 
+          and memb.member_code = ulog.member_code
+		    <isNotEmpty property="loginName">
+	    		<![CDATA[and  ulog.login_name like #loginName#||'%'	]]>
+	    	</isNotEmpty>
+		    <isNotEmpty property="memberCode">
+	    		<![CDATA[and  ulog.member_code = #memberCode# ]]>
+	    	</isNotEmpty>
+	    	<isNotEmpty property="userName">
+	    		<![CDATA[and  ulog.name = #userName# ]]>
+	    	</isNotEmpty>
+		    <isNotEmpty property="loginIp">
+	    		<![CDATA[and  ulog.login_ip = #loginIp# ]]>
+	    	</isNotEmpty>  
+	</select>
+	
+
+	
+	
+	<select id="queryPersonalAcctBalanceList" resultClass="personalAcctBalanceDto" parameterClass="map">
+		<include refid="COMMON.PAGING_START" />
+			 SELECT 
+		        to_char(create_date,'yyyy-mm-dd hh24:mi:ss') payDate,
+		        order_id orderNumber,
+		         deal_type dealType,
+		         deal_code dealCode,
+	             decode(payer_full_mem_acctcode,acct_code,amount) pay,
+	             decode(payee_full_mem_acctcode,acct_code,amount) revenue,
+			     decode(payee_full_mem_acctcode,acct_code,payer_full_mem_acctcode,payee_full_mem_acctcode) another,
+		       	 to_char(nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,0,nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),0), 'FM99,999,999,999,999,990.00') strPay,
+		         to_char( nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1, abs(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),
+		         	nvl(decode(payee_full_mem_acctcode,acct_code,amount/1000),0)),0), 'FM99,999,999,999,999,990.00')strRevenue,
+		         to_char(nvl(decode(nvl(payer_fee,0),0,payee_fee/1000,payer_fee/1000),0), 'FM99,999,999,999,999,990.00') fee,
+		         nvl(decode(nvl(payer_fee,0),0,payee_fee/1000,payer_fee/1000),0) numberFee,
+		         nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,0,nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),0) numberPay,
+		         nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,abs(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),nvl(decode(payee_full_mem_acctcode,acct_code,amount/1000),0)),0) numberRevenue,
+		         acct_code  acctCode
+			<include refid="commonPersonalAcctBalanceFrom" />
+	     	ORDER BY create_date desc,deal_type asc
+    	<include refid="COMMON.PAGING_END" />
+	</select>
+	<select id="queryStrBalance" parameterClass="java.util.Map" resultClass="java.lang.String">	  
+       select strBalance 
+         from (select rownum linenum, t1.*
+                 from (select to_char(nvl(balance/1000, 0),'FM99,999,999,999,999,990.00') strBalance
+                              from t_balance_entry tbe 
+                              where tbe.dealid=#dealid# and tbe.acct_code=#acctCode# and tbe.status=#status# and tbe.deal_code=#dealCode#
+                              order by tbe.bentry_id desc
+                      ) t1
+                where rownum = 1)
+	</select>
+	<select id="countPersonalAcctBalanceList" resultClass="int" parameterClass="map">
+			SELECT  count(1)
+	            <include refid="commonPersonalAcctBalanceFrom" />
+	</select>
+	<select id="queryPeraonalAcctTradeTotal" resultClass="personalAcctTradeTotalDto" parameterClass="map">
+			SELECT 
+		    	to_char(nvl(sum(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,0,nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0))),0),'FM99,999,999,999,999,990.00') totalPay,
+        		to_char(nvl(sum(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,abs(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),nvl(decode(payee_full_mem_acctcode,acct_code,amount/1000),0))),0),'FM99,999,999,999,999,990.00') totalRevenue,
+        		to_char(nvl(sum(decode(payee_full_mem_acctcode, acct_code, amount / 1000)), 0)- 
+        		 nvl(sum(decode(payer_full_mem_acctcode,acct_code,amount / 1000)), 0),'FM99,999,999,999,999,990.00') totalBalance
+		     <include refid="commonPersonalAcctBalanceFrom" />
+	</select>
+
+	 <update id="updatePersonalMemberAcctOperate" parameterClass="map">
+       update t_acct_attrib attr set
+	      <isEqual property="operate" compareValue="frozen">
+		      	attr.frozen = 0
+		  </isEqual>
+		  <isEqual property="operate" compareValue="unFrozen">
+		      	attr.frozen = 1
+		  </isEqual>
+		  <isEqual property="operate" compareValue="allowIn">
+		      	attr.allow_in = 0
+		  </isEqual>
+		  <isEqual property="operate" compareValue="allowOut">
+		      	attr.allow_out = 0
+		  </isEqual>
+		  <isEqual property="operate" compareValue="unAllowIn">
+		      	attr.allow_in = 1
+		  </isEqual>
+		  <isEqual property="operate" compareValue="unAllowOut">
+		      	attr.allow_out = 1
+		  </isEqual>
+	       ,attr.update_Date = sysdate
+        where attr.acct_code = #acctCode#
+    </update>
+     <update id="updatePersonalMemberAcctFrozen" parameterClass="map">
+       update t_acct acct set
+	      <isEqual property="operate" compareValue="frozen">
+		      	acct.status = 2
+		  </isEqual>
+		  <isEqual property="operate" compareValue="unFrozen">
+		      	acct.status = 1
+		  </isEqual>
+	       ,acct.update_Date = sysdate
+        where acct.acct_code = #acctCode#
+    </update>
+    
+     <update id="updatePersonalMemberOperate" parameterClass="map">
+       update t_member memb set
+	      <isEqual property="operate" compareValue="frozen">
+		      	memb.status = 2
+		  </isEqual>
+		  <isEqual property="operate" compareValue="unFrozen">
+		      	memb.status = 1
+		  </isEqual>
+	       ,memb.update_Date = sysdate
+        where memb.member_code = #memberCode#
+    </update>
+    
+    <select id="queryPersonalMemberAcctMessage" resultClass="personalAcctInfoSearchDto" parameterClass="map">
+		<include refid="COMMON.PAGING_START" />
+		  select memb.login_name loginName,
+             memb.member_code memberCode,
+             acct.acct_code acctCode,
+             acct.acct_type_id type,
+             decode(acct.status,0,'无效',1,'有效',2,'冻结')status,
+             to_char(nvl(acct.debit_balance/1000,0),'FM99,999,999,999,999,990.00') debitBalance,
+             to_char(nvl(acct.credit_balance/1000,0),'FM99,999,999,999,999,990.00') creditBalance,
+             to_char(nvl(acct.balance/1000,0),'FM99,999,999,999,999,990.00') balance,
+             to_char(nvl(acct.frozen_amount/1000,0),'FM99,999,999,999,999,990.00') frozenAmount
+        from t_acct acct, t_member memb,t_individual_info info
+       where acct.member_code = memb.member_code
+       	and memb.member_code = info.member_code
+       	<isNotEmpty property="type">
+    		<![CDATA[  and  acct.acct_type_id=#type#	]]>
+    	</isNotEmpty>
+	 	<isNotEmpty property="loginName">
+    		<![CDATA[   and memb.login_name like #loginName#||'%'	]]>
+    	</isNotEmpty>
+    	<isNotNull property="memberCode">
+            <![CDATA[   and memb.member_code=#memberCode# ]]>
+        </isNotNull>
+    	<isNotEmpty property="userName">
+    		<![CDATA[   and info.name=#userName# ]]>
+    	</isNotEmpty>
+    	order by memb.update_date desc
+    	<include refid="COMMON.PAGING_END" />
+	</select>
+	<select id="countPersonalMemberAcctMessage" resultClass="int" parameterClass="map">
+		select count(1)
+        from t_acct acct, t_member memb,t_individual_info info
+       where acct.member_code = memb.member_code
+       	and memb.member_code = info.member_code
+       	 <isNotEmpty property="type">
+    		<![CDATA[   and acct.acct_type_id=#type#	]]>
+    	</isNotEmpty>
+	 	<isNotEmpty property="loginName">
+    		<![CDATA[   and memb.login_name like #loginName#||'%'	]]>
+    	</isNotEmpty>
+    	<isNotNull property="memberCode">
+            <![CDATA[   and memb.member_code=#memberCode# ]]>
+        </isNotNull>
+    	<isNotEmpty property="userName">
+    		<![CDATA[   and info.name=#userName# ]]>
+    	</isNotEmpty>
+	</select>
+	<select id="selectPersonlMemberIsPaperFile" resultClass="personMemberInfoDto" parameterClass="map">
+          select *
+		  	from (select rownum linenum, t1.*
+		          from (select tivb.is_paper_file isPaperFile,
+		                       max(tivb.created_date)
+		                  from t_idc_verify_base tivb
+		                  where tivb.member_code = #memberCode# 
+		                 group by tivb.is_paper_file
+		                 order by isPaperFile desc) t1
+		         where rownum = 1)
+	</select>
+	<select id="selectAcctAttrib" resultClass="acctAttribDto" parameterClass="map">
+		 select 
+			 attr.acct_code acctCode,
+			 attr.member_code memberCode,
+			 attr.frozen frozen,
+			 attr.allow_in allowIn,
+			 attr.allow_out allowOut 
+		 from t_acct_attrib attr 
+		 where attr.acct_code=#acctCode#
+	</select>
+	<select id="countBindMatrixCard" resultClass="int" parameterClass="map">
+		select count(id) from t_matrixcard tm where  tm.STATUS=1
+			and tm.BIND_MEMBER_CODE = #memberCode# 
+	</select>
+	
+	<select id="selectMemberByMemberCode" resultClass="personMemberInfoDto" parameterClass="map">
+		select 
+		   memb.login_name loginName,
+	       memb.member_code memberCode,
+	       memb.status status,
+	       to_char(memb.create_date,'yyyy-mm-dd hh24:mi:ss') createDateName
+	  from t_member memb 
+	  where  memb.member_code=#memberCode#
+    	<isNotEmpty property="type">
+    		<![CDATA[  and memb.type=#type# ]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="status">
+    		<![CDATA[   and  memb.status=#status# ]]>
+    	</isNotEmpty>
+	</select>
+	
+	
+	
+</sqlMap>

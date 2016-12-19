@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+
+	<!-- 自动过风控 -->
+	<bean id="fundout-autoRiskManageService" class="com.pay.fo.order.validate.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fundout-autoRiskmanageRule" />
+	</bean>
+
+	<bean id="fundout-autoRiskmanageRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fundout-channelLimitCheckRule" />
+		</property>
+	</bean>
+
+	<!-- 直联通道限制 -->
+	<bean id="fundout-channelLimitCheckRule" class="com.pay.fundout.withdraw.validate.rule.ChannelLimitCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-pay2bankAmountAddupCheckRule" />
+		</property>
+		<property name="bankChannelConfigDao" ref="bankChannelConfigDao" />
+		<property name="messageId" value="订单金额大于单笔金额上限" />
+	</bean>
+
+	<!-- 反洗钱类监控-24小时内企业会员账户出款到银行卡或提现累计超过200万 -->
+	<bean id="fundout-pay2bankAmountAddupCheckRule" class="com.pay.fundout.withdraw.validate.rule.Pay2bankAmountAddupCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-rechargeCountCheckRule" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您会员账户付款到银行卡或提现累计超过200万" />
+	</bean>
+	
+	<!-- 系统交易类监控-充值类预警-24小时内企业会员账户充值次数超10次 -->
+	<bean id="fundout-rechargeCountCheckRule" class="com.pay.fundout.withdraw.validate.rule.RechargeCountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-rechargeAmountCheckRule" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您24小时内会员账户充值次数超10次" />
+	</bean>
+	
+	<!-- 系统交易类监控-充值类预警-24小时内会员账户单笔充值金额达50000元 -->
+	<bean id="fundout-rechargeAmountCheckRule" class="com.pay.fundout.withdraw.validate.rule.RechargeAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-pay2bankCountCheckRule" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您24小时内会员账户单笔充值金额达50000元" />
+	</bean>
+	
+	<!-- 系统交易类监控-交易类预警-企业24小时内向同一银行账户出款超过5笔 -->
+	<bean id="fundout-pay2bankCountCheckRule" class="com.pay.fundout.withdraw.validate.rule.Pay2bankCountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-transferCountCheckRule" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您24小时内向同一银行账户出款超过5笔" />
+	</bean>
+	
+	<!-- 系统交易类监控-转账类预警-同一企业账户24小时内收到超过10次个人账户的转账 -->
+	<bean id="fundout-transferCountCheckRule" class="com.pay.fundout.withdraw.validate.rule.TransferCountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-transferAmountCheckRule" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您24小时内收到超过10次个人账户的转账" />
+	</bean>
+	
+	<!-- 系统交易类监控-转账类预警-同一企业账户24小时内收到个人账户的转账超过20万 -->
+	<bean id="fundout-transferAmountCheckRule" class="com.pay.fundout.withdraw.validate.rule.TransferAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-payerLoginCheckRule" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您24小时内收到个人账户的转账超过20万" />
+	</bean>
+	
+	<!-- 账户安全类-同一账户出款前半小时累计登录错误三次 -->
+	<bean id="fundout-payerLoginCheckRule" class="com.pay.fundout.withdraw.validate.rule.PayerLoginCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fundout-workOrderStatusSettingAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-withdrawRequestAction" />
+		</property>
+		<property name="autoRiskControlService" ref="autoRiskControlService" />
+		<property name="messageId" value="您账户半小时累计登录错误三次" />
+	</bean>
+	
+	<!-- 更新工单状态为审核滞留 -->
+	<bean id="fundout-workOrderStatusSettingAction" class="com.pay.fundout.withdraw.validate.action.WorkOrderStatusSettingAction">
+		<property name="nextStep">
+			<ref local="fundout-failedReasonSettingAction" />
+		</property>
+		<property name="withdrawWorkDao" ref="fundout-withraw-withdrawWorkDao" />
+	</bean>
+	
+	<!-- 更新订单失败原因 -->
+	<bean id="fundout-failedReasonSettingAction" class="com.pay.fundout.withdraw.validate.action.FailedReasonSettingAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"/>
+	</bean>
+	
+	<!-- 请求直联出款处理 -->
+	<bean id="fundout-withdrawRequestAction" class="com.pay.fundout.withdraw.validate.action.WithdrawRequestAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="bankCorporateProcessService" ref="fo-bankCorp-bankCorporateProcessService"/>
+		<property name="withdrawService" ref="fundout-withdraw-service" />
+	</bean>
+	
+</beans>

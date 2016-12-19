@@ -1,0 +1,67 @@
+<#if result.browser?default("MSIE")=="MSIE">
+			<input type="hidden" name="${name}" id="${id}"/>
+			<input type="hidden" name="cid_name" id="cid_name" value="${id}"/>
+			<span id="span_h_${cid}"></span>
+			<span id="span_${cid}"></span>
+			<span id="span_error_${cid}" style="display:none"></span>
+			<script type="text/javascript">
+				var c_${cid} = 0;
+				function onactive_${cid}(){
+					if(c_${cid}==0){
+						try{
+							$("#${cid}")[0].SetKey("${result.pkey?default('')}");
+							var o_${cid} = $("#${cid}")[0];
+							<#if onEnter!="" && form!="">
+							<#else>
+							<#if onEnter!="">
+							eval("function o_${cid}::OnEnter(){${onEnter}}");
+							</#if>
+							<#if form!="">
+							eval("function o_${cid}::OnEnter(){$('#${form}').submit();return false;}");
+							</#if>
+							</#if>
+						}catch(e){
+							<#-- 页面控件没有加载完毕 -->
+						}
+					}
+					c_${cid}++;
+				}
+				if($("#hasSecurity").length==0 <#if form != ""> || $("form[id='${form}'] input[id='hasSecurity']").length == 0 </#if>){
+					document.write('<input type="hidden" id="hasSecurity" name="hasSecurity" value="security"/>');
+				}
+				function init_${cid}(){}
+				var controller_html = '<OBJECT ID="${cid}" tabindex="${tabindex}" onactivate="onactive_${cid}();" onfocus="this.focus()" CLASSID="CLSID:F3A61CB9-4F49-4433-B11F-F64966C744A3" onactivate="${onactivate}" codebase="<@sp.static/>/payEdit.cab#version=1,0,0,3" width="${width}" height="${height}" style="vertical-align:middle;${style}"><param name=PasswordMode value="true"><param name=MaxLen value=86><i class="payEdit"><a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayEdit" class="dl" >点击下载安全控件</a></i></OBJECT>';
+				$("#span_h_${cid}").css("display","none");
+				$("#span_${cid}").append(controller_html);
+			</script>
+			
+		</#if>
+		<#if result.browser?default("Firefox")=="Firefox">
+			<input type="hidden" name="${name}" id="${id}"/>
+			<input type="hidden" name="cid_name" id="cid_name" value="${id}"/>
+			<span id="span_h_${cid}">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+			<span id="span_${cid}"></span>
+			<span id="span_error_${cid}" style="display:none"></span>
+			<script type="text/javascript">
+				function submit_${cid}(){$('#${form}').submit();return false;}
+				function tab_${cid}(){try{$('#${nextTabid}').focus();}catch(e){}}
+				if($("#hasSecurity").length==0 <#if form != ""> || $("form[id='${form}'] input[id='hasSecurity']").length == 0 </#if>){
+					document.write('<input type="hidden" id="hasSecurity" name="hasSecurity" value="security"/>');
+				}
+				function init_${cid}(){
+					$("#span_${cid}").html("");
+					var controller_html = '<embed ID="${cid}" tabindex="${tabindex}" onactivate="alert(1)" type="application/payedit" onfocus="this.focus()" pluginspage="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayEdit" loop="true" width="${width}" height="${height}" style="vertical-align:middle;${style}"></embed>';
+					$("#span_h_${cid}").css("display","none");
+					$("#span_${cid}").html(controller_html);
+					$("#span_${cid}").css("display","");
+					$("#span_error_${cid}").html("");
+					$("#span_error_${cid}").css("display","none");
+					window.setTimeout(function(){try{if($("#${cid}").length>0){$("#${cid}")[0].SetEmbedId("${cid}");$("#${cid}")[0].SetOnTab("tab_${cid}");$("#${cid}")[0].SetOnEnter("submit_${cid}");}}catch(e){$("#span_${cid}").css("display","none");$("#span_error_${cid}").css("display","");$("#span_error_${cid}").html('<i class="payEdit"><a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayEdit" class="dl" target="_blank">点击下载安全控件</a></i>');}},100);
+				
+				}
+				$(document).ready(function(){
+					init_${cid}();
+				});
+			</script>
+		</#if>
+		

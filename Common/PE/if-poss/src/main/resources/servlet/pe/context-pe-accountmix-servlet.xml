@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="accountMixHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<!-- 查询科目分录指定时间余额不为0的记录 -->
+				<prop key="/if_poss_query/subjectBalanceDetailQuery.do">
+					subjectBalanceDetailQueryController
+				</prop>
+				<prop key="/if_poss_query/reconciliationDownLoad.do">
+					reconciliationController
+				</prop>
+				
+				<prop key="/if_poss_query/subjectBalanceQuery.do">
+					subjectBalanceQueryController
+				</prop>
+				<prop key="/if_poss_query/orderEntryQuery.do">
+					orderEntryQueryController
+				</prop>
+				<prop key="/if_poss_query/bankSubjectBalanceQuery.do">
+					bankSubjectBalanceQueryController
+				</prop>
+				<prop key="/if_poss/accum_resources.do">
+					accumulatedResourcesContoller
+				</prop>
+				<prop key="/if_poss/accoFeeFailed.do">
+					accountingFeeFailedContoller
+				</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<bean id="subjectBalanceDetailQueryController" class="com.pay.pe.account.controller.SubjectBalanceDetailQueryController">
+	
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		
+		<property name="entryQueryService">
+			<ref bean="entryQueryService" />
+		</property>
+		<property name="acctSpecService">
+			<ref bean="acctSpecService" />
+		</property>
+		<property name="subjectService">
+			<ref bean="subjectService" />
+		</property>
+		<property name="indexView">
+			<value>/accountmix/entryQuery</value>
+		</property>
+		<property name="listView">
+			<value>/accountmix/entryList</value>
+		</property>
+		<property name="excelView">
+			<value>/accountmix/excleDownLoad</value>
+		</property>
+	</bean>
+	
+	
+	<bean id="reconciliationController" class="com.pay.pe.reconciliation.controller.ReconciliationController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="indexView">
+			<value>/accountmix/reconciliationcard/reconciliationQuery</value>
+		</property>
+		<property name="reconciliationService">
+			<ref bean="reconciliationService" />
+		</property>	
+	</bean>
+	
+	
+	<bean id="subjectBalanceQueryController" class="com.pay.pe.account.controller.SubjectBalanceQueryController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="indexView">
+			<value>/accountmix/subjectBalanceQuery</value>
+		</property>
+		<property name="listView">
+			<value>/accountmix/subjectBalanceList</value>
+		</property>
+		<property name="entryQueryService">
+			<ref bean="entryQueryService" />
+		</property>
+		<property name="subjectService">
+			<ref bean="subjectService" />
+		</property>
+	</bean>
+	
+	<bean id="orderEntryQueryController" class="com.pay.pe.account.controller.OrderEntryQueryController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="indexView">
+			<value>/accountmix/orderEntryQuery</value>
+		</property>
+		<property name="listView">
+			<value>/accountmix/orderEntryList</value>
+		</property>
+		<property name="entryQueryService">
+			<ref bean="entryQueryService" />
+		</property>
+	</bean>
+	
+	
+	<bean id="bankSubjectBalanceQueryController" class="com.pay.pe.account.controller.BankSubjectBalanceQueryController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="indexView">
+			<value>/accountmix/bankSubjectBalanceQuery</value>
+		</property>
+		<property name="listView">
+			<value>/accountmix/bankSubjectBalanceList</value>
+		</property>
+		<property name="entryQueryService">
+			<ref bean="entryQueryService" />
+		</property>
+	</bean>
+	
+	<bean id="accumulatedResourcesContoller"
+		class="com.pay.pe.account.controller.AccumulatedResourcesContoller">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="accumulatedResourcesService"	 ref="accumulatedResourcesService" />
+		
+		<property name="indexView">
+			<value>/accountmix/accumulated/resources_index</value>
+		</property>
+		<property name="listView">
+			<value>/accountmix/accumulated/resources_list</value>
+		</property>
+		<property name="detailView">
+			<value>/accountmix/accumulated/resources_detail</value>
+		</property>
+		
+	</bean>
+	
+	<bean id="accountingFeeFailedContoller"
+		class="com.pay.pe.account.controller.AccountingFeeFailedContoller">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="accountingFeeFailedService"	 ref="accountingFeeFailedService" />
+		
+		<property name="indexView">
+			<value>/accountmix/feefailed/fee_failed_index</value>
+		</property>
+		<property name="listView">
+			<value>/accountmix/feefailed/fee_failed_list</value>
+		</property>
+		
+	</bean>
+	
+	
+	
+	
+	
+ 
+</beans>

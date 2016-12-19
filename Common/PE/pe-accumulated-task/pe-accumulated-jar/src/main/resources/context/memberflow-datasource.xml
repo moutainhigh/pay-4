@@ -1,0 +1,48 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="memberFlowSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ibatis/sqlmap-accumulated-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<list>			
+				<value>classpath*:ibatis/memberflow/*.xml</value>
+			</list>
+		</property>
+		<property name="dataSource" ref="possDs" />
+	</bean>
+	
+	<bean id="memberFlowTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="possDs" />
+	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="serviceMemberFlowMethod"
+			expression="execution(* com.pay.pe.*.service..*(..))" />
+		<aop:advisor advice-ref="memberFlowTxAdvice" pointcut-ref="serviceAccumulatedMethod" />
+	</aop:config>
+	
+	<tx:advice id="memberFlowTxAdvice" transaction-manager="memberFlowTxManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="SUPPORTS" rollback-for="Exception"	/>
+			<tx:method name="*RnTx" propagation="REQUIRES_NEW" rollback-for="Exception"  />
+			<tx:method name="*SpTx" propagation="SUPPORTS" rollback-for="Exception" />
+			<tx:method name="*NsTx" propagation="NOT_SUPPORTED" />
+			<tx:method name="*RdTx" propagation="REQUIRED" read-only="false" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<bean id="memberFlowBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="memberFlowSqlMapClient" />
+	</bean>
+	
+</beans>

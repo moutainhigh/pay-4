@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>商户缴费业务接口测试</title>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+<script type="text/javascript">
+	$(function(){
+			$("#createsignMsg").click(function(){
+				$.post("${rc.contextPath}/billPayTest.htm?method=createSignMsg", {
+					"merchantId" : $("#merchantId").val(),
+					"orderId" : $("#orderId").val(),
+					"billType" : $("#billType").val(),
+					"billerName" : $("#billerName").val(),
+					"billNo" : $("#billNo").val(),
+					"orgCode" : $("#orgCode").val(),
+					"province" : $("#province").val(),
+					"city" : $("#city").val(),
+					"issueName" : $("#issueName").val(),
+					"amount" : $("#amount").val(),
+					"requestDate" : $("#requestDate").val(),
+					"billerEmail" : $("#billerEmail").val(),
+					"billerPhone" : $("#billerPhone").val(),
+					"description" : $("#description").val()
+				}, function(msg) {
+					$("#signMsg").val(msg);
+				});
+			});
+	});
+
+</script>
+<body>
+<form action="${rc.contextPath}/billPay.htm">
+	商户标识:<input type="text" name="merchantId" id="merchantId" value="10000000762"><br/>
+	订单号:<input type="text" name="orderId" id="orderId" value="1111"><br/>
+	账单类型:<input type="text" name="billType" id="billType" value="7">6:跨行转账 7:水费 8:电费 9:煤气费 10:通信账单 11:信用卡还款<br/>
+	账单者姓名:<input type="text" name="billerName" id="billerName" value="test"><br/>
+	账单编号:<input type="text" name="billNo" id="billNo" value="062528321811010000001009"><br/>
+	机构号:<input type="text" name="orgCode" id="orgCode" value="50030"><br/>
+	省份:<input type="text" name="province" id="province" value="2900"><br/>
+	城市:<input type="text" name="city" id="city" value="2900"><br/>
+	开户行:<input type="text" name="issueName" id="issueName" value="testBank"><br/>
+	账单金额(元):<input type="text" name="amount" id="amount" value="1"><br/>
+	请求时间:<input type="text" name="requestDate" id="requestDate" value="20100105121113"><br/>
+	账单者邮箱:<input type="text" name="billerEmail" id="billerEmail" value="test@payay.com"><br/>
+	账单者电话:<input type="text" name="billerPhone" id="billerPhone" value="13800000000" maxlength="11"><br/>
+	备注:<input type="text" name="description" id="description" value="test remark"><br/>
+	签名:<input type="text" name="signMsg" id="signMsg"><br/>
+	<button type="button" id="createsignMsg">生成签名</button>
+	<button type="submit">提交订单</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<display-name>app-website</display-name>
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>app-website.root</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:context/**/*.xml
+		</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
+
+	<context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>
+			/WEB-INF/classes/properties/log4j.properties
+		</param-value>
+	</context-param>
+
+	<servlet>
+		<servlet-name>hession</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				classpath*:servlet/hession/*.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>hession</servlet-name>
+		<url-pattern>/hession/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>hession</servlet-name>
+		<url-pattern>/hession/*/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>app-website</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				classpath*:servlet/**/*.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>app-website</servlet-name>
+		<url-pattern>*.htm</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>app-website</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>app-website_annotation</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>
+				/WEB-INF/springMVC/config/springmvcConfig.xml
+			</param-value>
+		</init-param>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>app-website_annotation</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping> 
+	
+	<filter>
+		<filter-name>sitemesh</filter-name>
+		<filter-class>com.opensymphony.module.sitemesh.filter.PageFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>sitemesh</filter-name>
+		<url-pattern>*.htm</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>sitemesh</filter-name>
+		<url-pattern>*.ftl</url-pattern>
+	</filter-mapping>
+
+	<filter-mapping>
+		<filter-name>sitemesh</filter-name>
+		<url-pattern>*.html</url-pattern>
+	</filter-mapping>
+
+	<session-config>
+		<session-timeout>10</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>/index.html</welcome-file>
+	</welcome-file-list>
+
+	<error-page>
+		<exception-type>com.pay.app.exception.LoginTimeOutException</exception-type>
+		<location>/error.htm?errorCode=timeout</location>
+	</error-page>
+
+	<error-page>
+		<error-code>403</error-code>
+		<location>/403.html</location>
+	</error-page>
+
+	<error-page>
+		<error-code>404</error-code>
+		<location>/404.html</location>
+	</error-page>
+
+	<error-page>
+		<error-code>500</error-code>
+		<location>/500.html</location>
+	</error-page>
+
+	<servlet>
+		<servlet-name>sitemesh-freemarker</servlet-name>
+		<servlet-class>
+			com.opensymphony.module.sitemesh.freemarker.FreemarkerDecoratorServlet
+		</servlet-class>
+		<init-param>
+			<param-name>TemplatePath</param-name>
+			<param-value>/</param-value>
+		</init-param>
+		<init-param>
+			<param-name>default_encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- 字符集编码 -->
+	<filter>
+		<filter-name>Set Character Encoding</filter-name>
+		<filter-class>com.pay.app.controller.common.EncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>ignore</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>Set Character Encoding</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<servlet-mapping>
+		<servlet-name>sitemesh-freemarker</servlet-name>
+		<url-pattern>*.ftl</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>sitemesh-freemarker</servlet-name>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		<filter-name>initFilter</filter-name>
+		<filter-class>com.pay.app.filter.InitFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>initFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>appFilter</filter-name>
+		<filter-class>com.pay.app.filter.AppFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>appFilter</filter-name>
+		<url-pattern>/app/*</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+		<filter-name>buySettleFilter</filter-name>
+		<filter-class>com.pay.app.filter.BuySettleFilter</filter-class>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>buySettleFilter</filter-name>
+		<url-pattern>*.do</url-pattern>
+	</filter-mapping>
+	
+	<filter>
+		<filter-name>corpFilter</filter-name>
+		<filter-class>com.pay.app.filter.CorpFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>corpFilter</filter-name>
+		<url-pattern>/corp/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>privateFilter</filter-name>
+		<filter-class>com.pay.app.filter.PrivateFilter</filter-class>
+		<init-param>
+			<param-name>needLoginUrl</param-name>
+			<param-value>/private/paychain/pay.htm</param-value>
+		</init-param>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>privateFilter</filter-name>
+		<url-pattern>/private/*</url-pattern>
+	</filter-mapping>
+	<filter>
+		<filter-name>memberActiveFilter</filter-name>
+		<filter-class>com.pay.app.filter.MemberActiveFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>memberActiveFilter</filter-name>
+		<url-pattern>/memberActive.htm</url-pattern>
+	</filter-mapping>
+
+</web-app>

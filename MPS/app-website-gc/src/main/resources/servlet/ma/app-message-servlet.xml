@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean id="messageHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="featureInterceptor"/>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     </property>
+		<property name="mappings">
+			<props>
+				<prop key="/app/messageList.htm">messageController</prop>
+				<prop key="/app/delMessage.htm">messageController</prop>
+				<prop key="/app/messageDetail.htm">messageController</prop>
+				<prop key="/app/delAllMessage.htm">messageController</prop>
+				<prop key="/app/queryOnMsg.htm">messageController</prop>
+				<prop key="/app/queryNextMsg.htm">messageController</prop>
+				
+			  	<prop key="/corp/messageList.htm">messageController</prop>
+				<prop key="/corp/delMessage.htm">messageController</prop>
+		        <prop key="/corp/messageDetail.htm">messageController</prop>
+		        <prop key="/corp/delAllMessage.htm">messageController</prop>
+		        <prop key="/corp/queryOnMsg.htm">messageController</prop>
+		        <prop key="/corp/queryNextMsg.htm">messageController</prop>
+		        
+		        <prop key="/accountMessage.htm">accountMessageController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="messageController" class="com.pay.app.controller.base.message.MessageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="messageListPage">
+			<value>/base/message/messageList</value>
+		</property>
+		<property name="messageDetailPage">
+			<value>/base/message/messageDetail</value>
+		</property>
+		
+		
+		<property name="messageSendService">
+			<ref bean="app-messageSendService"/>
+		</property>
+		<property name="messageReceiveService">
+			<ref bean="app-messageReceiveService"/>
+		</property>
+		<property name="messageContextService">
+			<ref bean="app-messageContextService"/>
+		</property>
+	</bean>
+	
+	<bean id="accountMessageController" class="com.pay.app.controller.base.message.AccountMessageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="messageView">
+			<value>base/message/accountMessage</value>
+		</property>
+		
+		<property name="unmaxtrixView">
+			<value>base/message/unmaxtrixView</value>
+		</property>
+		
+		<property name="messageReceiveService">
+			<ref bean="app-messageReceiveService"/>
+		</property>
+	
+	</bean>
+</beans>

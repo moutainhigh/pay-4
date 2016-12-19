@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="contextPic">
+    <resultMap id="tContextPictureResult" class="com.pay.base.model.ContextPicture">
+        <result column="PICTURE_ID" property="pictureId" />
+        <result column="PICTURE_NAME" property="pictureName" />
+        <result column="PICTURE_URL" property="pictureUrl" />
+        <result column="PICTURE_STATUS" property="pictureStatus" />
+        <result column="PICTURE_OWNER_ID" property="pictureOwnerId" />
+        <result column="PICTURE_TYPE" property="pictureType" />
+        <result column="CREATE_TIME" property="createTime" />
+        <result column="CREATED_BY" property="createdBy" />
+        <result column="UPDATE_TIME" property="updateTime" />
+        <result column="UPDATED_BY" property="updatedBy" />
+        <result column="PRODUCT_TYPE" property="productType" />
+    </resultMap>
+    
+    <insert id="insert" parameterClass="com.pay.base.model.ContextPicture">
+    	<selectKey resultClass="java.lang.Long" keyProperty="pictureId">
+			SELECT SEQ_CONTEXT_PICTURE_ID.NEXTVAL AS ID FROM DUAL
+		</selectKey>
+        INSERT INTO T_CONTEXT_PICTURE (PICTURE_ID, PICTURE_NAME, PICTURE_URL, PICTURE_STATUS,
+            PICTURE_OWNER_ID, PICTURE_TYPE, CREATE_TIME, CREATED_BY, UPDATE_TIME, UPDATED_BY,PRODUCT_TYPE)
+        VALUES (#pictureId#, #pictureName#, #pictureUrl#, #pictureStatus#, #pictureOwnerId#,
+            #pictureType#, sysdate, #createdBy#, #updateTime#, #updatedBy#,#productType#)
+    </insert>
+    
+    <update id="updateOwner" parameterClass="com.pay.base.model.ContextPicture">
+    	update T_CONTEXT_PICTURE set PICTURE_OWNER_ID=#pictureOwnerId# where PICTURE_ID=#pictureId#
+    </update>
+    
+    <delete id="deleteByCondition" parameterClass="com.pay.base.model.ContextPicture" >
+	    DELETE T_CONTEXT_PICTURE
+	     <dynamic prepend="where" >
+	     <isNotNull prepend="and" property="pictureId" >
+	        PICTURE_ID = #pictureId#
+	      </isNotNull>
+	      <isNotNull prepend="and" property="pictureOwnerId" >
+	        PICTURE_OWNER_ID = #pictureOwnerId#
+	      </isNotNull>
+	      <isNotNull prepend="and" property="productType" >
+	        PRODUCT_TYPE = #productType#
+	      </isNotNull>
+	    </dynamic>
+  	</delete>
+  	
+  	<select id="selectByCondition" resultMap="tContextPictureResult" parameterClass="com.pay.base.model.ContextPicture" >
+	    SELECT 
+	    	PICTURE_ID, PICTURE_NAME, PICTURE_URL, PICTURE_STATUS,PICTURE_OWNER_ID, 
+	    	PICTURE_TYPE, CREATE_TIME, CREATED_BY, UPDATE_TIME, UPDATED_BY,PRODUCT_TYPE
+	    FROM T_CONTEXT_PICTURE
+	    <dynamic prepend="where" >
+	      <isNotNull prepend="and" property="pictureOwnerId" >
+	        PICTURE_OWNER_ID = #pictureOwnerId#
+	      </isNotNull>
+	      <isNotNull prepend="and" property="pictureType" >
+	        PICTURE_TYPE = #pictureType#
+	      </isNotNull>
+	      <isNotNull prepend="and" property="pictureId" >
+	        PICTURE_ID = #pictureId#
+	      </isNotNull>
+	    </dynamic>
+  	</select>
+</sqlMap>

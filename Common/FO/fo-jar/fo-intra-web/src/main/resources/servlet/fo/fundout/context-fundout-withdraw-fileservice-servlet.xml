@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!-- 提现对账模块 Henry_Zeng 建立 -->	
+	
+	<!-- 查询提现文件操作  -->
+	<bean  
+	   class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/fundout-withdraw-querybatchfile.do">QueryBatchFileController</prop>		
+				<prop key="/fundout-withdraw-querybatchfile-download.do">QueryBatchFileController</prop>		
+			</props>
+		</property>
+	</bean>
+	
+  	<bean id="QueryBatchFileController"
+		class="com.pay.fo.controller.fundout.fileservice.QueryBatchFileController" parent="withdrawBaseController">
+			<property name="queryBatchFileService"  ref="fundout-withdraw-querybatchfileservice" />
+		<property name="channelService" ref="fo_channel_fundoutchannelservice" />
+		<property name="urlMap">
+			<map>
+				<entry key="initBatchFile" value="/withdraw/fileservice/queryBatchFileInit" />
+				<entry key="initBatch" value="/withdraw/fileservice/queryBatchInit" />
+				<entry key="listBatch" value="/withdraw/fileservice/queryBatchList" />
+				<entry key="listBatchFile" value="/withdraw/fileservice/queryBatchFileList" />
+				
+			</map>
+		</property>
+	</bean>
+  
+	
+	
+	<!-- 查询提现提交银行文件操作 -->
+	<bean name="/fundout-withdraw-querybankfile.do" class="com.pay.fo.controller.fundout.fileservice.QuerySubmitBnakFileController" parent="withdrawBaseController">
+		<property name="queryBatchFileService"  ref="fundout-withdraw-querybatchfileservice" />
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="reviewFoMap" ref="fundout-withdraw-reviewFoFileMap" />
+		<property name="urlMap">
+			<map>
+				<entry key="initBankFile" value="/withdraw/fileservice/queryBankFileInit" />
+				<entry key="listBankFile" value="/withdraw/fileservice/queryBankFileList" />
+				<entry key="reviewFoFile" value="/withdraw/fileservice/reviewFoFile" />
+				<entry key="showBatchDetail" value="/withdraw/fileservice/showBatchDetail" />
+				<entry key="reviewResultDisplay" value="/withdraw/fileservice/reviewResultDisplay" />
+			</map>
+		</property>
+		
+	</bean>
+	
+	<!-- 提现下载操作-->
+   	<bean name="/fundout-withdraw-downloadfile.do" class="com.pay.fo.controller.fundout.fileservice.DownloadFileController" parent="withdrawBaseController" >
+   		<property name="queryBatchFileService"  ref="fundout-withdraw-querybatchfileservice" />
+   	</bean>
+</beans>
+
+

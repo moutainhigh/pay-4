@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchrulewithdrawbusiness">
+	<typeAlias alias="batchRuleWithdrawBusiness" type="com.pay.fundout.withdraw.model.rulewithdrawbusiness.BatchRuleWithdrawBusiness"/>
+	<typeAlias alias="batchRuleWithdrawBusinessDTO" type="com.pay.fundout.withdraw.dto.rulewithdrawbusiness.BatchRuleWithdrawBusinessDTO"/>
+    <resultMap id="batchRuleWithdrawBusiness" class="com.pay.fundout.withdraw.model.rulewithdrawbusiness.BatchRuleWithdrawBusiness">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="BATCH_RULE_ID" property="batchRuleId" jdbcType="DECIMAL"/>
+        <result column="WITHDRAW_BUSI_ID" property="withdrawBusiId" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CREATION_DATE,STATUS,SEQUENCE_ID,BATCH_RULE_ID,WITHDRAW_BUSI_ID,
+		UPDATE_DATE
+    </sql>
+    <insert id="create" parameterClass="batchRuleWithdrawBusiness">
+        INSERT INTO BATCH_RULE_WITHDRAW_BUSINESS(
+			CREATION_DATE,STATUS,SEQUENCE_ID,BATCH_RULE_ID,WITHDRAW_BUSI_ID,
+			UPDATE_DATE
+        )
+        VALUES(
+            #creationDate#,#status#,SEQ_BATCH_RULE_BUSINESS.nextval,#batchRuleId#,#withdrawBusiId#,
+			#updateDate#
+		)
+    </insert>
+
+    <update id="update" parameterClass="batchRuleWithdrawBusiness">
+        UPDATE BATCH_RULE_WITHDRAW_BUSINESS
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="creationDate">
+            CREATION_DATE = #creationDate#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId#
+        </isNotNull>
+        <isNotNull prepend="," property="withdrawBusiId">
+            WITHDRAW_BUSI_ID = #withdrawBusiId#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM BATCH_RULE_WITHDRAW_BUSINESS        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="batchRuleWithdrawBusiness">
+        DELETE FROM BATCH_RULE_WITHDRAW_BUSINESS        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="withdrawBusiId">
+            WITHDRAW_BUSI_ID = #withdrawBusiId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="batchRuleWithdrawBusiness"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATION_DATE,STATUS,SEQUENCE_ID,BATCH_RULE_ID,WITHDRAW_BUSI_ID,
+			UPDATE_DATE
+        FROM BATCH_RULE_WITHDRAW_BUSINESS
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="batchRuleWithdrawBusiness">
+        SELECT 
+			CREATION_DATE,STATUS,SEQUENCE_ID,BATCH_RULE_ID,WITHDRAW_BUSI_ID,
+			UPDATE_DATE
+        FROM BATCH_RULE_WITHDRAW_BUSINESS
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="withdrawBusiId">
+            WITHDRAW_BUSI_ID = #withdrawBusiId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM BATCH_RULE_WITHDRAW_BUSINESS
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="withdrawBusiId">
+            WITHDRAW_BUSI_ID = #withdrawBusiId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="getBusiByBatchId" parameterClass="long" resultClass="batchRuleWithdrawBusinessDTO">
+    	SELECT 
+    	A.BUSINESS_NAME 	businessName,
+    	B.WITHDRAW_BUSI_ID	withdrawBusiId,
+    	B.BATCH_RULE_ID		batchRuleId
+		FROM WITHDRAW_BUSINESS A , BATCH_RULE_WITHDRAW_BUSINESS B
+		WHERE A.SEQUENCE_ID=B.WITHDRAW_BUSI_ID AND B.BATCH_RULE_ID=#value#
+    </select>
+    
+    <delete id="deleteBusiByBatchId" parameterClass="long">
+    	DELETE FROM BATCH_RULE_WITHDRAW_BUSINESS
+    	WHERE BATCH_RULE_ID=#value#
+    </delete>
+</sqlMap>

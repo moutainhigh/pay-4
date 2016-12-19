@@ -1,0 +1,46 @@
+<div class="select-banklist per">
+<#if B2CBankList?exists>
+<ul>
+<#list B2CBankList as B2CBank>
+<!--银联显示第一位-->
+<li class="for_unionpay hide" id="union_pay_show">
+<input type="radio" name="bankId" value="qcup001;11001002" id="qcup001_radio">
+<label id=qcup001 for="qcup001_radio" class="unionpay" title="银联"></label>
+</li>
+<#if B2CBank.orgcode == "11001002">
+<script type="text/javascript">
+$("#union_pay_show").addClass("show");
+$("#union_pay_show").removeClass("hide");
+</script>
+<#else>
+<li>
+	<input name="bankIdFee" type="radio" value="${B2CBank.alias?default('')};${B2CBank.orgcode?default('')}" id="${B2CBank.alias}_radio"
+	<#if bankCode?exists && bankCode== B2CBank.orgcode> checked="true" </#if>>
+	<label id="${B2CBank.alias}" for="${B2CBank.alias}_radio" class="${B2CBank.labelClass?default('')}"></label>
+</li>
+</#if>
+</#list>
+</ul>
+</#if>
+</div>
+<div class="ico_txtBox bankTipsInfo">
+	<i class="warn_ico"></i>
+	因原深发展银行与原平安银行合并为"平安银行"，原深圳发展银行个人用户请选择"平安银行"个人版进行交易（可支持您使用深发展银行的借记卡与信用卡）。
+	如为初次使用，原深圳发展银行用户需进行网银升级操作，具体操作事宜可咨询银行客服。
+</div>
+								
+
+<#if B2BBankList?exists>
+<div class="select-banklist bus">
+<p class="bank_type_tit">企业版网银</p>
+<ul class="B2BBANKLABEL">
+<#list B2BBankList as B2BBank>
+<li class="B2BBANKLABEL">
+	<input class="3" name="bankIdFee" type="radio" value="${B2BBank.alias?default('')};${B2BBank.orgcode?default('')}" id="${B2BBank.alias}_radio"
+	<#if bankCode?exists && bankCode== B2BBank.orgcode> checked="true" </#if>>
+	<label id="${B2BBank.alias}" for="${B2BBank.alias}_radio" class="${B2BBank.labelClass?default('')}"></label>
+</li>
+</#list>
+</ul>
+</div>
+</#if>

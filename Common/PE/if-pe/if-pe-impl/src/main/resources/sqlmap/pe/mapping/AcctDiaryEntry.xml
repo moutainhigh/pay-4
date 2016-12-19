@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acctdiaryentry">
+	<typeAlias alias="acctDiaryEntry" type="com.pay.pe.model.AccountEntry"/>
+    <resultMap id="acctDiaryEntry" class="acctDiaryEntry">
+        <result column="CRDR" property="crdr" jdbcType="DECIMAL"/>
+        <result column="TEXT" property="text" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="ACCT_CODE" property="acctCode" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="POST_DATE" property="postDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYMENT_SERVICE_CODE" property="paymentServiceCode" jdbcType="DECIMAL"/>
+        <result column="EXCHANGE_RATE" property="exchangeRate" jdbcType="DECIMAL"/>
+        <result column="VOUCHER_CODE" property="voucherCode" jdbcType="DECIMAL"/>
+        <result column="DEAL_ID" property="dealId" jdbcType="VARCHAR"/>
+        <result column="TRANSACTION_DATE" property="transactionDate" jdbcType="TIMESTAMP"/>
+        <result column="ENTRY_CODE" property="entryCode" jdbcType="DECIMAL"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="ENTRY_TYPE" property="entryType" jdbcType="DECIMAL"/>
+        <result column="VALUE" property="value" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CRDR,TEXT,CURRENCY_CODE,ACCT_CODE,STATUS,
+		POST_DATE,PAYMENT_SERVICE_CODE,EXCHANGE_RATE,VOUCHER_CODE,DEAL_ID,
+		TRANSACTION_DATE,ENTRY_CODE,CREATION_DATE,ENTRY_TYPE,VALUE
+		
+    </sql>
+    <insert id="create" parameterClass="acctDiaryEntry">
+        INSERT INTO ACCT_DIARY_ENTRY(
+			CRDR,TEXT,CURRENCY_CODE,ACCT_CODE,STATUS,
+			POST_DATE,PAYMENT_SERVICE_CODE,EXCHANGE_RATE,VOUCHER_CODE,DEAL_ID,
+			TRANSACTION_DATE,ENTRY_CODE,CREATION_DATE,ENTRY_TYPE,VALUE
+        )
+        VALUES(
+            #crdr#,#text#,#currencyCode#,#acctCode#,#status#,
+			#postDate#,#paymentServiceCode#,#exchangeRate#,#voucherCode#,#dealId#,
+			#transactionDate#,#entryCode#,#creationDate#,#entryType#,#value#
+		)
+    </insert>
+
+    <update id="update" parameterClass="acctDiaryEntry">
+        UPDATE ACCT_DIARY_ENTRY
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="crdr">
+            CRDR = #crdr#
+        </isNotNull>
+        <isNotNull prepend="," property="text">
+            TEXT = #text#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="acctCode">
+            ACCT_CODE = #acctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="postDate">
+            POST_DATE = #postDate#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode#
+        </isNotNull>
+        <isNotNull prepend="," property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate#
+        </isNotNull>
+        <isNotNull prepend="," property="dealId">
+            DEAL_ID = #dealId#
+        </isNotNull>
+        <isNotNull prepend="," property="transactionDate">
+            TRANSACTION_DATE = #transactionDate#
+        </isNotNull>
+        <isNotNull prepend="," property="creationDate">
+            CREATION_DATE = #creationDate#
+        </isNotNull>
+        <isNotNull prepend="," property="entryType">
+            ENTRY_TYPE = #entryType#
+        </isNotNull>
+        <isNotNull prepend="," property="value">
+            VALUE = #value#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="voucherCode">
+            VOUCHER_CODE = #voucherCode# 
+            </isNotNull>
+            <isNotNull prepend="AND" property="entryCode">
+            ENTRY_CODE = #entryCode# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    
+    <delete id="deleteBySelective" parameterClass="acctDiaryEntry">
+        DELETE FROM ACCT_DIARY_ENTRY        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="crdr">
+            CRDR = #crdr# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="text">
+            TEXT = #text# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="postDate">
+            POST_DATE = #postDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="voucherCode">
+            VOUCHER_CODE = #voucherCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transactionDate">
+            TRANSACTION_DATE = #transactionDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="entryCode">
+            ENTRY_CODE = #entryCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="entryType">
+            ENTRY_TYPE = #entryType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="value">
+            VALUE = #value# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    
+    <select id="findBySelective" resultMap="acctDiaryEntry">
+        SELECT 
+			CRDR,TEXT,CURRENCY_CODE,ACCT_CODE,STATUS,
+			POST_DATE,PAYMENT_SERVICE_CODE,EXCHANGE_RATE,VOUCHER_CODE,DEAL_ID,
+			TRANSACTION_DATE,ENTRY_CODE,CREATION_DATE,ENTRY_TYPE,VALUE
+			
+        FROM ACCT_DIARY_ENTRY
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="crdr">
+            CRDR = #crdr# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="text">
+            TEXT = #text# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="postDate">
+            POST_DATE = #postDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="voucherCode">
+            VOUCHER_CODE = #voucherCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transactionDate">
+            TRANSACTION_DATE = #transactionDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="entryCode">
+            ENTRY_CODE = #entryCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="entryType">
+            ENTRY_TYPE = #entryType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="value">
+            VALUE = #value# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM ACCT_DIARY_ENTRY
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="crdr">
+            CRDR = #crdr# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="text">
+            TEXT = #text# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="postDate">
+            POST_DATE = #postDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="voucherCode">
+            VOUCHER_CODE = #voucherCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transactionDate">
+            TRANSACTION_DATE = #transactionDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="entryCode">
+            ENTRY_CODE = #entryCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="entryType">
+            ENTRY_TYPE = #entryType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="value">
+            VALUE = #value# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

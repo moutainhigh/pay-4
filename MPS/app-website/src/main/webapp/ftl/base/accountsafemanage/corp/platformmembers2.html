@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+<!-- <script  type="text/javascript" src="<@sp.static/>/mps/js/zidingyi.js"></script> -->
+<!-- jquery validate -->
+<!--
+<script src="../resources/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+-->
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<!-- <script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script> -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<!-- <script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script> -->
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>支付密码修改</title>
+<script type="text/javascript">
+
+	function showMessage(srcSelector, message, valid) {
+		if(!valid) {
+			$(srcSelector).parent().next().html(message);
+			$(srcSelector).parent().next().css("color", "red");
+		} else {
+			$(srcSelector).parent().next().html("");
+		}		
+	}
+
+	function isEmpty(str) {
+		if(str == null || $.trim(str) == "") {
+			return true;
+		}
+		return false;
+	}
+
+	function validateForm() {
+		var result = true;
+		if(!validateMemberCode()) {
+			result = false;
+		}
+		
+		if(!validateIdentity()) {
+			result = false;
+		}
+		
+		if(!validatePassword()) {
+			result = false;
+		}
+		
+		return result;
+	}
+	
+	function validateMemberCode() {
+		var memberCode = $("#memberCode").val();
+		if(isEmpty(memberCode)) {
+			showMessage("#memberCode", "请输入会员号", false);
+			return false;
+		}
+		
+		memberCode = $.trim(memberCode);
+		
+		var reg=/^[0-9]+$/;
+		if(!reg.test(memberCode)) {
+			showMessage("#memberCode", "会员号格式不准确", false);
+			return false;
+		}
+		
+		if(memberCode.length != 11) {
+			showMessage("#memberCode", "会员号长度不是11位", false);
+			return false;
+		}
+		
+		if(memberCode.substring(0, 1) != "1") {
+        if(memberCode.substring(0, 1) == "8"){
+        showMessage("#memberCode", "只能关联普通会员号", false);
+        }else{
+        showMessage("#memberCode", "会员号必须1开头", false);
+        }
+        return false;
+      }
+		
+		showMessage("#memberCode", "", true);
+		return true;		
+	}
+	
+	function validateIdentity() {
+		var identity = $("#identity").val();
+		if(isEmpty(identity)) {
+			showMessage("#identity", "请输入登录名称", false);
+			return false;
+		}
+		
+		showMessage("#identity", "", true);
+		return true;
+	}
+	
+	function validatePassword() {
+		var password = $("#password").val();
+		if(isEmpty(password)) {
+			showMessage("#password", "请输入登录密码", false);
+			return false;
+		}
+		
+		showMessage("#password", "", true);
+		return true;
+	}
+	
+	
+
+	$(function(){$("#subLi_5").addClass("cur");$("#defaultNav").val("5");$("#subNav_5").show();})
+</script>
+
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+    <@sp.head mCode="corp_platform_members"/>
+
+	<div class="mainbox" >
+		<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<span><a href="${rc.contextPath}/corp/myPlatAccout.do">关联会员号</a></span>
+			</div>
+			<div class="seccon">
+				<div class="bgbox">
+			    <form action="${rc.contextPath}/corp/addPlatformMembers.htm" method="post"
+	name="paypassword" id="paypasswordform">
+			    <input type="hidden" id="myAccount" value="${myAccount?default('')}"/>
+<div class="secure_top pay_login">
+<ul>
+	<li id="tips_box" style="display:none;position: absolute;"><i class="error_tips_box">大写锁定，请确认是否按下CapsLock</i></li>
+	<li><font color=red id="returninfo">${returninfo?default('')}</font></li>
+</ul>
+</div>
+
+				<div class="seccon">
+					<div class="bgbox">
+						<table class="tab01">
+							<tbody>
+								<tr>
+									<td width="43%">
+										<div align="right">关联会员号：</div></td>
+									<td width="15%">
+										<input type="text" id="memberCode" name="memberCode" >
+									</td>
+									<#if result?has_content && result.errorCode?has_content && result.errorCode=="MEMBER_ERROR">
+										<td width="42%" align="left" style="color:red;">${result.errorMsg}</td>
+									<#else>
+										<td width="42%" align="left"></td>
+									</#if>
+								</tr>
+								<tr>
+									<td>
+										<div align="right">关联会员号管理员登录名称：</div>
+									</td>
+									<td>
+										<input type="text" id="identity" name="identity" >
+									</td>
+									<#if result?has_content && result.errorCode?has_content && result.errorCode=="OPERATOR_ERROR">
+										<td width="42%" align="left" style="color:red;">${result.errorMsg}</td>
+									<#else>
+										<td width="42%" align="left"></td>
+									</#if>
+								</tr>
+								<tr>
+									<td><div align="right">关联会员号管理员登录密码：</div></td>
+									<td>
+										<input type="password" id="password" name="password">
+									</td>
+									<#if result?has_content && result.errorCode?has_content && result.errorCode != "MEMBER_ERROR" && result.errorCode != "OPERATOR_ERROR">
+										<td width="42%" align="left" style="color:red;">${result.errorMsg}</td>
+									<#else>
+										<td width="42%" align="left"></td>
+									</#if>
+								</tr>
+								<tr>
+									<td></td>
+									<td colspan="3">
+										<input type="submit" id="btnOk" class="btn_blue2" onClick="return validateForm();" value="确认" alt="确认" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</div>
+						</div>
+						</form>
+					</div>	
+					<div id="resultListDiv" class="listFence" >
+				     <div><font color="red"></font></div>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+
+<script type="text/javascript">
+$("#memberCode").bind("keyup change", function(){
+	validateMemberCode();
+});
+$("#identity").bind("keyup change", function(){
+	validateIdentity();
+});
+$("#password").bind("keyup change", function(){
+	validatePassword();
+});
+</script>
+
+
+
+</body>
+</html>

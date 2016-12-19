@@ -1,0 +1,202 @@
+<div class="pay_cashier hide" id="quickPay">
+		<input type="hidden" name="errorMsg" id="errorMsg" value="${errorMsg?default('')}"/>
+		<form method="post" action="" id="quickPayForm" name="quickPayForm">
+			
+			<ul class="form_list">
+				<li>
+					<i id="noFeeIdQuick" style=" bottom:22px;left:370px; display:display;" >
+							<label class="form_side">应付总价：</label>
+							<strong class="red">${banktotalAmountFee?default('')}</strong>元(含手续费金额：<span class='red'>${bankfee?default('')}</span> 元)
+					</i>
+				</li>
+				<div id="quickDiv">
+					<#include "../quickpay/quickpay_bank.html">
+				</div>
+			</ul>
+			
+			<input type="hidden" name="banktotalAmountFee" id="banktotalAmountFee" value="${banktotalAmountFee?default('')}"/>
+			<input type="hidden" name="partnerUserID" id="partnerUserID" value="${partnerUserID?default('')}"/>
+			<input type="hidden" name="orderNo" id="orderNo" value="${orderNo?default('')}"/>
+			<input type="hidden" name="quickPayOrders" id="quickPayOrders" value="${quickPayOrders?default('')}"/>
+			<input type="hidden" name="ordersKey" id="ordersKey" value="${ordersKey?default('')}"/>
+			<input type="hidden" name="partner" id="partner" value="${partner?default('')}"/>
+			<input type="hidden" name="totalAmount" id="totalAmount" value="${totalAmount?default('')}"/>
+			<input type="hidden" name="quickType" id="quickType" value="${quickType?default('')}"/>
+			<input type="hidden" name="bankInfo" id="bankInfo" value="${bankInfo?default('')}"/>
+			<input type="hidden" name="secondFlag" id="secondFlag" value="${secondFlag?default('')}"/>
+			<input type="hidden" name="quickPayInfoNo" id="quickPayInfoNo" value="${quickPayInfoNo?default('')}"/>
+			<input type="hidden" name="token" id="token" value=""/>
+		</form>
+	</div>
+
+<script type="text/javascript">
+
+	function nextStep(){
+		var quickBank = $('input:radio[name="quickBank"]:checked').val();
+		if(null == quickBank){
+			$.pay.alert('请选择银行',{h:160,t:'3'});
+			return;
+		}
+		
+		var pars = "quickBank=" + quickBank;
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/quickBankPay.htm?method=quickBank",
+			cache: false,
+			data: pars,
+			success: function(result){
+				document.getElementById("quickDiv").innerHTML = result;
+			}  	
+		});
+	}
+	
+	function previousStep(){
+		
+		var partner = $('#partner').val();
+		var pars = "partner=" + partner;
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/quickBankPay.htm?method=quickBankList",
+			cache: false,
+			data: pars,
+			success: function(result){
+				$('#quickDiv').html(result);
+			}  	
+		});
+	}	
+	
+	function seconds(id){
+		
+		var cardType = $('#cardType').val();
+		
+		var userCardNo = $("#userCardNo").val();
+		if("" == userCardNo ){
+			$.pay.alert('请输入卡号',{h:160,t:'3'});
+			return ;
+		}
+		var userName = $("#userName").val();
+		if("" == userName ){
+			$.pay.alert('请输入姓名',{h:160,t:'3'});
+			return ;
+		}
+		var userIdNo = $("#userIdNo").val();
+		if("" == userIdNo ){
+			$.pay.alert('请输入证件号',{h:160,t:'3'});
+			return ;
+		}
+		
+		if("0" == cardType){
+			var validMonth = $("#validMonth").val();
+			if("" == validMonth ){
+				$.pay.alert('请输入有效期',{h:160,t:'3'});
+				return ;
+			}
+			var validDay = $("#validDay").val();
+			if("" == validDay ){
+				$.pay.alert('请输入有效期',{h:160,t:'3'});
+				return ;
+			}
+			var userCvv2 = $("#userCvv2").val();
+			if("" == userCvv2 ){
+				$.pay.alert('请输入CVV2',{h:160,t:'3'});
+				return ;
+			}
+		}
+		
+		var userPhoneNo = $("#userPhoneNo").val();
+		if("" == userPhoneNo ){
+			$.pay.alert('请输入手机号',{h:160,t:'3'});
+			return ;
+		}
+		
+       if($("#" + id).attr("disabled") != "disabled"){
+
+    	   	var name = $('#userName').val();
+   			var pars = $("#quickPayForm").serialize();
+
+   			$("#" + id).attr("disabled","disabled");
+   			startRemainTime('重新获取手机验证码',id);
+	   		$.ajax({
+	   			type: "POST",
+	   			url: "${rc.contextPath}/quickPayCheckCode.htm?method=toSendCheckCode&name="+name,
+	   			cache: false,
+	   			data: pars,
+	   			success: function(result) {
+	   				var str = result.split('&');
+	   				if(str[0] == '0'){
+	   					$.pay.alert(str[1],{h:160,t:'3'});
+	   				}else{
+	   					$('#token').val(str[1]);
+	   				}
+	   			}
+	   		});
+       }
+	 }
+
+	function postSubmitQuick() {
+		
+		var cardType = $('#cardType').val();
+		
+		var userCardNo = $("#userCardNo").val();
+		if("" == userCardNo ){
+			$.pay.alert('请输入卡号',{h:160,t:'3'});
+			return ;
+		}
+		var userName = $("#userName").val();
+		if("" == userName ){
+			$.pay.alert('请输入姓名',{h:160,t:'3'});
+			return ;
+		}
+		var userIdNo = $("#userIdNo").val();
+		if("" == userIdNo ){
+			$.pay.alert('请输入证件号',{h:160,t:'3'});
+			return ;
+		}
+		
+		if('0' == cardType){
+			var validMonth = $("#validMonth").val();
+			if("" == validMonth ){
+				$.pay.alert('请输入有效期',{h:160,t:'3'});
+				return ;
+			}
+			var validDay = $("#validDay").val();
+			if("" == validDay ){
+				$.pay.alert('请输入有效期',{h:160,t:'3'});
+				return ;
+			}
+			var userCvv2 = $("#userCvv2").val();
+			if("" == userCvv2 ){
+				$.pay.alert('请输入CVV2',{h:160,t:'3'});
+				return ;
+			}
+		}
+
+		var userPhoneNo = $("#userPhoneNo").val();
+		if("" == userPhoneNo ){
+			$.pay.alert('请输入手机号',{h:160,t:'3'});
+			return ;
+		}
+		var checkCode = $("#checkCode").val();
+		if("" == checkCode ){
+			$.pay.alert('请输入手机验证码',{h:160,t:'3'});
+			return ;
+		}
+
+		var pars = $("#quickPayForm").serialize();
+		var name = $('#userName').val();
+		
+		loadWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/quickBankPay.htm?method=onSubmit",
+			cache: false,
+			data: pars,
+			success: function(result){
+				$.pay.closeLoading(loadWin);
+				$("#postSubmit_span_1").addClass("b_off");
+			}  	
+
+		});
+	}
+	
+</script>

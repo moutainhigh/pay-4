@@ -1,0 +1,266 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>支付链收款记录</title>
+<meta name="Keywords" content="${acct_balance_detail_Keywords}" />
+<meta name="Description" content="${acct_balance_detail_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css?v=${cssVersion}.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head  mCode="corp_pay_chain_index"/>
+<!--导航 end--> 
+
+
+
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><a href="${rc.contextPath}/corp/paychain/generateChain.htm">支付链收款</a><span>|</span><strong class="cur">支付链收款记录</strong></div>
+			</div>
+			<div class="refund_list mt10">
+			<div class="refund_box"> 
+				<!--查询 str-->
+				<div class="order_search">
+					<form class="form single" action="${rc.contextPath}/corp/paychain/payChainQuery.htm" method="post" name="form0" id="form0" onsubmit="return validateForm() " > 
+						<!-- 时间 -->
+			<label class="side w50">时间：</label><input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate inp_normal" gtbfieldid="109" value="${paramDto.startTime?default('')}">
+			<span>-</span>
+			<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate inp_normal" gtbfieldid="110" value="${paramDto.endTime?default('')}"	/>
+			
+						<label class="side">收款链接编号：</label>
+						<input type="text" class="inp_normal 130" name="payChainNumber" id="payChainNumber" value="${paramDto.payChainNumber?default('')}"  />
+			
+						<label class="side">收款链接状态：</label>
+			<select name="status" id="status" class="inp_normal">
+				<option value="">全部</option>
+				<option value="1">生效</option>
+				<option value="2">已关闭</option>
+			</select>
+						<i class="btnC hack">
+						<button type="submit">查 询</button>
+						</i>
+					</form>
+				</div>
+				<!--查询 end--> 
+	</div>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+			
+			<h3 class="title font14">查询结果</h3>
+				<#if payChainStatDto?has_content&& payChainStatDto.recordsCount gt 0><a class="more red" href="javascript:excelBalance()">下载查询结果</a></#if>
+				 </div>
+			
+			<div class="refund_list">
+			<div class="refund_box">
+				<div class="barg_table">
+					<table>
+						<thead>
+							<tr>
+								<th width="15%">有效时长</th>
+								<th>生成时间</th>
+								<th>过期时间</th>
+								<th>收款链接编号</th>
+								<th width="10%">收款名称</th>
+								<th>已支付笔数</th>
+								<th>已支付总金额</th>
+								<th>收款链接状态</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+					<#if payChainStatDto?has_content>
+		   				<#list payChainStatDto.payChainStatRecordDtos as record>
+							<tr>
+		<td >
+		<div id="show_${record.chainNumber}" style="width:90%;"><span id="span_${record.chainNumber}">${record.effectiveMsg}</span>
+		<#if record.status == "1" >
+		<a href="javascript:editEffType('${record.chainNumber}')" style="color: blue">修改</a></div>
+		</#if>
+		<div id="edit_${record.chainNumber}" style="display: none;width: 90%" >
+		<select id="effType_${record.chainNumber}" onchange="updateEffType('${record.chainNumber}')"  >
+		<#list effectiveTypes as efType>
+			<#if record.effDays lt efType.days> 
+			<option value="${efType.value}" <#if record.effectiveDate == efType.value  >selected</#if> >${efType.memo}</option>
+			</#if>
+		</#list>
+		</select> <a href="javascript:showEffType('${record.chainNumber}')" style="color: blue">取消</a> </div> </td>
+								<td>${record.createDate?string('yyyy-MM-dd HH:mm:ss')}</td>
+								<td><div id="overdueDate_${record.chainNumber}">${record.overdueDate?string('yyyy-MM-dd HH:mm:ss')}</div></td>
+								<td>${record.chainNumber}</td>
+								<td>${record.descriptionTitle?default("")}</td>
+								<td>${record.count}</td>
+								<td>${record.sum}</td>
+								<td>${record.statusMsg}</td>
+								<td>
+								<#if record.status == "1" >
+								<a href="javascript:closePayChain('${record.chainNumber}','${record.descriptionTitle}')" id="a${record.chainNumber}" class="blues">关闭</a>
+								</#if>
+								<a class="ml10 blues" href="${rc.contextPath}/corp/paychain/payChainQuery.htm?payChainNumber=${record.chainNumber}&method=queryPayChainDetail" target="_blank">查看</a></td>
+							</tr>
+						</#list>
+		 			</#if>
+						</tbody>
+					</table>
+				</div>
+				</div>
+				<div class="page_box">
+				<#if payChainStatDto?has_content && payChainStatDto.recordsCount gt 0 >
+		<p>共${payChainStatDto.recordsCount}条记录，<span class="blod">${payChainStatDto.recordsPaySum}</span>笔付款，收款总金额：<span class="blod green">${payChainStatDto.recordsAmountSum}</span>元</p>
+		<!--分页 str -->
+				<@sp.pagination pu=pu />
+					<input type="hidden" value="${pu.curPageNo}" id="curPage">
+		<!--分页 end -->
+		</#if>
+	</div>
+			</div>
+			
+			
+			<#if exedQuery && payChainStatDto.recordsCount == 0>
+			<div class="content txtC">
+				<div class="result_tips">
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class="pop_war"></span>
+						<p class="words f14"><strong>没有找到相关内容！</strong></p>
+						<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回账户桌面</a></p>
+					</div>
+				</div>
+			</div>
+				</#if>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+
+
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	var minTime = "${minDate}";
+	var curTime = "${maxDate}";
+	$("#startTime").focus(function (){
+		var startMax = $("#endTime").val();
+		startMax = (startMax.length != 0)? startMax:curTime;
+		WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',minDate:minTime,maxDate:startMax});
+
+	});
+	$("#endTime").focus(function (){
+		var endMin = $("#startTime").val();
+		endMin = (endMin.length != 0)? endMin:minTime;
+		WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',minDate:endMin,maxDate:curTime});
+	});
+	
+
+	<#if paramDto.status?has_content>
+		$("#status").val('${paramDto.status}');
+	</#if>
+	<#if paramDto.orderNo?has_content>
+	$("#orderNo").val('${paramDto.orderNo}');
+</#if>
+	
+	
+});
+function excelBalance(){
+	var s_time = '${paramDto.startTime?default('')}';
+	var e_time = '${paramDto.endTime?default('')}';
+	var status = '${paramDto.status?default('')}';
+	var payChainNumber = '${paramDto.payChainNumber?default('')}';
+	var url  ="${rc.contextPath}/corp/paychain/payChainQuery.htm?vtype=1&startTime="+s_time+"&endTime="+e_time+"&status="+status+'&payChainNumber='+payChainNumber;
+	window.open(url);
+	
+} 
+
+function closePayChain(chainNum,text){
+	
+	var url = "${rc.contextPath}/corp/paychain/generateChain.htm";
+	var param = {'chainNum':chainNum,'method':'closePayChain'};
+	 $.pay.confirm("确定关闭为<font color='red'>"+text+"</font>的支付链吗？关闭后将无法继续使用。",{title:"关闭支付链确认",h:200,t:'3',
+		 confirm:function(){
+		 $.post(url,param,function cbk(msg){
+			 if(msg=='S'){
+					$.pay.alert("关闭支付链成功",{t:'1'});
+					$("#a"+chainNum).remove();
+					$("#show_"+chainNum).html($("#span_"+chainNum).html());
+					return ;
+				}
+				else{
+					$.pay.alert(msg,{t:'2'});
+					return ;
+				}
+			 
+		 	});
+		}});
+}
+
+function validateForm(){
+	if($("#startTime").val().length==0 || $("#endTime").val().length==0 ){
+		$.pay.alert("开始和结束时间都必须选择");
+		return false ;
+	}
+	
+}
+
+
+function editEffType(divIndex){
+	$("#"+"show_"+divIndex).hide();
+	$("#"+"edit_"+divIndex).show();
+}
+function showEffType(divIndex){
+	$("#"+"edit_"+divIndex).hide();
+	$("#"+"show_"+divIndex).show();
+	
+}
+
+function updateEffType(divIndex){
+	var value = $("#"+"effType_"+divIndex).val();
+	var text = ($("#"+"effType_"+divIndex +" option:selected").text());
+	
+	
+	var url = "${rc.contextPath}/corp/paychain/generateChain.htm";
+	var param = {'chainNum':divIndex,effType:value,'method':'updateEffDate'};
+	$.post(url,param,function cbk(msg){
+		 if(msg.indexOf('S')>=0){
+			 	var date = msg.split(",")[1];
+			 	$("#"+"overdueDate_"+divIndex).text(date);
+			 	$("#"+"edit_"+divIndex).hide();
+				$("#"+"span_"+divIndex).text(text);
+				$("#"+"show_"+divIndex).show();
+				$.pay.alert("修改有效期成功",{t:'1'});
+				return ;
+			}
+			else{
+				$.pay.alert(msg,{t:'2'});
+				return ;
+			}
+		 
+	 	});
+	
+}
+</script>
+
+</html>

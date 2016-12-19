@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="multipartResolver" 
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>104857600</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+	<bean id="paramResolver" 
+		class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName" value="method" />
+		<property name="defaultMethodName">
+			<value>index</value>
+		</property>
+	</bean>
+	<bean name="mutiActionHander" 
+		class="org.springframework.web.servlet.mvc.multiaction.MultiActionController">
+		<property name="methodNameResolver" ref="paramResolver" />
+	</bean>
+	
+	<bean id="signMessageHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/signMessageCreateView.do">signMessageController</prop>	
+				<prop key="/signMessageSearch.do">signMessageController</prop>
+				<prop key="/signMessageSearchList.do">signMessageController</prop>
+				<prop key="/signMessageUpdate.do">signMessageController</prop>
+				<prop key="/signMessageDelete.do">signMessageController</prop>
+				<prop key="/signDepartSearch.do">signMessageController</prop>
+			</props>       
+		</property>
+	</bean>
+
+	<bean id="signMessageController"
+		class="com.pay.poss.merchantmanager.controller.SignMessageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="signMessageCreateView">		
+			<value>/merchantmanager/signMessageCreate</value>
+		</property>	
+		<property name="signMessageSearchView">		
+			<value>/merchantmanager/signMessageSearch</value>
+		</property>	
+		<property name="signMessageSearchList">		
+			<value>/merchantmanager/signMessageSearchResult</value>
+		</property>	
+		<property name="signMessageUpdateView">		
+			<value>/merchantmanager/signMessageUpdate</value>
+		</property>	
+		
+		<property name="iSignMessageService" ref="iSignMessageService"/>
+	</bean>
+	
+	
+</beans>
+
+

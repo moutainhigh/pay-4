@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/currency/rate.do">currencyRateController</prop>
+				<prop key="/orgCurrency/rate.do">orgCurrencyRateController</prop>
+				<prop key="/partnerCurrency/rate.do">partnerCurrencyRateController</prop>
+				<prop key="/settlementBaseRate/rate.do">settlementBaseRateController</prop>
+				<prop key="/transactionBaseRate/rate.do">transactionBaseRateController</prop>
+				<prop key="/settlementRateAdjust/adjust.do">settlementRateAdjustController</prop>
+				<prop key="/transactionRateAdjust/adjust.do">transactionRateAdjustController</prop>
+				<prop key="/settlementRate/rate.do">settlementRateController</prop>
+				<prop key="/transactionRate/rate.do">transactionRateController</prop>
+				<prop key="/transRateMarkup/markup.do">transRateMarkupController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<bean id="settlementBaseRateController"
+		class="com.pay.poss.controller.fi.currencyrate.SettlementBaseRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/settlementbase/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/settlementbase/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/settlementbase/recordList</value>
+		</property>
+		<property name="fileName">
+		    <value>ratesTemple.xls</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="settlementRateAdjustController"
+		class="com.pay.poss.controller.fi.currencyrate.SettlementRateAdjustController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/settlementrateadjust/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/settlementrateadjust/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/settlementrateadjust/recordList</value>
+		</property>
+		<property name="fileName">
+		    <value>ratesChangeTemple.xls</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="settlementRateController"
+		class="com.pay.poss.controller.fi.currencyrate.SettlementRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/settlementrate/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/settlementrate/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/settlementrate/recordList</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="transactionBaseRateController"
+		class="com.pay.poss.controller.fi.currencyrate.TransactionBaseRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/transactionbase/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/transactionbase/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/transactionbase/recordList</value>
+		</property>
+		<property name="fileName">
+		    <value>ratesTemple.xls</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="transactionRateController"
+		class="com.pay.poss.controller.fi.currencyrate.TransactionRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/transactionrate/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/transactionrate/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/transactionrate/recordList</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="transactionRateAdjustController"
+		class="com.pay.poss.controller.fi.currencyrate.TransactionRateAdjustController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/transactionrateadjust/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/transactionrateadjust/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/transactionrateadjust/recordList</value>
+		</property>
+		<property name="fileName">
+		    <value>ratesChangeTemple.xls</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+
+	<bean id="currencyRateController"
+		class="com.pay.poss.controller.fi.currencyrate.CurrencyRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/recordList</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+
+	<bean id="orgCurrencyRateController"
+		class="com.pay.poss.controller.fi.currencyrate.OrgCurrencyRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/org/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/org/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/org/recordList</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="channelClientService" ref="channelClientService" />
+	</bean>
+
+	<bean id="partnerCurrencyRateController"
+		class="com.pay.poss.controller.fi.currencyrate.PartnerCurrencyRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/partner/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/partner/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/partner/recordList</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="transRateMarkupController"
+		class="com.pay.poss.controller.fi.currencyrate.TransRateMarkupController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/currencyrate/transratemarkup/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/currencyrate/transratemarkup/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/currencyrate/transratemarkup/recordList</value>
+		</property>
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+
+</beans>

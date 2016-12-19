@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="app-externalRegisterService"
+		class="com.pay.app.service.external.impl.ExternalRegisterServiceImpl">
+		<property name="enterpriseRegisterService" ref="enterpriseRegisterService" />
+		<property name="memberService" ref="base-memberService" />
+		<property name="memberRelationService" ref="base-memberRelationService" />
+		<property name="liquidateInfoService" ref="base-liquidateInfoService" />
+		<property name="messageSignatureVerify" ref="bsp-messageSignatureVerify"></property>
+		<property name="bankService" ref="bankService" />
+	</bean>
+	
+	<!-- 加签与验签 -->
+	<bean id="bsp-signatureVerify" class="com.pay.app.service.external.impl.SignatureVerifyImpl">
+	
+	</bean>
+	
+	<bean id="bsp-messageSignatureVerify" class="com.pay.app.service.external.impl.MessageSignatureVerifyImpl">
+		<property name="messageDigest">
+			<bean class="com.pay.inf.service.impl.MD5MessageDigestImple" />
+		</property>
+	</bean>
+	
+	<!-- 获得广钢平台资源 -->
+	<bean id="externalResourcesHelper" class="com.pay.app.service.external.impl.ExternalResourcesHelperImpl" />
+
+	<!-- 商户是否已经登录广钢平台 -->
+	<bean id="externalLoginValidate" class="com.pay.app.service.external.impl.ExternalLoginValidateImpl" >
+		<property name="externalResourcesHelper" ref="externalResourcesHelper" />
+		<property name="messageSignatureVerify" ref="bsp-messageSignatureVerify" />
+	</bean>
+	
+</beans>

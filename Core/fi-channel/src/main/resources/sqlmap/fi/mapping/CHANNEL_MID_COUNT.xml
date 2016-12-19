@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelMidCount">
+	<typeAlias alias="channelMidCount" type="com.pay.channel.model.ChannelMidCount"/>
+    <resultMap id="channelMidCountMap" class="channelMidCount">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_CODE" property="channelCode" jdbcType="VARCHAR"/>
+        <result column="MID" property="mid" jdbcType="VARCHAR"/>
+        <result column="TXN_COUNT" property="txnCount" jdbcType="DECIMAL"/>
+        <result column="COUNT_DATE" property="countDate" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="DATE"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="DATE"/>
+    </resultMap>
+    
+    <insert id="create" parameterClass="channelMidCount">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_MID_COUNT_NO.nextval FROM DUAL
+		</selectKey>
+	 	INSERT INTO CHANNEL_MID_COUNT(
+			id,MEMBER_CODE,CHANNEL_CODE,MID,TXN_COUNT,COUNT_DATE,CREATE_DATE
+        )
+        VALUES(
+            #id#,#memberCode#,#channelCode#,#mid#,#txnCount#,#countDate#,sysdate
+		)
+	</insert>
+	
+	<select id="findByCriteria" resultMap="channelMidCountMap" parameterClass="channelMidCount">
+        SELECT * FROM CHANNEL_MID_COUNT
+        WHERE 1=1
+       <isNotNull property="memberCode">
+			AND MEMBER_CODE = #memberCode#
+	   </isNotNull>
+       <isNotNull property="channelCode">
+			AND CHANNEL_CODE = #channelCode#
+	   </isNotNull>
+	   <isNotNull property="mid">
+			AND MID = #mid#
+	   </isNotNull>
+	   <isNotNull property="countDate">
+			AND COUNT_DATE = #countDate#
+	   </isNotNull>
+    </select>
+    
+    <update id="update" parameterClass="channelMidCount">
+    	update CHANNEL_MID_COUNT 
+    	<dynamic prepend="set">
+    		<isNotNull prepend="," property="memberCode">
+    			MEMBER_CODE = #memberCode:DECIMAL#
+		    </isNotNull>
+		    <isNotNull prepend="," property="channelCode">
+		    	CHANNEL_CODE = #channelCode:VARCHAR#
+		    </isNotNull>
+		    <isNotNull prepend="," property="mid">
+		    	MID = #mid:VARCHAR#
+		    </isNotNull>
+		    <isNotNull prepend="," property="txnCount">
+		    	TXN_COUNT = #txnCount:DECIMAL#
+		    </isNotNull>
+		    <isNotNull prepend="," property="updateDate">
+		    	UPDATE_DATE = #updateDate:DATE#
+		    </isNotNull>
+    	</dynamic>
+    	where ID = #id:DECIMAL#
+    </update>
+</sqlMap>

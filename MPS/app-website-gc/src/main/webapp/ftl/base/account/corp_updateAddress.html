@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title><#if showType?has_content>添加<#else>修改</#if>${address_info}${title}</title>
+<meta name="Keywords" content="${address_info_Keywords}" />
+<meta name="Description" content="${address_info_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/css.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript">
+$(function(){
+	$.formValidator.initConfig({formid:"memberForm",onerror:function(msg,obj){}});
+
+	$("input").blur(function(){
+		$(this).val($(this).val().trim());
+		
+	});
+
+$("#compayLinkerName").formValidator({tipid:"compayLinkerNameTip",onshow:"&nbsp;",onfocus:"&nbsp;",oncorrect:"&nbsp;"})
+					 .inputValidator({min:1,empty:false,onerror:"请填写联系人姓名"});
+
+$("#compayLinkerTel").formValidator({tipid:"compayLinkerTelTip",onshow:"&nbsp;",onfocus:"&nbsp;",oncorrect:"&nbsp;"})
+					 .inputValidator({min:1,empty:false,onerror:"请填写联系人电话"});
+
+
+$("#region").formValidator({tipid:"provinceTip",onshow:"&nbsp;",onfocus:"&nbsp;",oncorrect:"&nbsp;"})
+	.inputValidator({min:1,empty:false,onerror:"请选择省份"});
+	
+
+$("#address").formValidator({tipid:"addressTip",empty:true,onshow:"&nbsp;",onfocus:"&nbsp;",oncorrect:"&nbsp;"})
+.inputValidator({max:128,onerror:"最多64个汉字，128个字符"})
+.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"不能输入非法字符"});
+
+$("#zip").formValidator({tipid:"zipTip",empty:true,onshow:"请填写您的真实邮编，方便投递，可以为空",onfocus:"&nbsp;",oncorrect:"&nbsp;"})
+	.regexValidator({regexp:"zipcode",datatype:"enum",onerror:"邮编格式不正确，只能为6位数字"});
+
+
+var province = $("#pv").attr("value");
+var city = $("#cy").attr("value");
+
+$("#region").load("../province.htm?defaultProvince="+province);
+if(province!='' && city!=''){
+	$("#city").load("../province.htm?method=city&provinceId="+province+"&defaultCity="+city);
+}else if(province!=''){
+	$("#city").load("../province.htm?method=city&provinceId="+province);
+}
+
+$("#region").change(function(){
+	$("#city").load("../province.htm?method=city&provinceId="+$(this).val()+"&defaultCity="+city);
+});
+$("#btnSubmit").click(function(){
+	if($("#city").val() == null || $("#city").val() == ""){
+		$("#provinceTip").html("<span class='red'>请选择城市</span>");
+		return false;
+	}
+	$("#memberForm").submit();
+	return false;
+});
+});
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head  mCode="corp_account_info,bsp_account_info_manager" />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+
+	<#assign toptip="添加地址信息">
+<#if showType?has_content>
+<#assign toptip="添加地址信息">
+<#else><#assign toptip="修改地址信息">
+</#if>
+	<@sp.banner toptit="信息管理" toptit2="${toptip}" glide=true/>
+	<!--侧导航企业版 str -->
+	<#if (Session["userSession"].operatorId >0) >
+	<@sp.menu channel="2_0"/>
+	<#else>
+	<@sp.menu channel="2_1"/>
+	</#if> <!--侧导航企业版 end -->
+	
+
+		<!--自适应box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg ">
+				<div class="tit_box ">
+					<h3 class="title font14"><span class="ico_dot2"></span><strong><#if showType?has_content>添加<#else>修改</#if>地址信息</strong></strong></h3>
+				</div>
+				<div class="content">
+					
+					<div class="pay_info">
+						<form class="mod_form" id="memberForm" method="post" action="${rc.contextPath}/corp/updateAccountInfo.htm"  onsubmit="javascript:return false;">
+						<input type="hidden" name="method" value="updateCorpAddress">
+						<input type="hidden" id="enterpriseId"  name="enterpriseId" value="${enterpriseBase.enterpriseId?default('')}">
+						<input type="hidden" id="contactId" name="contactId" value="${enterpriseContact.contactId?default('')}">
+							<ul class="form_list mt20 addpf">
+							
+							<#--
+								<li>
+									<label class="form_side col000"><span>*</span>企业名称：</label>
+									<input type="text" class="inp_normal" id="zhName" name="zhName" readonly=true  value="${enterpriseBase.zhName?default('')}">
+								</li>
+							-->
+								<li>
+									<label class="form_side col000"><span>*</span>联系人姓名：</label>
+									<input type="text" class="inp_normal" id="compayLinkerName" name="compayLinkerName"  value="${enterpriseContact.compayLinkerName?default('')}">
+									<span id="compayLinkerNameTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>联系电话：</label>
+									<input id="compayLinkerTel" name="compayLinkerTel" type="text" class="inp_normal" maxlength="15" value="${enterpriseContact.compayLinkerTel?default('')}">
+									<span id="compayLinkerTelTip"></span>
+								</li>
+								<li>
+									<input type="hidden" id="pv" value="${enterpriseBase.region?default('')}">
+									<input type="hidden" id="cy" value="${enterpriseBase.city?default('')}">
+									<label class="form_side col000">省份：</label>
+									<select name="region" id="region" style="width:120px;"></select>
+									<label for="" class="s">城市：</label>
+									<select name="city" id="city" ><option value="">--请选择城市--</option></select>
+									<span id="provinceTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">地址：</label>
+									<input id="address" name="address" type="text" class="inp_normal" size="64" maxlength="128" value="${enterpriseContact.address?default('')}">
+									<span id="addressTip"></span>
+								</li>
+								
+								<li>
+									<label class="form_side col000">邮编：</label>
+									<input id="zip" name="zip" type="text" class="inp_normal" maxlength="10" value="${enterpriseContact.zip?default('')}">
+									<span id="zipTip"></span>
+								</li>
+								
+							<li class="btn">
+							<span id="spansub" class="btn_yel_b botton_yel_b"><button id="btnSubmit"  type="submit"><#if showType?has_content>添  加<#else>修  改</#if></button></span>
+							</li>
+								 </ul>
+						</form>
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

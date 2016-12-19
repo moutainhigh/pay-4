@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-acct">
+    <typeAlias alias="acct" type="com.pay.acc.acct.model.Acct"/>
+    <typeAlias alias="acctWithdrawFee" type="com.pay.acc.acct.model.AcctWithdrawFee"/>
+    <typeAlias alias="pseudoAcct" type="com.pay.acc.acct.model.PseudoAcct"/>
+    <typeAlias alias="vouchAcct" type="com.pay.acc.acct.model.VouchAcct"/>
+    
+    <resultMap class="acct" id="acctResult">
+        <result property="acctCode" column="ACCT_CODE" jdbcType="VARCHAR"/>
+        <result property="memberCode" column="MEMBER_CODE"  jdbcType="DECIMAL"/>
+        <result property="balance" column="BALANCE" jdbcType="DECIMAL"/>
+        <result property="frozeAmount" column="FROZEN_AMOUNT" jdbcType="DECIMAL" />
+        <result property="currencyCode" column="CUR_CODE" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap class="acct" id="acctResult3">
+        <result property="acctCode" column="ACCT_CODE" jdbcType="VARCHAR"/>
+        <result property="frozeAmount" column="FROZEN_AMOUNT" jdbcType="DECIMAL" />
+    </resultMap>
+    <resultMap class="acct" id="acctResult2">
+        <result property="acctCode" column="ACCT_CODE" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap class="java.util.HashMap" id="acctResult4">
+    	<result property="zhName" column="zh_name" jdbcType="VARCHAR"/>
+    	<result property="acctCode" column="ACCT_CODE" jdbcType="VARCHAR"/>
+        <result property="memberCode" column="MEMBER_CODE"  jdbcType="DECIMAL"/>
+        <result property="balance" column="BALANCE" jdbcType="DECIMAL"/>
+        <result property="frozeAmount" column="FROZEN_AMOUNT" jdbcType="DECIMAL" />
+        <result property="currencyCode" column="CUR_CODE" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    	<resultMap class="java.util.HashMap" id="acctResult5" extends="acctResult4">
+    	       <result property="acctType" column="ACCT_TYPE" jdbcType="DECIMAL" />
+    	</resultMap>
+    
+    <insert id="create" parameterClass="acct">
+		insert into T_ACCT
+		(ACCT_CODE,	MEMBER_CODE, BALANCE, STATUS, FROZEN_AMOUNT, CREATE_DATE, UPDATE_DATE, CREDIT_BALANCE, DEBIT_BALANCE)
+		values
+		(#acctCode#, #memberCode#, 0, 1, 0,	sysdate, sysdate, 0, 0)
+	</insert>
+    
+    <!--根据账户号查询  -->
+    <select id="queryAcctBycurCodeAndmenberCode" parameterClass="java.util.HashMap" resultMap="acctResult4">		
+		select c.zh_name,a.ACCT_CODE,a.MEMBER_CODE,a.BALANCE,a.FROZEN_AMOUNT,b.CUR_CODE from T_Acct a
+		left join T_ACCT_ATTRIB b on a.acct_code=b.acct_code
+		left join t_Enterprise_Base c on b.member_code=c.member_code
+		where b.member_code=#memberCode# and b.cur_code=#curCode# and a.status=1
+		and substr(b.acct_code,-3) like '1%'   	
+    </select>
+    
+    <select id="queryAccountByAcctCode" resultClass="acct"  parameterClass="java.lang.String">
+        select 
+      		ACCT_CODE           as acctCode, 
+      		MEMBER_CODE			as memberCode, 
+      		BALANCE, 
+      		STATUS,
+      		FROZEN_AMOUNT		as frozenAmount,
+          	CREATE_DATE		 	as createDate,
+          	VER					as ver
+        from 
+        	T_ACCT
+        where 
+        	ACCT_CODE 			= #acctCode#
+          and
+          	STATUS				= 1
+    </select>
+    
+    <select id="queryAcctByMemberCode" resultMap="acctResult"
+		parameterClass="java.util.Map">
+    <![CDATA[
+			select ta.ACCT_CODE,ta.MEMBER_CODE,ta.BALANCE,ta.FROZEN_AMOUNT,taa.CUR_CODE 
+			from t_acct ta,T_ACCT_ATTRIB taa where ta.ACCT_CODE=taa.ACCT_CODE and ta.MEMBER_CODE=#memberCode# 
+			and taa.acct_type<#acctTypeId#
+        ]]>
+	</select> 
+    
+    <select id="queryAccByMemberCode" resultClass="acct"  parameterClass="java.lang.Long">
+        select 
+      		ACCT_CODE           as acctCode, 
+      		MEMBER_CODE			as memberCode, 
+      		BALANCE, 
+      		STATUS,
+      		FROZEN_AMOUNT		as frozenAmount,
+          	CREATE_DATE		 	as createDate,
+          	VER					as ver
+        from 
+        	T_ACCT
+        where 
+        	MEMBER_CODE 			= #memberCode#
+          and
+          	STATUS				= 1
+          	  order by ACCT_CODE<!-- 排序 --> 
+    </select> 
+    
+     <select id="queryAcctByMemberCodeAndAccttype" resultClass="acct"  parameterClass="java.util.Map">
+        select 
+      		ACCT_CODE           as acctCode, 
+      		MEMBER_CODE			as memberCode, 
+      		BALANCE, 
+      		STATUS,
+      		FROZEN_AMOUNT		as frozenAmount,
+          	CREATE_DATE		 	as createDate,
+          	VER					as ver
+        from 
+        	T_ACCT
+        where 
+        	MEMBER_CODE 		= #memberCode#
+          and
+          	STATUS				= 1
+    </select>
+    
+    <select id="queryAccAcctWithAcctCode" resultClass="acct" parameterClass="java.lang.String">
+    	<![CDATA[
+    	 select 
+      		ACCT_CODE           as acctCode, 
+      		MEMBER_CODE			as memberCode,      		
+      		BALANCE, 
+      		STATUS,
+      		FROZEN_AMOUNT		as frozeAmount,
+          	CREATE_DATE			as createDate,
+          	UPDATE_DATE			as updateDate,
+          	CREDIT_BALANCE		as creditBalance,
+          	DEBIT_BALANCE		as debitBalance,
+          	VER					as ver
+        from 
+        	T_ACCT
+        where 
+        	ACCT_CODE 			= #acctCode#
+        ]]>
+	</select>
+	
+	<select id="queryAcctByMemberCodeAndAcctTypeId" resultClass="acct"
+		parameterClass="java.util.Map">
+    	<![CDATA[
+    	 SELECT 
+      		a.ACCT_CODE           as acctCode, 
+      		a.MEMBER_CODE			as memberCode,      		
+      		BALANCE, 
+      		a.STATUS,
+      		FROZEN_AMOUNT		as frozeAmount,
+          	a.CREATE_DATE			as createDate,
+          	a.UPDATE_DATE			as updateDate,
+          	CREDIT_BALANCE		as creditBalance,
+          	DEBIT_BALANCE		as debitBalance,
+          	a.VER					as ver
+        FROM 
+        	T_ACCT a,t_acct_attrib b
+        WHERE 
+        	a.acct_code = b.acct_code
+        	and a.MEMBER_CODE 	= #memberCode#
+        	and b.acct_type = #acctType#
+        ]]>
+	</select>
+	
+	<!-- ####################################对余额进行操作开始######################################### 
+		 传进来所有的 amount参数 为正数（除冲正外）。
+		 关于冲正,红冲（amount）  
+	-->
+	
+	<!-- 更新余额，不做余额为负控制-->
+	<update id="updateBalance" parameterClass="java.util.Map">
+		<![CDATA[
+		update
+			T_ACCT
+				SET
+					BALANCE			=	BALANCE			+ #amount#, 
+					total_balance	=   BALANCE			+ frozen_amount + #amount#,
+					DEBIT_BALANCE	= 	DEBIT_BALANCE	+ #debitAmount#,
+		 			CREDIT_BALANCE  =	CREDIT_BALANCE	+ #creditAmount#,
+		 			UPDATE_DATE		=   sysdate
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		]]>
+	</update>
+	
+	<!-- 更新余额，不做余额为负控制-->
+	<update id="updateBalanceCheckNegative" parameterClass="java.util.Map">
+		<![CDATA[
+		update
+			T_ACCT
+				SET
+					BALANCE			=	BALANCE			+ #amount#, 
+					total_balance	=   BALANCE			+ frozen_amount + #amount#,
+					DEBIT_BALANCE	= 	DEBIT_BALANCE	+ #debitAmount#,
+		 			CREDIT_BALANCE  =	CREDIT_BALANCE	+ #creditAmount#,
+		 			UPDATE_DATE		=   sysdate
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance + #amount#)	>=	0
+		]]>
+	</update>
+	
+	<!-- 更新借方余额，余额方向为加-->
+	<update id="updateCreditBalanceWithAcctCode" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+			T_ACCT
+			SET
+					BALANCE			=	BALANCE + #amount#, 
+					total_balance	=   BALANCE + frozen_amount + #amount#,
+		 			CREDIT_BALANCE  =	CREDIT_BALANCE+#creditAmount#,
+		 			UPDATE_DATE		=   sysdate
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance + #amount#)	>=	0
+		 ]]>
+	</update>
+	
+	<!-- 更新借方余额，借方余额方向为减 -->
+	<update id="updateCreditReduceBalanceWithAcctCode" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+			T_ACCT
+			SET
+					BALANCE			=	BALANCE - #amount#, 
+					total_balance	=   BALANCE+frozen_amount-#amount#,
+		 			CREDIT_BALANCE  =	CREDIT_BALANCE+#creditAmount#,
+		 			UPDATE_DATE		=   sysdate
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance - #amount#)	>=0
+		 ]]>
+	</update>
+	
+	<!-- 更新贷方余额 ,余额方向为减-->
+	<update id="updateDebitBalanceWithAcctCode" parameterClass="java.util.Map">
+	 	<![CDATA[
+		update
+			T_ACCT
+			SET
+					BALANCE			=	BALANCE - #amount#,
+					total_balance	=   BALANCE+frozen_amount-#amount#,
+		 			DEBIT_BALANCE	= 	DEBIT_BALANCE+#debitAmount#,
+		 			UPDATE_DATE		=   sysdate
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance - #amount#)	>=0
+		 ]]>
+	</update>
+	
+	<!-- 更新贷方余额,贷方余额方向为加 -->
+	<update id="updateDebitAddBalanceWithAcctCode" parameterClass="java.util.Map">
+		<![CDATA[
+		update
+			T_ACCT
+			SET
+					BALANCE			=	BALANCE + #amount#,
+					total_balance	=   BALANCE+frozen_amount+#amount#,
+		 			DEBIT_BALANCE	= 	DEBIT_BALANCE+#debitAmount#,
+		 			UPDATE_DATE		=   sysdate
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance + #amount#)		>=	0
+			
+		 ]]>
+	</update>
+	
+	<!-- 更新冻结额 -->
+	<update id="updateFrozenAmountWithAcctCode" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+	      T_ACCT t
+	      SET    
+	           t.frozen_amount      =  t.frozen_amount + #frozenAmount#, 
+	           t.total_balance		=  t.BALANCE+t.frozen_amount+#frozenAmount#,       
+	           t.update_date    =   sysdate      
+	    where 
+	      t.acct_code         =   #acctCode#
+	    and
+				(t.frozen_amount + #frozenAmount#)		>=	0
+		 ]]>
+	</update>
+	
+	<!-- 更新冻结额 -->
+	<update id="updateUnFrozenAmountWithAcctCode" parameterClass="java.util.Map">
+	 	<![CDATA[
+		update
+	      T_ACCT t
+	      SET    
+	           t.frozen_amount      =  t.frozen_amount + #frozenAmount#,
+	           t.total_balance		=  t.BALANCE+t.frozen_amount+#frozenAmount#,       
+	                
+	           t.update_date    =   sysdate      
+	    where 
+	      t.acct_code         =   #acctCode#
+	    and
+				(t.frozen_amount + #frozenAmount#)		>=	0      
+		and not exists (      select 1 from t_flushes_log l where l.order_id=#orderId# and l.deal_code=#dealCode# 
+                         and l.status=1)
+		 ]]>
+	</update>
+	
+	<!-- 更新贷方余额,余额可为负数（账户属性可透支为1）-->
+	<update id="updateDebitNegativeBalanceWithAcctCode" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+			T_ACCT t
+			SET
+					t.BALANCE			=	t.BALANCE + #amount#,		
+					t.total_balance		=   t.BALANCE+t.frozen_amount+#amount#,
+		 			t.DEBIT_BALANCE		= 	t.DEBIT_BALANCE+#debitAmount#,
+		 			t.UPDATE_DATE		=   sysdate
+		where 
+			t.ACCT_CODE 				= 	#acctCode#
+		    and  exists (select 1 from t_acct_attrib b where b.acct_code=t.acct_code and b.allow_overdraft=1)	
+		 ]]>
+	</update>
+	
+	<!-- 更新借方余额，余额可为负数 （账户属性可透支为1）-->
+	<update id="updateCreditNegativeBalanceWithAcctCode" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+			T_ACCT t
+			SET
+					t.BALANCE			=	t.BALANCE + #amount#,
+					t.total_balance		=   t.BALANCE+t.frozen_amount+#amount#,
+		 			t.CREDIT_BALANCE  	=	t.CREDIT_BALANCE+#creditAmount#,
+		 			t.UPDATE_DATE		=   sysdate
+		where 
+			t.ACCT_CODE 				= 	#acctCode#
+		    and  exists (select 1 from t_acct_attrib b where b.acct_code=t.acct_code and b.allow_overdraft=1)	
+		 ]]>
+	</update>
+	
+	<!-- ####################################对余额进行操作结束######################################### -->
+	
+	<!-- 根据版本号进行更新借方余额 -->
+	<update id="updateCreditBalanceWithVer" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+			T_ACCT
+			SET
+					BALANCE			=	BALANCE + #amount#, 
+					total_balance	=   BALANCE+frozen_amount+#amount#,
+		 			CREDIT_BALANCE  =	CREDIT_BALANCE+#creditAmount#,
+		 			UPDATE_DATE		=   sysdate,
+		 			VER				= 	VER+1
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance- #amount#)		>=	0
+		and	 VER					=	#oldVer#
+		 ]]>
+	</update>
+	
+	<!-- 根据版本号进行更新贷方余额 -->
+	<update id="updateDebitBalanceWithVer" parameterClass="java.util.Map">
+	 <![CDATA[
+		update
+			T_ACCT
+			SET
+					BALANCE			=	BALANCE + #amount#,
+					total_balance	=   BALANCE+frozen_amount+#amount#,
+		 			DEBIT_BALANCE	= 	DEBIT_BALANCE+#debitAmount#,
+		 			UPDATE_DATE		=   sysdate,
+		 			VER				= 	VER+1
+		where 
+			ACCT_CODE 				= 	#acctCode#
+		and
+			(balance- #amount#)		>=	0
+		and	 VER					=	#oldVer#
+		 ]]>
+	</update>
+	
+	<update id="updateAcctStatusWithAcctCode" parameterClass="java.util.Map">
+		 <![CDATA[
+		 		UPDATE 
+		 			T_ACCT
+		 		SET
+		 			STATUS			=	#status#,
+		 			UPDATE_DATE		=   sysdate
+		 		WHERE
+		 			ACCT_CODE		=	#acctCode#
+		  ]]>
+	</update>
+	
+	<!-- 直接增加额外的冻结金额 -->
+	<update id="addFrozenAmount" parameterClass="com.pay.acc.balancelog.dto.FrozenAmountDto" >
+			UPDATE  t_acct  t SET   
+			t.frozen_amount = t.frozen_amount + #frozenAmount#,
+			t.BALANCE = t.BALANCE - #frozenAmount#,
+			UPDATE_DATE = SYSDATE
+			WHERE t.acct_code = #acctCode# 
+			AND t.member_code=#memberCode#
+			AND #frozenAmount# &gt; 0
+			AND t.BALANCE >= #frozenAmount# 
+	</update>
+	
+	<!-- 解冻部分冻结金额 需要先减去后台 poss人工冻结的  -->
+	<update id="unFrozenAmount" parameterClass="com.pay.acc.balancelog.dto.UnFrozenAmountDto" >
+			UPDATE  t_acct  a SET   
+			a.frozen_amount = a.frozen_amount - #unFrozenAmount#,
+			a.balance = a.balance + #unFrozenAmount#,
+			UPDATE_DATE = SYSDATE
+			WHERE a.acct_code = #acctCode# 
+			AND a.member_code=#memberCode#
+			AND  #unFrozenAmount# > 0
+			AND a.frozen_amount  &gt;=  (#unFrozenAmount# + (select nvl(sum(t.amount),0) from t_frozen_log  t where t.member_code = #memberCode#
+		AND t.frozen_type = 1 and t.status = 1))
+	</update>
+	
+	<!-- 查询通过poss人工冻结的金额是多少 -->
+	<select id="getHasFrozenAmountOfPoss" parameterClass="long" resultClass="long">
+		select nvl(sum(t.amount),0) from t_frozen_log  t where t.member_code = #memberCode#
+		AND t.frozen_type = 1 and t.status = 1
+	</select>
+
+	<!-- 查询通过poss人工冻结的金额是多少 -->
+	<select id="queryMemberAcctDto" parameterClass="com.pay.acc.acct.dto.MemberAcctDto"
+		resultClass="com.pay.acc.acct.dto.MemberAcctDto">
+		SELECT  t.member_code 		memberCode,
+				t.login_name 		loginName,
+				t.type 				memberType,
+				t.status 			memberStatus,
+				ac.acct_code 		acctCode,
+				ac.balance 			balance,
+				ac.frozen_amount	frozenAmount,
+				ac.update_date		lastBlanceUpdateDate
+		FROM t_member t
+		LEFT JOIN t_acct ac
+		ON t.member_code = ac.member_code
+		WHERE 1=1
+		<isNotEmpty property="memberCode">
+			and t.member_code = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="loginName">
+			and t.login_name = #loginName#
+		</isNotEmpty>
+		 ORDER BY t.CREATE_DATE DESC
+	</select>
+	
+	<!-- 更新账户提现手续费信息 -->
+	<!-- 原现手续费设置在acc.t_acct表中 -->
+	<!-- <update id="updateAcctWithdrawFee" parameterClass="acctWithdrawFee">
+		update T_ACCT set ACCTWITHDRAW_CURRENCYCODE=#acctWithDrawCurrencyCode#, ACCTWITHDRAW_FEE=#acctWithDrawFee# * 1000
+		where ACCT_CODE=#acctCode#
+	</update> -->
+	<update id="updateAcctWithdrawFee" parameterClass="acctWithdrawFee">
+		update T_ACCT_ATTRIB set ACCTWITHDRAW_CURRENCYCODE=#acctWithDrawCurrencyCode#, ACCTWITHDRAW_FEE=#acctWithDrawFee# <!-- * 1000 -->
+		where ACCT_CODE=#acctCode#
+	</update>
+	
+	<!-- 查询设有提现手续费的账户信息列表 -->
+	<!-- 原现手续费设置在acc.t_acct表中 -->
+	<!-- <select id="queryAcctWithFeeByMemberCode" resultClass="acct"  parameterClass="java.lang.Long">
+        select 
+      		ACCT_CODE           as acctCode, 
+      		MEMBER_CODE			as memberCode, 
+      		BALANCE, 
+      		STATUS,
+      		FROZEN_AMOUNT		as frozenAmount,
+          	CREATE_DATE		 	as createDate,
+          	VER					as ver,
+          	TOTAL_BALANCE		as totalBalance,
+          	ACCTWITHDRAW_CURRENCYCODE as acctWithDrawCurrencyCode,
+          	ACCTWITHDRAW_FEE	as acctWithDrawFee 
+        from 
+        	T_ACCT
+        where 
+        	MEMBER_CODE 			= #memberCode#
+          and
+          	STATUS				= 1
+          and (ACCTWITHDRAW_CURRENCYCODE is not null or ACCTWITHDRAW_FEE is not null)
+    </select>  -->
+    <!-- 现在把提现手续费设置挪到acc.t_acct_attrib表中 -->
+	<select id="queryAcctWithFeeByMemberCode" resultClass="acct"  parameterClass="java.lang.Long">
+        select 
+      		t.ACCT_CODE           as acctCode, 
+      		t.MEMBER_CODE			as memberCode, 
+      		t.BALANCE, 
+      		t.STATUS,
+      		t.FROZEN_AMOUNT		as frozenAmount,
+          	t.CREATE_DATE		 	as createDate,
+          	t.VER					as ver,
+          	t.TOTAL_BALANCE		as totalBalance,
+          	ta.ACCTWITHDRAW_CURRENCYCODE as acctWithDrawCurrencyCode,
+          	ta.ACCTWITHDRAW_FEE	as acctWithDrawFee 
+        from 
+        	T_ACCT t left join t_acct_attrib ta
+          on t.ACCT_CODE = ta.acct_code
+        where 
+        	t.MEMBER_CODE 			=  #memberCode#
+          and
+          	t.STATUS				= 1
+          and (ta.ACCTWITHDRAW_CURRENCYCODE is not null or ta.ACCTWITHDRAW_FEE is not null)
+    </select> 
+    <resultMap class="java.util.HashMap" id="curCode">
+    	<result property="currencyCode" column="cur_code" jdbcType="VARCHAR" />
+    </resultMap>
+    <select id="queryAcctAttribCurCode" parameterClass="java.util.Map" resultMap="curCode">
+    select  distinct(cur_code) from T_ACCT_ATTRIB  where MEMBER_CODE=#memberCode# 
+    </select>
+    
+	<!-- 查询提现账户信息 -->
+	<!-- 原现手续费设置在acc.t_acct表中 -->
+	<!-- <select id="queryAcctWithFeeByMemberCodeAndCurrencyCode" resultClass="acct"  parameterClass="java.util.HashMap">
+        select 
+      		ta.ACCT_CODE           as acctCode, 
+      		
+      		ta.MEMBER_CODE			as memberCode, 
+      		ta.BALANCE, 
+      		ta.STATUS,
+      		ta.FROZEN_AMOUNT		as frozenAmount,
+          	ta.CREATE_DATE		 	as createDate,
+          	ta.VER					as ver,
+          	ta.TOTAL_BALANCE		as totalBalance,
+          	ta.ACCTWITHDRAW_CURRENCYCODE as acctWithDrawCurrencyCode,
+          	ta.ACCTWITHDRAW_FEE	as acctWithDrawFee 
+        from  
+        	T_ACCT ta left join T_ACCT_ATTRIB taa
+        on ta.acct_code=taa.acct_code
+        where 	
+        	taa.CUR_CODE = #currencyCode# and taa.ACCT_TYPE &lt; 200 and ta.MEMBER_CODE = #memberCode#
+    </select>  -->
+	<select id="queryAcctWithFeeByMemberCodeAndCurrencyCode" resultClass="acct"  parameterClass="java.util.HashMap">
+        select 
+      		ta.ACCT_CODE           as acctCode, 
+      		
+      		ta.MEMBER_CODE			as memberCode, 
+      		ta.BALANCE, 
+      		ta.STATUS,
+      		ta.FROZEN_AMOUNT		as frozenAmount,
+          	ta.CREATE_DATE		 	as createDate,
+          	ta.VER					as ver,
+          	ta.TOTAL_BALANCE		as totalBalance,
+          	taa.ACCTWITHDRAW_CURRENCYCODE as acctWithDrawCurrencyCode,
+          	taa.ACCTWITHDRAW_FEE	as acctWithDrawFee 
+        from  
+        	T_ACCT ta left join T_ACCT_ATTRIB taa
+        on ta.acct_code=taa.acct_code
+        where 	
+        	taa.CUR_CODE = #currencyCode# and taa.ACCT_TYPE &lt; 200 and ta.MEMBER_CODE = #memberCode#
+    </select> 
+    <!-- 根据会员号和货币代码查询账户信息列表 -->
+    <select id="queryAcctByMemberCodeAndCurrency" parameterClass="java.util.HashMap" resultClass="pseudoAcct">
+   		select 
+   			t.ACCT_CODE           as acctCode, 
+      		t.MEMBER_CODE			as memberCode, 
+      		t.BALANCE, 
+      		t.STATUS,
+      		t.FROZEN_AMOUNT		as frozenAmount,
+          	t.CREATE_DATE		 	as createDate,
+          	t.VER					as ver,
+          	t.TOTAL_BALANCE		as totalBalance,
+          	<!-- t.ACCTWITHDRAW_CURRENCYCODE as acctWithDrawCurrencyCode,
+          	t.ACCTWITHDRAW_FEE	as acctWithDrawFee, -->
+          	tac.CUR_CODE as currencyCode,
+   			tac.acct_type as acctType 
+   		from T_ACCT t left join T_ACCT_ATTRIB tac on t.ACCT_CODE=tac.ACCT_CODE 
+   		WHERE 
+   			t.ACCT_CODE in (select taa.acct_code from t_acct_attrib taa where taa.cur_code =#currency# and taa.MEMBER_CODE = #memberCode# )
+    </select>
+    <!-- 根据会员号和货币代码取账户冻结金额  900基本户冻结 901保证金额冻结-->
+    <select id="queryFrozenAmountByMemberCodeAndCurrency" parameterClass="java.util.HashMap" resultClass="java.math.BigDecimal">
+   		select sum(deal.Amount) from acc.t_acct t,acc.T_ACCT_ATTRIB a,acc.t_balance_deal deal 
+   		where t.ACCT_CODE=a.ACCT_CODE AND t.ACCT_CODE=deal.PAYER_FULL_MEM_ACCTCODE
+  		and a.CUR_CODE=#currency#
+  		and  t.MEMBER_CODE =#memberCode#  
+  		and  subStr(a.ACCT_TYPE,0,1) =#acctType#  
+  		and deal.deal_code=#dealCode#
+    </select>
+    <!-- 根据会员号和货币代码取账户解冻金额  902基本户解冻 903保证金额解冻-->
+    <select id="queryUnFrozenAmountByMemberCodeAndCurrency" parameterClass="java.util.HashMap" resultClass="java.math.BigDecimal">
+   		select sum(deal.Amount) from acc.t_acct t,acc.T_ACCT_ATTRIB a,acc.t_balance_deal deal 
+   		where t.ACCT_CODE=a.ACCT_CODE AND t.ACCT_CODE=deal.PAYEE_FULL_MEM_ACCTCODE
+  		and a.CUR_CODE=#currency#
+  		and  t.MEMBER_CODE =#memberCode#  
+  		and  subStr(a.ACCT_TYPE,0,1) =#acctType#  
+  		and  deal.deal_code=#dealCode#
+    </select>
+    <!--  -->
+	<update id="updateFrozenAmountByMemberCodeAndCurrency" parameterClass="java.util.HashMap" >
+		update acc.t_acct t 
+		set t.frozen_amount=#frozenAmount# 
+		where exists (select 1
+		from acc.T_ACCT_ATTRIB a 
+		where t.ACCT_CODE=a.ACCT_CODE and a.CUR_CODE=#currency# and  t.MEMBER_CODE =#memberCode# 
+		 and  subStr(a.ACCT_TYPE,0,1)=#acctType#)  
+	</update>
+	 <!-- 查询余额和冻结金额和发生额大于0 的账户-->
+    <select id="queryAcctCodeForAcctType" parameterClass="java.lang.String" resultMap="acctResult2">
+	select distinct t.ACCT_CODE from acc.t_acct t,acc.T_ACCT_ATTRIB a
+	where t.ACCT_CODE=a.ACCT_CODE
+	and
+	(BALANCE >0
+	or FROZEN_AMOUNT>0
+	or CREDIT_BALANCE>0
+	or DEBIT_BALANCE>0
+	)
+	and subStr(a.ACCT_TYPE,0,1)= #acctType#
+    </select>
+    <!-- 根据会员号和货币代码取账户冻结金额  900基本户冻结 901保证金额冻结-->
+    <select id="queryFrozenAmountByacctCode" parameterClass="java.util.HashMap" resultMap="acctResult3">
+   		select sum(Amount) as FROZEN_AMOUNT,PAYER_FULL_MEM_ACCTCODE as ACCT_CODE
+   		from t_balance_deal 
+   		where
+   		<isNotNull property="accts">  
+            PAYER_FULL_MEM_ACCTCODE in  
+            <iterate property="accts" open="(" conjunction="," close=")">  
+                #accts[].acctCode#  
+             </iterate>                      
+        </isNotNull>
+  		and deal_code=#dealCode#
+  		group by PAYER_FULL_MEM_ACCTCODE order by PAYER_FULL_MEM_ACCTCODE
+    </select>
+    <!-- 根据会员号和货币代码取账户解冻金额  902基本户解冻 903保证金额解冻-->
+    <select id="queryUnFrozenAmountByacctCode" parameterClass="java.util.HashMap" resultMap="acctResult3">
+   		select sum(Amount) as FROZEN_AMOUNT,PAYEE_FULL_MEM_ACCTCODE as ACCT_CODE 
+   		from t_balance_deal 
+   		where
+   		<isNotNull property="accts">  
+            PAYEE_FULL_MEM_ACCTCODE in  
+            <iterate property="accts" open="(" conjunction="," close=")">  
+                #accts[].acctCode#  
+            </iterate>                      
+        </isNotNull>
+  		and deal_code=#dealCode#
+  		group by PAYEE_FULL_MEM_ACCTCODE order by PAYEE_FULL_MEM_ACCTCODE
+    </select>
+    <!-- 基本户冻结调整-->
+    <select id="queryBasicRepairAmount" parameterClass="java.util.HashMap" resultClass="vouchAcct" >
+	select account_code as accountCode, sum(amount) as amount, crdr
+	from pe.vouch_data hd,
+	(select *
+	from pe.vouch_detail dtl
+	where account_code like '2243%'
+	and length(account_code) > 10
+	and vouch_data_id in
+	(select vouch_data_id
+	from pe.vouch_detail dtl
+	where account_code like '%22430103%')) tb
+	where hd.vouch_data_id = tb.vouch_data_id
+	and hd.status = 1 group by account_code,crdr
+    </select>
+    <!-- 保证金冻结调整-->
+    <select id="queryGuaranteeRepairAmount" parameterClass="java.util.HashMap" resultClass="vouchAcct" >
+	select account_code as accountCode, sum(amount) as amount, crdr
+	from pe.vouch_data hd,
+	(select *
+	from pe.vouch_detail dtl
+	where account_code like '2243%'
+	and length(account_code) > 10
+	and vouch_data_id in
+	(select vouch_data_id
+	from pe.vouch_detail dtl
+	where account_code like '%22430102%' and length(account_code) &lt; 12)) tb
+	where hd.vouch_data_id = tb.vouch_data_id
+	and hd.status = 1 group by account_code,crdr
+    </select>
+    <update id="updateFrozenAmount" parameterClass="java.util.HashMap" >
+		update acc.t_acct t 
+		set t.frozen_amount=#frozenAmount# 
+		where t.ACCT_CODE=#acctCode#   
+	</update>
+</sqlMap>

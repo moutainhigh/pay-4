@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="possReportUrlHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"> 
+       <property name="mappings">
+             <props>
+          	     <prop key="/report/memberFlow.do">memberFlowController</prop>
+          	     <prop key="/report/innerMemberFlow.do">innerMemberFlowController</prop>
+          	     <prop key="/report/innerMember.do">innerMemberController</prop>
+          	     <prop key="/report/subMember.do">subMemberController</prop>
+          	     <prop key="/report/memberFee.do">memberFeeController</prop>
+          	     <prop key="/report/queryReport.do">queryCostController</prop>
+          	     <prop key="/report/memberFlowPackageCfg.do">memberFlowPackageCfgController</prop>
+          	     <prop key="/report/memberFlowPackageMonitor.do">memberFlowPackageMonitorController</prop>
+          	     <prop key="/report/memberDailyReport.do">memberDailyReportController</prop>
+             </props>
+       </property>
+   </bean>
+   
+    <!-- 会员日交易查询统计 -->
+     <bean id="memberFlowController" class="com.pay.poss.report.controller.MemberFlowController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewName">
+                 <value>/poss/report/memberFlowList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/report/memberFlowInit</value>
+           </property>
+           <property name="memberFlowexcel">
+                 <value>/poss/report/memberFlowexcel</value>
+           </property>
+           <property name="memberFlowService" ref="poss_report_MemberFlowService" />
+           <property name="userRelationService" ref="userRelationServiceImpl"/>
+     </bean> 
+	
+	<!-- 分子公司交易查询统计 -->
+   	 <bean id="innerMemberFlowController" class="com.pay.poss.report.controller.InnerMemberFlowController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/report/innerMemberFlowList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/report/innerMemberFlowInit</value>
+           </property>
+           <property name="innerMemberFlowexcel">
+                 <value>/poss/report/innerMemberFlowexcel</value>
+           </property>
+           <property name="memberFlowService" ref="poss_report_MemberFlowService" />
+           <property name="innerMemberService" ref="poss_report_InnerMemberService" />
+           <property name="innerMemberFlowService" ref="poss_report_InnerMemberFlowService" />
+     </bean> 
+     
+     <!-- 分子公司维护 -->
+      <bean id="innerMemberController" class="com.pay.poss.report.controller.InnerMemberController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/innerMember/innerMemberList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/innerMember/innerMemberInit</value>
+           </property>
+           <property name="addView">
+                 <value>/poss/innerMember/innerMemberAdd</value>
+           </property>
+           <property name="toRemove">
+                 <value>/poss/innerMember/innerMemberRemove</value>
+           </property>
+           <property name="toModify">
+                 <value>/poss/innerMember/innerMemberModify</value>
+           </property>
+           <property name="innerMemberService" ref="poss_report_InnerMemberService" />
+           <property name="subMemberService" ref="poss_report_SubMemberService" />
+     </bean> 
+     
+     <!-- 商户维护 -->
+      <bean id="subMemberController" class="com.pay.poss.report.controller.SubMemberController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/subMember/subMemberList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/subMember/subMemberInit</value>
+           </property>
+           <property name="addView">
+                 <value>/poss/subMember/subMemberAdd</value>
+           </property>
+           <property name="toRemove">
+                 <value>/poss/subMember/subMemberRemove</value>
+           </property>
+           <property name="toModify">
+                 <value>/poss/subMember/subMemberModify</value>
+           </property>
+           <property name="subMemberService" ref="poss_report_SubMemberService" />
+           <property name="innerMemberService" ref="poss_report_InnerMemberService" />
+     </bean> 
+
+	<!-- 会员手续费收入查询 -->
+   	 <bean id="memberFeeController" class="com.pay.poss.report.controller.MemberFeeController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/income/memberFeeList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/income/memberFeeInit</value>
+           </property>
+           <property name="memberFeeExcel">
+                 <value>/poss/income/memberFeeExcel</value>
+           </property>
+           <property name="memberFeeService" ref="poss_report_MemberFeeService" />
+           <property name="innerMemberService" ref="poss_report_InnerMemberService" />
+     </bean>
+     
+    <!-- 成本查询 -->
+	 <bean id="queryCostController" class="com.pay.poss.report.controller.QueryCostController">
+ 			<property name="methodNameResolver" ref="paraMethodResolver"/>
+			<property name="queryCostService" ref="poss_report_queryCostService" />
+			<property name="innerMemberService" ref="poss_report_InnerMemberService" />
+			<property name="indexView">
+				<value>/poss/report/queryReport</value>
+			</property>
+			<property name="fundInView">
+				<value>/poss/report/fundInList</value>
+			</property>
+			<property name="reFundInView">
+				<value>/poss/report/refundInList</value>
+			</property>
+			<property name="fundOutView">
+				<value>/poss/report/fundOutList</value>
+			</property>
+			<property name="reFundOutView">
+				<value>/poss/report/refundOutList</value>
+			</property>
+			<property name="depositView">
+				<value>/poss/report/depositList</value>
+			</property>			
+	 </bean>
+	 
+	 <!-- 会员包量配置 -->
+      <bean id="memberFlowPackageCfgController" class="com.pay.poss.report.controller.MemberFlowPackageCfgController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/report/memberFlowPackageCfg/memberFlowPackageCfgList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/report/memberFlowPackageCfg/memberFlowPackageCfgInit</value>
+           </property>
+           <property name="addView">
+                 <value>/poss/report/memberFlowPackageCfg/memberFlowPackageCfgAdd</value>
+           </property>
+           <property name="toModify">
+                 <value>/poss/report/memberFlowPackageCfg/memberFlowPackageCfgModify</value>
+           </property>
+           <property name="memberFlowPackageCfgService" ref="poss_report_MemberFlowPackageCfgService" />
+     </bean> 
+     
+     <!-- 会员包量流量监控 -->
+      <bean id="memberFlowPackageMonitorController" class="com.pay.poss.report.controller.MemberFlowPackageMonitorController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/report/memberFlowPackageMonitorList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/report/memberFlowPackageMonitorInit</value>
+           </property>
+           <property name="memberFlowPackageMonitorService" ref="poss_report_MemberFlowPackageMonitorService" />
+     </bean> 
+     
+     <!-- 综合报表查询统计 -->
+   	 <bean id="memberDailyReportController" class="com.pay.poss.report.controller.MemberDailyReportController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="viewList">
+                 <value>/poss/report/memberDailyReportList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/report/memberDailyReportInit</value>
+           </property>
+           <property name="memberDailyReportexcel">
+                 <value>/poss/report/memberDailyReportexcel</value>
+           </property>
+           <property name="memberDailyReportService" ref="poss_report_MemberDailyReportService" />
+     </bean> 
+</beans>
+
+

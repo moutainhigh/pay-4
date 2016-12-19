@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="banklimit">
+    <typeAlias alias="banklimit" type="com.pay.app.model.Banklimit"/>
+    
+    <insert id="create" parameterClass="banklimit">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_banklimit_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	banklimit 
+        	(
+        		id, 	
+        		bankType, 
+        		cardType, 
+        		bankCode, 
+        		singleLimit, 
+        		dayLimit,
+            	status,
+            	description
+            )
+        values 
+        	(
+        		#id#,	
+        		#bankType#, 
+        		#cardType#, 
+        		#bankCode#, 
+        		#singleLimit#, 
+        		#dayLimit#,
+            	#status#,
+            	#description#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		banklimit
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		banklimit
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="banklimit">
+        update 
+        	banklimit
+        set 
+        		bankType = #bankType#, 
+        		cardType = #cardType#, 
+        		bankCode = #bankCode#, 
+        		singleLimit = #singleLimit#, 
+        		dayLimit = #dayLimit#,
+            	status = #status#,
+            	description = #description#
+        where 
+        	id	= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		banklimit
+    </select>
+    
+    
+    <select id="findById" resultClass="banklimit" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		bankType, 
+        		cardType, 
+        		bankCode, 
+        		singleLimit, 
+        		dayLimit,
+            	status,
+            	description
+        from 
+        	banklimit
+        where 
+        	ID 			= #id#
+    </select>
+    <select id="read" resultClass="banklimit" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	banklimit
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="banklimit" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		bankType, 
+        		cardType, 
+        		bankCode, 
+        		singleLimit, 
+        		dayLimit,
+            	status,
+            	description
+        from 
+        	banklimit
+    </select>
+        
+    <select id="queryByBankCode" resultClass="banklimit" parameterClass="java.lang.String">
+        select 
+        		id, 	
+        		bankType, 
+        		cardType, 
+        		bankCode, 
+        		singleLimit, 
+        		dayLimit,
+            	status,
+            	description
+        from 
+        	banklimit
+        where 
+        	bankCode = #bankCode#
+    </select>        
+    
+</sqlMap>

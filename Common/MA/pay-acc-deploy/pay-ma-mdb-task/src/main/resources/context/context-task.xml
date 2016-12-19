@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+            <!-- 记账 --> 
+            <bean id="mdbtask-chargeUpTaskService" class="com.pay.ma.task.impl.ChargeUpTaskServiceImpl">
+            	<property name="balanceDealService" ref="mdbtask-balanceDealService"/>
+            	<property name="balanceEntryService" ref="mdbtask-balanceEntryService"/>
+            	<property name="peServiceFacade" ref="mdbtask-peServiceFacade"/>          
+            </bean>
+            
+           <!-- 解冻 -->
+            <bean id="mdbtask-unlockMemberTaskService" class="com.pay.ma.task.impl.UnlockMemberTaskServiceImpl">
+            	<property name="unlockService" ref="mdbtask-unlockService"/>
+            </bean>
+            <!-- 记账  -->
+            
+            <bean id="mdbtask-chargeup-jobDetailFactory" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            	<property name="targetObject" ref="mdbtask-chargeUpTaskService"/>
+            	<property name="targetMethod" value="executeChargeUpTask"/>           
+            </bean>
+            <bean id="mdbtask-chargeup-cronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            	<property name="jobDetail" ref="mdbtask-chargeup-jobDetailFactory"/>
+            	<property name="cronExpression" value="0 0/30 * * * ?"  />
+            </bean>
+            <!-- 解冻 -->
+            <bean id="mdbtask-unlockMember-jobDetailFactory" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            	<property name="targetObject" ref="mdbtask-unlockMemberTaskService"/>
+            	<property name="targetMethod" value="executeUnlockMember"/>
+            </bean>
+             <bean id="mdbtask-unlockMember-cronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerBean">
+            	<property name="jobDetail" ref="mdbtask-unlockMember-jobDetailFactory"/>
+            	<property name="cronExpression" value="0 0/30 * * * ?"  />
+            </bean>
+            <!-- 任务调度 -->
+            <bean id="mdbtask-schedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+            	<property name="triggers">
+            		<list>
+            			<ref bean="mdbtask-chargeup-cronTriggerBean"/>
+            			<!--<ref bean="mdbtask-unlockMember-cronTriggerBean"/>
+            		--></list>
+            	</property>
+            </bean>
+	
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

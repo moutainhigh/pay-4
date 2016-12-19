@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelMidAmount">
+	<typeAlias alias="ChannelMidAmount" type="com.pay.channel.model.ChannelMidAmount"/>
+    <resultMap id="channelMidAmountMap" class="ChannelMidAmount">
+        <result column="MID" property="mid" jdbcType="VARCHAR"/>
+        <result column="CARD_ORG" property="cardOrg" jdbcType="VARCHAR"/>
+        <result column="CURR_MONTH" property="currMonth" jdbcType="VARCHAR"/>
+        <result column="SUM_AMOUNT" property="sumAmount" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="DATE"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="DATE"/>
+    </resultMap>
+    
+    <insert id="create" parameterClass="channelMidAmount">
+	 	INSERT INTO channel_mid_amount(
+			MID,CARD_ORG,CURR_MONTH,SUM_AMOUNT,CREATE_DATE,UPDATE_DATE
+        )
+        VALUES(
+            #mid#,#cardOrg#,#currMonth#,#sumAmount#,#createDate#,#updateDate#
+		)
+	</insert>
+	
+	<select id="findByCriteria" resultMap="channelMidAmountMap" parameterClass="ChannelMidAmount">
+        SELECT * FROM channel_mid_amount
+        WHERE 1=1
+       <isNotNull property="mid">
+			AND MID = #mid#
+	   </isNotNull>
+       <isNotNull property="cardOrg">
+			AND CARD_ORG = #cardOrg#
+	   </isNotNull>
+	   <isNotNull property="currMonth">
+			AND CURR_MONTH = #currMonth#
+	   </isNotNull>
+    </select>
+</sqlMap>

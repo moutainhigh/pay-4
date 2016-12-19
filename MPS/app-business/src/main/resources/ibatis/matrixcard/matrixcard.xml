@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="matrixcard">
+    <typeAlias alias="matrixcard" type="com.pay.base.model.matrixcard.MatrixCard"/>
+
+      <insert id="create" parameterClass="matrixcard">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_MATRIXCARD_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	T_MATRIXCARD
+        	(
+        		ID, 	
+        		SERIAL_NO, 
+        		MATRIX_DATA, 
+        		CREATION_DATE, 
+        		BIND_DATE,
+        		BIND_UID,
+        		BIND_MEMBER_CODE,
+        		BIND_IP,
+        		UNBIND_DATE,
+        		UNBIND_IP,
+        		UNBIND_OPERATOR,
+        		STATUS,
+        		USER_TIME
+            )
+        values 
+        	(
+        		#id#,	
+        		#serialNo#, 
+        		#matrixData#, 
+        		sysdate, 
+        		#bindDate#,
+        		#bindUid#,
+        		#bindMemberCode#,
+        		#bindIp#,        		
+        		#unBindDate#,
+        		#unBindIp#,
+        		#unBindOperator#,
+        		#status#,
+        		#userTime#
+        	)
+    </insert>
+  
+ 	<!-- 更新口令卡表sql -->
+	<sql id="MATRIXCARD_UPDATE">
+		UPDATE T_MATRIXCARD SET SERIAL_NO = #serialNo:VARCHAR:NULL#
+		<isNotEmpty property="matrixData" prepend=",">
+			MATRIX_DATA = #matrixData#
+		</isNotEmpty>
+		<isNotEmpty property="bindDate" prepend=",">
+			BIND_DATE = #bindDate#
+		</isNotEmpty>
+		<isNotEmpty property="bindUid" prepend=",">
+			BIND_UID = #bindUid#
+		</isNotEmpty>
+		<isNotEmpty property="bindMemberCode" prepend=",">
+			BIND_MEMBER_CODE = #bindMemberCode#
+		</isNotEmpty>
+		<isNotEmpty property="bindIp" prepend=",">
+			BIND_IP = #bindIp#
+		</isNotEmpty>
+		<isNotEmpty property="unBindDate" prepend=",">
+			UNBIND_DATE = #unBindDate#
+		</isNotEmpty>
+		<isNotEmpty property="unBindIp" prepend=",">
+			UNBIND_IP = #unBindIp#
+		</isNotEmpty>
+		<isNotEmpty property="unBindOperator" prepend=",">
+			UNBIND_OPERATOR = #unBindOperator#
+		</isNotEmpty>
+		<isNotEmpty property="status" prepend=",">
+			STATUS = #status#
+		</isNotEmpty>
+		<isNotEmpty property="userTime" prepend=",">
+			USER_TIME = #userTime#
+		</isNotEmpty>			
+		WHERE id = #id#
+	</sql>     
+  
+    
+   <update id="update" parameterClass="matrixcard">
+		<include refid="MATRIXCARD_UPDATE"/>
+    </update>
+    
+    
+    <sql id="COMMON_CONDITION_MATRIXCARD_DETAIL">
+    	<isNotEmpty property="id" prepend="and">
+			t.ID = #id#
+		</isNotEmpty>
+    	<isNotEmpty property="serialNo" prepend="and">
+			t.SERIAL_NO = #serialNo#
+		</isNotEmpty>
+		<isNotEmpty property="matrixData" prepend="and">
+			t.MATRIX_DATA = #matrixData#
+		</isNotEmpty>
+		<isNotEmpty property="bindDate" prepend="and">
+			t.BIND_DATE = #bindDate#
+		</isNotEmpty>
+		<isNotEmpty property="bindUid" prepend="and">
+			t.BIND_UID = #bindUid#
+		</isNotEmpty>
+		<isNotEmpty property="bindMemberCode" prepend="and">
+			t.BIND_MEMBER_CODE = #bindMemberCode#
+		</isNotEmpty>
+		<isNotEmpty property="bindIp" prepend="and">
+			t.BIND_IP = #bindIp#
+		</isNotEmpty>
+		<isNotEmpty property="unBindDate" prepend="and">
+			t.UNBIND_DATE = #unBindDate#
+		</isNotEmpty>
+		<isNotEmpty property="unBindIp" prepend="and">
+			t.UNBIND_IP = #unBindIp#
+		</isNotEmpty>
+		<isNotEmpty property="unBindOperator" prepend="and">
+			t.UNBIND_OPERATOR = #unBindOperator#
+		</isNotEmpty>
+		<isNotEmpty property="status" prepend="and">
+			t.STATUS = #status#
+		</isNotEmpty>
+	    <isNotEmpty property="userTime" prepend="and">
+			t.USER_TIME = #userTime#
+		</isNotEmpty>		      
+    </sql>  
+    
+      <sql id="DETAIL_SELECT_MATRIXCARD">
+    	<![CDATA[
+		SELECT t.id,
+		       t.serial_no as serialNo,
+		       t.matrix_data as matrixData,
+		       t.creation_date as creationDate,
+		       t.bind_date as bindDate,
+		       t.bind_uid as bindUid,
+		       t.bind_member_code as bindMemberCode,
+		       t.bind_ip as bindIp,
+		       t.unbind_date as unbindDate,
+		       t.unbind_ip as unbindIp,
+		       t.unbind_operator as unbindOperator,
+		       t.status,
+		       t.user_time as userTime 
+		 FROM T_MATRIXCARD T
+	        where 1=1
+        ]]>
+    </sql>
+    
+   	<select id="findById" resultClass="matrixcard" parameterClass="java.lang.Long">
+		<include refid="DETAIL_SELECT_MATRIXCARD"/>
+		<![CDATA[
+		        AND  t.ID 	= #id#
+		]]>
+    </select>
+   
+    
+    <!-- 根据参数查询-->
+    <select id="selectmatrixcardByMap" resultClass="matrixcard" parameterClass="map">
+			<include refid="DETAIL_SELECT_MATRIXCARD"/>
+			<include refid="COMMON_CONDITION_MATRIXCARD_DETAIL"/>
+    </select>
+    
+       <!-- 根据参数查询-->
+    <select id="selectmatrixcardByTransInfoMemberCode" resultClass="matrixcard" parameterClass="map">
+		 SELECT t.id,
+		           t.serial_no as serialNo,
+		           t.matrix_data as matrixData,
+		           t.creation_date as creationDate,
+		           t.bind_date as bindDate,
+		           t.bind_uid as bindUid,
+		           t.bind_member_code as bindMemberCode,
+		           t.bind_ip as bindIp,
+		           t.unbind_date as unbindDate,
+				   t.unbind_ip as unbindIp,
+				   t.unbind_operator as unbindOperator,
+				   t.status,
+				   t.user_time as userTime 
+				 FROM T_MATRIXCARD T,t_matrixcard_transinfo i
+			     where 	t.id=i.mcid and t.status=0 
+			    	 	and i.trans_type=0
+			   	 		and i.member_code=#memberCode#
+			    		order by i.creation_date desc
+    </select> 
+          
+    <select id="count" resultClass="java.lang.Integer" parameterClass="map">
+    	<![CDATA[	select 
+    					count(1) 
+    				from 
+    				T_MATRIXCARD t
+    				where 1=1
+    	]]>	
+    	<include refid="COMMON_CONDITION_MATRIXCARD_DETAIL"/>
+    </select>
+    
+    
+ 
+</sqlMap>

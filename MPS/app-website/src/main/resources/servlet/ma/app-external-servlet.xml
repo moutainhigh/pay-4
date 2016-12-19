@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 演示大厅 -->
+	<!-- 定义映射-->
+    <bean id="ExternalHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/isMemberLink.htm">mallRelatedController</prop>
+				<prop key="/isMemberCreate.htm">mallTemporaryController</prop>
+				<prop key="/isMemberReg.htm">mallTemproaryCheckController</prop>
+				<prop key="/externalMemberLogin.htm">externalMemberLoginController</prop>
+				<prop key="/externalLogin.htm">externaLoginController</prop>
+				<prop key="/externalMember.htm">externalMemberController</prop>
+				<prop key="/externalBalance.htm">externalBalanceController</prop>
+				<prop key="/externalRegister.htm">externalRegisterController</prop>
+				<prop key="/externalRedirect.htm">externalRedirectController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="externalBalanceController" class="com.pay.app.controller.external.ExternalBalanceController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+		<property name="checkCodeService">
+			<ref bean="checkCodeService"/>
+		</property>
+		<property name="accountQueryService">
+			<ref bean="acc-accountQueryService"/>
+		</property>
+		<property name="frozenAmountService">
+			<ref bean="acc-frozenAmountService"/>
+		</property>
+		<property name="balanceDealService">
+			<ref bean="acc-balanceDealService"/>
+		</property>
+		<property name="memberService">
+			<ref bean="base-memberService"/>
+		</property>
+		<property name="peService">
+			<ref bean="peService"/>
+		</property>
+		<property name="acctService">
+			<ref bean="base-acctService"/>
+		</property>
+	</bean>
+
+	<bean id="mallRelatedController" class="com.pay.app.controller.external.RelatedController">
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+		<property name="iMessageDigest">
+			<ref bean="iMessageDigest" />
+		</property>
+	</bean>
+	
+	
+	<bean id="mallTemporaryController" class="com.pay.app.controller.external.TemporaryController">
+		<property name="memberCreateService">
+			<ref bean="base-memberCreateServiceFacadeService" />
+		</property>
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+	</bean>
+	
+	<bean id="mallTemproaryCheckController" class="com.pay.app.controller.external.TemproaryCheckController">
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+	</bean>
+	
+	<bean id="externalMemberLoginController" class="com.pay.app.controller.external.ExternalLoginController">
+		<property name="userLoginService">
+        <ref bean="base-userLoginService"/>
+       </property>
+		<property name="matrixCardLoginService">
+	     <ref bean="matrixCardLoginService"/>
+	  	</property>
+    	<property name="externalLogout">
+      		<value>/base/external/login</value>
+    	</property>
+    		<property name="autoJump">
+      		<value>/base/external/autoJump</value>
+    	</property>
+	</bean>
+	
+	<bean id="externaLoginController" class="com.pay.app.controller.external.LoginController">
+		<property name="externalLogout">
+      		<value>/base/external/login</value>
+    	</property>
+    
+	</bean>
+	
+	<bean id="externalMemberController" class="com.pay.app.controller.external.ExternalMemberController">
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+	</bean>
+	
+	<bean id="externalRegisterController" class="com.pay.app.controller.external.ExternalRegisterController">
+		<property name="externalRegisterService">
+			<ref bean="app-externalRegisterService" />
+		</property>
+	</bean>
+	
+	<bean id="externalRedirectController" class="com.pay.app.controller.external.ExternalRedirectController">
+		<property name="memberService" ref="base-memberService" />
+		<property name="operatorServiceFacade" ref="base-operatorService" />
+		<property name="memberOperateService" ref="base-memberOperateService" />
+		<property name="externalLoginValidate" ref="externalLoginValidate" />
+		<property name="externalResourcesHelper" ref="externalResourcesHelper" />
+		<property name="enterpriseBaseService" ref="base-enterpriseBaseService" />
+		<property name="userHelper" ref="base-userHelper" />
+		<property name="messageSignatureVerify" ref="bsp-messageSignatureVerify" />
+	</bean>
+	
+</beans>

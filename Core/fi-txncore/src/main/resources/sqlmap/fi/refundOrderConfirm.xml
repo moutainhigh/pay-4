@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundOrderConfirm">
+	<typeAlias alias="refundOrderConfirm" type="com.pay.txncore.model.RefundOrderConfirm"/>
+    <resultMap id="refundOrderConfirmResult" class="refundOrderConfirm">
+        <result column="REFUND_CONFIRM_ID" property="refundConfirmId" jdbcType="DECIMAL"/>
+        <result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+        <result column="PRE_START_TIME" property="preStartTime" jdbcType="TIMESTAMP"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="COMPLETE_TIME" property="completeTime" jdbcType="TIMESTAMP"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="CONNUM" property="conNum" jdbcType="NUMBER"/>
+    </resultMap>
+    
+    <insert id="create" parameterClass="refundOrderConfirm">
+    	<selectKey resultClass="java.lang.Long" keyProperty="refundConfirmId">
+    	  SELECT 106 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_REFUND_ORDER_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO REFUND_ORDER_CONFIRM(
+			REFUND_CONFIRM_ID,REFUND_ORDER_NO,PRE_START_TIME,CREATE_DATE,COMPLETE_TIME,STATUS,CONNUM
+        )
+        VALUES(
+            #refundConfirmId#,#refundOrderNo#,#preStartTime#,#createDate#,#completeTime#,#status#,#conNum#
+		)
+    </insert>
+
+    <update id="update" parameterClass="refundOrderConfirm">
+        UPDATE REFUND_ORDER_CONFIRM
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="preStartTime">
+            PRE_START_TIME = #preStartTime#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="completeTime">
+            COMPLETE_TIME = #completeTime#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="conNum">
+            CONNUM = #conNum#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+         REFUND_CONFIRM_ID = #refundConfirmId#
+        </dynamic>
+    </update>
+    
+	<update id="updateRefundOrderConfirmState" parameterClass="java.util.HashMap">
+      	UPDATE REFUND_ORDER_CONFIRM 
+      		SET STATUS = #status#
+      	WHERE REFUND_CONFIRM_ID = #refundConfirmId#
+	</update>
+	
+	<update id="updateRefundOrderConfirmStateAfter" parameterClass="java.util.HashMap">
+      	UPDATE REFUND_ORDER_CONFIRM 
+      		SET STATUS = #status#, COMPLETE_TIME=sysdate, PRE_START_TIME = #preStartTime#, CONNUM = CONNUM + 1
+      	WHERE REFUND_CONFIRM_ID = #refundConfirmId#
+	</update>
+    
+     <select id="findById" resultMap="refundOrderConfirmResult"  parameterClass="java.lang.Long">
+        SELECT 
+			ro.*
+        FROM REFUND_ORDER_CONFIRM ro, REFUND_ORDER to_
+        WHERE  ro.REFUND_CONFIRM_ID = #refundConfirmId# and ro.REFUND_ORDER_NO = to_.REFUND_ORDER_NO
+    </select>
+    
+    
+    <select id="findByRefundOrderNo" resultMap="refundOrderConfirmResult" parameterClass="java.lang.Long">
+    	SELECT 
+			ro.*
+        FROM REFUND_ORDER_CONFIRM ro, REFUND_ORDER to_ 
+        where ro.REFUND_ORDER_NO = to_.REFUND_ORDER_NO and ro.REFUND_ORDER_NO = #refundOrderNo#
+    </select>
+    
+    <select id="getQueryRefundConfList" parameterClass="java.util.Map" resultMap="refundOrderConfirmResult">
+    	select r.*
+		from  REFUND_ORDER_CONFIRM r left join REFUND_ORDER t on t.REFUND_ORDER_NO = r.REFUND_ORDER_NO
+        where 1=1
+        <isNotEmpty prepend="and" property="refundConfirmId">
+        	r.REFUND_CONFIRM_ID = #refundConfirmId#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="refundOrderNo">
+        	r.REFUND_ORDER_NO = #refundOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="preStartTime">
+        	r.PRE_START_TIME <![CDATA[>=]]> to_date(#preStartTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="preEndTime">
+        	r.PRE_START_TIME <![CDATA[<=]]> to_date(#preEndTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="compStartTime">
+        	r.COMPLETE_TIME <![CDATA[>=]]> to_date(#compStartTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="compEndTime">
+        	r.COMPLETE_TIME <![CDATA[<=]]> to_date(#compEndTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="createStartTime">
+        	r.CREATE_DATE <![CDATA[>=]]> to_date(#createStartTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="createEndTime">
+        	r.CREATE_DATE <![CDATA[<=]]> to_date(#createEndTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+        </isNotEmpty>
+       	and r.STATUS in (0,3) and r.CONNUM <![CDATA[<]]> 3 
+       	order by r.CREATE_DATE
+    </select>
+    
+</sqlMap>

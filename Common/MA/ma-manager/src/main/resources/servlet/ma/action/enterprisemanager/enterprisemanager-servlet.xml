@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="enterpriseSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/enterpriseView.do">enterpriseViewController</prop>
+				<prop key="/enterpriseViewEdit.do">enterpriseViewEditController</prop>
+				<prop key="/enterpriseListForInfo.do">enterpriseListForInfoController</prop>
+				<prop key="/enterpriseListForInfoCC.do">enterpriseListForInfoController</prop>
+				<prop key="/enterpriseListForAccount.do">enterpriseListForAccountController</prop>
+				<prop key="/enterpriseListForProduct.do">enterpriseListForProductController</prop>
+				<prop key="/accountOfEnterpriseEdit.do">accountOfEnterpriseEditController</prop>
+				<prop key="/accountOfEnterpriseList.do">accountOfEnterpriseListController</prop>
+				<prop key="/accountListForAttribute.do">accountListForAttributeController</prop>
+				<prop key="/attributeOfAccountEdit.do">attributeOfAccountEditController</prop>
+				<prop key="/detailOfAccountList.do">detailOfAccountListController</prop>
+				<prop key="/productOfEnterpriseEdit.do">productOfEnterpriseEditController</prop>
+				<prop key="/enterpriseMessageList.do">enterpriseMessageList</prop>
+				<prop key="/enterpriseMessageForChange.do">enterpriseMessageChangeController</prop>
+				<prop key="/productListForMenu.do">productListForMenuController</prop>
+				<!-- <prop key="/productDeleteForMenu.do">productDeleteForMenuController</prop> -->
+				<prop key="/productJoinMenu.do">productJoinMenuController</prop>
+				<prop key="/productAdd.do">productAddController</prop>
+				<prop key="/productDeleteForMenu.do">productForMenuController</prop>
+				<prop key="/accountTempList.do">accountTempListController</prop>
+				<prop key="/accountTempJoinProduct.do">accountTempJoinProductController</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="accountTempJoinProductController"
+		class="com.pay.poss.enterprisemanager.controller.AccountTempJoinProductController">
+		<property name="commandName">
+			<value>accountTempFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.AccountTempFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/accountTempJoinProduct</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/accountTempJoinProduct</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>		
+	</bean>
+	<bean id="accountTempListController"
+		class="com.pay.poss.enterprisemanager.controller.AccountTempListController">
+		<property name="commandName">
+			<value>accountTempFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.AccountTempFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/accountTempList</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/accountTempListResult</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>		
+	</bean>
+	<bean id="productAddController"
+		class="com.pay.poss.enterprisemanager.controller.ProductAddController">
+		<property name="formView">		
+			<value>/enterprisemanager/productAdd</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/productAdd</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>
+		<property name="productConfigService" ref="poss-productConfigService"/>		
+	</bean>
+	<bean id="productJoinMenuController"
+		class="com.pay.poss.enterprisemanager.controller.ProductJoinMenuController">
+		<property name="commandName">
+			<value>productJoinMenuFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.ProductJoinMenuFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/productJoinMenu</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/productJoinMenu</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>		
+	</bean>
+	
+	<bean id="productListForMenuController"
+		class="com.pay.poss.enterprisemanager.controller.ProductListForMenuController">
+		<property name="commandName">
+			<value>productSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.ProductSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/productListForMenu</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/productListForMenuResult</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>		
+	</bean>
+	
+	<bean id="enterpriseViewController"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseViewController">
+		<property name="commandName">
+			<value>enterpriseFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseView</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/enterpriseView</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>		
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService"/>		
+		<property name="bankService" ref="bankService"/>
+		<property name="autoFundoutConfigService">
+			<ref bean="fundout-autoFundoutConfigService"/>
+		</property>
+		<property name="rcLimitRuleFacade">
+			<ref bean="rm-rclimitrulefacade"/>
+		</property>
+		<property name="merchantService" ref="merchantService"/>	
+	</bean>
+	
+	<bean id="enterpriseViewEditController"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseViewController">
+		<property name="commandName">
+			<value>enterpriseFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseView</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/enterprise_save_result</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>		
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService"/>		
+		<property name="bankService" ref="bankService"/>
+		<property name="iSignMessageService" ref="iSignMessageService"/>
+		<property name="merchantService" ref="merchantService"/>
+	</bean>
+	<bean id="enterpriseListForInfoController"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseListForInfoController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseListForInfo</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/enterpriseListForInfoResult</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>
+		<property name="iSignMessageService" ref="iSignMessageService"/>
+		<property name="userRelationService" ref="userRelationServiceImpl"></property>
+	</bean>
+	<bean id="enterpriseListForAccountController"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseListForAccountController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseListForAccount</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/enterpriseListForAccountResult</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="enterpriseListForProductController"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseListForProductController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseListForProduct</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/enterpriseListForProductResult</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="accountOfEnterpriseEditController"
+		class="com.pay.poss.enterprisemanager.controller.AccountOfEnterpriseEditController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/accountOfEnterpriseEdit</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/accountOfEnterpriseEdit</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="attributeOfAccountEditController"
+		class="com.pay.poss.enterprisemanager.controller.AttributeOfAccountEditController">
+		<property name="commandName">
+			<value>attributeFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.AttributeFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/attributeOfAccountEdit</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/attributeOfAccountEdit</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="accountOfEnterpriseListController"
+		class="com.pay.poss.enterprisemanager.controller.AccountOfEnterpriseListController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/accountOfEnterpriseList</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/accountOfEnterpriseListResult</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+		<property name="userRelationService" ref="userRelationServiceImpl"></property>
+	</bean>
+	<bean id="accountListForAttributeController"
+		class="com.pay.poss.enterprisemanager.controller.AccountListForAttributeController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/accountListForAttribute</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/accountListForAttributeResult</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="detailOfAccountListController"
+		class="com.pay.poss.enterprisemanager.controller.DetailOfAccountListController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/enterprisemanager/detailOfAccountList</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/detailOfAccountListResult</value>
+		</property>	
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="productOfEnterpriseEditController"
+		class="com.pay.poss.enterprisemanager.controller.ProductOfEnterpriseEditController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>		
+		<property name="formView">		
+			<value>/enterprisemanager/productOfEnterpriseEdit</value>
+		</property>	
+		<property name="successView">
+			<value>/enterprisemanager/productOfEnterpriseEdit</value>
+		</property>	
+		<property name="memberQueryService" ref="acc-memberQueryService"/>
+		<property name="productConfigService" ref="poss-productConfigService"/>
+	</bean>	
+	<bean id="enterpriseMessageList"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseListForInfoController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseListForMessage</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/enterpriseListForMessageResult</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>
+		<property name="iSignMessageService" ref="iSignMessageService"/>
+		<property name="userRelationService" ref="userRelationServiceImpl" />
+	</bean>
+	<bean id="enterpriseMessageChangeController"
+		class="com.pay.poss.enterprisemanager.controller.EnterpriseMessageChangeController">
+		<property name="commandName">
+			<value>enterpriseSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.enterprisemanager.formbean.EnterpriseSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/enterprisemanager/enterpriseMessageForChange</value>
+		</property>
+		<property name="successView">
+			<value>/enterprisemanager/enterpriseMessageForChange</value>
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>
+		<property name="merchantService" ref="merchantService"/>
+	</bean>
+	
+	<bean id="productForMenuController" class="com.pay.poss.enterprisemanager.controller.ProductForMenuController">
+		<property name="methodNameResolver">
+			<ref bean="productForMenuParamResolver" />
+		</property>
+		<property name="enterpriseService" ref="enterpriseService"/>
+	</bean>
+	<bean id="productForMenuParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/productDeleteForMenu.do">delProduct</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
+
+

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Payment Methods</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#import "../app.html" as app>
+<#include "../target.html">
+
+</head>
+<body style="padding: 20px; background-color: #DDDDDD;">
+	<input id="basePath" type="hidden" value="${app.base}">
+	<input id="orgCodeAndUrl" type="hidden" value='${orgCodeAndUrl}'>
+	<input id="orgCodeAndUrlName" type="hidden" value='${showName}'>
+	
+		<div class="row" id="content">
+			<div class="small-12  medium-12  large-10 large-offset-1 columns"
+				style="border: 1px solid #DDDDDD; border-radius: 15px; background-color: white; box-shadow: 1px 1px 1px #888888;">
+				<h4 id="headTip" style="margin-top:30px;">Select Payment Methods</h4>
+				<h4 id="headTip_one" hidden="hidden" style="margin-top:30px;" >Payment Methods</h4>
+				<h4 id="headTip_error" hidden="hidden" style="margin-top: 30px;color: red;">Select Payment Methods</h4>
+				<hr />
+				<div id="iconContext" class="row">
+				</div>
+	    		<#include "ideal_from.html">
+				<#include "eps_from.html">
+				<#include "giropay_from.html">
+				<#include "sepa_from.html">
+				<#include "boleto.html">
+				<#include "safetyPay.html">
+				<#include "teleingreso.html">
+		 		<#include "pagDebitCard.html"> 
+				<#include "sofort.html">
+				<#include "otf.html">
+				<#include "p24.html">
+				<#include "trustPay.html">
+				<#include "poli.html">
+				<#include "qiwi.html">
+				<#include "creditCard.html">
+				<#include "m_boleto.html">
+				<form id="order_form" action="${app.base}/newchannelPay.htm?method=onSubmit" method="post">
+					<input id="PaymentText" type="hidden" name="mapData" value="">
+					<input id="orgCode" type="hidden" name="orgCode" value="">
+					<input id="tradeOrderNo" type="hidden" name="tradeOrderNo" value="${tradeOrderNo}">
+					<input id="orderId" type="hidden" name="orderId" value="${orderId}">
+					<input id="partnerId" type="hidden" name="partnerId" value="${partnerId}">
+					<input id="goodsName" type="hidden" name="goodsName" value="${goodsName}">
+					<input id="goodsDesc" type="hidden" name="goodsDesc" value="${goodsDesc}">
+					<input id="sellerName" type="hidden" name="sellerName" value="${sellerName}">
+					<input id="orderAmount" type="hidden" name="orderAmount" value="${orderAmount}">
+					<input id="currencyCode" type="hidden" name="currencyCode" value="${currencyCode}">
+					<input id="settlementCurrencyCode" type="hidden" name="settlementCurrencyCode" value="${settlementCurrencyCode?default('')}">
+					<input id="orderTerminal" type="hidden" name="orderTerminal" value="${orderTerminal?default('')}">
+					<input id="language" type="hidden" name="language" value="${language?default('')}">
+					<input id="deviceFingerprintId" type="hidden" name="deviceFingerprintId" value="${deviceFingerprintId?default('')}">
+					<input id="siteId" type="hidden" name="siteId" value="${siteId?default('')}">
+					<input id="cardLimit" type="hidden" name="cardLimit" value="${cardLimit?default('')}">
+					<input id="remark" type="hidden" name="remark" value="${remark?default('')}">
+					<input id="returnUrl" type="hidden" name="returnUrl" value="${returnUrl}">
+					<input id="registerUserId" type="hidden" name="registerUserId" value="${registerUserId?default('')}">
+					<input id="customerIP" type="hidden" name="customerIP" value="${customerIP?default('')}">
+				 
+				<hr style="border: 2px solid #DDDDDD;" />
+				<div class="row" style="text-align: center;" >
+					<div class="small-12 columns medium-12 columns large-12 columns">
+						<button id="Cancel" type="button" class="button    secondary"   disabled="disabled"
+							style="width: 120px;float:left; box-shadow: 1px 1px 1px #888888; font-weight: bold" onclick="Cancel_click();">Cancel</button>
+					<!-- </div>
+					<div class="small-6  medium-6  large-3 large-offset-6 columns"> -->
+						<button id="pay" type="submit" class="button " 
+							style="width: 120px;float:right; box-shadow: 1px 1px 1px #888888;font-weight: bold;" disabled="disabled">Pay
+						</button>
+					</div>
+				</div>
+			</div>
+			</form>
+		</div>
+			
+	<script type="text/javascript">
+		var basePath = $("#basePath").val();
+	</script>
+	<script type="text/javascript" src="${base}/model/computop/js/computopMain.js"></script>
+</body>
+</html>

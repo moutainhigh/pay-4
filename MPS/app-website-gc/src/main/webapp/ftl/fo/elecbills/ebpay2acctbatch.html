@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>电子回单_iPayLinks支付</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/elecbills/elecbills.js"></script>
+<style media="print">
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td { padding:0; margin:0 }
+body { font: 12px/1.5 Tahoma, Helvetica, \5b8b\4f53, sans-serif; color:#333; word-wrap:break-word; word-break:break-all; background:#fff }
+abbr, article, aside, bb, datagrid, datalist, details, dialog, eventsource, figure, footer, header, mark, menu, meter, nav, output, progress, section, time { margin:0; padding:0; display:block }
+table { border-collapse:collapse; border-spacing:0 }
+img{ border:none}
+.container { width:960px; margin:0 auto;}
+.header_bar,.footer{ display:none}
+/*电子回单*/
+.proof_box{ position:relative; padding-bottom:65px;}
+.proof_tit{ text-align:center; padding:20px 0 10px; font-weight:700; font-size:20px; color:#000}
+.proof_table{ width:100%; margin:0 auto;}
+.proof_table,.proof_table td{ border:1px solid #857f80; color:#000;}
+.proof_table td{padding:12px 15px;}
+.proof_table td.c_666{ color:#666}
+.proof_table .type{ background:#f3f3f3;}
+.proof_table .tips,.proof_table .tips2{ width:720px;}
+.proof_box .seal{ width:190px; height:190px; position:absolute; bottom:100px;_bottom:160px;right:10px;}
+.proof_box .tool{ height:21px; padding-top:30px; font-size:14px;}
+.proof_box .tool_txt{display:none}
+</style>
+</head>
+<body>
+<!--导航 str-->
+<@sp.headCommon txt="" />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+<div class="proof_tit">iPayLinks支付收付款凭证</div>
+	<div class="proof_box">
+	<table class="proof_table">
+								<tbody>
+										<tr>
+											<td colspan="2" class="f14b" data-f="batchNo" data-x="120" data-y="152">商家批次号：${viewData.batchNo!('')}</td>
+											<td colspan="2" class="f14b" data-f="tradeNo" data-x="590" data-y="152">交易号：${viewData.tradeNo!('')}</td>
+										</tr>
+										<tr>
+											<td colspan="2" class="f16b txtC">付款方</td>
+											<td colspan="2" class="f14b txtC">收款方</td>
+										</tr>
+										<tr>
+											<td width="18%" class="type txtR blod">名称：</td>
+											<td class="txtL" data-f="payerName" data-x="198" data-y="245">${viewData.payerName!('')}</td>
+											<td width="18%" class="type txtR blod">名称：</td>
+											<td class="txtL" data-f="payeeName" data-x="697" data-y="245">${viewData.payeeName!('')}</td>
+										</tr>
+										<tr>
+											<td width="18%" class="type txtR blod">付款方账号：</td>
+											<td class="txtL" data-f="payerLoginName" data-x="198" data-y="288">${viewData.payerLoginName!('')}</td>
+											<td width="18%" class="type txtR blod">收款方账号：</td>
+											<td class="txtL" data-f="payeeLoginName" data-x="697" data-y="288">${viewData.payeeLoginName!('')}</td>
+										</tr>
+										<tr>
+											<td width="18%" class="type txtR blod">代付金额(大写)：</td>
+											<td class="txtL" data-f="amountWords" data-x="198" data-y="332">${viewData.amountWords!('')}</td>
+											<td width="18%" class="type txtR blod">代付金额(小写)：</td>
+											<td class="txtL" data-f="amount" data-x="697" data-y="332">${viewData.amount!('')} 元</td>
+										</tr>
+										<tr>
+											<td width="18%" class="type txtR blod">费用(大写)：</td>
+											<td class="txtL" data-f="feeWords" data-x="198" data-y="374">${viewData.feeWords!('')}</td>
+											<td width="18%" class="type txtR blod">费用(小写)：</td>
+											<td class="txtL" data-f="fee" data-x="697" data-y="374">${viewData.fee!('')} 元</td>
+										</tr>
+										<tr>
+											<td width="18%" class="type txtR blod">出账金额(大写)：</td>
+											<td class="txtL" data-f="realAmountWords" data-x="198" data-y="418">${viewData.realAmountWords!('')}</td>
+											<td width="18%" class="type txtR blod">出账金额(小写)：</td>
+											<td class="txtL" data-f="realAmount" data-x="697" data-y="418">${viewData.realAmount!('')} 元</td>
+										</tr>
+										
+										<tr>
+											<td width="18%" class="type txtR blod">交易类型：</td>
+											<td class="txtL" data-f="tradeType" data-x="198" data-y="460">
+												${viewData.tradeType!('')}
+											</td>
+											<td width="18%" class="type txtR blod">付款时间：</td>
+											<td class="txtL" data-f="createTime" data-x="697" data-y="460">${viewData.createTime!('')}</td>
+										</tr>
+										<tr>
+											<td colspan="4" class="txtL" data-f="remark" data-x="66" data-y="504"><div class="tips"><span class="blod">备注：</span>${viewData.remark!('')}</div></td>
+										</tr>
+										<tr>
+											<td  height="60" valign="top" colspan="4" class="txtL c_666"><div class="tips2">
+												温馨提示：若本单与我司记录不符，以我司原始记录为准。
+											</div></td>
+										</tr>
+								</tbody>
+						</table>
+	<form action="${url}?method=downloadBills&serialNo=${map.serialNo!('')}&channel=${map.channel!''}&batchNo=${viewData.batchNo!('')}" method="post" id="ebillsForm">
+		<input type="hidden" id="fields" name="fields" />
+		<input type="hidden" id="positionX" name="positionX" />
+		<input type="hidden" id="positionY" name="positionY" />
+	</form>
+	<img class="seal" src="<@sp.static/>/img/pay/seal.png" />
+	<div class="tool"><p class="tool_txt">您可能需要: <a href="#" onclick="javascript:window.print();" class="red">打印凭证</a>| <a href="#" onclick="getImg();"  class="red">下载凭证</a> | <a href="#" onclick="javascript:window.close();" class="red">关闭此页</a></p></div>
+
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="balance">
+	<typeAlias alias="queryCorpBalance" type="com.pay.base.model.QueryCorpBalance" />
+	<typeAlias alias="maSumDto" type="com.pay.app.facade.dto.MaSumDto" />
+	
+	
+	<sql id="common_param_SelectByDate">
+        	 <isEqual property="type" compareValue="day">
+	              and t.creation_date &gt;= to_date(to_char(sysdate,'yyyy-MM-dd'),'yyyy-MM-dd') 
+              </isEqual>
+              <isEqual property="type" compareValue="week">
+	              and t.creation_date &gt;= trunc(sysdate, 'd')+1
+              </isEqual>
+              <isEqual property="type" compareValue="preweek">
+	              and t.creation_date &gt;= trunc(sysdate, 'd')-6
+		          and t.creation_date &lt; trunc(sysdate, 'd')+1  
+              </isEqual>
+              <isEqual property="type" compareValue="month">
+	    			and t.creation_date &gt;= trunc(sysdate, 'mm')
+              </isEqual>
+              <isEqual property="type" compareValue="premonth">
+	    			and t.creation_date &gt;= to_date(to_char(add_months(trunc(sysdate,'MON'),-1),'yyyy-mm-dd'),'yyyy-MM-dd')
+		          	and t.creation_date &lt; trunc(sysdate, 'mm')
+              </isEqual>
+    </sql>
+	
+	<select id="queryHistoryBusinessSum" parameterClass="java.util.Map" resultClass="maSumDto">
+		select nvl(sum(income), 0) as incomeSumNo,
+       	 nvl(sum(expenses), 0) as expensesSumNo,
+       	 nvl(sum(1), 0) count
+   		from (select decode(t.payee_full_mem_acctcode,#acctCode#,1,0) * t.amount as income,
+               	     decode(t.payer_full_mem_acctcode,#acctCode#,1,0) * t.amount as expenses
+           from t_balance_deal t
+          where t.amount > 0
+          and  (t.payer_full_mem_acctcode = #acctCode# or
+                t.payee_full_mem_acctcode = #acctCode# )
+		<isNotNull property="fundTrace">
+			<isEqual property="fundTrace" compareValue="1">
+				and (t.payee_full_mem_acctcode &lt;&gt; #acctCode# and t.amount &gt; 0)  
+	        </isEqual>
+			<isEqual property="fundTrace" compareValue="2">
+				and (t.payer_full_mem_acctcode &lt;&gt; #acctCode# and t.amount &gt; 0)  
+	        </isEqual>
+		</isNotNull>
+		<isNotNull property="sDate">
+			and t.create_date &gt;= #sDate#
+		</isNotNull>
+		<isNotNull property="eDate">
+			and t.create_date &lt;= #eDate#
+		</isNotNull>
+		<!-- <isNotNull property="dealType">
+			and t.deal_type = #dealType#
+		</isNotNull> -->
+		<isNotNull property="dealTypes">
+			and t.deal_type in
+			<iterate open="(" close=")" conjunction="," property="dealTypes">
+				#dealTypes[]#
+			</iterate>
+		</isNotNull>
+		
+		<isNotEmpty property="payNo">
+			and t.order_id = #payNo#
+		</isNotEmpty>
+		<!--新增商户订单号查询 add by tom。wang 2016年4月23日21:21:59  -->
+		<isNotEmpty property="merchantOrderId">
+			and t.merchant_order_id = #merchantOrderId#
+		</isNotEmpty>
+		)
+	</select>
+
+	<select id="queryBalance" parameterClass="java.util.Map"
+		resultClass="java.math.BigDecimal">
+		select balance from(
+		select 
+		  balance from t_balance_entry tbe where
+		tbe.dealid=#dealid# and tbe.acct_code=#acctCode# and tbe.status=#status#  and  tbe.deal_code=#dealCode#
+		order by bentry_id desc) where rownum=1
+	</select>
+	<!-- 余额币种的查询  by tom.wang-->
+	<select id="queryBalanceCurCode" parameterClass="java.util.Map"
+		resultClass="java.lang.String">
+		select currency_code from(
+		select 
+		  currency_code from t_balance_entry tbe where
+		tbe.dealid=#dealid# and tbe.acct_code=#acctCode# and tbe.status=#status#  and  tbe.deal_code=#dealCode#
+		order by bentry_id desc) where rownum=1
+	</select>
+
+	<select id="queryIncomeSum" parameterClass="java.util.Map"
+		resultClass="java.math.BigDecimal">
+		select nvl(sum(case t.balance_direct when 1 then t.value when 2 then -1*t.value end),0) as addValue
+              from  t_balance_entry t 
+              where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) &gt; 0
+              and t.acct_code=#acctCode#
+              <include refid="common_param_SelectByDate"/>  
+   	</select>
+	
+	<select id="queryIncomeCount" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select count(*)
+              from  t_balance_entry t
+              <!-- where t.balance_direct=1 -->
+               where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) &gt; 0
+              and t.acct_code=#acctCode#
+              <include refid="common_param_SelectByDate"/>  
+   	</select>
+	
+	<select id="queryExpensesSum" parameterClass="java.util.Map"
+		resultClass="java.math.BigDecimal">
+		select nvl(sum(t.value),0) as addValue
+              from  t_balance_entry t 
+              where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) &lt; 0
+              and t.acct_code=#acctCode#
+              <include refid="common_param_SelectByDate"/>  
+    </select>
+
+	<select id="queryExpensesCount" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select count(*)
+              from  t_balance_entry t
+              <!-- where t.balance_direct=1 -->
+               where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end)  &lt; 0
+              and t.acct_code=#acctCode#
+              <include refid="common_param_SelectByDate"/>  
+   	</select>
+   	
+   	<select id="queryCountBalance" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+   	select sum(payfeeNum)
+  from (SELECT ROWNUM rn,
+               (case when (payeeFee >0 or payerFee>0) then 1 else  0 end) as payfeeNum
+          FROM (SELECT tbd.deal_type fundTrace,
+                       tbd.create_date balanceDate,
+                       decode(tbd.payer_full_mem_acctcode, #acctCode#, tbd.amount) pay,
+                       decode(tbd.payee_full_mem_acctcode, #acctCode#, tbd.amount) revenue,
+                       tbd.payer_full_mem_acctcode payerAccount,
+                       tbd.payee_full_mem_acctcode payeeAccount,
+                       tbd.payee_fee payeeFee,
+                       tbd.payer_fee payerFee,
+                       tbd.order_id payNo
+                       
+                  FROM t_balance_deal tbd
+                 WHERE 
+                tbd.amount > 0
+                           AND  (tbd.payer_full_mem_acctcode = #acctCode# OR
+                       tbd.payee_full_mem_acctcode = #acctCode#) 
+                <isNotNull property="fundTrace">
+				<isEqual property="fundTrace" compareValue="1">
+					and (tbd.payee_full_mem_acctcode &lt;&gt; #acctCode# and
+					tbd.amount > 0)  
+				</isEqual>
+	
+				<isEqual property="fundTrace" compareValue="2">
+					and (tbd.payer_full_mem_acctcode &lt;&gt; #acctCode# and
+					tbd.amount > 0)  
+			  	</isEqual>
+			</isNotNull>
+	
+			<isNotNull property="sDate">
+				<isNotNull property="eDate">
+					and tbd.create_date between #sDate# and #eDate# 
+				</isNotNull>
+			</isNotNull>
+	
+			<isNotNull property="sDate">
+				<isNull property="eDate">
+					and tbd.create_date &gt;= #sDate#
+				</isNull>
+			</isNotNull>
+	
+			<isNotNull property="eDate">
+				<isNull property="sDate">
+					and tbd.create_date &lt;= #eDate#
+				</isNull>
+			</isNotNull>
+	
+			<isNotNull property="dealTypes">
+				and tbd.deal_type in
+				<iterate open="(" close=")" conjunction="," property="dealTypes">
+					#dealTypes[]#
+				</iterate>
+			</isNotNull>
+			
+			order by
+			<isNotNull property="orderStr">
+				$orderStr$
+			</isNotNull>
+		) t) where rn between #start# and #end#
+	</select>     
+   	
+
+	<select id="queryBalanceList" parameterClass="java.util.Map"
+		resultClass="queryCorpBalance">  
+		select fundTrace,balanceDate,pay,revenue,payerAccount,payeeAccount,payeeFee,payerFee,payNo,dealCode,remark,merchantOrderId,revenueCode,payCode FROM (
+		SELECT ROWNUM rn,fundTrace,balanceDate,pay,revenue,payerAccount,payeeAccount,payeeFee,payerFee,payNo,dealCode,remark,merchantOrderId,revenueCode,payCode FROM (
+			SELECT tbd.deal_type fundTrace,
+			tbd.create_date balanceDate,
+			decode(tbd.payer_full_mem_acctcode,#acctCode#,tbd.amount) pay,
+			decode(tbd.payee_full_mem_acctcode,#acctCode#,tbd.amount) revenue,
+			tbd.payer_full_mem_acctcode payerAccount,
+			tbd.payee_full_mem_acctcode payeeAccount,
+			tbd.payee_fee payeeFee,
+			tbd.payer_fee payerFee,
+			tbd.PAYER_CURREN_CODE payCode,
+			tbd.PAYEE_CURRENCY_CODE revenueCode,
+			tbd.order_id payNo,				<!-- 交易流水号 -->
+			tbd.merchant_order_id merchantOrderId,  <!-- 商户订单号 -->
+			tbd.deal_code dealCode,
+			tbd.REMARK remark			
+			FROM t_balance_deal tbd
+			WHERE
+			tbd.amount > 0
+			AND (tbd.payer_full_mem_acctcode = #acctCode# OR tbd.payee_full_mem_acctcode = #acctCode#)
+	
+			<isNotNull property="fundTrace">
+				<isEqual property="fundTrace" compareValue="1">
+					and (tbd.payee_full_mem_acctcode &lt;&gt; #acctCode# and
+					tbd.amount > 0)  
+				</isEqual>
+	
+				<isEqual property="fundTrace" compareValue="2">
+					and (tbd.payer_full_mem_acctcode &lt;&gt; #acctCode# and
+					tbd.amount > 0)  
+			  	</isEqual>
+			</isNotNull>
+	
+			<isNotNull property="sDate">
+				<isNotNull property="eDate">
+					and tbd.create_date between #sDate# and #eDate# 
+				</isNotNull>
+			</isNotNull>
+	
+			<isNotNull property="sDate">
+				<isNull property="eDate">
+					and tbd.create_date &gt;= #sDate#
+				</isNull>
+			</isNotNull>
+	
+			<isNotNull property="eDate">
+				<isNull property="sDate">
+					and tbd.create_date &lt;= #eDate#
+				</isNull>
+			</isNotNull>	
+		
+			<isNotNull property="dealTypes">
+				and tbd.deal_type in
+				<iterate open="(" close=")" conjunction="," property="dealTypes">
+					#dealTypes[]#
+				</iterate>
+			</isNotNull>
+			
+			<!-- <isNotNull property="payNo"> and tbd.order_id = #payNo# </isNotNull> -->
+
+			<!-- 交易流水号 -->
+			<isNotEmpty property="payNo">
+				and tbd.order_id = #payNo#
+			</isNotEmpty>
+			<!-- 商户订单号 -->
+			<isNotEmpty property="merchantOrderId">
+				and tbd.merchant_order_id = #merchantOrderId#
+			</isNotEmpty>
+
+		<!-- <isNotEqual property="payNo"> and tdb.order_id = #payNo# </isNotEqual> -->
+			
+			order by
+			<isNotNull property="orderStr">
+				$orderStr$
+			</isNotNull>
+		) t) where rn between #start# and #end#
+	</select>
+	
+		<select id="queryBalanceList2" parameterClass="java.util.Map"
+		resultClass="queryCorpBalance">  
+		select  fundTrace,balanceDate,pay,revenue,payerAccount,payeeAccount,payeeFee,payerFee,payNo,dealCode,remark,merchantOrderId,revenueCode,payCode, balance, balanceCurCode FROM (
+		select  ROWNUM rn,fundTrace,balanceDate,pay,revenue,payerAccount,payeeAccount,payeeFee,payerFee,payNo,dealCode,remark,merchantOrderId,revenueCode,payCode, balance,currency_code balanceCurCode FROM (
+		SELECT fundTrace,balanceDate,pay,revenue,payerAccount,payeeAccount,payeeFee,payerFee,payNo,dealCode,remark,merchantOrderId,revenueCode,payCode, balance,currency_code FROM (
+			SELECT  tbd.bdeal_id ,tbd.deal_type fundTrace,
+			tbd.create_date balanceDate,
+			decode(tbd.payer_full_mem_acctcode,#acctCode#,tbd.amount) pay,
+			decode(tbd.payee_full_mem_acctcode,#acctCode#,tbd.amount) revenue,
+			tbd.payer_full_mem_acctcode payerAccount,
+			tbd.payee_full_mem_acctcode payeeAccount,
+			tbd.payee_fee payeeFee,
+			tbd.payer_fee payerFee,
+			tbd.PAYER_CURREN_CODE payCode,
+			tbd.PAYEE_CURRENCY_CODE revenueCode,
+			tbd.order_id payNo,				<!-- 交易流水号 -->
+			tbd.merchant_order_id merchantOrderId,  <!-- 商户订单号 -->
+			tbd.deal_code dealCode,
+			tbd.REMARK remark		,
+            tbe.balance,
+			tbe.currency_code,
+		    ROW_NUMBER() OVER(PARTITION BY TBD.bdeal_id, tbe.dealid,tbe.acct_code,tbe.status,tbe.deal_code ORDER BY tbe.bentry_id desc ) rowline
+			FROM t_balance_deal tbd ,t_balance_entry tbe
+			WHERE
+			tbd.amount > 0
+			and (tbd.payer_full_mem_acctcode = #acctCode# OR tbd.payee_full_mem_acctcode = #acctCode#)
+           	and tbe.acct_code(+) = #acctCode#
+			<!-- and tbe.dealid(+) = tbd.order_id -->
+			and tbd.voucher_code =tbe.voucher_code(+)			
+            <!-- and tbe.deal_code(+) = tbd.deal_code -->
+            and tbe.status(+) = decode(tbd.deal_type, 34, '1', '0')
+			<isNotNull property="fundTrace">
+				<isEqual property="fundTrace" compareValue="1">
+					and (tbd.payee_full_mem_acctcode &lt;&gt; #acctCode# and
+					tbd.amount > 0)  
+				</isEqual>
+	
+				<isEqual property="fundTrace" compareValue="2">
+					and (tbd.payer_full_mem_acctcode &lt;&gt; #acctCode# and
+					tbd.amount > 0)  
+			  	</isEqual>
+			</isNotNull>
+	
+			<isNotNull property="sDate">
+				<isNotNull property="eDate">
+					and tbd.create_date between #sDate# and #eDate# 
+				</isNotNull>
+			</isNotNull>
+	
+			<isNotNull property="sDate">
+				<isNull property="eDate">
+					and tbd.create_date &gt;= #sDate#
+				</isNull>
+			</isNotNull>
+	
+			<isNotNull property="eDate">
+				<isNull property="sDate">
+					and tbd.create_date &lt;= #eDate#
+				</isNull>
+			</isNotNull>	
+		
+			<isNotNull property="dealTypes">
+				and tbd.deal_type in
+				<iterate open="(" close=")" conjunction="," property="dealTypes">
+					#dealTypes[]#
+				</iterate>
+			</isNotNull>
+			
+			<!-- <isNotNull property="payNo"> and tbd.order_id = #payNo# </isNotNull> -->
+
+			<!-- 交易流水号 -->
+			<isNotEmpty property="payNo">
+				and tbd.order_id = #payNo#
+			</isNotEmpty>
+			<!-- 商户订单号 -->
+			<isNotEmpty property="merchantOrderId">
+				and tbd.merchant_order_id = #merchantOrderId#
+			</isNotEmpty>
+	       
+		<!-- <isNotEqual property="payNo"> and tdb.order_id = #payNo# </isNotEqual> -->
+			) WHERE rowline = 1 
+			order by  
+			<isNotNull property="orderStr">
+				$orderStr$
+			</isNotNull>
+		 ) t ) where rn between #start# and #end#
+	</select>
+	
+	
+</sqlMap>

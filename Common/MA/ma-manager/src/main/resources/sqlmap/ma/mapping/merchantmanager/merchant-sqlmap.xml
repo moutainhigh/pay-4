@@ -1,0 +1,921 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="merchant">
+	
+	<typeAlias alias="checkCode" type="com.pay.poss.merchantmanager.model.CheckCode" />
+	<typeAlias alias="member"	type="com.pay.poss.merchantmanager.model.Member" />
+	<typeAlias alias="enterpriseBase"	type="com.pay.poss.merchantmanager.model.EnterpriseBase" />
+	<typeAlias alias="enterpriseContact"	type="com.pay.poss.merchantmanager.model.EnterpriseContact" />
+	<typeAlias alias="enterpriseContract"	type="com.pay.poss.merchantmanager.model.EnterpriseContract" />
+	<typeAlias alias="flowLog"	type="com.pay.poss.merchantmanager.model.FlowLog" />
+	<typeAlias alias="liquidateInfo" type="com.pay.poss.merchantmanager.model.LiquidateInfo" />
+	<typeAlias alias="operator"	type="com.pay.poss.merchantmanager.model.Operator" />
+	<typeAlias alias="account"	type="com.pay.poss.merchantmanager.model.Account" />
+	<typeAlias alias="accountAttribute"	type="com.pay.poss.merchantmanager.model.AccountAttribute" />
+	<typeAlias alias="accountAttributeTemplate"	type="com.pay.poss.merchantmanager.model.AccountAttributeTemplate" />
+	<typeAlias alias="merchantSearchDto"	type="com.pay.poss.merchantmanager.dto.MerchantSearchDto" />
+	<typeAlias alias="merchantSearchListDto"	type="com.pay.poss.merchantmanager.dto.MerchantSearchListDto" />
+	<typeAlias alias="merchantDto"	type="com.pay.poss.merchantmanager.dto.MerchantDto" />
+	<typeAlias alias="baseData"	type="com.pay.poss.merchantmanager.model.BaseData" />
+	<typeAlias alias="memberProduct"	type="com.pay.poss.merchantmanager.model.MemberProduct" />
+	
+	
+	<insert id="insertCheckCode" parameterClass="checkCode">
+		<selectKey resultClass="java.lang.Long" keyProperty="checkId">
+			SELECT SEQ_CHECKCODE_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_CHECK_CODE (CHECK_ID, CHECK_CODE, STATUS, MEMBER_CODE, ORIGIN, EMAIL, PHONE,
+            CREATE_DATE, UPDATE_DATE)
+        values (#checkId#, #checkCode#, #status#, #memberCode#, #origin#, lower(#email#), #phone#,
+            #createDate#, #updateDate#)
+    </insert>	
+    <insert id="updateCheckCodeStatus" parameterClass="map">
+		UPDATE T_CHECK_CODE SET status = #status#,update_date = SYSDATE WHERE MEMBER_CODE = #memberCode#
+    </insert>	
+    
+    <sql id="selectMemberCode">
+		<isEqual property="merchantType" compareValue="3">
+			SELECT SEQ_PLT_MEMBER_CODE.nextval FROM DUAL
+		</isEqual>
+		<isEqual property="merchantType" compareValue="2">
+			SELECT SEQ_MEMBER_MEMBER_CODE.nextval FROM DUAL
+		</isEqual>
+    </sql>
+    
+	<insert id="insertMember"  parameterClass="member">
+		
+		<selectKey resultClass="java.lang.Long" keyProperty="memberCode">
+			<include refid="selectMemberCode"/>
+		</selectKey>
+		
+		insert into T_MEMBER (MEMBER_CODE, TYPE, SERVICE_LEVEL_CODE, GREETING, STATUS,
+            SECURITY_QUESTION, SECURITY_ANSWER, SSO_USER_ID, LOGIN_TYPE, LOGIN_NAME, LOGIN_PWD,
+            CREATE_DATE, UPDATE_DATE)
+        values (#memberCode#, #merchantType#, #serviceLevelCode#, #greeting#, #status#, #securityQuestion#,
+            #securityAnswer#, #ssoUserId#, #loginType#, lower(#loginName#), #loginPwd#, #createDate#,
+            #updateDate#)
+	</insert>
+	
+	<update id="updateMember" parameterClass="member">
+        update T_MEMBER
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="merchantType">
+                TYPE = #merchantType#
+            </isNotNull>
+            <isNotNull prepend="," property="serviceLevelCode">
+                SERVICE_LEVEL_CODE = #serviceLevelCode#
+            </isNotNull>
+            <isNotNull prepend="," property="greeting">
+                GREETING = #greeting#
+            </isNotNull>
+            <isNotNull prepend="," property="status">
+                STATUS = #status#
+            </isNotNull>
+            <isNotNull prepend="," property="securityQuestion">
+                SECURITY_QUESTION = #securityQuestion#
+            </isNotNull>
+            <isNotNull prepend="," property="securityAnswer">
+                SECURITY_ANSWER = #securityAnswer#
+            </isNotNull>
+            <isNotNull prepend="," property="ssoUserId">
+                SSO_USER_ID = #ssoUserId#
+            </isNotNull>
+            <isNotNull prepend="," property="loginType">
+                LOGIN_TYPE = #loginType#
+            </isNotNull>
+            <isNotNull prepend="," property="loginName">
+                LOGIN_NAME = lower(#loginName#)
+            </isNotNull>
+            <isNotNull prepend="," property="loginPwd">
+                LOGIN_PWD = #loginPwd#
+            </isNotNull>
+            <isNotNull prepend="," property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotNull>
+            <isNotNull prepend="," property="updateDate">
+                UPDATE_DATE = #updateDate#
+            </isNotNull>
+        </dynamic>
+        where MEMBER_CODE = #memberCode#
+    </update>
+    
+	<insert id="insertEnterpriseBase" parameterClass="enterpriseBase">
+		<selectKey resultClass="java.lang.Long" keyProperty="enterpriseId">
+			SELECT SEQ_ENTERP_BASE_ENTERP_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_ENTERPRISE_BASE (
+        	ENTERPRISE_ID, MEMBER_CODE, MERCHANT_CODE, 
+        	<isNotEmpty property="enterpriseType">
+        		ENTERPRISE_TYPE,
+        	</isNotEmpty>
+            AUDI_STATUS, ZH_NAME, EN_NAME, WEBSITE, NATION, REGION, CITY, INDUSTRY_KIND,
+            INDUSTRY_TYPE, IN_INDUSTRY, BIZ_LICENCE_CODE, EXPIRE, GOV_CODE, TAX_CODE,
+               RISK_LEVE_CODE, CREATE_DATE, UPDATE_DATE, SETTLEMENT_CYCLE,PERCENTAGE,SECOND_SETTLEMENT_CYCLE,ASSURE_SETTLEMENT_CYCLE,
+              <isNotEmpty property="identity">
+        		IDENTITY,
+        	</isNotEmpty>
+               SEARCH_KEY,WITHDRAW_FEE,SIGN_PROCESS_FEE,RISK_FEE,CHARGEBACK_FEE
+            <!-- add by davis.guo 2016-08-10 -->
+            <isNotEmpty property="riskFeeCurrency"> 
+          		, RISK_FEE_CURRENCY
+            </isNotEmpty>   
+               )
+        values (#enterpriseId#, #memberCode#, #merchantCode#,
+        <isNotEmpty property="enterpriseType">
+        		 #enterpriseType#,
+        </isNotEmpty>
+         #audiStatus#,
+            #zhName#, #enName#, #website#, #nation#, #region#, #city#, #industryKind#,
+            #industryType#, #industry#, #bizLicenceCode#, #expire#, #govCode#, #taxCode#,
+            #riskLeveCode#, #createDate#, #updateDate#,#settlementCycle#,#percentage#,#secondSettlementCycle#,#assureSettlementCycle#,
+             <isNotEmpty property="identity">
+        		#identity#,
+        	</isNotEmpty>
+             #searchKey#,#withdrawFee#,#signProcessFee#,#riskFee#,#chargebackFee#
+            <!-- add by davis.guo 2016-08-10 -->
+            <isNotEmpty property="riskFeeCurrency"> 
+          	, #riskFeeCurrency#
+            </isNotEmpty>
+             )
+    </insert>
+    
+    <update id="updateEnterpriseBase" parameterClass="enterpriseBase">
+        update T_ENTERPRISE_BASE
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="memberCode">
+                MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="," property="merchantCode">
+                MERCHANT_CODE = #merchantCode#
+            </isNotNull>
+            <isNotNull prepend="," property="enterpriseType">
+                ENTERPRISE_TYPE = #enterpriseType#
+            </isNotNull>
+            <isNotNull prepend="," property="audiStatus">
+                AUDI_STATUS = #audiStatus#
+            </isNotNull>
+            <isNotNull prepend="," property="zhName">
+                ZH_NAME = #zhName#
+            </isNotNull>
+            <isNotNull prepend="," property="enName">
+                EN_NAME = #enName#
+            </isNotNull>
+            <isNotNull prepend="," property="website">
+                WEBSITE = #website#
+            </isNotNull>
+            <isNotNull prepend="," property="nation">
+                NATION = #nation#
+            </isNotNull>
+            <isNotNull prepend="," property="region">
+                REGION = #region#
+            </isNotNull>
+            <isNotNull prepend="," property="city">
+                CITY = #city#
+            </isNotNull>
+            <isNotNull prepend="," property="industryKind">
+                INDUSTRY_KIND = #industryKind#
+            </isNotNull>
+            <isNotNull prepend="," property="industryType">
+                INDUSTRY_TYPE = #industryType#
+            </isNotNull>
+            <isNotNull prepend="," property="industry">
+                IN_INDUSTRY = #industry#
+            </isNotNull>
+            <isNotNull prepend="," property="bizLicenceCode">
+                BIZ_LICENCE_CODE = #bizLicenceCode#
+            </isNotNull>
+            <isNotNull prepend="," property="expire">
+                EXPIRE = #expire#
+            </isNotNull>
+            <isNotNull prepend="," property="govCode">
+                GOV_CODE = #govCode#
+            </isNotNull>
+            <isNotNull prepend="," property="taxCode">
+                TAX_CODE = #taxCode#
+            </isNotNull>
+            <isNotNull prepend="," property="riskLeveCode">
+                RISK_LEVE_CODE = #riskLeveCode#
+            </isNotNull>
+            <isNotNull prepend="," property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotNull>
+            <isNotNull prepend="," property="updateDate">
+                UPDATE_DATE = #updateDate#
+            </isNotNull>
+            <isNotNull prepend="," property="searchKey">
+                SEARCH_KEY = #searchKey#
+            </isNotNull>
+            <isNotNull prepend="," property="settlementCycle">
+                SETTLEMENT_CYCLE = #settlementCycle#
+            </isNotNull>
+            <isNotNull prepend="," property="percentage">
+                PERCENTAGE = #percentage#
+            </isNotNull>
+            <isNotNull prepend="," property="secondSettlementCycle">
+                SECOND_SETTLEMENT_CYCLE = #secondSettlementCycle#
+            </isNotNull>
+            <isNotNull prepend="," property="assurePercentage">
+                ASSURE_PERCENTAGE = #assurePercentage#
+            </isNotNull>
+            <isNotNull prepend="," property="assureSettlementCycle">
+                ASSURE_SETTLEMENT_CYCLE = #assureSettlementCycle#
+            </isNotNull>
+            <isNotNull prepend="," property="withdrawFee">
+                WITHDRAW_FEE = #withdrawFee#
+            </isNotNull>
+            <isNotNull prepend="," property="signProcessFee">
+                SIGN_PROCESS_FEE = #signProcessFee#
+            </isNotNull>
+            <isNotNull prepend="," property="riskFee">
+                RISK_FEE = #riskFee#
+            </isNotNull>
+            <isNotNull prepend="," property="chargebackFee">
+                CHARGEBACK_FEE = #chargebackFee#
+            </isNotNull>
+            <isNotNull prepend="," property="refundFee">
+                REFUND_FEE = #refundFee#
+            </isNotNull>
+            <isNotNull prepend="," property="refundFeeCurrency">
+                REFUND_FEE_CURRENCY = #refundFeeCurrency#
+            </isNotNull>
+            <isNotNull prepend="," property="refundPerFeeConf">
+                REFUND_PERFEE_CONF = #refundPerFeeConf#
+            </isNotNull>
+            <isNotNull prepend="," property="refundFixedFeeConf">
+                REFUND_FIXEDFEE_CONF = #refundFixedFeeConf#
+            </isNotNull>
+            <isNotNull prepend="," property="chargeBackFeeCurCode">
+                CHARGEBACK_FEE_CURCODE= #chargeBackFeeCurCode#
+            </isNotNull>
+            <!-- add by davis.guo 2016-08-10 -->
+            <isNotNull prepend="," property="riskFeeCurrency">
+                RISK_FEE_CURRENCY= #riskFeeCurrency#
+            </isNotNull>
+        </dynamic>
+        where MEMBER_CODE = #memberCode#
+    </update>
+    
+	<insert id="insertContact" parameterClass="enterpriseContact">
+		<selectKey resultClass="java.lang.Long" keyProperty="contactId">
+			SELECT SEQ_ENTERP_CONTACT_CONT_ID.nextval FROM DUAL
+		</selectKey>
+         insert into T_ENTERPRISE_CONTACT (CONTACT_ID, MEMBER_CODE, ADDRESS, FAX, TEL, ZIP,
+            LEGAL_NAME, LEGAL_LINK, EMAIL, FINANCE_NAME, FINANCE_LINK, TECH_NAME, TECH_LINK,
+            WEB_NAME1, WEB_ADDR1, WEB_NAME2, WEB_ADDR2, WEB_NAME3, WEB_ADDR3, CREATE_DATE,
+            UPDATE_DATE, COMPAY_LINKER_NAME, COMPAY_LINKER_TEL)
+        values (#contactId#, #memberCode#, #address#, #fax#, #tel#, #zip#, #legalName#, #legalLink#,
+            lower(#email#), #financeName#, #financeLink#, #techName#, #techLink#, #webName1#, #webAddr1#,
+            #webName2#, #webAddr2#, #webName3#, #webAddr3#, #createDate#, #updateDate#,
+            #compayLinkerName#, #compayLinkerTel#)
+    </insert>
+    
+    <update id="updateContact" parameterClass="enterpriseContact">
+        update T_ENTERPRISE_CONTACT
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="memberCode">
+                MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="," property="address">
+                ADDRESS = #address#
+            </isNotNull>
+            <isNotNull prepend="," property="fax">
+                FAX = #fax#
+            </isNotNull>
+            <isNotNull prepend="," property="tel">
+                TEL = #tel#
+            </isNotNull>
+            <isNotNull prepend="," property="zip">
+                ZIP = #zip#
+            </isNotNull>
+            <isNotNull prepend="," property="legalName">
+                LEGAL_NAME = #legalName#
+            </isNotNull>
+            <isNotNull prepend="," property="legalLink">
+                LEGAL_LINK = #legalLink#
+            </isNotNull>
+            <isNotNull prepend="," property="email">
+                EMAIL = lower(#email#)
+            </isNotNull>
+            <isNotNull prepend="," property="financeName">
+                FINANCE_NAME = #financeName#
+            </isNotNull>
+            <isNotNull prepend="," property="financeLink">
+                FINANCE_LINK = #financeLink#
+            </isNotNull>
+            <isNotNull prepend="," property="techName">
+                TECH_NAME = #techName#
+            </isNotNull>
+            <isNotNull prepend="," property="techLink">
+                TECH_LINK = #techLink#
+            </isNotNull>
+            <isNotNull prepend="," property="webName1">
+                WEB_NAME1 = #webName1#
+            </isNotNull>
+            <isNotNull prepend="," property="webAddr1">
+                WEB_ADDR1 = #webAddr1#
+            </isNotNull>
+            <isNotNull prepend="," property="webName2">
+                WEB_NAME2 = #webName2#
+            </isNotNull>
+            <isNotNull prepend="," property="webAddr2">
+                WEB_ADDR2 = #webAddr2#
+            </isNotNull>
+            <isNotNull prepend="," property="webName3">
+                WEB_NAME3 = #webName3#
+            </isNotNull>
+            <isNotNull prepend="," property="webAddr3">
+                WEB_ADDR3 = #webAddr3#
+            </isNotNull>
+            <isNotNull prepend="," property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotNull>
+            <isNotNull prepend="," property="updateDate">
+                UPDATE_DATE = #updateDate#
+            </isNotNull>
+            <isNotNull prepend="," property="compayLinkerName">
+                COMPAY_LINKER_NAME = #compayLinkerName#
+            </isNotNull>
+            <isNotNull prepend="," property="compayLinkerTel">
+                COMPAY_LINKER_TEL = #compayLinkerTel#
+            </isNotNull>
+        </dynamic>
+        where MEMBER_CODE = #memberCode#
+    </update>
+    
+    <insert id="insertContract" parameterClass="enterpriseContract">
+   		<selectKey resultClass="java.lang.Long" keyProperty="contractId">
+			SELECT SEQ_ENTERP_CONTRACT_CONTR_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_ENTERPRISE_CONTRACT (CONTRACT_ID, MEMBER_CODE, CONTRACT_CODE, SIGN_NAME,
+            SIGN_DEPART, CONTINUE_SIGN, CONTRACT_STATUS, MARKET_NAME, MARKET_LINK, START_DATE,
+            END_DATE, OPEN_FEE, YEAR_FEE, FACT_OPEN_FEE, FACT_YEAR_FEE, FACT_START_DATE,
+            FACT_END_DATE, ASSURE_FEE, FACT_ASSURE_FEE, ASSURE_DESC, CREATE_DATE, UPDATE_DATE,SIGN_LOGINID)
+        values (#contractId#, #memberCode#, #contractCode#, #signName#, #signDepart#,
+            #continueSign#, #contractStatus#, #marketName#, #marketLink#, #startDate#, #endDate#,
+            #openFee#, #yearFee#, #factOpenFee#, #factYearFee#, #factStartDate#, #factEndDate#,
+            #assureFee#, #factAssureFee#, #assureDesc#, #createDate#, #updateDate#,#signLoginId#)
+    </insert>
+    
+     <update id="updateContract" parameterClass="enterpriseContract">
+        update T_ENTERPRISE_CONTRACT
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="memberCode">
+                MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="," property="contractCode">
+                CONTRACT_CODE = #contractCode#
+            </isNotNull>
+            <isNotNull prepend="," property="signName">
+                SIGN_NAME = #signName#
+            </isNotNull>
+             <isNotNull prepend="," property="signLoginId">
+                SIGN_LOGINID = #signLoginId#
+            </isNotNull>
+            <isNotNull prepend="," property="signDepart">
+                SIGN_DEPART = #signDepart#
+            </isNotNull>
+            <isNotNull prepend="," property="continueSign">
+                CONTINUE_SIGN = #continueSign#
+            </isNotNull>
+            <isNotNull prepend="," property="contractStatus">
+                CONTRACT_STATUS = #contractStatus#
+            </isNotNull>
+            <isNotNull prepend="," property="marketName">
+                MARKET_NAME = #marketName#
+            </isNotNull>
+            <isNotEmpty prepend="," property="marketLink">
+                MARKET_LINK = #marketLink#
+            </isNotEmpty>
+             <isEmpty prepend="," property="marketLink">
+                MARKET_LINK = ''
+            </isEmpty>
+            <isNotNull prepend="," property="startDate">
+                START_DATE = #startDate#
+            </isNotNull>
+            <isNotNull prepend="," property="endDate">
+                END_DATE = #endDate#
+            </isNotNull>
+            <isNotNull prepend="," property="openFee">
+                OPEN_FEE = #openFee#
+            </isNotNull>
+            <isNotNull prepend="," property="yearFee">
+                YEAR_FEE = #yearFee#
+            </isNotNull>
+            <isNotNull prepend="," property="factOpenFee">
+                FACT_OPEN_FEE = #factOpenFee#
+            </isNotNull>
+            <isNotNull prepend="," property="factYearFee">
+                FACT_YEAR_FEE = #factYearFee#
+            </isNotNull>
+            <isNotNull prepend="," property="factStartDate">
+                FACT_START_DATE = #factStartDate#
+            </isNotNull>
+            <isNotNull prepend="," property="factEndDate">
+                FACT_END_DATE = #factEndDate#
+            </isNotNull>
+            <isNotNull prepend="," property="assureFee">
+                ASSURE_FEE = #assureFee#
+            </isNotNull>
+            <isNotNull prepend="," property="factAssureFee">
+                FACT_ASSURE_FEE = #factAssureFee#
+            </isNotNull>
+            <isNotNull prepend="," property="assureDesc">
+                ASSURE_DESC = #assureDesc#
+            </isNotNull>
+            <isNotNull prepend="," property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotNull>
+            <isNotNull prepend="," property="updateDate">
+                UPDATE_DATE = #updateDate#
+            </isNotNull>
+        </dynamic>
+        where MEMBER_CODE = #memberCode#
+    </update>
+    
+    <insert id="insertLiquidateInfo" parameterClass="liquidateInfo">
+   		<selectKey resultClass="java.lang.Long" keyProperty="liquidateId">
+			SELECT SEQ_LIQUIDATE_INFO_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_LIQUIDATE_INFO (LIQUIDATE_ID, MEMBER_CODE, BANK_NAME, BANK_ACCT, ACCT_NAME,
+            CREATE_DATE, UPDATE_DATE, PROVINCE,CITY,BANK_ID,BANK_ADDRESS,Branch_bank_id)
+        values (#liquidateId#, #memberCode#, #bankName#, #bankAcct#, #acctName#, #createDate#,
+            #updateDate#, #province#,#city#,#bankId#,#bankAddress#,#branchBankId#)
+    </insert>
+    
+    <update id="updateLiquidateInfo" parameterClass="liquidateInfo">
+        update T_LIQUIDATE_INFO
+        <dynamic prepend="set">
+            <isNotEmpty prepend="," property="memberCode">
+                MEMBER_CODE = #memberCode#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="bankName">
+                BANK_NAME = #bankName#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="bankAcct">
+                BANK_ACCT = #bankAcct#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="acctName">
+                ACCT_NAME = #acctName#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="updateDate">
+                UPDATE_DATE = #updateDate#
+            </isNotEmpty>
+             <isNotEmpty prepend="," property="province">
+                PROVINCE = #province#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="city">
+                CITY = #city#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="bankId">
+                BANK_ID = #bankId#
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="bankAddress">
+                BANK_ADDRESS = #bankAddress#
+            </isNotEmpty>
+              <isNotEmpty prepend="," property="branchBankId">
+                Branch_bank_id = #branchBankId#
+            </isNotEmpty>
+              <isNotEmpty prepend="," property="swiftCode">
+                swift_code = #swiftCode#
+            </isNotEmpty>
+        </dynamic>
+        where LIQUIDATE_ID = #liquidateId#
+    </update>
+    
+	<insert id="insertOperator" parameterClass="operator">
+		<selectKey resultClass="java.lang.Long" keyProperty="operatorId">
+			SELECT SEQ_OPERATOR_OPERATOR_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_OPERATOR (OPERATOR_ID, IDENTITY, MEMBER_CODE, NAME, STATUS, EMAIL, PHONE,
+            MOBILE, LOGIN_PWD, CERT_CODE, CREATE_DATE, UPDATE_DATE, DEPART, NOTE, CERT_TYPE)
+        values (#operatorId#, #identity#, #memberCode#, #name#, #status#, lower(#email#), #phone#,
+            #mobile#, #loginPwd#, #certCode#, #createDate#, #updateDate#, #depart#, #note#,
+            #certType#)
+    </insert>
+    
+    <insert id="insertMemberProduct" parameterClass="memberProduct">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_MEMBER_PRODUCT_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_MEMBER_PRODUCT (ID, MEMBER_CODE, PRODUCT_ID, STATUS, CREATION_DATE,
+            UPDATE_DATE)
+        values (#id#, #memberCode#, #productId#, #status#, #creationDate#, #updateDate#)
+    </insert>
+    
+     <insert id="insertFlowLog" parameterClass="flowLog">
+    	<selectKey resultClass="java.lang.Long" keyProperty="flowId">
+			SELECT SEQ_FLOW_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_FLOW_LOG (FLOW_ID, DEPART, OPERATOR_ID, NAME, NOTE, STATUS, AUDI_DATE,
+            MEMBER_CODE, CREATE_DATE, UPDATE_DATE)
+        values (#flowId#, #depart#, #operatorId#, #name#, #note#, #status#, #audiDate#,
+            #memberCode#, #createDate#, #updateDate#)
+    </insert>
+    
+    <insert id="insertAccount" parameterClass="account">
+        insert into T_ACCT (ACCT_CODE, MEMBER_CODE, BALANCE, STATUS,
+            FROZEN_AMOUNT, CREATE_DATE, UPDATE_DATE,CREDIT_BALANCE,DEBIT_BALANCE,TOTAL_BALANCE)
+        values (#acctCode#, #memberCode#, #balance#, #status#,
+            #frozenAmount#, #createDate#, #updateDate#,#creditBalance#,#debitBalance#,#totalBalance#)
+    </insert>
+   
+    <insert id="insertAccountAttribute" parameterClass="accountAttribute">
+        insert into T_ACCT_ATTRIB (ACCT_CODE, ALLOW_DEPOSIT, ALLOW_WITHDRAWAL,
+            ALLOW_TRANSFER_IN, ALLOW_TRANSFER_OUT, ALLOW_IN, ALLOW_OUT, DESCRIPTION, FROZEN,
+            MEMBER_CODE, DEF_REC_ACCT, CUR_CODE, PAY_PWD, CREATE_DATE, UPDATE_DATE, ACCT_LEVEL,
+            BALANCE_BY, PAY_ABLE, ALLOW_OVERDRAFT, NEED_PROTECT, MANAGERABLE, ACCT_TYPE,
+            MEMBER_ACCT_CODE, SUBJECT_CODE, BEAR_INTEREST,ALLOW_ADVANCE_MONEY)
+        values (#acctCode#, #allowDeposit#, #allowWithdrawal#, #allowTransferIn#,
+            #allowTransferOut#, #allowIn#, #allowOut#, #description#, #frozen#, #memberCode#,
+            #defRecAcct#, #curCode#, #payPwd#, #createDate#, #updateDate#, #acctLevel#, #balanceBy#,
+            #payAble#, #allowOverdraft#, #needProtect#, #managerable#, #acctType#, #memberAcctCode#,
+            #subjectCode#, #bearInterest#,#allowAdvanceMoney#)
+    </insert> 
+    
+    <select id="queryAccAttriTempByAccType"  resultClass="accountAttributeTemplate"  parameterClass="java.util.Map">
+        select 
+        A.MAT_ID as matId,
+        A.NAME as name , 
+        A.ACCT_TYPE as acctType , 
+        A.ALLOW_DEPOSIT as allowDeposit , 
+        A.ALLOW_WITHDRAWAL as allowWithdrawal , 
+        A.ALLOW_TRANSFER_IN as allowTransferIn , 
+        A.ALLOW_TRANSFER_OUT as allowTransferOut , 
+        A.ALLOW_IN as allowIn , 
+        A.ALLOW_OUT as allowOut , 
+        A.DESCRIPTION as description , 
+        A.FROZEN as frozen , 
+        A.DEF_REC_ACCT as defRecAcct , 
+        A.CUR_CODE as curCode , 
+        A.SCENE as scene , 
+        A.CREATE_DATE as createDate , 
+        A.UPDATE_DATE as updateDate , 
+        A.ACCT_LEVEL as acctLevel , 
+        A.BALANCE_BY as balanceBy , 
+        A.BEAR_INTEREST as bearInterest , 
+        A.PAY_ABLE as payAble , 
+        A.NEED_PROTECT as needProtect , 
+        A.MANAGERABLE as managerable , 
+        A.ALLOW_OVERDRAFT as allowOverdraft ,
+        A.MEMBER_TYPE as memberType,
+        A.SUBJECT_CODE as subjectCode
+        from T_MEMBER_ACCT_TEMPLATE A
+        where  A.MEMBER_TYPE = #memberType# and A.ACCT_TYPE = #acctType#
+    </select>
+    <select id="queryProductAcctTempByAccTempId"  resultClass="memberProduct" parameterClass="java.lang.String">
+    	select 
+    		PRODUCT_ID as productId
+    	from T_PRODUCT_ACCT_TEMPLATE where MEMBER_ACCT_TEMPLATE_ID = #acctTemplateId# 
+       
+    </select>
+    <select id="queryAllAcctTempOfBusiness"  resultClass="accountAttributeTemplate" >
+    	select t.mat_id as matId from t_member_acct_template t where t.acct_type=2
+       
+    </select>
+    <select id="getMarketEmail"  resultClass="java.lang.String"  parameterClass="java.lang.String">
+    	select t.email from t_sign_message t where t.department_name=#signDept#
+       
+    </select>
+    <select id="queryCurrMaxMerchantCode"  resultClass="enterpriseBase"  parameterClass="java.lang.String">
+        select MERCHANT_CODE as merchantCode
+        from T_ENTERPRISE_BASE
+        where MERCHANT_CODE like #merchantCodeTemp#||'%'
+    </select>
+    
+     <select id="queryMerchant" resultClass="merchantSearchListDto" parameterClass="merchantSearchDto">
+     select b.* from 
+	(select a.*,rownum as linenum from (
+		select
+		 	 b.merchant_code as merchantCode,
+		 	 b.zh_name as merchantName,
+		 	 b.enterprise_type as merchantType,
+		 	 b.in_industry as industry,
+		 	 b.audi_status as merchantCheckStatus,
+		 	 a.service_level_code as serviceLevel,
+		 	 a.status as merchantStatus,
+		 	 a.member_code as memberCode,
+		 	 a.login_name as email
+		from 	
+			t_member a inner join  t_enterprise_base b on a.member_code=b.member_code
+		where 1=1
+			<isNotEmpty prepend="and" property="merchantCode">  
+	          	b.merchant_code = #merchantCode#
+	        </isNotEmpty> 
+			<isNotEmpty prepend="and" property="memberCode">  
+	          	b.member_code = #memberCode#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="merchantName">  
+	          	b.zh_name like '%$merchantName$%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="merchantSearchKey">  
+	          	b.search_key like '%$merchantSearchKey$%'
+	        </isNotEmpty>        	
+	        <isNotEmpty prepend="and" property="merchantUrl">  
+	          	b.website = #merchantUrl#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="email">  
+	          	a.login_name = #email#
+	        </isNotEmpty>
+	       	<isNotEmpty prepend="and" property="merchantCheckStatus">  
+	          	b.audi_status = #merchantCheckStatus#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="merchantStatus">  
+	          	a.status = #merchantStatus#
+	        </isNotEmpty>	
+       order by a.create_date desc
+	
+	) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="queryMerchantOfUnActive" resultClass="merchantSearchListDto" parameterClass="merchantSearchDto">
+		 select b.* from 
+	  (select a.*,rownum as linenum from (
+	      select t.member_code  as memberCode,
+	      e.merchant_code as merchantCode, 
+	      e.zh_name as merchantName, 
+	      c.email as email,
+	      c.create_date as checkCreateDate
+	        from t_enterprise_base e, t_member t, t_check_code c
+	       where t.member_code = e.member_code
+	         and t.member_code = c.member_code
+	         and t.status = #merchantStatus#
+	         and c.status = #checkCodeStatus#
+	         and sysdate-c.create_date <![CDATA[>=]]> #dayCount#
+	     ) a where rownum <![CDATA[<=]]> #pageEndRow#) b where linenum <![CDATA[>]]> #pageStartRow#  
+	</select>
+	
+	<select id="getMerchantByMemberCode" resultClass="merchantDto" parameterClass="java.lang.Long">      
+	select abcd.member_code        as memberCode,
+       abcd.service_level_code as serviceLevelCode,
+       abcd.type               as merchantType,
+       abcd.status             as memberStatus,
+       abcd.enterprise_type    as enterpriseType,
+       abcd.zh_name            as zhName,
+       abcd.en_name            as enName,
+       abcd.website            as website,
+       abcd.audi_status        as audiStatus,
+       abcd.nation             as nation,
+       abcd.region             as region,
+       abcd.city               as city,
+       abcd.in_industry        as industry,
+       abcd.biz_licence_code   as bizLicenceCode,
+       abcd.expire             as expire,
+       abcd.gov_code           as govCode,
+       abcd.tax_code           as taxCode,
+       abcd.risk_leve_code     as riskLeveCode,
+       abcd.address            as address,
+       abcd.fax                as fax,
+       abcd.tel                as tel,
+       abcd.zip                as zip,
+       abcd.email              as email,
+       abcd.legal_name         as legalName,
+       abcd.legal_link         as legalLink,
+       abcd.finance_name       as financeName,
+       abcd.finance_link       as financeLink,
+       abcd.compay_linker_name as compayLinkerName,
+       abcd.compay_linker_tel  as compayLinkerTel,
+       abcd.tech_name          as techName,
+       abcd.tech_link          as techLink,
+       abcd.web_name1          as webName1,
+       abcd.web_addr1          as webAddr1,
+       abcd.web_name2          as webName2,
+       abcd.web_addr2          as webAddr2,
+       abcd.web_name3          as webName3,
+       abcd.web_addr3          as webAddr3,
+       abcd.sign_name          as signName,
+       abcd.sign_loginId       as signLoginId,
+       abcd.sign_depart        as signDepart,
+       abcd.start_date         as startDate,
+       abcd.end_date           as endDate,
+       abcd.open_fee           as openFee,
+       abcd.year_fee           as yearFee,
+       abcd.fact_open_fee      as factOpenFee,
+       abcd.fact_year_fee      as factYearFee,
+       abcd.fact_start_date    as factStartDate,
+       abcd.fact_end_date      as factEndDate,
+       abcd.assure_fee         as assureFee,
+       abcd.assure_desc        as assureDesc,
+       abcd.continue_sign      as continueSign,
+       abcd.market_Link        as marketLink,
+       e.bank_name             as bankName,
+       e.bank_acct             as bankAcct,
+       e.acct_name             as acctName,
+       abcd.settlement_cycle   as settlementCycle,
+       abcd.assureSettlementCycle,
+       e.province              as regionBank,
+       e.city                  as cityBank,
+       e.bank_id               as bankId,
+       e.bank_address          as bankAddress,
+       e.liquidate_Id          as liquidateId,
+       e.branch_bank_id        as branchBankId,
+       e.big_bank_name         as bigBankName
+  from (
+        select abc.member_code,
+                abc.service_level_code,
+                abc.type,
+                abc.status,
+                abc.enterprise_type,
+                abc.zh_name,
+                abc.en_name,
+                abc.website,
+                abc.audi_status,
+                abc.nation,
+                abc.region,
+                abc.city,
+                abc.in_industry,
+                abc.biz_licence_code,
+                abc.expire,
+                abc.gov_code,
+                abc.tax_code,
+                abc.risk_leve_code,
+                abc.address,
+                abc.fax,
+                abc.tel,
+                abc.zip,
+                abc.email,
+                abc.legal_name,
+                abc.legal_link,
+                abc.finance_name,
+                abc.finance_link,
+                abc.compay_linker_name,
+                abc.compay_linker_tel,
+                abc.tech_name,
+                abc.tech_link,
+                abc.web_name1,
+                abc.web_addr1,
+                abc.web_name2,
+                abc.web_addr2,
+                abc.web_name3,
+                abc.web_addr3,
+                d.sign_name,
+                d.sign_loginId,
+                d.sign_depart,
+                d.start_date,
+                d.end_date,
+                d.open_fee,
+                d.year_fee,
+                d.fact_open_fee,
+                d.fact_year_fee,
+                d.fact_start_date,
+                d.fact_end_date,
+                d.assure_fee,
+                d.assure_desc,
+                d.continue_sign,
+                d.market_link,
+                abc.settlement_cycle,
+                abc.assureSettlementCycle
+          from (select ab.member_code,
+                        ab.service_level_code,
+                        ab.type,
+                        ab.status,
+                        ab.enterprise_type,
+                        ab.zh_name,
+                        ab.en_name,
+                        ab.website,
+                        ab.audi_status,
+                        ab.nation,
+                        ab.region,
+                        ab.city,
+                        ab.in_industry,
+                        ab.biz_licence_code,
+                        ab.expire,
+                        ab.gov_code,
+                        ab.tax_code,
+                        ab.risk_leve_code,
+                        ab.settlement_cycle,
+                        ab.assureSettlementCycle,
+                        c.address,
+                        c.fax,
+                        c.tel,
+                        c.zip,
+                        c.email,
+                        c.legal_name,
+                        c.legal_link,
+                        c.finance_name,
+                        c.finance_link,
+                        c.compay_linker_name,
+                        c.compay_linker_tel,
+                        c.tech_name,
+                        c.tech_link,
+                        c.web_name1,
+                        c.web_addr1,
+                        c.web_name2,
+                        c.web_addr2,
+                        c.web_name3,
+                        c.web_addr3
+                   from (select a.member_code,
+                                a.service_level_code,
+                                a.type,
+                                a.status,
+                                b.enterprise_type,
+                                b.zh_name,
+                                b.en_name,
+                                b.website,
+                                b.audi_status,
+                                b.nation,
+                                b.region,
+                                b.city,
+                                b.in_industry,
+                                b.biz_licence_code,
+                                b.expire,
+                                b.gov_code,
+                                b.tax_code,
+                                b.risk_leve_code,
+                                b.settlement_cycle,
+                                b.assure_Settlement_Cycle assureSettlementCycle
+                           from t_member a
+                          inner join t_enterprise_base b
+                             on a.member_code = b.member_code) ab
+                  inner join t_enterprise_contact c
+                     on ab.member_code = c.member_code) abc
+         inner join t_enterprise_contract d
+            on abc.member_code = d.member_code
+        ) abcd
+ inner join t_liquidate_info e
+    on abcd.member_code = e.member_code
+ where abcd.member_code =#memberCode#			 			
+	</select>
+	
+    <select id="queryMerchantCount" resultClass="java.lang.Integer" parameterClass="merchantSearchDto">
+		select
+			 count(1)
+		from 	
+			t_member a inner join  t_enterprise_base b on a.member_code=b.member_code
+		where 1=1
+			<isNotEmpty prepend="and" property="merchantCode">  
+	          	b.merchant_code = #merchantCode#
+	        </isNotEmpty> 
+	         <isNotEmpty prepend="and" property="merchantName">  
+	          	b.zh_name like '%$merchantName$%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="merchantSearchKey">  
+	          	b.search_key like '%$merchantSearchKey$%'
+	        </isNotEmpty>          	
+	        <isNotEmpty prepend="and" property="merchantUrl">  
+	          	b.website = #merchantUrl#
+	        </isNotEmpty>
+	       	<isNotEmpty prepend="and" property="merchantCheckStatus">  
+	          	b.audi_status = #merchantCheckStatus#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="merchantStatus">  
+	          	a.status = #merchantStatus#
+	        </isNotEmpty> 
+       
+    </select>
+    <select id="queryMerchantOfUnActiveCount" resultClass="java.lang.Integer" parameterClass="merchantSearchDto">
+    	select count(1)
+	        from t_enterprise_base e, t_member t, t_check_code c
+	       where t.member_code = e.member_code
+	         and t.member_code = c.member_code
+	         and t.status = #merchantStatus#
+	         and c.status = #checkCodeStatus#
+	         and sysdate-c.create_date <![CDATA[>=]]> #dayCount#
+	</select>
+    
+    <select id="isBizLicenceCodeExist"  resultClass="java.lang.Integer"  parameterClass="java.lang.String">
+        select count(*)
+        from T_ENTERPRISE_BASE
+        where BIZ_LICENCE_CODE = #bizLicenceCode#  
+    </select>
+     <select id="isGovCodeExist"  resultClass="java.lang.Integer"  parameterClass="java.lang.String">
+        select count(*)
+        from T_ENTERPRISE_BASE
+        where GOV_CODE = #govCode# 
+    </select>
+     <select id="isTaxCodeExist"  resultClass="java.lang.Integer"  parameterClass="java.lang.String">
+        select count(*)
+        from T_ENTERPRISE_BASE
+        where TAX_CODE = #taxCode#
+    </select>
+    <select id="isEmailExist"  resultClass="java.lang.Integer"  parameterClass="java.lang.String">
+        select count(*)
+        from t_member t where t.login_name = lower(#email#) 
+    </select>
+    <select id="queryMemberByEmailAndOrgCode"  resultClass="merchantDto"  parameterClass="java.util.Map">		
+		  select  c.member_code as memberCode
+		  from t_member c 
+		  inner join ( 
+		            select  a.member_code
+		            from t_enterprise_base a inner join  t_enterprise_contact b 
+		            on a.member_code = b.member_code
+		            where a.gov_code =#orgCode# and b.email = lower(#email#) ) ab
+		  on c.member_code=ab.member_code 
+		  where c.status=1            
+    </select>
+    <select id="queryAccountByMemberCode"  resultClass="java.lang.Integer"  parameterClass="java.lang.Long">
+		   select count(1) from t_member a 
+		   inner join t_acct b on a.member_code=b.member_code 
+		   where a.member_code=#memberCode# and b.status=1    
+    </select>
+    <select id="queryAllAccountType"  resultClass="baseData">
+		   select t.acct_type_id as code,
+		   		  t.name as name
+		   from t_acct_type t 
+    </select>
+    
+	<update id="updateAcctMode" parameterClass="map">
+		UPDATE T_ENTERPRISE_BASE t SET settlement_cycle = #settlementCycle# where member_code = #memberCode#
+    </update>    
+</sqlMap>

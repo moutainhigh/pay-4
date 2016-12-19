@@ -1,0 +1,193 @@
+
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<meta charset="utf-8">
+<title>新生付-拒付管理</title>
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet"
+	type="text/css">
+
+
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet"
+	type="text/css">
+<link href="<@sp.static/>/css/pay/css.css" rel="stylesheet"
+	type="text/css">
+<link type="text/css" rel="stylesheet"
+	href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css"
+	rel="stylesheet" type="text/css">
+
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+</head>
+
+<body id="home">
+	<div class="outer">
+		<@sp.head channel=4/>
+		<div class="container">
+			<div class="refund_list">
+			<div class="refund_title"> 
+				<!--tab str -->
+				<div class="mode_tit">
+					<h2 class="sel"><a hre="javascript:void(0)">拒付管理</a></h2>
+				</div>
+				<!--tab str --> 
+			</div>
+			<div class="order_search">
+				<form class="form" action="${rc.contextPath}/corp/cross/dishonour.htm" method="post" name="refundSearchForm" id="refundSearchForm">
+					<ul class="mt10">
+						<li>
+						    <label class="side">拒付起止时间：</label>
+							<input type="text" class="Wdate inp_normal w380" name="startTime" id="startTime" gtbfieldid="109" value="" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',skin:'whyGreen',isShowClear:false})">
+							<span>-</span>
+							<input type="text" class="Wdate  inp_normal w380" name="endTime"  id="endTime" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'startTime\',{d:1});}',dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+						</li>
+						<li>
+						 	<label class="side">订单号：</label>
+						 	<input type="text" class="inp_normal w380" name="orderId" id="orderId" gtbfieldid="109" value="">
+						</li>
+						<li>
+							<label class="side">拒付订单状态：</label>
+							<!--0：已申请1：拒付成功2：拒付失败  --> 
+							<select id="refuseStatus" name="refuseStatus" class="inp_normal w100">
+								<option selected="selected" value="">全部</option>
+								<option value="0">已申请</option>
+								<option value="1">拒付成功</option>
+								<option value="2">拒付失败</option>
+							</select>
+							
+						</li>
+						<li>
+						 	<label class="side">交易号：</label>
+						 	<input type="text" class="inp_normal w380" name="tradeOrderNo" id="tradeOrderNo" gtbfieldid="109">
+						</li>
+						<li class="search_btn">
+							<label class="side"></label>
+							<span class="btnC">
+								<button type="submit">查 询</button>
+							</span>
+						</li>
+					</ul>
+				</form>
+			</div>
+			<div class="mod_box_a mt10">
+				<p class="top">
+					<i></i>
+				</p>
+				<div class="con_box has_bg">
+					<div class="tit_box">
+
+						<h3 class="title font14">查询结果</h3>
+					</div>
+
+					<div class="refund_list">
+						<div class="refund_box">
+							<div class="barg_table" align="center">
+								<table style="width: 900px;" border="1">
+									<thead>
+										<tr>
+											<th class="item15" width="80px;">交易号</th>
+											<th class="item15" width="80px;">运单号</th>
+											<th class="item10" width="80px;">所属网站</th>
+											<th class="item10" width="80px;">订单号</th>
+											<th class="item10" width="80px;">拒付申请时间</th>
+											<th class="item30" width="70px;">审核时间 </th>
+											<th class="item10" width="70px;">交易时间</th>
+											<th class="item10" width="40px;">拒付费用</th>
+											<th class="item10" width="40px;">拒付状态</th>
+										</tr>
+									</thead>
+									<tbody>
+										<#if page.result?exists> 
+										<#list page.result as refuse>
+										<tr class="even" align="center">
+											<td>${refuse.tradeOrderNo?default('')}</td>
+											<td>${refuse.trackingNo?default('')}</td>
+											<td align="left">${refuse.tradeUrl?default('')}</td>
+											<td align="left">${refuse.orderId?default('')}</td>
+											<td>${refuse.applyDate?string("yyyy-MM-dd")}</strong></td>
+											<td>${refuse.checkDate?string("yyyy-MM-dd")}</strong></td>
+											<td>${refuse.tradeDate?string("yyyy-MM-dd")}</strong></td>
+											<td>${refuse.arbFee?default('')}</strong></td>
+											<td>
+												<!--0：已申请1：拒付成功2：拒付失败  --> 
+												<#if refuse.refuseStatus?exists> 
+													<#if refuse.refuseStatus == '0'>已申请</#if> 
+													<#if refuse.refuseStatus == '1'>拒付成功</#if>
+													<#if refuse.refuseStatus == '2'>拒付失败</#if> 
+												</#if> 
+											</td>
+										</tr>
+										</#list>
+										</#if>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!--<div class="page_box" style="width:990px " >
+								<#if page.result?size gt 0 >
+								 <@sp.pagination pu=pu /> <input type="hidden"
+									value="${pu.curPageNo}" id="curPage"> ------------
+								</#if>
+							</div>-->
+					</div>
+
+
+					
+					<#if page.result?size == 0>
+					<div class="content txtC">
+						<div class="result_tips">
+							<div class="set_height clearfix">
+								<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+								<span class="pop_war"></span>
+								<p class="words f14">
+									<strong>没有找到相关内容！</strong>
+								</p>
+								<p class="link">
+									您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回账户桌面</a>
+								</p>
+							</div>
+						</div>
+					</div>
+					</#if>
+				</div>
+				
+				<p class="bot">
+					<i></i>
+				</p>
+			</div>
+		</div>
+		</div>
+		<#include "/common/include/footer.html">
+		<#if refuseSearchDTO?exists> 
+		<script type="text/javascript">
+			<#if refuseSearchDTO.refuseStatus?exists> 
+			var refuseStatus = '${refuseSearchDTO.refuseStatus}';
+			if(refuseStatus!=''){
+				$("#refuseStatus").val(refuseStatus);
+			}
+			</#if>
+			<#if refuseSearchDTO.orderId?exists> 
+			var orderId = '${refuseSearchDTO.orderId}';
+			if(orderId!=''){
+				$("#orderId").val(orderId);
+			}
+			</#if>
+			
+			<#if refuseSearchDTO.tradeOrderNo?exists> 
+			var tradeOrderNo = '${refuseSearchDTO.tradeOrderNo}';
+			if(tradeOrderNo!=''){
+				$("#tradeOrderNo").val(tradeOrderNo);
+			}
+			</#if>
+		</script>
+		</#if>
+</body>
+</html>

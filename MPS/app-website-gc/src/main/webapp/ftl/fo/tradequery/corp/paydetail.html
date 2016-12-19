@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>交易管理-付款明细</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	//init data
+	//$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+	<#if startTime?has_content>
+		$("#startTime").val("${startTime?string("yyyy-MM-dd HH:mm")}");
+	</#if>
+	<#if endTime?has_content>
+		$("#endTime").val("${endTime?string("yyyy-MM-dd HH:mm")}");
+	</#if>
+	<#if payStatus?has_content>
+		$("#payStatus").val("${payStatus}");
+	</#if>
+	<#if payChannel?has_content>
+		$("#payChannel").val("${payChannel}");
+	</#if>
+
+	$("#queryPayDetailId").click(function(){
+		$("#subType").val("form");
+		$("#export").val("");
+		$("#paydetailForm").submit();
+	});
+	$("#exportExcel").click(function(){ 
+		$("#subType").val("form");
+		$("#export").val("1");
+		$("#paydetailForm").submit();
+	});
+	$("#exportCsv").click(function(){ 
+		$("#subType").val("form");
+		$("#export").val("2");
+		$("#paydetailForm").submit();
+	});
+});
+
+
+
+</script>
+
+</head>
+<body>
+<@sp.head mCode="corp_pay_detail,bsp_pay_detail"/>
+<div class="container share_wrap">
+	<div> 
+		<div class="order_search">
+			<form class="form single" action="${rc.contextPath}/corp/paydetail.htm" method="post" name="paydetailForm" id="paydetailForm">
+				<label class="side">起止时间：</label>
+				<input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate inp_normal w180" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',maxDate:'#F{$dp.$D(\'endTime\')}'})" gtbfieldid="109" value="">
+				<span>-</span>
+				<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate inp_normal w180" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'startTime\')}'})" gtbfieldid="110" value=""	/>
+				<label class="side">支付状态：</label>
+				<select name="payStatus" id="payStatus" class="inp_normal" >
+					<option value="">全部</option>
+					<option value="100">初始状态</option>
+					<option value="101">正在交易</option>
+					<option value="111">付款完成</option>
+					<option value="112">付款失败</option>
+					<option value="113">已退票</option>
+				</select>
+				<label class="side">付款渠道：</label>
+				<select name="payChannel" id="payChannel" class="inp_normal">
+					<option value="">全部</option>
+					<option value="1">账户</option>
+					<option value="3">银行卡</option>
+				</select>
+				<i class="btnC hack">
+				<button id="queryPayDetailId">查 询</button>
+				</i>
+				<input type="hidden" name="subType" id="subType" value="">
+				<input type="hidden" name="export" id="export" value="" />
+			</form>
+		</div>
+		
+		<div class="refund_list">
+			<div class="refund_title"> 
+				<!--tab str -->
+				<div class="mode_tit">
+					<h2 class="sel"><a href="#">单笔付款记录</a></h2>
+					<h2><a href="${rc.contextPath}/corp/paydetail.htm?method=queryPayBatchDetail">批量付款记录</a></h2>
+					<h2><a href="${rc.contextPath}/corp/queryAccountPay.htm">账户支付记录</a></h2>
+				</div>
+			</div>
+			<div class="refund_box"> 
+				<div class="barg_table">
+				 <#if payDetailList?has_content>
+				<div class="list_sum">					
+					<div class="price">
+						<a href="#" id="exportExcel" class="reds">下载查询结果excel</a>&nbsp;&nbsp;
+						<a href="#" id="exportCsv" class="reds">下载查询结果csv</a>
+					</div>
+				</div>
+				</#if>
+				<table>
+					<tr>
+						<th width="18%">时间</th>
+						<th width="18%">复核时间</th>
+						<th width="18%">交易流水号</th>
+						<th width="15%">付款渠道</th>
+						<th>交易对方</th>
+						<th>支付状态</th>
+						<th>付款金额(元)</th>
+						<th>操作</th>
+					</tr>
+					 <#if payDetailList?has_content>
+		   				<#list payDetailList as ts>
+							<tr>
+								<td align="center">${ts.createTime?default('')}</td>
+								<td align="center">${ts.auditDate?default('')}</td>
+								<td align="center">${ts.sequenceId?default('')}</td>
+								<td align="center">
+									<#if ts.orderType?has_content>
+										<#if ts.orderType==1>
+											付款到账户
+										</#if>
+										<#if ts.orderType==3>
+											付款到银行卡
+										</#if>
+									</#if>
+								</td>
+								<td align="center">${ts.payee?default('')}</td>
+								<td align="center">
+									<#if ts.status?has_content>
+										<#if ts.status=100>
+											初始状态
+										<#elseif ts.status=101>
+											正在交易
+										<#elseif ts.status=111>
+											付款完成
+										<#elseif ts.status=112>
+											付款失败
+										<#elseif ts.status=113>
+											已退票
+										<#elseif ts.status=102>
+											交易关闭
+										</#if>
+									</#if>
+								</td>
+								<td align="center">${(ts.amount*0.001)?string(",##0.00")}</td>
+								<#if ts.orderType==1>
+									<td align="center"><a target="_blank" class="blues" href="${rc.contextPath}/corp/singlepaydetail.htm?method=querySinglePayDetail&serialNo=${ts.sequenceId!('')}&channel=1">查看</a></td>
+								</#if>
+								<#if ts.orderType==3>
+									<td align="center">
+										<a target="_blank" class="blues" href="${rc.contextPath}/corp/singlepaydetail.htm?method=querySinglePayDetail&serialNo=${ts.sequenceId!('')}&channel=2">查看</a>
+									</td>
+								</#if>
+							</tr>
+						</#list>
+		 			</#if>
+				</table>
+				</div>
+				<#if pu?has_content>
+					<@sp.pagination pu=pu/>
+				</#if>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

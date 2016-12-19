@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"
+	default-lazy-init="true">
+
+	<bean id="abstractExternalAdapter"
+		class="com.pay.poss.service.adapter.AbstractExternalAdapter"
+		abstract="true">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="accountInfoService" ref="acc-accountInfoService" />
+		<property name="memberVerifyService" ref="acc-memberVerifyService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="bankCardBindService" ref="acc-bankCardBindService" />
+		<property name="bankService" ref="bankService" />
+		<property name="memberRelationQueryService" ref="acc-memberRelationQueryService"></property>
+	</bean>
+
+	<bean id="withdrawMemberFacadeService"
+		class="com.pay.poss.service.ma.member.impl.WithdrawMemberFacadeServiceImpl"
+		parent="abstractExternalAdapter" />
+
+	<bean id="foRD4GatewayApi"
+		class="com.pay.poss.service.gateway.impl.RD4GateWayServiceMock" />
+
+	<!-- bean id="foRD4GatewayService"
+		class="com.pay.poss.service.gateway.impl.RD4GateWayServiceJar"
+		parent="abstractExternalAdapter">
+		<property name="depositQueryServiceFacade" ref="fiDepositOrderQueryForFOService"/>
+	</bean-->
+
+	<bean id="foRD4MaServiceApi" class="com.pay.poss.service.ma.impl.RD4MaServiceMock"></bean>
+
+	<bean id="foRD4MaService" class="com.pay.poss.service.ma.impl.RD4MaServiceJar"
+		parent="abstractExternalAdapter">
+	</bean>
+
+	<bean id="massPayService"
+		class="com.pay.poss.service.ma.batchpaytoaccount.impl.MassPayServiceImpl">
+		<property name="accountQueryService" ref="acc-accountQueryService"></property>
+		<property name="memberQueryService" ref="acc-memberQueryService"></property>
+		<property name="accountInfoService" ref="acc-accountInfoService"></property>
+		<property name="memberVerifyService" ref="acc-memberVerifyService"></property>
+		<property name="acctService" ref="acc-acctService"></property>
+	</bean>
+</beans>

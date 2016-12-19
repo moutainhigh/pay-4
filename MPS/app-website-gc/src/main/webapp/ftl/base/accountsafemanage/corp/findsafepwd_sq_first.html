@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>${back_paypwd_mobile}${title}</title>
+<meta name="Keywords" content="${back_paypwd_mobile_Keywords}" />
+<meta name="Description" content="${back_paypwd_mobile_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+var reEmail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+var Pho = /(^0{0,1}1[3|4|5|6|7|8|9][0-9]{9}$)/;
+	$(function() {
+		$("#username").focus();
+		$.formValidator.initConfig( {
+			formid : "paypasswordform_first",
+			onerror : function(msg) {
+				//alert(msg);
+			}
+		});
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : "请输入图中4位字母",
+			onfocus : "请填写验证码",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 4,
+			empty : false,
+			onerror : "请输入图中4位字母"
+		});
+
+		$("#username").formValidator( {
+			tipid : "usernametip",
+			onshow : "请填写您的iPayLinks支付号",
+			onfocus : "请填写iPayLinks支付账号",
+			oncorrect : " "
+		}).regexValidator( {
+			regexp : "usernameNew",
+			datatype : "enum",
+			onerror : "账户格式不正确,必须是电子邮箱或者手机号码"
+		});
+
+		$("#refush")
+				.click(
+						function() {
+							var d = new Date();
+							var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+									+ d.getTime();
+							$("#code").attr("src", src);
+						});
+	});
+	function refushCode() {
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+				+ d.getTime();
+		document.getElementById("code").src = src;
+	}
+
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_account_safe,bsp_account_safe"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+
+<div class="mod_box_a">
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg secure_box">
+			<div class="tit_box">
+					<h3 class="title font14"><span class="ico_dot2"></span><strong>通过安全问题找回支付密码</strong></h3>
+			</div>
+<form action="${rc.contextPath}/corp/gotogetsafequestion.htm" method="post"
+	name="paypassword" id="paypasswordform_first">
+<div class="pay_login">
+<ul>
+	<li><font color=red>${returninfo?default('')}</font></li>
+	<li><label class="form_side"><span class="red">*</span>iPayLinks支付账号：</label><input
+		class="inp_normal w200" type="text" name="username" id="username" value=""/><span
+		id="usernametip"></span></li>
+	<li><label class="form_side"><span class="red">*</span> 验证码：</label><input
+		class="inp_normal w80" disableautocomplete autocomplete="off" type="text" name="randCode" maxlength="4"
+		id="randCode" /><span id="randCodeTip"></span></li>
+	<li><img
+		src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()"
+		alt="" name="code" width="101" height="38" id="code"
+		style="vertical-align: top" /> <span class="refresh"><a
+		href="javascript:refushCode();">看不清，换一张</a> </span></li>
+	<li>
+	<li class="login_area"><span class="btn_yel botton_yel">
+	<button id="btnOK" type="submit">下一步</button>
+	</span></li>
+</ul>
+</div></form>
+</div>
+
+<p class="bot"><i></i></p>
+</div>
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

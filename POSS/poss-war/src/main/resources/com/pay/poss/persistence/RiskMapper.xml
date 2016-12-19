@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pay.poss.persistence.RiskMapper">
+
+    <sql id="Pagination_Head">
+        <if test="startIndex != null and endIndex != null">
+            <![CDATA[ SELECT * FROM ( SELECT ROW_.*, ROWNUM RN FROM ( ]]>
+        </if>
+    </sql>
+    <sql id="Pagination_Foot">
+        <if test="startIndex != null and endIndex != null">
+            <![CDATA[ ) ROW_ WHERE ROWNUM <= #{endIndex} ) WHERE RN > #{startIndex} ]]>
+        </if>
+    </sql>
+    <sql id="orderbySql">
+        <if test="orderByColList != null">
+            ORDER BY
+            <foreach collection="orderByColList" item="obj" index="index"
+                     open="" close="" separator=",">
+                ${obj}
+            </foreach>
+            <if test="orderType != null">
+                ${orderType}
+            </if>
+        </if>
+    </sql>
+
+    <select id="selectRiskTradeChange" resultType="com.pay.poss.domain.RiskTradeChange"
+            parameterType="com.pay.poss.param.BaseTradeParam">
+        SELECT T.PARTNER_ID AS partnerIdTwo
+        ,COUNT(CASE WHEN T.STATUS='4' THEN PARTNER_ID END) AS succeedCount
+        ,COUNT(T.STATUS) AS allCount
+        ,ROUND(COUNT(CASE WHEN T.STATUS='4' THEN T.PARTNER_ID END)/COUNT(T.STATUS),4)*100||'%' AS succeedRate
+        ,SUM(CASE WHEN T.STATUS='4' THEN T.ORDER_AMOUNT ELSE 0 END)/1000 AS succeedAmt
+        ,TO_CHAR(T.CREATE_DATE,'YYYY-MM-DD') AS dataDate
+        FROM FI.TRADE_EXTENDS TE, FI.TRADE_ORDER T
+        WHERE T.TRADE_ORDER_NO = TE.TRADE_ORDER_NO
+        <if test="startDate != null">
+            AND TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        AND T.PARTNER_ID NOT IN ('10000003681','10000003765','10000003767','10000003768','10000003770','10000003855',
+        '10000003857','10000003766')
+        GROUP BY T.PARTNER_ID,TO_CHAR(T.CREATE_DATE,'YYYY-MM-DD')
+        ORDER BY COUNT(CASE WHEN T.STATUS='4' THEN PARTNER_ID END)DESC
+    </select>
+
+    <select id="selectRiskMerchantMonitor" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="com.pay.poss.domain.RiskMerchantMonitor">
+        WITH TMPDD AS (
+        SELECT O.PARTNER_ID AS partnerIdTwo
+        ,TO_CHAR(O.CREATE_DATE,'YYYY-MM-DD HH24') AS gatewayDate
+        ,COUNT(DISTINCT O.ORDER_ID) AS allCount
+        ,COUNT(DISTINCT CASE WHEN O.STATUS=4 THEN O.ORDER_ID ELSE NULL END) AS succeedCount
+        ,TO_CHAR(TRUNC(COUNT(DISTINCT CASE WHEN O.STATUS=4 THEN O.ORDER_ID ELSE NULL END)/COUNT(DISTINCT
+        O.ORDER_ID),4),'FM99990D90') AS succeedRate
+        ,COUNT(DISTINCT CASE WHEN NVL(C.ERROR_CODE,O.RESP_CODE) IN ('0053','0052') THEN O.ORDER_ID ELSE NULL END) AS
+        riskRefuseCount
+        ,COUNT(DISTINCT CASE WHEN NVL(C.ERROR_CODE,O.RESP_CODE) IN ('05','57','9905','203','01','9957','2',
+        '9962','58','3100','B','9901') THEN O.ORDER_ID ELSE NULL END) AS notGrantCount
+        ,COUNT(DISTINCT CASE WHEN NVL(C.ERROR_CODE,O.RESP_CODE) IN
+        ('14','54','04','15','41','205','43','99N7','211','9914','9954','231',
+        '9915','202','9904','0037','9943','230','9941','75','-9','9907','55'
+        ,'3102','4','0055','9955','3103','3104','9975','4404','U','3106') THEN O.ORDER_ID ELSE NULL END) AS cheatCount
+        FROM FI.TRADE_ORDER O
+        LEFT JOIN FI.PAYMENT_ORDER P ON O.TRADE_ORDER_NO=P.TRADE_ORDER_NO
+        LEFT JOIN FI.CHANNEL_ORDER C ON P.PAYMENT_ORDER_NO=C.PAYMENT_ORDER_NO
+        WHERE 1=1
+        <if test="startDate != null">
+            AND TO_CHAR(O.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(O.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        AND O.PARTNER_ID NOT IN ('10000003681','10000003765',
+        '10000003766','10000003767','10000003768','10000003770','10000003855', '10000003857')
+        GROUP BY TO_CHAR(O.CREATE_DATE,'YYYY-MM-DD HH24'),O.PARTNER_ID )
+        SELECT partnerId,gatewayDate,allCount,succeedCount,succeedRate
+        ,riskRefuseCount
+        , TO_CHAR(TRUNC(riskRefuseCount/allCount,4),'FM99990D90') AS riskRefuseRate
+        ,notGrantCount
+        ,TO_CHAR(TRUNC(notGrantCount/allCount,4),'FM99990D90') AS notGrantRate
+        ,cheatCount
+        ,TO_CHAR(TRUNC(cheatCount/allCount,4),'FM99990D90') AS cheatRate
+        FROM TMPDD D3
+        ORDER BY 1,2 DESC
+    </select>
+
+    <select id = "selectOneZeroStarter" resultType="com.pay.poss.domain.RiskTradeData" parameterType="com.pay.poss.param.TradeDataParam">
+        <include refid="Pagination_Head" />
+        SELECT TO_CHAR(EX.CARDHOLDER_CARDNO) AS cardNo,
+        CO.AUTHORISATION AS authorisation,
+        EO.PARTNER_ID AS partnerId,
+        EO.ORDER_ID AS orderId,
+        CO.CURRENCY_CODE AS currencyCode,
+        CO.AMOUNT/1000 AS amount,
+        SO.SETTLEMENT_RATE AS settlementRate,
+        TO_CHAR(EO.TRADE_ORDER_NO) AS tradeOrderNo,
+        TO_CHAR(CO.PAYMENT_ORDER_NO) AS paymentOrderNo,
+        TO_CHAR(CO.CHANNEL_ORDER_NO) AS channelOrderNo,
+        CO.ORG_CODE AS orgCode,
+        CO.TRANSFER_RATE AS transferRate,
+        CO.STATUS AS channelStatus,
+        EO.STATUS AS gatewayStatus,
+        TO_CHAR(CO.CREATE_DATE,'YYYY-MM-DD HH24:MI:SS') AS tradeDate,
+        CO.PAY_AMOUNT/1000 AS payAmount,
+        CO.SETTLEMENT_CURRENCY_CODE AS settlementCurrencyCode,
+        TO_CHAR(CO.MERCHANT_NO) AS merchantNo,
+        JO.NAME AS name,
+        JO.IP AS ip,
+        EX.EXT_ORDER_INFO_6 AS mail,
+        EX.CARDHOLDER_MOBILE AS mobile
+        FROM
+        FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND JO,
+        FI.TRADE_EXTENDS EX,
+        FO.REFUND_ORDER_M A,
+        FO.REFUND_WORKORDER B,
+        FO.REFUND_ORDER_D C,
+        FI.REFUND_ORDER D
+        WHERE
+        PO.TRADE_ORDER_NO = D.TRADE_ORDER_NO
+        AND  D.REFUND_ORDER_NO = C.REFUND_ORDER_NO
+        AND C.MASTER_KY = A.ORDER_KY
+        AND A.ORDER_KY = B.REFUND_M_KY
+        AND EO.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=SO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=JO.PAYMENT_ORDER_NO
+        AND EX.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countOneZeroStarter" resultType="java.lang.Integer" parameterType="com.pay.poss.param.TradeDataParam">
+
+        SELECT
+          COUNT(*)
+        FROM
+        FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND JO,
+        FI.TRADE_EXTENDS EX,
+        FO.REFUND_ORDER_M A,
+        FO.REFUND_WORKORDER B,
+        FO.REFUND_ORDER_D C,
+        FI.REFUND_ORDER D
+        WHERE
+        PO.TRADE_ORDER_NO = D.TRADE_ORDER_NO
+        AND  D.REFUND_ORDER_NO = C.REFUND_ORDER_NO
+        AND C.MASTER_KY = A.ORDER_KY
+        AND A.ORDER_KY = B.REFUND_M_KY
+        AND EO.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=SO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=JO.PAYMENT_ORDER_NO
+        AND EX.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+    </select>
+
+    <select id="selectRiskTradeData" resultType="com.pay.poss.domain.RiskTradeData"
+            parameterType="com.pay.poss.param.TradeDataParam">
+        <include refid="Pagination_Head" />
+        SELECT TO_CHAR(EX.CARDHOLDER_CARDNO) AS cardNo,
+        CO.AUTHORISATION AS authorisation,
+        EO.PARTNER_ID AS partnerId,
+        EO.ORDER_ID AS orderId,
+        CO.CURRENCY_CODE AS currencyCode,
+        CO.AMOUNT/1000 AS amount,
+        SO.SETTLEMENT_RATE AS settlementRate,
+        TO_CHAR(EO.TRADE_ORDER_NO) AS tradeOrderNo,
+        TO_CHAR(CO.PAYMENT_ORDER_NO) AS paymentOrderNo,
+        TO_CHAR(CO.CHANNEL_ORDER_NO) AS channelOrderNo,
+        CO.ORG_CODE AS orgCode,
+        CO.TRANSFER_RATE AS transferRate,
+        CO.STATUS AS channelStatus,
+        EO.STATUS AS gatewayStatus,
+        TO_CHAR(CO.CREATE_DATE,'YYYY-MM-DD HH24:MI:SS') AS tradeDate,
+        CO.PAY_AMOUNT/1000 AS payAmount,
+        CO.SETTLEMENT_CURRENCY_CODE AS settlementCurrencyCode,
+        TO_CHAR(CO.MERCHANT_NO) AS merchantNo,
+        JO.NAME AS name,
+        JO.IP AS ip,
+        EX.EXT_ORDER_INFO_6 AS mail,
+        EX.CARDHOLDER_MOBILE AS mobile
+        FROM
+        FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND JO,
+        FI.TRADE_EXTENDS EX
+        WHERE
+        EO.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=SO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=JO.PAYMENT_ORDER_NO
+        AND EX.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <if test="grantCodeList != null">
+            AND CO.AUTHORISATION IN
+            <foreach collection="grantCodeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tradeOrderNoList != null">
+            AND PO.TRADE_ORDER_NO IN
+            <foreach collection="tradeOrderNoList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tradeDateList != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') IN
+            <foreach collection="tradeDateList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="cardNoList != null">
+            AND EX.CARDHOLDER_CARDNO IN
+            <foreach collection="cardNoList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tradeOrderLike != null">
+            AND PO.TRADE_ORDER_NO LIKE #{tradeOrderLike}
+       </if>
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countRiskTradeData" resultType="java.lang.Integer"
+            parameterType="com.pay.poss.param.TradeDataParam">
+        SELECT
+          COUNT(*)
+        FROM
+        FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND JO,
+        FI.TRADE_EXTENDS EX
+        WHERE
+        EO.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=SO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=JO.PAYMENT_ORDER_NO
+        AND EX.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <if test="grantCodeList != null">
+            AND CO.AUTHORISATION IN
+            <foreach collection="grantCodeList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tradeOrderNoList != null">
+            AND PO.TRADE_ORDER_NO IN
+            <foreach collection="tradeOrderNoList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tradeDateList != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') IN
+            <foreach collection="tradeDateList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="cardNoList != null">
+            AND EX.CARDHOLDER_CARDNO IN
+            <foreach collection="cardNoList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tradeOrderLike != null">
+            AND PO.TRADE_ORDER_NO LIKE #{tradeOrderLike}
+        </if>
+    </select>
+
+    <select id="selectRiskTradeDetail" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="com.pay.poss.domain.RiskTradeDetail">
+        <include refid="Pagination_Head" />
+        SELECT
+        T.PARTNER_ID AS partnerId,
+        T.ORDER_ID AS orderId,
+        TO_CHAR(T.TRADE_ORDER_NO) AS tradeorderNo,
+        TO_CHAR(P.PAYMENT_ORDER_NO) AS paymentOrderNo,
+        TO_CHAR(C.CHANNEL_ORDER_NO) AS channelOrderNo,
+        C.ORG_CODE AS orgCode,
+        T.ORDER_AMOUNT / 1000 AS orderAmount,
+        T.CURRENCY_CODE AS currencyCode,
+        C.TRANSFER_RATE AS transferRate,
+        C.STATUS AS channelStatus,
+        T.STATUS AS gatewayStatus,
+        TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD HH24:MI:SS') AS tradeDate,
+        C.PAY_AMOUNT / 1000 AS payAmount,
+        C.SETTLEMENT_CURRENCY_CODE AS settlementCurrencyCode,
+        TO_CHAR(C.MERCHANT_NO) AS merchantNo,
+        TE.EXT_ORDER_INFO_1 AS weburl,
+        C.AUTHORISATION AS authorisation,
+        TO_CHAR(TE.CARDHOLDER_CARDNO) AS cardNo,
+        TE.CARDHOLDER_NAME AS name,
+        TE.EXT_ORDER_INFO_8 AS ip,
+        TE.EXT_ORDER_INFO_6 AS mail,
+        TE.CARDHOLDER_MOBILE AS mobile,
+        T.RESP_CODE AS respCode,
+        T.RESP_MSG AS respMsg,
+        C.ERROR_CODE AS errorCode,
+        C.ERROR_MSG AS errorMsg,
+        ET.BILL_NAME AS billName,
+        ET.BILL_ADRESS AS billAdress,
+        ET.BILL_EMAIL AS billEmail,
+        ET.BILL_PHONENUMBER AS billPhonenumber,
+        ET.BILL_POSTALCODE AS billPostalcode,
+        ET.BILL_STREET AS billStreet,
+        ET.BILL_CITY AS billCity,
+        ET.BILL_STATE AS billState,
+        ET.BILL_COUNTRYCODE AS billCountrycode,
+        ET.SHIPPING_NAME AS shippingName,
+        ET.SHIPPING_ADDRESS AS shippingAddress,
+        ET.SHIPPING_MAIL AS shippingMail,
+        ET.SHIPPING_PHONENUMBER AS shippingPhonenumber,
+        ET.SHIPPING_POSTALCODE AS shippingPostalcode,
+        ET.SHIPPING_COMPANY AS shippingCompany,
+        ET.SHIPPING_STREET AS shippingStreet,
+        ET.SHIPPING_CITY AS shippingCity,
+        ET.SHIPPING_STATE AS shippingState,
+        ET.SHIPPING_COUNTRYCODE AS shippingCountrycode,
+        ET.CARDHOLDER_NUMBER AS cardholderNumber,
+        ET.CARDHOLDER_FIRSTNAME AS cardholderFirstname,
+        ET.CARDHOLDER_LASTNAME AS cardholderLastname,
+        ET.CARDHOLDER_EMAIL AS cardholderEmail,
+        ET.CARDHOLDER_PHONENUMBER AS cardholderPhonenumber,
+        SUBSTR(TE.CARDHOLDER_CARDNO,1,6) AS cardBin,
+        <![CDATA[(SELECT ISSUER_COUNTRY  FROM INF.CARD_BIN_INF CI WHERE CI.CARD_BIN =SUBSTR(TE.CARDHOLDER_CARDNO,1,6) AND ROWNUM <2 ) AS issuerCountry]]>
+        FROM FI.TRADE_ORDER T,
+        FI.PAYMENT_ORDER P,
+        FI.CHANNEL_ORDER C,
+        FI.TRADE_EXTENDS TE,
+        FI.EXPRESS_TRACKING ET
+        WHERE T.TRADE_ORDER_NO = P.TRADE_ORDER_NO(+)
+        AND P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO(+)
+        AND T.TRADE_ORDER_NO = TE.TRADE_ORDER_NO(+)
+        AND T.TRADE_ORDER_NO = ET.TRADE_ORDER_NO(+)
+        <if test="startDate != null">
+            AND TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        AND T.PARTNER_ID NOT IN ('10000003681',
+        '10000003765','10000003766','10000003767','10000003768','10000003769','10000003770')
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countRiskTradeDetail" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM FI.TRADE_ORDER T,
+        FI.PAYMENT_ORDER P,
+        FI.CHANNEL_ORDER C,
+        FI.TRADE_EXTENDS TE,
+        FI.EXPRESS_TRACKING ET
+        WHERE T.TRADE_ORDER_NO = P.TRADE_ORDER_NO(+)
+        AND P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO(+)
+        AND T.TRADE_ORDER_NO = TE.TRADE_ORDER_NO(+)
+        AND T.TRADE_ORDER_NO = ET.TRADE_ORDER_NO(+)
+        <if test="startDate != null">
+            AND TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(T.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        AND T.PARTNER_ID NOT IN ('10000003681',
+        '10000003765','10000003766','10000003767','10000003768','10000003769','10000003770')
+    </select>
+
+    <select id="selectRiskMerchantTrade" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="com.pay.poss.domain.RiskMerchantTrade">
+        SELECT AA.PARTNER_ID AS partnerId,
+        NVL(AA.ORDERAMT, 0) AS orderSucceedAmount,
+        NVL(AA.ORDERCOUNT, 0) AS orderSucceedCount,
+        NVL(BB.REFAMT, 0) AS refundAmount,
+        NVL(BB.REFCOUNT, 0) AS refundCount
+        FROM (SELECT A.PARTNER_ID,
+        SUM(A.ORDER_AMOUNT) ORDERAMT,
+        COUNT(A.TRADE_ORDER_NO) ORDERCOUNT
+        FROM FI.TRADE_ORDER A, FI.CHANNEL_ORDER C, FI.PAYMENT_ORDER D
+        WHERE D.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND D.TRADE_ORDER_NO = A.TRADE_ORDER_NO
+        AND C.STATUS = 1
+        <if test="startDate != null">
+            AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        GROUP BY A.PARTNER_ID) AA
+        RIGHT JOIN (SELECT B.PARTNER_ID,
+        SUM(B.REFUND_AMOUNT) REFAMT,
+        COUNT(B.REFUND_ORDER_NO) REFCOUNT
+        FROM FI.REFUND_ORDER B
+        WHERE 1=1
+        <if test="startDate != null">
+            AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        GROUP BY B.PARTNER_ID) BB
+        ON AA.PARTNER_ID = BB.PARTNER_ID
+        UNION
+        SELECT AA.PARTNER_ID,
+        NVL(AA.ORDERAMT, 0),
+        NVL(AA.ORDERCOUNT, 0),
+        NVL(BB.REFAMT, 0),
+        NVL(BB.REFCOUNT, 0)
+        FROM (SELECT A.PARTNER_ID,
+        SUM(A.ORDER_AMOUNT) ORDERAMT,
+        COUNT(A.TRADE_ORDER_NO) ORDERCOUNT
+        FROM FI.TRADE_ORDER A, FI.CHANNEL_ORDER C, FI.PAYMENT_ORDER D
+        WHERE D.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND D.TRADE_ORDER_NO = A.TRADE_ORDER_NO
+        AND C.STATUS = 1
+        <if test="startDate != null">
+            AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        GROUP BY A.PARTNER_ID) AA
+        LEFT JOIN (SELECT B.PARTNER_ID,
+        SUM(B.REFUND_AMOUNT) REFAMT,
+        COUNT(B.REFUND_ORDER_NO) REFCOUNT
+        FROM FI.REFUND_ORDER B
+        WHERE 1=1
+        <if test="startDate != null">
+            AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        GROUP BY B.PARTNER_ID) BB
+        ON AA.PARTNER_ID = BB.PARTNER_ID
+    </select>
+
+    <select id="selectRiskChannelDailyReport" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="com.pay.poss.domain.RiskChannelDailyReport">
+        SELECT C.MERCHANT_NO AS merchantNoTwo
+        , O.PARTNER_ID AS partnerIdTwo
+        , TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') AS tradeDate
+        ,TRUNC(SUM(CASE WHEN O.STATUS IN (3,4) THEN
+        (CASE WHEN NVL(C.CARD_ORG,PEX.CARD_TYPE)='VISA' THEN O.ORDER_AMOUNT ELSE 0 END)*(CASE WHEN ORATE.EXCHANGE_RATE
+        IS NULL THEN 1 ELSE TO_NUMBER(ORATE.EXCHANGE_RATE) END)
+        ELSE 0 END)/1000,2) AS vcardRmbAmount
+        ,SUM(CASE WHEN NVL(C.CARD_ORG,PEX.CARD_TYPE)='VISA' THEN 1 ELSE 0 END) AS vCardCount
+        ,TRUNC(SUM(CASE WHEN O.STATUS IN (3,4) THEN
+        (CASE WHEN NVL(C.CARD_ORG,PEX.CARD_TYPE)='MASTER' THEN O.ORDER_AMOUNT ELSE 0 END)*(CASE WHEN ORATE.EXCHANGE_RATE
+        IS NULL THEN 1 ELSE TO_NUMBER(ORATE.EXCHANGE_RATE) END)
+        ELSE 0 END)/1000,2) AS mcardRmbAmount
+        ,SUM(CASE WHEN NVL(C.CARD_ORG,PEX.CARD_TYPE)='MASTER' THEN 1 ELSE 0 END) AS mcardCount
+        FROM FI.TRADE_ORDER O
+        LEFT JOIN FI.PAYMENT_ORDER P ON O.TRADE_ORDER_NO=P.TRADE_ORDER_NO
+        LEFT JOIN FI.PAYMENT_ORDER_EXPAND PEX ON P.PAYMENT_ORDER_NO = PEX.PAYMENT_ORDER_NO
+        LEFT JOIN FI.CHANNEL_ORDER C ON P.PAYMENT_ORDER_NO=C.PAYMENT_ORDER_NO
+        LEFT JOIN FI.ORG_CURRENCY_EXCHANGE_RATE ORATE ON O.CURRENCY_CODE=ORATE.CURRENCY --机构汇率
+        WHERE 1=1
+        <if test="startDate != null">
+            AND TO_CHAR(O.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(O.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+
+        AND O.STATUS IN (3,4) --0:未付款;3:交易完成（含退款）;4:交易成功，5失败
+        AND C.ERROR_CODE='0000' --渠道成功状态
+        AND C.MERCHANT_NO IN
+        ('31-01122',
+        '31-01123',
+        '31-01124',
+        '31-01125',
+        '31-01126',
+        '31-01127',
+        '31-01128',
+        '31-01129',
+        '31-01130',
+        '31-01131',
+        '31-01132',
+        '31-01133',
+        '31-01134',
+        '31-01135',
+        '31-01136',
+        '31-01137',
+        '31-01138',
+        '31-01139',
+        '31-01140',
+        '31-01141',
+        '31-01142',
+        '31-01143',
+        '31-01144',
+        '31-01145',
+        '31-01146',
+        '31-01147',
+        '31-01148',
+        '31-01149',
+        '31-01150',
+        '31-01151',
+        '31-01151')
+        GROUP BY C.MERCHANT_NO, O.PARTNER_ID, TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD')
+        ORDER BY 1
+    </select>
+
+    <select id="selectBankOrder" parameterType="com.pay.poss.param.BankOrderParam"
+            resultType="com.pay.poss.domain.RiskBankOrder">
+        <include refid="Pagination_Head" />
+        SELECT C.RETURN_NO AS returnNo,
+        T.PARTNER_ID AS partnerId,
+        T.ORDER_ID AS orderId,
+        T.TRADE_ORDER_NO AS tradeOrderNo,
+        T.ORDER_AMOUNT/1000 AS orderAmount,
+        T.CURRENCY_CODE AS currencyCode,
+        C.SETTLEMENT_RATE AS settlementRate,
+        PE.CARD_NO AS cardNo
+        FROM FI.CHANNEL_ORDER C,
+        FI.TRADE_ORDER T,
+        FI.PAYMENT_ORDER P,
+        FI.PAYMENT_ORDER_EXPAND PE
+        WHERE T.TRADE_ORDER_NO = P.TRADE_ORDER_NO
+        AND P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND P.PAYMENT_ORDER_NO = PE.PAYMENT_ORDER_NO
+        AND C.STATUS = 1
+        <if test="bankOrderList != null">
+            AND C.RETURN_NO IN
+            <foreach collection="bankOrderList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="startDate != null">
+            AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countBankOrder" parameterType="com.pay.poss.param.BankOrderParam"
+            resultType="java.lang.Integer">
+        SELECT
+        COUNT (*)
+        FROM FI.CHANNEL_ORDER C,
+        FI.TRADE_ORDER T,
+        FI.PAYMENT_ORDER P,
+        FI.PAYMENT_ORDER_EXPAND PE
+        WHERE T.TRADE_ORDER_NO = P.TRADE_ORDER_NO
+        AND P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND P.PAYMENT_ORDER_NO = PE.PAYMENT_ORDER_NO
+        AND C.STATUS = 1
+        <if test="bankOrderList != null">
+            AND C.RETURN_NO IN
+            <foreach collection="bankOrderList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="startDate != null">
+            AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(C.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+    </select>
+
+</mapper>

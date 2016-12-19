@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境支付链API收单 -->
+	<bean id="crosspayPayLinkApiAcquireValidateService" class="com.pay.gateway.paylink.service.ValidateServiceLinkImpl">
+		<property name="ruleEngine" ref="crosspay-paylinkapi-acquireRule" />
+	</bean>
+
+	<bean id="crosspay-paylinkapi-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="crosspay-api-versionCheckRule-paylink" />
+		</property>
+	</bean>
+
+	<bean id="crosspay-api-versionCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-orderIdCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="messageCn" value="版本号不正确" />
+		<property name="message" value="The version number is not correct" />
+	</bean>
+
+	<bean id="crosspay-api-orderIdCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-goodsNameCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="messageCn" value="订单号不合法" />
+		<property name="message" value="Order numbers are not legitimate" />
+	</bean>
+	<!--  -->
+	<bean id="crosspay-api-goodsNameCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.GoodsNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-goodsDescCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0004" />
+		<property name="messageCn" value="商品名称不能为空" />
+		<property name="message" value="Product name cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-goodsDescCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.GoodsDescCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-submitTimeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="messageCn" value="商品描述不能为空" />
+		<property name="message" value="Product description cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-submitTimeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-orderAmountCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="messageCn" value="订单提交时间不正确" />
+		<property name="message" value="Order submission time is not correct" />
+	</bean>
+
+	<bean id="crosspay-api-orderAmountCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-typeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="messageCn" value="订单金额不正确" />
+		<property name="message" value="Order amount is incorrect" />
+	</bean>
+
+	<bean id="crosspay-api-typeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-payTypeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="messageCn" value="未授权交易类型" />
+		<property name="message" value="Transaction type is incorrect" />
+	</bean>
+
+	<bean id="crosspay-api-payTypeCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.PayTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-currencyCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="messageCn" value="支付方式不正确" />
+		<property name="message" value="Incorrect payment type" />
+	</bean>
+
+	<bean id="crosspay-api-currencyCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-settlementCurrencyCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="messageCn" value="交易币种不正确" />
+		<property name="message" value="Incorrect transaction currency" />
+	</bean>
+
+	<bean id="crosspay-api-settlementCurrencyCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.SettlementCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-borrowingMarkedCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0012" />
+		<property name="messageCn" value="结算币种不正确" />
+		<property name="message" value="Incorrect settlement currency" />
+	</bean>
+
+	<bean id="crosspay-api-borrowingMarkedCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BorrowingMarkedCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-merchantStatusCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0013" />
+		<property name="messageCn" value="资金来源借贷标识不正确" />
+		<property name="message" value="Funding lending identity is incorrect" />
+	</bean>
+
+
+	<bean id="crosspay-api-merchantStatusCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-merchantConfigureCheckRule-paylink" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="messageCn" value="商户状态异常" />
+		<property name="message" value="Merchant abnormal state" />
+	</bean>
+
+	<bean id="crosspay-api-merchantConfigureCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-merchantAcctCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="messageCn" value="未授权限的商户" />
+		<property name="message" value="Limit unauthorized merchants" />
+	</bean>
+
+	<bean id="crosspay-api-merchantAcctCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-billNameCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="messageCn" value="商户账户状态异常" />
+		<property name="message" value="Merchant Account Status abnormal" />
+	</bean>
+   	<bean id="crosspay-api-billNameCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.BillNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillAddressCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="messageCn" value="账单姓名不能为空" />
+		<property name="message" value="Billing name cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-BillAddressCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BillAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillEmailCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="messageCn" value="账单地址不能为空" />
+		<property name="message" value="Billing address cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-BillEmailCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BillEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillPhoneNumberCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0020" />
+		<property name="messageCn" value="账单邮箱不能为空" />
+		<property name="message" value="Billing e-mail cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-BillPhoneNumberCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BillPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillPostalCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0021" />
+		<property name="messageCn" value="账单电话不能为空" />
+		<property name="message" value="Billing phone number cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-BillPostalCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BillPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillCityCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0022" />
+		<property name="messageCn" value="账单邮编不能为空" />
+		<property name="message" value="Billing zip code cannot be empty" />
+	</bean>
+
+
+	<bean id="crosspay-api-BillCityCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.BillCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillStateCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0024" />
+		<property name="messageCn" value="账单城市不能为空" />
+		<property name="message" value="Billing city cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-BillStateCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BillStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BillCountryCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0025" />
+		<property name="messageCn" value="账单州不能为空" />
+		<property name="message" value="Billing state cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-BillCountryCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.BillCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingNameCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0026" />
+		<property name="messageCn" value="账单国家不能为空" />
+		<property name="message" value="Billing country cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingNameCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingAddressCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0027" />
+		<property name="messageCn" value="收贷人姓名不能为空" />
+		<property name="message" value="Consignee name cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingAddressCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingEmailCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0028" />
+		<property name="messageCn" value="收贷人地址不能为空" />
+		<property name="message" value="Consignee address cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingEmailCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingMailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingPhoneNumberCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0029" />
+		<property name="messageCn" value="收贷人邮箱不能为空" />
+		<property name="message" value="Consignee address cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingPhoneNumberCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingPostalCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0030" />
+		<property name="messageCn" value="收贷人电话不能为空" />
+		<property name="message" value="Consignee phone number cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingPostalCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingCityCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0031" />
+		<property name="messageCn" value="收货人邮编不能为空" />
+		<property name="message" value="Consignee zip code cannot be empty" />
+	</bean>
+
+
+	<bean id="crosspay-api-ShippingCityCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingStateCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0033" />
+		<property name="messageCn" value="收贷人城市不能为空" />
+		<property name="message" value="Consignee city cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingStateCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-ShippingCountryCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0034" />
+		<property name="messageCn" value="收贷人州不能为空" />
+		<property name="message" value="Consignee state cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-ShippingCountryCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.ShippingCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-PayModeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0035" />
+		<property name="messageCn" value="收贷人国家不能为空" />
+		<property name="message" value="Consignee country cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-PayModeCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.PayModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-CardHolderNumberCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="messageCn" value="支付方式不正确" />
+		<property name="message" value="payment method cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-CardHolderNumberCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-CardHolderFirstNameCheckRule-paylink" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0037" />
+		<property name="messageCn" value="持卡人卡号不能为空" />
+		<property name="message" value="Cardholder's card number cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-CardHolderFirstNameCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.CardHolderFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-CardHolderLastNameCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0038" />
+		<property name="messageCn" value="持卡人名为空或过长" />
+		<property name="message" value="Cardholder's first name cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-CardHolderLastNameCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.CardHolderLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-CardExpirationMonthCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0039" />
+		<property name="messageCn" value="持卡人姓不能为空" />
+		<property name="message" value="Cardholder's last name cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-CardExpirationMonthCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.CardExpirationMonthCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-CardExpirationYearCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0040" />
+		<property name="messageCn" value="持卡人卡片有效月不能为空" />
+		<property name="message" value="Cardholder's valid month cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-CardExpirationYearCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.CardExpirationYearCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-SecurityCodeCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0041" />
+		<property name="messageCn" value="持卡人卡片有效年不能为空" />
+		<property name="message" value="The valid year is empty or wrong. Please input the last two numbers of it" />
+	</bean>
+
+	<bean id="crosspay-api-SecurityCodeCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.SecurityCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-OrderTerminalCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0042" />
+		<property name="messageCn" value="持卡人卡片安全码不能为空" />
+		<property name="message" value="Cardholder's security code of the card(CVV) cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-OrderTerminalCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.OrderTerminalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-charsetCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0045" />
+		<property name="messageCn" value="终端设备标识不能为空" />
+		<property name="message" value="Terminal device identifier cannot be empty" />
+	</bean>
+
+	<bean id="crosspay-api-charsetCheckRule-paylink" class="com.pay.gateway.validate.rule.paylink.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-orderRepeatCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="messageCn" value="编码方式不正确" />
+		<property name="message" value="Coding type is wrong" />
+	</bean>
+
+	<bean id="crosspay-api-orderRepeatCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-MerchantChannelCheckRule-paylink" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="messageCn" value="订单号重复" />
+		<property name="message" value="Repeated transaction number" />
+	</bean>
+
+	<bean id="crosspay-api-MerchantChannelCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.MerchantChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-MerchantSettlementCheckRule-paylink" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="messageId" value="0050" />
+		<property name="messageCn" value="商户无可用渠道" />
+		<property name="message" value="No channel available for merchant" />
+	</bean>
+	
+	<bean id="crosspay-api-MerchantSettlementCheckRule-paylink"
+		class="com.pay.gateway.validate.rule.paylink.MerchantSettlementCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-exceptionAction" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="0051" />
+		<property name="messageCn" value="商户未配置结算信息" />
+		<property name="message" value="The merchant isn't set settlement information" />
+	</bean>
+	
+	<bean id="crosspay-api-exceptionAction" class="com.pay.gateway.validate.rule.paylink.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

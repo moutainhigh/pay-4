@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-balanceEntry">
+	<typeAlias alias="BalanceEntry" type="com.pay.acc.deal.model.BalanceEntry" />
+
+	<insert id="create" parameterClass="BalanceEntry">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			SEQ_BALANCE_BALANCE_ID.nextval from DUAL 
+		</selectKey>
+			<![CDATA[
+					insert into T_BALANCE_ENTRY(
+						voucher_code,
+						acct_code,
+						crdr,
+						value,
+						text,
+						dealId,
+						payment_service_code,
+						creation_date,
+						status,
+						entry_code,
+						post_date,
+						entry_type,
+						currency_code,
+						EXCHANGE_RATE,
+						transaction_date,
+						bentry_id,
+						update_date,
+						balance,
+						pay_date,
+						balance_direct,
+						DEAL_CODE
+					
+					)
+					values(
+						#vouchercode#,
+						#acctcode#,
+						#crdr#,
+						#value#,
+						#text#,
+						#dealId#,
+						#paymentServiceId#,
+						#createdate#,
+						#status#,
+						#entrycode#,
+						#postDate#,
+						#entryType#,
+						#currencyCode#,
+						#exchangeRate#,
+						#transactiondate#,
+						#id#,
+						#updateDate#,
+						#balance#,
+						#payDate#,
+						#maBlanceBy#,
+						#dealCode#										
+					)
+			
+			 ]]>
+
+	</insert>
+
+    <select id="queryBalanceEntryForTransAmount" resultClass="java.lang.Long"  parameterClass="java.util.Map">
+        <![CDATA[
+        	SELECT 
+        		NVL(SUM(VALUE),0)
+        	FROM 
+        		T_BALANCE_ENTRY
+        	WHERE
+        		ACCT_CODE=#acctCode#
+        	AND
+        		PAY_DATE>=TO_DATE(#strEndDate#,'YYYY-MM-DD')
+         ]]>
+    </select> 
+    
+    
+  <!-- 统计14天所有的前的余额（可提现金额）-->	
+  <select id="selectWithdrawalBanalce" parameterClass="map" resultClass="long">
+		<![CDATA[ select  balance from 
+				(select t.value,t.balance,t.transaction_date from t_balance_entry t where
+				 t.acct_code=#acctCode#
+				  and t.creation_date < sysdate-#date#
+				  order by t.bentry_id desc
+				)   where rownum =1
+          ]]>       
+    </select>
+    
+    	<!-- 统计14天内所有的出款金额-->	
+  <select id="sumTwoWeekMinusValue" parameterClass="map" resultClass="long">
+		<![CDATA[select sum(case t.balance_direct when 1 then t.value when 2 then -1*t.value end) addValue
+		          from  t_balance_entry t 
+		          where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) < 0
+		          and t.acct_code=#acctCode#
+		          and t.creation_date >=sysdate-#date#
+		          and t.creation_date < sysdate
+          ]]>       
+    </select>
+    
+	<!-- 统计14天内所有的入款金额(不包括提现退款)-->	
+  <select id="sumTwoWeekAddValue" parameterClass="map" resultClass="long">
+		<![CDATA[select sum(case t.balance_direct when 1 then t.value when 2 then -1*t.value end) addValue
+		          from  t_balance_entry t 
+		          where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) > 0
+		          and t.acct_code=#acctCode#
+		          and t.creation_date >=sysdate-#date#
+		          and t.creation_date < sysdate
+          ]]>	  
+       
+    </select>
+    
+		<!-- 统计14天内除提现外出款金额 收款方-->
+	<select id="sumTwoWeekPayerMinusValue" parameterClass="map" resultClass="long">
+		<![CDATA[
+          select sum(case t.balance_direct when 1 then t.value when 2 then -1*t.value end)
+        	  from  t_balance_entry t 
+	            where   t.acct_code=#acctCode#
+				        and t.creation_date >=sysdate-#date#
+				        and t.creation_date < sysdate
+			            and (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) < 0
+			            and exists ( select 1 from t_balance_deal d
+			             where d.order_id=t.dealid and
+			             ( t.acct_code=d.payer_full_mem_acctcode )
+			               and d.deal_type <> 6)
+          ]]>	  
+       
+    </select>		
+	
+	<!-- 查询14天内的提现退款总额 -->
+	<select id="sumTwoWeekWithdrawRefund" parameterClass="map" resultClass="long">
+	<![CDATA[
+		select sum(case t.balance_direct when 1 then t.value when 2 then -1*t.value end) withDrawRefund
+		          from  t_balance_entry t left outer join t_balance_deal t1 on t.dealid=t1.order_id and t.deal_code = t1.deal_code
+		          where (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) > 0
+		          and acct_code=#acctCode# and t1.deal_type=7
+		          and t.creation_date >=sysdate-#date#
+		          and t.creation_date < sysdate
+	]]>
+	</select>
+	
+	<!-- 统计14天内除提现外出款金额 付款方-->
+	<select id="sumTwoWeekPayeeMinusValue" parameterClass="map" resultClass="long">
+		<![CDATA[
+          select sum(case t.balance_direct when 1 then t.value when 2 then -1*t.value end)
+        	  from  t_balance_entry t 
+	            where   t.acct_code=#acctCode#
+				        and t.creation_date >=sysdate-#date#
+				        and t.creation_date < sysdate
+			            and (case t.balance_direct when 1 then t.value when 2 then -1*t.value end) < 0
+			            and exists ( select 1 from t_balance_deal d
+			             where d.order_id=t.dealid and
+			             (t.acct_code=d.payee_full_mem_acctcode)
+			               and d.deal_type <> 6)
+          ]]>	  
+       
+    </select>
+    
+    
+    	<!-- 统计一段时间内借贷发生总额-->
+	<select id="queryCrdrSumByAcctCode" parameterClass="map" resultClass="com.pay.acc.deal.model.BalanceEntry">
+			select sum(t.value) as value,t.acct_code,t.crdr from T_BALANCE_ENTRY t 
+					where t.acct_code=#acctCode#
+					<isNotEmpty property="startAt" prepend="and">
+            			to_char(t.creation_date,'yyyy-mm-dd hh24:mi:ss') &gt;= #startAt#
+        			</isNotEmpty>
+        			<isNotEmpty property="endAt" prepend="and">
+            			to_char(t.creation_date,'yyyy-mm-dd hh24:mi:ss') &lt;= #endAt#
+        			</isNotEmpty>    
+					group by t.acct_code,t.crdr
+     </select>
+    
+    		
+	<!-- 根据流水号，dealCode查询分录 -->
+	<select id="queryBalanceEntryBySerialNo" parameterClass="map" resultClass="BalanceEntry">
+			<![CDATA[
+				select
+						voucher_code				as vouchercode,
+						acct_code					as acctcode,
+						crdr						as crdr,
+						value						as value,
+						text						as text,
+						dealId						as dealId,
+						payment_service_code		as paymentServiceId,
+						creation_date				as createdate,
+						status						as status,
+						entry_code					as entrycode,
+						post_date					as postDate,
+						entry_type					as entryType,
+						currency_code				as currencyCode,
+						EXCHANGE_RATE				as exchangeRate,
+						transaction_date			as transactiondate,
+						bentry_id					as id,
+						update_date					as updateDate,
+						balance						as balance,
+						pay_date					as payDate,
+						balance_direct				as maBlanceBy
+				from
+					T_BALANCE_ENTRY
+				where
+					dealId	=  #serialNo#
+					and deal_code = #dealCode#
+			
+			 ]]>
+	</select>	
+	
+		<select id="queryBalanceByAcctCode" parameterClass="map" resultClass="long">
+			select a.balance
+ 					FROM (SELECT rownum as line, t.*
+              from (SELECT *
+                      FROM t_balance_entry t 
+                     WHERE t.acct_code = #acctCode#
+                       and to_char(t.creation_date,'yyyy-mm-dd hh24:mi:ss') &lt; #endAt#
+                     order by t.creation_date desc,t.bentry_id desc) t) a
+                     WHERE  a.line &lt;= 1 
+		</select>
+		
+	<select id="selectBalanceByAcctCodeAndDate" parameterClass="map" resultClass="BalanceEntry">
+		select * from t_balance_entry e 
+		where e.acct_code=#acctCode#
+		      and e.creation_date &lt;= #date#
+		order by e.bentry_id desc
+	</select>
+	
+ 
+</sqlMap>

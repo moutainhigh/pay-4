@@ -1,0 +1,231 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>iPayLinks支付-被退款查询</title>
+	<#include "/common/macro/seoPerson.ftl"> 
+	<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+	<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+	<meta http-equiv="pragma" content="no-cache"> 
+	<meta http-equiv="cache-control" content="no-cache"> 
+	<meta http-equiv="expires" content="0">
+	
+	
+	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//var minTime = "${minDate}";
+			var minTime = "${minDate}";
+			var curTime = "${maxDate}";
+			$("#startTime").focus(function (){
+				var startMax = $("#endTime").val();
+				startMax = (startMax.length != 0)? startMax:curTime;
+				WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false, minDate:minTime,maxDate:startMax});
+
+			});
+			$("#endTime").focus(function (){
+				var endMin = $("#startTime").val();
+				endMin = (endMin.length != 0)? endMin:minTime;
+				WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false,minDate:endMin,maxDate:curTime});
+			});
+			
+			$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+			
+			var msg = "${errMsg?default('')}";
+			if(msg.length > 0){
+				$.pay.alert(msg);
+			}
+		});
+		
+		function download() {
+			document.beRefundQueryForm.action = "${rc.contextPath}/corp/beRefundOrderQuery.htm?method=excelDownload";
+			document.beRefundQueryForm.submit();
+			document.beRefundQueryForm.action = "${rc.contextPath}/corp/beRefundOrderQuery.htm?method=onSubmit";
+		}
+		
+		String.prototype.trim=function()
+		{
+		    return this.replace(/(^\s*)(\s*$)/g,"");
+		}
+		
+		function check(){
+			var orderId = $("#orderId").val().trim();
+			if(orderId.length > 0){
+				if (!isNumber(orderId)) {
+					$.pay.alert('请输入正确的商户订单号 !', {
+						h : 160,
+						t : '3',
+						close:function(){$("#orderId").val("");$("#orderId").focus();}
+					});
+					return false;
+				}
+			}
+			
+			var startAmount = $("#startAmount").val().trim();
+			if(startAmount.length > 0){
+				if (!isAmount(startAmount)) {
+					$.pay.alert('退款开始金额输入有误  , 或者超出范围【0.00～99999999.99】!', {
+						h : 160,
+						t : '3',
+						close:function(){$("#startAmount").val("");$("#startAmount").focus();}
+					});
+					return false;
+				}
+			}
+			
+			var endAmount = $("#endAmount").val().trim();
+			if(endAmount.length > 0){
+				if (!isAmount(endAmount)) {
+					$.pay.alert('退款结束金额输入有误 , 或者超出范围【0.00～99999999.99】!', {
+						h : 160,
+						t : '3',
+						close:function(){$("#endAmount").val("");$("#endAmount").focus();}
+					});
+					return false;
+				}
+			}
+			
+			if (startAmount.length > 0 && endAmount.length > 0) {
+				if (startAmount - endAmount > 0) {
+					$.pay.alert('退款金额输入区间有误!', {
+						h : 160,
+						t : '3'
+					});
+					return false;
+				}
+			}
+		}
+		
+		function isAmount(val) {
+			var reg =  /^([1-9][\d]{0,7}|0)(\.[\d]{1,2})?$/; 
+			if(reg.test(val))
+				return true;
+			else 
+				return false;
+		}
+	</script>
+</head>
+<body>
+
+<!--导航 str-->
+<@sp.head mCode="corp_refund_order"/>
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container">
+	<div class="refund_list">
+		<div class="refund_title"> 
+			<!--tab str -->
+			<div class="mode_tit">
+				<h2><a href="${rc.contextPath}/corp/batchRefundOrderQuery.htm">批量退款查询</a></h2>
+				<h2><a href="${rc.contextPath}/corp/refundOrderQuery.htm">退款明细</a></h2>
+				<h2 class="sel"><a hre="javascript:void(0)">被退款查询</a></h2>
+			</div>
+			<!--tab str --> 
+		</div>
+		<!--查询 str-->
+		<div class="order_search">
+			<form class="form" action="${rc.contextPath}/corp/beRefundOrderQuery.htm?method=onSubmit" method="post" name="beRefundQueryForm" id="beRefundQueryForm">
+				<ul class="mt10">
+					<li>
+						<label class="side">时间：</label>
+						<input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate inp_normal" gtbfieldid="109" value="${startTime?default('')}">
+						<span>-</span>
+						<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate inp_normal" gtbfieldid="110" value="${endTime?default('')}"	/>
+			
+					</li>
+					<li>
+						<label class="side">退款金额：</label>
+						<input type="text" name="startAmount" id="startAmount" value="${startAmount!('')}" class="inp_normal w100">
+						<span>-</span>
+						<input type="text" name="endAmount" id="endAmount" value="${endAmount!('')}" class="inp_normal w100"> 元
+					</li>
+					<li>
+						<label class="side">商家订单号：</label>
+						<input type="text" class="inp_normal w150" name="orderId" id="orderId" value="<#if orderId?has_content>${orderId?string}</#if>">
+					</li>
+					
+					<li class="search_btn">
+						<label class="side"></label>
+						<span class="btnC">
+							<button type="submit" onClick="return check();">查 询</button>
+						</span>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<!--查询 end-->
+		
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title font14">查询结果</h3>
+					<a href="javascript:download()" class="reds fr"><#if orderDetails?has_content>下载查询结果</#if></a>
+				</div>
+				<div class="refund_box">
+					<div class="barg_table">
+					
+						<table>
+							<thead>
+									<tr>
+										<th>创建时间</th>
+											<th>交易流水号</th>
+											<th>原订单号</th>
+											<th>订单金额(元)</th>
+											<th>退款金额(元)</th>
+											<th>操作</th>
+									</tr>
+								</thead>
+							<tbody>
+								<#if orderDetails?has_content>
+							 		<#list orderDetails as ts>
+										<tr <#if ts_index%2==0> class="gray" </#if> >
+											<td>
+												<#if ts.createTime?default("")?length lt 19>
+													${ts.createTime?default("")}
+												<#else>
+													${ts.createTime[0..18]}
+												</#if>
+											</td>
+			   								<td>${ts.refundOrderID!('')}</td>
+											<td>${ts.orderID!('')}</td>
+											<td>${ts.orderAmount?string}</td>
+											<td>${ts.applyAmount?string}</td>
+											<td>
+												<a  class="blues" target="_blank" href="${rc.contextPath}/corp/beRefundOrderQuery.htm?method=showOrderDetail&refundId=${ts.refundOrderID!('')}">查看</a>
+											</td>
+										</tr> 
+									</#list>
+								</#if>
+								<!--<tr class="gray">-->
+							</tbody>
+						</table>
+					</div>
+					<div class="page_box">
+						<#if orderDetails?has_content>
+							<p>共<span class="blod">${count?default('')}</span>笔交易<i class="ml10"> 退款金额总计<span class="blod green">${refundTotalAmount?default('')}</span>元</i></p>
+						</#if>
+						<#if pu?exists>
+							<@sp.pagination pu=pu/>
+						</#if>
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

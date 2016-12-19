@@ -1,0 +1,458 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>支付链收款</title>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+<script type="text/javascript">
+	$(function(){
+		$(".go").click(function(){
+			//当前tbody
+			var $thisTb = $(this).parent("div").parent("td").parent("tr").parent("tbody") ;
+			var $preTb = $thisTb.prev("tbody") ;
+			//下一个需要展示tbody
+			var $nextTargetTb = $thisTb.next("tbody").next("tbody").next("tbody") ;
+			$thisTb.css("display", "none") ;
+			$preTb.find("tr").find("td").find("a").css("display", "block") ;
+			$nextTargetTb.removeAttr("style") ;
+		}) ;
+		$(".updateA").click(function(){
+			//alert("updateA11") ; 
+			//当前tbody
+			var $thisTb = $(this).parent("td").parent("tr").parent("tbody") ;
+			//额……干掉小辈兄弟a
+			var $prevUpdateA = $thisTb.nextAll("tbody").not(":last").has("a") ;
+			var $a = $prevUpdateA.find("a") ;
+			$a.css('display', 'none') ;
+			//下一个tbody
+			var $nextTb = $thisTb.next("tbody") ;
+			$(this).css('display', 'none') ;
+			var $thisTbPrevs = $thisTb.prevAll("tbody") ;
+			$thisTbPrevs.each(function(n, o){
+				if($(o).hasClass("show_or_hide")){
+					$(o).css('display', 'none') ;
+				}
+			}) ;
+			var $thisTbNexts = $thisTb.nextAll("tbody") ;
+			$thisTbNexts.each(function(n, o){
+				if($(o).hasClass("show_or_hide")){
+					$(o).css('display', 'none') ;
+				}
+			}) ;
+			$nextTb.removeAttr("style") ;
+		}) ;
+		//使用账单信息作为收货信息
+		
+	}); 
+	
+</script>
+</head>
+<body>
+<!--导航 str-->
+<div class="header" style="margin-top:5px;margin-right:400px;margin-left:400px;margin-bottom:20px;">
+		<div style="float:left;">
+			<img src="/static/mps/images/logo.png" alt="">
+		</div>
+        <div style="flat:left;width:150px;margin-top: 13px;float: left;font-size: 20px;color: #333;margin-left:20px;font-weight:bold;">
+        	支付链接收款
+        </div>
+        <div class="fr p5 c_999">
+            <label class="blue mr10">
+				<!-- admin
+			 您好！ -->
+		</label>
+        <!-- <a href="/website/logout.htm?mtype=2">退出</a> |  -->
+        </div>
+        <div style="clear:both;"></div>
+</div>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a mt5">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg orderScs">
+			
+			<div class="tit_box">
+				<h3 class="title f14">支付链收款</h3>
+			</div>
+
+			<form class="form" action="${rc.contextPath}/corp/paylink.htm?method=payLinkInvalid" method="post" name="" id="">
+				<input type="hidden" name="toPage" id="toPage"/>
+				<input type="hidden" name="payLinkNo" id="payLinkNo" value="${payLinkNo!('')}"/>
+				<table class="tab03">
+					<tbody>
+						<br/>
+						<tr>
+							<td colspan="4" style="background-color:#F1F1F1;text-align:left;" >
+								seller：商户网址
+							</td>
+							<td colspan="2" style="background-color:#F1F1F1;text-align:right;" >
+								<font style="color:red;font-size:18px;font-weight:bold;">0.12</font>&nbsp;USD
+							</td>
+						</tr>
+						<tr>
+							<td>商品名称</td>
+							<td>商品规格</td>
+							<td>数量</td>
+							<td>商品单价</td>
+							<td>交易币种</td>
+							<td>商品展示网址</td>
+						</tr>
+						<#if payLinkAttribs ? has_content>
+							<#list payLinkAttribs as attrib>
+								<tr>
+									<td>${attrib.productName!('')}</td>
+									<td>${attrib.productSpec!('')}</td>
+									<td>${attrib.productNum?default(0)}</td>
+									<td>${attrib.price!(0)}</td>
+									<td>${attrib.currencyCode!('')}</td>
+									<td>${attrib.site!('')}</td>
+								</tr>
+							</#list>
+						</#if>
+						<tr>
+							<td colspan="6" style="border:0px;"></td>
+						</tr>
+					</tbody>
+					
+					<tbody>
+						<tr>
+							<td colspan="4" style="border-right:0px;background-color:#F1F1F1;text-align:left;" >
+								step1：账单信息
+							</td>
+							<td colspan="2" style="border-left:0px;background-color:#F1F1F1;text-align:left;">
+								 <a href="javascript:void(0);" style="color:#2850FA;display:none;" class="updateA">修改&nbsp;》》</a> 
+							</td>
+						</tr>
+					</tbody>
+					<tbody class="show_or_hide">
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单名：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单姓：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单地址：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单邮编：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单国家：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单州省：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单城市：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单电话：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单邮箱：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td colspan="4" style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color:red;">请填写真实有效的邮箱信息，我们会把您订单完成结果发送至该邮箱。</font></div>
+							</td>
+							<td colspan="2" style="border:0px;padding-left:10px;">
+								<div align="left"><input type="button" value="继  续" class="go"/></div>
+							</td> 
+						</tr>
+					</tbody>
+					
+					<tbody><tr><td style="border:0px;"></td></tr></tbody>
+					<tbody>
+						<tr>
+							<td colspan="4" style="border-right:0px;background-color:#F1F1F1;text-align:left;" >
+								step2：收货信息
+							</td>
+							<td colspan="2" style="border-left:0px;background-color:#F1F1F1;text-align:left;">
+								 <a href="javascript:void(0);" style="color:#2850FA;display:none;" class="updateA">修改&nbsp;》》</a> 
+							</td>
+						</tr>
+					</tbody>
+					<tbody style="display:none;" class="show_or_hide">
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;text-align:left;">
+								<input type="checkbox" name="" id="" /><font style="color:red;">使用账单信息作为收货信息</font>
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货名：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货姓：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货地址：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货邮编：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货国家：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货州省：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货城市：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>账单电话：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>收货邮箱：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="2" style="border:0px;"></td>
+							<td colspan="2" style="border:0px;text-align:left;">
+								<div><input type="button" value="继  续" class="go"/></div>
+							</td>
+						</tr>
+					</tbody>
+					
+					<tbody><tr><td style="border:0px;"></td></tr></tbody>
+					<tbody>
+						<tr>
+							<td colspan="4" style="border-right:0px;background-color:#F1F1F1;text-align:left;" >
+								step3：支付方式
+							</td>
+							<td colspan="2" style="border-left:0px;background-color:#F1F1F1;text-align:left;">
+								 <a href="javascript:void(0);" style="color:#2850FA;display:none;" class="updateA">修改&nbsp;》》</a> 
+							</td>
+						</tr>
+					</tbody>
+					<tbody style="display:none;" class="show_or_hide">
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;text-align:left;">
+								<font style="color:red;">请填写该订单的支付信息</font>
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;">We Accept:</td>
+							<td style="border:0px;">
+								<img src="<@sp.static/>/img/paylink/visa.png" alt="image not found"/>
+							</td>
+							<td style="border:0px;">
+								<img src="<@sp.static/>/img/paylink/master.png" alt="image not found"/>
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>Card Number:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="" id="" />
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>Expiration Date:</td>
+							<td style="border:0px;text-align: left">
+								<select name="month" id="">
+									<option value="">Month</option>
+									<option value="">1</option>
+									<option value="">2</option>
+									<option value="">3</option>
+									<option value="">4</option>
+									<option value="">5</option>
+									<option value="">6</option>
+									<option value="">7</option>
+									<option value="">8</option>
+									<option value="">9</option>
+									<option value="">10</option>
+									<option value="">11</option>
+									<option value="">12</option>
+								</select>
+								<select name="year" id="">
+									<option value="">Year</option>
+									<option value="">2015</option>
+									<option value="">2016</option>
+									<option value="">2017</option>
+									<option value="">2018</option>
+									<option value="">2019</option>
+									<option value="">2020</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>CVV2 Code:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="" id="" />
+							</td>
+							<td colspan="2" style="border:0px;"></td>
+							<td colspan="2" style="border:0px;text-align:left;">
+								<div><input type="button" value="继  续" class="go"/></div>
+							</td>
+						</tr>
+					</tbody>	
+					
+					<tbody><tr><td style="border:0px;"></td></tr></tbody>
+					<tbody>
+						<tr>
+							<td colspan="6" style="background-color:#F1F1F1;text-align:left;" >
+								step4：确认订单
+							</td>
+						</tr>
+					</tbody>
+					<tbody style="display: none;" class="show_or_hide">
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;text-align:left;">
+								<font style="color:red;">请填写该订单的支付信息</font>
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;padding-left:10px;">商品总价：</td>
+							<td style="border:0px;text-align: left;">
+								<font>0.12</font>
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;padding-left:10px;">其他费用：</td>
+							<td style="border:0px;text-align: left;">
+								<font>1.00</font>
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;padding-left:10px;">总计：</td>
+							<td style="border:0px;text-align: left;">
+								<font>1.12</font>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;">
+								我已经阅读该&nbsp;&nbsp;<a href="javascript:void(0);" style="color:#0000FF;">政策和条款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="checkbox" name="" id="" />
+							</td>
+							<td colspan="4" style="border:0px;text-align: left;">
+								<input type="button" value="提交支付并完成订单" class="btn_blue" style="width:184px;"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+<#-- <#include "/include/myfoot.html"> -->
+</body>
+</html>

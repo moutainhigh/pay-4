@@ -1,0 +1,353 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付-提现</title>
+<#include "/common/macro/seoPerson.ftl">
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/person/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8">
+
+	var supportWithdraw = "0";
+	
+	var singleAmount = parseFloat('${(command.singleLimitAmount?default(0))}');
+	var balance = parseFloat('${command.currentBanlance?default(0)}');
+	var dayLimitAmount = parseFloat('${command.dayLimitAmount?default(0)}');
+	var monthLimitAmount = parseFloat('${command.monthLimitAmount?default(0)}');
+	var currentDayAmount = parseFloat('${command.TodayPaymentAmount?default(0)}');
+	var currentMonthAmount = parseFloat('${command.currentMonthPaymnetAmount?default(0)}');
+
+	function validate(){
+		if($("#payeeBankAcctCode").val() == ""){
+			$("#tipDate").show();
+			$("#tipBank").html("请选择提现银行账户");
+			return false;
+		}
+		if(supportWithdraw == "0") {
+			return false;
+		}
+		if($("#requestAmount").val() == ''){
+			$("#requestAmountTip").text("请输入提现金额");
+			return false;
+		}
+
+		var re = /^[0-9]+.?[0-9]*$/;
+		var re2 = /^\d+\.\d{1,2}$/;
+		if (!re.test($("#requestAmount").val()) || parseFloat($("#requestAmount").val())=='0') {    
+			$("#requestAmountTip").text("请输入正确的提现金额");
+			return false;
+		}
+		if($("#requestAmount").val().indexOf('.')>0) {
+			if (!re2.test($("#requestAmount").val())) {    
+				$("#requestAmountTip").text("请输入正确的提现金额");
+				return false;
+			}
+		}
+		if($("#requestAmount").val().indexOf('0')==0) {
+			if($("#requestAmount").val().indexOf('.') != 1) {
+					$("#requestAmountTip").text("请输入正确的提现金额");
+					return false;
+			} 
+		}
+
+		//增加出款渠道网银限额约束
+		$.ajaxSetup({ 
+			async: false 
+		});
+		var city = $("#payeeBankAcctCode").find("option:selected").attr("data-city");
+		var bankName = $("#payeeBankAcctCode").find("option:selected").attr("data-l");
+		var url="${rc.contextPath}/app/withdraw.htm";
+		var passStatus = true;
+		var data="method=checkFundAmountLimit&bankCode="+$("#payeeBankCode").val()+"&requestAmount="+$("#requestAmount").val()+"&city="+city;
+		$.post(url, data, function(res){
+			if(res != ""){
+				$("#requestAmountTip").html(bankName + "付款限额为" + res + "元，您已超过单笔付款限额");
+				passStatus = false;
+			}
+		});
+		if(!passStatus){
+			return false;
+		}
+		//结束
+
+		
+		var paymentAmount =parseFloat($("#requestAmount").val());
+		
+		var maxlimitStr = $("#maxLimitStr").val();
+
+		
+		if (paymentAmount > singleAmount) {
+			$("#requestAmountTip").text('单笔最多付款'+maxlimitStr+'元');
+			return false;
+		}
+
+	    var _currentDayAmount =	currentDayAmount+ paymentAmount;
+		var _currentMonthAmount = currentMonthAmount+ paymentAmount;
+		if(monthLimitAmount-currentMonthAmount>dayLimitAmount-currentDayAmount){
+			if(_currentDayAmount>dayLimitAmount){
+				$("#requestAmountTip").text('每日最多付款'+$("#dayLimitAmountStr").val()+'元，您今天最多还可以付款'+$("#allowPaymentAmountStr").val()+'元');
+				return false;
+			}
+		}else{
+		
+			if(_currentMonthAmount>monthLimitAmount){
+				$("#requestAmountTip").text('每月最多付款'+$("#monthLimitAmountStr").val()+'元，您今天最多还可以付款'+$("#allowPaymentAmountStr").val()+'元');
+				return false;
+			}
+		}
+
+		
+		if (paymentAmount> balance) {
+			document.getElementById("requestAmountTip").innerHTML="超过当前可用余额";
+			return false;
+		}
+		return true;
+	}
+	
+	function applyWithdraw(){
+		
+		if(!validate())
+			return false;
+
+		$("#withdraw_submit").attr("disabled", true);
+		$("#applyWithdrawForm").submit();
+		
+	}
+	
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3'
+	      });
+	}
+
+	$(function(){$('#requestAmount').keypress(function(e){
+		if(e.which == 8 ||e.which == 0 )return true;
+		if(((e.which >= 45 && e.which <= 57) && e.ctrlKey == false && e.shiftKey == false) || e.which == 0 || e.which == 8) {
+			if(e.which == 45){
+				return false;
+			} else if(e.which == 46){
+				if($(this).val().indexOf(".") == -1 && $(this).val().length !=0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			return true;
+		} 
+		return false;
+	}).bind("paste",function(){return false;}).css({'imeMode':"disabled",'-moz-user-select':"none"}).blur(function(){
+		if(!validate())
+			return false;
+	});
+	
+		$("#payeeBankAcctCode").change(function(e) {
+			if($("#payeeBankAcctCode").val() !=""){
+				$("#tipDate").show();
+				$.ajax({
+					type:"GET",
+					url:"${rc.contextPath}/app/withdraw.htm?method=getWithdrawChannel&targetBankId=" + $("#payeeBankAcctCode option:selected").attr("data-c") + "&date=" + new Date(),
+					dataType:"JSON",
+					success:function(data){
+			           if(data == "1") {
+							supportWithdraw = "1";
+							$("#tipBank").text("到账日期一般在2-3个工作日");
+							$("#payeeBankName").val($("#payeeBankAcctCode option:selected").attr("data-l"));
+							$("#payeeBankCode").val($("#payeeBankAcctCode option:selected").attr("data-c"));
+							$("#payeeOpeningBankName").val($("#payeeBankAcctCode option:selected").attr("data-o"));
+							$("#payeeBankProvince").val($("#payeeBankAcctCode option:selected").attr("data-p"));
+							$("#payeeBankCity").val($("#payeeBankAcctCode option:selected").attr("data-city"));
+							$("#payeeName").val($("#payeeBankAcctCode option:selected").attr("data-name"));
+							$("#validateCode").val($("#payeeBankAcctCode option:selected").attr("data-h"));
+							
+			           }else {
+							supportWithdraw = "0";
+							$("#tipBank").text("暂不支持提现到" + $("#payeeBankAcctCode option:selected").attr("data-l"));
+			           }
+					}
+				}); 
+			}else {
+				$("#tipDate").hide();
+			}
+		});
+
+		$("#requestAmount").hover(
+		  function () {
+		    $(this).addClass("inp_hover");
+		  },
+		  function () {
+		    $(this).removeClass("inp_hover");
+		  }
+		).focus(function () {
+		    $(this).addClass("inp_select");
+		}).blur(function(){ 
+			$(this).removeClass("inp_select");
+		});
+		//计算手续费
+		$("#requestAmount").blur(function(){
+			
+			if($("#requestAmount").val() == ''){
+				return;
+			}
+			var _requestAmount = parseFloat($("#requestAmount").val());
+			var data = {"method":"caculateFee","requestAmount":_requestAmount};
+			$("#requestAmountTip").html("");
+			jQuery.post("${rc.contextPath}/app/withdraw.htm?date="+new Date(),data,function(response){
+				var obj;
+				if(""!=response){
+					obj = eval("("+response+")");
+					$("#requestFee").html(obj.feeStr);
+					$("#fee").val(obj.fee);
+					if(obj.balance<0){
+						$("#requestAmountTip").html("超过当前可用余额");
+					}
+				}
+				
+			});
+		});
+	
+	});
+	
+	
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="app_withdraw"/> 
+
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div> 
+		<!--str-->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><strong>申请提现</strong></h3>
+					<a class="red ml20" href="${rc.contextPath}/app/withdrawinfodetail.htm?method=queryPersonWithdrawDetailList">充提记录</a><!--  | <a class="red" href="${rc.contextPath}/help.htm?method=helpCheckouts&securityType=3">使用遇到问题？</a> -->
+				</div>
+				<div class="step">
+					<ol class="step-1">
+						<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+						<li class="li-1 last"><span><i>1</i>申请提现</span> </li>
+						<li class="li-2 last"><i>2</i>提现确认</li>
+						<li class="li-3 last"><span><i>3</i>申请提交</span></li>
+					</ol>
+				</div>
+				<div class="ico_txtBox mt5"><i class="warn_ico"></i>
+				
+					<p>本服务不收取手续费用，每日最多提现${command.dayLimitAmountStr?default("0.00")}元。</p>
+				</div>
+				<form class="mod_form pad_center" action="${rc.contextPath}/app/withdraw.htm" method="post" name="applyWithdrawForm" id="applyWithdrawForm">
+					<ul class="form_list form_f400">
+						<li>
+							<label class="form_side">可提现余额：</label>
+							<strong class="red font14">${command.currentBanlanceStr?default("0.00")}</strong> 元 （您今日还可以提现 <strong class="red">${command.allowPaymentTimes?default(0)}</strong> 次）
+						</li>
+						<li>
+							<label class="form_side2">选择提现银行账户：</label>
+							<p><select class="inp_normal" id="payeeBankAcctCode" name="payeeBankAcctCode" >
+								<option value="" id="de">请选择</option>
+								<#list bankList as bl>
+									<#assign startIndex = (bl.bankAcctId?length)-4>
+									<#assign endIndex = bl.bankAcctId?length>
+									<option id="${bl.id}" 
+									 	data-l="${bl.bankName}" 
+									 	data-c="${bl.bankId}" 
+									 	data-o="${bl.branchBankName}"
+									 	data-p="${bl.province}"
+									 	data-city="${bl.city}"
+									 	data-name="${bl.name}"
+									 	data-h="${bl.validateCode}"
+									 	<#if bl.isPrimaryBankacct==1>selected="selected"</#if>
+									 	value="${bl.bankAcctId}">${bl.bankName}（****${bl.bankAcctId?substring(startIndex,endIndex)}）</option>
+								</#list>
+							</select>
+							<a class="red ml10" href="${rc.contextPath}/app/checkBankCard.htm?method=checkBankCard">添加银行账户</a> <span>（您还可以添加 <strong class="red">${10-bankList?size}</strong> 个）</span>
+							</p>
+							<div id="tipDate"  style="display:none;" class="bank_tips">
+								<p id="tipBank">到账日期一般在2-3个工作日</p>
+								<span class="arrow_t"></span> <span class="arrow_t_inner"></span>
+							</div>
+							<input type="hidden" id="payeeBankCode" name="payeeBankCode" value="${command.payeeBankCode?default('')}">
+							<input type="hidden" id="payeeBankName" name="payeeBankName" value="${command.payeeBankName?default('')}">
+						    <input type="hidden" id="payeeOpeningBankName" name="payeeOpeningBankName" value="${command.payeeOpeningBankName?default('')}">
+						    <input type="hidden" id="payeeBankProvince" name="payeeBankProvince" value="${command.payeeBankProvince?default('')}">
+						    <input type="hidden" id="payeeBankCity" name="payeeBankCity" value="${command.payeeBankCity?default('')}">
+						    <input type="hidden" id="validateCode" name="validateCode" value="${command.validateCode?default('')}">
+						    <input type="hidden" id="payeeName" name="payeeName" value="${command.payeeName?default('')}">
+						</li>
+						<li>
+							<label class="form_side2">提现金额：</label>
+							<input type="text" class="inp_normal" name="requestAmount" id="requestAmount" value="${requestAmount?default('')}"> 元  &nbsp;&nbsp;&nbsp;
+							<span id="requestAmountTip" class="red"></span>
+						</li>
+						<li>
+							<label class="form_side">手续费：</label>
+							<strong id="requestFee" class="red font14">0.00</strong> 元
+						</li>
+						<!-- 
+						<li class="s_space"><input id="isRemark" name="isRemark" type="checkbox">添加备注</li>
+						<li id="remarkArea" style="display:none;">
+							<label class="form_side">备注：</label>
+							<textarea class="inp_normal w250 v_b" rows="" cols="" id="withdrawRemark" name="withdrawRemark">${withdrawRemark?default('')}</textarea>
+							<span class="c_999" id="custRemark">最多50个汉字/100个字母</span></li>
+							 -->
+						<li cllass="btn"><span class="btn_yel">
+							<button  type="button" onclick="return applyWithdraw();" id="withdraw_submit" name="withdraw_submit" tabindex="11" <#if command.allowPaymentTimes?default(0)&lt;=0> disabled="disabled"</#if> >下一步</button>
+							</span></li>
+					</ul>
+					<input type="hidden" id="method" name="method" value="confirm">
+	    			<input type="hidden" id="singleLimitAmount" name="singleLimitAmount" value="${command.singleLimitAmount?default(0)}" >
+	    			<input type="hidden" id="maxLimitStr" name="maxLimitStr" value="${command.singleLimitAmountStr?default('0.00')}" >
+	    			<input type="hidden" id="dayLimitAmountStr" name="dayLimitAmountStr" value="${command.dayLimitAmountStr?default('0.00')}"  >
+	    			<input type="hidden" id="monthLimitAmountStr" name="monthLimitAmountStr" value="${command.monthLimitAmountStr?default('0.00')}"  >
+	    			<input type="hidden" id="allowPaymentAmountStr" name="allowPaymentAmountStr" value="${command.allowPaymentAmount?default('0.00')}"  >
+	    			<input type="hidden" id="currentBanlance" name="currentBanlance" value="${command.currentBanlance?default(0)}" >
+	                 <input type="hidden" id="token" name="token" value="${token?default('')}">
+					<input type="hidden" id="fee" name="fee">
+				</form>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		
+		<!--end --> 
+	</div>
+<!--主内容 end --></div>
+<!--footer -->
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		$("#payeeBankAcctCode").change();
+	});
+
+<#if message?exists>
+	var message = '${message}';
+	if(''!=message&&null!=message){
+		$.pay.alert(message, {
+			h : 160,
+			w : 450,
+			t : '3',
+			close:function(){
+			$("#withdraw_submit").focus();
+			$("#withdraw_submit").attr("disabled", false);
+		}});
+	}
+</#if>
+</script>
+<#include "/common/include/footer.html">
+</html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd"
+	default-lazy-init="true">
+
+	<!-- 通用订单回调服务 -->
+	<bean id="fundout-withdraw-commonOrderCallBack"
+		class="com.pay.poss.external.service.ordercallback.AbstractOrderCallBackServiceImpl"
+		abstract="true">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+		<property name="failHandler" ref="fundout-orderchandler-failProcHandler"></property>
+		<property name="backFundingInnerService" ref="fundout-withdraw-backFundingInnerService"></property>
+	</bean>
+
+	<!-- 出款订单后处理服务 -->
+	<bean id="fundout-orderchandler-orderAfterProcService"
+		class="com.pay.poss.service.withdraw.orderafterproc.impl.WithdrawOrderAfterProcessServcieImpl">
+	</bean>
+
+	<!-- 订单处理内部退款服务 -->
+	<bean id="fundout-withdraw-backFundingInnerService"
+		class="com.pay.poss.external.service.innerback.impl.DefaultBackFundingInnerServiceImpl"
+		parent="fundout-withdraw-abstractAccounting">
+		<property name="orderDaoService" ref="fundout-withdraw-backFundingOrderDaoService"></property>
+		<property name="failHandler" ref="fundout-orderchandler-failProcHandler"></property>
+	</bean>
+
+	<bean id="fundout-withdraw-backFundingOrderDaoService"
+		class="com.pay.poss.external.service.innerback.impl.BackFundingOrderDaoServiceImpl">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+	</bean>
+
+	<!-- 订单处理失败处理器 -->
+	<bean id="fundout-orderchandler-failProcHandler"
+		class="com.pay.poss.service.withdraw.orderafterproc.impl.OrderAfterFailProcAlertHandler">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+	</bean>
+	<!-- 临时记账处理map的Bean -->
+	<bean id="fundout-withdraw-accounting-temp-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<!-- 华夏银行 -->
+		     	<entry key="300">
+		     		<value>130310001</value>
+		     	</entry>
+		     	<!-- 兴业银行 -->
+		     	<entry key="340">
+		     		<value>090310001</value>
+		     	</entry>
+		     	<!-- 农行 -->
+		     	<entry key="140">
+		     		<value>020310001</value>
+		     	</entry>
+		     	<!-- 建行-->
+		     	<entry key="160">
+		     		<value>040310001</value>
+		     	</entry>
+		     	<!-- 东亚-->
+		     	<entry key="600">
+		     		<value>080310001</value>
+		     	</entry>
+		     	<!-- 中国工商银行-->
+		     	<entry key="100">
+		     		<value>010310001</value>
+		     	</entry>		     	
+		     	<!-- 上海浦东发展银行-->
+		     	<entry key="995">
+		     		<value>120310001</value>
+		     	</entry>
+		     	<entry key="180">
+		     		<value>110310001</value>
+		     	</entry>
+		     	<entry key="120">
+		     		<value>060310001</value>
+		     	</entry>
+		     	<entry key="360">
+		     		<value>150310001</value>
+		     	</entry>
+		     	<entry key="200">
+		     		<value>030310001</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+</beans>

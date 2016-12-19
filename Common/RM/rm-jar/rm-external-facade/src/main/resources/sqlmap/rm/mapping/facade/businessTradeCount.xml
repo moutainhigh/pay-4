@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="businessTradeCount">
+	<typeAlias alias="businessTradeCount" type="com.pay.rm.facade.model.BusinessTradeCount"/>
+    <resultMap id="businessTradeCountResult" class="businessTradeCount">
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR"/>
+        <result column="YEAR" property="year" jdbcType="VARCHAR"/>
+        <result column="MONTH" property="month" jdbcType="VARCHAR"/>
+        <result column="DAY" property="day" jdbcType="VARCHAR"/>
+        <result column="YEAR_AMOUNT" property="yearAmount" jdbcType="VARCHAR"/>
+        <result column="MONTH_AMOUNT" property="monthAmount" jdbcType="VARCHAR"/>
+        <result column="DAY_AMOUNT" property="dayAmount" jdbcType="VARCHAR"/>
+        <result column="YEAR_COUNT" property="yearCount" jdbcType="VARCHAR"/>
+        <result column="MONTH_COUNT" property="monthCount" jdbcType="VARCHAR"/>
+        <result column="DAY_COUNT" property="dayCount" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="VARCHAR"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <select id="findBTCountBybtc" resultMap="businessTradeCountResult"
+        parameterClass="businessTradeCount">
+        SELECT * FROM RC_BUSINESS_TRADE_COUNT
+        WHERE  MEMBER_CODE=#memberCode# and YEAR=#year# and MONTH=#month#
+        order by DAY
+    </select>
+    
+    <select id="findBTCountByMap" resultMap="businessTradeCountResult"
+        parameterClass="java.util.HashMap">
+        SELECT * FROM RC_BUSINESS_TRADE_COUNT
+        WHERE  MEMBER_CODE=#memberCode# and YEAR=#year# and MONTH=#month#
+        order by DAY 
+    </select>
+    
+    <insert id="createBTCount">
+         insert into RC_BUSINESS_TRADE_COUNT(MEMBER_CODE,YEAR,MONTH,DAY,YEAR_AMOUNT
+                       ,MONTH_AMOUNT,DAY_AMOUNT,YEAR_COUNT,MONTH_COUNT,DAY_COUNT,CREATE_TIME,UPDATE_TIME)
+                       values(#memberCode#,#year#
+                              ,#month#,#day#,
+                              #yearAmount#,#monthAmount#
+                              ,#dayAmount#,#yearCount#,#monthCount#,#dayCount#,sysdate,#updateTime#)
+    </insert>
+    
+    <update id="updateBTC" parameterClass="java.util.HashMap">
+           update RC_BUSINESS_TRADE_COUNT set  MONTH_COUNT=#monthCount#,DAY_COUNT=#dayCount#
+           				,YEAR_COUNT=#yearCount#,YEAR_AMOUNT=#yearAmount#,MONTH_AMOUNT= #monthAmount#,DAY_AMOUNT = #dayAmount#
+                                           where YEAR=#year# and MONTH=#month# and DAY=#day# and MEMBER_CODE=#memberCode#
+    </update>
+    
+</sqlMap>

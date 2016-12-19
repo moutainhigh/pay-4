@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout-withdraw-repairmassPay2Acct-Service"
+		class="com.pay.fundout.withdraw.service.orderconsistency.impl.RepairMassPay2AcctOrderServiceImpl">
+		<property name="batchPaymentToAcctReqDetailService" ref="fo-order-batchPaymentToAcctReqDetailService"/>
+		<property name="logService" ref="fundout-operatorlog-operatorlogService"/>
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"/>
+	</bean>
+
+	<bean id="fundout-withdraw-massPay2Acct-consistency-Service"
+		class="com.pay.fundout.withdraw.service.orderconsistency.impl.BatchPay2AccountConsistencyServiceImpl">
+		<property name="massPayImpFileRecConsDao" ref="fundout-masspay2acctconsistency-dao"></property>
+		<property name="repMaP2AcctOrderService" ref="fundout-withdraw-repairmassPay2Acct-Service"></property>
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"/>
+	</bean>
+</beans>

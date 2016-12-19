@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acctAttrib">
+    <typeAlias alias="acctAttrib" type="com.pay.base.model.AcctAttrib"/>
+   <typeAlias alias="pseudoAcct" type="com.pay.base.model.PseudoAcct"/>
+
+	<select id="checkPaymentPwd" parameterClass="java.util.Map" resultClass="acctAttrib">
+	   <![CDATA[
+     		select 
+       		ACCT_CODE				as acctCode, 
+       		ALLOW_DEPOSIT			as allowDeposit,     		
+       		ALLOW_WITHDRAWAL		as allowWithdrawal,
+            ALLOW_TRANSFER_IN		as allowTransferIn, 
+            ALLOW_TRANSFER_OUT		as allowTransferOut, 
+            ALLOW_IN				as allowIn, 
+            ALLOW_OUT				as allowOut, 
+            DESCRIPTION				as description,
+            FROZEN					as frozen,  
+            MEMBER_CODE				as memberCode, 
+            DEF_REC_ACCT 			as defRecAcct, 
+           	CUR_CODE				as curCode,
+           	PAY_PWD					as payPwd, 
+           	CREATE_DATE				as createDate,
+           	UPDATE_DATE				as updateDate,
+           	ACCT_LEVEL				as acctLevel,
+           	BALANCE_BY				as balanceBy,
+           	PAY_ABLE				as payAble,
+           	ALLOW_OVERDRAFT			as allowOverdraft,
+           	NEED_PROTECT			as needProtect,
+           	MANAGERABLE				as managerable,
+           	ACCT_TYPE				as acctType,
+           	MEMBER_ACCT_CODE		as memberAcctCode,
+           	SUBJECT_CODE			as subjectCode,
+           	BEAR_INTEREST			as bearInterest
+    	from 
+    		T_ACCT_ATTRIB 
+    	where 
+    		MEMBER_CODE = #memberCode#
+    		AND
+    		PAY_PWD  = #paymentPwd#
+      ]]>    
+	</select>
+    
+    <select id="queryAcctAttribByAcctCode" resultClass="acctAttrib" parameterClass="java.lang.String">
+     <![CDATA[
+     		select 
+       		ACCT_CODE				as acctCode, 
+       		ALLOW_DEPOSIT			as allowDeposit,     		
+       		ALLOW_WITHDRAWAL		as allowWithdrawal,
+            ALLOW_TRANSFER_IN		as allowTransferIn, 
+            ALLOW_TRANSFER_OUT		as allowTransferOut, 
+            ALLOW_IN				as allowIn, 
+            ALLOW_OUT				as allowOut, 
+            DESCRIPTION				as description,
+            FROZEN					as frozen,  
+            MEMBER_CODE				as memberCode, 
+            DEF_REC_ACCT 			as defRecAcct, 
+           	CUR_CODE				as curCode,
+           	PAY_PWD					as payPwd, 
+           	CREATE_DATE				as createDate,
+           	UPDATE_DATE				as updateDate,
+           	ACCT_LEVEL				as acctLevel,
+           	BALANCE_BY				as balanceBy,
+           	PAY_ABLE				as payAble,
+           	ALLOW_OVERDRAFT			as allowOverdraft,
+           	NEED_PROTECT			as needProtect,
+           	MANAGERABLE				as managerable,
+           	ACCT_TYPE				as acctType,
+           	MEMBER_ACCT_CODE		as memberAcctCode,
+           	SUBJECT_CODE			as subjectCode,
+           	BEAR_INTEREST			as bearInterest
+    	from 
+    		T_ACCT_ATTRIB 
+    	where 
+    		ACCT_CODE = #acctCode#
+      ]]>    
+    </select>
+    
+    <insert id="insertBatchAcctAttrib" parameterClass="acctAttrib">
+        insert into
+        T_ACCT_ATTRIB
+        (
+       		ACCT_CODE,				
+       		ALLOW_DEPOSIT,			     		
+       		ALLOW_WITHDRAWAL,		
+            ALLOW_TRANSFER_IN,		
+            ALLOW_TRANSFER_OUT,		 
+            ALLOW_IN		,		
+            ALLOW_OUT,				
+            DESCRIPTION	,			
+            FROZEN		,			
+            MEMBER_CODE		, 
+            DEF_REC_ACCT 	, 
+           	CUR_CODE		,
+           	PAY_PWD			, 
+           	CREATE_DATE		,
+           	UPDATE_DATE		,
+           	ACCT_LEVEL		,
+           	BALANCE_BY		,
+           	PAY_ABLE		,
+           	ALLOW_OVERDRAFT		,
+           	NEED_PROTECT	,
+           	MANAGERABLE		,
+           	ACCT_TYPE,
+           	MEMBER_ACCT_CODE	,
+           	SUBJECT_CODE	,
+           	BEAR_INTEREST	
+		 )
+        values
+        (
+				#acctCode#,
+				#allowDeposit#,
+				#allowWithdrawal#,
+				#allowTransferIn#,
+				#allowTransferOut#,
+				#allowIn#,
+				#allowOut#,
+				#description#,
+				#frozen#,
+				#memberCode#,
+				#defRecAcct#,
+				#curCode#,
+				#payPwd#,
+				#createDate#,
+				#updateDate#,
+				#acctLevel#,
+				#balanceBy#,
+				#payAble#,
+				#allowOverdraft#,
+				#needProtect#,
+				#managerable#,
+				#acctType#,
+				#memberAcctCode#,
+				#subjectCode#,
+				#bearInterest#
+        )
+    </insert>
+    
+    
+   <update id="updateAcctAttribPwd" parameterClass="java.util.Map" > 
+        UPDATE 
+    		T_ACCT_ATTRIB 
+    	SET 
+    		PAY_PWD 	= #newPayPwd#
+    	where 1=1 
+        <isNotNull prepend="and" property="memberCode">
+             MEMBER_CODE = #memberCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="acctCode">
+            ACCT_CODE  	= #acctCode#
+        </isNotNull>
+    </update>
+    <!-- 构造伪账户 -->
+    <select id="queryAcctCurrencyByMemberCode" parameterClass="java.lang.Long" resultClass="pseudoAcct">
+		<!-- select       
+		distinct        
+			cur_code as currency,        
+			TO_DATE(t.CREATE_DATE, 'YYYY-MM-DD') as createDate      
+		from 
+			T_ACCT_ATTRIB t 
+		where t.MEMBER_CODE =#memberCode# order by TO_DATE(createDate, 'YYYY-MM-DD') asc    --> 
+		select 
+			DISTINCT t.cur_code as currency, MIN(t.CREATE_DATE) as createDate 
+		from 
+			T_ACCT_ATTRIB t 
+		where 
+			t.MEMBER_CODE = #memberCode# GROUP by t.CUR_CODE ORDER BY MIN(t.CREATE_DATE) asc 
+    </select>
+</sqlMap>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="countryCurrency">
+	<typeAlias alias="countryCurrency" type="com.pay.dcc.model.CountryCurrency" />
+
+	<resultMap id="countryCurrencyResult" class="countryCurrency">
+		<result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="COUNTRY_CODE" property="countryCode" jdbcType="VARCHAR" />
+		<result column="COUNTRY_NAME" property="countryName" jdbcType="VARCHAR" />
+		<result column="CURRENCY_CODE" property="currencyNumber" jdbcType="VARCHAR" />
+		<result column="CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<select id="findCardBinById" resultMap="countryCurrencyResult"
+		parameterClass="java.lang.Long">
+        select * from COUNTRY_CURRENCY where ID=#id#
+	</select>
+	
+	<select id="findByCountryCode" resultMap="countryCurrencyResult"
+		parameterClass="java.lang.String">
+		select * from COUNTRY_CURRENCY where COUNTRY_CODE=#countryCode#
+	</select>
+
+	<select id="findByCriteria" resultMap="cardBinInfoResult">
+		select * from COUNTRY_CURRENCY where 1=1
+		<isNotEmpty prepend="AND" property="country_code">
+			COUNTRY_CODE = #countryCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="currencyCode">
+			CURRENCY_CODE = #currencyCode#
+		</isNotEmpty>
+	</select>
+	
+	<select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+		select count(*) from COUNTRY_CURRENCY where 1=1
+		<isNotEmpty prepend="AND" property="country_code">
+			COUNTRY_CODE = #countryCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="currencyCode">
+			CURRENCY_CODE = #currencyCode#
+		</isNotEmpty>
+    </select>	
+</sqlMap>

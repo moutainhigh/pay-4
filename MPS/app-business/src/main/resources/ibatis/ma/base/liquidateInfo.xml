@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="liquidateInfo">
+		<typeAlias alias="liquidateInfo" type="com.pay.base.model.LiquidateInfo" />
+		
+		<select id="getLiquidateInfoByMemberCode" parameterClass="java.lang.Long" resultClass="liquidateInfo">
+			SELECT liquidate_id as liquidateId,
+				       member_code as memberCode,
+				       bank_name as bankName,
+				       bank_acct as bankAcct,
+				       acct_name as acctName,
+				       create_date as createDate,
+				       update_date as updateDate,
+				       account_mode as accountMode,
+				       bank_address as bankAddress,
+				       branch_Bank_Id as branchBankId,
+				       status as status,
+				       bank_Id as bankId,
+				       province as province,
+	            	 city as city,
+	            	 AUDITSTATUS as auditStatus
+	        FROM t_liquidate_info
+			  WHERE member_code = #memberCode#
+			  ORDER BY status DESC,liquidate_id ASC
+		</select>
+		
+		
+		
+		<insert id="create" parameterClass="liquidateInfo">
+		<selectKey resultClass="java.lang.Long" keyProperty="liquidateId">
+			select
+			SEQ_LIQUIDATE_INFO_ID.nextval from DUAL 
+		</selectKey>
+		
+					insert into T_LIQUIDATE_INFO(
+						liquidate_id,
+						member_code,						
+						bank_name,
+						bank_acct,
+						acct_name,
+						create_date,
+						update_date,
+					<isNotEmpty property="accountMode">
+						account_mode,
+					</isNotEmpty>
+						province,
+						city,
+						bank_id,
+						bank_address,
+					<isNotEmpty property="status">
+						#status#,
+					</isNotEmpty>	
+						branch_Bank_Id,
+						big_bank_name
+					<isNotEmpty property="swiftcode">
+						,SWIFT_CODE
+					</isNotEmpty>	
+					<isNotEmpty property="dbRelativePath">
+						,DBRELATIVEPATH
+					</isNotEmpty>	
+					)
+					values(
+						#liquidateId#,
+						#memberCode#,
+						#bankName#,
+						#bankAcct#,
+						#acctName#,
+						sysdate,
+						sysdate,
+					<isNotEmpty property="accountMode">
+							#accountMode#,
+					</isNotEmpty>
+						#province#,
+						#city#,
+						#bankId#,
+						#bankAddress#,
+					<isNotEmpty property="status">
+						#status#,
+					</isNotEmpty>
+						#branchBankId#,
+						#bigBankName#
+					<isNotEmpty property="swiftcode">
+						,#swiftcode#
+					</isNotEmpty>	
+					<isNotEmpty property="dbRelativePath">
+						,#dbRelativePath#
+					</isNotEmpty>
+					)
+			
+			
+			
+
+	</insert>
+	<update id="update" parameterClass="liquidateInfo">
+		UPDATE t_liquidate_info
+		SET 
+		<isNotEmpty property="accountMode">
+			account_Mode = #accountMode#,
+		</isNotEmpty>
+		<isNotEmpty property="bankAddress">
+			bank_Address = #bankAddress#,
+		</isNotEmpty>
+		bank_name = #bankName#,
+		bank_acct = #bankAcct#,
+		acct_Name = #acctName#,
+		province = #province#,
+		city = #city#,
+		bank_id = #bankId#,	
+		update_date = SYSDATE
+		WHERE
+		liquidate_id = #liquidateId#
+	</update>
+	
+	<select id="getCountByMemberCode" parameterClass="java.lang.Long" resultClass="int">
+			select count(*)
+			  from t_liquidate_info
+			  WHERE member_code = #memberCode#
+	</select>
+	
+	<delete id="removeById" parameterClass="map" >
+			DELETE FROM t_liquidate_info   WHERE liquidate_id = #liquidateId# AND member_code = #memberCode#
+	</delete>
+	<select id="getById" parameterClass="java.lang.Long" resultClass="liquidateInfo">
+			SELECT liquidate_id as liquidateId,
+			       member_code as memberCode,
+			       bank_name as bankName,
+			       bank_acct as bankAcct,
+			       acct_name as acctName,
+			       create_date as createDate,
+			       update_date as updateDate,
+			       account_mode as accountMode,
+			       bank_address as bankAddress,
+			       branch_Bank_Id as branchBankId,
+			       status as status,
+			       bank_Id as bankId,
+			       province as province,
+             city as city
+        	FROM t_liquidate_info
+			  WHERE liquidate_id = #liquidateId#
+		</select>
+		
+		<update id="updateStatus" parameterClass="map" >
+			UPDATE t_liquidate_info  
+			SET status = #status#
+			WHERE MEMBER_CODE = #memberCode#
+			<isNotEmpty property="liquidateId">
+				AND liquidate_Id = #liquidateId#
+			</isNotEmpty>
+		</update>
+		
+		<select id="getAccountMode"  resultClass="int" parameterClass="long"  >
+			select t.account_mode from t_liquidate_info t where member_code=#memberCode# and ROWNUM = 1
+		</select>
+		
+		
+		
+</sqlMap>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="query-orderQuery">
+
+	<!-- 订单查询条件 -->
+	<typeAlias alias="query-orderInfo" type="com.pay.fundout.dto.OrderInfo" />
+	<typeAlias alias="query-orderDetail" type="com.pay.fundout.dto.OrderInfoDetail" />
+	<typeAlias alias="query-condition" type="com.pay.fundout.dto.OrderCondition" />
+
+	<!-- 提现 -->
+	<select id="query-withdrawOrder" parameterClass="query-condition"
+		resultClass="query-orderInfo">
+	SELECT order_id AS DEALID,
+	f.CREATE_date AS ORDERTIME,
+		1 AS CRDR,
+		1 AS DEALTYPE,
+	f.order_status AS DEALSTATUS,
+	f.ORDER_AMOUNT AS DEALAMOUNT,
+	f.REALPAY_AMOUNT AS realpayAmount,
+	f.REALOUT_AMOUNT AS realoutAmount,
+		NVL(f.FEE,0) AS DEALFEE,
+		f.balance    AS balance,
+		f.PAYER_ACCTTYPE AS payerAcctType
+		FROM 
+		fo.fundout_order f 
+		<!-- left join
+		acc.t_balance_entry tb
+		on f.order_id = tb. -->
+		WHERE 1=1 AND order_type = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			f.PAYER_MEMBERCODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payerAcctCode" prepend="AND">
+			f.PAYER_ACCTCODE = #payerAcctCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="112">
+				f.order_status in (112,113)
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="101">
+				f.order_status = 101
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+				f.order_status = 111
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ f.CREATE_date >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ f.CREATE_date <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		ORDER BY f.CREATE_date DESC
+	</select>
+
+	<select id="query-withdrawOrder_COUNT" parameterClass="query-condition"
+		resultClass="integer">
+		SELECT COUNT(1)
+		FROM fundout_order
+		WHERE 1=1 AND order_type = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			PAYER_MEMBERCODE = #memberCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="112">
+					order_status in (112,113)
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="101">
+					order_status = 101
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					order_status = 111
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_date >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_date <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+	</select>
+
+	<select id="query-withdrawOrderDetail" parameterClass="Map"
+		resultClass="query-orderDetail">
+		SELECT WO.CREATE_DATE AS STARTDATE,
+		WO.UPDATE_DATE AS ENDDATE,
+		10 AS ACCOUNTTYPE,
+		WO.PAYEE_BANKNAME AS PAYEEBANKNAME,
+		WO.PAYEE_OPENINGBANKNAME AS OPENINGBANKNAME,
+		WO.PAYEE_BANKPROVINCENAME AS PROVINCENAME,
+		WO.PAYEE_BANKCITYNAME AS CITYNAME,
+		WO.PAYEE_NAME AS PAYEENAME,
+		WO.PAYEE_BANKACCTCODE AS PAYEEBANKNO,
+		WO.PAYMENT_REASON AS REMARK,
+		WO.ORDER_ID AS DEALID,
+		1 AS CRDR,
+		1 AS DEALTYPE,
+		WO.ORDER_STATUS AS DEALSTATUS,
+		WO.REALOUT_AMOUNT AS DEALAMOUNT,
+		WO.PAYER_ACCTCODE AS payerAcctCode,
+		NVL(WO.FEE, 0) AS DEALFEE
+		FROM FUNDOUT_ORDER WO
+		WHERE WO.ORDER_ID = #dealId#
+		AND WO.PAYER_MEMBERCODE = #memberCode#
+	</select>
+
+	<!-- 充值 -->
+	<select id="query-chargeOrder" parameterClass="query-condition"
+		resultClass="query-orderInfo">
+		SELECT DO.DEPOSIT_ORDER_NO DEALID,
+		DO.CREATE_DATE ORDERTIME,
+		2 AS CRDR,
+		2 AS DEALTYPE,
+		DECODE (DO.STATUS,0,101,1,111,2,112) DEALSTATUS,
+		DO.DEPOSIT_AMOUNT AS DEALAMOUNT,
+		DO.DEPOSIT_AMOUNT AS realpayAmount,
+		DO.DEPOSIT_AMOUNT AS realoutAmount,
+		NVL(FEE,0) AS DEALFEE
+		FROM FI.DEPOSIT_ORDER DO
+		WHERE DO.payment_order_no = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			CUSTOMER = #memberCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="101">
+					STATUS = 0
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					STATUS = 1
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="112">
+					STATUS = 2
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		ORDER BY DO.CREATE_DATE DESC
+	</select>
+
+	<select id="query-chargeOrder_COUNT" parameterClass="query-condition"
+		resultClass="integer">
+		SELECT COUNT(1)
+		FROM FI.DEPOSIT_ORDER DO
+		WHERE DO.payment_order_no = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			CUSTOMER = #memberCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="101">
+					STATUS = 0
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					STATUS = 1
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="112">
+					STATUS = 2
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+	</select>
+
+	<select id="query-chargeOrderDetail" parameterClass="Map"
+		resultClass="query-orderDetail">
+		SELECT
+		DO.CREATE_DATE STARTDATE,
+		DO.UPDATE_DATE ENDDATE,
+		DO.CUSTOMER_TYPE ACCOUNTTYPE,
+		DO.DEPOSIT_ORDER_NO DEALID,
+		DO.CREATE_DATE ORDERTIME,
+		2 AS CRDR,
+		2 AS DEALTYPE,
+		DECODE (DO.STATUS,
+		0,
+		101,
+		1,
+		111,
+		2,
+		112,DO.STATUS)
+		DEALSTATUS,
+		DO.DEPOSIT_AMOUNT AS DEALAMOUNT,
+		NVL(FEE,0) AS DEALFEE
+
+		FROM FI.DEPOSIT_ORDER DO,FI.DEPOSIT_PROTOCOL DP
+		WHERE DO.DEPOSIT_ORDER_NO = DP.DEPOSIT_ORDER_NO
+		AND DO.DEPOSIT_ORDER_NO = #dealId#
+		AND DO.CUSTOMER = #memberCode#
+	</select>
+
+	<!-- 全部 -->
+	<select id="query-allOrder" parameterClass="query-condition"
+		resultClass="query-orderInfo">
+
+		select * from (
+		SELECT order_id DEALID,
+		CREATE_DATE ORDERTIME,
+		1 AS CRDR,
+		1 AS DEALTYPE,
+		order_status DEALSTATUS,
+		ORDER_AMOUNT DEALAMOUNT,
+		REALPAY_AMOUNT realpayAmount,
+		REALOUT_AMOUNT realoutAmount,
+		NVL(FEE, 0) AS DEALFEE
+		FROM FUNDOUT_ORDER
+		WHERE 1 = 1
+		AND order_type = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			PAYER_MEMBERCODE
+			= #memberCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="112">
+					ORDER_STATUS in (112,113)
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="101">
+					ORDER_STATUS = 101
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					ORDER_STATUS = 111
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+
+		UNION ALL
+
+		SELECT DO.DEPOSIT_ORDER_NO DEALID,
+		DO.CREATE_DATE ORDERTIME,
+		2 AS CRDR,
+		2 AS DEALTYPE,
+		DECODE (DO.STATUS,
+		0,
+		101,
+		1,
+		111,
+		2,
+		112)
+		DEALSTATUS,
+		DO.DEPOSIT_AMOUNT AS DEALAMOUNT,
+		DO.DEPOSIT_AMOUNT realpayAmount,
+		DO.DEPOSIT_AMOUNT realoutAmount,
+		NVL(FEE,0) AS DEALFEE
+		FROM FI.DEPOSIT_ORDER DO
+		WHERE DO.payment_order_no = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			CUSTOMER =
+			#memberCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="101">
+					STATUS = 0
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					STATUS = 1
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="112">
+					STATUS = 2
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		)
+		ORDER BY ORDERTIME DESC
+	</select>
+
+	<select id="query-allOrder_COUNT" parameterClass="query-condition"
+		resultClass="integer">
+		SELECT COUNT(1) FROM (SELECT order_id DEALID
+		FROM FUNDOUT_ORDER
+		WHERE 1 = 1
+		AND order_type = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			PAYER_MEMBERCODE = #memberCode#
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="112">
+					ORDER_STATUS in (112,113)
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="101">
+					ORDER_STATUS = 101
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					ORDER_STATUS = 111
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		UNION ALL
+		SELECT DO.DEPOSIT_ORDER_NO DEALID FROM FI.DEPOSIT_ORDER DO WHERE
+		DO.payment_order_no = 0
+		<isNotEmpty property="memberCode" prepend="AND">
+			<![CDATA[CUSTOMER = #memberCode#]]>
+		</isNotEmpty>
+		<isNotEqual property="orderStatus" compareValue="9"><!-- 9表示查询所有 -->
+			<isNotNull property="orderStatus" prepend="AND">
+				<isEqual property="orderStatus" compareValue="101">
+					STATUS = 0
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="111">
+					STATUS = 1
+				</isEqual>
+				<isEqual property="orderStatus" compareValue="112">
+					STATUS = 2
+				</isEqual>
+			</isNotNull>
+		</isNotEqual>
+		<isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= TO_DATE(#startTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= TO_DATE(#endTime#,'yyyy-MM-dd HH24:MI:SS') ]]>
+		</isNotEmpty>
+		)
+	</select>
+
+</sqlMap>

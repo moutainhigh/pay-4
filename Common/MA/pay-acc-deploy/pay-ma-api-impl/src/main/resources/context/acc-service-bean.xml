@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms" xmlns:amq="http://activemq.apache.org/schema/core"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd   
+   http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd   
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<!-- acc 实名认证 支付安全问题验证 -->
+	<bean id="acc-memberVerifyService" class="com.pay.acc.service.member.impl.MemberVerifyServiceImpl">
+		<property name="idcVerifyBaseService" ref="acc-idcVerifyBaseService" />
+		<property name="idcVerifyGovService" ref="acc-idcVerifyGovService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+	</bean>
+
+	<!-- 生成临时会员 -->
+	<bean id="acc-memberCreateService" class="com.pay.acc.service.member.impl.MemberCreateServiceImpl">
+		<property name="memberCreateTempService" ref="acc-memberCreateTempService" />
+	</bean>
+
+	<!-- acc 银行卡绑定 -->
+	<bean id="acc-memberBankService" class="com.pay.acc.service.member.impl.MemberBankServiceImpl">
+		<property name="memberBankAcctService" ref="acc-memberBankAcctService" />
+		<property name="memberService" ref="acc-memberService" />
+	</bean>
+
+	<bean id="acc-bankCardBindService" class="com.pay.acc.service.member.impl.BankCardBindServiceImpl">
+		<property name="memberBankAcctService" ref="acc-memberBankAcctService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="liquidateInfoService" ref="acc-liquidateInfoService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService"/>
+	</bean>
+
+	<!-- 会员查询 -->
+	<bean id="acc-memberQueryService" class="com.pay.acc.service.member.impl.MemberQueryServiceImpl">
+		<property name="memberService" ref="acc-memberService" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="individualInfoService" ref="acc-individualInfoService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="notifyFacadeService" ref="acc-notifyFacadeServiceImpl" />
+	</bean>
+
+	<!-- 交易中心会员关系查询 -->
+	<bean id="acc-memberRelationQueryService"
+		class="com.pay.acc.service.member.impl.MemberRelationQueryServiceImpl">
+		<property name="relactionService" ref="acc-memberRelactionService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+
+	<!-- 查询联系人 -->
+	<bean id="acc-linkerQueryService" class="com.pay.acc.service.member.impl.LinkerQueryServiceImpl">
+		<property name="linkerService" ref="acc-linkerService" />
+	</bean>
+
+	<!-- 安全问题－登录密码验证 -->
+	<bean id="acc-safeQuestion4VerifyLoginpwdService"
+		class="com.pay.acc.service.account.impl.SafeQuestion4VerifyLoginpwdServiceImpl">
+		<property name="memberService" ref="acc-memberService" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+	</bean>
+
+	<!-- 安全问题－支付密码验证 -->
+	<bean id="acc-safeQuestion4VerifyPaypwdService"
+		class="com.pay.acc.service.account.impl.SafeQuestion4VerifyPaypwdServiceImpl">
+		<property name="memberService" ref="acc-memberService" />
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="acctService" ref="acc-acctService" />
+	</bean>
+
+	<!-- 安全问题－普通验证 -->
+	<bean id="acc-safeQuestionVerifyService"
+		class="com.pay.acc.service.account.impl.SafeQuestionVerifyServiceImpl">
+		<property name="memberService" ref="acc-memberService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+	</bean>
+
+	<!-- 登录密码解锁 -->
+	<bean id="acc-memberUnlockService" class="com.pay.acc.service.member.impl.MemberUnlockServiceImpl">
+		<property name="memberService" ref="acc-memberService" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+	</bean>
+
+	<!-- 判断是否开通某产品 -->
+	<bean id="acc-memberProductService"
+		class="com.pay.acc.service.member.impl.MemberProductServiceImpl">
+		<property name="memberProductService" ref="acc-memberBaseProductService" />
+	</bean>
+
+	<!-- 利安余额查询接口 -->
+	<bean id="acc-laMemberQueryService"
+		class="com.pay.acc.service.member.impl.LaMemberQueryServiceImpl">
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="memberRelationQueryService" ref="acc-memberRelationQueryService" />
+	</bean>
+
+	<!-- 查询风控等级 -->
+	<bean id="acc-entryPriseRiskControlService"
+		class="com.pay.acc.service.account.impl.EntryPriseRiskControlServiceImpl">
+		<property name="liquidateInfoService" ref="acc-liquidateInfoService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+	</bean>
+
+	<!-- 登录失败向fo-mdp发消息接口 -->
+	<bean id="acc-notifyFacadeServiceImpl" class="com.pay.acc.service.member.impl.NotifyFacadeServiceImpl">
+		<property name="jmsSender" ref="jmsSender" />
+	</bean>
+	
+	<bean id="acc-loginService" class="com.pay.acc.service.login.impl.LoginServiceImpl">
+		<property name="memberService" ref="acc-memberService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+	</bean>
+	
+	<bean id="acc-memberQuickBankAcctService" class="com.pay.acc.service.member.impl.MemberQuickBankAcctServiceImpl">
+		<property name="memberQuickBankAcctDAO" ref="acc-memberQuickBankAcctDAO" />
+	</bean>
+	
+	<bean id="acc-merchantRateService" class="com.pay.acc.rate.service.impl.MerchantRateServiceImpl">
+		<property name="merchantRateDAO" ref="acc-merchantRateDAO"/>
+	</bean>
+</beans>

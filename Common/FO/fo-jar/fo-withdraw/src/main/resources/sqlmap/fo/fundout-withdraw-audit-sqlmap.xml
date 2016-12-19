@@ -1,0 +1,1763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 提现SQLMAp配置 -->
+<sqlMap namespace="WF">
+	<typeAlias alias="queryWithDrawModel" type="com.pay.fundout.withdraw.model.flowprocess.WithdrawQueryOrder" />
+	<typeAlias alias="auditQueryOrderModel" type="com.pay.fundout.withdraw.model.flowprocess.WithdrawAuditQuery" />
+	<typeAlias alias="auditWorkOrderModel" type="com.pay.fundout.withdraw.model.work.WithdrawWorkorder" />
+	<typeAlias alias="auditWithdrawOrderModle" type="com.pay.fundout.withdraw.model.order.WithdrawOrder" />
+	<typeAlias alias="withdrawResManuProcModel" type="com.pay.fundout.withdraw.model.flowprocess.WithdrawResManualProcQuery" />
+	<typeAlias alias="exportWithdrawModel" type="com.pay.fundout.withdraw.model.flowprocess.export.ExportWithdrawModel" />
+	<typeAlias alias="batchFileRecord" type="com.pay.poss.base.model.BatchFileRecord" />
+	
+	<insert id="saveBatchFileRecord"  parameterClass="batchFileRecord">
+	
+	 insert into 
+        	BATCH_FILE_RECORD a 
+        		(G_FILE_KY,
+                 TRADE_SEQ,
+                 TRADE_AMOUNT,
+                 ACCOUNT_NO,
+                 ACCOUNT_NAME,
+                 TRADE_DATE,
+                 REMARK,
+                 STATUS,
+                 BANK_BRANCH
+                 )
+	     values 
+	     		(
+	     		 #gFileKy#,
+	             #tradeSeq#,
+	             #tradeAmount#,
+	             #accountNo#,
+	             #accountName#,
+	             #tradeDate#,
+	             #remark#,
+	             #stauts#,
+	             #bankBranch#
+	             )
+	</insert>
+	
+	<resultMap id="queryOrder" class="queryWithDrawModel">
+		<result property="orderDto.batchNo" column="batchNo" />
+		<result property="orderDto.withdrawBankCode" column="withdrawBankCode" />
+		<result property="orderDto.webAuditTime" column="webAuditTime" />
+	    <result property="orderDto.memberCode" column="memberCode" />
+	    <result property="orderDto.memberAccType" column="memberAccType" />
+	    <result property="orderDto.accountName" column="accountName" />
+	    <result property="orderDto.sequenceId" column="sequenceId" />
+	    <result property="orderDto.bankBranch" column="bankBranch" />
+	    <result property="orderDto.bankAcct" column="bankAcct" />
+	    <result property="orderDto.amount" column="amount" />
+	    <result property="orderDto.bankProvince" column="bankProvince" />
+	    <result property="orderDto.createTime" column="createTime" />
+	    <result property="orderDto.bankCity" column="bankCity" />
+	    <result property="orderDto.orderRemarks" column="orderRemarks"  />
+	    <result property="orderDto.bankAcctType" column="bankAcctType" />
+	    <result property="orderDto.bankKy" column="bankKy" />
+	    <result property="orderDto.tradeSeq" column="tradeSeq" />
+	    <result property="orderDto.fee" column="fee" />
+	    <result property="orderDto.busiType" column="busiType" />
+	    <result property="orderDto.memberName" column="memberName" />
+	    <result property="orderDto.riskLeveCode" column="riskLeveCode" />
+	    <result property="orderDto.accountMode" column="accountMode" />
+	    <result property="orderDto.isLoaning" column="isLoaning" />
+	    <result property="orderDto.failReason" column="failReason" />
+	    <result property="orderDto.memberType" column="memberType" />
+	    <!-- added -->
+	    <result property="orderDto.corderId" column="corderId" />
+	    <result property="orderDto.parentOrderId" column="parentOrderId" />
+	    
+	    <result property="workOrderDto.status" column="status" />
+	    <result property="workOrderDto.workOrderky" column="workOrderky" />
+	    <result property="workOrderDto.workflowKy" column="workflowKy" />
+	    <result property="workOrderDto.batchStatus" column="batchStatus" />
+	    <result property="workOrderDto.auditFailReason" column="auditFailReason" />
+	    <result property="workOrderDto.reAuditBackReason" column="reAuditBackReason" />
+  	</resultMap>
+	<resultMap id="queryOrder3" class="queryWithDrawModel">
+		<result property="orderDto.batchNo" column="batchNo" />
+		<result property="orderDto.withdrawBankCode" column="withdrawBankCode" />
+		<result property="orderDto.webAuditTime" column="webAuditTime" />
+	    <result property="orderDto.memberCode" column="memberCode" />
+	    <result property="orderDto.memberAccType" column="memberAccType" />
+	    <result property="orderDto.accountName" column="accountName" />
+	    <result property="orderDto.sequenceId" column="sequenceId" />
+	    <result property="orderDto.bankBranch" column="bankBranch" />
+	    <result property="orderDto.bankAcct" column="bankAcct" />
+	    <result property="orderDto.amount" column="amount" />
+	    <result property="orderDto.bankProvince" column="bankProvince" />
+	    <result property="orderDto.createTime" column="createTime" />
+	    <result property="orderDto.bankCity" column="bankCity" />
+	    <result property="orderDto.orderRemarks" column="orderRemarks"  />
+	    <result property="orderDto.bankAcctType" column="bankAcctType" />
+	    <result property="orderDto.bankKy" column="bankKy" />
+	    <result property="orderDto.tradeSeq" column="tradeSeq" />
+	    <result property="orderDto.fee" column="fee" />
+	    <result property="orderDto.busiType" column="busiType" />
+	    <result property="orderDto.memberName" column="memberName" />
+	    <result property="orderDto.riskLeveCode" column="riskLeveCode" />
+	    <result property="orderDto.accountMode" column="accountMode" />
+	    <result property="orderDto.isLoaning" column="isLoaning" />
+	    <result property="orderDto.failReason" column="failReason" />
+	    <result property="orderDto.memberType" column="memberType" />
+	    <!-- added -->
+	    <result property="orderDto.corderId" column="corderId" />
+	    <result property="orderDto.parentOrderId" column="parentOrderId" />
+	     
+	     <result property="orderDto.payerAmount" column="payerAmount" />
+	   
+	  	  <result property="orderDto.payeeBankName" column="payeeBankName" /> 
+	   
+	    <result property="workOrderDto.status" column="status" />
+	    <result property="workOrderDto.workOrderky" column="workOrderky" />
+	    <result property="workOrderDto.workflowKy" column="workflowKy" />
+	    <result property="workOrderDto.batchStatus" column="batchStatus" />
+	    <result property="workOrderDto.auditFailReason" column="auditFailReason" />
+	    <result property="workOrderDto.reAuditBackReason" column="reAuditBackReason" />
+  	</resultMap>
+
+
+
+	<resultMap id="queryOrder2" class="queryWithDrawModel">
+		<result property="orderDto.batchNo" column="batchNo" />
+		<result property="orderDto.withdrawBankCode" column="withdrawBankCode" />
+		<result property="orderDto.webAuditTime" column="webAuditTime" />
+	    <result property="orderDto.memberCode" column="memberCode" />
+	    <result property="orderDto.memberAccType" column="memberAccType" />
+	    <result property="orderDto.accountName" column="accountName" />
+	    <result property="orderDto.sequenceId" column="sequenceId" />
+	    <result property="orderDto.bankBranch" column="bankBranch" />
+	    <result property="orderDto.bankAcct" column="bankAcct" />
+	    <result property="orderDto.amount" column="amount" />
+	    <result property="orderDto.bankProvince" column="bankProvince" />
+	    <result property="orderDto.createTime" column="createTime" />
+	    <result property="orderDto.bankCity" column="bankCity" />
+	    <result property="orderDto.orderRemarks" column="orderRemarks"  />
+	    <result property="orderDto.bankAcctType" column="bankAcctType" />
+	    <result property="orderDto.bankKy" column="bankKy" />
+	    <result property="orderDto.tradeSeq" column="tradeSeq" />
+	    <result property="orderDto.fee" column="fee" />
+	    <result property="orderDto.busiType" column="busiType" />
+	    <result property="orderDto.memberName" column="memberName" />
+	    <result property="orderDto.riskLeveCode" column="riskLeveCode" />
+	    <result property="orderDto.accountMode" column="accountMode" />
+	    <result property="orderDto.isLoaning" column="isLoaning" />
+	    <result property="orderDto.failReason" column="failReason" />
+	    <result property="orderDto.memberType" column="memberType" />
+	    
+	    <result property="workOrderDto.status" column="status" />
+	    <result property="workOrderDto.workOrderky" column="workOrderky" />
+	    <result property="workOrderDto.workflowKy" column="workflowKy" />
+	    <result property="workOrderDto.batchStatus" column="batchStatus" />
+	    <result property="workOrderDto.auditFailReason" column="auditFailReason" />
+	    <result property="workOrderDto.reAuditBackReason" column="reAuditBackReason" />
+  	</resultMap>
+	
+	<select id="withdrawAuditQuery" parameterClass="auditQueryOrderModel" resultMap="queryOrder">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       a.risk_leve_code          as riskLeveCode,
+           a.account_mode          as accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           c.BUSINESS_BATCH_NO 			as		batchNo,
+           c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId,
+           a.is_loaning				as isLoaning,
+           a.failed_reason          as       failReason
+	  from FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="bankAcctType" prepend="AND">
+		   		 a.PAYEE_BANKACCTTYPE = #bankAcctType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="tradeType" prepend="AND">
+		   		 a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.PAYER_MEMBERCODE in (#memberCodeList#)
+		   </isNotEmpty>
+	  	   <isNotEmpty property="withdrawBankCode" prepend="AND">
+		   		 a.FUNDOUT_BANKCODE = #withdrawBankCode#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 	b.status in(0,3)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus2" prepend="AND">		 
+		   		 (b.batch_status = #batchStatus2# or b.batch_status = 0)             
+		   </isNotEmpty>
+		   <isEmpty property="batchStatus2">
+			   <isNotEmpty property="batchStatus" prepend="AND">		 
+			   		 b.batch_status = #batchStatus#                   
+			   </isNotEmpty>
+			   <isEmpty property="batchStatus" prepend="AND">
+			    	 b.batch_status = 0
+			   </isEmpty>
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		    <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate# ]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+		   
+			<isNotEmpty property="applyAmountFrom" prepend="AND">
+		   		 <![CDATA[  a.order_amount >= #applyAmountFrom#*1000 ]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="applyAmountTo" prepend="AND">
+		   		 <![CDATA[  a.order_amount <= #applyAmountTo#*1000]]>
+		   </isNotEmpty>
+		   
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.order_id = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="riskLeveCode">
+		   		and (
+		   			a.payer_membertype = '1' 
+		   			or
+                   (a.payer_membertype = '2' 
+                   		and a.risk_leve_code in
+			  	 		<iterate property="riskLeveCode" open="(" close=")" conjunction=",">
+							#riskLeveCode[]#
+						</iterate>
+                   	)              
+             
+             	)
+	  	 	</isNotEmpty>
+	  	 	<isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+  	</select>
+  	
+  	
+	<select id="withdrawAuditQueryByBatchNum" parameterClass="auditQueryOrderModel" resultMap="queryOrder3">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       a.risk_leve_code          as riskLeveCode,
+           a.account_mode          as accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           c.BUSINESS_BATCH_NO 			as		batchNo,
+           c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId,
+           a.is_loaning				as isLoaning,
+           a.failed_reason          as       failReason,
+           a.REALPAY_AMOUNT        as payerAmount,
+           a.PAYEE_BANKNAME    as  payeeBankName
+	  from FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	    <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchStatus2" prepend="AND">		 
+		   		 (b.batch_status = #batchStatus2# or b.batch_status = 0)             
+		   </isNotEmpty>
+		   <isNotEmpty property="batchStatus2" prepend="AND">		 
+		   		  b.BATCH_NUM =#batchNo#           
+		   </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+  	</select>
+  	
+  	 <select id="withdrawAuditQuery_COUNT" resultClass="java.lang.Integer" parameterClass="auditQueryOrderModel">
+		select
+       	   count(*)
+	  from FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="bankAcctType" prepend="AND">
+		   		 a.PAYEE_BANKACCTTYPE = #bankAcctType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="tradeType" prepend="AND">
+		   		 a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.PAYER_MEMBERCODE in (#memberCodeList#)
+		   </isNotEmpty>
+	  	   <isNotEmpty property="withdrawBankCode" prepend="AND">
+		   		 a.FUNDOUT_BANKCODE = #withdrawBankCode#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 	b.status in(0,3)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus2" prepend="AND">		 
+		   		 (b.batch_status = #batchStatus2# or b.batch_status = 0)             
+		   </isNotEmpty>
+		   <isEmpty property="batchStatus2">
+			   <isNotEmpty property="batchStatus" prepend="AND">		 
+			   		 b.batch_status = #batchStatus#                   
+			   </isNotEmpty>
+			   <isEmpty property="batchStatus" prepend="AND">
+			    	 b.batch_status = 0
+			   </isEmpty>
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		    <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate# ]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+		   
+		   <isNotEmpty property="applyAmountFrom" prepend="AND">
+		   		 <![CDATA[  a.order_amount >= #applyAmountFrom#*1000 ]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="applyAmountTo" prepend="AND">
+		   		 <![CDATA[  a.order_amount <= #applyAmountTo#*1000]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.order_id = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="riskLeveCode">
+		   		and (
+		   			a.payer_membertype = '1' 
+		   			or
+                   (a.payer_membertype = '2' 
+                   		and a.risk_leve_code in
+			  	 		<iterate property="riskLeveCode" open="(" close=")" conjunction=",">
+							#riskLeveCode[]#
+						</iterate>
+                   	)              
+             
+             	)
+	  	 	</isNotEmpty>
+	  	 	<isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+    </select>
+    
+     <update id="auditUpdate" parameterClass="auditWorkOrderModel">
+        update 
+        	withdraw_workorder a
+        set 
+			a.update_time = sysdate
+			<isNotEmpty property="status"  prepend=",">
+        			a.status = #status#
+        	</isNotEmpty>
+        	<isNotEmpty property="auditFailReason"  prepend=",">
+       			a.auditfailing_reason = #auditFailReason#
+       		</isNotEmpty>
+    	where a.status != #status#
+          and a.workorder_ky = #workOrderky#
+    </update>
+    
+    
+     <update id="update" parameterClass="auditWorkOrderModel">
+        UPDATE 
+        	WITHDRAW_WORKORDER a
+        SET 
+			a.update_time = sysdate
+			<isNotEmpty property="status"  prepend=",">
+        			a.status = #status#
+        	</isNotEmpty>
+    	where a.status != #status#
+        and a.workorder_ky = #workOrderky#
+    </update>
+    
+    <update id="auditUpdate_2" parameterClass="auditWorkOrderModel">
+	    update 
+	            withdraw_workorder a
+	        set 
+		        a.update_time = sysdate
+				<isNotEmpty property="status"  prepend=",">
+		       			a.status = #status#
+		       	</isNotEmpty>
+	            <isNotEmpty property="auditFailReason"  prepend=",">
+        			a.auditfailing_reason = #auditFailReason#
+        		</isNotEmpty>
+        		<isNotEmpty property="batchNum"  prepend=",">
+	            	a.batch_num = #batchNum#
+	            </isNotEmpty>
+	            <isNotEmpty property="batchStatus"  prepend=",">
+	            	a.batch_status = #batchStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="orderSeq"  prepend=",">
+	            	a.order_seq = #orderSeq#
+	            </isNotEmpty>
+	            <isNotEmpty property="workflowKy"  prepend=",">
+	            	a.workflow_ky = #workflowKy#
+	            </isNotEmpty>
+	            <isNotEmpty property="reAuditBackReason"  prepend=",">
+	            	a.reauditback_reason = #reAuditBackReason#
+	            </isNotEmpty>
+	            <isNotEmpty property="createTime"  prepend=",">
+	            	a.CREATE_TIME = #createTime#
+	            </isNotEmpty>
+	    where 
+	            a.workorder_ky = #workOrderky#
+	            <isNotEmpty property="preStatus"  prepend="and">
+	            	  $preStatus$
+	            </isNotEmpty>
+     </update>
+     
+     <update id="auditUpdate_3" parameterClass="auditWorkOrderModel">
+	    update 
+	            withdraw_workorder a
+	        set
+	        	a.UPDATE_TIME = sysdate , 
+	            a.status = #status#
+	            <isNotEmpty property="auditFailReason"  prepend=",">
+        			a.auditfailing_reason = #auditFailReason#
+        		</isNotEmpty>
+        		<isNotEmpty property="batchNum"  prepend=",">
+	            	a.batch_num = #batchNum#
+	            </isNotEmpty>
+	            <isNotEmpty property="batchStatus"  prepend=",">
+	            	a.batch_status = #batchStatus#
+	            </isNotEmpty>
+	            <isNotEmpty property="workflowKy"  prepend=",">
+	            	a.workflow_ky = #workflowKy#
+	            </isNotEmpty>
+	            <isNotEmpty property="reAuditBackReason"  prepend=",">
+	            	a.reauditback_reason = #reAuditBackReason#
+	            </isNotEmpty>
+	    where a.order_seq = #orderSeq#
+     </update>
+    
+    <insert id="create" parameterClass="auditWorkOrderModel">
+		<selectKey resultClass="Long" keyProperty="workOrderky">
+			SELECT 200 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||
+			       LPAD(SEQ_FO_GLOBE_CYCLE.NEXTVAL, 6, 0) AS ID
+			  FROM DUAL
+		</selectKey>
+        insert into 
+        	withdraw_workorder a 
+        		(workorder_ky,
+                 order_seq,
+                 workflow_ky,
+                 status,
+                 batch_status)
+	     values 
+	     		(
+	     		 #workOrderky#,
+	             #orderSeq#,
+	             #workflowKy#,
+	             #status#,
+	             #batchStatus#
+	             )
+    </insert>
+    
+    <select id="queryWorkOrderById" parameterClass="java.lang.Long" resultClass="auditWorkOrderModel">
+    	SELECT 
+    		   A.WORKORDER_KY 					AS workOrderky,
+		       A.BATCH_NUM 						AS batchNum,
+		       A.BATCH_STATUS 					AS batchStatus,
+		       A.ORDER_SEQ 						AS orderSeq,
+		       A.STATUS 						AS status,
+		       A.WORKFLOW_KY 					AS workflowKy
+		FROM WITHDRAW_WORKORDER a
+		where 
+			A.WORKORDER_KY = #values#
+    </select>
+    
+    <select id="queryWorkOrderListById" parameterClass="auditWorkOrderModel" resultClass="auditWorkOrderModel">
+    	SELECT 
+    		   A.WORKORDER_KY 					AS workOrderky,
+		       A.BATCH_NUM 						AS batchNum,
+		       A.BATCH_STATUS 					AS batchStatus,
+		       A.ORDER_SEQ 						AS orderSeq,
+		       A.STATUS 						AS status,
+		       A.WORKFLOW_KY 					AS workflowKy
+		FROM WITHDRAW_WORKORDER a
+		<dynamic prepend=" WHERE ">
+			<isPropertyAvailable property="subList" prepend="AND">
+			 	<isNotEmpty property="subList">
+			 		A.WORKORDER_KY in 
+			 		<iterate property="subList" open="(" close=")" conjunction=",">
+			 			#subList[]#
+			 		</iterate>
+			 	</isNotEmpty>
+			 </isPropertyAvailable>
+		 </dynamic>
+    </select>
+    
+    <select id="queryWorkOrderByOrderId" parameterClass="java.lang.Long" resultClass="auditWorkOrderModel">
+    	SELECT 
+    		   A.WORKORDER_KY 					AS workOrderky,
+		       A.BATCH_NUM 						AS batchNum,
+		       A.BATCH_STATUS 					AS batchStatus,
+		       A.ORDER_SEQ 						AS orderSeq,
+		       A.STATUS 						AS status,
+		       A.WORKFLOW_KY 					AS workflowKy
+		FROM WITHDRAW_WORKORDER a
+		where 
+			A.ORDER_SEQ = #values#  
+    </select>
+    
+    <select id="queryWorkOrderByOrderIdToAcc" parameterClass="java.lang.Long" resultClass="auditWorkOrderModel">
+    	SELECT 
+    		   A.WORKORDER_KY 					AS workOrderky,
+		       A.BATCH_NUM 						AS batchNum,
+		       A.BATCH_STATUS 					AS batchStatus,
+		       A.ORDER_SEQ 						AS orderSeq,
+		       A.STATUS 						AS status,
+		       A.WORKFLOW_KY 					AS workflowKy
+		FROM WITHDRAW_WORKORDER a
+		where 
+			A.ORDER_SEQ = #values# AND A.STATUS = 7 AND A.BATCH_STATUS = 1
+    </select>
+    
+    <select id="queryWorkOrderByOrderIdToBankBack" parameterClass="java.lang.Long" resultClass="auditWorkOrderModel">
+    	SELECT 
+    		   A.WORKORDER_KY 					AS workOrderky,
+		       A.BATCH_NUM 						AS batchNum,
+		       A.BATCH_STATUS 					AS batchStatus,
+		       A.ORDER_SEQ 						AS orderSeq,
+		       A.STATUS 						AS status,
+		       A.WORKFLOW_KY 					AS workflowKy
+		FROM WITHDRAW_WORKORDER a
+		where 
+			A.ORDER_SEQ = #values# AND A.STATUS = 13 AND A.BATCH_STATUS = 0
+    </select>
+    
+    <select id="queryWithdrawOrderById" parameterClass="java.lang.Long" resultClass="auditWithdrawOrderModle">
+		select
+					a.ORDER_ID						as sequenceid, 
+		            a.PAYER_MEMBERCODE				as membercode,
+		            a.PAYER_MEMBERTYPE				as membertype,
+		            a.PAYER_ACCTCODE				as memberacc,
+		            a.PAYER_ACCTTYPE				as memberacctype,
+		            a.ORDER_AMOUNT					as amount,
+		            a.PRIORITY						as prioritys,
+		            a.PAYEE_NAME					as accountname,
+		            a.PAYEE_BANKACCTCODE			as bankacct,
+		            a.PAYEE_BANKACCTTYPE			as bankaccttype,
+		            a.PAYEE_BANKCODE				as bankky,
+		            a.PAYEE_OPENINGBANKNAME			as bankbranch,
+		            a.PAYEE_BANKPROVINCE			as bankprovince,
+		            a.PAYEE_BANKCITY				as bankcity,
+		            a.PAYMENT_REASON				as bankpurpose,
+		            a.PAYMENT_REASON				as bankremarks,
+		            a.PAYMENT_REASON				as orderremarks,
+		            'CNY'							as moneytype,
+		            nvl(a.FAILED_REASON,(select b.bank_failure_reason from fo.withdraw_import_record b where b.order_seq = a.order_id and b.bank_failure_reason is not null))          as errormessage,
+		            a.ORDER_SMALLTYPE				as type,
+		            a.ORDER_STATUS					as status,
+		            a.CREATE_DATE					as createtime,
+		            a.UPDATE_DATE					as updatetime,
+		            a.ORDER_TYPE					as busitype,
+		            a.FOREIGN_ORDERID				as orderseqid,
+		            a.FUNDOUT_MODE					as withdrawtype,
+		            a.FUNDOUT_BANKCODE				as withdrawbankcode ,
+	      			a.BANK_ORDERID					as tradeSeq,
+	      			a.FEE							as fee, 
+					a.REALPAY_AMOUNT				as orderAmount,
+	      			a.REALOUT_AMOUNT                 as payerAmount,
+	       			a.PAYER_NAME					as memberName     
+		  from FUNDOUT_ORDER a
+		 where  a.ORDER_ID = #values#
+    </select>
+    
+     <select id="showOrderDetailQueryById" parameterClass="java.lang.Long" resultClass="auditWithdrawOrderModle">
+		select
+				 	a.ORDER_ID						as sequenceid, 
+		            a.PAYER_MEMBERCODE				as membercode,
+		            a.PAYER_MEMBERTYPE				as membertype,
+		            a.PAYER_ACCTCODE				as memberacc,
+		            a.PAYER_ACCTTYPE				as memberacctype,
+		            a.ORDER_AMOUNT					as amount,
+		            a.PRIORITY						as prioritys,
+		            a.PAYEE_NAME					as accountname,
+		            a.PAYEE_BANKACCTCODE			as bankacct,
+		            a.PAYEE_BANKACCTTYPE			as bankaccttype,
+		            a.PAYEE_BANKCODE				as bankky,
+		            a.PAYEE_OPENINGBANKNAME			as bankbranch,
+		            a.PAYEE_BANKPROVINCE			as bankprovince,
+		            a.PAYEE_BANKCITY				as bankcity,
+		            a.PAYMENT_REASON				as bankpurpose,
+		            a.PAYMENT_REASON				as bankremarks,
+		            a.PAYMENT_REASON				as orderremarks,
+		            'CNY'							as moneytype,
+		            a.FAILED_REASON					as errormessage,
+		            a.ORDER_SMALLTYPE				as type,
+		            a.CREATE_DATE					as createtime,
+		            b.create_time         			as      webAuditTime,
+		            a.UPDATE_DATE					as updatetime,
+		            a.ORDER_TYPE					as busitype,
+		            a.FOREIGN_ORDERID				as orderseqid,
+		            a.FUNDOUT_MODE					as withdrawtype,
+		            a.FUNDOUT_BANKCODE				as withdrawbankcode ,
+	      			a.BANK_ORDERID					as tradeSeq,
+	      			a.FEE							as fee,
+	      			b.status						as status,
+	      			b.batch_status					as batchStatus    
+		  from FUNDOUT_ORDER a,withdraw_workorder b
+		 where a.ORDER_ID = b.order_seq
+		 and a.ORDER_ID = #values#
+    </select>
+    
+    <select id="queryWithdrawOrderListByWorkKy" parameterClass="auditWorkOrderModel" resultClass="auditWithdrawOrderModle">
+		select
+					a.ORDER_ID						as sequenceid, 
+		            a.PAYER_MEMBERCODE				as membercode,
+		            a.PAYER_MEMBERTYPE				as membertype,
+		            a.PAYER_ACCTCODE				as memberacc,
+		            a.PAYER_ACCTTYPE				as memberacctype,
+		            a.ORDER_AMOUNT					as amount,
+		            a.PRIORITY						as prioritys,
+		            a.PAYEE_NAME					as accountname,
+		            a.PAYEE_BANKACCTCODE			as bankacct,
+		            a.PAYEE_BANKACCTTYPE			as bankaccttype,
+		            a.PAYEE_BANKCODE				as bankky,
+		            a.PAYEE_OPENINGBANKNAME			as bankbranch,
+		            a.PAYEE_BANKPROVINCE			as bankprovince,
+		            a.PAYEE_BANKCITY				as bankcity,
+		            a.PAYMENT_REASON				as bankpurpose,
+		            a.PAYMENT_REASON				as bankremarks,
+		            a.PAYMENT_REASON				as orderremarks,
+		            'CNY'							as moneytype,
+		            nvl(a.FAILED_REASON,b.auditfailing_reason)          as errormessage,
+		            a.ORDER_SMALLTYPE				as type,
+		            a.ORDER_STATUS					as status,
+		            a.CREATE_DATE					as createtime,
+		            a.UPDATE_DATE					as updatetime,
+		            a.ORDER_TYPE					as busitype,
+		            a.FOREIGN_ORDERID				as orderseqid,
+		            a.FUNDOUT_MODE					as withdrawtype,
+		            a.FUNDOUT_BANKCODE				as withdrawbankcode ,
+	      			a.BANK_ORDERID					as tradeSeq,
+	      			a.FEE							as fee, 
+					a.REALPAY_AMOUNT				as orderAmount,
+	      			a.REALOUT_AMOUNT                 as payerAmount,
+	       			a.PAYER_NAME					as memberName    
+		  from FUNDOUT_ORDER a,withdraw_workorder b
+		  where a.ORDER_ID = b.order_seq	
+			<isPropertyAvailable property="subList" prepend="AND">
+			 	<isNotEmpty property="subList">
+			 		b.workorder_ky in 
+			 		<iterate property="subList" open="(" close=")" conjunction=",">
+			 			#subList[]#
+			 		</iterate>
+			 	</isNotEmpty>
+			 </isPropertyAvailable>
+    </select>
+    
+    
+     <select id="queryWithdrawOrderBusiTypeByWorkKy" parameterClass="auditWorkOrderModel" resultClass="java.lang.Long">
+		  SELECT
+			DISTINCT A.ORDER_TYPE AS BUSITYPE		
+		  FROM FUNDOUT_ORDER A,WITHDRAW_WORKORDER B
+		  WHERE A.ORDER_ID = B.ORDER_SEQ	
+			<isPropertyAvailable property="subList" prepend="AND">
+			 	<isNotEmpty property="subList">
+			 		B.WORKORDER_KY IN 
+			 		<iterate property="subList" open="(" close=")" conjunction=",">
+			 			#subList[]#
+			 		</iterate>
+			 	</isNotEmpty>
+			 </isPropertyAvailable>
+    </select>
+    
+    
+    <select id="withdrawSecondAuditQuery" parameterClass="auditQueryOrderModel" resultMap="queryOrder">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       a.risk_leve_code          as riskLeveCode,
+           a.account_mode          as accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           c.BUSINESS_BATCH_NO 			as		batchNo,
+           c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId,
+           ''						as       failReason,
+           a.is_loaning				as isLoaning
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 	b.status in(1,2)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		  <isEmpty property="batchStatus" prepend="AND">
+		    	 b.batch_status = 0
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="riskLeveCode">
+		   		and (
+		   			a.payer_membertype = '1' 
+		   			or
+                   (a.payer_membertype = '2' 
+                   		and a.risk_leve_code in
+			  	 		<iterate property="riskLeveCode" open="(" close=")" conjunction=",">
+							#riskLeveCode[]#
+						</iterate>
+                   	)              
+             
+             	)
+	  	 	</isNotEmpty>
+	  	 	<isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+  	</select>
+  	
+  	 <select id="withdrawSecondAuditQuery_COUNT" resultClass="java.lang.Integer" parameterClass="auditQueryOrderModel">
+		select
+       	   count(*)
+	  from FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 	b.status in(1,2)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		  <isEmpty property="batchStatus" prepend="AND">
+		    	 b.batch_status = 0
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="riskLeveCode">
+		   		and (
+		   			a.payer_membertype = '1' 
+		   			or
+                   (a.payer_membertype = '2' 
+                   		and a.risk_leve_code in
+			  	 		<iterate property="riskLeveCode" open="(" close=")" conjunction=",">
+							#riskLeveCode[]#
+						</iterate>
+                   	)              
+             
+             	)
+	  	 	</isNotEmpty>
+	  	 	<isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+    </select>
+    
+    <select id="withdrawLiquidateQuery" parameterClass="auditQueryOrderModel" resultMap="queryOrder">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       a.risk_leve_code             as      riskLeveCode,
+           a.account_mode               as      accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           c.BUSINESS_BATCH_NO 			as		batchNo,
+            c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId,
+           ''						as       failReason,
+           a.is_loaning                 as      isLoaning
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c 
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 b.status in(4,5)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		   <isEmpty property="batchStatus" prepend="AND">
+		    	 b.batch_status in(0, 2)
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.PAYER_MEMBERCODE in ($memberCodeList$)
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+  	</select>
+  	
+  	 <select id="withdrawLiquidateQuery_COUNT" resultClass="java.lang.Integer" parameterClass="auditQueryOrderModel">
+		select
+       	   count(*)
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c 
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 b.status in(4,5)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		   <isEmpty property="batchStatus" prepend="AND">
+		    	 b.batch_status in(0, 2)
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.PAYER_MEMBERCODE in ($memberCodeList$)
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+    </select>
+    
+    <select id="withdrawProcessingQuery" parameterClass="auditQueryOrderModel" resultMap="queryOrder">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       a.risk_leve_code             as      riskLeveCode,
+           a.account_mode               as      accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           b.batch_num 			as		batchNo,
+            c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId,
+           ''						as       failReason,
+           a.is_loaning                 as      isLoaning
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c 
+	  	WHERE  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+				 b.status in(4,5,7,8,9)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.PAYER_MEMBERCODE in ($memberCodeList$)
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberName" prepend="AND">
+		   		a.PAYER_NAME like '%' || #memberName# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="withdrawBankCode" prepend="AND">
+		   		a.FUNDOUT_BANKCODE = #withdrawBankCode#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		b.batch_num = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+  	</select>
+  	
+  	 <select id="withdrawProcessingQuery_COUNT" resultClass="java.lang.Integer" parameterClass="auditQueryOrderModel">
+		select
+       	   count(*)
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c 
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 b.status in(4,5,7,8,9)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.PAYER_MEMBERCODE in ($memberCodeList$)
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberName" prepend="AND">
+		   		a.PAYER_NAME like '%' || #memberName# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="withdrawBankCode" prepend="AND">
+		   		a.FUNDOUT_BANKCODE = #withdrawBankCode#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		b.batch_num = #batchNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="accountMode" prepend="AND">
+		   		a.account_mode = #accountMode#
+		    </isNotEmpty>
+	  	 	<isNotEmpty property="isLoaning" prepend="AND">
+		   		a.is_loaning = #isLoaning#
+		    </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+		<!-- </dynamic> -->
+    </select>
+    
+    <select id="reAuditWithdrawResultProcessManualQuery" parameterClass="withdrawResManuProcModel" resultMap="queryOrder2">
+     select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       '' as riskLeveCode,
+           ''           as accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           '' 			as		batchNo,
+          <!--  c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId, -->
+           ''						as       failReason,
+           '' as isLoaning
+	  from FUNDOUT_ORDER a, withdraw_workorder b,batch_info c
+      where 
+          b.order_seq = a.ORDER_ID
+          and b.BATCH_NUM = c.BATCH_NUM(+)
+         <isNotEmpty property="batchName" prepend="AND"> 
+        	  c.BATCH_NAME like '%' || #batchName# || '%'
+         </isNotEmpty>
+         <isNotEmpty property="batchNum" prepend="AND"> 
+         	  b.BATCH_NUM = #batchNum#
+         </isNotEmpty>
+         <isNotEmpty property="sequenceId" prepend="AND"> 	  
+        	 a.ORDER_ID = #sequenceId#
+        </isNotEmpty>
+        <isNotEmpty property="status" prepend="AND">
+            b.STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		</isNotEmpty>
+		 <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+        <isEmpty property="status" prepend="AND">
+		   	b.status in(8,9)
+		</isEmpty>
+		 and b.batch_status = 1	
+    </select>
+    
+    <select id="reAuditWithdrawResultProcessManualQuery_COUNT" resultClass="java.lang.Integer" parameterClass="withdrawResManuProcModel">
+    	select
+       	   count(*)
+	  from FUNDOUT_ORDER a, withdraw_workorder b,batch_info c
+      where 
+          b.order_seq = a.ORDER_ID
+          and b.BATCH_NUM = c.BATCH_NUM(+)
+         <isNotEmpty property="batchName" prepend="AND"> 
+        	  c.BATCH_NAME like '%' || #batchName# || '%'
+         </isNotEmpty>
+         <isNotEmpty property="batchNum" prepend="AND"> 
+         	  b.BATCH_NUM = #batchNum#
+         </isNotEmpty>
+         <isNotEmpty property="sequenceId" prepend="AND"> 	  
+        	 a.ORDER_ID = #sequenceId#
+        </isNotEmpty>
+        <isNotEmpty property="status" prepend="AND">
+            b.STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		</isNotEmpty>
+		 <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+        <isEmpty property="status" prepend="AND">
+		   	b.status in(8,9)
+		</isEmpty>
+		 and b.batch_status = 1
+    </select>
+    
+    <select id="withdrawResultProcessManualQuery" parameterClass="withdrawResManuProcModel" resultMap="queryOrder2">
+     select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+       	   a.PAYER_MEMBERTYPE           as      memberType,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason,
+	       '' as riskLeveCode,
+           ''           as accountMode,
+           a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+           '' 			as		batchNo,
+           <!-- c.ORDER_ID					as		corderId,
+           a.PARENT_ORDERID					as		parentOrderId, -->
+           ''						as       failReason,
+           '' as isLoaning
+	  from FUNDOUT_ORDER a, withdraw_workorder b,batch_info c
+      where 
+          b.order_seq = a.ORDER_ID
+          and b.BATCH_NUM = c.BATCH_NUM(+)
+         <isNotEmpty property="batchName" prepend="AND"> 
+        	  c.BATCH_NAME like '%' || #batchName# || '%'
+         </isNotEmpty>
+         <isNotEmpty property="batchNum" prepend="AND"> 
+         	  b.BATCH_NUM = #batchNum#
+         </isNotEmpty>
+         <isNotEmpty property="sequenceId" prepend="AND"> 	  
+        	 a.ORDER_ID = #sequenceId#
+        </isNotEmpty>
+        <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		</isNotEmpty>
+		 <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+       	 and  b.STATUS = 7
+		 and b.batch_status = 1	
+    </select>
+    
+    <select id="withdrawResultProcessManualQuery_COUNT" resultClass="java.lang.Integer" parameterClass="withdrawResManuProcModel">
+    	select
+       	   count(*)
+	  from FUNDOUT_ORDER a, withdraw_workorder b,batch_info c
+      where 
+          b.order_seq = a.ORDER_ID
+          and b.BATCH_NUM = c.BATCH_NUM(+)
+         <isNotEmpty property="batchName" prepend="AND"> 
+        	  c.BATCH_NAME like '%' || #batchName# || '%'
+         </isNotEmpty>
+         <isNotEmpty property="batchNum" prepend="AND"> 
+         	  b.BATCH_NUM = #batchNum#
+         </isNotEmpty>
+         <isNotEmpty property="sequenceId" prepend="AND"> 	  
+        	 a.ORDER_ID = #sequenceId#
+        </isNotEmpty>
+        <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		</isNotEmpty>
+		 <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+       	 and  b.STATUS = 7
+		 and b.batch_status = 1
+    </select>
+    
+    <select id="exportWithdrawAudit" parameterClass="auditQueryOrderModel" resultClass="exportWithdrawModel">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+           a.PARENT_ORDERID					as		parentOrderId,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="bankAcctType" prepend="AND">
+		   		 a.BANK_ACCT_TYPE = #bankAcctType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="tradeType" prepend="AND">
+		   		 a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="memberCodeList" prepend="AND">
+		   		 a.MEMBER_CODE in (#memberCodeList#)
+		   </isNotEmpty>
+	  	   <isNotEmpty property="withdrawBankCode" prepend="AND">
+		   		 a.WITHDRAW_BANK_CODE = #withdrawBankCode#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 	b.status in(0,3)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		   <isEmpty property="batchStatus" prepend="AND">
+		    	 b.batch_status = 0
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		<!-- </dynamic> -->
+  	</select>
+  	
+  	<select id="exportWithdrawReAudit" parameterClass="auditQueryOrderModel" resultClass="exportWithdrawModel">
+       select
+       	   a.PAYER_MEMBERCODE 			as 		memberCode,
+	       a.PAYER_ACCTTYPE 			as 		memberAccType,
+	       a.PAYEE_NAME 				as 		accountName,
+	       a.ORDER_ID	 				as 		sequenceId,
+	       a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+	       a.PAYEE_BANKACCTCODE			as 		bankAcct,
+	       a.order_amount				as 		amount,
+	       a.PAYEE_BANKPROVINCE			as 		bankProvince,
+	       a.CREATE_DATE 				as 		createTime,
+	       b.create_time         		as      webAuditTime,
+	       a.PAYEE_BANKCITY				as 		bankCity,
+	       a.FUNDOUT_BANKCODE			as 		withdrawBankCode,
+	       a.PAYMENT_REASON				as		orderRemarks,
+	       a.PAYEE_BANKACCTTYPE			as		bankAcctType,
+	       a.PAYEE_BANKCODE				as		bankKy,
+	       a.BANK_ORDERID				as		tradeSeq,
+	       A.FEE						as		fee,
+	       a.ORDER_TYPE					as 		busiType,
+	       a.PAYER_NAME					as		memberName,
+	       b.status 					as 		status,
+	       b.workorder_ky				as 		workOrderky,
+	       b.WORKFLOW_KY				as		workflowKy,
+	       b.batch_status				as		batchStatus,
+	       b.auditfailing_reason		as		auditFailReason,
+	       b.reauditback_reason			as		reAuditBackReason
+	  from FUNDOUT_ORDER a, withdraw_workorder b, BATCH_PAYMENTORDER c
+	  <!--  <dynamic prepend=" WHERE "> -->
+	  	where  
+	  	   b.order_seq = a.ORDER_ID
+	  	   AND a.PARENT_ORDERID= c.ORDER_ID(+)
+	  	   <isNotEmpty property="status" prepend="AND">
+		   		 b.status = #status#
+		   </isNotEmpty>
+		   <isEmpty property="status" prepend="AND">
+		   	 	b.status in(1,2)
+		   </isEmpty>
+		   <isNotEmpty property="batchStatus" prepend="AND">		 
+		   		 b.batch_status = #batchStatus#                   
+		   </isNotEmpty>
+		  <isEmpty property="batchStatus" prepend="AND">
+		    	 b.batch_status = 0
+		   </isEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		 a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate#]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+
+		   <isNotEmpty property="memberType" prepend="AND">
+		   		a.PAYER_MEMBERTYPE = #memberType#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberAccType" prepend="AND">
+		   		a.PAYER_ACCTTYPE = #memberAccType#
+		   </isNotEmpty>
+		   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.ORDER_ID = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankAcct" prepend="AND">
+		   		a.PAYEE_BANKACCTCODE = #bankAcct#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankBranch" prepend="AND">
+		   		a.PAYEE_OPENINGBANKNAME like '%' || #bankBranch# || '%'
+		   </isNotEmpty>
+		   <isNotEmpty property="prioritys" prepend="AND">
+		   		a.PRIORITY = #prioritys# 
+		   </isNotEmpty>
+		   <isNotEmpty property="busiType" prepend="AND">
+		   		a.ORDER_TYPE = #busiType#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   <isNotEmpty property="filter" prepend="AND">
+		   		$filter$
+		   </isNotEmpty>
+		   <isNotEmpty property="loginName" prepend="AND">
+		   		a.PAYER_LOGINNAME = LOWER(#loginName#)
+		   </isNotEmpty>
+		   <isNotEmpty property="primaryOrderNo" prepend="AND">
+		   		a.PARENT_ORDERID = #primaryOrderNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="batchNo" prepend="AND">
+		   		c.BUSINESS_BATCH_NO = #batchNo#
+		   </isNotEmpty>
+		<!-- </dynamic> -->
+  	</select>
+</sqlMap>

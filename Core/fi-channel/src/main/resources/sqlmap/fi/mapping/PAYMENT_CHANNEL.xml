@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentChannel">
+	<typeAlias alias="paymentChannel" type="com.pay.channel.model.PaymentChannel"/>
+    <resultMap id="paymentChannelMap" class="paymentChannel">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="CODE" property="code" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="paymentChannel">
+        <selectKey resultClass="java.lang.Long" keyProperty="id">
+            SELECT SEQ_PAYMENT_CHANNEL_ID.NEXTVAL FROM DUAL 
+        </selectKey>
+        INSERT INTO PAYMENT_CHANNEL(
+			ID,CREATE_DATE,STATUS,UPDATE_DATE,DESCRIPTION,NAME,CODE,OPERATOR
+        )
+        VALUES(#id#,#createDate#,#status#,#updateDate#,#description#,#name#,#code#,#operator#
+		)
+    </insert>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+    	delete from PAYMENT_CHANNEL where id = #id#
+    </delete>
+
+    <update id="update" parameterClass="paymentChannel">
+        UPDATE PAYMENT_CHANNEL
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        <isNotEmpty prepend="," property="description">
+            DESCRIPTION = #description#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="name">
+            NAME = #name#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="code">
+            CODE = #code#
+        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="id">
+            ID = #id# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <select id="findById" resultMap="paymentChannelMap"
+        parameterClass="java.lang.Long">
+        SELECT * FROM PAYMENT_CHANNEL WHERE ID = #id# 
+    </select>
+    
+    <select id="findByCriteria" resultMap="paymentChannelMap">
+        SELECT * FROM PAYMENT_CHANNEL
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="id">
+            ID = #id# 
+        </isNotNull>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="name">
+            NAME like '%$name$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="code">
+            CODE = #code# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+    
+    <select id="loadAll" resultMap="paymentChannelMap">
+		select * from PAYMENT_CHANNEL
+	</select>
+    
+</sqlMap>

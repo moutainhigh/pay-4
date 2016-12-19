@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="innerBackFund">
+	<typeAlias alias="innerBackFundingOrder" type="com.pay.poss.dto.withdraw.order.BackFundmentOrder" />
+	<typeAlias alias="orderFailAlertModel" type="com.pay.poss.dto.withdraw.order.OrderFailProcAlertModel" />		
+    
+	<insert id="inserInnerBackFundingOrder" parameterClass="innerBackFundingOrder">
+		<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			SELECT 200 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_FO_GLOBE_CYCLE.NEXTVAL, 6, 0) AS SEQUENCE_ID  FROM DUAL
+		</selectKey>
+        insert into BACK_FUNDMENT_ORDER 
+        <dynamic prepend="(">
+	        <isNotEmpty prepend="," property="sequenceId">
+        		SEQUENCE_ID 
+        	</isNotEmpty>
+        	<isNotEmpty prepend="," property="orderCode">
+        		ORDER_CODE 
+        	</isNotEmpty>
+        	<isNotEmpty prepend="," property="sequenceSrc">
+        		SEQUENCE_SRC
+        	</isNotEmpty>
+        	<isNotEmpty prepend="," property="codeSrc"> 
+        		CODE_SRC
+        	</isNotEmpty>
+        	<isNotEmpty prepend="," property="timeSrc"> 
+        		TIME_SRC
+        	</isNotEmpty>
+        	<isNotEmpty prepend="," property="amountSrc">
+            	AMOUNT_SRC 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="feeSrc">
+            	FEE_SRC 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="bankSrc">
+            	BANK_SRC 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="fromCode">
+            	FROM_CODE
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payerMember">
+            	PAYER_MEMBER 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payerAcctType">
+            	PAYER_ACCT_TYPE
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payeeAcctCode">
+            	PAYER_ACCT_CODE 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payerCode">
+            	PAYER_CODE
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payeeMember">
+            	PAYEE_MEMBER 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payeeAcctType">
+            	PAYEE_ACCT_TYPE
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payeeAcctCode"> 
+            	PAYEE_ACCT_CODE 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="payeeCode">
+            	PAYEE_CODE
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="appType">
+            	APP_TYPE 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="appAmount">
+            	APP_AMOUNT 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="appFee">
+            	APP_FEE 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="reasons">
+            	REASONS 
+            </isNotEmpty>
+        	<isNotEmpty prepend="," property="status">
+            	STATUS
+            </isNotEmpty>
+            <isNotEmpty prepend="," property="uniqueKy">
+            	UNIQUEKY
+            </isNotEmpty>
+        )
+        </dynamic>
+        VALUES
+		<dynamic prepend="(">
+        	<isNotEmpty prepend="," property="sequenceId">#sequenceId#</isNotEmpty> 
+        	<isNotEmpty prepend="," property="orderCode">#orderCode#</isNotEmpty> 
+        	<isNotEmpty prepend="," property="sequenceSrc">#sequenceSrc#</isNotEmpty> 
+        	<isNotEmpty prepend="," property="codeSrc">#codeSrc#</isNotEmpty> 
+        	<isNotEmpty prepend="," property="timeSrc">#timeSrc#</isNotEmpty> 
+        	<isNotEmpty prepend="," property="amountSrc">#amountSrc#</isNotEmpty>
+            <isNotEmpty prepend="," property="feeSrc">#feeSrc#</isNotEmpty> 
+            <isNotEmpty prepend="," property="bankSrc">#bankSrc#</isNotEmpty> 
+            <isNotEmpty prepend="," property="fromCode">#fromCode#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payerMember">#payerMember#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payerAcctType">#payerAcctType#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payerAcctCode">#payerAcctCode#</isNotEmpty>
+            <isNotEmpty prepend="," property="payerCode">#payerCode#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payeeMember">#payeeMember#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payeeAcctType">#payeeAcctType#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payeeAcctCode">#payeeAcctCode#</isNotEmpty> 
+            <isNotEmpty prepend="," property="payeeCode">#payeeCode#</isNotEmpty> 
+            <isNotEmpty prepend="," property="appType">#appType#</isNotEmpty>
+            <isNotEmpty prepend="," property="appAmount">#appAmount#</isNotEmpty> 
+            <isNotEmpty prepend="," property="appFee">#appFee#</isNotEmpty> 
+            <isNotEmpty prepend="," property="reasons">#reasons#</isNotEmpty> 
+            <isNotEmpty prepend="," property="status">#status#</isNotEmpty>
+            <isNotEmpty prepend="," property="uniqueKy">#uniqueKy#</isNotEmpty>
+            
+         )
+        </dynamic>
+	</insert>  
+	
+	<update id="updateInnerBackFundingOrderStatus" parameterClass="innerBackFundingOrder">
+        UPDATE 	BACK_FUNDMENT_ORDER	
+        	SET STATUS=#status#,
+       	 <isNotEmpty property="uniqueKy">
+			UNIQUEKY = #uniqueKy# ,
+       	 </isNotEmpty>
+        	UPDATE_TIME=SYSDATE
+		WHERE SEQUENCE_ID=#sequenceId#
+    </update>
+    
+	<insert id="inserOrderFailProc" parameterClass="orderFailAlertModel">
+		<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			SELECT 200 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_FO_GLOBE_CYCLE.NEXTVAL, 6, 0) AS SEQUENCE_ID  FROM DUAL
+		</selectKey>
+        insert into alert_orderproc_fail 
+        (
+        	SEQUENCE_ID, 
+        	ORDER_SEQ, 
+        	ORDER_STATUS, 
+        	FAIL_REASON, 
+        	CREATE_TIME,
+            UPDATE_TIME, 
+            STATUS, 
+            REMARKS, 
+            APP_FROM
+        )
+        values 
+        (
+        	#sequenceId#, 
+        	#orderSeq#, 
+        	#orderStatus#, 
+        	#failReason#, 
+        	#createTime#, 
+        	#updateTime#,
+            #status#, 
+            #remarks#, 
+            #appFrom#
+        )
+	</insert>      
+</sqlMap>

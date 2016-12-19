@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dayRateLog">
+	<typeAlias alias="dayRateLog" type="com.pay.credit.model.dayrate.DayRateLog" />
+
+	<!-- 插入日利率变更记录 -->
+	<insert id="inertDayRateLog" parameterClass="dayRateLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="rateLogId">
+			select SEQ_DAY_RATE_LOG.nextval as rateLogId from dual
+		</selectKey>
+		INSERT INTO
+		DAY_RATE_LOG
+		(
+		RATE_LOG_ID,
+		OLD_DAY_RATE,
+		NEW_DAY_RATE,
+		UPDATE_TIME,
+		OPERATOR
+		)
+		values
+		(
+		#rateLogId#,
+		#oldDayRate#,
+		#newDayRate#,
+		SYSDATE,
+		#operator#
+		)
+	</insert>
+
+	<!-- 查询日利率变更记录 -->
+	<select id="queryDayRateLog" parameterClass="java.util.HashMap" resultClass="dayRateLog">
+		SELECT 
+		RATE_LOG_ID AS rateLogId,
+		OLD_DAY_RATE AS oldDayRate,
+		NEW_DAY_RATE AS newDayRate,
+		UPDATE_TIME AS updateTime,
+		OPERATOR AS	operator
+		FROM DAY_RATE_LOG
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="queryTime">
+				to_char(UPDATE_TIME,'yyyy-MM-dd') = #queryTime#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY RATE_LOG_ID DESC
+	</select>
+
+</sqlMap>

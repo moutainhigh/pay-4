@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="rm-rclimitrulefacade" class="com.pay.rm.facade.impl.RCLimitRuleFacadeImpl">
+		<property name="riskLevelService" ref="rm_limit_risklevelservice" />
+		<property name="rcLimitService" ref="rm_limit_facadeservice" />
+		<property name="rcLimitRuleFacadeDao" ref="rm-rclimitrulefacadedao" />
+	</bean>
+
+	<bean id="rm-rclimitrulefacadedao" class="com.pay.rm.facade.dao.impl.RCLimitRuleFacadeDaoImpl"
+		parent="RM_DEFAULT_DAOSERVICE">
+		<property name="namespace" value="rmexternalfacade" />
+	</bean>
+	
+	<bean id="businessTRadeCountDAOImpl" class="com.pay.rm.facade.dao.impl.BusinessTRadeCountDAOImpl"
+	      parent="RM_DEFAULT_DAOSERVICE">
+	      <property name="namespace" value="businessTradeCount" />
+	</bean>
+	
+	<bean id="businessTradeCountService" class="com.pay.rm.facade.impl.BusinessTradeCountServiceImpl">
+	     <property name="businessTradeCountDAO" ref="businessTRadeCountDAOImpl"/>
+	</bean>
+
+</beans>

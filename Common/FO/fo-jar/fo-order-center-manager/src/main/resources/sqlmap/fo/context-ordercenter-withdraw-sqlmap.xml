@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	<!-- 提现/付款到银行/批量付款到银行/提现退款 -->
+<sqlMap namespace="ordercenterwithdraw">
+	<!-- 订单查询条件 -->
+	<typeAlias alias="context_fundout_orderCenterQueryDTO" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<typeAlias alias="context_fundout_orderCenterResultDTO" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	<!-- 订单详情 -->
+	<typeAlias alias="context_fundout_orderDetailDTO" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+	<!-- 关联订单 -->
+	<typeAlias alias="fo_ordercenterrelationdto" type="com.pay.poss.service.ordercenter.dto.relationorder.OrderRelationDTO" />
+	
+	<!-- 提现 订单详情 -->
+	<select id="context_fundout_ordercenter_orderdetail" resultClass="context_fundout_orderDetailDTO" parameterClass="java.lang.Long">
+		SELECT
+          A.ORDER_ID                              ORDERKY,
+          A.PAYER_MEMBERCODE                      PAYERKY,
+          A.PAYER_MEMBERCODE                      MEMBERCODE,
+          A.PAYER_ACCTCODE                        PAYERACCT,
+          A.PAYER_ACCTTYPE                        PAYERACCTTYPE,
+          A.ORDER_AMOUNT                          ORDERACCOUNT,
+          A.PAYEE_NAME                            PAYEENAME,
+          A.PAYEE_BANKACCTCODE                    BANKACCT,
+          TO_CHAR(A.PAYEE_BANKACCTTYPE)           PAYEEACCTTYPE,
+          TO_CHAR(A.PAYEE_BANKCODE)               BANKNAME,
+          A.PAYEE_OPENINGBANKNAME                 BANKBRANCH,
+          A.PAYEE_BANKPROVINCENAME           	  PROVINCES,
+          A.PAYMENT_REASON                        REMARKS,
+          A.CREATE_DATE                           ORDERCREATETIME,
+          A.UPDATE_DATE                           ORDERENDTIME,
+          TO_CHAR(A.FUNDOUT_MODE)                 PAYMENT,
+          A.FEE                                   FEE,
+          A.PAYEE_BANKCITYNAME               	  CITY,
+          A.PARENT_ORDERID                        LIQUIDATEBATCHKY,
+          A.ORDER_STATUS                          ORDERSTATUS,
+	      TO_CHAR(A.ORDER_TYPE)                   ORDERTYPE,
+          A.PAYER_NAME                            PAYERNAME,
+          A.PAYER_LOGINNAME                       PAYERID,
+          A.PAYER_ACCTCODE                        PAYERACCT,
+          A.PAYEE_BANKACCTCODE                    PAYEEACCT,
+          TO_CHAR(T.SERVICE_LEVEL_CODE)           PAYERLEVEL,
+          A.FAILED_REASON						  FAILEDREASON,
+          (select w.create_time from fo.withdraw_workorder w where w.order_seq = a.order_id) webAuditTime,
+          (select w.STATUS from fo.withdraw_workorder w where w.order_seq = a.order_id) workOrderStatus,
+          (select fc.bank_id from fo.FUNDOUT_CHANNEL fc where fc.code = a.channel_code) channelBank
+	    FROM FUNDOUT_ORDER A,ACC.T_MEMBER T
+		WHERE A.PAYER_MEMBERCODE = T.MEMBER_CODE
+	  	AND A.ORDER_ID = #orderKy#
+	</select>
+	
+	<!-- 提现退款  订单详情 -->
+	<select id="context_fundout_ordercenter_backwithdrawdetail" resultClass="context_fundout_orderDetailDTO" parameterClass="java.lang.Long">
+		SELECT
+          FR.ORDER_ID                             ORDERKY,
+          A.PAYER_MEMBERCODE                      PAYERKY,
+          A.PAYER_MEMBERCODE                      MEMBERCODE,
+          A.PAYER_ACCTCODE                        PAYERACCT,
+          A.PAYER_ACCTTYPE                        PAYERACCTTYPE,
+          A.ORDER_AMOUNT                          ORDERACCOUNT,
+          A.PAYEE_NAME                            PAYEENAME,
+          A.PAYEE_BANKACCTCODE                    BANKACCT,
+          TO_CHAR(A.PAYEE_BANKACCTTYPE)           PAYEEACCTTYPE,
+          TO_CHAR(A.PAYEE_BANKCODE)               BANKNAME,
+          A.PAYEE_OPENINGBANKNAME                 BANKBRANCH,
+          A.PAYEE_BANKPROVINCENAME           	  PROVINCES,
+          FR.refund_reason                        REMARKS,
+          FR.create_date                          orderCreateTime,
+		      FR.update_date                          orderEndTime,
+          A.CREATE_DATE                           ORDERCREATETIME,
+          A.UPDATE_DATE                           ORDERENDTIME,
+          TO_CHAR(A.FUNDOUT_MODE)                 PAYMENT,
+          A.FEE                                   FEE,
+          A.PAYEE_BANKCITYNAME               	  CITY,
+          A.PARENT_ORDERID                        LIQUIDATEBATCHKY,
+          FR.ORDER_STATUS                          ORDERSTATUS,
+	        TO_CHAR(A.ORDER_TYPE)                   ORDERTYPE,
+          A.PAYER_NAME                            PAYERNAME,
+          A.PAYER_LOGINNAME                       PAYERID,
+          A.PAYER_ACCTCODE                        PAYERACCT,
+          A.PAYEE_BANKACCTCODE                    PAYEEACCT,
+          TO_CHAR(T.SERVICE_LEVEL_CODE)           PAYERLEVEL,
+          FR.refund_reason						  FAILEDREASON
+	    FROM FUNDOUT_ORDER A,FUNDOUT_REFUNDORDER FR,ACC.T_MEMBER T
+		WHERE FR.SRC_ORDERID = A.ORDER_ID
+      AND A.PAYER_MEMBERCODE = T.MEMBER_CODE
+	  	AND FR.ORDER_ID = #orderKy#
+	</select>
+	
+	<!-- 提现 -->
+	<select id="context_fundout_ordercenter_withdraw" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="context_fundout_orderCenterResultDTO">
+		SELECT  
+				A.ORDER_ID  ORDERKY,
+				A.ORDER_AMOUNT ORDERAMOUNT,
+				A.ORDER_STATUS ORDERSTATUS,
+		       	TO_CHAR(A.PAYER_MEMBERCODE) PAYERACCOUNTNO, 
+		       	TO_CHAR(A.PAYEE_BANKACCTCODE) PAYEEACCOUNTNO,
+		       	A.PAYEE_BANKCODE PAYEEBANKNO, 
+		       	A.PAYEE_BANKNAME PAYEEBANKNAME,  
+		       	A.UPDATE_DATE ORDERDATE,
+		       	TO_CHAR(A.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+		       	TO_CHAR(A.PAYER_ACCTTYPE) PAYERACCTYPE,
+		        A.ORDER_TYPE ORDERTYPE
+  		FROM 	FUNDOUT_ORDER A
+		WHERE A.ORDER_TYPE = 0
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            a.PAYER_MEMBERCODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            a.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            a.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            a.ORDER_ID = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ a.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ a.UPDATE_DATE <= #endTime# +1 ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            A.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+		 	<isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="channelId" prepend="AND">
+	            A.CHANNEL_CODE = #channelId# 
+	        </isNotEmpty>
+    </select>
+    
+    <select id="context_fundout_ordercenter_withdraw_COUNT" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="java.lang.Integer">
+		SELECT  
+				COUNT(1)
+  		FROM 	FUNDOUT_ORDER A
+		WHERE A.ORDER_TYPE = 0
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            a.PAYER_MEMBERCODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            a.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            a.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            a.ORDER_ID = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ a.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ a.UPDATE_DATE <= #endTime# +1 ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            A.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="channelId" prepend="AND">
+	            A.CHANNEL_CODE = #channelId# 
+	        </isNotEmpty>
+    </select>
+    
+    <!-- 付款到银行卡 -->
+    <select id="context_fundout_ordercenter_pay2bank" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="context_fundout_orderCenterResultDTO">
+		SELECT  
+				A.ORDER_ID  ORDERKY,
+				A.ORDER_TYPE ORDERTYPE,
+				A.ORDER_AMOUNT ORDERAMOUNT,
+				A.ORDER_STATUS ORDERSTATUS,
+		       	TO_CHAR(A.PAYER_MEMBERCODE) PAYERACCOUNTNO, 
+		       	TO_CHAR(A.PAYEE_BANKACCTCODE) PAYEEACCOUNTNO,
+		       	A.PAYEE_BANKCODE PAYEEBANKNO, 
+		       	A.PAYEE_BANKNAME PAYEEBANKNAME,  
+		       	A.UPDATE_DATE ORDERDATE,
+		       	TO_CHAR(A.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+		       	TO_CHAR(A.PAYER_ACCTTYPE) PAYERACCTYPE
+  		FROM 	FUNDOUT_ORDER A
+		WHERE A.ORDER_TYPE = 3
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            a.PAYER_MEMBERCODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            a.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            a.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            a.ORDER_ID = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ a.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ a.UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            A.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="channelId" prepend="AND">
+	            A.CHANNEL_CODE = #channelId# 
+	        </isNotEmpty>
+    </select>
+    
+    <select id="context_fundout_ordercenter_pay2bank_COUNT" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="java.lang.Integer">
+		SELECT  
+				COUNT(1)
+  		FROM 	FUNDOUT_ORDER A
+		WHERE A.ORDER_TYPE = 3
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            a.PAYER_MEMBERCODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            a.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            a.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            a.ORDER_ID = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ a.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ a.UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            A.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="channelId" prepend="AND">
+	            A.CHANNEL_CODE = #channelId# 
+	        </isNotEmpty>
+    </select>
+    
+	<!-- 批量付款到银行-->
+	<select id="context_fundout_ordercenter_pay2banks" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="context_fundout_orderCenterResultDTO">
+		    SELECT  
+        		A.ORDER_ID  ORDERKY,
+        		A.ORDER_TYPE ORDERTYPE,
+        		A.ORDER_AMOUNT ORDERAMOUNT,
+        		A.ORDER_STATUS ORDERSTATUS,
+       			TO_CHAR(BP.PAYER_MEMBERCODE) PAYERACCOUNTNO, 
+       			TO_CHAR(A.PAYEE_BANKACCTCODE) PAYEEACCOUNTNO,
+       			TO_CHAR(A.PAYEE_BANKCODE) PAYEEBANKNO, 
+       			A.PAYEE_BANKNAME PAYEEBANKNAME,  
+       			A.UPDATE_DATE ORDERDATE,
+       			TO_CHAR(A.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+       			TO_CHAR(A.PAYER_ACCTTYPE) PAYERACCTYPE
+  			FROM 	BATCH_PAYMENTORDER BP,FUNDOUT_ORDER A
+			WHERE 	BP.ORDER_ID = A.PARENT_ORDERID
+    				AND A.ORDER_TYPE = 4
+    				AND BP.ORDER_TYPE = 4
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            TO_CHAR(A.PAYER_MEMBERCODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            A.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            A.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            TO_CHAR(A.ORDER_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ A.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ A.UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            A.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="primaryOrderNo" prepend="AND">
+	            A.PARENT_ORDERID = #primaryOrderNo#
+	        </isNotEmpty>
+	        <isNotEmpty  property="batchNo" prepend="AND">
+	            BP.BUSINESS_BATCH_NO = #batchNo#
+	        </isNotEmpty>
+	        <isNotEmpty  property="channelId" prepend="AND">
+	            A.CHANNEL_CODE = #channelId# 
+	        </isNotEmpty>
+    </select>
+    
+    <select id="context_fundout_ordercenter_pay2banks_COUNT" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="java.lang.Integer">
+		SELECT  
+        		COUNT(1)
+  			FROM 	BATCH_PAYMENTORDER BP,FUNDOUT_ORDER A
+			WHERE 	BP.ORDER_ID = A.PARENT_ORDERID
+    				AND A.ORDER_TYPE = 4
+    				AND BP.ORDER_TYPE = 4
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            TO_CHAR(A.PAYER_MEMBERCODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            A.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            A.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            TO_CHAR(A.ORDER_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ A.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ A.UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            A.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	         <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="primaryOrderNo" prepend="AND">
+	            A.PARENT_ORDERID = #primaryOrderNo#
+	        </isNotEmpty>
+	        <isNotEmpty  property="batchNo" prepend="AND">
+	            BP.BUSINESS_BATCH_NO = #batchNo#
+	        </isNotEmpty>
+	        <isNotEmpty  property="channelId" prepend="AND">
+	            A.CHANNEL_CODE = #channelId# 
+	        </isNotEmpty>
+    </select>
+    
+	<!-- 出款退款 -->
+	<select id="context_fundout_ordercenter_backwithdraw" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="context_fundout_orderCenterResultDTO">
+		SELECT 	
+				B.ORDER_ID ORDERKY, 
+				B.BANK_ORDERID BANKORDERKY, 
+				A.ORDER_AMOUNT ORDERAMOUNT, 
+				B.ORDER_STATUS ORDERSTATUS,
+        		TO_CHAR(A.PAYER_MEMBERCODE) PAYERACCOUNTNO, 
+           		TO_CHAR(A.PAYEE_BANKACCTCODE) PAYEEACCOUNTNO,
+		       	A.PAYEE_BANKCODE PAYEEBANKNO, 
+		       	A.PAYEE_BANKNAME PAYEEBANKNAME, 
+		       	B.UPDATE_DATE ORDERDATE,
+       			TO_CHAR(A.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+       			TO_CHAR(A.PAYER_ACCTTYPE) PAYERACCTYPE,
+       			TO_CHAR(A.PAYER_MEMBERCODE) PAYEEMEMBERCODE,
+	           	TO_CHAR(A.PAYER_ACCTTYPE) PAYEEACCTYPE,
+	           	A.ORDER_ID ORDERSRC
+	    FROM FUNDOUT_ORDER A ,FUNDOUT_REFUNDORDER B
+    	WHERE A.ORDER_ID = B.SRC_ORDERID
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            a.PAYER_MEMBERCODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            a.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            b.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            b.order_id = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderSrc" prepend="AND">
+	           	a.order_id = #orderSrc#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ b.update_date >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ b.update_date <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            a.foreign_orderid = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            b.bank_orderid = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+    </select>
+    
+    <select id="context_fundout_ordercenter_backwithdraw_COUNT" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="java.lang.Integer">
+		SELECT 	
+				COUNT(1)
+	    FROM FUNDOUT_ORDER A ,FUNDOUT_REFUNDORDER B
+    	WHERE A.ORDER_ID = B.SRC_ORDERID
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            a.PAYER_MEMBERCODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            a.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            b.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            b.order_id = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderSrc" prepend="AND">
+	           	a.order_id = #orderSrc#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ b.update_date >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ b.update_date <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            a.foreign_orderid = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            b.bank_orderid = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            A.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+    </select>
+    
+    <!-- 提现,付款到银行,批量付款到银行 关联的是提现退款-->
+	<select id="withdraw_ordercenter_relation_query" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		select 1 from dual
+		
+    </select>
+    
+    <!-- 出款退款关联订单 -->
+    <select id="context_fundout_backwithdraw_relation" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		select 1 from dual
+    </select>
+</sqlMap>

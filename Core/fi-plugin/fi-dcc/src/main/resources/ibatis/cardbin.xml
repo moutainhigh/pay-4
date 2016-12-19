@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cardBinSpace">
+	<typeAlias alias="cardBinInfo" type="com.pay.dcc.model.CardBinInfo" />
+
+	<resultMap id="cardBinInfoResult" class="cardBinInfo">
+		<result column="CARD_BIN" property="cardBin" jdbcType="VARCHAR" />
+		<result column="CARD_ORG" property="cardOrg" jdbcType="VARCHAR" />
+		<result column="CURRENCY_NUMBER" property="currencyNumber" jdbcType="VARCHAR" />
+		<result column="ISSUER" property="issuer" jdbcType="VARCHAR" />
+		<result column="CARD_TYPE" property="cardType" jdbcType="VARCHAR" />
+		<result column="CARD_CLASS" property="cardClass" jdbcType="VARCHAR" />
+		<result column="ISSUER_COUNTRY" property="issuerCountry" jdbcType="VARCHAR" />
+		<result column="COUNTRY_CODE2" property="countryCode2" jdbcType="VARCHAR" />
+		<result column="COUNTRY_CODE3" property="countryCode3" jdbcType="VARCHAR" />
+		<result column="CURRENCY_NUMBER" property="currencyNumber" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<select id="findCardBinById" resultMap="cardBinInfoResult"
+		parameterClass="java.lang.String">
+        select * from CARD_BIN_INF where CARD_BIN=#cardBin#
+	</select>
+
+	<select id="findByCriteria" resultMap="cardBinInfoResult"
+		parameterClass="java.lang.String">
+		select * from PARTNER_DCC_CONFIG where 1=1
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerName">
+			PARTNER_NAME = #partnerName#
+		</isNotEmpty>
+	</select>
+	
+	<select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+		select count(*) from PARTNER_DCC_CONFIG where 1=1
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerName">
+			PARTNER_NAME = #partnerName#
+		</isNotEmpty>
+    </select>	
+</sqlMap>

@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<script type="text/javascript"
+	src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script type="text/javascript"
+	src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<!-- <script type="text/javascript"
+	src="<@sp.static/>/mps/js/zidingyi.js"></script> -->
+<!-- jquery validate -->
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+
+<title>清算查询</title>
+
+</head>
+
+<body>
+<script type="text/javascript">
+	$(document).ready(function(){
+		<#if tradeOrderNo?has_content>
+			$("#tradeOrderNo").val("${tradeOrderNo}");
+			</#if>	
+			<#if trackingNo?has_content>
+			$("#trackingNo").val("${trackingNo}");
+			</#if>	
+			//$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+			//$("#clearStartTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+			<#if beginTime?has_content>
+			$("#startTime").val("${startTime}");
+			$("#clearStartTime").val("${startTime}");
+			</#if>
+			<#if endTime?has_content>
+				$("#endTime").val("${endTime}");	
+				$("#clearEndTime").val("${endTime}");	
+			</#if>
+			//$("#checkStartTime").simpleDatepicker({compare:true,compareTime:'checkEndTime'});
+			<#if checkStartTime?has_content>
+			$("#checkStartTime").val("${checkStartTime}");
+			</#if>
+			<#if checkEndTime?has_content>
+				$("#checkEndTime").val("${checkEndTime}");	
+			</#if>
+			<#if status?has_content>
+				$("#status").val("${status}");
+			</#if>			
+			<#if completeFlg?has_content>
+			$("#completeFlg").val("${completeFlg}");
+		</#if>
+	});
+	/* $(function(){$("#subLi_1").addClass("cur");$("#subNav_1").show();}) */
+	
+	//添加商户订单号获取焦点和失去焦点的事件 add by tom.wang 2016年4月25日14:08:02
+	$(function(){
+		var startTime;
+		var endTime;
+	
+		$("#orderId").focus(function(){
+			 startTime=$("#startTime").val();
+		     endTime=$("#endTime").val();
+			$("#startTime").val("");
+			$("#endTime").val("");
+		});
+		$("#orderId").blur( function () { 
+			if($("#orderId").val()==""){
+			$("#startTime").val(startTime);
+			$("#endTime").val(endTime);	
+			} 
+		} );
+	});
+	
+</script>
+<#include "/include/topbar.html">
+<@sp.head mCode ="corp_balance_detail"/>
+
+	<div class="mainbox">
+<div class="wrap">
+		<div class="section01">
+			<div class="tit">
+			    <!-- change by tom.wang   余额明细修改为余额查询 -->
+				<span><a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">余额查询</a></span>
+				<span class="current"><a href="#">清算查询</a></span>
+				<!-- <span class="current"><a href="${rc.contextPath}/corp/cross/settlementOrder.htm?method=onSubmit">清算查询</a></span> -->
+				<span><a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance&margin=1">保证金查询</a></span>
+				<!-- <span><a href="${rc.contextPath}/corp/withdrawOrderQuery.htm">提现查询</a></span> -->
+				<!-- <span><a href="${rc.contextPath}/corp/cross/settlementOrder.htm?method=queryNosett">待清算交易统计</a></span> -->
+			</div>
+			
+			<div class="seccon">
+				<div class="bgbox">
+					<div class="seccon">
+							<div class="bgbox">
+					<form class="form" action="${rc.contextPath}/corp/cross/settlementOrder.htm?method=onSubmit" method="post" name="TrackingDetailForm" id="TrackingDetailForm">
+						<input name="pageNo" id="pageNo" type="hidden">
+								<table class="tab01 formtable">
+									<colgroup>
+							                <col width="100px;"/>
+							                <col/>
+							                <col width="100px;"/>
+							                <col/>
+							            </colgroup>
+											<tr>
+												<td><div align="right">会员名称：</div></td>
+												<td><div>${enterpriseBase.zhName}</div></td>
+												<td><div align="right">会员号：</div></td>
+												<td><div>${enterpriseBase.memberCode?default('')}</div></td>
+											</tr>
+											<tr>
+												<td><div align="right">选择账户：</div></td>
+												<td colspan="1">
+												<select id="curCode" name="curCode" size="1">
+													<option value="" selected> 全部   </option> 
+														<#if acctList ? has_content>
+															<#list acctList as at>
+																<#if at.curCode?exists && at.curName?exists && at.isBasicAcct==1>
+																	<option value="${at.curCode}" <#if curCode?exists && curCode == at.curCode>selected="selected"</#if>>${at.curName?default('')}账户</option>
+																</#if>
+															</#list>
+														</#if>
+												</select>
+												</td>
+												<td>
+													<div align="right">清算状态：</div>
+												</td>
+												<td colspan="1">
+													<select name="SettlementFlg" id="SettlementFlg" value="${SettlementFlg!''}">
+											         <option value="" >--全部--</option>
+											         <option value="0" <#if (((SettlementFlg)!'') == '0')>selected="selected"</#if> >未清算</option>
+											         <option value="1" <#if (((SettlementFlg)!'') == '1')>selected="selected"</#if> >已清算</option>
+											         <option value="4" <#if (((SettlementFlg)!'') == '4')>selected="selected"</#if> >已退款</option>
+									   		 			<!-- <option value="2">清算失败</option> -->
+									  			 	</select>
+												</td>
+											</tr>																					
+											<tr>
+												<td><div align="right">交易时间：</div></td>
+												<td colspan="1">       
+													<input type="text" class="Wdate inp_normal w380" name="startTime"  readonly="readonly" id="startTime"  
+													value="<#if startTime?has_content>${startTime?date}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})"   value="${startTime!''}">
+										         		<span>-</span>
+										          	<input type="text" class="Wdate inp_normal w380" name="endTime" readonly="readonly" id="endTime" gtbfieldid="110" 
+										          	value="<#if endTime?has_content>${endTime?date}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="${endTime!''}"> 
+												</td>
+												<td>
+													<div align="right">商户订单号：
+												</td>
+												<td>
+													<input type="text" 	id="orderId"  name="orderId" class="base-input"  value="${orderId!''}"/>
+													<input type="hidden"   name="acctName" />
+												</td>
+											</tr>
+											<tr >
+												<td colspan="4" style="">
+													<div class="divquery">
+															<input class="btn_blue2"  type="submit" alt="查 询" value="查 询" onclick=""><!-- checkedStatus() -->
+														</div>
+														<div class="divdown">
+															<input class="btn_blue2"  type="button" alt="下 载" value="下  载" onclick="javascript:downwExcel();">
+														</div>
+												</td>
+											</tr>										
+									</table>
+					</form>
+				</div>
+				</div>
+				</div>
+				<div class="listFence" id="resultListDiv" style="margin-top:10px;">
+                <div><font color="red"></font></div>
+				<div class="barg_table mb20">
+					<table class="tab03">
+						<thead>
+						<tr>
+							<th>商户订单号</th>
+							<th>交易时间</th>
+							<th>交易金额</th>
+							<th>保证金</th>
+							<th>清算金额</th>
+							<th>清算状态</th>		
+							<th>单笔处理费</th> 										
+							<th>交易手续费</th>
+						</tr>
+						</thead>
+						<tbody>
+                             <#if resultList?has_content>
+							 		<#list resultList as ts>
+										
+										<tr <#if ts_index%2==0> class="gray" </#if> >
+			   								<td>${ts.orderId!('')}</td>
+			   								<!-- 交易时间 -->
+											<td>${ts.createDate?date}</td>
+											<!-- 交易金额 -->
+			   								<td>${(ts.orderAmount?default(0)/1000)?string("0.000")} ${ts.currencyCode}</td>	
+			   								<!-- 保证金 -->
+											<td>
+											<#if ts.settlementFlg == 1>
+												${((ts.assureAmount?default(0)*ts.settlementRate?default(0)?number)/1000)?string("0.000")} ${ts.settlementCurrencyCode}
+											</#if>												
+											</td>
+											<!-- 结算金额 -->
+											<td>										
+												<#if ts.settlementFlg == 1>
+													 ${((ts.amount?default(0)*ts.settlementRate?default(0)?number)/1000)?string("0.000")} ${ts.settlementCurrencyCode}
+												</#if>							
+											</td>
+											<!-- 清算状态 -->
+											<td>
+												<#if ts.settlementFlg == 0>
+													未清算
+												<#elseif ts.settlementFlg == 1>
+													已清算
+												<#elseif ts.settlementFlg == 2>
+													未清算
+												<#elseif ts.settlementFlg == 4>
+													已退款
+												</#if>
+											</td>
+
+											<!-- 交易手续费 -->
+	 										<#-- <td>
+	 											<#if ts.settlementFlg == 1 && ts.fee?? >
+													${(ts.fee?default(0)/1000)?string("0.000")} ${ts.settlementCurrencyCode}
+												</#if>
+	 										</td> -->
+	 										<#-- <td>
+	 											<#if ts.settlementFlg == 1 && ts.fixedFee?? >
+													${(ts.fixedFee?default(0)/1000)?string("0.000")} ${ts.fixedFeeCurrencyCode}
+												</#if>
+	 										</td> -->
+	 									    <td>
+	 											<#if ts.settlementFlg == 1 && ts.fixedFeeSettlementAmount?? >
+													${((ts.fixedFeeSettlementAmount?default(0)?number)/1000)?string("0.000")} ${ts.settlementCurrencyCode}
+												</#if>
+	 										</td> 
+	 										<td>
+											<#if ts.settlementFlg == 1 && ts.perFee??>
+														${(ts.perFee?default(0)/10000)?string("0.000")} ${ts.settlementCurrencyCode}
+											<#else>
+														
+											</#if>
+											 </td>
+										</tr>
+									</#list>
+								</#if>
+						<tbody>
+					</tbody></table>
+			       
+				</div>
+				</div>
+					
+					<div class="page_box" style="text-align: right">
+						<#if pu?exists>
+							<hr style="border-style: dotted;" />
+							<@sp.pagination pu=pu/>
+						</#if>
+					</div>	
+			</div>
+		</div>
+	</div>
+	</div>
+<#include "/include/myfoot.html">
+<script type="text/javascript">
+  
+   function check(){
+	   var curCode = $("#curCode").val();
+	   var startTime = $("#startTime").val();
+	   var endTime = $("#endTime").val();
+	   if(curCode==''){
+		   alert('请选择账户');
+		   return false;
+	   }//取消删除时间提示2016年4月21日15:56:45  by tom.wang
+	   return true ;
+   }
+   
+ //下载excel
+   function downwExcel(){
+	  /*  var flag = check() ;
+	   if(!flag)
+		   return ; */
+	  //获取选择的账户名称
+	   var acctName= $("#curCode  option:selected").text();
+	   $("input[name='acctName']").attr("value",acctName);
+	   $("#TrackingDetailForm").attr('action', '${rc.contextPath}/corp/cross/settlementOrder.htm?method=excelQuery') ;
+	   $("#TrackingDetailForm").submit() ;
+	   $("#TrackingDetailForm").attr('action', '${rc.contextPath}/corp/cross/settlementOrder.htm?method=onSubmit') ;
+   }
+ 
+//Selected
+   /* function checkedStatus()
+   {
+	   var str = document.getElementById("SettlementFlg");
+	   alert(str[str.selectedIndex].innerText);
+	   str.selected=true;
+   } */
+</script>
+</body>
+</html>

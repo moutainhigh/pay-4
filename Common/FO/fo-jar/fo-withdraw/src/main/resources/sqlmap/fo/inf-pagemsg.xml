@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pagemsg">
+	<typeAlias alias="pagemsg" type="com.pay.model.PageMsg"/>
+    <resultMap id="pagemsg" class="com.pay.model.PageMsg">
+        <result column="SCENARIO_ID" property="scenarioId" jdbcType="VARCHAR"/>
+        <result column="MESSAGE" property="message" jdbcType="VARCHAR"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="DATE"/>
+        <result column="PAGE_NAME" property="pageName" jdbcType="VARCHAR"/>
+        <result column="SCENARIO_NAME" property="scenarioName" jdbcType="VARCHAR"/>
+        <result column="OBJECT_ID" property="objectId" jdbcType="VARCHAR"/>
+        <result column="PAGE_CODE" property="pageCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		SCENARIO_ID,MESSAGE,CREATION_DATE,PAGE_NAME,SCENARIO_NAME,
+		OBJECT_ID,PAGE_CODE
+    </sql>
+    <insert id="create" parameterClass="pagemsg">
+        INSERT INTO PAGEMSG(
+			SCENARIO_ID,MESSAGE,CREATION_DATE,PAGE_NAME,SCENARIO_NAME,
+			OBJECT_ID,PAGE_CODE
+        )
+        VALUES(
+            #scenarioId#,#message#,#creationDate#,#pageName#,#scenarioName#,
+			#objectId#,#pageCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="pagemsg">
+        UPDATE PAGEMSG
+        SET 
+        <isNotNull prepend="," property="scenarioId">
+            SCENARIO_ID = #scenarioId#
+        </isNotNull>
+        <isNotNull prepend="," property="message">
+            MESSAGE = #message#
+        </isNotNull>
+        <isNotNull prepend="," property="creationDate">
+            CREATION_DATE = #creationDate#
+        </isNotNull>
+        <isNotNull prepend="," property="pageName">
+            PAGE_NAME = #pageName#
+        </isNotNull>
+        <isNotNull prepend="," property="scenarioName">
+            SCENARIO_NAME = #scenarioName#
+        </isNotNull>
+        <isNotNull prepend="," property="objectId">
+            OBJECT_ID = #objectId#
+        </isNotNull>
+        WHERE 
+            <isNotNull prepend="AND" property="pageCode">
+            PAGE_CODE = #pageCode# 
+            </isNotNull>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM PAGEMSG        
+        WHERE 
+            <isNotNull prepend="AND" property="pageCode">
+            PAGE_CODE = #pageCode# 
+            </isNotNull>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="pagemsg">
+        DELETE FROM PAGEMSG        
+        WHERE 
+        <isNotNull prepend="AND" property="scenarioId">
+            SCENARIO_ID = #scenarioId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="message">
+            MESSAGE = #message# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageName">
+            PAGE_NAME = #pageName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="scenarioName">
+            SCENARIO_NAME = #scenarioName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="objectId">
+            OBJECT_ID = #objectId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageCode">
+            PAGE_CODE = #pageCode# 
+        </isNotNull>
+    </delete>
+
+    <select id="findById" resultMap="pagemsg"
+        parameterClass="java.lang.Long">
+        SELECT 
+			SCENARIO_ID,MESSAGE,CREATION_DATE,PAGE_NAME,SCENARIO_NAME,
+			OBJECT_ID,PAGE_CODE
+        FROM PAGEMSG
+        WHERE 
+            PAGE_CODE = #pageCode# 
+    </select>
+    
+    <select id="findBySelective" resultMap="pagemsg">
+        SELECT 
+			SCENARIO_ID,MESSAGE,CREATION_DATE,PAGE_NAME,SCENARIO_NAME,
+			OBJECT_ID,PAGE_CODE
+        FROM PAGEMSG WHERE 1 = 1
+        <isNotNull prepend="AND" property="scenarioId">
+            SCENARIO_ID = #scenarioId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="message">
+            MESSAGE = #message# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageName">
+            PAGE_NAME = #pageName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="scenarioName">
+            SCENARIO_NAME = #scenarioName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="objectId">
+            OBJECT_ID = #objectId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageCode">
+            PAGE_CODE = #pageCode# 
+        </isNotNull>
+   </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PAGEMSG
+        WHERE 
+        <isNotNull prepend="AND" property="scenarioId">
+            SCENARIO_ID = #scenarioId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="message">
+            MESSAGE = #message# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageName">
+            PAGE_NAME = #pageName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="scenarioName">
+            SCENARIO_NAME = #scenarioName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="objectId">
+            OBJECT_ID = #objectId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageCode">
+            PAGE_CODE = #pageCode# 
+        </isNotNull>
+    </select>
+</sqlMap>

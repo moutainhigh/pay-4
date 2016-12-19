@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="couponList">
+	<typeAlias alias="couponList" type="com.pay.gateway.model.CouponList"/>
+	<resultMap id="couponList" class="couponList" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="COUPON_NUMBER" property="couponNumber" jdbcType="VARCHAR" />
+	    <result column="EFFECT_DATE" property="effectDate" jdbcType="TIMESTAMP" />
+	    <result column="EXPIRE_DATE" property="expireDate" jdbcType="TIMESTAMP" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="VALUE" property="value" jdbcType="DECIMAL" />
+	    <result column="MIN_ORDER_AMOUNT" property="minOrderAmount" jdbcType="DECIMAL" />
+	    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+	    <result column="SCENE" property="scene" jdbcType="VARCHAR" />
+	    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+	</resultMap>
+  
+  <insert id="create" parameterClass="couponList" >
+ 	<selectKey resultClass="java.lang.Long" keyProperty="id">
+   		SELECT SEQ_COUPON_ID.nextval  FROM DUAL 
+   	</selectKey>
+    insert into COUPON_LIST(id,COUPON_NUMBER,EFFECT_DATE,EXPIRE_DATE,CREATE_DATE,VALUE,MIN_ORDER_AMOUNT,STATUS,SCENE,ORG_CODE)
+    values(#id#,#couponNumber#,#effectDate#,#expireDate#,#createDate#,#value#,#minOrderAmount#,#status#,#scene#,#orgCode#)
+  </insert>
+  
+  <delete id="delete" parameterClass="java.lang.Long">
+  	delete from COUPON_LIST where id=#id#
+  </delete>
+  
+  <update id="update" parameterClass="couponList" >
+  	 update COUPON_LIST
+  	 set
+  	 COUPON_NUMBER = #couponNumber#,
+  	 EFFECT_DATE = #effectDate#,
+  	 EXPIRE_DATE = #expireDate#,
+  	 VALUE = #value#,
+  	 MIN_ORDER_AMOUNT = #minOrderAmount#,
+  	 STATUS = #status#,
+  	 SCENE = #scene#,
+  	 ORG_CODE = #orgCode#
+  	 where id = #id#
+  </update>
+  
+  <select id="findById" parameterClass="java.lang.Long" resultMap="couponList">
+  	select * From COUPON_LIST where id=#id#
+  </select>
+  
+  <select id="findByCriteria" resultMap="couponList">
+  	select * from COUPON_LIST where 1=1
+  	<isNotEmpty property="couponNumber" prepend="and">
+  		COUPON_NUMBER = #couponNumber#
+  	</isNotEmpty>
+  	<isNotNull property="effectDate" prepend="and">
+  		EFFECT_DATE &gt;= #effectDate#
+  	</isNotNull>
+  	<isNotNull property="expireDate" prepend="and">
+  		EXPIRE_DATE &lt;= #expireDate#
+  	</isNotNull>
+  	<isNotNull property="value" prepend="and">
+  		VALUE = #value#
+  	</isNotNull>
+  	<isNotNull property="minOrderAmount" prepend="and">
+  		MIN_ORDER_AMOUNT = #minOrderAmount#
+  	</isNotNull>
+  	<isNotNull property="status" prepend="and">
+  		STATUS = #status#
+  	</isNotNull>
+  	<isNotEmpty property="scene" prepend="and">
+  		SCENE = #scene#
+  	</isNotEmpty>  	
+  	<isNotEmpty property="orgCode" prepend="and">
+  		ORG_CODE = #orgCode#
+  	</isNotEmpty>  	
+  </select>
+  
+  <select id="checkCoupon" parameterClass="java.util.Map" resultMap="couponList">
+  	select * from COUPON_LIST where 1=1
+  	and COUPON_NUMBER = #couponNumber#
+  	and status = 0
+  	and ORG_CODE = #orgCode#
+  	and sysdate &gt;= EFFECT_DATE
+  	and sysdate &lt;= EXPIRE_DATE
+  </select>
+
+</sqlMap>

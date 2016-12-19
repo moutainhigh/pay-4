@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="supplementorder">
+	<typeAlias alias="supplementOrder" type="com.pay.txncore.model.SupplementOrder"/>
+    <resultMap id="supplementOrder" class="supplementOrder">
+        <result column="AUDITORS_REMARK" property="auditorsRemark" jdbcType="VARCHAR"/>
+        <result column="RETURN_NO" property="returnNo" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="OPERATOR_REMARK" property="operatorRemark" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="SUPPLEMENT_NO" property="supplementNo" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="AUDITORS" property="auditors" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_ORDER_NO" property="depositOrderNo" jdbcType="DECIMAL"/>
+        <result column="DEPOSIT_PROTOCOL_NO" property="depositProtocolNo" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="BATCHNO" property="batchNo" jdbcType="VARCHAR"/>
+        <result column="SUPPLEMENTTYPE" property="supplementType" jdbcType="VARCHAR"/>
+        <result column="FOLLOWNO" property="followNo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="supplementOrder">
+	    <selectKey resultClass="java.lang.Long" keyProperty="supplementNo">
+			SELECT 119 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_SUPPLEMENT_ORDER_NO.nextval, 6, 0) FROM DUAL
+		</selectKey>
+	
+        INSERT INTO SUPPLEMENT_ORDER(
+			AUDITORS_REMARK,RETURN_NO,REMARK,OPERATOR_REMARK,STATUS,
+			PAYMENT_ORDER_NO,SUPPLEMENT_NO,UPDATE_DATE,OPERATOR,AUDITORS,
+			DEPOSIT_ORDER_NO,DEPOSIT_PROTOCOL_NO,CREATE_DATE,BATCHNO,SUPPLEMENTTYPE,FOLLOWNO,BILLTYPE
+        )
+        VALUES(
+            #auditorsRemark#,#returnNo#,#remark#,#operatorRemark#,#status#,
+			#paymentOrderNo#,#supplementNo#,SYSDATE,#operator#,#auditors#,
+			#depositOrderNo#,#depositProtocolNo#,SYSDATE,#batchNo#,
+			#supplementType#,#followNo#,#billType#
+		)
+    </insert>
+
+    <update id="update" parameterClass="supplementOrder">
+        UPDATE SUPPLEMENT_ORDER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="auditorsRemark">
+            AUDITORS_REMARK = #auditorsRemark#
+        </isNotNull>
+        <isNotNull prepend="," property="returnNo">
+            RETURN_NO = #returnNo#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="operatorRemark">
+            OPERATOR_REMARK = #operatorRemark#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="supplementNo">
+            SUPPLEMENT_NO = #supplementNo#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = SYSDATE
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+        <isNotNull prepend="," property="auditors">
+            AUDITORS = #auditors#
+        </isNotNull>
+        <isNotNull prepend="," property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="depositProtocolNo">
+            DEPOSIT_PROTOCOL_NO = #depositProtocolNo#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+         <isNotNull prepend="," property="depositOrderNo">
+            BATCHNO = #batchNo#
+        </isNotNull>
+        <isNotNull prepend="," property="depositProtocolNo">
+            SUPPLEMENTTYPE = #supplementType#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            FOLLOWNO = #followNo#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        </dynamic>
+    </update>
+
+    <select id="findBySelective" resultMap="supplementOrder">
+        SELECT * FROM SUPPLEMENT_ORDER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="auditorsRemark">
+            AUDITORS_REMARK = #auditorsRemark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="returnNo">
+            RETURN_NO = #returnNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorRemark">
+            OPERATOR_REMARK = #operatorRemark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="supplementNo">
+            SUPPLEMENT_NO = #supplementNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditors">
+            AUDITORS = #auditors# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositProtocolNo">
+            DEPOSIT_PROTOCOL_NO = #depositProtocolNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM SUPPLEMENT_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="auditorsRemark">
+            AUDITORS_REMARK = #auditorsRemark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="returnNo">
+            RETURN_NO = #returnNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorRemark">
+            OPERATOR_REMARK = #operatorRemark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="supplementNo">
+            SUPPLEMENT_NO = #supplementNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditors">
+            AUDITORS = #auditors# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositProtocolNo">
+            DEPOSIT_PROTOCOL_NO = #depositProtocolNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelItemRCurrency">
+	<typeAlias alias="channelItemRCurrency" type="com.pay.channel.model.ChannelItemRCurrency"/>
+   	
+   	<select id="findByCriteria" parameterClass="channelItemRCurrency" resultClass="channelItemRCurrency">
+			SELECT 
+				RELATE_ID relateId,
+				CHANNEL_ITEM_CODE channelItemCode,
+				CURRENCY_CODE currencyCode,
+				CREATE_DATE createDate,
+				UPDATE_DATE updateDate,
+				CREATE_OPERATOR createOperator,
+				UPDATE_OPERATOR updateOperator,
+				STATUS status
+			FROM CHANNEL_R_CURRENCY
+			   		WHERE 1=1
+   		<isNotEmpty prepend="AND" property="relateId">
+			RELATE_ID = #relateId#   		
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="channelItemCode">
+			CHANNEL_ITEM_CODE = #channelItemCode#   		
+   		</isNotEmpty>
+   			<isNotEmpty prepend="AND" property="currencyCode">
+  			CURRENCY_CODE =  #currencyCode#  
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="status">
+   			STATUS = #status#
+   		</isNotEmpty>
+   		order by RELATE_ID asc
+   	</select>
+   	<select id="countByCriteria" parameterClass="channelItemRCurrency" resultClass="java.lang.Integer">
+   		SELECT 
+   		count(1)
+   		FROM 
+   			CHANNEL_R_CURRENCY
+   		WHERE 1=1
+   		<isNotEmpty prepend="AND" property="relateId">
+			RELATE_ID = #relateId#   		
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="channelItemCode">
+			CHANNEL_ITEM_CODE = #channelItemCode#   		
+   		</isNotEmpty>
+   			<isNotEmpty prepend="AND" property="currencyCode">
+  			CURRENCY_CODE =  #currencyCode#  
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="status">
+   			STATUS = #status#
+   		</isNotEmpty>
+   		order by RELATE_ID asc
+   	</select>
+
+   	<delete id="delete" parameterClass="java.util.Map">
+   		delete from CHANNEL_R_CURRENCY where RELATE_ID = #id#
+   	</delete>
+   	
+    <insert id="create" parameterClass="channelItemRCurrency">
+	 	  	<selectKey resultClass="Long" keyProperty="relateId">
+			SELECT SEQ_CHANNEL_R_CURRENCY_ID.NEXTVAL AS relateId FROM DUAL 
+		</selectKey>
+	 	INSERT INTO CHANNEL_R_CURRENCY(
+			RELATE_ID,CHANNEL_ITEM_CODE,CURRENCY_CODE,CREATE_DATE,UPDATE_DATE,CREATE_OPERATOR,UPDATE_OPERATOR,STATUS
+        )
+        VALUES(
+            #relateId#,#channelItemCode#,#currencyCode#,sysdate,sysdate,#createOperator#,#updateOperator#,#status#
+		)
+	</insert>	   	
+	
+	<update id="update" parameterClass="channelItemRCurrency">
+		update CHANNEL_R_CURRENCY
+			set 
+				RELATE_ID = #relateId#,UPDATE_DATE=sysdate
+	   		<isNotEmpty prepend="," property="channelItemCode">
+   					CHANNEL_ITEM_CODE = #channelItemCode#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="currencyCode">
+   					CURRENCY_CODE =  #currencyCode#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="updateOperator">
+   					UPDATE_OPERATOR = #updateOperator#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="status">
+   					STATUS = #status#
+   			</isNotEmpty>
+   			WHERE 
+   				RELATE_ID = #relateId#
+	</update>
+
+</sqlMap>

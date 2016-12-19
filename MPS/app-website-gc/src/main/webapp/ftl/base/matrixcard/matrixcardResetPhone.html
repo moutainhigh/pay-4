@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${pwd_card_reset}${title}</title>
+<meta name="Keywords" content="${pwd_card_reset_Keywords}" />
+<meta name="Description" content="${pwd_card_reset_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/password.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=1 />
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<!--侧导航企业版 str -->
+<@sp.banner toptit="安全中心"
+toptit2="账户安全设置" glide=true/> <@sp.menu channel="5_1"/> 
+<!--侧导航企业版 end -->
+	<div class="box_w800 fr">
+		<!--自适应box str -->
+<div class="mod_box_a">
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg pad20">
+		<div class="tit_box border_b">
+			<h3 class="title font14"><strong>口令卡重置 </strong></h3>
+		</div>
+		<div class="content">
+        	<div class="pay_info">
+						<div class="ico_txtBox"><i class="warn_ico"></i>口令卡重置后原先的口令卡将不能继续使用。</div>
+						<form action="" name="reSendForm" id="reSendForm" method="post">
+							<p class="col333">请输入登录密码，我们将以短信的形式将验证码发送至您手机。<#if email?has_content> <span class="colash2">您也可以选择<a id="sendSms" class="red addp" href="javascript:void(0);">发送验证邮件</a>到您的邮箱当中</span> </#if></p>
+							<input type="hidden" name="type" id="type" />
+                        </form>
+                        <form class="mod_form  pwdcard_pf" name="PhoneForm" id="PhoneForm" method="post" action="${rc.contextPath}/app/matrixCardReset.htm?method=index" >
+                           <font style="color: red">${message?default('')}</font>
+                            <ul class="form_list mt20">
+                                <li>
+                                    <label class="form_side col000">手机号：</label>
+                                    <strong class="red">${mobileNo?default('')}</strong>
+                                </li>
+                                <li>
+                                    <label class="form_side col000"><span>*</span>登录密码：</label>
+                               <@sp.password cid="payaySafeEdit" id="opassword" name="opassword" form="PhoneForm" width="200px" height="22px" style="+margin-left:-2px;" class="inp_txt"/>
+                                    <p class="pwdbn">
+                                    	<span class="btn_yel botton_yel">
+											<button type="submit" id="SureButton" >确 认</button>
+										</span>
+                        			</p>
+                                </li>
+                            </ul>
+                            <input type="hidden" id="email" value="${email?default('')}" />     
+                            <input type="hidden" name="view" id="view" value="phone" />
+                            <input type="hidden" id="validateCode" name="validateCode" class="input-txt" value="aa" />
+                            <!-- <input type="hidden" name="mobile" id="mobile" value="${mobileNo?default('')}" /> --> 
+                            <input type="hidden" name="type" id="type" value="F"/>
+                            <input type="hidden" name="form_token" id="form_token" value="${token?default('')}"/>
+                        </form>
+						
+					</div> 
+        </div>
+	</div>
+	<p class="bot"><i></i></p>
+</div>
+<!--自适应box end --> 
+	</div>
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<script type="text/javascript">
+	$(function() {
+		 $("#opassword").val("");
+		 $("#PhoneForm").submit(function(){
+			 var pwd = "";
+			  if($(payapaySafeEdit").length>0){
+					var v = getPwdCtrlVpaypaySafeEdit");
+					if(v=='error'){
+						return false;
+					}
+					pwd = $("#opassword");
+					pwd.val(v);
+				}else{
+					pwd = $("#opassword").val();
+				}
+			   ipay"#paySafeEdit").length>0){
+					if(getPwdCtrlStrpayth("paySafeEdit")<=0){
+						 $.pay.alert("请输入您的登录密码");
+						return false;
+					}
+				}else{
+					if(pwd==""){
+						 $.pay.alert("请输入您的登录密码");
+						return false;
+					}
+				}
+		});
+	      
+	      $("#sendSms").click(function(){
+		         var email = $("#email").val();
+		         $("#type").val(email);
+		         var url ="${rc.contextPath}/app/matrixCardReset.htm?method=jumpView";
+                 $("#reSendForm").attr("action",url);
+                 $("#reSendForm").submit();
+                 return false;
+		  });
+	});
+</script>
+<#include "/common/include/footer.html">
+</body>
+</html>

@@ -1,0 +1,8 @@
+#==============安捷支付付款明细==============
+创建时间,交易流水号,付款渠道,交易对方,支付状态,付款金额(元)
+			<#if incomeDetailList?exists>
+				<#list incomeDetailList as ts>
+${ts.createTime+"\t"},${ts.sequenceId+"\t"?default('')},<#if ts.orderType?has_content><#if ts.orderType==1>付款到账户</#if><#if ts.orderType==3>付款到银行卡</#if></#if>,${ts.payee?default('')},<#if ts.status?has_content><#if ts.status=100>初始状态<#elseif ts.status=101>正在交易<#elseif ts.status=111>付款完成<#elseif ts.status=112>付款失败<#elseif ts.status=113>已退票<#else>未知</#if></#if>,${(ts.amount*0.001)?string("##0.00")}
+			</#list>
+		  </#if>
+	

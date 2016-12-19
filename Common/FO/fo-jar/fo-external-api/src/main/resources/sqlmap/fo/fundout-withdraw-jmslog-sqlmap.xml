@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutjmslog">
+	<typeAlias alias="fundoutJmsLog" type="com.pay.poss.jmslog.model.FundoutJmsLog" />
+	<typeAlias alias="fundoutJmsDTO" type="com.pay.poss.jmslog.dto.FundoutJmsLogDTO"/>
+	
+	<resultMap class="com.pay.poss.jmslog.dto.FundoutJmsLogDTO" id="fundoutJmsLogResult">
+		<result property="sequenceId" column="SEQUENCE_ID"/>
+		<result property="transObject" column="TRANS_OBJECT" jdbcType="BLOB"/>
+		<result property="retryTimes" column="RETRY_TIMES"/>
+		<result property="busiInfo" column="BUSI_INFO"/>
+		<result property="objHash" column="OBJ_HASH"/>
+		<result property="queueName" column="QUEUE_NAME"/>
+		<result property="proxyTarget" column="PROXY_TARGET"/>
+		<result property="createTime" column="CREATE_TIME"/>
+		<result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+  
+	<insert id="insertJmsLog" parameterClass="fundoutJmsLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			SELECT SEQ_FUNDOUT_JMS_LOG.NEXTVAL AS SEQUENCE_ID FROM DUAL
+		</selectKey>
+		insert into fundout_jms_log
+		<dynamic prepend="(">
+	        <isNotNull prepend="," property="sequenceId">
+				SEQUENCE_ID
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="transObject">
+				TRANS_OBJECT
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="retryTimes">
+				RETRY_TIMES
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="busiInfo">
+				BUSI_INFO
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="objHash">
+				OBJ_HASH
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="queueName">
+				QUEUE_NAME
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="proxyTarget">
+				PROXY_TARGET
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="createTime">
+				CREATE_TIME
+	      	</isNotNull>
+	      	<isNotNull prepend="," property="updateTime">
+				UPDATE_TIME
+	      	</isNotNull>
+	   	 	)
+        </dynamic>
+        VALUES
+		<dynamic prepend="(">
+	        <isNotNull prepend="," property="sequenceId">#sequenceId#</isNotNull>
+	        <isNotNull prepend="," property="transObject">#transObject#</isNotNull>
+	      	<isNotNull prepend="," property="retryTimes">#retryTimes#</isNotNull>
+	      	<isNotNull prepend="," property="busiInfo">#busiInfo#</isNotNull>
+	      	<isNotNull prepend="," property="objHash">#objHash#</isNotNull>
+	      	<isNotNull prepend="," property="queueName">#queueName#</isNotNull>
+	      	<isNotNull prepend="," property="proxyTarget">#proxyTarget#</isNotNull>
+	      	<isNotNull prepend="," property="createTime">#createTime#</isNotNull>
+	      	<isNotNull prepend="," property="updateTime">#updateTime#</isNotNull>
+	       )
+        </dynamic>
+	</insert>
+
+	<select id="getJmsLogList" parameterClass="map" resultClass="fundoutJmsDTO">
+		select a.sequence_id  	sequenceId,
+       		   a.obj_hash		objHash,
+		       a.queue_name		queueName,
+		       a.busi_info		busiInfo,
+		       a.retry_times	retryTimes,
+		       a.proxy_target	proxyTarget,
+		       a.create_time	createTime,
+		       a.update_time 	updateTime
+		from fundout_jms_log a,
+		(select max(retry_times) rt , obj_hash from fundout_jms_log group by obj_hash) b
+    	where a.obj_hash=b.obj_hash and a.retry_times=b.rt
+		<isNotNull prepend="AND" property="sequenceId">
+			SEQUENCE_ID=#sequenceId#
+		</isNotNull>
+      	<isNotNull prepend="AND" property="retryTimes">
+			RETRY_TIMES=#retryTimes#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="busiInfo">
+			BUSI_INFO=#busiInfo#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="objHash">
+			OBJ_HASH=#objHash#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="queueName">
+			QUEUE_NAME=#queueName#
+      	</isNotNull>
+	</select>
+
+	<select id="getJmsLogList_COUNT" parameterClass="map" resultClass="integer">
+		select count(*) from fundout_jms_log a,
+		(select max(retry_times) rt , obj_hash from fundout_jms_log group by obj_hash) b
+    	where a.obj_hash=b.obj_hash and a.retry_times=b.rt
+		<isNotNull prepend="AND" property="sequenceId">
+			SEQUENCE_ID=#sequenceId#
+		</isNotNull>
+      	<isNotNull prepend="AND" property="retryTimes">
+			RETRY_TIMES=#retryTimes#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="busiInfo">
+			BUSI_INFO=#busiInfo#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="objHash">
+			OBJ_HASH=#objHash#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="queueName">
+			QUEUE_NAME=#queueName#
+      	</isNotNull>
+	</select>
+	
+	<select id="getJmsLogInfo" parameterClass="map" resultMap="fundoutJmsLogResult">
+		select 	a.sequence_id,
+       		   	a.obj_hash,
+             	a.trans_object,
+		       	a.queue_name,
+		       	a.busi_info,
+           		a.retry_times,
+           		a.proxy_target,
+           		a.create_time,
+           		a.update_time 
+		from fundout_jms_log a,
+		(select max(retry_times) rt , obj_hash from fundout_jms_log group by obj_hash) b
+    	where a.obj_hash=b.obj_hash and a.retry_times=b.rt
+		<isNotNull prepend="AND" property="sequenceId">
+			SEQUENCE_ID=#sequenceId#
+		</isNotNull>
+      	<isNotNull prepend="AND" property="retryTimes">
+			RETRY_TIMES=#retryTimes#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="busiInfo">
+			BUSI_INFO=#busiInfo#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="objHash">
+			OBJ_HASH=#objHash#
+      	</isNotNull>
+      	<isNotNull prepend="AND" property="queueName">
+			QUEUE_NAME=#queueName#
+      	</isNotNull>
+	</select>
+	
+	<delete id="deleteJmsLog" parameterClass="map">
+		delete from fundout_jms_log
+		<dynamic prepend="where">
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID=#sequenceId#
+			</isNotNull>
+	      	<isNotNull prepend="AND" property="retryTimes">
+				RETRY_TIMES=#retryTimes#
+	      	</isNotNull>
+	      	<isNotNull prepend="AND" property="busiInfo">
+				BUSI_INFO=#busiInfo#
+	      	</isNotNull>
+	      	<isNotNull prepend="AND" property="objHash">
+				OBJ_HASH=#objHash#
+	      	</isNotNull>
+	      	<isNotNull prepend="AND" property="queueName">
+				QUEUE_NAME=#queueName#
+	      	</isNotNull>
+		</dynamic>
+	</delete>
+	
+	<update id="updateJmsLogRetryTimes" parameterClass="map">
+		update fundout_jms_log set RETRY_TIMES=RETRY_TIMES+1,UPDATE_TIME=#updateTime#
+		<dynamic prepend="where">
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID=#sequenceId#
+			</isNotNull>
+	      	<isNotNull prepend="AND" property="retryTimes">
+				RETRY_TIMES=#retryTimes#
+	      	</isNotNull>
+	      	<isNotNull prepend="AND" property="objHash">
+				OBJ_HASH=#objHash#
+	      	</isNotNull>
+	      	<isNotNull prepend="AND" property="queueName">
+				QUEUE_NAME=#queueName#
+	      	</isNotNull>
+		</dynamic>
+	</update>
+		
+	<!-- 在jms日志记录补发处理的时候，先判断工单是否已经生成，如果已经生成的话，则不重发消息，直接删除日志记录 -->
+	<select id="checkOrderIsExistForSendMessage" parameterClass="long" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM WITHDRAW_WORKORDER W WHERE W.ORDER_SEQ = #value#
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,216 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>支付链收款详情</title>
+<meta name="Keywords" content="${acct_balance_detail_Keywords}" />
+<meta name="Description" content="${acct_balance_detail_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css?v=${cssVersion}.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head  mCode="corp_pay_chain_index"/>
+<!--导航 end--> 
+<!--主内容 str -->
+
+
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<h3 class="title font14">支付链收款详情</h3>
+				<a href="javascript:excelBalance()" class="more red">下载全部信息(EXCEL)</a> </div>
+			<form>
+			<div class="refund_table">
+				<table class="table link_table">
+					<thead>
+						<tr>
+							<th colspan="8" class="f14 txtL" style="background:#ffffef"><span class="ico_dot"></span><strong>支付链收款链接信息</strong></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th colspan="8" class="txtL">支付链收款链接地址:<a href="${payChainDetailDto.payChainUrl}" target="_blank"><span class="blue">${payChainDetailDto.payChainUrl}</span></a></th>
+						</tr>
+						<tr class="gray">
+							<td width="11%" class="blod"><strong>有效时长</strong></td>
+							<td width="11%" class="blod"><strong>链接生成时间</strong></td>
+							<td width="10%"><strong>过期时间</strong></td>
+							<td width="13%"><strong>收款链接编号</strong></td>
+							<td><strong>收款名称</strong></td>
+							<td id="payeeNameTitle" width="17%"><strong>收款方名称</strong></td>
+							<td id="payeeAddrTitle" width="17%"><strong>收款方地址</strong></td>
+							<td id="payeeTelTitle" width="11%"><strong>联系电话</strong></td>
+							<td id="receiptDescTitle" width="45%" style="display: none;"><strong>收款描述</strong></td>
+							<td id="imgInfoTitle" width="45%" style="display: none;"><strong>图片信息</strong></td>
+						</tr>
+						
+		
+						<#if payChainPayInfo?has_content>
+							<tr class="c_666">
+							<td>${payChainPayInfo.effectiveDesc}</td>
+							<td>${payChainPayInfo.createDate?string('yyyy-MM-dd')}<br />${payChainPayInfo.createDate?string('HH:mm:ss')}</td>
+							<td>${payChainPayInfo.overdueDate?string('yyyy-MM-dd')} <br />${payChainPayInfo.overdueDate?string('HH:mm:ss')}</td>
+							<td>${payChainPayInfo.payChainCode}</td>
+							<td class="txtL">
+								<p class="pay_link_name">${payChainPayInfo.payChainName}</p>
+								<br/>
+								<p><a id="view_desc_but" href="javascript:void(0);" class="blue">查看描述</a>
+								<a id="view_img_but" href="javascript:void(0);" class="blue">查看图片</a></p>
+							</td>
+							<td id="payeeName" class="txtL">${payChainPayInfo.payeeName}</td>
+							<td id="payeeAddr" class="txtL">${payChainPayInfo.payeeAddr}</td>
+							<td id="payeeTel" >${payChainPayInfo.payeeTel}</td>
+							<td id="receiptDesc" class="txtL" style="display: none;">
+								${payChainPayInfo.receiptDesc}
+								<a id="close_desc_but" href="javascript:void(0);" class="i_block blues ml10">关闭</a>
+							</td>
+							<td id="imgInfo" style="display: none;">
+								<ul class="pic_list pic_list_s">
+									<#list picList as img>
+										<#if img.pictureStatus=2> 
+										<li class="user_pic"><img src="<@sp.static/>/img/pay/paylink/unlawful.png" ></li>
+										<#else>
+										<li class="user_pic"><img src="<@sp.upload/>${img.pictureUrl}" imgid="${img.pictureId}" index="${img_index+1}"/></li>
+										</#if>
+									</#list>
+								</ul>
+								<a id="close_img_but" href="javascript:void(0);" class="i_block blues ml10">关闭</a>
+							</td>
+						</tr>
+						
+		 			</#if>
+						
+					</tbody>
+				</table>
+				</div>
+				<div class="mt40" >
+					<table class="table link_table">
+					<thead>
+						<tr>
+							<th colspan="7" class="f14 txtL" style="background:#ffffef"><span class="ico_dot"></span><strong>支付链付款记录信息</strong></th>
+						</tr>
+					</thead>
+						<tbody>
+							<tr class="gray c_000">
+								<td width="11%"><strong>付款时间</strong></td>
+								<td width="17%"><strong>网关支付流水号</strong></td>
+								<td width="30%"><strong>付款方名称</strong></td>
+								<td width="17%"><strong>支付金额</strong></td>
+								<td><strong>备注</strong></td>
+									</td>
+
+							</tr>
+						
+						<#if payChainDetailDto?has_content>
+		   				<#list payChainDetailDto.payChainPaymentDtos as record>
+							<tr>
+								<td><#if record.payDate?has_content>${record.payDate?string('yyyy-MM-dd')}<br />${record.payDate?string('HH:mm:ss')}</#if></td>
+								<td>${record.gatewayNo?default('')}</td>
+								<td>${record.paymentName?default('')}</td>
+								<td>${record.payAmount?default('')}</td>
+								<td>${record.remark?default('')}</td>
+							</tr>
+						</#list>
+		 			</#if>
+						</tbody>
+					</table>
+				</div>
+				<div class="page_box">
+				<#if payChainDetailDto?has_content>
+		<p>共<span class="blod">${payChainDetailDto.recordsCount}</span>笔交易 <i class="ml10">收款总金额：<span class="blod green">${payChainDetailDto.recordsAmountSum}</span>元</i> </p>
+				<!--分页 str -->
+					<@sp.pagination pu=pu/>
+					<input type="hidden" value="${pu.curPageNo}" id="curPage">
+				<!--分页 end --> 
+				</#if>
+		</div>
+				<div class="btn_box"><span class="btn_yel">
+					<button onclick="window.close()">关 闭</button>
+					</span></div>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+
+
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#view_desc_but").click(function(){
+		$("#payeeNameTitle").hide();
+		$("#payeeName").hide();
+		$("#payeeAddrTitle").hide();
+		$("#payeeAddr").hide();
+		$("#payeeTelTitle").hide();
+		$("#payeeTel").hide();
+		$("#receiptDescTitle").show();
+		$("#receiptDesc").show();
+		$("#imgInfoTitle").hide();
+		$("#imgInfo").hide();
+	});
+	
+	$("#view_img_but").click(function(){
+		$("#payeeNameTitle").hide();
+		$("#payeeName").hide();
+		$("#payeeAddrTitle").hide();
+		$("#payeeAddr").hide();
+		$("#payeeTelTitle").hide();
+		$("#payeeTel").hide();
+		$("#receiptDescTitle").hide();
+		$("#receiptDesc").hide();
+		$("#imgInfoTitle").show();
+		$("#imgInfo").show();
+	});
+	$("#close_desc_but").click(function(){
+		$("#payeeNameTitle").show();
+		$("#payeeName").show();
+		$("#payeeAddrTitle").show();
+		$("#payeeAddr").show();
+		$("#payeeTelTitle").show();
+		$("#payeeTel").show();
+		$("#receiptDescTitle").hide();
+		$("#receiptDesc").hide();
+		$("#imgInfoTitle").hide();
+		$("#imgInfo").hide();
+	});
+	$("#close_img_but").click(function(){
+		$("#payeeNameTitle").show();
+		$("#payeeName").show();
+		$("#payeeAddrTitle").show();
+		$("#payeeAddr").show();
+		$("#payeeTelTitle").show();
+		$("#payeeTel").show();
+		$("#receiptDescTitle").hide();
+		$("#receiptDesc").hide();
+		$("#imgInfoTitle").hide();
+		$("#imgInfo").hide();
+	});
+	
+});
+function excelBalance(){
+	var payChainNumber = '${paramDto.payChainNumber?default('')}';
+	var url  ="${rc.contextPath}/corp/paychain/payChainQuery.htm?method=queryPayChainDetail&vtype=1&&payChainNumber="+payChainNumber;
+	window.open(url);
+	
+} 
+</script>
+
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>商户批量付款</title>
+</head>
+<body>
+	<table width="800" border="1">
+	  商户批量付款明细
+		<thead>
+		 <!--  <tr>
+		     <td colspan="9">2015-09</td>
+		  </tr> -->
+		  <tr>
+		      <td colspan="9">下载时间 ：${nowDate} </td>
+		  </tr>
+	    <tr><td colspan="9">#----------商户批量付款明细列表----------</td></tr>
+		<tr>
+			<td style="width:15%" >收款人姓名</td>
+			<td style="width:10%" >银行名称</td>
+			<td style="width:10%" >开户行名称</td>
+			<td style="width:10%" >SWIFT/IBAN CODE</td>
+			<td style="width:10%" >银行地址</td>
+			<td style="width:10%" >收款人银行账户</td>
+			<td style="width:15%" >账户类型</td>
+			<td style="width:10%" >付款金额</td>
+			<td style="width:10%" >付款币种</td>
+			<td style="width:10%" >付款结果</td>
+		</tr>
+	</thead>
+		<tbody>
+			<!-- 测试数据 -->
+			<!-- <tr style="background-color:#f1f5fa;">
+				<td class="excel_txt"><span><em>李清华</em></td>
+				<td class="excel_txt">工商银行</td>
+				<td class="excel_txt">工商银行上海地铁镇坪路站支行</td>
+				<td class="excel_txt">code</td>
+				<td class="excel_txt">上海市浦东新区</td>
+				<td class="excel_txt">1234567890098765643</td>
+				<td class="excel_txt"><span><em>对私</em></td>
+				<td >
+					<div>
+						10000
+					</div>
+				</td>
+				<td class="excel_txt">
+					人民币
+				</td>
+				<td class="excel_txt">
+					支付成功
+				</td>
+			</tr>
+
+			<tr>
+				<td colspan="9">#----------商户批量付款明细列表----------</td>
+			</tr> -->
+			
+			<#if resultList?has_content>
+				<#list resultList as ls>
+					<tr <#if ls_index%2==0>style="background-color:#f1f5fa;"</#if>>
+						<td class="excel_txt"><span><em>${ls.toAccountName?default("")}</em></td>
+						<td class="excel_txt">${ls.bankName?default("")}</td>
+						<td class="excel_txt">${ls.branchBankName?default("")}</td>
+						<td class="excel_txt">${ls.siCode?default("")}</td>
+						<td class="excel_txt">${ls.bankAddress?default("")}</td>
+						<td class="excel_txt">${ls.bankAccount?default("")}</td>
+						<td class="excel_txt"><span><em>${ls.accountType?default("")}</em></td>
+						<td >
+							<div>
+								${ls.payAmount?default(0)}
+							</div>
+						</td>
+						<td class="excel_txt">
+							${ls.currency?default("")}
+						</td>
+						<td class="excel_txt">
+							<#if ls.payResult?has_content>
+								<#if ls.payResult == 0>
+									付款成功
+									<#elseif ls.payResult == 1>
+										付款中
+									<#elseif ls.payResult == 2>
+										付款失败
+								</#if>
+							</#if>	
+						</td>
+					</tr>
+		
+				</#list>
+			</#if>
+			<tr>
+				<td colspan="9">#----------商户批量付款明细列表----------</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

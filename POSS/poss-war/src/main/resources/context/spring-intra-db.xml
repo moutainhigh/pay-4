@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<bean id="possDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/possDs" />
+	</bean>
+	
+	<bean id="fiDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/fiDs" />
+	</bean>
+	
+	<bean id="foDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/foDs" />
+	</bean>
+	
+	<bean id="infDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/infDs" />
+	</bean>
+	
+	<bean id="accDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/accDs" />
+	</bean> 	
+
+	<bean id="peDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/peDs" />
+	</bean>
+	
+	<bean id="riskDs" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/riskDs" />
+	</bean>
+
+	<bean id="dataSource" class="com.pay.poss.db.DynamicDataSource">
+		<property name="targetDataSources">
+			<map key-type="java.lang.String">
+				<entry value-ref="possDs" key="possDs"/>
+				<entry value-ref="fiDs" key="fiDs"/>
+				<entry value-ref="foDs" key="foDs"/>
+				<entry value-ref="infDs" key="infDs"/>
+				<entry value-ref="accDs" key="accDs"/>
+				<entry value-ref="peDs" key="peDs"/>
+				<entry value-ref="riskDs" key="riskDs"/>
+			</map>
+		</property>
+		<!--<property name="defaultTargetDataSource" ref="masterDS"/>-->
+	</bean>
+
+	<!-- SqlSessionFactory配置开始 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="typeAliasesPackage" value="com.pay.poss.domain"/>
+	</bean>
+	<!-- SqlSessionFactory配置结束 -->
+
+	<!-- 扫描Mapper接口和XML进行自动装配开始 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.pay.poss.persistence"/>
+	</bean>
+
+	<!-- 事务管理器配置开始 -->
+	<!-- 用于Spring JDBC抽象框架、MYBATIS框架的事务管理 -->
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!--定义需要事务处理的方法的前缀 开始 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<!--事务属性定义 -->
+		<tx:attributes>
+			<tx:method name="save*" propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="create*" propagation="REQUIRED"/>
+			<tx:method name="insert*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="edit*" propagation="REQUIRED"/>
+			<tx:method name="merge*" propagation="REQUIRED"/>
+			<tx:method name="modify*" propagation="REQUIRED"/>
+			<tx:method name="del*" propagation="REQUIRED"/>
+			<tx:method name="remove*" propagation="REQUIRED"/>
+			<tx:method name="put*" propagation="REQUIRED"/>
+			<tx:method name="use*" propagation="REQUIRED"/>
+			<tx:method name="import*" propagation="REQUIRED"/>
+			<tx:method name="execute*" propagation="REQUIRED"/>
+			<tx:method name="send*" propagation="REQUIRED"/>
+			<tx:method name="upload*" propagation="REQUIRED"/>
+			<tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="count*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="list*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="export*" propagation="REQUIRED" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+	<!--定义需要事务处理的方法的前缀 结束 -->
+
+	<!--定义哪些类需要事务 开始 -->
+	<aop:config>
+		<!--通过aop定义事务增强切面 -->
+		<aop:pointcut id="serviceMethod"
+					  expression="execution(* com.pay.poss.service.*Service.*(..))"/>
+		<!--引用事务增强 -->
+		<aop:advisor pointcut-ref="serviceMethod" advice-ref="txAdvice" order="2"/>
+	</aop:config>
+	<!--定义哪些类需要事务 结束 -->
+	<!--********** service层配置结束 **********-->
+
+	<!--<bean id="dsHandler" class="com.pay.poss.db.DataSourceHandler"/>
+	<aop:config>
+		<aop:aspect id="dsaop" ref="dsHandler" order="1">
+			<aop:pointcut id="allPointcut"
+						  expression="execution(* com.pay.poss.service.*Service.*(..))"/>
+			<aop:before pointcut-ref="allPointcut" method="before"/>
+		</aop:aspect>
+	</aop:config>-->
+	
+</beans>

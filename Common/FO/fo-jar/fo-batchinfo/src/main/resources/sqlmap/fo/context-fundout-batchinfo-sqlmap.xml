@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bankfile">
+	<typeAlias alias="bankfileBatch" type="com.pay.poss.base.model.BatchInfo" />
+	<typeAlias alias="bankfileBatchFileInfo" type="com.pay.poss.base.model.BatchFileInfo" />	
+	
+		
+	 <select id="fo-QueryBatchInfo" parameterClass="bankfileBatch" resultClass="bankfileBatch">
+       	 SELECT 
+		       	   BATCH_KY      			batchKy    ,
+		           RULE_NAME      			ruleName    ,
+		           RULE_KY        			ruleKy      ,
+		           BATCH_NUM     		 	batchNum    ,
+		           BATCH_TYPE      			batchType    ,
+		           STATUS				  	status		,
+		       	   decode(STATUS,1,'批次未生成',2,'批次已生成',3,'已废除批次文件',4,'已出批次文件',5,'未出批次文件',STATUS)	statusDesc	
+  		FROM BATCH_INFO  
+  		 <dynamic prepend=" WHERE ">  
+       		 <isNotEmpty property="batchNum" prepend="AND">
+        		 BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+       		 <isNotEmpty property="batchKy" prepend="and">
+        		BATCH_KY = #batchKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="ruleKy" prepend="and">
+        		RULE_KY = #ruleKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="batchType" prepend="and">
+        		BATCH_TYPE = #batchType#
+        	</isNotEmpty>
+        </dynamic>
+	</select>
+	
+	
+	<select id="queryBatchFileInfoKy" resultClass="long">
+		SELECT SEQ_FILE_KY.NEXTVAL  FROM DUAL 
+	</select>
+	
+    <!-- 新增文件信息
+     	<selectKey resultClass="Long" keyProperty="fileKy">
+			SELECT SEQ_FILE_KY.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+     -->
+    <insert id="insertBatchFileInfoToGenerator" parameterClass="bankfileBatchFileInfo">
+        INSERT INTO BATCH_FILE_INFO (
+        	file_ky, batch_num, file_path, file_name, file_type, all_amount, all_count, 
+        	bank_code, operators, update_time, generate_time,batch_file_status,channel_code,FILE_BUSI_TYPE,BUSI_TYPE
+        )values (
+        	#fileKy#, 
+        	#batchNum#, 
+        	#filePath#, 
+        	#fileName#, 
+        	#fileType#, 
+        	#allAmount#, 
+        	#allCount#,
+            #bankCode#, 
+            #operators#, 
+            #updateTime#,
+            sysdate	,
+            #batchFileStatus# ,
+            #channelCode#,
+            #fileBusiType#,
+            #busiType#
+        )
+    </insert>
+    <!-- 插入文件生成明细表 -->
+    <insert id="insertBatchFileRecords" parameterClass="com.pay.fundout.batchinfo.service.model.BatchFileRecord">
+       INSERT INTO BATCH_FILE_RECORD
+		  (G_FILE_KY,
+		   TRADE_SEQ,
+		   TRADE_AMOUNT,
+		   ACCOUNT_NO,
+		   ACCOUNT_NAME,
+		   TRADE_DATE,
+		   REMARK)
+		values
+		  (#gFileKy#,
+		   #tradeSeq#,
+		   #tradeAmount#,
+		   #accountNo#,
+		   #accountName#,
+		   sysdate,
+		   #remark#)
+    </insert>
+    
+    <!-- 给工单打上小批次 -->
+    <update id="giveWorderOrderFileKy" parameterClass="java.util.Map">
+    	update withdraw_workorder
+		set file_ky = #fileKy#
+		where order_seq in (
+		      select trade_seq from batch_file_record where g_file_ky = #fileKy#
+		)
+    </update>
+    
+    <insert id="insertBatchFileInfo" parameterClass="bankfileBatchFileInfo">
+    	<selectKey resultClass="Long" keyProperty="fileKy">
+			SELECT SEQ_FILE_KY.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO BATCH_FILE_INFO (
+        	file_ky, batch_num, file_path, file_name, file_type, all_amount, all_count, 
+        	bank_code, operators, update_time, generate_time,batch_file_status,channel_code,FILE_BUSI_TYPE,BUSI_TYPE
+        )values (
+        	#fileKy#, 
+        	#batchNum#, 
+        	#filePath#, 
+        	#fileName#, 
+        	#fileType#, 
+        	#allAmount#, 
+        	#allCount#,
+            #bankCode#, 
+            #operators#, 
+            #updateTime#,
+            sysdate	,
+            #batchFileStatus# ,
+            #channelCode#,
+            #fileBusiType#,
+            #busiType#
+        )
+    </insert>
+    
+    <update id="fo-UpdateBatchInfo" parameterClass="bankfileBatch">
+        UPDATE 	BATCH_INFO	
+        	SET UPDATE_TIME = sysdate 
+        	<isNotEmpty property="ruleName"  prepend=",">
+        		RULE_NAME = #ruleName#
+        	</isNotEmpty>
+        	<isNotEmpty property="status" prepend=",">
+        		STATUS = #status#
+        	</isNotEmpty>
+        	<isNotEmpty property="batchName" prepend=",">
+        		BATCH_NAME = #batchName#
+        	</isNotEmpty>
+      	  <dynamic prepend="WHERE"> 
+	       		 <isNotEmpty property="batchKy" prepend="AND">
+	        		BATCH_KY = #batchKy#
+	        	</isNotEmpty>
+	       		 <isNotEmpty property="ruleKy" prepend="and">
+	        		RULE_KY = #ruleKy#
+	        	</isNotEmpty>
+	       		 <isNotEmpty property="batchNum" prepend="and">
+	        		BATCH_NUM = #batchNum#
+	        	</isNotEmpty>
+       	 </dynamic>
+    </update>
+    
+	<!-- select id="fo-QueryUnionBankCode" resultClass="java.lang.String">
+       	 SELECT ORG_CODE FROM BANK_ORG_INFO WHERE ORG_NAME =#value#
+	</select-->    
+</sqlMap>

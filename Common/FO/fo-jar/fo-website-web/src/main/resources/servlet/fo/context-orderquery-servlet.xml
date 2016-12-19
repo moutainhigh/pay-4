@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="fundout-QueryOrderHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="operatPermInterceptor" />
+			</list>
+		</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/queryOrder.htm">fundout-orderQueryController</prop>
+				<prop key="/corp/allOrderQuery.htm">fundout-allOrderQueryController</prop>
+				<prop key="/corp/withdrawOrderQuery.htm">fundout-withdrawOrderQueryController</prop>
+				<prop key="/corp/chargeOrderQuery.htm">fundout-chargeOrderQueryController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="fundout-orderQueryController"
+		class="com.pay.controller.fo.query.DefaultQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/commonquery/corp/queryOrder</value>
+		</property>
+	</bean>
+
+	<bean id="fundout-allOrderQueryController"
+		class="com.pay.controller.fo.query.AllOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/commonquery/corp/queryOrder</value>
+		</property>
+		<property name="commonQueryService" ref="fo-allOrderQueryService" />
+		<property name="dealType" value="0" />
+	</bean>
+
+	<bean id="fundout-withdrawOrderQueryController"
+		class="com.pay.controller.fo.query.WithdrawOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/commonquery/corp/queryOrder</value>
+		</property>
+		<property name="detailView">
+			<value>/fo/commonquery/corp/queryDetail</value>
+		</property>
+		<property name="excelView">
+			<value>/fo/commonquery/corp/excelQueryOrderList</value>
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="commonQueryService" ref="fo-withdrawOrderQueryService" />
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		<property name="accountQueryService" ref="acc-accountQueryService"/>
+		<property name="dealType" value="1" />
+	</bean>
+
+	<bean id="fundout-chargeOrderQueryController" class="com.pay.controller.fo.query.ChargeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/commonquery/corp/queryOrder</value>
+		</property>
+		<property name="detailView">
+			<value>/fo/commonquery/corp/queryDetail</value>
+		</property>
+		<property name="commonQueryService" ref="fo-chargeOrderQueryService" />
+		<property name="dealType" value="2" />
+	</bean>
+
+</beans>

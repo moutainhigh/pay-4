@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="creditOrder">
+	<typeAlias alias="creditOrder" type="com.pay.credit.model.creditorder.CreditOrder" />
+	
+	<!-- 融资信息插入 -->
+	<insert id="create" parameterClass="creditOrder">
+	
+		
+	</insert>
+	
+	<!-- 条件查询融资信息 -->
+	<select id="queryCreditOrderByConditon" parameterClass="com.pay.credit.conditon.creditorder.CreditOrderQueryConditon" resultClass="creditOrder">
+		SELECT * 
+		FROM CREDIT_ORDER 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="creditOrderId">
+				CREDIT_ORDER_ID = #creditOrderId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="applyStartTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &gt;= #applyStartTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="applyEndTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &lt;= #applyEndTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="interestType">
+				INTEREST_TYPE = #interestType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				STATUS = #status#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantCode">
+				MERCHANT_CODE = #merchantCode#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY CREDIT_ORDER_ID DESC
+	</select>
+	
+</sqlMap>

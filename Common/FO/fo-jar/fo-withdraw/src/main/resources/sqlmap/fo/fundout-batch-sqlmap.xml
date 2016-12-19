@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutBatch">
+        <select id="fundout-special-batch-data" resultClass="java.lang.String">
+	     	select workorder_ky 
+			from fundout_order o,withdraw_workorder w,special_member s
+			where o.order_id=w.order_seq
+			      and o.payer_membercode = s.member_code
+			      and s.status = 1
+			      and w.batch_num = 'SYS_0'
+			      and w.batch_status = 0
+			      and w.status = 4
+     	</select>
+     	
+     	<select id="fundout-ruleky-query" resultClass="java.lang.String">
+			select b.sequence_id 
+			from fo.batch_rule_config b
+			where rownum=1
+			order by creation_date desc
+     	</select>
+	
+		<select id="fundout-batch-flow-query" resultClass="java.lang.String">
+			select flag 
+			from CUSTOM_BATCH_FLOW
+			where bank_code_rule=#bankCodeRule#
+     	</select>
+</sqlMap>

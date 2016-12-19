@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="ruleService" class="com.pay.gateway.validate.rule.newrule.RuleHandler">
+		<property name="handlers">
+			<map>
+				<entry key="cardRule"><ref bean="cardRule"/></entry>
+				<entry key="dateRule"><ref bean="dateRule"/></entry>
+				<entry key="notNullRule"><ref bean="notNullRule"/></entry>
+				<entry key="tradeOrdeRule"><ref bean="tradeOrdeRule"/></entry>
+			</map>
+		</property>
+	</bean>
+	<!-- 跨境收银台收单 -->
+	<bean id="cardRule" class="com.pay.gateway.validate.rule.newrule.CardRule">
+	</bean>
+
+	<bean id="dateRule" class="com.pay.gateway.validate.rule.newrule.DateRule">
+	</bean>
+
+	<bean id="notNullRule" class="com.pay.gateway.validate.rule.newrule.NotNullRule">
+	</bean>
+
+	<bean id="tradeOrdeRule" class="com.pay.gateway.validate.rule.newrule.TradeOrdeRule">
+		<property name="txncoreClientService" ref="txncoreClientService"></property>
+	</bean>
+	<bean id="builderPayGateService" class="com.pay.gateway.service.impl.BuilderPayGateServiceImpl">
+		<property name="handlerHolder" ref="ruleService"></property>
+		<property name="xmlLocation" value="paychannel/paychannel-Cashier-definition.xml"></property>
+	</bean>
+</beans>

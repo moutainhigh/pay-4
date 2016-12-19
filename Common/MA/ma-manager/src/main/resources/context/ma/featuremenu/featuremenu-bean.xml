@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	
+			
+	  <bean id="operatorMenuDAO" class="com.pay.poss.featuremenu.dao.impl.OperatorMenuDAOImpl">
+		  <property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+		  <property name="namespace">
+		  	<value>operatorMenu</value>
+		  </property>
+	  </bean>
+	
+	  <bean id="featureDAO"
+	  	class="com.pay.poss.featuremenu.dao.impl.FeatureDAOImpl">
+	  	<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+	  	<property name="namespace">
+	    	<value>feature</value>
+	  	</property>
+	 </bean>
+	 <bean id="featureMenuDAO"
+   		class="com.pay.poss.featuremenu.dao.impl.FeatureMenuDAOImpl">
+   		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+   		<property name="namespace">
+     		<value>websiteMenu</value>
+   		</property>
+	 </bean>
+	 <bean id="announcementDAO"
+   		class="com.pay.poss.featuremenu.dao.impl.AnnouncementDAOImpl">
+   		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+   		<property name="namespace">
+     		<value>announcement</value>
+   		</property>
+	 </bean>
+	 <bean id="featureMenuService"
+		  class="com.pay.poss.featuremenu.service.impl.FeatureMenuServiceImpl">
+		  <property name="mainDao" ref="featureMenuDAO" />
+	  </bean>
+  
+	  <bean id="featureService"
+		  class="com.pay.poss.featuremenu.service.impl.FeatureServiceImpl">
+		  <property name="mainDao" ref="featureDAO" />
+	  </bean>
+	  
+	  <bean id="operatorMenuService"
+			class="com.pay.poss.featuremenu.service.impl.OperatorMenuServiceImpl">
+			<property name="operatorMenuDAO" ref="operatorMenuDAO" />
+	  </bean>
+	  
+	  <bean id="memberFeatureService"
+		   class="com.pay.poss.featuremenu.service.impl.MemberFeatureServiceImpl">
+		   <property name="featureMenuService" ref="featureMenuService" />
+		   <property name="featureService" ref="featureService" />
+		   <property name="operatorMenuService" ref="operatorMenuService" />
+	  </bean>
+	  <bean id="announcementService"
+		  class="com.pay.poss.featuremenu.service.impl.AnnouncementServiceImpl">
+		  <property name="announcementDAO" ref="announcementDAO" />
+	  </bean>
+	
+	
+	
+	
+
+</beans>

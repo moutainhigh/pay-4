@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="checklog">
+	<typeAlias alias="atuoRiskDto" type="com.pay.fundout.withdraw.dto.autorisk.AutoRiskDto" />
+	
+	<insert id="create" parameterClass="atuoRiskDto">
+		<selectKey resultClass="java.lang.Long" keyProperty="recordNo">
+			SELECT seq_rm_fo_txn_check_log.NEXTVAL AS recordNo FROM DUAL 
+		</selectKey>
+		INSERT INTO rm_fo_txn_check_log(record_no, order_no, member_code, member_name, member_type, rule_code, status, create_date, update_date, remark, check_remark, operator)
+		VALUES(#recordNo#, #orderNo#, #memberCode#, #memberName#, #memberType#, #ruleCode#, #status#, #createDate#, #updateDate#, #remark#, #checkRemark#, #operator#)
+	</insert>
+	
+	<update id="update" parameterClass="atuoRiskDto">
+		UPDATE rm_fo_txn_check_log
+		<dynamic prepend="set">
+			<isNotEmpty prepend="," property="status">
+				status = #status#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="updateDate">
+				update_date = #updateDate#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="remark">
+				remark = #remark#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="checkRemark">
+				check_remark = #checkRemark#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="operator">
+				operator = #operator#
+			</isNotEmpty>
+		</dynamic>
+		WHERE record_no = #recordNo#
+	</update>
+	
+	<select id="findByRecordNo" resultClass="atuoRiskDto" parameterClass="long">
+		SELECT record_no recordNo, order_no orderNo, member_code memberCode, member_type memberType, member_name memberName,
+		rule_code ruleCode, status status, create_date createDate, update_date updateDate, remark remark, check_remark checkRemark, operator operator
+		FROM rm_fo_txn_check_log WHERE record_no = #recordNo#
+	</select>
+	
+	<select id="getCheckLogList" parameterClass="atuoRiskDto" resultClass="atuoRiskDto">
+		SELECT record_no recordNo, order_no orderNo, member_code memberCode, member_type memberType, member_name memberName,
+		rule_code ruleCode, status status, create_date createDate, update_date updateDate, remark remark, check_remark checkRemark, operator operator
+		FROM rm_fo_txn_check_log
+		<dynamic prepend="where">
+			<isNotEmpty prepend="AND" property="recordNo">
+				record_no = #recordNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="orderNo">
+				order_no = #orderNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="memberCode">
+				member_code = #memberCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="memberType">
+				member_type = #memberType#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="memberName">
+				member_name = #memberName#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="ruleCode">
+				rule_code = #ruleCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="status">
+				status = #status#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginCreateDate">
+				<![CDATA[create_date >= to_date(#beginCreateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endCreateDate">
+				<![CDATA[create_date <= to_date(#endCreateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginUpdateDate">
+				<![CDATA[update_date >= to_date(#beginUpdateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endUpdateDate">
+				<![CDATA[update_date <= to_date(#endUpdateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="operator">
+				operator = #operator#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY member_code, rule_code, create_date DESC
+	</select>
+	
+	<select id="getCheckLogList_COUNT" parameterClass="atuoRiskDto" resultClass="integer">
+		SELECT COUNT(*) FROM rm_fo_txn_check_log
+		<dynamic prepend="where">
+			<isNotEmpty prepend="AND" property="recordNo">
+				record_no = #recordNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="orderNo">
+				order_no = #orderNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="memberCode">
+				member_code = #memberCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="memberType">
+				member_type = #memberType#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="memberName">
+				member_name = #memberName#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="ruleCode">
+				rule_code = #ruleCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="status">
+				status = #status#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginCreateDate">
+				<![CDATA[create_date >= to_date(#beginCreateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endCreateDate">
+				<![CDATA[create_date <= to_date(#endCreateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginUpdateDate">
+				<![CDATA[update_date >= to_date(#beginUpdateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endUpdateDate">
+				<![CDATA[update_date <= to_date(#endUpdateDate#, 'yyyy-mm-dd hh24:mi:ss')]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="operator">
+				operator = #operator#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+</sqlMap>

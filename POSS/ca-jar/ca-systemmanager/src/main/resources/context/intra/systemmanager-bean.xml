@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="logDao" class="com.pay.poss.systemmanager.dao.impl.LogDaoImpl" parent="intra-baseDAO">
+		<property name="namespace" value="accessLog" />
+		<property name="daoService" ref="intra-commonDao" />
+	</bean> 
+	<bean id="userDAO" class="com.pay.poss.systemmanager.dao.impl.UserDaoImpl" parent="intra-baseDAO">
+		<property name="namespace" value="user" />
+		<property name="daoService" ref="intra-commonDao" />
+	</bean> 
+	
+	<bean id="dutyDAO" class="com.pay.poss.systemmanager.dao.impl.DutyDaoImpl" parent="intra-baseDAO">
+		<property name="namespace" value="duty" />
+	</bean> 
+	
+	<bean id="orgDAO" class="com.pay.poss.systemmanager.dao.impl.OrgDaoImpl" parent="intra-baseDAO">
+		<property name="namespace" value="org" />
+	</bean> 
+	
+	<bean id="roleDao" class="com.pay.poss.systemmanager.dao.impl.RoleDaoImpl" parent="intra-baseDAO">
+		<property name="namespace" value="role" />
+		<property name="daoService" ref="intra-commonDao" />
+	</bean>	
+	
+	<bean id="menuDao" class="com.pay.poss.systemmanager.dao.impl.MenuDaoImpl" parent="intra-baseDAO">
+		<property name="namespace" value="menu" />
+	</bean>	
+	
+	<bean id="userService" class="com.pay.poss.systemmanager.service.impl.UserServiceImpl">
+		<property name="userDAO" ref="userDAO" />
+	</bean> 
+	<bean id="logService" class="com.pay.poss.systemmanager.service.impl.LogServiceImpl">
+		<property name="logDao" ref="logDao" />
+	</bean> 
+	<bean id="roleService" class="com.pay.poss.systemmanager.service.impl.RoleServiceImpl">
+		<property name="roleDao" ref="roleDao" />
+		<property name="userDao" ref="userDAO" />
+		<property name="daoService" ref="intra-commonDao" />
+		<property name="menuFactoryService" ref="menuFactoryService" />
+	</bean>
+	
+	<bean id="possMenuService" class="com.pay.poss.systemmanager.service.impl.MenuServiceImpl">
+		<property name="menuDao" ref="menuDao" />
+		<property name="roleDao" ref="roleDao" />
+	</bean>
+	
+	<!-- 菜单树管理 -->
+	<bean id="menuFactoryService" class="com.pay.poss.systemmanager.service.impl.MenuFactoryServiceImpl">
+		<property name="daoService" ref="intra-commonDao" />
+	</bean>
+	
+	<bean id="orgService" class="com.pay.poss.systemmanager.service.impl.OrgServiceImpl">
+		<property name="orgDAO" ref="orgDAO" />
+	</bean>
+	
+	<!--<aop:config>
+		<aop:pointcut id="sysServiceMethod" expression="execution(* com.pay.poss.systemmanager.services.*.*(..))" />
+		<aop:advisor advice-ref="possTxAdvice" pointcut-ref="sysServiceMethod" />
+	</aop:config>-->
+
+</beans>

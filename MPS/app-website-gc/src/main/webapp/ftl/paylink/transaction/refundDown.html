@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>支付链交易退款查询下载</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="8" style="text-align: middle;">#==============支付链交易退款查询列表明细==============</td>
+		   </tr>
+		   <tr>
+		       <td colspan="8">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+		   <tr>
+				<th width="12%">创建时间</th>						
+				<th width="15%">账单邮箱</th>
+				<th width="8%">退款交易号</th>
+				<th width="8%">原订单交易号</th>
+				<th width="8%">原交易时间</th>
+				<th width="10%">退款币种</th>
+				<th width="10%">退款金额</th>
+				<th width="10%">状态</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if listMap?has_content>
+				<#list listMap as list>
+					<tr>
+						<td align="center"><#if list.createDate?has_content>${list.createDate?date}</#if></td>
+						
+						<td align="center">${list.billEmail?default('')}</td>
+						<td class="excel_txt" align="center">${list.refundOrderNo?default('')}</td>
+						<td class="excel_txt" align="center">${list.tradeOrderNo?default('')}</td>
+						<td align="center"><#if list.completeDate?has_content>${list.completeDate?date}</#if></td>
+						<td>${list.currencyCode?default('')}</td>
+						<td class="excel_txt">${(list.refundAmount?default(0)?number/1000)?string("#,##0.000")}</td>
+						<td>
+							<#if list.status?has_content>
+								<#if list.status == 0>
+									<!-- 待审核 -->处理中
+								<#elseif list.status == 1>
+									<!-- 退款中 -->处理中
+								<#elseif list.status == 2>
+									<!-- 处理成功 -->成功
+								<#elseif list.status == 3>
+									<!-- 退款中 --><!-- 处理中 --><!-- poss后台状态为3的显示为处理失败 -->处理失败
+								<#elseif list.status == 4>
+									<!-- 退款中 -->处理中
+								<#elseif list.status == 5>
+									<!-- 退款中 -->处理中
+								<#elseif list.status == 6>
+									<!-- 退款失败 -->处理失败
+								</#if>
+								<#else>
+									未退款
+							</#if>
+						</td>
+					</tr>
+				</#list>
+			</#if>
+		</tbody>
+	</table>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>商户登录</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+<!-- 绘制登录图案js -->
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/mazelock.js"></script>
+
+</head>
+
+<body>
+    <div id="pagewrap" >
+    	<div id="content" >
+        	<!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:72px;float:left;" id="clickGoBack">
+                    	<!-- <div class="go_back" style="float:left;padding-top:9px;">
+                            <img src="images/jt.png"/>
+                        </div> -->
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">商户登录</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+            
+        	<!-- 绘制图案主体 -->
+        	<input type="hidden" name="openID" id="openID" value="${openID?default('')}" />
+        	<div id="msg" style="height:30px;line-height:30px;text-align:center;font-size:18px;font-weight:bold;"></div>
+        	<div style="background:#310031;height:400px;">
+            	<!-- <div id="msg" style=""></div> -->
+                <div class="phone" style="" >
+                   &nbsp;
+                </div>
+                
+                <div  style="text-align:center;" >
+                	<div style="width:300px;margin:0 auto;" id="wrap"></div>
+                </div>
+                <!--<div id="msg" style=""></div>-->
+                
+                <!-- 下一步按钮 -->
+	            <!-- <div class="common_button" style="padding:1px;" id="forgetDpwd">
+	              <div style="width:42%;float:left;background:#30B4FF;">&nbsp;</div>
+	              <div style="width:16%;float:left;background:url(images/button-2.png) no-repeat center center;">&nbsp;</div>
+	              <div style="width:42%;float:left;">&nbsp;</div>
+	              <span style="position:relative;top:-45px;">忘记密码?</span>
+	            </div> -->
+	            <div id="forgetDpwd" style="height:40px;text-align:center;padding:13px 0;color:red;cursor:pointer;font-size:14px;margin-top:25px;-webkit-tap-highlight-color: rgba(0,0,0,0);">
+                	<span style="display:inline-block;text-decoration:underline;font-style:italic;active:green;">忘记密码吗？</span>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+    	$(function(){
+    		$("#forgetDpwd").click(function(){
+    			window.location.href = "${rc.contextPath}/merForgetDpwd.htm" ;
+    		});
+    	}) ;
+    </script>
+	<script type="text/javascript">
+    	
+		$(function(){
+			var _openID = $("#openID").val() ;
+			var count = 0;
+			mazeLock = new MazeLock({
+				wrap : document.querySelector("#wrap"),
+				radius  : 30,
+				gap     : 22,
+				size    : 3,
+				callback : function(selected){
+					var msg = document.querySelector("#msg");
+					var dpwdVal = $("#dpwd").val();
+					if('' != selected.join(',')){
+						//mazeLock.drawErrorPanel() ;
+						$.ajax({
+							type:'POST',
+							url:'${rc.contextPath}/bindedLogin.htm?dpwd=' + selected.join(',') + '&openID=' + _openID,
+							data:'',
+							success:function(data){
+								if(data == '手势密码错误!'){
+									alert(data) ;
+									mazeLock.drawErrorPanel() ;	//重画
+								}else if(data == "success"){
+									mazeLock.clearCanvas();
+									window.location.href = "${rc.contextPath}/toMerLogo.htm" ;
+								}
+							},
+							error:function(){
+								alert("网络服务出错了！") ;
+							}
+						});
+					}
+				}
+				
+			});
+			mazeLock.init();
+			//console.log(mazeLock);
+			});
+    	
+    </script>
+    
+</body>
+</html>

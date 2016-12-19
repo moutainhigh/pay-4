@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="poss_individual">
+
+	<typeAlias alias="individualDto" type="com.pay.poss.personmanager.dto.IndividualDto" />
+	
+	<sql id="DETAIL_SELECT_INDIVIDUAL">
+	   	<![CDATA[
+			select t.login_name loginName,
+			       t.member_code memberCode,
+			       t.status,
+			       t.service_level_code serviceLevelCode,
+			       t.sso_user_id sosUserId,
+			       i.email,
+			       i.tel,
+			       i.name userName,
+			       a.status acctStatus
+			  from t_member t, t_individual_info i,t_acct a
+			 where t.member_code = i.member_code
+			  and a.member_code=t.member_code
+	   	 ]]>
+	</sql>
+
+	<sql id="COMMON_CONDITION_SELECT_DETAIL">
+		<isNotEmpty prepend="and" property="memberCode">
+			t.member_code=#memberCode#
+	   </isNotEmpty>
+		<isNotEmpty prepend="and" property="userName">
+			i.name=#userName#
+	   </isNotEmpty>
+		<isNotEmpty prepend="and" property="loginName">
+			t.login_name=#loginName#
+	   </isNotEmpty>
+	</sql>
+
+	<select id="selectPossIndividual" resultClass="individualDto"	parameterClass="long">
+		<include refid="DETAIL_SELECT_INDIVIDUAL" />
+		<!--  <include refid="COMMON_CONDITION_SELECT_DETAIL" />-->
+			<![CDATA[
+				and t.member_code=#value#
+			]]>
+	</select>
+	
+	<update id="updateIndividualInfo" parameterClass="java.util.Map">
+    update t_individual_info
+	   set name = #memberName#, cer_code = #cardId#, cer_type = #cardType#
+	 where member_code = #memberCode#
+    </update>
+	
+</sqlMap>

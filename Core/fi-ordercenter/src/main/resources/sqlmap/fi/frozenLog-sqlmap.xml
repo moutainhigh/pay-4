@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="frozenLog">
+	 <typeAlias alias="frozenLog"		type="com.pay.poss.amountma.dto.FrozenLogDto" />
+
+   <insert id="create" parameterClass="frozenLog" >
+   		<selectKey keyProperty="id" resultClass="long">
+   				SELECT SEQ_FROZEN_ID.nextval AS ID FROM DUAL
+   		</selectKey>
+   		insert into T_FROZEN_LOG
+				  (ID,
+				   SERIAL_NO,
+				   FROZEN_TYPE,
+				   OLD_SERIAL_ID,
+				   STATUS,
+				   DESCRIPTION, 
+				   AMOUNT,
+				   MEMBER_CODE,
+				     <isNotEmpty property="acctType">
+				  ACCT_TYPE,
+				   </isNotEmpty>
+				      <isNotEmpty property="createDate">
+				  CREATE_DATE,
+				   </isNotEmpty>
+				    <isNotEmpty property="updateDate">
+				   UPDATE_DATE,
+				   </isNotEmpty>
+				   BALANCE,
+				      <isNotEmpty property="assessor">
+				   ASSESSOR,
+				   </isNotEmpty>
+				      <isNotEmpty property="auditStatus">
+				   AUDIT_STATUS,
+				   </isNotEmpty>
+				    <isNotEmpty property="auditDesc">
+				   AUDIT_DESC,
+				   </isNotEmpty>
+				   OPERATOR_NAME
+				   )
+				values
+				  (#id#,
+				   <!-- (300 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||
+		       LPAD(#id#, 6, 0)) -->
+		           #serialNo#,
+				   #frozenType#,
+				   #oldSerialId#,
+				   #status#,
+				   #description#,
+				   #amount#,
+				   #memberCode#,
+				   <isNotEmpty property="acctType">
+				   #acctType#,
+				   </isNotEmpty>
+				      <isNotEmpty property="createDate">
+				   #createDate#,
+				   </isNotEmpty>
+				    <isNotEmpty property="updateDate">
+				   #updateDate#,
+				   </isNotEmpty>
+				   #balance#,
+				    <isNotEmpty property="assessor">
+				   #assessor#,
+				   </isNotEmpty>
+				      <isNotEmpty property="auditStatus">
+				   #auditStatus#,
+				   </isNotEmpty>
+				    <isNotEmpty property="auditDesc">
+				   #auditDesc#,
+				   </isNotEmpty>
+				   #operatorName#
+				   )
+   </insert>
+   
+     <select id="findById"  parameterClass="long"  resultClass="frozenLog">
+   			select 
+   				     t.ID       	id,           
+				   SERIAL_NO      serialNo,
+				   ac.login_name    loginName,      
+		           FROZEN_TYPE    frozenType,  
+		           OLD_SERIAL_ID  oldSerialId, 
+		           t.STATUS         status,      
+		           DESCRIPTION    description, 
+		           AMOUNT         amount,      
+		           t.MEMBER_CODE    memberCode,  
+		           ACCT_TYPE      acctType,    
+		          t.CREATE_DATE    createDate,  
+		          t.UPDATE_DATE    updateDate,  
+		           BALANCE        balance,     
+		           OPERATOR_NAME  operatorName,
+		           ASSESSOR       assessor,    
+		           AUDIT_STATUS   auditStatus, 
+		           AUDIT_DESC     auditDesc       
+   				
+   		 from  T_FROZEN_LOG   t 	
+   		 LEFT JOIN T_MEMBER AC ON t.MEMBER_CODE = AC.MEMBER_CODE
+   		 	 
+   		 where  id = #id#
+				
+   </select>
+   
+  <select id="search"  parameterClass="frozenLog"  resultClass="frozenLog">
+   		select 
+   				     t.ID       	id,           
+				   SERIAL_NO      serialNo,
+				   ac.login_name    loginName,      
+		           FROZEN_TYPE    frozenType,  
+		           OLD_SERIAL_ID  oldSerialId, 
+		           t.STATUS         status,      
+		           DESCRIPTION    description, 
+		           AMOUNT         amount,      
+		           t.MEMBER_CODE    memberCode,  
+		           ACCT_TYPE      acctType,    
+		          t.CREATE_DATE    createDate,  
+		          t.UPDATE_DATE    updateDate,  
+		           BALANCE        balance,     
+		           OPERATOR_NAME  operatorName,
+		           ASSESSOR       assessor,    
+		           AUDIT_STATUS   auditStatus, 
+		           AUDIT_DESC     auditDesc       
+   				
+   		 from  T_FROZEN_LOG   t 	
+   		 LEFT JOIN T_MEMBER AC ON t.MEMBER_CODE = AC.MEMBER_CODE
+   		 WHERE (1=1)
+   		 <isNotEmpty property="memberCode" >
+   		 	and t.MEMBER_CODE = #memberCode#
+   		 </isNotEmpty>
+   		  <isNotEmpty property="loginName" >
+   		 	and ac.login_Name = #loginName#
+   		 </isNotEmpty>
+   		  <isNotEmpty property="status" >
+   		  	and t.status = #status#
+   		  </isNotEmpty>
+   		  <!-- add acctType条件查询  by tom.wang 2016年5月6日19:36:35 -->
+   		  <isNotEmpty property="acctType" >
+   		  	and t.ACCT_TYPE = #acctType#
+   		  </isNotEmpty>
+   		 <isNotEmpty property="frozenType" >
+   		 	and t.frozen_Type = #frozenType#
+   		 </isNotEmpty>
+   		 order by t.id desc
+   </select>
+   
+    <select id="search_COUNT"  parameterClass="frozenLog"  resultClass="int">
+   		select 
+   				 count(*)
+   		
+   		 from  T_FROZEN_LOG   t 	
+   		 LEFT JOIN T_MEMBER AC ON t.MEMBER_CODE = AC.MEMBER_CODE
+   		 WHERE (1=1)
+   		  <isNotEmpty property="memberCode" >
+   		 	and t.MEMBER_CODE = #memberCode#
+   		 </isNotEmpty>
+   		  <isNotEmpty property="loginName" >
+   		 	and ac.login_Name = #loginName#
+   		 </isNotEmpty>
+   		  <!-- add acctType条件查询  by tom.wang 2016年5月6日19:36:35 -->
+   		  <isNotEmpty property="acctType" >
+   		  	and t.ACCT_TYPE = #acctType#
+   		  </isNotEmpty>
+   		  <isNotEmpty property="status" >
+   		  	and t.status = #status#
+   		  </isNotEmpty>
+   		  <isNotEmpty property="frozenType" >
+   		 	and t.frozen_Type = #frozenType#
+   		 </isNotEmpty>
+   </select>
+   
+   <!-- 修改冻结金额 账户余额记账功能会更新余额 by tom.wang 2016年5月7日20:06:15 -->
+   <update id="addFrozenAmount" parameterClass="map">
+			   	update  t_acct t set t.frozen_amount = t.frozen_amount + #frozenAmount#
+			where t.member_code =#memberCode#
+			 <!-- and t.balance >=  #frozenAmount#  -->
+			  and #frozenAmount# > 0
+			  and t.acct_code=#acctCode#
+   </update>
+   <!-- 修改冻结金额 账户余额记账功能会更新余额 by tom.wang 2016年5月7日20:06:15 -->
+    <update id="freeFrozenAmount" parameterClass="map">
+			update t_acct t set t.frozen_amount = t.frozen_amount - #frozenAmount#
+			where t.member_code =#memberCode# and t.frozen_amount >= #frozenAmount# and #frozenAmount# > 0 and t.acct_code=#acctCode#
+   </update>
+   
+    <update id="updateFrozenLogStatus" parameterClass="map">
+			   	update  T_FROZEN_LOG t  set  t.status = #status# where t.id = #id# 
+   </update>
+   
+</sqlMap>

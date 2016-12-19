@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BSP平台-出金</title>
+<#include "/common/macro/seoPerson.ftl">
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<link href="<@sp.static/>/css/pay/css.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+
+<script type="text/javascript" charset="utf-8">
+	var supportWithdraw = "0";
+
+	function validate(){
+		
+		if($("#withdrawBankSequenceId").val() == ""){
+			$("#tipDate").show();
+			$("#tipBank").text("请选择出金银行账户");
+			return false;
+		}
+		
+		//$("#withdrawBankSequenceId").change();
+		if(supportWithdraw == "0") {
+			return false;
+		}
+		if($("#withdrawAmount").val() == ''){
+			$("#tipAmount").text("请输入出金金额");
+			return false;
+		}
+
+		var re = /^[0-9]+.?[0-9]*$/;
+		var re2 = /^\d+\.\d{1,2}$/;
+		if (!re.test($("#withdrawAmount").val()) || $("#withdrawAmount").val()=='0') { 
+			$("#tipAmount").text("请输入正确的出金金额");
+			return false;
+		}  
+		if($("#withdrawAmount").val().indexOf('.')>0) {
+			if (!re2.test($("#withdrawAmount").val())) {    
+				$("#tipAmount").text("请输入正确的出金金额");
+				return false;
+			}
+		}  
+		if($("#withdrawAmount").val().indexOf('0')==0) {
+			if($("#withdrawAmount").val().indexOf('.') != 1) {
+					$("#tipAmount").text("请输入正确的出金金额");
+					return false;
+			} 
+		}
+		$("#applyWithdrawForm").submit();
+	}
+	
+	
+	function change(){
+		
+		if($("#withdrawBankSequenceId").val() != ""){
+			$("#tipDate").show();
+			$.ajax({
+				type:"GET",
+				url:"${rc.contextPath}/corp/bspWithdraw.htm?method=getWithdrawChannel&targetBankId=" + $("#withdrawBankSequenceId option:selected").attr("data-c"),
+				dataType:"json",
+				success:function(data){
+		           if(data == "1") {
+						supportWithdraw = "1";
+						$("#tipBank").text("到账日期一般在2-5个工作日");
+		           }else {
+						supportWithdraw = "0";
+						$("#tipBank").text("暂不支持出金到" + $("#withdrawBankSequenceId option:selected").attr("data-l"));
+		           }
+				}
+			}); 
+		}else {
+			$("#tipDate").hide();
+		}
+		$("#bankName").val($("#withdrawBankSequenceId option:selected").attr("data-l"));
+		
+	}
+	
+
+		
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="bsp_withdraw"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div style="width: auto;">
+	<!--自适应box str -->
+        <div class="mod_box_a">
+        <p class="top"><i></i></p>
+		<div class="con_box has_bg">
+		
+		<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">出金</strong><span>|</span><a href="${rc.contextPath}/corp/bspwithdrawlist.htm?method=queryWithdrawSummaryFromBsp">出金记录</a></div>
+			</div>
+		<!--str-->
+			<div class="step">
+					<ol class="step-1">
+						<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+						<li class="li-1 last"><span><i>1</i>申请出金</span> </li>
+						<li class="li-2 last"><i>2</i>出金确认</li>
+						<li class="li-3 last"><span><i>3</i>申请提交</span></li>
+					</ol>
+				</div>
+				<div class="ico_txtBox mt5"><i class="warn_ico"></i>
+					<p>银行账户的开户人姓名必须与“<font color="red">${merchantName?default('')}</font>”一致，否则将出金失败。</p>
+				</div>
+					
+				<form class="mod_form pad_center" action="${rc.contextPath}/corp/bspWithdraw.htm?method=confirm" method="post" name="applyWithdrawForm" id="applyWithdrawForm">
+					<ul class="form_list form_f400">
+						<li>
+							<label class="form_side">商户名称：</label>
+							${merchantName?default('')}
+						</li>
+						<li>
+							<label class="form_side">gcpayment用户名：</label>
+							${loginName?default('')}
+						</li>
+						<li>
+							<label class="form_side">你的钢网账号：</label>
+							${platformName?default('')}
+						</li>
+						<li>
+							<label class="form_side2">选择出金银行账户：</label>
+							<p><select class="select2" id="withdrawBankSequenceId" name="withdrawBankSequenceId" onchange="change()">
+									<option value="" id="de">请选择</option>
+								<#if bankList?exists>
+									<#list bankList as bl>
+										<option data-l="${bl.name?default('')}" data-c="${bl.bankId}" value="${bl.id}" <#if targetBankId?exists && targetBankId == '${bl.id}'>selected="selected"</#if> >${bl.name?default('')}(${bl.bankAcctId})</option>
+									</#list>
+								</#if>
+							</select>
+							</p>
+							<div id="tipDate"  style="display:none;" class="bank_tips">
+								<p id="tipBank">到账日期一般在2-5个工作日</p>
+								<span class="arrow_t"></span> <span class="arrow_t_inner"></span>
+							</div>
+						</li>
+						<li>
+							<label class="form_side2">出金金额：</label>
+							<input type="text" class="inp_normal" name="withdrawAmount" id="withdrawAmount" value="${withdrawAmount?default('')}"> 元  &nbsp;&nbsp;&nbsp;
+							<span id="tipAmount" class="red"></span>
+						</li>
+						<li>
+							<label class="form_side">可出金余额：</label>
+							<strong class="red font14">${availableBalances?default('0.00')}</strong> 元
+						</li>
+
+						<li class="btn">
+							<span class="btn_yel botton_yel">
+								<button id="submit_btn" type="button" onclick="return validate()" <#if 0 &lt; enableTimes?default(0) >disabled="disabled"</#if>>下一步</button>
+							</span>
+						</li>
+					</ul>
+					<input type="hidden" name="bankName" id="bankName" value=""/>
+					<input type="hidden" name="merchantName" id="merchantName" value="${merchantName?default('')}"/>
+				</form>
+		<!--end --> 
+        </div>
+		<p class="bot"><i></i></p>
+	   </div>
+</div>
+
+</div>
+	
+<!--主内容 end -->
+</div>
+<script type="text/javascript">
+<#if targetBankId?exists>
+
+</#if>
+$("#withdrawBankSequenceId").change();
+</script>
+
+<!--footer -->
+<#if errorMsg?has_content>
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		$.pay.alert('${errorMsg?default('')}',{h:160,t:'3',close:function(){
+			<#if forward?has_content>
+				window.location.href="${rc.contextPath}/corp/editCorpBankCard.htm";
+			</#if>
+		}});
+	});	
+</script>
+</#if>
+
+<#include "/common/include/footer.html">
+</html>

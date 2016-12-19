@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ordercompletion">
+
+    <typeAlias alias="customizationParam" type="com.pay.base.fi.model.CustomizationParam"/>
+    <typeAlias alias="hMap" type="java.util.HashMap"/>
+
+	<insert id="insertCustomizationParam" parameterClass="customizationParam" >
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select seq_customization_param_id.nextval as ID from dual 
+		</selectKey>
+		insert into CUSTOMIZATION_PARAM(
+			ID					,
+			MEMBERCODE			,
+			CREATETIME			,
+			UPDATETIME			,
+			EFFECTIVE_TIME		,
+			EFFECTIVE_UNIT
+		)
+		values(
+			#id#,
+			#memberCode#,
+			#createTime#,
+			#updateTime#,
+			#effectiveTime#,
+			#effectiveUnit#
+		)
+	</insert>
+	
+	<select id="findCustomizationParam" resultClass="customizationParam">
+		select 
+			c.ID 				as 		id, 
+			c.MEMBERCODE		as 		memberCode,
+			c.CREATETIME		as 		createTime,
+			c.UPDATETIME		as 		updateTime,
+			c.EFFECTIVE_TIME	as 		effectiveTime,
+			c.EFFECTIVE_UNIT	as 		effectiveUnit
+		from
+			CUSTOMIZATION_PARAM c
+		where 
+			c.id = (select max(c2.id) from CUSTOMIZATION_PARAM c2)
+	</select>
+   
+   <update id="updateCustomizationParam" parameterClass="hMap">
+   		update CUSTOMIZATION_PARAM set 
+   			UPDATETIME = #updateTime:TIMESTAMP#, EFFECTIVE_TIME = #effectiveTime:NUMBER#, EFFECTIVE_UNIT = #effectiveUnit:VARCHAR2#, UPDATOR = #updator:NUMBER#
+   		where id = #id#
+   </update>
+   
+</sqlMap>

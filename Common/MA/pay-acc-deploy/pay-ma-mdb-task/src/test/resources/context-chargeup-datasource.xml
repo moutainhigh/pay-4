@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:config/commons.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	<bean id="dataSourceMdbTask" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName">
+			<value>${oracle.driverClassName}</value>
+		</property>
+		<property name="url">
+			<value>${oracle.url}</value>
+		</property>
+		<property name="username">
+			<value>${oracle.userName}</value>
+		</property>
+		<property name="password">
+			<value>${oracle.userPassword}</value>
+		</property>
+	</bean>
+	<!--<bean id="sqlMapClientMdbTask" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ibatis/sqlmap-mdb-task-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<list>
+				<value>classpath*:ibatis/chargeup/*.xml</value>
+				<value>classpath*:ibatis/unlock/*.xml</value>
+			</list>
+		</property>
+		<property name="dataSource" ref="dataSourceMdbTask" />
+	</bean>
+	<bean id="mdbTaskTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceMdbTask" />
+	</bean>
+	--><bean id="infDataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+		<property name="url"
+			value="jdbc:oracle:thin:@192.168.200.63:1521:primary"></property>
+		<property name="username" value="inf"></property>
+		<property name="password" value="inf"></property>
+		<property name="initialSize" value="10" />
+		<property name="maxActive" value="100" />
+		<property name="maxIdle" value="50" />
+		<property name="maxWait" value="20" />
+	</bean>
+	
+	<!--<aop:config>
+		<aop:pointcut id="mdbTaskServiceMethod"
+			expression="execution(* com.pay.acc.service..*.*(..))" />
+		<aop:advisor advice-ref="mdbTaskTxAdvice" pointcut-ref="mdbTaskServiceMethod" />
+	</aop:config>
+	
+	<tx:advice id="mdbTaskTxAdvice" transaction-manager="mdbTaskTxManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="SUPPORTS" rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+			<tx:method name="*RnTx" propagation="REQUIRES_NEW"  rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+			<tx:method name="*SpTx" propagation="SUPPORTS"  rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+			<tx:method name="*NsTx" propagation="NOT_SUPPORTED" />
+			<tx:method name="*RdTx" propagation="REQUIRED" rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException"/>
+		</tx:attributes>
+	</tx:advice>
+--></beans>

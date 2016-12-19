@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+ 		
+ 		<bean id="userRelationParamResolver"
+                class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+                <property name="paramName" value="method" />
+                <property name="defaultMethodName"><value>toSearchPage</value></property>
+        </bean>
+        
+        
+        
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+			<prop key="/userrelation/userRelationQuery.do">userRelationController</prop>		
+			</props>
+		</property>
+	</bean>
+	
+  	<bean id="userRelationController"
+		class="com.pay.poss.userrelation.controller.UserRelationController">
+		
+		<property name="methodNameResolver">
+			<ref bean="userRelationParamResolver"/>
+		</property>
+		
+		<property name="searchView">		
+			<value>/userrelation/userRelationList</value>
+		</property>	
+		<property name="listView">		
+			<value>/userrelation/userRelationListResultView</value>
+		</property>	
+		<property name="addView">
+			<value>/userrelation/addUserRelation</value>
+		</property>
+		<property name="updateView">
+			<value>/userrelation/updateUserRelation</value>
+		</property>
+		
+		<property name="userRelationService" ref="userRelationServiceImpl"></property>
+	</bean>
+  
+</beans>

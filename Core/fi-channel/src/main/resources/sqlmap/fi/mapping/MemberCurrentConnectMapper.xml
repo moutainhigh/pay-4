@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.channel.dao.MemberCurrentConnectMapper">
+
+  <resultMap id="BaseResultMap" class="com.pay.channel.model.MemberCurrentConnect">
+    <result column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="PARTNER_ID" jdbcType="DECIMAL" property="partnerId" />
+    <result column="CARD_ORG" jdbcType="VARCHAR" property="cardOrg" />
+    <result column="PAYMENT_CHANNEL_ITEM_ID" jdbcType="DECIMAL" property="paymentChannelItemId" />
+    <result column="CHANNEL_CONFIG_ID" jdbcType="DECIMAL" property="channelConfigId" />
+    <result column="COUNT_TIMES" jdbcType="DECIMAL" property="countTimes" />
+    <result column="COUNT_AMOUNT" jdbcType="DECIMAL" property="countAmount" />
+    <result column="REJECT_TIMES" jdbcType="DECIMAL" property="rejectTimes" />
+    <result column="CONNECT_TIME" jdbcType="TIMESTAMP" property="connectTime" />
+    <result column="HAS_WARNING" jdbcType="VARCHAR" property="hasWarning" />
+    <result column="MANUAL" jdbcType="VARCHAR" property="manual" />
+    <result column="CHANNEL_SECOND_RELATION_ID" jdbcType="DECIMAL" property="channelSecondRelationId" />
+  </resultMap>
+
+  <resultMap id="dtoResultMap" class="com.pay.channel.dto.MemberCurrentConnectDTO" extends="BaseResultMap">
+    <result column="NAME" property="paymentChannelName" jdbcType="VARCHAR"/>
+    <result column="ORG_MERCHANT_CODE" property="orgMerchantCode" jdbcType="VARCHAR"/>
+    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+      <result column="days" property="days" jdbcType="INTEGER"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ID, PARTNER_ID, CARD_ORG, PAYMENT_CHANNEL_ITEM_ID, CHANNEL_CONFIG_ID, COUNT_TIMES, 
+    COUNT_AMOUNT, REJECT_TIMES, CONNECT_TIME, HAS_WARNING, MANUAL, CHANNEL_SECOND_RELATION_ID
+  </sql>
+
+  <select id="findById" parameterClass="java.math.BigDecimal" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from MEMBER_CURRENT_CONNECT
+    where ID = #id#
+  </select>
+
+  <delete id="delete" parameterClass="java.math.BigDecimal">
+    delete from MEMBER_CURRENT_CONNECT
+    where ID = #id#
+  </delete>
+
+  <insert id="create" parameterClass="com.pay.channel.model.MemberCurrentConnect">
+    <selectKey resultClass="java.math.BigDecimal" keyProperty="id">
+      SELECT SEQ_MEMBER_CURRENT_CONNECT.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into MEMBER_CURRENT_CONNECT (ID, PARTNER_ID, CARD_ORG, 
+      PAYMENT_CHANNEL_ITEM_ID, CHANNEL_CONFIG_ID, 
+      COUNT_TIMES, COUNT_AMOUNT, REJECT_TIMES, 
+      CONNECT_TIME, HAS_WARNING, MANUAL,
+      CHANNEL_SECOND_RELATION_ID)
+    values (#id#, #partnerId#, #cardOrg#,
+    #paymentChannelItemId#, #channelConfigId#,
+    #countTimes#, #countAmount#, #rejectTimes#,
+      sysdate, #hasWarning#, #manual#,
+    #channelSecondRelationId#)
+  </insert>
+
+  <update id="updateModelByModel" parameterClass="com.pay.channel.model.MemberCurrentConnect">
+    update
+      MEMBER_CURRENT_CONNECT
+    SET
+      COUNT_TIMES = #countTimes#,
+      COUNT_AMOUNT = #countAmount#,
+      REJECT_TIMES = #rejectTimes#,
+      HAS_WARNING = #hasWarning#
+    where
+      ID = #id#
+  </update>
+
+  <select id="findByCriteria" parameterClass="com.pay.channel.dto.MemberCurrentConnectDTO" resultMap="dtoResultMap">
+    SELECT
+    his.ID, his.PARTNER_ID, his.CARD_ORG,
+    his.PAYMENT_CHANNEL_ITEM_ID, his.CHANNEL_CONFIG_ID,
+    his.COUNT_TIMES, his.COUNT_AMOUNT, his.REJECT_TIMES,
+    his.CONNECT_TIME, his.HAS_WARNING, MANUAL,
+    his.CHANNEL_SECOND_RELATION_ID,
+    pci.NAME, chc.ORG_MERCHANT_CODE,pci.ORG_CODE,
+    sysdate - his.CONNECT_TIME days
+    FROM MEMBER_CURRENT_CONNECT his,CHANNEL_CONFIG chc,PAYMENT_CHANNEL_ITEM pci
+    WHERE 1=1 AND his.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND his.CHANNEL_CONFIG_ID = chc.ID (+)
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="partnerId">
+      his.PARTNER_ID = #partnerId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="channelConfigId">
+      his.CHANNEL_CONFIG_ID = #channelConfigId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      his.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgMerchantCode">
+      chc.ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+    </isNotEmpty>
+    order by ID asc
+  </select>
+
+  <select id="countByCriteria" parameterClass="com.pay.channel.dto.MemberCurrentConnectDTO" resultClass="java.lang.Integer">
+    SELECT
+    count(1)
+    FROM MEMBER_CURRENT_CONNECT his,CHANNEL_CONFIG chc,PAYMENT_CHANNEL_ITEM pci
+    WHERE 1=1 AND his.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND his.CHANNEL_CONFIG_ID = chc.ID (+)
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="partnerId">
+      his.PARTNER_ID = #partnerId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="channelConfigId">
+      his.CHANNEL_CONFIG_ID = #channelConfigId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      his.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgMerchantCode">
+      chc.ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+    </isNotEmpty>
+  </select>
+</sqlMap>

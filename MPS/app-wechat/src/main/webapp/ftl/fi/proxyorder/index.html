@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>gcpayment支付-代客下单</title>
+		<#include "/common/macro/seoPerson.ftl">
+		<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+		<script type="text/javascript">
+			$(function(){
+				$("#moreInfo").click(function(){$("#moreContent").slideToggle('fast');});
+				$("#mobile").change(function(){
+					$.post('${rc.contextPath}/corp/proxyorder.htm?method=getBindInfo&mobile='+$.trim($(this).val()),function(data){
+						if(data !=''){
+							var bind=eval("("+data+")");
+							$("#bankNo").val(bind.bankNo);
+							$("#idNo").val(bind.idNo);
+							$("#name").val(bind.name);
+						}
+					},'json');
+				});
+				$('#payAction').click(function(){
+					if(validateForm()) {
+						$('#incomeDetailForm').submit();
+					}
+				});
+				$('#amount').keypress(function(e){
+					if(e.which == 8 ||e.which == 0 )return true;
+					if(((e.which >= 45 && e.which <= 57) && e.ctrlKey == false && e.shiftKey == false) || e.which == 0 || e.which == 8) {
+						if(e.which == 45){
+							return false;
+						} else if(e.which == 46){
+							if($(this).val().indexOf(".") == -1 && $(this).val().length !=0) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+						return true;
+					} 
+					return false;
+				}).bind("paste",function(){return false;}).css({'imeMode':"disabled",'-moz-user-select':"none"});
+			});
+			function validateForm() {
+				var flag = true;
+				if($.trim($("#mobile").val())=='')
+					flag =  false;
+				if($.trim($("#bankNo").val())=='')
+					flag =  false;
+				if($.trim($("#idNo").val())=='')
+					flag =  false;
+				if($.trim($("#name").val())=='')
+					flag =  false;
+				if($.trim($("#amount").val())=='')
+					flag =  false;
+				if($.trim($("#amount").val())=='')
+					flag =  false;
+				if($.trim($("#voiceContent").val())=='')
+					flag =  false;
+				if(!flag)
+					alert('请输入完整收单信息');
+				return flag;
+			}
+		</script>
+	</head>
+	<body>
+		<!--导航 str-->
+		<@sp.head mCode="corp_proxyorder,bsp_corp_withdraw"/>
+		<!--导航 end-->
+		
+		<!--主内容 str -->
+		<div class="container share_wrap">
+		<div class="order_search">
+			<form class="form" action="${rc.contextPath}/corp/proxyorder.htm?method=payment" method="post" name="incomeDetailForm" id="incomeDetailForm">
+				<div class="slelct_down">
+					<ul>
+						<li>
+							<label class="side">手机号码：</label>
+							<input type="text" name="mobile" id="mobile" gtbfieldid="110" value="" class="inp_normal w200"/>
+						</li> 
+						<li>
+							<label class="side">业务类型：</label>
+							<select name="bizType" id="bizType" class="inp_normal w200" >
+								<option value="1">机票订购</option>
+								<option value="2">酒店预订</option>
+							</select>
+						</li>
+						<li>
+							<label class="side">银行卡号：</label>
+							<input type="text" name="bankNo" id="bankNo" gtbfieldid="110" value="" class="inp_normal w200"/>
+						</li>
+						<li>
+							<label class="side">身份证号：</label>
+							<input type="text" name="idNo" id="idNo" gtbfieldid="110" value="" class="inp_normal w200"/>
+						</li>
+						<li>
+							<label class="side">姓       名：</label>
+							<input type="text" name="name" id="name" gtbfieldid="110" value="" class="inp_normal w200"/>
+						</li>
+						<li>
+							<label class="side">金      额：</label>
+							<input type="text" name="amount" id="amount" gtbfieldid="110" value="" class="inp_normal w200"/>
+						</li>
+					</ul>
+					<div id="moreInfo" style="cursor: pointer;">更多>></div>
+					<div class="slelct_down_con" id="advancedSearch">
+						<ul id="moreContent">
+							<li style="width:550px;">
+							<label class="side">订单内容：</label>
+							<textarea class="inp_normal w300  v_b" rows="5" id="voiceContent" name="voiceContent" placeholder="请在这里输入语音播报内容，语音播报内容将通过电话回呼的形式播报给持卡人听，方便持卡人用户确认支付"></textarea>
+							</li>
+							<li style="padding-left:98px;">
+							<a class="btn_yel" href="##" id="payAction"><span>确认支付</span></a>
+							</li>
+						</ul>
+					</div>
+					
+				</div>
+			</form>
+		</div>
+		
+		<div class="refund_list">
+			<div class="refund_title"> 
+				<div class="mode_tit">
+					<h2 class="sel"><a href="javascript:void(0)">下单记录</a> </h2>
+					<h2><a href="${rc.contextPath}/corp/proxyorder.htm?method=query">订单查询</a></h2>
+				</div>
+			</div>
+			<div class="refund_box"> 
+				<div class="barg_table">
+					<table id="incomeTable">
+						<tr>
+							<th width="10%">持卡人</th>
+							<th width="10%">手机号码</th>
+							<th width="15%">交易金额</th>
+							<th width="12%">交易时间</th>
+							<th width="8%">订单状态</th>
+						</tr>
+						<#if orderList?has_content>
+							<#list orderList as order>
+							<tr>
+								<td>${order.name!''}</td>
+								<td>${order.mobile!''}</td>
+								<td>${(order.amount*0.001)?string(",##0.00")}</td>
+								<td>${order.createTime?string("yyyy-MM-dd HH:mm:ss")}</td>
+								<td>
+									<#if order.status??>
+										<#if order.status == 0>
+											进行中
+										<#elseif order.status == 1>
+											支付成功
+										<#elseif order.status == 2>
+											支付失败
+										<#else>
+											${order.status}
+										</#if>
+									</#if>
+								</td>
+							</tr>
+							</#list>
+						</#if>
+					</table>
+				</div>
+			</div>
+		</div>
+</div>
+		<!--主内容 end -->
+	<!--footer -->
+	<#include "/common/include/footer.html">
+</html>

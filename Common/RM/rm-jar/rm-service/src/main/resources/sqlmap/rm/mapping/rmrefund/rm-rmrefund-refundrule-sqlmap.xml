@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="refundrule">
+
+  <typeAlias alias="refundRule" type="com.pay.rm.service.model.rmrefund.RefundRule"/>
+  <typeAlias alias="refundRuleDTO" type="com.pay.rm.service.dto.rmrefund.RefundRuleDTO"/>
+
+  <select id="selectAllCBRules" resultClass="refundRule">
+    SELECT 
+    	CB_TYPE                 cbType      ,   
+		TYPE_NAME               typeName    ,  
+		TYPE_DESC               typeDesc    ,   
+		EXPIRE_DAYS             expireDays  , 
+		EXPIRE_TIMES            expireTimes 
+		FROM RC_CHARGE_BACK_RULE
+  </select>
+  
+  <select id="findById" parameterClass="long" resultClass="refundRule">
+    SELECT
+		CB_TYPE                 cbType      ,   
+		TYPE_NAME               typeName    ,  
+		TYPE_DESC               typeDesc    ,   
+		EXPIRE_DAYS             expireDays  , 
+		EXPIRE_TIMES            expireTimes 
+    FROM RC_CHARGE_BACK_RULE
+    WHERE CB_TYPE = #cbType#
+  </select>
+  
+   <select id="findBySelective_COUNT" resultClass="java.lang.Integer">
+    SELECT  COUNT(1) FROM RC_CHARGE_BACK_RULE
+	<dynamic prepend="WHERE">	
+	   <isNotEmpty property="cbType" prepend="and"> 
+	     CB_TYPE = #cbType#
+	   </isNotEmpty>
+	   <isNotEmpty property="typeName" prepend="and"> 
+	     TYPE_NAME = #typeName#
+	   </isNotEmpty>
+	   <isNotEmpty property="expireDays" prepend="and"> 
+	    EXPIRE_DAYS = #expireDays#
+	   </isNotEmpty>
+	   <isNotEmpty property="expireTimes" prepend="and"> 
+	    EXPIRE_TIMES = #expireTimes#
+	   </isNotEmpty>
+	 </dynamic>
+  </select>
+  
+  <select id="findBySelective" resultClass="refundRuleDTO">
+    SELECT 
+    	CB_TYPE                 cbType      ,   
+		TYPE_NAME               typeName    ,  
+		TYPE_DESC               typeDesc    ,   
+		EXPIRE_DAYS             expireDays  , 
+		EXPIRE_TIMES            expireTimes  
+		FROM RC_CHARGE_BACK_RULE
+	<dynamic prepend="WHERE">	
+	   <isNotEmpty property="cbType" prepend="and"> 
+	     	CB_TYPE = #cbType#
+	   </isNotEmpty>
+	   <isNotEmpty property="typeName" prepend="and"> 
+	     	TYPE_NAME = #typeName#
+	   </isNotEmpty>
+	   <isNotEmpty property="expireDays" prepend="and"> 
+	    	EXPIRE_DAYS = #expireDays#
+	   </isNotEmpty>
+	   <isNotEmpty property="expireTimes" prepend="and"> 
+	    	EXPIRE_TIMES = #expireTimes#
+	   </isNotEmpty>
+	 </dynamic>
+  </select>
+  
+  <insert id="create" parameterClass="refundRule">
+    INSERT INTO RC_CHARGE_BACK_RULE (
+ 		CB_TYPE,     
+		TYPE_NAME,  
+		TYPE_DESC,   
+		EXPIRE_DAYS, 
+		EXPIRE_TIMES
+	)VALUES (
+	      #cbType#, 
+	      #typeName#, 
+	      #typeDesc#, 
+	      #expireDays#,
+	      #expireTimes#
+    )
+  </insert>
+
+  <update id="update" parameterClass="refundRule">
+    UPDATE RC_CHARGE_BACK_RULE 
+    	<dynamic prepend="SET"> 
+			<isNotEmpty prepend="," property="typeDesc">
+	            TYPE_DESC = #typeDesc#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="expireDays">
+	            EXPIRE_DAYS = #expireDays#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="expireTimes">
+	            EXPIRE_TIMES = #expireTimes#
+	        </isNotEmpty>
+        </dynamic>
+    WHERE CB_TYPE = #cbType#    
+  </update>
+  
+  <delete id="delete" parameterClass="Long">
+    DELETE FROM RC_CHARGE_BACK_RULE WHERE CB_TYPE = #cbType#
+  </delete>
+</sqlMap>

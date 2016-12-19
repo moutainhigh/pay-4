@@ -1,0 +1,224 @@
+
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<meta charset="utf-8">
+<title>网站管理</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="<@sp.contextPath/>/css/global2.css">
+<link rel="stylesheet" href="<@sp.contextPath/>/css/website.css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+function reloadSite(){
+	location.reload();
+}
+
+	function isUrl(url){    
+		
+	 	var regUrl=new RegExp("(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\&%_\./-~-]*)?");  
+	    if(regUrl.test(url)){  
+	       return true;
+	    } else{  
+		   return false;
+	    }      
+	}    
+	
+	function delSiteSet(id, siteName) {
+		var opt={};
+		opt.close=reloadSite;
+		
+		var url = "${rc.contextPath}/corp/cross/siteset.htm?method=deleteSite";
+		var param = {
+				'id' : id
+			};
+		
+		var str = "是否要删除 " + siteName + "的网站吗？";
+		if(confirm(str)){
+			$.ajax({
+				type : "post",
+				url : url,
+				datatype : "json",
+				data:param,
+				success : function(data) {
+					var str = data;
+					var jsonStr = eval("("+str+")");
+					if (jsonStr.result === "success") {
+						alert("网站删除成功",opt);
+						return;
+					} else {
+						alert(jsonStr.message);
+						return;
+					}
+				}
+			});
+		}
+
+	}
+	
+	
+	
+	function saveSite() {
+		var opt={};
+		opt.close=reloadSite;
+		var url = "${rc.contextPath}/corp/cross/siteset.htm";
+
+		var siteUrl = $("#url").val();
+		var param = {
+			'url' : siteUrl,
+			'method' : 'saveSite'
+		};
+
+		if (siteUrl === "") {
+			alert('保存网址不能为空!');
+			//$.pay.alert("保存网址不能为空!");
+			return;
+		}
+		if (!isUrl(siteUrl)) {
+			alert("网址格式不正确!");
+			return;
+		}
+		$.ajax({
+			type : "post",
+			url : url,
+			datatype : "json",
+			data:param,
+			success : function(data) {
+				var str = data;
+				var jsonStr = eval("("+str+")");
+				if (jsonStr.result === "success") {
+					alert("网站添加成功",opt);
+					return;
+				} else {
+					alert(jsonStr.message);
+					return;
+				}
+			}
+		});
+	}
+	
+</script>
+</head>
+ 
+<body id="home">
+<!--导航 str-->
+		<@sp.head  mCode="corp_operator_manager" />
+	<!--导航 end-->
+	<div class="outer">
+		<div class="container">
+			<div class="refund_list">
+			<div class="refund_title"> 
+				<!--tab str -->
+				<div class="mode_tit">
+					<h2 class="sel"><a hre="javascript:void(0)">网站管理</a></h2>
+				</div>
+				<!--tab str --> 
+			</div>
+			<div class="order_search">
+				<ul class="mt10">
+					<li>
+					    <label class="side">网址：</label>
+						<input type="url" id="url"
+										value="">&nbsp;&nbsp;
+						<span class="btnC">
+							<button onclick="saveSite()" class="btnC hack">保存</button>
+						</span>
+					</li>
+					<li class="search_btn">
+						<label class="side"></label>
+					</li>
+				</ul>
+			</div>
+			<div class="mod_box_a mt10">
+				<p class="top">
+					<i></i>
+				</p>
+				<div class="con_box has_bg">
+					<div class="tit_box">
+
+						<h3 class="title font14">查询结果</h3>
+					</div>
+
+					<div class="refund_list">
+						<div class="refund_box">
+							<div class="barg_table" align="center">
+								<table style="width: 900px;" border="1">
+									<thead>
+										<tr>
+											<th class="item15" width="65px;">siteID</th>
+											<th class="item15" width="150px;">域名</th>
+											<th class="item10" width="40px;">网站状态</th>
+											<th class="item10" width="100px;">创建时间</th>
+											<th class="item10" width="80px;">创建ip</th>
+											<th class="item30" width="50px;">备注</th>
+											<th class="item10" width="10px;">操作</th>
+										</tr>
+									</thead>
+									<tbody>
+										<#if result?exists> 
+										<#list result as site>
+										<tr class="even" align="center">
+											<td><em>${site.id?default('')}</em></td>
+											<td><span></span>${site.url?default('')}<span></span></td>
+											<td>
+												<!--0：冻结1：正常2：待审核3：审核未通过4：已删除  --> <#if
+												site.status=='0'>冻结</#if> <#if site.status=='1'>正常</#if>
+												<#if site.status=='2'>待审核</#if> <#if
+												site.status=='3'>审核未通过</#if> <#if site.status=='4'>已删除</#if>
+											</td>
+											<td>${site.createDate?string("yyyy-MM-dd")}</strong></td>
+											<td align="left">${site.ip?default('')}</td>
+											<td align="left">${site.remark?default('')}</td>
+											<td><a href="javaScript:;"
+												onclick="delSiteSet('${site.id}','${site.url}')">删除</a></td>
+										</tr>
+										</#list>
+										</#if>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<!--<div class="page_box" style="width:990px " >
+								<#if result?size gt 0 >
+								 <@sp.pagination pu=pu /> <input type="hidden"
+									value="${pu.curPageNo}" id="curPage"> ------------
+								</#if>
+							</div>-->
+					</div>
+
+
+					
+					<#if result?size == 0>
+					<div class="content txtC">
+						<div class="result_tips">
+							<div class="set_height clearfix">
+								<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+								<span class="pop_war"></span>
+								<p class="words f14">
+									<strong>没有找到相关内容！</strong>
+								</p>
+								<p class="link">
+									您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回账户桌面</a>
+								</p>
+							</div>
+						</div>
+					</div>
+					</#if>
+				</div>
+				
+				<p class="bot">
+					<i></i>
+				</p>
+			</div>
+		</div>
+		</div>
+
+		<#include "/common/include/footer.html">
+</body>
+</html>

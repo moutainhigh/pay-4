@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="possoperate">
+	<typeAlias alias="possOperate" type="com.pay.poss.operatelogmanager.model.PossOperate" />
+	 <insert id="create" parameterClass="possoperate">
+		<selectKey resultClass="java.lang.Long" keyProperty="operateId">
+			select SEQ_POSS_OPERATE_ID.nextval as operateId from dual 
+    	</selectKey>
+				insert into
+				T_POSS_OPERATE
+				(
+				OPERATE_ID ,
+				OBJECT_CODE ,
+				LOGIN_NAME ,
+				LOGIN_DATE ,
+				LOGIN_IP ,
+				BROWSER_VER ,
+				ACTION_URL,
+				TYPE,
+				STATUS,
+				CREATE_DATE,
+				UPDATE_DATE,
+				UPDATE_OPERATOR
+				 
+				)
+				values
+				(
+				#operateId#,
+				#objectCode#,
+				#loginName#,
+				sysdate,
+				#loginIp#,
+				#browserVer#,
+				#actionUrl#,
+				#type#,
+				#status#,
+				sysdate,
+				sysdate,
+				#loginName#
+				)
+		</insert>
+		<update id="updatePossOperateByCondition" parameterClass="java.util.Map">
+		    update
+	        	T_POSS_OPERATE
+	        set
+	        	STATUS = #newStatus#,
+	        	UPDATE_OPERATOR = #loginName#,
+		        UPDATE_DATE = sysdate
+	        where
+	        	OBJECT_CODE=#objectCode#
+			<isNotEmpty prepend="and" property="oldStatus">  
+	        	 STATUS = #oldStatus# 
+			</isNotEmpty>
+		</update>
+		<select id="selectAcctFrozenOperateByAcctCode" resultClass="possOperate" parameterClass="java.util.Map">
+				select 
+			         OPERATE_ID  operateId,
+			         OBJECT_CODE objectCode,
+			         LOGIN_NAME  loginName,
+			         LOGIN_DATE  loginDate,
+			         LOGIN_IP    loginIp,
+			         BROWSER_VER browserVer,
+			         ACTION_URL  actionUrl,
+			         TYPE      type,
+			         STATUS    status,
+			         CREATE_DATE  createDate,
+			         UPDATE_DATE  updateDate
+        		from T_POSS_OPERATE
+				where OBJECT_CODE= #acctCode#
+				<isNotEmpty prepend="and" property="oldStatus">  
+	        	   STATUS = 1
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="paramcreateDate">  
+	        	   CREATE_DATE = #paramcreateDate# 
+				</isNotEmpty>
+				order by CREATE_DATE desc
+    	</select>
+    	<update id="updateMemberOperateByCondition" parameterClass="java.util.Map">
+		    update
+	        	t_member_operate tmo
+	        set
+	        	tmo.fail_time=0,
+	        	tmo.update_time=sysdate
+	        where
+	        	tmo.member_code = #memberCode#
+	        and tmo.type = #type#
+			<isNotEmpty prepend="and" property="acctType">  
+	        	 tmo.acc_type = #acctType#
+			</isNotEmpty>
+
+		</update>
+</sqlMap>

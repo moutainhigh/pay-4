@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>gcpayment支付录</title>
+<style>
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td { padding:0; margin:0; }
+body { font: 12px/1.5 Tahoma, Helvetica, simsun, sans-serif; color: #000; position:relative; word-wrap:break-word; word-break:break-all;background-color:transparent;}
+abbr, article, aside, bb, datagrid, datalist, details, dialog, eventsource, figure, footer, header, mark, menu, meter, nav, output, progress, section, time { margin:0; padding:0; display:block; }
+table { border-collapse:collapse; border-spacing:0; }
+ol, ul { list-style:none outside; }
+caption, th { text-align:left; }
+h1, h2, h3, h4, h5, h6 { font-size:100%; }
+fieldset, img { border:0; }
+a { text-decoration:none; }
+a:hover { text-decoration:underline; }
+em { font-style:normal; }
+textarea { overflow-y:auto; }
+input, select, textarea { font:12px Tahoma, Arial, simsun; vertical-align:middle; }
+.clearfix:after { content:"."; height:0; visibility:hidden; display:block; clear:both; }
+.clearfix { display:inline-block; }
+.clearfix { display:block; }
+.clear { height:0; overflow:hidden; clear:both; display:block; }
+.none { display:none; }
+.block { display:block; }
+.hand, label { cursor:pointer; }
+.v_m { vertical-align:middle; }
+.mt10 { margin-top:10px; }
+.field a, .reg_Block a, .loginErr a { color: #E32429; }
+.login_box { width:300px; }
+.field { clear:both; width:300px; margin:20px 0 0; overflow:hidden; }
+.field label { float:left; width:60px; height:22px; line-height:22px; font-size:14px; font-family:\5B8B\4F53, Verdana, Geneva, sans-serif; overflow:hidden; }
+.field .label { width:70px; }
+.field .txt1, .field .txt2 { float:left; width:144px; height:18px; line-height:18px; color:#333; margin:0 12px 0 0; padding:2px 0 3px 3px; border:1px solid #DDD; overflow:hidden; }
+.field .txt2 { width:60px; }
+.field .spn {line-height:22px; white-space:nowrap; overflow:hidden; margin-left: 12px;}
+.btnLoginBlock { width:300px; text-align:center; font-weight:bold; font-family:\5B8B\4F53, Verdana, Geneva, sans-serif; margin:15px 0 0; overflow:hidden; }
+.btnLoginBlock a { display:block; width:101px; height:39px; line-height:39px; font-size:16px; color:#FFF; text-decoration:none; margin:0 auto; background:url(<@sp.static/>/img/pay/loginBtn_bg.png) 0 0 no-repeat; overflow:hidden; }
+.reg_Block { width:300px; height:40px; line-height:20px; color:#666; text-align:center; margin:20px auto 0; padding:10px 0 0; border-top:1px solid #EEE; overflow:hidden; }
+.login_box .dl { width:147px; _width:144px; height:22px; background:#FFFFD9; border:1px solid #FFA600; color:#f00; display:inline-block; font-weight:bold; line-height:22px; text-align:center; text-decoration:none; }
+.login_box .activex { background:#FFFEF5; font-weight:normal; color:#666 }
+.login_box .activex:hover { color:#666; }
+.login_box .activex span { color:#f60; }
+.auth_code { cursor:pointer }
+.loginErr { width:270px; margin:5px 0 0; padding:4px; border:1px solid #ffa3a5; background:#fdeded;}
+</style>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(function(){
+	var t="请输入电子邮箱或手机号";
+	$("#loginName").focus(function(){
+		if($(this).val()==t)
+				$(this).val("");
+		$("#errtips").hide();
+		}).blur(function(){
+			if($(this).val()!=t && $(this).val()=="")
+				$(this).val(t);
+	});
+
+	$("#loginForm").submit(function(){
+		var pwd = "";
+		if($("#payaySafeEdit").length>0){
+			var v = getPwdCtrlValpayapaySafeEdit");
+			if(v=='error'){
+				return false;
+			}
+			pwd = $("#passWord");
+			pwd.val(v);
+		}else{
+			pwd = $("#passWord").val();
+		}
+		var ln=$("#loginName");
+		if(ln.val()==t || ln.val()=="" ){
+			$("#errtips").show().html("用户名不能为空");
+			return false;
+		}
+		if(paypaySafeEdit").length>0){
+			if(getPwdCtrlStrLepay("paySafeEdit")<=0){
+				$("#errtips").show().html("密码不能为空");
+				return false;
+			}
+		}else{
+			if(pwd==""){
+				$("#errtips").show().html("密码不能为空");
+				return false;
+			}
+		}
+		$("#randCode").val($("#rand_Code").val());
+	});
+	
+	$("#refush").click(function(){
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+		$("#code").attr("src",src);
+		return false;
+	});
+	
+	$("#passWord").val("");
+});
+
+var checkData=function(){
+	$("#loginForm").submit();
+}
+
+</script>
+
+<#if msgStr?has_content>
+<script>
+$(function(){
+$("#errtips").show().html("${msgStr?html}");
+});
+</script>
+</#if>
+</head>
+<body>
+<div class="login_box">
+	<div id="errtips" class="loginErr" style="display: none;">
+		<p>密码错误，您还有4次机会，若连续输错5次，账户将120分钟内无法登录。<a title="找回密码？" href="#">找回密码？</a></p>
+	</div>
+	
+	<form method="post" action="${rc.contextPath}/externalMemberLogin.htm" id="loginForm">
+		<div class="field">
+			<label for="user_name">用户名：</label>
+			<input type="text" autocomplete="false" size="15" tabindex=1 disableautocomplete autocomplete="off" name="loginName" id="loginName"  class="txt1" gtbfieldid="3">
+		</div>
+		
+		<div class="field">
+			<label>密&nbsp;&nbsp;码：</label>
+				<#if Session["hascode"]?has_content>
+					<@sp.passwopayid="paySafeEdit" nextTabid="rand_Code" tabindex="2" id="passWord" name="passWord" from="login" form="loginForm" width="147px" height="26px" class="inp_txt"/>
+				<#else>
+					<@sp.passpay cid="paySafeEdit" nextTabid="loginbtn" tabindex="2" id="passWord" name="passWord" from="login" form="loginForm" width="147px" height="26px" class="inp_txt"/>
+				</#if>
+				<span class="spn"><a title="忘记密码？" href="javascript:window.top.location='${rc.contextPath}/loginpwd.htm'">忘记密码？</a></span>
+		 </div>
+		 <#if Session["hascode"]?has_content>
+          <div class="field">
+            <label>验证码：</label>
+            <input name="rand_Code" tabindex=3 disableautocomplete autocomplete="off" id="rand_Code" type="text" class="txt2" maxlength="4">
+          <input type="hidden" name="hascode" value="1"/>
+         	<span style="cursor:pointer" id="refush" title="换一张">
+          <img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68" height="23" id="code" style="vertical-align: top" a/>
+            </span>
+          </div>
+          </#if>
+					<input id="randCode" name="randCode" type="hidden"/>
+					<input id="service" name="service" value="${service}" type="hidden"/>
+		<div class="btnLoginBlock"><a onClick="return checkData();" title="" href="javascript:void(0);">登&nbsp;&nbsp;录</a></div>
+		<div class="reg_Block">还没有gcpayment支付帐号，请<a title="立即注册" href="javascript:window.top.location='${rc.contextPath}/register.htm'">立即注册</a></div>
+	</form>
+</div>
+</body>
+</html>

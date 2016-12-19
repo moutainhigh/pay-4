@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="poss_bankacct">
+
+	<typeAlias alias="possBankAcctDto"
+		type="com.pay.poss.personmanager.dto.BankAcctDto" />
+
+	<sql id="DETAIL_SELECT_BANK_ACCT">
+	   	<![CDATA[
+		select t.id,
+		       t.bank_id bankId,
+		       t.member_code memberCode,
+		       t.is_primary_bankacct isPrimaryBankAcct,
+		       t.branch_bank_name branchBankName,
+		       t.creation_date creationDate,
+		       t.name,
+		       t.status,
+		       t.bank_acct_id bankAcctId,
+		       t.province,
+		       t.city
+		  from t_member_bank_acct t
+			where 1=1
+	   	 ]]>
+	</sql>
+
+	<sql id="COMMON_CONDITION_SELECT_DETAIL">
+		<isNotEmpty prepend="and" property="memberCode">
+			t.member_code=#memberCode#
+	   </isNotEmpty>
+	   <isNotEmpty prepend="and" property="isPrimaryBankAcct">
+			t.is_primary_bankacct=#isPrimaryBankAcct#
+	   </isNotEmpty>
+	</sql>
+
+
+	<select id="selectBankAcctByBankAcct" resultClass="possBankAcctDto"
+		parameterClass="possBankAcctDto">
+		<include refid="DETAIL_SELECT_BANK_ACCT" />
+		<include refid="COMMON_CONDITION_SELECT_DETAIL" />
+	</select>
+
+</sqlMap>

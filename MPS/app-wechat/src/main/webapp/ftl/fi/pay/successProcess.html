@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#if returnUrl?exists>
+<!-- <meta http-equiv="refresh" content="5;url=${returnUrl?default('')}"> -->
+</#if>
+<title>gcpayment支付收银台</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<!-- <link href="<@sp.static/>/css/pay/pay_gateway.css" rel="stylesheet" type="text/css"> -->
+<script src="<@sp.static/>/js/pay/common/jquery-1.3.2.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$(function(){
+		getShoppingStatus();
+	});
+	
+	window.setTimeout("getShoppingStatus()", 10*1000);
+	
+	function getShoppingStatus(){
+		var settleDepositId = $('#settleDepositId').val();
+		var name = $('#name').val();
+		var greeting =  $('#greeting').val();
+		var bankOrderId = $('#bankOrderId').val();
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/cardPayRedirect.htm?method=shoppingPayProcessSuccess",
+			data: "settleDepositId="+settleDepositId+"&name="+name+"&greeting="+greeting+"&bankOrderId="+bankOrderId,
+			datatype : "json",
+			success: function(msg){
+				//alert(msg);
+				//alert(msg[0].name);
+				$("#caypaySucessProcess").html(msg);
+			}
+		});
+	}
+</script>
+</head>
+<body id="home">
+<div class="container">
+<div class="mod_box_a mt10">
+	<input type="hidden" id="settleDepositId" value="${settleDepositId?default('')}"/>
+	<input type="hidden" id="name" value="${name?default('')}"/>
+	<input type="hidden" id="greeting" value="${greeting?default('')}"/>
+	<input type="hidden" id="bankOrderId" value="${bankOrderId?default('')}"/>
+	<input type="hidden" value="${status?default('')}" id="status"/>
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg pad20">
+		<div class="tit_box border_b">
+		<h3 class="title font14"><strong>收银台</strong></h3>
+		</div>
+		<div class="content">
+			<div class="wait_box">
+				<!-- str -->
+				<div class="popup">
+					<div class="popup_box">
+						<div class="popup_content">
+							<strong id="r">订单支付中，请稍等...</strong>
+							<div id="infomsg1">为了确保支付顺利完成，支付完成前请不要离开或关闭此窗口。</div>
+							<span class="pop_war"></span>
+						</div>
+						<div class="mt10"><img src="<@sp.static/>/img/pay/waiting.gif"></div>
+					</div>
+				</div>
+			<!-- end  --> 
+			</div>			
+				<div class="friend_tip">
+				<h4>友情提示：</h4>
+				<p>IE6.0及更低版本浏览器用户请检查您的浏览器是否支持128位密钥长度，如果不支持，请升级您的浏览器（查看如何检查和升级方案）。</p>
+			</div>
+		</div>		
+	</div>		
+	<div id="caypaySucessProcess">
+	</div>
+	<p class="bot"><i></i></p>
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</div>
+</body>
+</html>

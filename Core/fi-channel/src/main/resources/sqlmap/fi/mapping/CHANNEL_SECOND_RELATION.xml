@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelSecondRelation">
+
+	<typeAlias alias="channelSecondRelation" type="com.pay.channel.model.ChannelSecondRelation"/>
+	<typeAlias alias="channelSndRelation" type="com.pay.channel.model.ChannelSndRelation"/>
+    <resultMap id="channelSecondRelationMap" class="channelSecondRelation">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="ORG_MERCHANT_CODE" property="orgMerchantCode" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+		<result column="CHANNEL_CONFIG_ID" property="channelConfigId" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <resultMap id="csrMap" class="channelSecondRelation" extends="channelSecondRelationMap">
+          <result column="MERCHANT_BILL_NAME" property="merchantBillName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+   <resultMap id="resultMap" class="channelSecondRelation" extends="channelSecondRelationMap">
+    	<result column="MCC" property="mcc" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="TRANS_TYPE" property="transType" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_CHANNEL_ITEM_ID" property="paymentChannelItemId" jdbcType="VARCHAR"/>
+        <result column="MERCHANT_BILL_NAME" property="merchantBillName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+     <insert id="create" parameterClass="channelSecondRelation">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_SECOND_RELATION_ID.nextval FROM DUAL
+		</selectKey>
+	 	INSERT INTO CHANNEL_SECOND_RELATION(
+			id,MEMBER_CODE,ORG_CODE,ORG_MERCHANT_CODE,OPERATOR,CREATE_DATE,PAYMENT_CHANNEL_ITEM_ID,CHANNEL_CONFIG_ID
+        )
+        VALUES(
+            #id#,#memberCode#,#orgCode#,#orgMerchantCode#,#operator#,sysdate,#paymentChannelItemId#,#channelConfigId#
+		)
+	</insert>
+    
+    <delete id="delete">
+        DELETE FROM CHANNEL_SECOND_RELATION where 1=1
+       <isNotNull property="id">
+			AND id = #id#
+	   </isNotNull>
+    </delete>
+    
+    <select id="findById" resultMap="channelSecondRelationMap" parameterClass="java.lang.Long">
+        SELECT * FROM CHANNEL_SECOND_RELATION WHERE id=#id#
+    </select>
+    
+    <!-- 查询该商户的所有直连渠道 -->
+    <select id="findBymemberCode" resultMap="channelSecondRelationMap" parameterClass="java.lang.Long">
+        SELECT * FROM CHANNEL_SECOND_RELATION
+        WHERE MEMBER_CODE=#memberCode#
+    </select>
+    
+    <!-- 根据条件查询直连渠道 -->
+    <select id="findByCriteria" resultMap="resultMap">
+        SELECT CSR.*,MCC,cc.CURRENCY_CODE,cc.TRANS_TYPE,CC.MERCHANT_BILL_NAME FROM CHANNEL_SECOND_RELATION CSR,CHANNEL_CONFIG CC
+        WHERE 1=1 AND CSR.ORG_CODE=CC.ORG_CODE AND CSR.ORG_MERCHANT_CODE=CC.ORG_MERCHANT_CODE
+       <isNotNull property="memberCode">
+			AND MEMBER_CODE = #memberCode#
+	   </isNotNull>
+       <isNotNull property="orgCode">
+			AND CSR.ORG_CODE = #orgCode#
+	   </isNotNull>
+		<isNotNull property="paymentChannelItemId">
+			AND CSR.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+		</isNotNull>
+		<isNotNull property="channelConfigId">
+			AND CSR.CHANNEL_CONFIG_ID = #channelConfigId#
+		</isNotNull>
+	   <isNotNull property="orgMerchantCode">
+			AND CSR.ORG_MERCHANT_CODE = #orgMerchantCode#
+	   </isNotNull>
+	   <isNotNull property="transType">
+			AND cc.TRANS_TYPE = #transType#
+	   </isNotNull>
+	   <isNotNull property="currencyCode">
+			AND cc.CURRENCY_CODE = #currencyCode#
+	   </isNotNull>
+	   <isNotNull property="mcc">
+			AND cc.mcc = #mcc#
+	   </isNotNull>
+    </select>
+    
+    <select id="findByOrgCode" resultMap="csrMap">
+    	select CSR.ID,CSR.ORG_CODE,CSR.MEMBER_CODE,MCC,cc.CURRENCY_CODE,cc.TRANS_TYPE,CSR.ORG_MERCHANT_CODE
+		,CSR.TERMINAL_CODE,CSR.ACCESS_CODE,CSR.CREATE_DATE,CSR.OPERATOR,cc.MERCHANT_BILL_NAME,CSR.CHANNEL_CONFIG_ID From payment_channel_item pci
+		left join CHANNEL_SECOND_RELATION csr on PCI.ID=csr.PAYMENT_CHANNEL_ITEM_ID
+		left join CHANNEL_CONFIG cc on csr.ORG_MERCHANT_CODE=CC.ORG_MERCHANT_CODE where 1=1
+       <isNotNull property="memberCode">
+			AND MEMBER_CODE = #memberCode#
+	   </isNotNull>
+       <isNotNull property="orgCode">
+			AND CSR.ORG_CODE = #orgCode#
+	   </isNotNull>
+       <isNotNull property="orgMerchantCode">
+			AND CSR.ORG_MERCHANT_CODE = #orgMerchantCode#
+	   </isNotNull>
+		<isNotNull property="channelConfigId">
+			AND CSR.CHANNEL_CONFIG_ID = #channelConfigId#
+		</isNotNull>
+	   <isNotNull property="transType">
+			AND cc.TRANS_TYPE = #transType#
+	   </isNotNull>
+	   <isNotNull property="currencyCode">
+			AND cc.CURRENCY_CODE = #currencyCode#
+	   </isNotNull>
+	   <isNotNull property="mcc">
+			AND cc.mcc = #mcc#
+	   </isNotNull>
+	   <isNotNull property="paymentChannelItemId">
+	   		AND PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+	   </isNotNull>
+    </select>
+  
+  	<select id="findSndrelationNew" resultClass="channelSndRelation" parameterClass="java.util.Map">
+			select 
+			member_code              memberCode,
+			payment_Item_Name   paymentItemName,
+			org_Merchant_Code     orgMerchantCode,
+			trans_Type               transType,
+			pattern                        pattern,
+			BOUNCED_PERCENT			cptPercent,
+			TRADE_CNT               tradeCnt,
+			create_relate_date      createRelateDate,
+			cancel_Relate_Date     cancelRelateDate,
+			FIT_MERCHANT_TYPE	fitMerchantType,
+			paymentChannelItemId,
+			id
+			 from vw_sndrelation_new 
+  			where  1=1
+  			<isNotEmpty prepend="and" property="memberCode">
+						MEMBER_CODE  	= #memberCode#		
+  			</isNotEmpty>
+			<isNotEmpty prepend="and" property="orgMerchantCode">
+				org_Merchant_Code  like  #orgMerchantCode#||'%'
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="fitMerchantType">
+				FIT_MERCHANT_TYPE  	= #fitMerchantType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="paymentCategoryCode">
+						card_org = #paymentCategoryCode# 
+			</isNotEmpty>
+  			<isNotEmpty prepend="and" property="orgCode">
+						org_code = #orgCode# 
+	  			</isNotEmpty> 
+  			<isNotEmpty prepend="and" property="startTime">
+  			to_date(#startTime#,'yyyy-mm-dd')  >= nvl(create_relate_date,to_date('99991230','yyyymmdd')) 
+  			</isNotEmpty> 
+  			<isNotEmpty prepend="and" property="endTime">
+  			to_date(#endTime#,'yyyy-mm-dd') &lt;= nvl(create_relate_date,to_date('19000101','yyyymmdd')) 
+  			</isNotEmpty> 
+  			ORDER BY org_Merchant_Code
+  	</select>
+  	<select id="findSndrelationDeleted" resultClass="channelSndRelation" parameterClass="java.util.Map">
+  			select 
+			member_code              memberCode,
+			payment_Item_Name   paymentItemName,
+			org_Merchant_Code     orgMerchantCode,
+			trans_Type               transType,
+			pattern                        pattern,
+			card_org               cardOrg,
+			cptPercent			cptPercent,
+			TRADE_CNT               tradeCnt,
+			create_relate_date      createRelateDate,
+			cancel_Relate_Date     cancelRelateDate,
+			FIT_MERCHANT_TYPE	fitMerchantType,
+			paymentChannelItemId,
+			id
+			from vw_sndrelation_deleted 
+  			where  1=1
+  			<isNotEmpty prepend="and" property="memberCode">
+						MEMBER_CODE  	= #memberCode#		
+  			</isNotEmpty> 
+  			<isNotEmpty prepend="and" property="orgCode">
+						org_code = #orgCode# 
+	  			</isNotEmpty>
+		<isNotEmpty prepend="and" property="orgMerchantCode">
+			org_Merchant_Code  like  #orgMerchantCode#||'%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="fitMerchantType">
+			FIT_MERCHANT_TYPE  	= #fitMerchantType#
+		</isNotEmpty>
+		    <isNotEmpty prepend="and" property="paymentCategoryCode">
+					  card_org = #paymentCategoryCode#
+		    </isNotEmpty>
+  			<isNotEmpty prepend="and" property="startTime">
+  				to_date(#startTime#,'yyyy-mm-dd') &lt;=nvl(cancel_relate_date,to_date('99991230','yyyymmdd')) 
+  			</isNotEmpty> 
+  			<isNotEmpty prepend="and" property="endTime">
+  				to_date(#endTime#,'yyyy-mm-dd')+1 >=   nvl(cancel_relate_date,to_date('19000101','yyyymmdd')) 
+  			</isNotEmpty> 
+  					ORDER BY cancel_Relate_Date
+  	</select>
+  	<select id="findSndrelationConnected" resultClass="channelSndRelation" parameterClass="java.util.Map">
+  			select
+
+			member_code              memberCode,
+			org_Code                          orgCode,
+			payment_Item_Name   paymentItemName,
+			org_Merchant_Code     orgMerchantCode,
+			trans_Type               transType,
+			pattern                        pattern,
+			card_org               cardOrg,
+			cptPercent			cptPercent,
+			TRADE_CNT               tradeCnt,
+			create_relate_date      createRelateDate,
+			cancel_Relate_Date     cancelRelateDate,
+		FIT_MERCHANT_TYPE	fitMerchantType,
+		paymentChannelItemId,
+		id
+			 from vw_sndrelation_connected
+  				where  1=1
+	  			<isNotEmpty prepend="and" property="memberCode">
+							MEMBER_CODE  	= #memberCode#		
+	  			</isNotEmpty> 
+	  			<isNotEmpty prepend="and" property="orgCode">
+						org_code = #orgCode# 
+	  			</isNotEmpty>
+				<isNotEmpty prepend="and" property="orgMerchantCode">
+					org_Merchant_Code  like  #orgMerchantCode#||'%'
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="fitMerchantType">
+					FIT_MERCHANT_TYPE  	= #fitMerchantType#
+				</isNotEmpty>
+	  			<isNotEmpty prepend="and" property="paymentCategoryCode">
+						card_org = #paymentCategoryCode# 
+	  			</isNotEmpty> 
+	  			<isNotEmpty prepend="and" property="startTime">
+	  					to_date(#startTime#,'yyyy-mm-dd') &lt;=  nvl(create_relate_date,to_date('99991230','yyyymmdd')) 
+	  			</isNotEmpty> 
+	  			<isNotEmpty prepend="and" property="endTime">
+	  					to_date(#endTime#,'yyyy-mm-dd')+1 >= nvl(create_relate_date,to_date('19000101','yyyymmdd')) 
+	  			</isNotEmpty> 
+	  				ORDER BY create_relate_date
+  	</select>
+  
+  	<update id="updateChannelSndrelationDate" parameterClass="channelSecondRelation">
+			UPDATE channel_sndrelation_date
+			SET CREATE_RELATE_DATE = SYSDATE,CANCEL_RELATE_DATE = null
+			WHERE   	
+  			ORG_CODE = #orgCode#
+  			and
+  			CARD_ORG = #cardOrg#
+  			and
+  			ORG_MERCHANT_CODE = #orgMerchantCode#
+  	</update>
+  	
+  	<update id="updateChannelSndrelationDateDel" parameterClass="channelSecondRelation">
+			UPDATE channel_sndrelation_date
+			SET CANCEL_RELATE_DATE = SYSDATE
+			WHERE   	
+  			ORG_CODE = #orgCode#
+  			and
+  			CARD_ORG = #cardOrg#
+  			and
+  			ORG_MERCHANT_CODE = #orgMerchantCode#
+  	</update>
+</sqlMap>

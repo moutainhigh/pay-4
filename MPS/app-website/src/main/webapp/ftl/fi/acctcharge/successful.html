@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
+<head>
+<meta content="text/html" charset="utf-8" />
+<title>iPayLinks支付充值</title>
+<#include "/common/macro/seoCorp.ftl">
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+<body>
+
+<!-- 获取企业还是个人url str -->
+<#if Session["userSession"]?exists>
+	<#if Session["userSession"].scaleType==2 || (Session["userSession"].scaleType==10 && Session["userSession"].bspIdentity==1)>
+		<@sp.head mCode="corp_acctcharge"/>
+		<#assign indexPath = 'index.htm' />
+		<#assign depositPath = 'queryOrder.htm' />
+		<#assign urlPath = 'corp' />
+		<#assign depositName="充值">
+	<#elseif Session["userSession"].scaleType==10 && Session["userSession"].bspIdentity==2>
+		<@sp.head mCode="bsp_acharge"/>
+		<#assign indexPath = 'index.htm' />
+		<#assign urlPath = 'corp' />
+		<#assign depositPath = 'bsp/queryChargeOrder.htm' />
+		<#assign depositName="入金">
+	<#else>
+		<@sp.head mCode="app_acharge"/>
+		<#assign indexPath = 'index.htm?method=indexApp' />
+		<#assign depositPath = 'queryDeposit.htm' />
+		<#assign urlPath = 'app' />
+		<#assign depositName="充值">
+	</#if>
+<#else>
+	<@sp.head mCode="corp_acctcharge"/>
+	<#assign indexPath = 'index.htm' />
+	<#assign urlPath = 'corp' />
+	<#assign depositPath = 'queryOrder.htm' />
+	<#assign depositName="充值">
+</#if>
+<!-- 获取企业还是个人url end -->
+
+<!--主内容 start -->
+<div class="container">
+
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+			<div class="tit_box">
+				<h3 class="title f14">账户${depositName}</h3>
+				<span class="more"></span> </div>
+				<div class="txtC">
+					<div class="result_tips">
+						<div class="set_height clearfix">
+							<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+							
+							<#if errorMsg?exists>
+							<span class="pop_war"></span>
+							<p class="words"> <strong>我们暂时无法获知您的支付情况。</strong></p>
+							<p>如果您已确认支付成功，请稍候至“${depositName}记录”中查询。</p>
+							<#else>
+							<span class="pop_s"></span>
+							<p class="words"> <strong>您已${depositName}成功！</strong></p>
+							<p>本次${depositName}金额： <strong class="red">${orderAmount}</strong>元</p>
+							</#if>
+							<p class="link">您可能需要：
+							<a href="${rc.contextPath}/${urlPath}/${depositPath}">查询${depositName}记录</a>|
+							<a href="${rc.contextPath}/${urlPath}/myAccount.htm">返回我的账户</a>|
+							<a href="${rc.contextPath}/${indexPath}">iPayLinks支付首页</a>
+						</p>
+						</div>
+						
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+
+</div>
+<!--主内容 end -->
+
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

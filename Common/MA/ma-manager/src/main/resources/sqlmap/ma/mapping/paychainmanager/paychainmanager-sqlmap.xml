@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paychainmanager">
+	 <typeAlias alias="payChainManagerDto"		type="com.pay.poss.paychainmanager.dto.PayChainManagerDto" />
+	 <typeAlias alias="payChainStatDto"		    type="com.pay.poss.paychainmanager.dto.PayChainStatDto" />
+	 <typeAlias alias="payChainExternalLog"		    type="com.pay.poss.paychainmanager.dto.PayChainExternalLog" />
+	 
+	
+	 
+     <sql id="paychainmanager.paging_start">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="paychainmanager.paging_end">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 WHERE (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+		
+	<sql id="queryRecordCondition">
+		<isNotEmpty prepend="and" property="startDate">
+			<![CDATA[
+           		tpc.CREATE_DATE >= to_date(#startDate#,'yyyy-mm-dd hh24:mi:ss')
+            ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="endDate">
+        	<![CDATA[
+            	tpc.CREATE_DATE <= to_date(#endDate#,'yyyy-mm-dd hh24:mi:ss')+1
+             ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="payChainNumber">
+			<![CDATA[
+           		tpc.PAY_CHAIN_NUMBER = trim(#payChainNumber#)
+            ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="status">
+			<![CDATA[
+           		 tpc.STATUS = trim(#status#)
+            ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="zhName">
+			<![CDATA[
+           		 teb.ZH_NAME like #zhName#||'%'	
+            ]]>
+		</isNotEmpty>
+	</sql>
+     
+     <select id="queryPayChainByCondition"  parameterClass="payChainManagerDto"  resultClass="payChainManagerDto">
+   	 	<include refid="paychainmanager.paging_start" />
+   			SELECT teb.ZH_NAME zhName,
+		       to_char(tpc.CREATE_DATE,'yyyy-mm-dd hh24:mi:ss') strCreateDate,
+		       to_char(tpc.OVERDUE_DATE,'yyyy-mm-dd hh24:mi:ss') strOverdueDate,
+		       tpc.id id,
+		       tpc.CREATE_DATE createDate,
+		       tpc.OVERDUE_DATE overdueDate,
+		       tpc.PAY_CHAIN_NUMBER payChainNumber,
+		       tpc.RECEIPT_DESCRIPTION receiptDescription,
+		       tpc.STATUS status,
+		       tpc.pay_chain_url paychainUrl,
+		       decode(tpc.STATUS,1,'生效',2,'关闭') strStatus,
+		       info.compay_linker_tel tel,
+       		   teb.region regions,
+           	   teb.city   city,
+           	   info.address address,
+           	   info.zip zip,
+		       (SELECT COUNT(tel.ID)FROM T_EXTERNAL_LOG tel WHERE tel.CARD_NO = tpc.PAY_CHAIN_NUMBER AND tel.EXTERNAL_TYPE =2 AND tel.PROCESS_STATUS =1 )total,
+		       to_char(nvl((SELECT SUM(tel.AMOUNT) FROM T_EXTERNAL_LOG tel WHERE tel.CARD_NO = tpc.PAY_CHAIN_NUMBER AND tel.EXTERNAL_TYPE =2 AND tel.PROCESS_STATUS =1 )/1000,0),'FM99,999,999,999,999,990.00') strTotalAmount,
+		       tpc.effective_date effectiveDate,
+		       tpc.pay_chain_name paychainName
+		  FROM T_PAY_CHAIN tpc, T_ENTERPRISE_BASE teb,t_enterprise_contact info
+		   WHERE tpc.MEMBER_CODE = teb.MEMBER_CODE	and tpc.member_code=info.member_code
+		<include refid="queryRecordCondition"/>				
+			order by tpc.create_date desc          
+		<include refid="paychainmanager.paging_end" />
+   </select>
+   
+   
+   		<!--  查询记录支付总数和总金额 -->
+	<select id="queryPayChainCountSum"  parameterClass="payChainManagerDto"  resultClass="payChainStatDto">
+		SELECT  sum((SELECT COUNT(tel.ID)FROM T_EXTERNAL_LOG tel WHERE tel.CARD_NO = tpc.PAY_CHAIN_NUMBER AND tel.EXTERNAL_TYPE =2 AND tel.PROCESS_STATUS =1 )) recordsPaySum,
+          		to_char(sum(nvl((SELECT SUM(tel.AMOUNT) FROM T_EXTERNAL_LOG tel WHERE tel.CARD_NO = tpc.PAY_CHAIN_NUMBER AND tel.EXTERNAL_TYPE =2 AND tel.PROCESS_STATUS =1 )/1000,0)),'FM99,999,999,999,999,990.00') recordsAmountSum
+           
+      			FROM T_PAY_CHAIN tpc, T_ENTERPRISE_BASE teb
+       				WHERE tpc.MEMBER_CODE = teb.MEMBER_CODE  
+	  <include refid="queryRecordCondition"/>
+		
+	</select>
+
+	
+	<select id="queryPayChainExternalLog"  parameterClass="payChainExternalLog"  resultClass="payChainExternalLog">
+	   	 	<include refid="paychainmanager.paging_start" />
+			select  l.order_no orderNo,
+			        l.card_no  cardNo,
+			        l.process_status processStatus,
+			        to_char(nvl(l.amount/1000,0),'FM99,999,999,999,999,990.00') amount,
+			        l.payer_name payerName,
+			        l.gateway_no gatewayNo,
+			        l.currency_code payerContact,
+			        to_char(l.update_date,'yyyy-mm-dd hh24:mi:ss')  updateDate,
+			        l.remark remark        
+			        from t_external_log l 
+			where l.card_no=#cardNo#			      
+			     <isNotEmpty prepend="and" property="processStatus">
+			     	<![CDATA[
+           		 		l.process_status=#processStatus#
+            		]]>
+				</isNotEmpty>
+		    order by l.update_date desc
+		   <include refid="paychainmanager.paging_end" />
+			      		
+	</select>	
+	
+		<select id="countPayChainExternalLog"  parameterClass="payChainExternalLog"  resultClass="int">
+			select  count(1)
+			from t_external_log l 
+			where l.card_no=#cardNo#			      
+			<isNotEmpty prepend="and" property="processStatus">
+			     	<![CDATA[
+           		 		l.process_status=#processStatus#
+            		]]>
+			</isNotEmpty>
+			      		
+	</select>	
+		
+    <select id="countPayChainByCondition"  parameterClass="payChainManagerDto"  resultClass="int">
+   		SELECT COUNT(1)
+		  FROM T_PAY_CHAIN tpc, t_enterprise_base teb
+		 WHERE tpc.MEMBER_CODE = teb.MEMBER_CODE	
+		<include refid="queryRecordCondition"/>
+   </select>
+ 
+   
+   <select id="findById"  parameterClass="java.lang.Long"  resultClass="payChainManagerDto">
+   			SELECT 
+		       to_char(tpc.CREATE_DATE,'yyyy-mm-dd hh24:mi:ss') strCreateDate,
+		       to_char(tpc.OVERDUE_DATE,'yyyy-mm-dd hh24:mi:ss') strOverdueDate,
+		       tpc.id id,
+		       tpc.CREATE_DATE createDate,
+		       tpc.OVERDUE_DATE overdueDate,
+		       tpc.PAY_CHAIN_NUMBER payChainNumber,
+		       tpc.RECEIPT_DESCRIPTION receiptDescription,
+		       tpc.STATUS status,
+		       tpc.pay_chain_url paychainUrl,
+		       decode(tpc.STATUS,1,'生效',2,'关闭') strStatus,
+		       tpc.effective_date effectiveDate
+		  FROM T_PAY_CHAIN tpc
+		   WHERE tpc.id = #id#
+   </select>
+   
+   <update id="updatePayChainStatus" parameterClass="map">
+       UPDATE T_PAY_CHAIN tpc set
+	      <isEqual property="operate" compareValue="close">
+		      	tpc.STATUS = 2
+		  </isEqual>
+		  <isEqual property="operate" compareValue="open">
+		      	tpc.STATUS = 1
+		  </isEqual>
+        WHERE tpc.PAY_CHAIN_NUMBER = #payChainNumber#
+    </update>
+    
+    
+   <update id="updatePayChainDate" parameterClass="map">
+		UPDATE T_PAY_CHAIN tpc
+		   set tpc.effective_date = #effectiveDate#,
+		       tpc.overdue_date   = #overdueDate#
+		 WHERE tpc.id = #id#
+    </update>
+</sqlMap>

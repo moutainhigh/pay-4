@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="vouchlog">
+	<typeAlias alias="vouchLog" type="com.pay.pe.manualbooking.model.VouchDataLog"/>
+    <resultMap id="vouchLog" class="com.pay.pe.manualbooking.model.VouchDataLog">
+        <result column="AUDITOR" property="auditor" jdbcType="VARCHAR"/>
+        <result column="VOUCH_DATA_LOG_ID" property="vouchDataLogId" jdbcType="DECIMAL"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="ORIGINAL_STATUS" property="originalStatus" jdbcType="DECIMAL"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="IP" property="ip" jdbcType="VARCHAR"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP"/>
+        <result column="EXPECT_STATUS" property="expectStatus" jdbcType="DECIMAL"/>
+        <result column="AUDIT_DATE" property="auditDate" jdbcType="TIMESTAMP"/>
+        <result column="VOUCH_CODE" property="vouchCode" jdbcType="VARCHAR"/>
+        <result column="APPLICATION_CODE" property="applicationCode" jdbcType="VARCHAR"/>
+        <result column="CANCEL_DATE" property="cancelDate" jdbcType="TIMESTAMP"/>
+        <result column="ACCOUNTING_DATE" property="accountingDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		AUDITOR,VOUCH_DATA_LOG_ID,REMARK,ORIGINAL_STATUS,OPERATOR,
+		IP,CREATOR,APPLY_DATE,EXPECT_STATUS,AUDIT_DATE,
+		VOUCH_CODE,APPLICATION_CODE,CANCEL_DATE,ACCOUNTING_DATE
+    </sql>
+    
+    <insert id="create" parameterClass="vouchLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="vouchDataLogId">
+			select  SEQ_VOUCH_DATA__ID.NEXTVAL as id from DUAL 
+		</selectKey>
+        INSERT INTO VOUCH_LOG(
+			AUDITOR,VOUCH_DATA_LOG_ID,REMARK,ORIGINAL_STATUS,OPERATOR,
+			IP,CREATOR,APPLY_DATE,EXPECT_STATUS,AUDIT_DATE,
+			VOUCH_CODE,APPLICATION_CODE,CANCEL_DATE,ACCOUNTING_DATE
+        )
+        VALUES(
+            #auditor:VARCHAR#,#vouchDataLogId#,#remark:VARCHAR#,#originalStatus:DECIMAL#,#operator#,
+			#ip#,#creator#,#applyDate#,#expectStatus:DECIMAL#,#auditDate:DATE#,
+			#vouchCode:VARCHAR#,#applicationCode#,#cancelDate:DATE#,#accountingDate:DATE#
+		)
+    </insert>
+
+    <update id="update" parameterClass="vouchLog">
+        UPDATE VOUCH_LOG
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="auditor">
+            AUDITOR = #auditor#
+        </isNotNull>
+        <isNotNull prepend="," property="vouchDataLogId">
+            VOUCH_DATA_LOG_ID = #vouchDataLogId#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="originalStatus">
+            ORIGINAL_STATUS = #originalStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+        <isNotNull prepend="," property="ip">
+            IP = #ip#
+        </isNotNull>
+        <isNotNull prepend="," property="creator">
+            CREATOR = #creator#
+        </isNotNull>
+        <isNotNull prepend="," property="applyDate">
+            APPLY_DATE = #applyDate#
+        </isNotNull>
+        <isNotNull prepend="," property="expectStatus">
+            EXPECT_STATUS = #expectStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="auditDate">
+            AUDIT_DATE = #auditDate#
+        </isNotNull>
+        <isNotNull prepend="," property="vouchCode">
+            VOUCH_CODE = #vouchCode#
+        </isNotNull>
+        <isNotNull prepend="," property="applicationCode">
+            APPLICATION_CODE = #applicationCode#
+        </isNotNull>
+        <isNotNull prepend="," property="cancelDate">
+            CANCEL_DATE = #cancelDate#
+        </isNotNull>
+        <isNotNull prepend="," property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM VOUCH_LOG WHERE VOUCH_DATA_LOG_ID = #vouchDataLogId#
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="vouchLog">
+        DELETE FROM VOUCH_LOG        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="auditor">
+            AUDITOR = #auditor# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchDataLogId">
+            VOUCH_DATA_LOG_ID = #vouchDataLogId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="originalStatus">
+            ORIGINAL_STATUS = #originalStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ip">
+            IP = #ip# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyDate">
+            APPLY_DATE = #applyDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="expectStatus">
+            EXPECT_STATUS = #expectStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchCode">
+            VOUCH_CODE = #vouchCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applicationCode">
+            APPLICATION_CODE = #applicationCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cancelDate">
+            CANCEL_DATE = #cancelDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="vouchLog"
+        parameterClass="java.lang.Long">
+        SELECT 
+			AUDITOR,VOUCH_DATA_LOG_ID,REMARK,ORIGINAL_STATUS,OPERATOR,
+			IP,CREATOR,APPLY_DATE,EXPECT_STATUS,AUDIT_DATE,
+			VOUCH_CODE,APPLICATION_CODE,CANCEL_DATE,ACCOUNTING_DATE
+        FROM VOUCH_LOG
+        WHERE 
+    </select>
+    
+    <select id="findBySelective" resultMap="vouchLog">
+        SELECT 
+			AUDITOR,VOUCH_DATA_LOG_ID,REMARK,ORIGINAL_STATUS,OPERATOR,
+			IP,CREATOR,APPLY_DATE,EXPECT_STATUS,AUDIT_DATE,
+			VOUCH_CODE,APPLICATION_CODE,CANCEL_DATE,ACCOUNTING_DATE
+        FROM VOUCH_LOG
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="auditor">
+            AUDITOR = #auditor# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchDataLogId">
+            VOUCH_DATA_LOG_ID = #vouchDataLogId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="originalStatus">
+            ORIGINAL_STATUS = #originalStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ip">
+            IP = #ip# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyDate">
+            APPLY_DATE = #applyDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="expectStatus">
+            EXPECT_STATUS = #expectStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchCode">
+            VOUCH_CODE = #vouchCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applicationCode">
+            APPLICATION_CODE = #applicationCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cancelDate">
+            CANCEL_DATE = #cancelDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM VOUCH_LOG
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="auditor">
+            AUDITOR = #auditor# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchDataLogId">
+            VOUCH_DATA_LOG_ID = #vouchDataLogId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="originalStatus">
+            ORIGINAL_STATUS = #originalStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ip">
+            IP = #ip# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyDate">
+            APPLY_DATE = #applyDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="expectStatus">
+            EXPECT_STATUS = #expectStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchCode">
+            VOUCH_CODE = #vouchCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applicationCode">
+            APPLICATION_CODE = #applicationCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cancelDate">
+            CANCEL_DATE = #cancelDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

@@ -1,0 +1,1242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="enterprise">
+	<typeAlias alias="enterpriseSearchDto"	type="com.pay.poss.enterprisemanager.dto.EnterpriseSearchDto" />
+	<typeAlias alias="enterpriseSearchListDto"	type="com.pay.poss.enterprisemanager.dto.EnterpriseSearchListDto" />
+	<typeAlias alias="enterpriseBaseData"	type="com.pay.poss.enterprisemanager.model.BaseData" />
+	<typeAlias alias="enterpriseRelation"	type="com.pay.poss.enterprisemanager.model.Relation" />
+	<typeAlias alias="accountOfEnterprise"	type="com.pay.poss.enterprisemanager.model.Account" />
+	<typeAlias alias="accountAttributeOfEnterprise"	type="com.pay.poss.enterprisemanager.model.AccountAttribute" />
+	<typeAlias alias="accountAttributeTemplateOfEnterprise"	type="com.pay.poss.enterprisemanager.model.AccountAttributeTemplate" />
+	<typeAlias alias="productOfEnterprise"	type="com.pay.poss.membermanager.model.MemberProduct" />
+	<typeAlias alias="merchantDto2"	type="com.pay.poss.enterprisemanager.dto.MerchantDto" />
+	<typeAlias alias="productSearchDto"	type="com.pay.poss.enterprisemanager.dto.ProductSearchDto" />
+	<typeAlias alias="productMenu"	type="com.pay.poss.enterprisemanager.model.ProductMenu" />
+	<typeAlias alias="product"	type="com.pay.poss.membermanager.model.Product" />
+	<typeAlias alias="accountTempDto"	type="com.pay.poss.enterprisemanager.dto.AccountTempDto" />
+	<typeAlias alias="productAcctTemplate"	type="com.pay.poss.enterprisemanager.model.ProductAcctTemplate" />
+	<typeAlias alias="menu" type="com.pay.poss.featuremenu.model.Menu" />
+	
+	
+	<resultMap class="com.pay.poss.enterprisemanager.model.AccountAttribute" id="accountAttrResult">
+	  <result column="ACCT_CODE" property="acctCode" jdbcType="VARCHAR"/>     
+	  <result column="ALLOW_DEPOSIT" property="allowDeposit" jdbcType="DECIMAL"/>     
+	  <result column="ALLOW_WITHDRAWAL" property="allowWithdrawal" jdbcType="DECIMAL"/>    
+	  <result column="ALLOW_TRANSFER_IN" property="allowTransferIn" jdbcType="DECIMAL"/> 
+	  <result column="ALLOW_TRANSFER_OUT" property="allowTransferOut" jdbcType="DECIMAL"/> 
+	  <result column="ALLOW_IN" property="allowIn" jdbcType="DECIMAL"/>
+	  <result column="ALLOW_OUT" property="allowOut" jdbcType="DECIMAL"/>     
+	  <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>     
+	  <result column="FROZEN" property="frozen" jdbcType="DECIMAL"/>    
+	  <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/> 
+	  <result column="DEF_REC_ACCT" property="defRecAcct" jdbcType="DECIMAL"/> 
+	  <result column="CUR_CODE" property="curCode" jdbcType="VARCHAR"/>
+	  <result column="PAY_PWD" property="payPwd" jdbcType="VARCHAR"/>     
+	  <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>     
+	  <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>    
+	  <result column="ACCT_LEVEL" property="acctLevel" jdbcType="DECIMAL"/> 
+	  <result column="BALANCE_BY" property="balanceBy" jdbcType="DECIMAL"/> 
+	  <result column="PAY_ABLE" property="payAble" jdbcType="DECIMAL"/>
+	  
+	  <result column="ALLOW_OVERDRAFT" property="allowOverdraft" jdbcType="DECIMAL"/>     
+	  <result column="NEED_PROTECT" property="needProtect" jdbcType="DECIMAL"/>     
+	  <result column="MANAGERABLE" property="managerable" jdbcType="DECIMAL"/>    
+	  <result column="ACCT_TYPE" property="acctType" jdbcType="DECIMAL"/> 
+	  <result column="MEMBER_ACCT_CODE" property="memberAcctCode" jdbcType="DECIMAL"/> 
+	  <result column="SUBJECT_CODE" property="subjectCode" jdbcType="VARCHAR"/>
+	  <result column="BEAR_INTEREST" property="bearInterest" jdbcType="DECIMAL"/> 
+	  <result column="ALLOW_ADVANCE_MONEY" property="allowAdvanceMoney" jdbcType="DECIMAL"/>
+	</resultMap>
+
+	
+	<resultMap id="enterpriseBaseMap" class="com.pay.poss.merchantmanager.model.EnterpriseBase" >
+	  <result column="ENTERPRISE_ID"  property="enterpriseId" jdbcType="INT" nullValue="0" />
+	  <result column="MEMBER_CODE" property="memberCode" jdbcType="INT"/>  
+	  <result column="MERCHANT_CODE" property="merchantCode" jdbcType="INT"/>
+	  <result column="ENTERPRISE_TYPE" property="enterpriseType" jdbcType="INT"/>      
+	  <result column="AUDI_STATUS" property="audiStatus" jdbcType="INT"/>    
+	  <result column="ZH_NAME" property="zhName" jdbcType="VARCHAR"/>     
+	  <result column="EN_NAME" property="enName" jdbcType="VARCHAR"/>     
+	  <result column="WEBSITE" property="website" jdbcType="VARCHAR"/>    
+	  <result column="NATION" property="nation" jdbcType="VARCHAR"/> 
+	  <result column="REGION" property="region" jdbcType="VARCHAR"/> 
+	  <result column="CITY" property="city" jdbcType="VARCHAR"/>
+	  <result column="INDUSTRY_KIND" property="industryKind" jdbcType="VARCHAR"/>
+	  <result column="INDUSTRY_TYPE" property="industryType" jdbcType="VARCHAR"/>    
+	  <result column="IN_INDUSTRY" property="industry" jdbcType="VARCHAR"/>      
+	  <result column="BIZ_LICENCE_CODE" property="bizLicenceCode" jdbcType="VARCHAR"/>
+	  <result column="EXPIRE" property="expire" jdbcType="DATETIME"/>
+	  <result column="GOV_CODE" property="govCode" jdbcType="VARCHAR"/>
+	  <result column="TAX_CODE" property="taxCode" jdbcType="VARCHAR"/>
+	  <result column="RISK_LEVE_CODE" property="riskLeveCode" jdbcType="VARCHAR"/>
+	  <result column="CREATE_DATE" property="createDate" jdbcType="DATETIME"/>
+	  <result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME"/>
+	  <result column="SEARCH_KEY" property="searchKey" jdbcType="VARCHAR"/>
+   	  <result column="IDENTITY" property="identity" jdbcType="INT"/>
+   	  <result column="ASSURE_PERCENTAGE" property="assurePercentage" jdbcType="INT"/>
+   	  <result column="SETTLEMENT_CYCLE" property="settlementCycle" jdbcType="INT"/>
+   	  <result column="PERCENTAGE" property="percentage" jdbcType="INT"/>
+   	  <result column="SECOND_SETTLEMENT_CYCLE" property="secondSettlementCycle" jdbcType="INT"/>
+   	  <result column="ASSURE_SETTLEMENT_CYCLE" property="assureSettlementCycle" jdbcType="INT"/>
+  </resultMap>  
+  
+	<insert id="accountTempJoinProductAdd" parameterClass="productAcctTemplate">
+		<selectKey  keyProperty="id">
+			SELECT SEQ_PRODUCT_ACCT_TEMP_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_PRODUCT_ACCT_TEMPLATE (ID, PRODUCT_ID, MEMBER_ACCT_TEMPLATE_ID, SCENE,
+            FEATURE_IDS, PRODUCT_KEY, CREATION_DATE)
+        values (#id#, #productId#, #memberAcctTemplateId#, #scene#, #featureIds#, #productKey#,
+            #creationDate#)
+    </insert>
+    <delete id="accountTempJoinProductDelete" parameterClass="java.lang.String">
+        delete from T_PRODUCT_ACCT_TEMPLATE a  where a.member_acct_template_id = #accountTempId#
+    </delete>
+	<select id="getAllProduct" resultClass="enterpriseBaseData" >
+		select 
+			t.id as code,
+			t.name as name
+		from t_product t
+	 
+    </select>
+    <select id="getProductOfAccountTemp" resultClass="enterpriseBaseData" parameterClass="java.lang.String">
+	   select 
+	   		a.product_id as code,
+	   		b.name as name
+	   from t_product_acct_template a left join t_product b on a.product_id=b.id
+	   where a.member_acct_template_id = #accountTempId#
+    </select>
+	<select id="getAccountTempById" resultClass="accountTempDto" parameterClass="java.lang.String">
+	
+        select
+        	MAT_ID as accountTempId,
+        	NAME as accountTempName
+        	
+        from T_MEMBER_ACCT_TEMPLATE 
+        where MAT_ID = #accountTempId#
+		order by MAT_ID
+	
+    </select>
+	<select id="getAccountTempList" resultClass="accountTempDto" parameterClass="accountTempDto">
+	 select b.* from 
+	(select a.*,rownum as linenum from (
+        select
+        	MAT_ID as accountTempId,
+        	NAME as accountTempName
+        	
+        from T_MEMBER_ACCT_TEMPLATE
+        
+		order by MAT_ID
+	) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+    </select>
+    <select id="getAccountTempListCount" resultClass="java.lang.Integer" parameterClass="accountTempDto">
+	
+        select
+        	count(1)
+        	
+        from T_MEMBER_ACCT_TEMPLATE
+	
+    </select>
+	<update id="updateMemberProductStatus" parameterClass="java.lang.String">
+        update t_member_product a set a.status=0 where a.product_id=#productId#
+    </update>
+    <update id="updateProductStatus" parameterClass="java.lang.String">
+        update t_product a set a.immediacy_pass=2 where a.id=#productId#
+    </update>
+	
+	<delete id="productDelete" parameterClass="java.lang.String">
+      delete  from t_product t where t.id=#productId#
+    </delete>
+	<select id="getAllMenu" resultClass="menu" parameterClass="java.lang.String">
+	select t.MENU_ID       as menuId,
+         t.TYPE          as type,
+       t.HIERARCHY      as hierarchy,
+       t.PARENT_ID      as parentId,
+       t.ORDER_ID       as orderId,
+       t.NAME           as name,
+       t.URL            as url,
+       t.DESCRIPTION    as description,
+       t.STATUS         as status,
+       t.DISPLAY_FLAG   as displayFlag,
+       t.MENU_CODE      as menuCode,
+       t.SECURITY_LEVEL as securityLevel from (
+(select
+       t.*
+  from t_menu t
+ where t.type = 9)
+ 
+ union 
+ 
+(select
+       t.*
+  from t_menu t
+ where t.MENU_ID in 
+ ( select
+       t.parent_id 
+  from t_menu t
+ where t.type = 9 )
+ )
+ union 
+ 
+ (select
+       t.*
+  from t_menu t
+ where t.type = 6 and  t.parent_id in 
+ ( select
+       t.MENU_ID 
+  from t_menu t
+ where  t.type =9)
+ )
+ 
+ ) t
+  Start with t.PARENT_ID = 0 Connect by prior t.menu_id = t.PARENT_ID 
+ 
+		 
+	 
+    </select>
+    <select id="getMenuOfProduct" resultClass="menu" parameterClass="java.lang.String">
+	  select t.MENU_ID       as menuId,
+         t.TYPE          as type,
+       t.HIERARCHY      as hierarchy,
+       t.PARENT_ID      as parentId,
+       t.ORDER_ID       as orderId,
+       t.NAME           as name,
+       t.URL            as url,
+       t.DESCRIPTION    as description,
+       t.STATUS         as status,
+       t.DISPLAY_FLAG   as displayFlag,
+       t.MENU_CODE      as menuCode,
+       t.SECURITY_LEVEL as securityLevel from t_menu t 
+       where  t.menu_id  in (select a.menu_id from  t_product_menu  a  where a.product_id=#productId# )
+	   Start with t.PARENT_ID = 0 Connect by prior t.menu_id = t.PARENT_ID 
+    </select>
+	<select id="queryProduct" resultClass="product" parameterClass="productSearchDto">
+	 select b.* from 
+	(select a.*,rownum as linenum from (
+        select
+        	ID as id,
+        	NAME as name,
+        	DESCRIPTION as description,
+        	ALLOW_OBJECT as allowObject,
+        	IMMEDIACY_PASS as immediacyPass,
+   			TYPE as type,
+    		IS_DEFAULT  as isDefault,
+   			ACTIVATION_MODE  as activationMode,
+   			PRODUCT_CODE as productCode
+        from T_PRODUCT
+        where 1=1
+        
+       	<isNotEmpty prepend="and" property="productName">  
+			 (NAME like '%'||#productName#||'%' 
+			OR 
+			DESCRIPTION like '%'||#productName#||'%') 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="allowObject">  
+			ALLOW_OBJECT=#allowObject# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="isDefault">  
+			IS_DEFAULT=#isDefault# 
+		</isNotEmpty>
+		
+		<isNotEmpty prepend="and" property="productType">  
+			PRODUCT_TYPE = #productType# 
+		</isNotEmpty>
+		order by ID desc
+	) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+    </select>
+    <select id="queryProductCount" resultClass="java.lang.Integer" parameterClass="productSearchDto">
+	
+        select
+        	count(1)
+        from T_PRODUCT
+        where 1=1
+        <isNotEmpty prepend="and" property="productId">  
+			ID=#productId# 
+		</isNotEmpty>
+       	<isNotEmpty prepend="and" property="productName">  
+			NAME=#productName# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="description">  
+			DESCRIPTION=#description# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="allowObject">  
+			ALLOW_OBJECT=#allowObject# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="productCode">  
+			PRODUCT_CODE=#productCode# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="productType">  
+			PRODUCT_TYPE = #productType# 
+		</isNotEmpty>
+	
+    </select>
+	<select id="queryEnterprise" resultClass="enterpriseSearchListDto" parameterClass="enterpriseSearchDto">
+     select b.* from 
+	(select a.*,rownum as linenum from (
+		select
+		 	 b.merchant_code as merchantCode,
+		 	 b.zh_name as merchantName,	
+		 	 to_char(b.create_date,'yyyy-mm-dd hh24:mi:ss') createDate,	 	
+		 	 c.sign_depart signDepart,
+		 	 a.member_code as memberCode,
+		 	 a.login_name as loginName,
+		 	 a.status as memberStatus,
+		 	 c.sign_name as signName,
+		 	 c.sign_loginId as signLoginId
+		from 	
+			t_member a ,t_enterprise_base b, t_enterprise_contract c
+		where   a.member_code = b.member_code
+			and a.member_code = c.member_code
+			<isNotEmpty prepend="and" property="memberCode">  
+	          	b.member_code = #memberCode#
+	        </isNotEmpty> 				
+			<isNotEmpty prepend="and" property="signLoginId">  
+	          	c.SIGN_LOGINID in ($signLoginId$)
+	        </isNotEmpty> 				
+			<isNotEmpty prepend="and" property="merchantCode">  
+	          	b.merchant_code = #merchantCode#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="merchantName">  
+	          	b.zh_name like '%$merchantName$%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="enterpriseSearchKey">  
+	          	b.search_key like '%$enterpriseSearchKey$%'
+	        </isNotEmpty>  	        
+	        <isNotEmpty prepend="and" property="loginName">  
+	          	a.login_name = #loginName#
+	        </isNotEmpty>	
+	        <isNotEmpty prepend="and" property="merchantStatus">  
+	          	a.status = #merchantStatus#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="signDepart">  
+	          	c.sign_depart = #signDepart#
+	        </isNotEmpty>
+	        <isNotEmpty property="endDate">
+			    	<![CDATA[
+			    	and b.create_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+	        		and b.create_date <=TO_DATE(#endDate# , 'yyyy-mm-dd')+ 1
+			    	]]>
+  			</isNotEmpty>
+	  		<isNotEmpty property="startDate">
+		  	    <isEmpty property="endDate">
+			    	<![CDATA[
+			    	and b.create_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+			    	and b.create_date <= TO_DATE(#startDate# , 'yyyy-mm-dd ')+1 
+			    	]]>
+		     	</isEmpty>
+	     	</isNotEmpty>
+       order by a.create_date desc
+	) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="queryEnterpriseByMemberCode" resultClass="EnterpriseSearchListDto" parameterClass="java.lang.Long">
+   
+		select
+		 	 b.merchant_code as merchantCode,
+		 	 b.zh_name as merchantName,		 	
+		 	 a.member_code as memberCode,
+		 	 a.login_name as loginName
+		from 	
+			t_member a inner join  t_enterprise_base b on a.member_code=b.member_code
+		where 	a.member_code=#memberCode#					
+	</select>
+	<select id="queryAttributeByAccCode" resultClass="accountAttributeOfEnterprise" parameterClass="java.lang.String">
+    	select t.allow_deposit as allowDeposit,
+    		   t.allow_withdrawal as allowWithdrawal,
+    		   t.allow_transfer_in as allowTransferIn,
+    		   t.allow_transfer_out as allowTransferOut,
+    		   t.allow_in as allowIn,
+    		   t.allow_out as allowOut,
+    		   t.frozen as frozen,
+    		   t.def_rec_acct as defRecAcct,
+    		   t.cur_code as curCode,
+    		   t.acct_level as acctLevel,
+    		   t.balance_by as balanceBy,
+    		   t.pay_able as payAble,
+    		   t.allow_overdraft as allowOverdraft,
+    		   t.need_protect as needProtect,
+    		   t.managerable as managerable,
+    		   t.bear_interest as bearInterest,
+               t.allow_advance_money allowAdvanceMoney
+    	from t_acct_attrib t 
+    	where t.acct_code=#accountCode#
+	</select>
+	
+		<select id="queryAttributeByMemberCode" resultClass="accountAttributeOfEnterprise" parameterClass="java.lang.String">
+   select t.acct_code  as acctCode,
+   			t.allow_deposit as allowDeposit,
+           t.allow_withdrawal as allowWithdrawal,
+           t.allow_transfer_in as allowTransferIn,
+           t.allow_transfer_out as allowTransferOut,
+           t.allow_in as allowIn,
+           t.allow_out as allowOut,
+           t.frozen as frozen,
+           t.def_rec_acct as defRecAcct,
+           t.cur_code as curCode,
+           t.acct_level as acctLevel,
+           t.balance_by as balanceBy,
+           t.pay_able as payAble,
+           t.allow_overdraft as allowOverdraft,
+           t.need_protect as needProtect,
+           t.managerable as managerable,
+           t.bear_interest as bearInterest,
+           t.allow_advance_money allowAdvanceMoney
+      from t_acct_attrib t ,t_acct a
+      where t.acct_code=a.acct_code
+            and a.member_code=#memberCode#
+	</select>
+	
+	<update id="attributeOfAccountEdit" parameterClass="accountAttributeOfEnterprise">
+        update t_acct_attrib 
+       	<dynamic prepend="set">
+            <isNotNull prepend="," property="allowDeposit">       
+           		allow_deposit = #allowDeposit#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="allowWithdrawal">       
+           		allow_withdrawal = #allowWithdrawal#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="allowTransferIn">       
+           		allow_transfer_in = #allowTransferIn#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="allowTransferOut">       
+           		allow_transfer_out = #allowTransferOut#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="allowIn">       
+           		 allow_in = #allowIn#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="allowOut">       
+           		allow_out = #allowOut#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="frozen">       
+           		frozen = #frozen#
+           	</isNotNull>          
+           	 <isNotNull prepend="," property="payAble">       
+           		pay_able = #payAble#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="allowOverdraft">       
+           		allow_overdraft = #allowOverdraft#
+           	</isNotNull>
+           	 <isNotNull prepend="," property="needProtect">       
+           		need_protect = #needProtect#
+           	</isNotNull>
+           	<isNotNull prepend="," property="managerable">       
+           		 managerable = #managerable#
+           	</isNotNull>
+           	<isNotNull prepend="," property="bearInterest">       
+           		 bear_interest = #bearInterest#
+           	</isNotNull>  
+           	<isNotNull prepend="," property="allowAdvanceMoney">       
+           		 allow_advance_money = #allowAdvanceMoney#
+           	</isNotNull>  
+         </dynamic>       
+        where acct_code = #acctCode#
+    </update>
+    <update id="updateStatusOfEnterprise" parameterClass="java.util.Map">
+        update t_member a set a.status=#memberStatus# where a.member_code=#memberCode#
+    </update>
+    
+	<select id="queryAccountOfEnterprise" resultClass="enterpriseSearchListDto" parameterClass="enterpriseSearchDto">
+     select b.* from 
+	(select a.*,rownum as linenum from ( select  c.member_code as memberCode,
+              c.login_name as loginName,
+              ab.merchant_code as merchantCode,
+              ab.zh_name as merchantName,
+              ab.search_key,
+              ab.acct_code as accountCode,
+              ab.acct_type as accountType,
+         	  ab.sign_loginId as signLoginId,
+         	  ab.sign_name as signName,
+              to_char(nvl(ab.credit_balance/1000,0),'FM99,999,999,999,999,990.000') as creditBalance,
+              to_char(nvl(ab.debit_balance/1000,0),'FM99,999,999,999,999,990.000') as debitBalance,
+              to_char(nvl(ab.balance/1000,0),'FM99,999,999,999,999,990.000') as balance,
+              to_char(nvl(ab.frozen_amount/1000,0),'FM99,999,999,999,999,990.000') as frozenBalance,
+              ab.status as accountStatus,
+              nvl(ab.balance,0) blanceOrder
+		      from t_member c inner join 
+		      (select 
+		          at.*,
+		              b.acct_code ,
+		              att.acct_type ,
+		              b.credit_balance,
+		              b.debit_balance,
+		              b.balance,
+		              b.frozen_amount,
+		              b.status
+		        from (select a.member_code,
+		              a.merchant_code ,
+		              a.zh_name ,
+		              a.search_key,t.sign_loginId ,t.sign_name from t_enterprise_base a 
+		  			inner join T_ENTERPRISE_CONTRACT t on a.member_code = t.member_code) at
+						inner join t_acct b on at.member_code=b.member_code inner join t_acct_attrib att on b.acct_code = att.acct_code)  ab
+					on c.member_code = ab.member_code
+			where 1=1
+			<isNotEmpty prepend="and" property="memberCode">  
+			c.member_code=#memberCode# 
+			</isNotEmpty>	
+			<isNotEmpty prepend="and" property="loginName">  
+			c.login_name=#loginName# 
+			</isNotEmpty>	
+			<isNotEmpty prepend="and" property="merchantCode">  
+			ab.merchant_code=#merchantCode# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantName">  
+	      	ab.zh_name like '%$merchantName$%' 
+	      	</isNotEmpty>
+			<isNotEmpty prepend="and" property="enterpriseSearchKey">  
+	     	ab.search_key= #enterpriseSearchKey#
+	     	</isNotEmpty> 
+	     	<isNotEmpty prepend="and" property="accountCode">  
+	     	ab.acct_code=#accountCode#
+	     	</isNotEmpty> 
+	     	<isNotEmpty prepend="and" property="accountType">  
+	     	ab.acct_type=#accountType# 
+	     	</isNotEmpty>
+	     	<isNotEmpty prepend="and" property="accountStatus">  
+	     	ab.status=#accountStatus#
+	     	</isNotEmpty>
+	     	<isNotNull prepend="and" property="signLoginIds">  	
+	     		ab.sign_loginId in <iterate conjunction="," open="(" close=")"  property="signLoginIds">
+									  #signLoginIds[]#
+									</iterate>	
+			</isNotNull>
+		order by <isEmpty property="orderParam">c.create_date</isEmpty> <isEmpty property="ascOrDesc">desc</isEmpty>
+				<isNotEmpty property="orderParam">$orderParam$</isNotEmpty> <isNotEmpty property="ascOrDesc">$ascOrDesc$</isNotEmpty>
+	) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="queryAccountOfEnterpriseAll" resultClass="enterpriseSearchListDto" parameterClass="enterpriseSearchDto">
+  			select  c.member_code as memberCode,
+              c.login_name as loginName,
+              ab.merchant_code as merchantCode,
+              ab.zh_name as merchantName,
+              ab.search_key,
+              ab.acct_code as accountCode,
+              ab.acct_type as accountType,
+         	  ab.sign_loginId as signLoginId,
+         	  ab.sign_name as signName,
+              to_char(nvl(ab.credit_balance/1000,0),'FM99,999,999,999,999,990.00') as creditBalance,
+              to_char(nvl(ab.debit_balance/1000,0),'FM99,999,999,999,999,990.00') as debitBalance,
+              to_char(nvl(ab.balance/1000,0),'FM99,999,999,999,999,990.00') as balance,
+              to_char(nvl(ab.frozen_amount/1000,0),'FM99,999,999,999,999,990.00') as frozenBalance,
+              ab.status as accountStatus,
+              nvl(ab.balance,0) blanceOrder
+		      from t_member c inner join 
+		      (select 
+		          at.*,
+		              b.acct_code ,
+		              att.acct_type ,
+		              b.credit_balance,
+		              b.debit_balance,
+		              b.balance,
+		              b.frozen_amount,
+		              b.status
+		        from (select a.member_code,
+		              a.merchant_code ,
+		              a.zh_name ,
+		              a.search_key,t.sign_loginId ,t.sign_name from t_enterprise_base a 
+		  			inner join T_ENTERPRISE_CONTRACT t on a.member_code = t.member_code) at
+						inner join t_acct b on at.member_code=b.member_code inner join t_acct_attrib att on b.acct_code = att.acct_code)  ab
+					on c.member_code = ab.member_code
+			where 1=1
+			<isNotEmpty prepend="and" property="memberCode">  
+			c.member_code=#memberCode# 
+			</isNotEmpty>	
+			<isNotEmpty prepend="and" property="loginName">  
+			c.login_name=#loginName# 
+			</isNotEmpty>	
+			<isNotEmpty prepend="and" property="merchantCode">  
+			ab.merchant_code=#merchantCode# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantName">  
+	      	ab.zh_name like '%$merchantName$%' 
+	      	</isNotEmpty>
+			<isNotEmpty prepend="and" property="enterpriseSearchKey">  
+	     	ab.search_key= #enterpriseSearchKey#
+	     	</isNotEmpty> 
+	     	<isNotEmpty prepend="and" property="accountCode">  
+	     	ab.acct_code=#accountCode#
+	     	</isNotEmpty> 
+	     	<isNotEmpty prepend="and" property="accountType">  
+	     	ab.acct_type=#accountType# 
+	     	</isNotEmpty>
+	     	<isNotEmpty prepend="and" property="accountStatus">  
+	     	ab.status=#accountStatus#
+	     	</isNotEmpty>
+	     	<isNotNull prepend="and" property="signLoginIds">  	
+	     		ab.sign_loginId in <iterate conjunction="," open="(" close=")"  property="signLoginIds">
+									  #signLoginIds[]#
+									</iterate>	
+			</isNotNull>
+		order by <isEmpty property="orderParam">c.create_date</isEmpty> <isEmpty property="ascOrDesc">desc</isEmpty>
+				<isNotEmpty property="orderParam">$orderParam$</isNotEmpty> <isNotEmpty property="ascOrDesc">$ascOrDesc$</isNotEmpty>
+	</select>
+	
+	<select id="queryDetailOfAccountAll" resultClass="enterpriseSearchListDto" parameterClass="enterpriseSearchDto">
+	
+	    select * from 
+		 (
+			select 
+				acct_code as accountCode,
+				bdeal_id,
+	            create_date as createDate,
+	            order_id as dealId,
+	            deal_type as dealType,
+	            deal_code as dealCode,                   
+	            to_char(nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,0,nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),0), 'FM99,999,999,999,999,990.00') strPay,
+	            to_char( nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1, abs(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),
+	            nvl(decode(payee_full_mem_acctcode,acct_code,amount/1000),0)),0), 'FM99,999,999,999,999,990.00') as strRevenue,
+	            to_char(nvl(decode(nvl(payer_fee,0),0,payee_fee/1000,payer_fee/1000),0), 'FM99,999,999,999,999,990.00') as fee,
+	            strBalance as balance
+		    from(
+		         select
+		         	tbd.bdeal_id bdeal_id,    
+		            tbd.payer_full_mem_acctcode ,
+		            tbd.payee_full_mem_acctcode,
+		            tbd.amount,
+		            tbd.order_id,
+		            tbd.deal_type,
+		            tbd.payee_fee,
+		            tbd.payer_fee,
+		            tbd.create_date,
+		            tbd.deal_code,
+		            #accountCode# as acct_code,
+					to_char(nvl(tbe.balance / 1000, 0),  'FM99,999,999,999,999,990.000') strBalance,
+					ROW_NUMBER() OVER(PARTITION BY tbd.bdeal_id ,tbe.dealid,tbe.acct_code,tbe.status,tbe.deal_code ORDER BY tbe.bentry_id desc ) rowline
+		        from acc.t_balance_deal tbd ,acc.t_balance_entry tbe
+		        where (tbd.payer_full_mem_acctcode =#accountCode#  or tbd.payee_full_mem_acctcode =#accountCode#)
+		        	 and tbe.voucher_code = tbd.voucher_code
+				     and tbe.acct_code(+) =#accountCode# 
+					 <!-- and tbe.dealid(+) = tbd.order_id -->
+					 and tbd.voucher_code =tbe.voucher_code(+)
+					 <!-- and tbe.deal_code(+) = tbd.deal_code -->
+					 and tbe.status(+)= decode(tbd.deal_type,34, '1','0')
+			        <isNotEmpty prepend="and" property="dealType">  
+		     		  	 tbd.deal_type=#dealType#
+		    		</isNotEmpty>
+			        <isNotEmpty prepend="and" property="dealId">  
+		     			 tbd.order_id=#dealId#
+		    		</isNotEmpty>
+		    		<isNotNull property="dealTypes">
+						and tbd.deal_type in
+						<iterate open="(" close=")" conjunction="," property="dealTypes">
+							#dealTypes[]#
+						</iterate>
+					</isNotNull>
+		    		<isNotEmpty prepend="and" property="startDate"> 
+		       			 tbd.create_date<![CDATA[>=]]>TO_DATE(#startDate#,'YYYY-MM-DD')
+		    		</isNotEmpty>
+				    <isNotEmpty prepend="and" property="endDate">
+				         tbd.create_date<![CDATA[<]]>TO_DATE(#endDate#,'YYYY-MM-DD')+1
+				    </isNotEmpty>
+		     	)
+			  where rowline =1
+		      order by bdeal_id desc
+		     )
+	</select>
+	
+	
+	<select id="queryDetailOfAccount" resultClass="enterpriseSearchListDto" parameterClass="enterpriseSearchDto">
+	     select b.* from 
+		(select a.*,rownum as linenum from (
+			select 
+				acct_code as accountCode,
+	            create_date as createDate,
+	            order_id as dealId,
+	            deal_type as dealType,
+	            deal_code as dealCode,       
+	           	voucher_code  as voucherCode,          
+	            to_char(nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1,0,nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),0), 'FM99,999,999,999,999,990.000') strPay,
+	            to_char( nvl(decode(sign(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),-1, abs(nvl(decode(payer_full_mem_acctcode,acct_code,amount/1000),0)),
+	            nvl(decode(payee_full_mem_acctcode,acct_code,amount/1000),0)),0), 'FM99,999,999,999,999,990.000') as strRevenue,
+	            to_char(nvl(decode(nvl(payer_fee,0),0,payee_fee/1000,payer_fee/1000),0), 'FM99,999,999,999,999,990.000') as fee
+		    from(
+		         select     
+		            tbd.payer_full_mem_acctcode ,
+		            tbd.payee_full_mem_acctcode,
+		            tbd.amount,
+		            tbd.order_id,
+		            tbd.deal_type,
+		            tbd.payee_fee,
+		            tbd.payer_fee,
+		            tbd.create_date,
+		            tbd.deal_code,
+		            tbd.bdeal_id,
+		            tbd.voucher_code,
+		            #accountCode# as acct_code
+		        from t_balance_deal tbd
+		        where (tbd.payer_full_mem_acctcode =#accountCode#  or tbd.payee_full_mem_acctcode =#accountCode#)
+			        <isNotEmpty prepend="and" property="dealType">  
+		     			 tbd.deal_type=#dealType#
+		    		</isNotEmpty>
+			        <isNotEmpty prepend="and" property="dealId">  
+		     			 tbd.order_id=#dealId#
+		    		</isNotEmpty>
+		    		<isNotNull property="dealTypes">
+						and tbd.deal_type in
+						<iterate open="(" close=")" conjunction="," property="dealTypes">
+							#dealTypes[]#
+						</iterate>
+					</isNotNull>
+		    		<isNotEmpty prepend="and" property="startDate"> 
+		       			 tbd.create_date<![CDATA[>=]]>TO_DATE(#startDate#,'YYYY-MM-DD')
+		    		</isNotEmpty>
+				    <isNotEmpty prepend="and" property="endDate">
+				         tbd.create_date<![CDATA[<]]>TO_DATE(#endDate#,'YYYY-MM-DD')+1
+				    </isNotEmpty>
+		     	)
+		     order by create_date desc,deal_type asc,bdeal_id desc
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	
+	<select id="queryBalance" parameterClass="java.util.Map" resultClass="java.lang.String">	  
+       select strBalance 
+         from (select rownum linenum, t1.strBalance
+                 from (select to_char(nvl(balance/1000, 0),'FM99,999,999,999,999,990.000') strBalance
+                              from t_balance_entry tbe 
+                              where tbe.dealid=#dealId# and tbe.acct_code=#acctCode# and tbe.status=#status#  and  tbe.deal_code=#dealCode#
+                              <isNotEmpty prepend="and" property="voucherCode">  
+	          					tbe.voucher_code= #voucherCode#
+	        				 </isNotEmpty> 
+                              order by tbe.bentry_id desc
+                      ) t1
+                where rownum = 1)
+	</select>
+	<select id="queryEnterpriseCount" resultClass="java.lang.Integer" parameterClass="enterpriseSearchDto">
+		select
+		 	count(1)
+		from 	
+			t_member a ,t_enterprise_base b, t_enterprise_contract c
+		where   a.member_code = b.member_code
+			and a.member_code = c.member_code
+			<isNotEmpty prepend="and" property="memberCode">  
+	          	b.member_code = #memberCode#
+	        </isNotEmpty> 	
+	        <isNotEmpty prepend="and" property="signLoginId">  
+	          	c.SIGN_LOGINID in ($signLoginId$)
+	        </isNotEmpty> 			
+			<isNotEmpty prepend="and" property="merchantCode">  
+	          	b.merchant_code = #merchantCode#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="merchantName">  
+	          	b.zh_name like '%$merchantName$%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="enterpriseSearchKey">  
+	          	b.search_key like '%$enterpriseSearchKey$%'
+	        </isNotEmpty>  	        
+	        <isNotEmpty prepend="and" property="loginName">  
+	          	a.login_name = #loginName#
+	        </isNotEmpty>	
+	        <isNotEmpty prepend="and" property="merchantStatus">  
+	          	a.status = #merchantStatus#
+	        </isNotEmpty>
+       		<isNotEmpty prepend="and" property="signDepart">  
+	          	c.sign_depart = #signDepart#
+	        </isNotEmpty>
+	        <isNotEmpty property="endDate">
+			    	<![CDATA[
+			    	and b.create_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+	        		and b.create_date <=TO_DATE(#endDate# , 'yyyy-mm-dd')+ 1
+			    	]]>
+  			</isNotEmpty>
+	  		<isNotEmpty property="startDate">
+		  	    <isEmpty property="endDate">
+			    	<![CDATA[
+			    	and b.create_date >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+			    	and b.create_date <= TO_DATE(#startDate# , 'yyyy-mm-dd ')+1 
+			    	]]>
+		     	</isEmpty>
+	    </isNotEmpty>
+	     	<isNotNull property="signLoginIds">
+	     		and c.sign_loginId in <iterate conjunction="," open="(" close=")"  property="signLoginIds">
+									
+									  #signLoginIds[]#
+									
+									</iterate>
+	     	</isNotNull>
+    </select>
+    <select id="queryAccountOfEnterpriseCount" resultClass="java.lang.Integer" parameterClass="enterpriseSearchDto">
+			select 
+	             count(1)
+	      from t_member c inner join 
+	      (select 
+	              at.member_code,
+	              at.merchant_code ,
+	              at.zh_name ,
+	              at.search_key,
+	              at.sign_loginid,
+	              b.acct_code ,
+	              att.acct_type ,
+	              b.credit_balance,
+	              b.debit_balance,
+	              b.balance,
+				  b.frozen_amount,
+			      b.status
+			         from (select a.*, t.sign_loginid from t_enterprise_base a 
+          	inner join T_ENTERPRISE_CONTRACT t on a.member_code = t.member_code) at
+          	inner join t_acct b on at.member_code=b.member_code 
+          	inner join t_acct_attrib att on b.acct_code = att.acct_code
+          	)  ab on c.member_code = ab.member_code
+			where 1=1
+			<isNotEmpty prepend="and" property="loginName">  
+			c.login_name=#loginName# 
+			</isNotEmpty>	
+			<isNotEmpty prepend="and" property="memberCode">  
+			c.member_code=#memberCode# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantCode">  
+			ab.merchant_code=#merchantCode# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantName">  
+	      	ab.zh_name like '%$merchantName$%' 
+	      	</isNotEmpty>
+			<isNotEmpty prepend="and" property="enterpriseSearchKey">  
+	     	ab.search_key=#enterpriseSearchKey#
+	     	</isNotEmpty> 
+	     	<isNotEmpty prepend="and" property="accountCode">  
+	     	ab.acct_code=#accountCode#
+	     	</isNotEmpty> 
+	     	<isNotEmpty prepend="and" property="accountType">  
+	     	ab.acct_type = #accountType# 
+	     	</isNotEmpty>
+	     	<isNotEmpty prepend="and" property="accountStatus">  
+	     	ab.status=#accountStatus#
+	     	</isNotEmpty>
+	     		<isNotNull prepend="and" property="signLoginIds">
+	     		 ab.sign_loginId in <iterate conjunction="," open="(" close=")" property="signLoginIds">
+									
+									  #signLoginIds[]#
+									
+									</iterate>
+	     	</isNotNull>
+    </select>
+    <select id="queryDetailOfAccountCount" resultClass="java.lang.Integer" parameterClass="enterpriseSearchDto">
+			
+        select     
+            count(1)
+        from t_balance_deal tbd
+        where (tbd.payer_full_mem_acctcode =#accountCode#  or tbd.payee_full_mem_acctcode =#accountCode#)
+	        <isNotEmpty prepend="and" property="dealType">  
+     			 tbd.deal_type=#dealType#
+    		</isNotEmpty>
+    		   <isNotEmpty prepend="and" property="dealId">  
+		     			 tbd.order_id=#dealId#
+		    </isNotEmpty>
+    		<isNotNull property="dealTypes">
+						and tbd.deal_type in
+						<iterate open="(" close=")" conjunction="," property="dealTypes">
+							#dealTypes[]#
+						</iterate>
+			</isNotNull>
+    		<isNotEmpty prepend="and" property="startDate"> 
+       			 tbd.create_date<![CDATA[>=]]>TO_DATE(#startDate#,'YYYY-MM-DD')
+    		</isNotEmpty>
+		    <isNotEmpty prepend="and" property="endDate">
+		         tbd.create_date<![CDATA[<]]>TO_DATE(#endDate#,'YYYY-MM-DD')+1
+		    </isNotEmpty>
+     	order by tbd.create_date desc,tbd.deal_type asc
+    </select>
+    <select id="queryAllAccountType"  resultClass="enterpriseBaseData">
+		   select t.acct_type_id as code,
+		   		  t.name as name
+		   from t_acct_type t  
+		   where t.type=1
+    </select>
+    <select id="queryAccountByMemberCode"  resultClass="enterpriseBaseData" parameterClass="java.lang.Long">
+		   select 
+			   	att.acct_type as code,
+			   	t.balance as balance
+		   from t_acct t inner join t_acct_attrib att on t.acct_code=att.acct_code
+		   where t.member_code=#memberCode#
+    </select>
+    
+    <select id="queryProductByMemberCode"  resultClass="enterpriseBaseData" parameterClass="java.lang.Long">
+		   select t.product_id as code
+		   from t_member_product t 
+		   where t.member_code=#memberCode# and t.status=1
+    </select>
+    <select id="queryAcctTempByMemberCode"  resultClass="enterpriseBaseData" parameterClass="java.lang.Long">
+		   select 
+		   		ab.mat_id as code,
+		   		c.name as name
+		   from t_acct_type c inner join (
+		   					select b.mat_id,b.acct_type
+		   					from t_acct_attrib a inner join t_member_acct_template b 
+		   					on a.acct_type = b.acct_type 
+		   					where a.member_code=#memberCode# and b.acct_type=2)  ab 
+		   on c.acct_type_id=ab.acct_type
+    </select>
+    <select id="queryProductOfAcctTemp"  resultClass="enterpriseRelation" parameterClass="java.lang.Integer">
+		select 
+			ab.member_acct_template_id as fatherCode,
+			ab.product_id as code,
+			c.name as name
+		from t_product c inner join (
+					select a.member_acct_template_id,a.product_id from t_product_acct_template a where a.member_acct_template_id = #acctTempId#) ab 
+		on c.id = ab.product_id
+    </select>
+    <delete id="deleteAcctAttriByMemberCode" parameterClass="java.lang.Long">
+       delete from t_acct_attrib t where t.member_code=#memberCode#
+    </delete>
+    <delete id="deleteProductByMemberCode" parameterClass="java.lang.Long">
+       delete from t_member_product t where t.member_code=#memberCode#
+    </delete>
+    <delete id="deleteAccountByMemberCode" parameterClass="java.lang.Long">
+        delete from t_acct t where t.member_code=#memberCode#
+    </delete>
+    <insert id="insertAccountOfEnterprise" parameterClass="accountOfEnterprise">
+        insert into T_ACCT (ACCT_CODE, MEMBER_CODE, BALANCE, STATUS,
+            FROZEN_AMOUNT, CREATE_DATE, UPDATE_DATE,CREDIT_BALANCE,DEBIT_BALANCE)
+        values (#acctCode#, #memberCode#, #balance#, #status#,
+            #frozenAmount#, #createDate#, #updateDate#,#creditBalance#,#debitBalance#)
+    </insert>
+    <insert id="insertProductOfEnterprise" parameterClass="productOfEnterprise">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_MEMBER_PRODUCT_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_MEMBER_PRODUCT (ID, MEMBER_CODE, PRODUCT_ID, STATUS, CREATION_DATE,
+            UPDATE_DATE)
+        values (#id#, #memberCode#, #productId#, #status#, #creationDate#, #updateDate#)
+    </insert>
+    <insert id="productJoinMenuAdd" parameterClass="productMenu">
+    	<selectKey  keyProperty="productMenuId">
+			SELECT SEQ_PRODUCT_MENU_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_PRODUCT_MENU (PRODUCT_MENU_ID, PRODUCT_ID, MENU_ID, CREATE_DATE, UPDATE_DATE)
+        values (#productMenuId#, #productId#, #menuId#, #createDate#, #updateDate#)
+    </insert>
+    <delete id="productJoinMenuDelete" parameterClass="java.lang.String">
+        delete   from t_product_menu t where t.product_id=#productId#
+    </delete>
+    
+    <insert id="insertAccountAttribute" parameterClass="accountAttributeOfEnterprise">
+        insert into T_ACCT_ATTRIB (ACCT_CODE, ALLOW_DEPOSIT, ALLOW_WITHDRAWAL,
+            ALLOW_TRANSFER_IN, ALLOW_TRANSFER_OUT, ALLOW_IN, ALLOW_OUT, DESCRIPTION, FROZEN,
+            MEMBER_CODE, DEF_REC_ACCT, CUR_CODE, PAY_PWD, CREATE_DATE, UPDATE_DATE, ACCT_LEVEL,
+            BALANCE_BY, PAY_ABLE, ALLOW_OVERDRAFT, NEED_PROTECT, MANAGERABLE, ACCT_TYPE,
+            MEMBER_ACCT_CODE, SUBJECT_CODE, BEAR_INTEREST)
+        values (#acctCode#, #allowDeposit#, #allowWithdrawal#, #allowTransferIn#,
+            #allowTransferOut#, #allowIn#, #allowOut#, #description#, #frozen#, #memberCode#,
+            #defRecAcct#, #curCode#, #payPwd#, #createDate#, #updateDate#, #acctLevel#, #balanceBy#,
+            #payAble#, #allowOverdraft#, #needProtect#, #managerable#, #acctType#, #memberAcctCode#,
+            #subjectCode#, #bearInterest#)
+    </insert>
+    
+    <select id="getAccountAttribute" resultMap="accountAttrResult" parameterClass="java.util.HashMap">
+         select * from T_ACCT_ATTRIB  where member_code=#memberCode# and acct_type=#acctType#
+    </select> 
+    
+    <select id="queryAcctTypeNameByCode"  resultClass="java.lang.String" parameterClass="java.lang.Integer">
+		select t.name from t_acct_type t where t.acct_type_id=#code#
+    </select>
+    
+    <select id="getMerchantByMemberCode" resultClass="merchantDto2" parameterClass="java.lang.Long">      
+	select abcd.member_code        as memberCode,
+       abcd.service_level_code as serviceLevelCode,
+       abcd.type               as merchantType,
+       abcd.status             as memberStatus,
+       abcd.enterprise_type    as enterpriseType,
+       abcd.zh_name            as zhName,
+       abcd.en_name            as enName,
+       abcd.website            as website,
+       abcd.audi_status        as audiStatus,
+       abcd.nation             as nation,
+       abcd.region             as region,
+       abcd.city               as city,
+       abcd.in_industry        as industry,
+       abcd.biz_licence_code   as bizLicenceCode,
+       abcd.expire             as expire,
+       abcd.gov_code           as govCode,
+       abcd.tax_code           as taxCode,
+       abcd.risk_leve_code     as riskLeveCode,
+       abcd.address            as address,
+       abcd.fax                as fax,
+       abcd.tel                as tel,
+       abcd.zip                as zip,
+       abcd.email              as email,
+       abcd.legal_name         as legalName,
+       abcd.legal_link         as legalLink,
+       abcd.finance_name       as financeName,
+       abcd.finance_link       as financeLink,
+       abcd.compay_linker_name as compayLinkerName,
+       abcd.compay_linker_tel  as compayLinkerTel,
+       abcd.tech_name          as techName,
+       abcd.tech_link          as techLink,
+       abcd.web_name1          as webName1,
+       abcd.web_addr1          as webAddr1,
+       abcd.web_name2          as webName2,
+       abcd.web_addr2          as webAddr2,
+       abcd.web_name3          as webName3,
+       abcd.web_addr3          as webAddr3,
+       abcd.sign_name          as signName,
+       abcd.sign_loginId       as signLoginId,
+       abcd.sign_depart        as signDepart,
+       abcd.start_date         as startDate,
+       abcd.end_date           as endDate,
+       abcd.open_fee           as openFee,
+       abcd.year_fee           as yearFee,
+       abcd.fact_open_fee      as factOpenFee,
+       abcd.fact_year_fee      as factYearFee,
+       abcd.fact_start_date    as factStartDate,
+       abcd.fact_end_date      as factEndDate,
+       abcd.assure_fee         as assureFee,
+       abcd.assure_desc        as assureDesc,
+       abcd.continue_sign      as continueSign,
+       abcd.market_Link        as marketLink,
+       e.bank_name             as bankName,
+       e.bank_acct             as bankAcct,
+       e.acct_name             as acctName,
+       abcd.settlement_cycle   as settlementCycle,
+       abcd.PERCENTAGE,
+       aBcd.SECOND_SETTLEMENT_CYCLE as secondSettlementCycle,
+       aBcd.ASSURE_PERCENTAGE as assurePercentage,
+       abcd.assureSettlementCycle,
+       abcd.withdrawFee,
+       abcd.withdrawFeeCurrency,
+       abcd.signProcessFee,
+       abcd.riskFee,
+       abcd.riskFeeCurrency,<!-- add by davis.guo 2016-08-10 -->
+       abcd.chargebackFee,
+       abcd.refundFee,
+       abcd.refundFeeCurrency,
+       abcd.batchpayFee,
+       abcd.batchpayFeeCurrency,
+       e.province              as regionBank,
+       e.city                  as cityBank,
+       e.bank_id               as bankId,
+       e.bank_address          as bankAddress,
+       e.liquidate_Id          as liquidateId,
+       e.branch_bank_id        as branchBankId,
+       e.big_bank_name         as bigBankName,
+       e.swift_code            as swiftCode,
+       abcd.refundPerFeeConf as refundPerFeeConf,
+       abcd.refundFixedFeeConf as refundFixedFeeConf,
+       abcd.chargeBackFeeCurCode
+  from (
+        select abc.member_code,
+                abc.service_level_code,
+                abc.type,
+                abc.status,
+                abc.enterprise_type,
+                abc.zh_name,
+                abc.en_name,
+                abc.website,
+                abc.audi_status,
+                abc.nation,
+                abc.region,
+                abc.city,
+                abc.in_industry,
+                abc.biz_licence_code,
+                abc.expire,
+                abc.gov_code,
+                abc.tax_code,
+                abc.risk_leve_code,
+                abc.address,
+                abc.fax,
+                abc.tel,
+                abc.zip,
+                abc.email,
+                abc.legal_name,
+                abc.legal_link,
+                abc.finance_name,
+                abc.finance_link,
+                abc.compay_linker_name,
+                abc.compay_linker_tel,
+                abc.tech_name,
+                abc.tech_link,
+                abc.web_name1,
+                abc.web_addr1,
+                abc.web_name2,
+                abc.web_addr2,
+                abc.web_name3,
+                abc.web_addr3,
+                d.sign_name,
+                d.sign_loginId,
+                d.sign_depart,
+                d.start_date,
+                d.end_date,
+                d.open_fee,
+                d.year_fee,
+                d.fact_open_fee,
+                d.fact_year_fee,
+                d.fact_start_date,
+                d.fact_end_date,
+                d.assure_fee,
+                d.assure_desc,
+                d.continue_sign,
+                d.market_link,
+                abc.settlement_cycle,
+                abc.PERCENTAGE,
+                aBc.SECOND_SETTLEMENT_CYCLE,
+                aBc.ASSURE_PERCENTAGE,
+                abc.assureSettlementCycle,
+                abc.withdrawFee,
+                abc.withdrawFeeCurrency,
+                abc.signProcessFee,
+                abc.riskFee,
+       			abc.riskFeeCurrency,<!-- add by davis.guo 2016-08-10 -->
+                abc.chargebackFee,
+                abc.refundFee,
+                abc.refundFeeCurrency,
+                abc.batchpayFee,
+                abc.batchpayFeeCurrency,
+                abc.refundPerFeeConf,
+                abc.refundFixedFeeConf,
+                abc.chargeBackFeeCurCode
+          from (select ab.member_code,
+                        ab.service_level_code,
+                        ab.type,
+                        ab.status,
+                        ab.enterprise_type,
+                        ab.zh_name,
+                        ab.en_name,
+                        ab.website,
+                        ab.audi_status,
+                        ab.nation,
+                        ab.region,
+                        ab.city,
+                        ab.in_industry,
+                        ab.biz_licence_code,
+                        ab.expire,
+                        ab.gov_code,
+                        ab.tax_code,
+                        ab.risk_leve_code,
+                        ab.settlement_cycle,
+                        ab.PERCENTAGE,
+                        aB.SECOND_SETTLEMENT_CYCLE,
+                        aB.ASSURE_PERCENTAGE,
+                        ab.assureSettlementCycle,
+                        ab.withdrawFee,
+                        ab.withdrawFeeCurrency,
+                        ab.signProcessFee,
+                        ab.riskFee,
+       					ab.riskFeeCurrency,<!-- add by davis.guo 2016-08-10 -->
+                        ab.chargebackFee,
+                        ab.refundFee,
+                        ab.refundFeeCurrency,
+                        ab.batchpayFee,
+                        ab.batchpayFeeCurrency,
+                        ab.refundPerFeeConf,
+                        ab.refundFixedFeeConf,
+                        ab.chargeBackFeeCurCode,
+                        c.address,
+                        c.fax,
+                        c.tel,
+                        c.zip,
+                        c.email,
+                        c.legal_name,
+                        c.legal_link,
+                        c.finance_name,
+                        c.finance_link,
+                        c.compay_linker_name,
+                        c.compay_linker_tel,
+                        c.tech_name,
+                        c.tech_link,
+                        c.web_name1,
+                        c.web_addr1,
+                        c.web_name2,
+                        c.web_addr2,
+                        c.web_name3,
+                        c.web_addr3
+                   from (select a.member_code,
+                                a.service_level_code,
+                                a.type,
+                                a.status,
+                                b.enterprise_type,
+                                b.zh_name,
+                                b.en_name,
+                                b.website,
+                                b.audi_status,
+                                b.nation,
+                                b.region,
+                                b.city,
+                                b.in_industry,
+                                b.biz_licence_code,
+                                b.expire,
+                                b.gov_code,
+                                b.tax_code,
+                                b.risk_leve_code,
+                                b.settlement_cycle,
+                                B.PERCENTAGE,
+                                B.SECOND_SETTLEMENT_CYCLE,
+                                B.ASSURE_PERCENTAGE,
+                                b.assure_Settlement_Cycle assureSettlementCycle,
+                                b.WITHDRAW_FEE withdrawFee,
+                                b.WITHDRAW_FEE_CURRENCY withdrawFeeCurrency,
+                                b.SIGN_PROCESS_FEE signProcessFee,
+                                b.RISK_FEE riskFee,
+       							b.RISK_FEE_CURRENCY riskFeeCurrency,<!-- add by davis.guo 2016-08-10 -->
+                                b.CHARGEBACK_FEE chargebackFee,
+                                b.REFUND_FEE refundFee,
+                                b.REFUND_FEE_CURRENCY refundFeeCurrency,
+                                b.BATCHPAY_FEE batchpayFee,
+                                B.BATCHPAY_FEE_CURRENCY batchpayFeeCurrency,
+                                b.REFUND_PERFEE_CONF  refundPerFeeConf,
+                        		b.REFUND_FIXEDFEE_CONF  refundFixedFeeConf,
+                        		b.CHARGEBACK_FEE_CURCODE  chargeBackFeeCurCode
+                           from t_member a
+                          inner join t_enterprise_base b
+                             on a.member_code = b.member_code) ab
+                  inner join t_enterprise_contact c
+                     on ab.member_code = c.member_code) abc
+         inner join t_enterprise_contract d
+            on abc.member_code = d.member_code
+        ) abcd
+ inner join t_liquidate_info e
+    on abcd.member_code = e.member_code
+ where abcd.member_code = #memberCode# 			
+	</select>
+	<select id="findMemberCodeByAcctCode"  resultClass="accountOfEnterprise" parameterClass="java.lang.String">
+		select ta.member_code memberCode from t_acct ta  where ta.acct_code=#acctCode#
+    </select>
+    <update id="updateLoginOfMember" parameterClass="java.util.Map">
+       update t_member a set a.login_name=#loginName# where a.member_code = #memberCode#	
+    </update>
+    <update id="updateLoginOfEnterpriseContact" parameterClass="java.util.Map">
+      update t_enterprise_contact b set b.email = #loginName# where b.member_code = #memberCode#	
+    </update>
+    
+      <update id="updateMemberRelationName" parameterClass="map">
+		update t_member_relation t
+		   set t.son_zh_name = #zhName#,
+		       t.son_en_name = #enName#,
+		       update_date   = sysdate
+		 where t.son_member_code = #memberCode#
+    </update>
+    
+      <select id="findByMemberCode" resultMap="enterpriseBaseMap" parameterClass="java.lang.Long">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		       identity,
+		       search_key,
+		       ASSURE_PERCENTAGE,
+		       assure_Settlement_Cycle,
+		       PERCENTAGE,
+		       SETTLEMENT_CYCLE,
+		       SECOND_SETTLEMENT_CYCLE
+		       FROM t_enterprise_base WHERE member_code = #memberCode#
+    </select>
+    
+    <delete id="MemberProductDelete" parameterClass="java.lang.String">
+      delete  from t_member_product t where t.id=#productId#
+    </delete>
+    
+   
+    
+</sqlMap>

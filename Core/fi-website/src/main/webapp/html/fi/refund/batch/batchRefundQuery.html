@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>安捷支付-批量退款申请</title>
+	<#include "/common/macro/seoPerson.ftl"> 
+	<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+		<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+	<meta http-equiv="pragma" content="no-cache"> 
+	<meta http-equiv="cache-control" content="no-cache"> 
+	<meta http-equiv="expires" content="0"> 
+</head>
+<body>
+
+<!--导航 str-->
+<@sp.head mCode="corp_refund_order"/>
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container">
+	<div class="refund_list">
+		<div class="refund_title"> 
+			<!--tab str -->
+			<div class="mode_tit">
+				<h2 class="sel"><a hre="javascript:void(0)">批量退款查询</a></h2>
+				<h2><a href="${rc.contextPath}/corp/refundOrderQuery.htm">退款明细</a></h2>
+				<h2><a href="${rc.contextPath}/corp/beRefundOrderQuery.htm">被退款查询</a></h2>
+			</div>
+			<!--tab str --> 
+		</div>
+		<!--查询 str-->
+		<div class="order_search">
+			<form class="form" name="searchForm" method="post" action="${rc.contextPath}/corp/batchRefundOrderQuery.htm?method=search">
+				<ul class="mt10">
+					<li>
+						<label class="side">起止时间：</label>
+						<input type="text" class="Wdate inp_normal w380" name="startTime"  readonly="readonly" id="startTime" gtbfieldid="109" value="<#if startTime?has_content>${startTime?default('')}</#if>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false})">
+						<span>-</span>
+						<input type="text" class="Wdate inp_normal w380" name="endTime" readonly="readonly" id="endTime" gtbfieldid="110" value="<#if endTime?has_content>${endTime?default('')}</#if>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false})">
+					</li>
+					<li>
+						<label class="side">处理状态：</label>
+						<select class="inp_normal w200" name="applyStatus" id="status">
+							<option value="0">全部</option>
+							<option value="1">批退待审核</option>
+							<option value="2">退款处理中</option>
+							<option value="3">批退审核拒绝</option>
+							<option value="4">退款处理完成</option>
+						</select>
+					</li>
+					
+					<li>
+						<label class="side">批次号：</label>
+						<input type="text" name="searchBatchNo" id="batchNo" value="${batchNo!('')}" class="inp_normal w200">
+					</li>
+					
+					<li>
+						<label class="side">商户订单号：</label>
+						<input type="text" name="orderId" id="orderId" value="${orderId!('')}" class="inp_normal w200">
+					</li>
+
+					<li class="search_btn">
+						<label class="side"></label>
+						<span class="btnC">
+							<button type="submit" onClick="return check();">查 询</button>
+						</span>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<!--查询 end-->
+		
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title font14">查询结果</h3>
+				</div>
+				<div class="refund_box">
+					<div class="barg_table">
+						<table>
+							<thead>
+								<tr>
+									<th>批次号</th>
+									<th>申请<br>时间</th>
+									<th>复核<br>时间</th>
+									<th>退款<br>笔数</th>
+									<th>退款<br>金额</th>
+									<th>成功<br>笔数</th>
+									<th>成功<br>金额</th>
+									<th>失败<br>笔数</th>
+									<th>失败<br>金额</th>
+									<th>处理中<br>笔数</th>
+									<th>处理中<br>金额</th>
+									<th>处理<br>状态</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								<#if batchList?has_content>
+							 		<#list batchList as detail>
+										<tr <#if detail_index%2==0> class="gray" </#if> >
+											<td>${detail.batchRefundNo?default('')}</td>
+											<td>
+												${detail.applyDate?string('yyyy-MM-dd')}
+												<br>
+												${detail.applyDate?string('HH:mm:ss')}
+											</td>
+											<td>
+												<#if detail.auditDate?has_content >
+													${detail.auditDate?string('yyyy-MM-dd')}
+													<br>
+													${detail.auditDate?string('HH:mm:ss')}
+												</#if>
+												<br>
+											</td>
+											<td>${detail.refundCount?default('')}</td>
+											<td>${detail.refundAmount?default('')}</td>
+											<td>${detail.successCount?default('')}</td>
+										    <td>${detail.successAmount?default('')}</td>
+											<td>${detail.failCount?default('')}</td>
+										    <td>${detail.failAmount?default('')}</td>
+											<td>${detail.proceCount?default('')}</td>
+											<td>${detail.proceAmount?default('')}</td>
+											<td>
+												<#if detail.status = 1>	
+													批退待审核
+												<#elseif detail.status = 2>
+													退款处理中
+												<#elseif detail.status = 3>
+													批退审核拒绝
+												<#elseif detail.status = 4>
+													退款处理完成
+												</#if>
+											</td>
+											<td>
+												<#if detail.status != 1>
+													<a class="blues" href="javascript:downloadDetail('${detail.batchRefundNo}')">下载明细</a>
+												</#if>
+											</td>
+										</tr> 
+									</#list>
+								</#if>
+								<!--<tr class="gray">-->
+							</tbody>
+						</table>
+					</div>
+					<div class="page_box">
+						<#if batchList?has_content>
+							<p>共<span class="blod">${count?default('')}</span>批交易<i class="ml10"> 退款金额总计<span class="blod green">${amount?default('')}</span>元</i></p>
+						</#if>
+						<#if pu?exists>
+							<@sp.pagination pu=pu/>
+						</#if>
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<script type="text/javascript">
+	<#if status?has_content>
+		$("#status").val(${status});
+	</#if>
+
+	function downloadDetail(obj){
+		var orderid = $("#orderId").val();
+		var url = "${rc.contextPath}/corp/batchRefundOrderQuery.htm?method=downloadDetail&batchNo="+obj
+		if(orderid != "")
+			url = url + "&orderid=" +orderid;
+		window.location = url;
+	}
+
+
+	String.prototype.trim=function()
+	{
+	    return this.replace(/(^\s*)(\s*$)/g,"");
+	}
+	
+	function check(){
+		var batchNo = $("#batchNo").val().trim();
+		if(batchNo.length > 0){
+			if (!isNumber(batchNo)) {
+				$.pay.alert('请输入正确的批次号 !', {
+					h : 160,
+					t : '3',
+					close:function(){$("#batchNo").val("");$("#batchNo").focus();}
+				});
+				return false;
+			}
+		}
+	}
+</script>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="gateway-bankFrontUrlMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/mock/deposit/mockFrontResponse.htm">mockBankFrontResponseController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 银行回调 -->
+	<bean id="mockBankFrontResponseController"
+		class="com.pay.gateway.controller.bankadaptor.BankFrontResponseController">
+		<property name="invokeService" ref="client-txnCoreService" />
+		<property name="successView">
+			<value>/fi/result/result</value>
+		</property>
+		<property name="paySuccessView">
+			<value>/fi/pay/successful</value>
+		</property>
+		<property name="payFailView">
+			<value>/fi/pay/fail</value>
+		</property>
+		<property name="failView">
+			<value>/fi/acctcharge/fail</value>
+		</property>
+		<property name="cashierView">
+			<value>/fi/cashier/cashier</value>
+		</property>
+		<property name="bankChannel" value="000000001" />
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+	</bean>
+
+</beans>

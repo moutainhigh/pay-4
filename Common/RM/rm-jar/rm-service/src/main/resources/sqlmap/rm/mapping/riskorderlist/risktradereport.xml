@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="riskTradeReport">
+	
+	
+	<resultMap class="java.util.HashMap" id="riskTradeRepResult">
+  		<result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="NUMBER" />
+  		<result column="MONITOR_TYPE" property="monitorType" jdbcType="NUMBER" />
+  		<result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+  		<result column="MERCHANT_NAME" property="merchantName" jdbcType="VARCHAR" />
+  		<result column="MERCHANT_ID" property="merchantId" jdbcType="VARCHAR" />
+  		<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+  		<result column="ORDER_AMOUNT" property="orderAmount" jdbcType="NUMBER" />
+  		<result column="CURRENCY" property="currencyCode" jdbcType="VARCHAR" />
+  		<result column="REFUND_AMOUNT" property="refundAmount" jdbcType="VARCHAR" />
+  		<result column="MONITOR_DATE" property="monitorDate" jdbcType="DATE" />
+  		<result column="COMPLETE_DATE" property="completeDate" jdbcType="DATE" />
+  	
+  		<result column="CHANNEL_RESP_CODE" property="channelRespCode" jdbcType="VARCHAR" />
+  		<result column="CHANNEL_RESP_MSG" property="channelRespMsg" jdbcType="VARCHAR" />
+  		<result column="SITEID" property="siteId" jdbcType="VARCHAR" />
+
+  		<result column="GOODS_NAME" property="goodsName" jdbcType="VARCHAR" />
+  		<result column="CUSTOMER_IP" property="coustomerIp" jdbcType="VARCHAR" />
+
+  		<result column="CARD_NO" property="cardId" jdbcType="VARCHAR" />
+  		<result column="CARD_COUNTRY" property="cardCountry" jdbcType="VARCHAR" />
+
+  	
+  		<result column="BILL_NAME" property="billName" jdbcType="VARCHAR" />
+  		<result column="BILL_COUNTRY" property="billCountry" jdbcType="VARCHAR" />
+  		<result column="BILL_STATE" property="billState" jdbcType="VARCHAR" />
+  		<result column="BILL_CITY" property="billCity" jdbcType="VARCHAR" />
+  		<result column="BILL_STREET" property="billStreet" jdbcType="VARCHAR" />
+  		<result column="BILL_ADRESS" property="billAddress" jdbcType="VARCHAR" />
+  		<result column="BILL_POSTALCODE" property="billPostalCode" jdbcType="VARCHAR" />
+  		<result column="BILL_EMAIL" property="billEmail" jdbcType="VARCHAR" />
+  		<result column="BILL_PHONE" property="billPhone" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_NAME" property="shippingName" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_COUNTRY" property="shippingCountry" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_STATE" property="shippingState" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_CITY" property="shippingCity" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_STREET" property="shippingStreet" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_ADDRESS" property="shippingAddress" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_POSTALCODE" property="shippingPostalCode" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_EMAIL" property="shippingEmail" jdbcType="VARCHAR" />
+  		<result column="SHIPPING_PHONE" property="shippingPhone" jdbcType="VARCHAR" />
+  		<result column="tradeStatus" property="tradeStatus" jdbcType="VARCHAR" />
+  	</resultMap>
+  
+  <select id="findByCriteria" parameterClass="java.util.Map" resultMap="riskTradeRepResult">
+  		SELECT 
+  			tt.TRADE_ORDER_NO,
+  			tt.MONITOR_TYPE,
+  			tt.PARTNER_ID,
+  			tt.MERCHANT_NAME,
+  			tt.MERCHANT_ID,
+  			tt.ORDER_ID,
+  			tt.ORDER_AMOUNT,
+  			tt.CURRENCY,
+  			tt.REFUND_AMOUNT,
+  			tt.MONITOR_DATE,
+  			tt.COMPLETE_DATE,
+  		    tt.CHANNEL_RESP_CODE,
+  		    tt.CHANNEL_RESP_MSG,
+		    tt.SITEID,
+  			tt.GOODS_NAME,
+  			tt.CUSTOMER_IP,
+  		    tt.CARD_NO,
+  	        tt.CARD_COUNTRY,
+  			tt.BILL_NAME,
+  			tt.BILL_COUNTRY,
+  			tt.BILL_STATE,
+  			tt.BILL_CITY,
+  			tt.BILL_STREET,
+  			tt.BILL_ADRESS,
+  			tt.BILL_POSTALCODE,
+  			tt.BILL_EMAIL,
+  			tt.BILL_PHONE,
+  			tt.SHIPPING_NAME,
+  			tt.SHIPPING_COUNTRY,
+  			tt.SHIPPING_STATE,
+  			tt.SHIPPING_CITY,
+  			tt.SHIPPING_STREET,
+  			tt.SHIPPING_ADDRESS,
+  			tt.SHIPPING_POSTALCODE,
+  			tt.SHIPPING_EMAIL,
+  			tt.SHIPPING_PHONE,
+  			t.status  tradeStatus
+  		FROM 
+  			risk.T_TRADE_MONITOR tt
+  				left join fi.trade_order t on tt.trade_order_no = t.trade_order_no
+  		WHERE  1=1
+  	  <isNotEmpty prepend="AND" property="monitorType" >
+			tt.MONITOR_TYPE = #monitorType#
+      </isNotEmpty>
+  	  <isNotEmpty prepend="AND" property="monitorDate" >
+		to_char(tt.MONITOR_DATE, 'yyyy-MM-dd') = #monitorDate#
+      </isNotEmpty>
+      order by tt.MONITOR_TYPE,tt.MONITOR_DATE
+  </select>
+  
+  <select id="countByCriteria" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+  		SELECT 
+			count(1)  		
+  		FROM 
+  			risk.T_TRADE_MONITOR tt
+  				left join fi.trade_order t on tt.trade_order_no = t.trade_order_no
+  		WHERE  1=1
+  	  <isNotEmpty prepend="AND" property="monitorType" >
+			tt.MONITOR_TYPE = #monitorType#
+      </isNotEmpty>
+  	  <isNotEmpty prepend="AND" property="monitorDate" >
+		to_char(tt.MONITOR_DATE, 'yyyy-MM-dd') = #monitorDate#
+      </isNotEmpty>
+  </select>
+	
+</sqlMap>
+

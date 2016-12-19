@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="poss-deal">
+    <typeAlias alias="dealDto" type="com.pay.pe.dto.DealDto"/>
+    
+      
+    <sql id="SELECT_DEAL">
+select d.deal_amount              amount,
+       d.order_time               orderTime,
+       d.deal_code                dealCode,
+       d.deal_type                dealType,
+       d.payee_fee                payeeFee ,
+       d.payer_fee                payerFee,
+       d.payer_currency_code       payerCurrencyCode,
+       d.payee_currency_code       payeeCurrencyCode,      
+       d.exchange_rate             exchangeRate,
+       d.has_caculated_price       hasCaculatedPrice,
+       d.transaction_date          transactionDate,
+       d.voucher_code              voucherCode,
+       d.payer_price_strategy_code payerPriceStrategyCode,
+       d.payee_price_strategy_code payeePriceStrategyCode,
+       o.order_id                  orderId,
+       o.order_code                orderCode,
+       o.order_amount              orderAmount,
+       o.payer_acct_code           payerMemberAcctCode,
+       o.payer_acct_type           payerAcctType,
+       o.payer_org_code            payerOrgCode,
+       o.payer_org_type            payerOrgType,
+       o.payee_acct_code           payeeMemberAcctCode,
+       o.payee_acct_type           payeeAcctType,
+       o.payee_org_code            payeeOrgCode,
+       o.payee_org_type            payeeOrgType,
+       o.submit_acct_code		   submitAcctCode,
+       o.pay_method                payMethod
+       from 
+  deal d ,payment_order o
+  where d.order_seq_id=o.sequence_id
+    </sql>
+    
+   
+    <sql id="DEAL_CONDITION">
+  	    <isNotNull prepend="AND" property="voucherCode">
+             d.voucher_code=#voucherCode#
+        </isNotNull>
+
+  	</sql>
+  	
+  	<select id="selectDealByVoucherCode" parameterClass="java.util.Map" resultClass="dealDto">
+  		<include refid="SELECT_DEAL"/>
+  		<include refid="DEAL_CONDITION"/>
+  	</select>
+ 
+  	
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

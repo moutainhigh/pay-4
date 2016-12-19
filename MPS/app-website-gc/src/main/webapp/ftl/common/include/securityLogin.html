@@ -1,0 +1,49 @@
+<#-- 首页页面，登录面板中的个人登录页面 -->
+<div class="tabContent" id="app_loginDiv" <#if curpage == '2'>style="display: none"</#if>>
+<form id="app_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+<input type="hidden" name="memberType" value="1"/>
+<input id="app_randCode" name="randCode" type="hidden">
+                        <ul>
+                            <li>
+                                <div class="p20 f14">
+                                    <div>
+                                        <input type="text" id="app_loginName" name="loginName" class="w150 c1" placeholder="请输入您的账户名称">
+                                        <label class="f12">记住用户名</label>
+                                        <input type="checkbox" checked>
+                                    </div>
+                                    <div class="mt10">
+                                    	<#if Session["hascode"]?has_content>
+											<@sp.password placeholder="请输入密码" cid="app_HnSafeEdit" id="app_passWord" nextTabid="app_rand_Code" from="login" form="app_loginForm" name="passWord" class="w150 c3"  />
+										<#else>
+											<@sp.password placeholder="请输入密码" cid="app_HnSafeEdit" id="app_passWord"  nextTabid="app_loginbtn" from="login" form="app_loginForm" name="passWord" class="w150 c3"  />
+										</#if>
+                                        <a class="f12 blue" href="${rc.contextPath}/loginpwd.htm">忘记密码？</a>
+                                    </div>
+                                    <#if Session["hascode"]?has_content>
+										<div class="mt10">
+                                        <input type="text" class="w60" tabindex=4 name="rand_Code" id="app_rand_Code" maxlength="4">
+                                        <#if curpage == '1'>
+                                        <img class="h24" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" id="code" >
+                                        </#if>
+                                        <a class="abtn_refresh2" href="javascript:void(0)" id="app_refush" title="点击刷新"></a>
+                                    </div>
+									</#if>
+									<div class="mt10" id="app_errtipDiv" style="display:none;">
+										<div id="app_errtips"></div>
+									</div>
+                                    <div class="mt20">
+                                        <input type="button" id="app_loginbtn" class="button btn_b05 w120 yahei" value="立即登录">
+                                        
+                                        <a class="blue f12 ml10" href="<@sp.contextPath/>/register.htm">个人注册&laquo;</a>
+                                        <a class="ml10 f12" href="#">安全控件</a>
+                                    </div>
+
+                                </div>
+                                
+                            </li>
+                        </ul>
+                        <ul class="hide">
+                            <li></li>
+                        </ul>
+                        </form>
+                    </div>

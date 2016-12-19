@@ -1,0 +1,206 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>取消手机绑定_iPayLinks支付</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_account_safe"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">取消手机绑定</strong><span>|</span><a href="#">使用遇到问题?</a></div>
+			</div>
+			<div class="step">
+				<ol class="step-2">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写信息</li>
+					<li class="li-2">2.验证短信校验码</li>
+					<li class="li-3">3.取消绑定成功</li>
+				</ol>
+			</div>
+			<div class="ico_txtBox mt10"><i class="warn_ico"></i> iPayLinks支付已向<span class="blue">${mobile}</span>发送了校验短信，请注意查收！</div>
+			<form class="pad_center" id="form0" method="post" >
+				<ul class="form_list">
+              <li>
+                <label class="form_side">手机校验码：</label>
+                  <input type="text" class="inp_normal" name="validateCode" id="validateCode" maxlength="6"> <span class="c_999 ml20">请输入手机短信里的6位数字校验码</span>
+				  <p class="red" id="validateCodeTip">${errorCheckCode?default("")}</p>
+               </li>
+              <li>
+              
+                  <div class="clew_box"><span class="f12 f333">如果1分钟内没有收到校验码，请点击下方按钮免费重新获取!</span><br>
+					<input type="button" id="seconds" disabled="disabled" tabindex="0" />
+					</div>
+				</li>
+				<li>
+						<label class="form_side">支付密码：</label> 
+						<@sp.password cid="payPwdatlCry" tabindex="2" nextTabid="randCode" id="payPwd" name="payPwd" from="login" form="form0" width="206px" height="26px" class="inp_normal"/>
+						<span class="c_999 ml20">请输入您的支付密码</span>
+						<p><span  class="red" id="payPwdTip">${errorPayPwd?default("")}</span> <a href="javascript:void(0);" id="findselect" class="blues ml10">找回支付密码</a></p>
+					</li>
+					<li>
+						<label class="form_side">验证码：</label>
+						<input type="text" class="inp_normal w80" id="randCode" name="randCode" maxlength="4"/>
+						<img class="v_m pointer" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" id="code" style="vertical-align: top;" height="23" width="68">
+						<span class="c_999 ml20">请输入左侧图片里的字符</span>
+						 <p class="red" id="randCodeTip"></p>
+					</li>
+            <li class="btn"><span class="btn_yel">
+						<button type="submit">提 交</button>
+						</span> <a class="blues ml30" href="javaScript:history.back();">返回</a></li>
+            </ul>
+				
+				<input type="hidden" name="method" value="confirmInfo" />
+				
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+<script type="text/javascript">
+$(function(){
+$.formValidator.initConfig({formid:"form0",onerror:function(msg,obj){}});
+
+$("input").blur(function(){
+	$(this).val($(this).val().trim());
+});
+
+$("#code").click(function(e){
+	e.preventDefault();
+	var d = new Date();
+	var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+	$("#code").attr("src",src);
+});
+
+
+$("#findselect").click(function(e) {
+	e.preventDefault();
+	window.payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+});
+
+$("#validateCode").formValidator({tipid:"validateCodeTip",onshow:"请输入手机短信里的6位数字校验码",onfocus:"请输入手机短信里的6位数字校验码",oncorrect:"&nbsp;"})
+.inputValidator({min:6,max:6,empty:false,onerror:"校验码必须是6位"});
+
+$("#payPwd").formValidator({tipid:"payPwdTip",onshow:"请输入您的支付密码",onfocus:"请输入您的支付密码",oncorrect:"&nbsp;"})
+.inputValidator({min:1,empty:false,onerror:"支付密码必须输入"});
+
+$("#randCode").formValidator({tipid:"randCodeTip",onshow:" ",onfocus:"请输入图片中的文字",oncorrect:"&nbsp;"})
+.inputValidator({min:4,empty:false,onerror:"验证码必须是4位"});
+
+
+<#if errorRandCode?has_content>
+$.formValidator.setFailState("randCodeTip","${errorRandCode?default('')}");
+</#if>
+<#if errorCheckCode?has_content>
+$.formValidator.setFailState("validateCodeTip","${errorCheckCode?default('')}");
+</#if>
+
+<#if errorPayPwd?has_content>
+$.formValidator.setFailState("payPwdTip","${errorPayPwd?default('')}");
+</#if>
+
+
+
+});
+
+
+var iTime = 60;
+var timeFunId = null;
+
+var timeFun = function() {
+	var sTime = "";
+	if (iTime > 0) {
+		sTime = iTime + "秒";
+
+		if (sTime == "1秒") {
+			clearTimeout(timeFunId);
+			$("#seconds").val("重发校验码短信");
+			document.getElementById("seconds").disabled = "";
+		} else {
+			timeFunId = setTimeout(timeFun, 1000);
+			$("#seconds").val("(" + sTime + ")后重新获取短信");
+			document.getElementById("seconds").disabled = "disabled";
+		}
+		iTime = iTime - 1;
+	}
+}
+
+
+
+timeFun();
+
+
+var resend = function(){
+	$.ajax( {
+		type : "POST",
+		url : "${rc.contextPath}/corp/unbindMobile.htm",
+		data : "method=reSendCode&tk=${tk}",
+		success : function(msg) {
+			if (msg == "Y") {
+				$.pay.alert("短信发送成功 ,请及时查收", {
+					h : 160,
+					t : '1',
+					close : function() {
+					}
+				});
+			} else {
+				$.pay.alert("短信发送失败！", {
+					h : 160,
+					t : '2',
+					close : function() {
+					}
+				});
+			} 
+		}
+	});
+}
+
+$("#seconds").click(function() {
+	if ($("#seconds").attr("disabled") != "disabled") {
+		resend();
+		iTime = 60;
+		timeFun();
+	}
+	return false;
+});
+
+$("#form0").submit(function(){
+	//控件是否存在
+	if($("#payPwdatlCry").length > 0){
+		
+		//控件的内容长度
+		if(getPwdCtrlStrLength("payPwdatlCry") == 0){
+			$.formValidator.setFailState("payPwdTip","请输入支付密码");
+			$("#payPwd").val("");
+			return false;
+		}
+		var v = getPwdCtrlVal("payPwdatlCry");
+		$("#payPwd").val(v);
+	}
+
+});
+
+</script>
+</html>

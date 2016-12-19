@@ -1,0 +1,228 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${acct_balance_detail}${title}</title>
+<meta name="Keywords" content="${acct_balance_detail_Keywords}" />
+<meta name="Description" content="${acct_balance_detail_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css?v=${cssVersion}.css">
+<link href="<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+
+<@sp.head mCode="app_queryBalance"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container share_wrap">
+	
+	<!--侧导航企业版 end -->
+
+		<!--search str-->
+		<div class="order_search">
+			<form class="form single" action="${rc.contextPath}/app/queryBalanceList.htm?method=queryBalance" method="post" name="balanceListForm" id="balanceListForm"> 
+			
+			<!-- 时间 -->
+			<label class="side w50">时间：</label><input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate inp_normal w130" gtbfieldid="109" value="${stValue?default('')}">
+			<span>-</span>
+			<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate inp_normal w130" gtbfieldid="110" value="${eValue?default('')}"	/>
+			<label class="side">交易类型：</label>
+			<select name="dealType" id="dealType" class="inp_normal w200">
+			<#list dealTypeList as dt>
+				<option value="${dt.code}" <#if dealType?default(0)==dt.code>selected</#if>>${dt.message}</option>
+			</#list>		
+			</select>
+			 
+
+			<input type="hidden" name="queryPro" id="queryPro">
+			<i class="btnC hack">
+					<button type="submit">查 询</button>
+			</i>
+			
+			</form>
+		</div>
+		<!--search end--> 
+		<!-- 余额明细 str -->
+		<div class="refund_list">
+			<div class="refund_title"> 
+				<!--tab str -->
+				<div class="mode_tit">
+					<h2 class="sel"><a>收支明细</a></h2>
+
+				</div>
+				<!--tab str --> 
+				<span><a href="javascript:excelBalance()"><#if qbdList?has_content>下载查询结果</#if></a></span> </div>
+			<div class="refund_box"> 
+				<!--价格开始-->
+				<#--
+				<div class="list_sum">
+					<select id="queryProSelect" name="queryProSelect">
+					<option value="queryProAll" <#if qValue?default('')=='queryProAll'>selected</#if>>全部明细</option>
+					<option value="weekPro" <#if qValue?default('')=='weekPro'>selected</#if>>本周</option>
+					<option value="monthPro" <#if qValue?default('')=='monthPro'>selected</#if>>本月</option>
+					<option value="daypro" <#if qValue?default('')=='daypro'>selected</#if>>今日</option>
+				</select>
+				
+				<div class="price">
+				
+					<span>总收入：<em class="num_price">#{sum.incomeSumNo?default(0);m2}</em>元</span>　
+					<span>总支出：<em class="num_price">#{sum.expensesSumNo?default(0);m2}</em>元</span>　
+					<span>盈余：<em class="num_price">#{sum.balanceSumNo?default(0);m2}</em>元</span>
+				
+				</div>
+				</div>
+				-->
+				<!--价格结束--> 
+				
+				<!--余额明细 str-->
+				<div class="barg_table mb20">
+				<table>
+					<tr>
+						<th width="15%">创建日期</th>
+						<th width="17%">交易流水号</th>
+
+						<th width="13%">交易类型</th>
+						<th width="15%">收入（元）</th>
+						<th width="15%">支出(元)</th>
+						<#--<th width="16%">费用(元)</th> -->
+						<th width="15%">账户余额(元)</th>
+						<th >操作</th>
+					</tr>
+					 <#if qbdList?has_content>
+		   				<#list qbdList as qs>
+							<tr>
+							<td>
+							<#if qs.balanceDate?default("")?length lt 19>
+								${qs.balanceDate?default("")}
+							<#else>
+								${qs.balanceDate[0..18]}
+							</#if>
+							</td>
+							<td align="center">${qs.payNo?default("")}</td>
+							<td align="center">
+								<#if qs.fundTrace == "神舟行交易" || qs.fundTrace == "神州行网关充值">
+									充值卡支付
+								<#else>
+									${qs.fundTrace?default("")}
+								</#if>
+							</td>
+							<td align="center"><span class="green">#{qs.revenue?default(0);m2}</span></td>
+							<td align="center"><span class="red">#{qs.pay?default(0);m2}</span></td>
+							<#--<td align="center">#{qs.fee?default(0);m2}</td>-->
+							<td align="center">#{qs.balance?default(0);m2}</td>
+							<td align="center">
+							<#if qs.appHaveView >
+							<#if qs.appViewFlag == "fo">
+							<a class="blues" target="_blank" href="${rc.contextPath}/app/tradedetail.htm?method=forApp&serialNo=${qs.payNo?default('')}&busiType=${qs.fundTraceType?default('')}">
+							查 看</a>
+							<#elseif qs.appViewFlag == "fi">
+							<a class="blues" target="_blank" href="${rc.contextPath}/app/findTradeOrderNo.htm?serialNo=${qs.payNo?default('')}&busiType=${qs.fundTraceType?default('')}">
+							查 看</a>
+							</#if>
+							<#else>
+							&nbsp;
+							</#if>
+							</td>
+						</tr>
+						</#list>
+					  <#else>
+					  <#--
+						<tr class="gray">
+							<td colspan="7">
+							<div class="tip">
+							<div class="ico"></div>
+							<h2>暂无任何记录</h2>
+							<p>您可以：<em><a href="${rc.contextPath}/corp/myAccount.htm">查看账户首页</a> <a href="${rc.contextPath}/corp/acctCharge.htm">充值到iPayLinks支付</a></em></p>
+							</div>
+							</td>
+						</tr>
+						-->
+		 			</#if>
+				</table>
+				</div>
+				<#if qbdList?has_content>
+				<hr style="border-style:dotted; " />
+				共${sum.count}笔交易  收入总计：#{sum.incomeSumNo?default(0);m2}元     支出总计：#{sum.expensesSumNo?default(0);m2}元
+				<!--分页 str -->
+					<@sp.pagination pu=pu/>
+					<input type="hidden" value="${pu.curPageNo}" id="curPage">
+				<!--分页 end --> 
+				</#if>
+				
+				
+				
+			</div>
+		</div>
+		<!-- 余额明细 end --> 
+	
+</div>
+
+${script?default('')}
+<script type="text/javascript">
+$(document).ready(function(){
+var hrefs = $("a");
+for(var i=0;i<hrefs.length;i++){
+	if(hrefs[i].href.indexOf("pager_offset")!=-1){
+		hrefs[i].href = hrefs[i].href.replace("excelBalance","queryBalance");
+	}
+}
+});
+</script>
+<!--主内容 end --> 
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	var minTime = "${minDate}";
+	var curTime = "${maxDate}";
+	$("#startTime").focus(function (){
+		var startMax = $("#endTime").val();
+		startMax = (startMax.length != 0)? startMax:curTime;
+		WdatePicker({skin:'whyGreen',minDate:minTime,maxDate:startMax});
+	});
+	$("#endTime").focus(function (){
+		var endMin = $("#startTime").val();
+		endMin = (endMin.length != 0)? endMin:minTime;
+		WdatePicker({skin:'whyGreen',minDate:endMin,maxDate:curTime});
+	});
+	
+
+	$(":select [name=queryProSelect]").change(function(){
+		$("#queryPro").val($(this).val());
+		$("#balanceListForm").submit();	
+		});
+	
+	var msg = "${errorMsg?default('')}";
+	if(msg.length > 0){
+		$.pay.alert(msg);
+	}
+});
+function excelBalance(){
+	var canDownload = ${canDownload?default('true')};
+	if(!canDownload){
+		$.pay.alert("你选择下载的记录已经超过#{maxSize}条，请选择过滤条件,重新查询");
+		return;
+	}
+	var curPage = $("#curPage").val();
+	var q_pro = $("#queryProSelect").val();
+	var s_time = $("#startTime").val();
+	var e_time = $("#endTime").val();
+	var dealType = $("#dealType").val();
+	var url  ="${rc.contextPath}/app/queryBalanceList.htm?method=excelBalance&pager_offset="+curPage+"&startTime="+s_time+"&endTime="+e_time+"&dealType="+dealType+"&queryPro="+q_pro;
+	window.location.href = url;
+	return false;
+} 
+</script>
+
+</html>

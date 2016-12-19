@@ -1,0 +1,109 @@
+<#-- 单独登录页面，登录面板 -->
+<script type="text/javascript" src="<@sp.static/>/js/v2/pay/common/cookie.js"></script>
+<script	type="text/javascript" src="<@sp.static/>/js/v2/pay/login/login.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/v2/pay/common/login-check.js"></script>
+<#if msgStr?has_content>
+<script type="text/javascript">
+$(function(){
+	<#if curpage == '2'>
+	$("#corp_errtips").html("${msgStr}");
+	$("#corp_errtipDiv").show();
+	<#else>
+	$("#app_errtips").html("${msgStr}");
+	$("#app_errtipDiv").show();
+	</#if>
+});
+</script>
+</#if>
+		<div class="login_box">
+			<ul class="login_tab">
+				<li id="corp_tit_li" <#if curpage == '2'>class="tab_l cur"<#else>class="tab_l"</#if>><span id="corp_tit">商户登录</span></li>
+				<li id="app_tit_li" <#if curpage == '1'>class="tab_r cur"<#else>class="tab_r"</#if>><span id="app_tit">个人登录</span></li>
+			</ul>
+			<div class="login_bd"> 
+				<!--商户登录 -->
+				<div id="corp_loginDiv" class="login_con login_bus" <#if curpage =='1'>style="display: none"</#if>>
+					<form id="corp_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+						<div id="corp_errtipDiv" class="error" style="display:none">
+						<div class="error_bd">
+							<table class="err_span">
+								<tr>
+									<td><p id="corp_errtips">您已输错3次，请24小时后再试!</p><i class="ico_close">x</i></td>
+								</tr>
+							</table>
+						</div>
+						</div>
+						<div class="con_box">
+						<label>账 户 名:</label>
+						<input type="text" tabindex=1 class="gray" disableautocomplete autocomplete="off" id="corp_loginName" name="loginName" value="请输入电子邮箱"/><a id="delCorpLoginName" href="javascript:void(0);" class="del">X</a>
+						<label>操 作 员:</label>
+						<input type="text" tabindex=2 name="operatorName" id="corp_operatorName"/>
+						<label>登录密码:</label>
+						<#if Session["hascode"]?has_content>
+							<@sp.password cid="corp_HnSafeEdit" id="corp_passWord" tabindex="3" nextTabid="corp_rand_Code" from="login" form="corp_loginForm" name="passWord" width="148px" height="24px"  />
+						<#else>
+							<@sp.password cid="corp_HnSafeEdit" id="corp_passWord" tabindex="3" nextTabid="corp_loginbtn" from="login" form="corp_loginForm" name="passWord" width="148px" height="24px"  />
+						</#if>
+						<#if Session["hascode"]?has_content>
+						<label>验 证 码:</label><input type="text" class="code_inp" disableautocomplete autocomplete="off" tabindex=4 name="rand_Code" id="corp_rand_Code" maxlength="4">
+						<span class="code_img" style="cursor:pointer" id="corp_refush" title="换一张"><#if curpage  == '2'>
+						<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68" height="23" id="code" style="vertical-align: top" /></#if>
+						</span>
+						</#if>
+						<p class="btn">
+							<button id="corp_loginbtn" type="button" tabindex=5>立即登录</button>
+							<a href="${rc.contextPath}/help/b/swithconservice.htm#qa2" class="bus_join">商户接入>></a>
+						</p>
+						<input type="hidden" name="memberType" value="2"/>
+						<input id="corp_randCode" name="randCode" type="hidden">
+						<input type="hidden" id="corop_relationlogin" name="relationlogin" value="publiclogin"/>
+						<input type="hidden" name="hascode" value="1"/>
+						</div>
+					</form>
+
+					<p class="operate"><a href="${rc.contextPath}/help/b/accmanage.htm#qa4">忘记登录密码?</a> | <a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayEdit">安全控件下载</a></p>
+				</div>
+				<!--/商户登录 -->
+				
+				<!--个人登录 -->
+				<div id="app_loginDiv" class="login_con login_per" <#if curpage =='2'>style="display: none"</#if>>
+					<form id="app_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+						<div id="app_errtipDiv" class="error" style="display: none">
+						<div class="error_bd">
+							<table class="err_span">
+								<tr>
+									<td><p id="app_errtips">您已输错3次，请24小时后再试!</p><i class="ico_close">x</i></td>
+								</tr>
+							</table>
+						</div>
+						</div>
+						<div class="con_box">
+						<label>账 户 名:</label>
+						<input type="text" class="gray" tabindex=1 disableautocomplete autocomplete="off" id="app_loginName" name="loginName" value="请输入邮箱地址或手机号码"/><a id="delAppLoginName" href="javascript:void(0);" class="del">X</a>
+						<label>登录密码:</label>
+						<#if Session["hascode"]?has_content>
+						<@sp.password cid="app_HnSafeEdit" id="app_passWord" tabindex="3" nextTabid="app_rand_Code" from="login" form="app_loginForm" name="passWord" width="148px" height="24px"  />
+						<#else>
+						<@sp.password cid="app_HnSafeEdit" id="app_passWord" tabindex="3" nextTabid="app_loginbtn" from="login" form="app_loginForm" name="passWord" width="148px" height="24px"  />
+						</#if>
+						<#if Session["hascode"]?has_content>
+						<label>验 证 码:</label><input type="text" class="code_inp" disableautocomplete autocomplete="off" tabindex=4 name="rand_Code" id="app_rand_Code" type="text"  maxlength="4">
+						<span class="code_img" style="cursor:pointer" id="app_refush" title="换一张"><#if curpage  == '1'>
+						<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68" height="23" id="code" style="vertical-align: top"></#if>
+						</span>
+						</#if>
+						<p class="btn">
+							<button id="app_loginbtn" type="button" tabindex=5>立即登录</button>
+							<a href="${rc.contextPath}/register.htm" class="bus_join">用户注册>></a>
+						</p>
+						<input type="hidden" name="memberType" value="1"/>
+						<input id="app_randCode" name="randCode" type="hidden">
+						<input type="hidden" id="app_relationlogin" name="relationlogin" value="publiclogin"/>
+						<input type="hidden" name="hascode" value="1"/>
+						</div>
+					</form>
+					<p class="operate"><a href="${rc.contextPath}/loginpwd.htm">忘记登录密码?</a> | <a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayEdit">安全控件下载</a></p>
+				</div>
+				<!--/个人登录 -->
+			</div>
+		</div>

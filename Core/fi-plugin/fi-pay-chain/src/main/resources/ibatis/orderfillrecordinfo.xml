@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orderfillrecordinfo">
+
+   <typeAlias alias="fillRecordInfo" type="com.pay.fi.fill.model.FillRecordInfo"/>
+   <typeAlias alias="hMap" type="java.util.HashMap"/>
+   
+   <resultMap class="fillRecordInfo" id="fillRecordInfoMap">
+   		<result property="reqRecordNo"				column="REQ_RECORD_NO"             jdbcType="NUMBER" />
+   		<result property="reqBatchNo"				column="REQ_BATCH_NO"              jdbcType="NUMBER" />
+   		<result property="channelOrderNo"		    column="CHANNEL_ORDER_NO"          jdbcType="NUMBER" />
+   		<result property="returnNo"					column="RETURN_NO"                 jdbcType="VARCHAR2" />
+   		<result property="amount"					column="AMOUNT"              	   jdbcType="NUMBER" />
+   		<result property="currencyCode"				column="CURRENCY_CODE"             jdbcType="VARCHAR2" />
+   		<result property="authorization"			column="AUTHORIZATION"             jdbcType="VARCHAR2" />
+   		<result property="failReason"				column="FAIL_REASON"               jdbcType="VARCHAR2" />
+   		<result property="recordStatus"				column="RECORDSTATUS"              jdbcType="NUMBER" />
+   </resultMap>
+   
+   <insert id="orderFillRecordSave" parameterClass="fillRecordInfo">
+   		<selectKey resultClass="java.lang.Long" keyProperty="reqRecordNo">
+   			SELECT	922 || TO_CHAR(SYSDATE, 'yymmddhh24mi')	|| LPAD(SEQ_FILL_COMMON_NO.nextval, 6, 0) FROM DUAL
+   		</selectKey>
+   		insert into FILL_BATCH_RECORD_INFO(
+   			REQ_RECORD_NO			,
+			REQ_BATCH_NO            ,
+			CHANNEL_ORDER_NO		,
+			RETURN_NO               ,
+			AMOUNT                  ,
+			CURRENCY_CODE           ,
+			AUTHORIZATION           ,
+			RECORDSTATUS			,
+			FAIL_REASON             
+   		)
+   		values(
+   			#reqRecordNo#,
+   			#reqBatchNo#,
+   			#channelOrderNo#,
+   			#returnNo#,
+   			#amount#,
+   			#currencyCode#,
+   			#authorization#,
+   			#recordStatus#,
+   			#failReason#
+   		)
+   </insert>
+   
+   <select id="findOrderFillRecordByreqBatchNo" parameterClass="java.lang.Long" resultMap="fillRecordInfoMap">
+   		select REQ_RECORD_NO,REQ_BATCH_NO,CHANNEL_ORDER_NO,RETURN_NO,AMOUNT,CURRENCY_CODE,AUTHORIZATION,FAIL_REASON,RECORDSTATUS
+   		from FILL_BATCH_RECORD_INFO where REQ_BATCH_NO=#reqBatchNo#
+   </select>
+   
+   <update id="updateRecordStatusByReqBatchNo" parameterClass="hMap">
+   		update FILL_BATCH_RECORD_INFO set FAIL_REASON=#failReason#, RECORDSTATUS=#recordStatus#
+   		where REQ_BATCH_NO=#reqBatchNo#
+   </update>
+   
+   <!-- 批量更新[FILL_BATCH_RECORD_INFO]表 -->
+   <update id="updateFillRecordBatch" parameterClass="fillRecordInfo">
+   		update FILL_BATCH_RECORD_INFO set FAIL_REASON=#failReason#, RECORDSTATUS=#recordStatus#
+   		where REQ_RECORD_NO=#reqRecordNo#
+   </update>
+   
+</sqlMap>

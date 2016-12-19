@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps//css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>密钥下载</title>
+<style type="text/css">
+    .commonLink {
+		cursor: pointer;
+		text-decoration: none;
+    }
+    
+    .commonLink:hover {
+		cursor: pointer;
+		text-decoration: none;
+    }
+    
+    .blueHighlight {
+    	font-family:微软雅黑;
+		font-size:13px;
+		font-weight:normal;
+		font-style:normal;
+		text-decoration:none;
+		color:#00F;
+    }
+</style>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>密钥下载</title>
+<script type="text/javascript">
+function submitForm(){
+	if($("#merchantKeySettingForm").validate()){
+		if(confirm("请确认是否要保存新的商户密钥")){
+			$("#merchantKeySettingForm").submit();
+		}
+	}
+}
+function sendValidationCode(){
+	var total = 60;
+	$("#resend").attr("disabled","disabled");
+	$("#resend").val("重新获取请等  {0} 秒后".format(total));
+	var listener = null;
+	listener = window.setInterval(function(){
+		total--;
+		var s_total = total<10?("0"+total):(""+total);
+		$("#resend").val("重新获取请等  {0} 秒后".format(s_total));
+		if(total==0){
+			$("#resend").attr("disabled","");
+			$("#resend").val("获取验证码");
+			window.clearInterval(listener);
+		}
+	},1000);
+	$.ajax({
+		type : "POST",
+		url : "../keysetting/merchantSendValidationCode.htm",
+		success : function(result) {
+		}
+	});
+}
+
+//页面validate
+$(document).ready(function() {
+	//为userInfoFrom注册validate函数
+	$("#merchantKeySettingForm").validate({
+		rules : {
+			merchantKeyType : "required",
+			merchantKey : {
+				required :true,
+				maxlength:256
+			},
+			phoneCode:{
+				required:true
+			}
+		},
+		messages: {
+			merchantKeyType:{
+				required : "请选择密钥类型"
+			},
+			merchantKey:{
+				required : "请输入商户密钥"
+			},
+			phoneCode:{
+				required : "请输入验证码"
+			}
+		}
+	});
+	$("#description").html('验证码将以邮件的形式发送到您的 {0} 邮箱，请注意查收！输入正确验证码后方可保存。'.format("liuqiong@masapay.com"));
+});
+$(function(){$("#subLi_5").addClass("cur");$("#defaultNav").val("5");$("#subNav_5").show();
+	var subkey;
+		subkey=$("#dialog-download" ).dialog({
+	      autoOpen: false,
+	      height: 300,
+	      width: 400,
+	      modal: true,
+	      buttons: {
+	          "取消": function() {
+	        	  $("#paymentPwd").attr("value","");
+	        	  $("#errorMsg").html("");
+	        	  $("#dialog-download" ).dialog( "close" );
+	          },
+	  	      "确定":function() {
+	  	    	subPayPwd();
+	  	      }
+	      },
+	      close: function() {
+	    	 
+	      }
+	});
+});
+
+function openDialog(){
+    $("#dialog-download" ).dialog( "open" );
+    return false;
+}
+function subPayPwd(){
+	var paymentPwd=$("#paymentPwd").val();
+	if(paymentPwd==''){
+		alert("请输入支付密码！");
+		return;
+	}
+		$.ajax({
+			type : "POST",
+			url : "${rc.contextPath}/corp/checkPaymentPwd.htm?paymentPwd="+paymentPwd,
+			success : function(data) {
+				if(data=='N'){
+					$("#errorMsg").html("支付密码错误！");	
+				}else if(data=='Y'){
+					var radio=$('input:radio:checked').val();
+				 	$("#mode").attr("value",radio);
+					$("#keydownload").submit();	
+					$("#paymentPwd").attr("value","");
+					$("#dialog-download" ).dialog( "close" );
+				}
+			}
+		});
+}
+</script>
+<style type="text/css">
+	.tab_l_td{
+        text-align:right;
+        width:100px;
+    }
+</style>
+</head>
+
+<body>
+<#include "/include/topbar.html">
+<@sp.head mCode="corp_keydownload"/>
+	<div class="mainbox" >
+		<div class="wrap">
+			<div class="section01">
+		    	<div class="tit">
+				
+				<span class="current"><a href="${rc.contextPath}/corp/keydownload.htm">密钥下载</a></span>
+		    	</div>
+		    	<div class="seccon">
+		    	<div class="bgbox">
+				<div>
+					<div style="margin-left: 40px;">
+					   <table class="tab01">
+							   <#if success?default('')!='Y'>
+							   <form id="confirmDownload"  method="post" >
+							   <tbody>
+								<tr>
+									<td colspan="3">
+									  请确认是否下载密钥。如果非第一次下载，下载后原密钥将失效。
+									</td>
+								</tr>
+								<tr>
+									<!-- <td align="left" width="100">
+									 <input type="radio" name="mode" id="r1" value="RSA">RSA密钥
+									</td> -->
+									<td align="left" width="100">
+									 <input type="radio" name="mode" id="r2" value="MD5">MD5密钥
+									</td>
+									<td align="left" width="300">
+									 <input type="radio" name="mode" id="r3" value="SHA512">SHA512
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>
+									</td>
+									<td>
+										 <span style="left" class="btn_red botton_red">
+	                                         <button id="btnOK" onclick="return openDialog();" class="btn_blue2">下载</button>
+	                                     </span>
+									</td>
+									<td>
+									</td>
+								</tr>
+								</tbody>
+								</form>
+								<#else>
+								<tbody>
+								<tr>
+									<td colspan="3">
+									  <i class="warn_ico"></i>密钥更新失败，请重新尝试！
+									</td>
+								</tr>
+								</tbody>
+								</#if>
+							
+						</table>
+					</div>
+				</div>
+				<br />
+				<br />
+		    </div>
+		    </div>
+		    </div>
+		</div>
+    </div>
+    <#include "/include/myfoot.html">
+</body>
+	<div id="dialog-download" title="请输入支付密码" style="display: none; text-align:center">
+ <form action="${rc.contextPath}/corp/keydownload.htm" id="keydownload" method="post" >
+  	<table style="text-align:center">
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;确定下载 ?</td></tr>
+      <tr><td><label for="lbl_trackingfile" class="side" style="margin-left:50px">支付密码 :  </label></td>
+      <td><input type="password"  name="paymentPwd" id="paymentPwd" value="">&nbsp;&nbsp;
+      	<span id="errorMsg" style="color: red"></span>
+      </td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+      <tr><td>	</td></tr>
+   </table>
+   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+    <input type="hidden" name="mode" id="mode">
+  </form>
+</div>
+</html>

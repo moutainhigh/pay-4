@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paychainpicturemanager">
+	 <typeAlias alias="payChainPictureDto"		    type="com.pay.poss.picturemanager.dto.PayChainPictureDto" />
+
+<sql id="PICTURE_MANAGER_SELECT"> 
+    select        pictureId,
+                       pictureName,
+                       pictureUrl,
+                       pictureStatus,
+                       pictureOwnerId,
+                       pictureType,
+                      to_char(createTime , 'yyyy-mm-dd hh24:mi:ss')   createTime,
+                       createdBy,
+                      to_char( updateTime, 'yyyy-mm-dd hh24:mi:ss')  updateTime,
+                       updatedBy,
+                       productType,
+                       strCreateDate,
+                       strOverdueDate,
+                       descriptions,
+                       payChainNumber,
+                       zhName ,
+                       payChainName
+           from (
+                       select row_number() over (partition by tpc.id order by t.picture_id) rid,
+                       t.picture_id pictureId,
+                       t.picture_name pictureName,
+                       t.picture_url pictureUrl,
+                       t.picture_status pictureStatus,
+                       t.picture_owner_id pictureOwnerId,
+                       t.picture_type pictureType,
+                        t.create_time  createTime,        
+                       t.created_by createdBy,
+                        t.update_time  updateTime,
+                       t.updated_by updatedBy,
+                       t.product_type productType,
+                       to_char(tpc.CREATE_DATE, 'yyyy-mm-dd hh24:mi:ss') strCreateDate,
+                       to_char(tpc.OVERDUE_DATE, 'yyyy-mm-dd hh24:mi:ss') strOverdueDate,
+                       tpc.receipt_description descriptions,
+                       tpc.pay_chain_number payChainNumber,
+                       teb.zh_name zhName,
+                       tpc.pay_chain_name payChainName
+                  from t_context_picture t, T_PAY_CHAIN tpc, T_ENTERPRISE_BASE teb
+                 where t.picture_owner_id = tpc.id and tpc.MEMBER_CODE = teb.MEMBER_CODE
+                   and t.product_type = 4
+                    order by tpc.CREATE_DATE desc   )
+                   where rid=1
+     </sql>
+     
+    <sql id="PICTURE_PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="PICTURE_PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 WHERE (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+     <sql id="PICTURE_MANAGER_CONDITION">
+		<isNotEmpty prepend="and" property="startDate">
+			<![CDATA[
+           		createTime  >= to_date(#startDate#,'yyyy-mm-dd hh24:mi:ss')
+            ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="endDate">
+        	<![CDATA[
+            	createTime  <= to_date(#endDate#,'yyyy-mm-dd hh24:mi:ss')+1
+             ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="payChainNumber">
+			<![CDATA[
+           		payChainNumber = trim(#payChainNumber#)
+            ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="zhName">
+			<![CDATA[
+           		 zhName  like trim(#zhName#)||'%'	
+            ]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="pictureStatus">
+			<![CDATA[
+           		 pictureStatus = trim(#pictureStatus#)
+            ]]>
+		</isNotEmpty>
+		
+     </sql>
+     
+     
+     <select id="queryPictureManagerByPayChainNumber"  parameterClass="java.lang.Integer"  resultClass="payChainPictureDto">
+				          select t.picture_id         pictureId,
+				                 t.picture_name       pictureName,
+				                 t.picture_url          pictureUrl,
+				                 t.picture_status     pictureStatus,
+				                 t.picture_owner_id pictureOwnerId,
+				                 t.picture_type         pictureType,
+				                  to_char(  t.create_time, 'yyyy-mm-dd hh24:mi:ss')  createTime,    	                 
+				                 t.created_by           createdBy,
+				                 to_char(  t.update_time, 'yyyy-mm-dd hh24:mi:ss')  updateTime,				                         
+				                 t.updated_by         updatedBy,
+				                 t.product_type       productType,
+				                 t.remark          remark
+				            from t_context_picture t
+				              where t.product_type=4  
+				              and  t.picture_owner_id =#pictureOwnerId#
+     </select>
+     
+     
+    <select id="queryPictureManagerByCondition"  parameterClass="payChainPictureDto"  resultClass="payChainPictureDto">
+     	<include refid="PICTURE_PAGING_START"/>
+     	<include refid="PICTURE_MANAGER_SELECT"/>
+     	<include refid="PICTURE_MANAGER_CONDITION"/>
+     	<include refid="PICTURE_PAGING_END"/>     	     
+     </select>
+     
+     
+     <select id="countPictureManagerByCondition"  parameterClass="payChainPictureDto"  resultClass="int">
+	      select count(1) 
+				  from (
+                       select row_number() over (partition by tpc.id order by t.picture_id) rid,
+                       t.picture_id pictureId,
+                       t.picture_name pictureName,
+                       t.picture_url pictureUrl,
+                       t.picture_status pictureStatus,
+                       t.picture_owner_id pictureOwnerId,
+                       t.picture_type pictureType,
+				       t.create_time  createTime,         	                 
+                       t.created_by createdBy,
+                       t.update_time updateTime,
+                       t.updated_by updatedBy,
+                       t.product_type productType,
+                       to_char(tpc.CREATE_DATE, 'yyyy-mm-dd hh24:mi:ss') strCreateDate,
+                       to_char(tpc.OVERDUE_DATE, 'yyyy-mm-dd hh24:mi:ss') strOverdueDate,
+                       tpc.receipt_description descriptions,
+                       tpc.pay_chain_number payChainNumber,
+                       teb.zh_name zhName
+                  from t_context_picture t, T_PAY_CHAIN tpc, T_ENTERPRISE_BASE teb
+                 where t.picture_owner_id = tpc.id and tpc.MEMBER_CODE = teb.MEMBER_CODE
+                   and t.product_type = 4)
+                   where rid=1
+            <include refid="PICTURE_MANAGER_CONDITION"/>
+                   
+     </select>
+     
+<update id="update"  parameterClass="payChainPictureDto" >
+	update t_context_picture t
+	   set t.picture_status = #pictureStatus#,
+	       t.remark         = #remark#,
+	       t.update_time    = sysdate,
+	       t.updated_by     = #updatedBy#
+	 where t.picture_owner_id = #pictureOwnerId#
+</update>
+
+</sqlMap>

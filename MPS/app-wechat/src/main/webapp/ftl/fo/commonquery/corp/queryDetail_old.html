@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付-充提查询</title>
+<#include "/common/macro/seoPerson.ftl">
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.headCommon txt="" />
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+   	<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+			<div class="tit_box bdetail_b">
+				<h3 class="title font14"><strong><#if detail?exists><#if detail.dealType == 1>提现<#else>充值</#if>交易详细信息</#if></strong></h3>
+			</div>
+				<#if detail?exists>
+				<table class="verify_table set_width">
+						<tbody>
+					<tr>
+						<td class="type">交易号：</td>
+						<td>${detail.dealId}</td>
+					</tr>
+					<tr>
+						<td class="type">创建时间：</td>
+						<td>${detail.startDate?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type">结束时间：</td>
+						<td>${detail.endDate?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type">账户类型：</td>
+						<td>人民币账户</td>
+					</tr>
+					<tr>
+						<td class="type">收支：</td>
+						<td><#if detail.crdr == 1>支出<#else>收入</#if></td>
+					</tr>
+					<#if detail.dealType == 1>
+					<tr>
+						<td class="type">收款银行：</td>
+						<td>${detail.payeeBankName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type">收款开户行名称：</td>
+						<td>${detail.openingBankName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type">收款开户行所在城市：</td>
+						<td>${detail.cityName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type">收款方户名：</td>
+						<td>${detail.payeeName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type">收款方银行账户：</td>
+						<td>****${detail.payeeBankNo?default("")}</td>
+					</tr>
+					</#if>
+					<tr>
+						<td class="type">金额：</td>
+						<td>${(detail.dealAmount/1000)?default(0)?string(",##0.00")}元</td>
+					</tr>
+					<tr>
+					  	<td class="type">费用：</td>
+					  	<td>${(detail.dealFee/10*0.01)?default(0)?string(",##0.00")}元</td>
+					</tr>
+					<tr>
+					  	<td class="type">交易状态：</td>
+					  	<td>
+					  	<#if detail.dealStatus == 100>初始化
+					  	<#elseif detail.dealStatus == 101>进行中
+					  	<#elseif detail.dealStatus == 102>申请失败
+					  	<#elseif detail.dealStatus == 111>成功
+					  	<#elseif detail.dealStatus == 112>失败
+					  	<#elseif detail.dealStatus == 113>失败
+					  	</#if>
+					  	</td>
+					</tr>
+                <#if detail.refundReason?exists>
+					<tr>
+					  	<td class="type">失败原因：</td>
+					  	<td></td>
+					</tr>
+			   </#if>
+					<tr>
+					  	<td class="type">备注：</td>
+					  	<td>${detail.remark?default("")}</td>
+					</tr>
+					<#if detail.dealStatus == 111>
+						<tr>
+						  	<td class="type">操作：</td>
+						  	<td><a target="_blank" href="${rc.contextPath}/corp/ebills/withdraw.htm?serialNo=${detail.dealId!''}" class="blues">下载电子回单</a></td>
+						</tr>
+					</#if>
+					</tbody>
+					</table>
+					<#else>
+						<div class="content txtC">
+							<div class="result_tips">
+								<div class="set_height clearfix">
+									<span class="pop_fail"></span>
+									<p class="words f14"><strong>无效订单</strong></p>
+									<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a>|<a href="${rc.contextPath}/index.htm">返回gcpayment支付首页</a></p>
+								</div>
+							</div>
+						</div>
+					</#if>
+			<p class="btn_box"><span class="btn_yel"><button onclick="window.close();">关闭</button></span></p>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

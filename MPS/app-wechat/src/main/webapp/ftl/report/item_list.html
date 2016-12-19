@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>结算查询_查看明细_gcpayment支付</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+function download(size){
+	if(parseInt(size) == 0){
+		alert('没有记录，不能下载！');
+		return;
+	}
+	window.location.href = '${rc.contextPath}/corp/liquidateItem.htm?method=downloadItem&parentSequenceId=${parentSequenceId}';
+}
+
+function page_query(pageNo){
+	window.location.href = '${rc.contextPath}/corp/liquidateItem.htm?method=queryItem&parentSequenceId=${parentSequenceId}&pager_offset='+pageNo;
+}
+</script>
+<#escape x as x?html>
+<!--导航 str-->
+<@sp.head mCode="corp_settle"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<!--
+<input type="hidden" name="parentSequenceId" id="parentSequenceId" value="${parentSequenceId}"/>
+-->
+<div class="container">
+	<div class="refund_list">
+		<div class="refund_title"> 
+		</div>
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title font14">结算详单</h3> <a class="fr f14b" href="javascript:download(${size});">下载结果</a>
+				</div>
+				<div class="refund_box">
+					<div class="barg_table">
+						<table>
+							<thead>
+								<tr>
+									<th>商户订单号</th>
+									<th>gcpayment订单号</th>
+									<th>交易时间</th>
+									<th>交易金额</th>
+									<th>结算日期</th>
+									<th>交易类型</th>
+								</tr>
+							</thead>
+							<tbody>
+							<#if result?exists>
+								<#list result as ls>
+								<tr>
+									<td>${ls.merchantOrderId}</td>
+									<td>${ls.paySequenceId}</td>
+									<td>${ls.strDealTime}</td>
+									<td>${(ls.dealAmountDesc!(0))?string(",##0.00")}</td>
+									<td>${ls.settleTime?string("yyyy-MM-dd")}</td>
+									<td><#if ls.dealType = 1>网关支付<#else>网关退款</#if></td>
+								</tr>
+								</#list>
+							</#if>
+							</tbody>
+						</table>
+					</div>
+					<div class="page_box">
+						
+						<!--分页 str -->
+						<#if pu?has_content>
+							<@sp.page page=pu/>
+						</#if>
+						<!--分页 end --> 
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</#escape>
+</body> 
+</html>

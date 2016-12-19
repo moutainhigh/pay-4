@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout_withdraw_massOutUploadService"
+		class="com.pay.fundout.withdraw.service.masspaytobank.impl.MassOutUploadServiceImpl">
+		<property name="bankInfoFacadeService">
+			<ref bean="fundout-withdraw-bankInfoFacadeService"/>
+		</property>
+		<property name="provinceCityFacadeService">
+			<ref bean="fundout-withdraw-provinceCityFacadeService"/>
+		</property>
+		<property name="massPaytoBankService">
+			<ref bean="fundout_withdraw_massPaytoBankService"/>
+		</property>
+		<property name="pay2BankValidateService" ref="fundout_pay2bank_Pay2BankValidateService"/>
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+	</bean>	
+	
+	
+	<bean id="fundout_withdraw_massPaytobankImportDetailService"
+		class="com.pay.fundout.withdraw.service.masspaytobank.impl.MassPaytobankImportDetailServiceImpl">
+		<property name="massPaytobankImportDetailDAO"
+			ref="fundout_withdraw_massPaytobankImportDetailDAO"></property>
+		<property name="withdrawOrderService" ref="withdrawOrderService"></property>
+	</bean>
+	
+	<bean id="fundout_withdraw_massPaytobankImportBaseService"
+		class="com.pay.fundout.withdraw.service.masspaytobank.impl.MassPaytobankImportBaseServiceImpl">
+		<property name="massPaytobankImportBaseDAO"
+			ref="fundout_withdraw_massPaytobankImportBaseDAO"></property>
+	</bean>
+	
+	<bean id="fundout_withdraw_massPaytobankOrderService" class="com.pay.fundout.withdraw.service.masspaytobank.impl.MassPaytobankOrderServiceImpl">
+		<property name="massPaytobankOrderDAO">
+			<ref bean="fundout_withdraw_massPaytobankOrderDAO"/>
+		</property>
+	</bean>
+	
+	
+	<bean id="fundout_withdraw_massPaytoBankService" class="com.pay.fundout.withdraw.service.masspaytobank.impl.MassPaytoBankServiceImpl">
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		
+		<property name="massPayService">
+			<ref bean="massPayService"/>
+		</property>
+		<property name="massPaytobankImportBaseService">
+			<ref bean="fundout_withdraw_massPaytobankImportBaseService"/>
+		</property>
+		<property name="massPaytobankImportDetailService">
+			<ref bean="fundout_withdraw_massPaytobankImportDetailService"/>
+		</property>
+		<property name="massPaytobankOrderService">
+			<ref bean="fundout_withdraw_massPaytobankOrderService"/>
+		</property>
+		<property name="accountingFeeService" ref="fundout-batchPay2bankFirstAccounting"/>
+		<property name="withdrawOrderService" ref="withdrawOrderService"></property>
+		
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="orderProcessQueueName" value="fundout.withdraw.request.active" />
+		<property name="massOrderProcessQueueName" value="fundout.massPay2bank.request.active" />
+		
+		<property name="validateMessageService" ref="inf-pageMsgService"/>
+		
+		<property name="massPaytobankReqOrderCallBackService" ref="fundout_withdraw_MassPaytobankReqOrderCallBack" />
+		<property name="massPaytobankReqAccountingService" ref="fundout-batchPay2bankFirstAccounting" />
+		<property name="orderAfterProcService" ref="fundout-orderchandler-orderAfterProcService"></property>
+		<property name="emailTemplateId">
+			<value>${batch2bank.complate.email}</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout_withdraw_MassPaytobankReqOrderCallBack" class="com.pay.fundout.withdraw.service.masspaytobank.ordercallback.impl.MassPaytobankReqOrderCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+	</bean>
+	
+	<bean id="fundout_withdraw_MassPaytobankOrderCallBack" class="com.pay.fundout.withdraw.service.masspaytobank.ordercallback.impl.MassPaytobankOrderCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+		<property name="withdrawOrderService" ref="withdrawOrderService"></property>
+	</bean>
+	
+	<!-- add by sean_yi -->
+	<bean id="fundout_withdraw_massPay2bankSchedule" class="com.pay.fundout.withdraw.schedule.impl.MassPay2bankScheduleImpl">
+		<property name="batchPay2BankRequestService">
+			<ref bean="fo-order-batchPay2BankRequestService"/>
+		</property>
+	</bean>
+</beans>

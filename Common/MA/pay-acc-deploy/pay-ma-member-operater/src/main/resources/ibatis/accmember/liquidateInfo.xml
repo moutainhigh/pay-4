@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-liquidateInfo">
+    <typeAlias alias="liquidateInfo" type="com.pay.acc.member.model.LiquidateInfo"/>
+    <typeAlias alias="hMap" type="java.util.HashMap"/>
+    
+    <insert id="insertLiquidateInfo" parameterClass="liquidateInfo">
+   		<selectKey resultClass="java.lang.Long" keyProperty="liquidateId">
+			SELECT SEQ_LIQUIDATE_INFO_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_LIQUIDATE_INFO (LIQUIDATE_ID, MEMBER_CODE, BANK_NAME, BANK_ACCT, ACCT_NAME,
+            CREATE_DATE, UPDATE_DATE, PROVINCE,CITY,BANK_ID,BANK_ADDRESS,Branch_bank_id,big_Bank_Name)
+        values (#liquidateId#, #memberCode#, #bankName#, #bankAcct#, #acctName#, #createDate#,
+            #updateDate#, #province#,#city#,#bankId#,#bankAddress#,#branchBankId#,#bigBankName#)
+    </insert>
+    
+	<select id="queryLiquidateInfoByMemberCode" parameterClass="java.lang.Long" resultClass="liquidateInfo" >
+		SELECT 
+			LIQUIDATE_ID as liquidateId, 
+			MEMBER_CODE as memberCode, 
+			BANK_NAME as bankName, 
+			BANK_ACCT as bankAcct, 
+			ACCT_NAME as acctName,
+			CREATE_DATE as createDate, 
+			UPDATE_DATE as updateDate, 
+			ACCOUNT_MODE as accountMode,
+			PROVINCE as province, 
+			CITY as city, 
+			BANK_ID as bankId,
+			BANK_ADDRESS as bankAddress,
+			status as status,
+			BRANCH_BANK_ID AS branchBankId, 
+			AUDITSTATUS as auditStatus
+		FROM 	
+				T_LIQUIDATE_INFO 
+        WHERE 
+        	MEMBER_CODE 			=  #memberCode#
+    </select>
+    
+    
+    <!--查询结算周期 -->
+    <select id="countLiquidateInfoByAccountMode" parameterClass="java.util.Map" resultClass="int" >
+         select count(1) from T_LIQUIDATE_INFO i 
+         	where i.member_code=#memberCode#
+          	and i.account_mode=#accountMode#
+    </select>
+    
+    <!-- 查询绑定的银行卡信息列表 -->
+    <select id="findByCriteria" parameterClass="hMap" resultClass="liquidateInfo">
+    	select 	
+   			LIQUIDATE_ID as liquidateId,
+			MEMBER_CODE as memberCode,
+			BANK_NAME as bankName,
+			BANK_ACCT as bankAcct,
+			ACCT_NAME as acctName,
+			CREATE_DATE as createDate,
+			UPDATE_DATE as updateDate,
+			ACCOUNT_MODE as accountMode,
+			PROVINCE as province,
+			CITY as city,
+			BANK_ID as bankId,
+			BANK_ADDRESS as bankAddress,
+			STATUS as status,
+			BRANCH_BANK_ID as branchBankId,
+			BIG_BANK_NAME as bigBankName,
+			AUDITREMARK as auditRemark,
+			AUDITSTATUS as auditStatus,
+			DBRELATIVEPATH as dbRelativePath
+		from T_LIQUIDATE_INFO where 1=1 
+		<isNotEmpty property="memberCode" prepend="and">
+			MEMBER_CODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startDate" prepend="and">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startDate#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty property="endDate" prepend="and">
+			CREATE_DATE <![CDATA[<=]]> to_date(#endDate#, 'yyyy-Mm-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty property="auditStatus" prepend="and">
+			AUDITSTATUS = #auditStatus#
+		</isNotEmpty>
+    </select>
+    <select id="countByCriteria" parameterClass="hMap" resultClass="java.lang.Integer">
+    	select 	
+   			count(1)
+		from T_LIQUIDATE_INFO where 1=1 
+		<isNotEmpty property="memberCode" prepend="and">
+			MEMBER_CODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startDate" prepend="and">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startDate#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty property="endDate" prepend="and">
+			CREATE_DATE <![CDATA[<=]]> to_date(#endDate#, 'yyyy-Mm-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty property="auditStatus" prepend="and">
+			AUDITSTATUS = #auditStatus#
+		</isNotEmpty>
+    </select>
+    
+    <update id="updateLiquidateInfoStatus" parameterClass="hMap">
+    	update T_LIQUIDATE_INFO
+    	set AUDITSTATUS=#auditStatus#, AUDITREMARK=#auditRemark# where LIQUIDATE_ID=#liquidateId#
+    </update>
+</sqlMap>

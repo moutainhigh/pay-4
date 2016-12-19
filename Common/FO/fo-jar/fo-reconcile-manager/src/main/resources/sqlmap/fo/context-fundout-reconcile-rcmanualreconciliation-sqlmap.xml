@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 手工调账sqlMap配置 -->
+<sqlMap namespace="RC_MR">
+	
+	<typeAlias alias="reconciliationDTO" type="com.pay.fundout.reconcile.dto.rcmanualreconciliation.ReconciliationDTO"/>
+	<typeAlias alias="reconcileApplyMain" type="com.pay.fundout.reconcile.model.rcmanualreconciliation.ReconcileApplyMain"/>
+	<typeAlias alias="reconcileFlow" type="com.pay.fundout.reconcile.model.rcmanualreconciliation.ReconcileFlow"/>
+	 
+	 
+	<select id="queryRcLogDetail" parameterClass="java.util.Map" resultClass="reconcileFlow">
+        select LOG_ID				logId		, 
+        	   APPLY_ID				applyId 	, 
+        	   NODE_ID				nodeId		, 
+        	   OPERTOR				opertor		, 
+        	   PROCESS_TIME			processTime	, 
+        	   PROCESS_STATUS		processStatus, 
+        	   PROCESS_REMARKS		processRemarks
+        from RECONCILE_FLOW_LOG WHERE APPLY_ID = #APPLY_ID#
+    </select>
+
+	<select id="queryApplyMainByPk" parameterClass="java.lang.Long" resultClass="reconcileApplyMain">
+       select apply_id				applyId		, 
+       		  apply_user			applyUser	, 
+       		  apply_date			applyDate	, 
+       		  workflow_id			workflowId	, 
+       		  trade_seq				tradeSeq	, 
+       		  process_status		processStatus, 
+       		  result_id				resultId	, 
+       		  reason				reason		, 
+       		  withdraw_bank_id		withdrawBankId
+        from reconcile_apply_main where result_id = #value#
+    </select>
+	 
+	<!-- 调账日志明细查询
+    <select id="queryRcLogDetail" resultClass="reconciliationDTO" parameterClass="java.util.Map">       
+	  SELECT 
+      	D.RESULT_ID AS resultId, 
+        D.WITHDRAW_BANK_ID AS withdrawBankId,
+        D.WITHDRAW_BUSI_TYPE AS withdrawBusiType,
+        D.BANK_TRADE_SEQ AS bankSeq,
+        D.TRADE_AMOUNT AS tradeAmount,
+        D.TRADE_TIME AS tradeTime,
+        D.BUSI_FLAG AS busiFlag,
+        C.PROCESS_STATUS AS reviseStatus,
+        C.APPLY_ID AS applyId 
+      FROM RECONCILE_RESULT D 
+      INNER JOIN 
+      (SELECT A.PROCESS_STATUS,A.APPLY_ID,B.Result_Id FROM 
+              (SELECT APPLY_ID,PROCESS_STATUS FROM RECONCILE_FLOW_LOG) A 
+      INNER JOIN RECONCILE_APPLY_MAIN B ON A.APPLY_ID = B.APPLY_ID) C 
+      ON D.RESULT_ID = C.RESULT_ID
+      WHERE D.HISTORY_FLAG = 0 AND D.STATUS = 1
+      AND D.RESULT_ID = #RESULT_ID#
+    </select>
+	  -->
+	<!-- 手工调账日志 -->
+    <select id="queryRcLog" resultClass="reconciliationDTO" parameterClass="java.util.Map">
+      SELECT 
+			D.RESULT_ID AS resultId, 
+    		D.WITHDRAW_BANK_ID AS withdrawBankId,
+    		D.WITHDRAW_BUSI_TYPE AS withdrawBusiType,
+    		NVL(D.TRADE_SEQ,D.BANK_TRADE_SEQ) AS transactionNumber,
+    		NVL(D.TRADE_AMOUNT,D.BANK_AMOUNT) AS tradeAmount,
+    		D.TRADE_TIME AS tradeTime,
+    		D.BUSI_FLAG AS busiFlag,
+    		C.PROCESS_STATUS AS reviseStatus,
+    		C.APPLY_ID AS applyId 
+      FROM 	RECONCILE_APPLY_MAIN C,
+      		RECONCILE_RESULT D 
+	  WHERE C.RESULT_ID=D.RESULT_ID
+	  	AND D.HISTORY_FLAG = 0 
+	  	AND D.STATUS = 1 AND d.BUSI_FLAG != 100
+	  	<isNotEmpty property="REVISE_STATUS" prepend="AND">
+   			d.REVISE_STATUS = #REVISE_STATUS#
+   		</isNotEmpty>
+		<isPropertyAvailable property="WITHDRAW_BANK_ID">
+			<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+				D.WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="BANK_TRADE_SEQ">
+			<isNotEmpty property="BANK_TRADE_SEQ" prepend="AND">
+				D.BANK_TRADE_SEQ =  #BANK_TRADE_SEQ#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+			<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+				D.WITHDRAW_BUSI_TYPE =  #WITHDRAW_BUSI_TYPE#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="BUSI_FLAG">
+			<isNotEmpty property="BUSI_FLAG" prepend="AND">
+				D.BUSI_FLAG =  #BUSI_FLAG#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="STARTTIME">
+			<isNotEmpty property="STARTTIME" prepend="AND">
+		 		<![CDATA[ D.TRADE_TIME >= #STARTTIME# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="ENDTIME" prepend="AND">
+		    	<![CDATA[ D.TRADE_TIME < #ENDTIME# + 1]]>
+		 	</isNotEmpty>
+		</isPropertyAvailable>
+    </select>
+    
+    <!-- 手工调账日志分页COUNT -->
+    <select id="queryRcLog_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+      SELECT 
+			COUNT(*)
+      FROM 	RECONCILE_APPLY_MAIN C,
+      		RECONCILE_RESULT D 
+	  WHERE C.RESULT_ID=D.RESULT_ID
+	  	AND D.HISTORY_FLAG = 0 
+	  	AND D.STATUS = 1 and d.BUSI_FLAG != 100
+	  	<isNotEmpty property="PROCESS_STATUS" prepend="AND">
+   			C.PROCESS_STATUS = #PROCESS_STATUS#
+   		</isNotEmpty>
+		<isPropertyAvailable property="WITHDRAW_BANK_ID">
+			<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+				D.WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="BANK_TRADE_SEQ">
+			<isNotEmpty property="BANK_TRADE_SEQ" prepend="AND">
+				D.BANK_TRADE_SEQ =  #BANK_TRADE_SEQ#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+			<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+				D.WITHDRAW_BUSI_TYPE =  #WITHDRAW_BUSI_TYPE#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="BUSI_FLAG">
+			<isNotEmpty property="BUSI_FLAG" prepend="AND">
+				D.BUSI_FLAG =  #BUSI_FLAG#
+			</isNotEmpty>
+		</isPropertyAvailable>
+		<isPropertyAvailable property="STARTTIME">
+			<isNotEmpty property="STARTTIME" prepend="AND">
+		 		<![CDATA[ D.TRADE_TIME >= #STARTTIME# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="ENDTIME" prepend="AND">
+		    	<![CDATA[ D.TRADE_TIME < #ENDTIME# + 1]]>
+		 	</isNotEmpty>
+		</isPropertyAvailable>
+    </select>
+	 
+	<!-- 调账审核明细确认 -->
+    <select id="queryAuditDetail" resultClass="reconciliationDTO" parameterClass="java.util.Map">
+      SELECT
+      	A.RESULT_ID AS resultId, 
+        A.WITHDRAW_BANK_ID AS withdrawBankId,
+        A.WITHDRAW_BUSI_TYPE AS withdrawBusiType,
+        A.BUSI_FLAG AS busiFlag,
+        NVL(A.TRADE_SEQ,A.BANK_TRADE_SEQ)  AS  transactionNumber	,
+    	NVL(A.TRADE_AMOUNT,A.BANK_AMOUNT)  AS  tradeAmount			,
+    	A.TRADE_TIME AS tradeTime,
+        B.ACCOUNT_NAME AS accountName,
+        B.BANK_ACCT AS bankAcct,
+        B.STATUS AS orderStatus,
+        A.TRADE_TIME AS bankProcessDate,
+        A.BANK_TRADE_SEQ AS bankTradeSeq,
+        A.APPLY_ID AS applyId,
+        A.REASON reason
+      FROM 
+	    (SELECT 
+	    	RT.RESULT_ID,
+	    	RT.WITHDRAW_BANK_ID,
+	    	RT.WITHDRAW_BUSI_TYPE,
+	    	RT.BUSI_FLAG,
+	    	RT.TRADE_SEQ,
+	    	RT.TRADE_TIME,
+	    	RT.TRADE_AMOUNT,
+	    	RT.BANK_TRADE_SEQ,
+	    	RT.BANK_AMOUNT,
+	    	RM.APPLY_ID,
+	    	RM.REASON
+	     FROM RECONCILE_RESULT RT INNER JOIN RECONCILE_APPLY_MAIN RM 
+	     ON RT.RESULT_ID = RM.RESULT_ID 
+	     WHERE RT.RESULT_ID = #RESULT_ID#       
+	    )  A 
+	    LEFT JOIN WITHDRAW_ORDER B
+	    ON A.WITHDRAW_BANK_ID = B.WITHDRAW_BANK_CODE AND A.WITHDRAW_BUSI_TYPE = B.BUSI_TYPE
+	    AND A.TRADE_SEQ = B.TRADE_SEQ
+    </select>
+	 
+	<!-- 手工调账审核查询 -->
+    <select id="queryRcAudit" resultClass="reconciliationDTO" parameterClass="java.util.Map">
+    	SELECT
+	        A.RESULT_ID AS resultId, 
+	        A.WITHDRAW_BANK_ID AS withdrawBankId,
+	        A.WITHDRAW_BUSI_TYPE AS withdrawBusiType,
+	        NVL(A.TRADE_SEQ,A.BANK_TRADE_SEQ)  AS  transactionNumber	,
+    		NVL(A.TRADE_AMOUNT,A.BANK_AMOUNT)  AS  tradeAmount			,
+	        A.TRADE_TIME AS tradeTime,
+	        A.BUSI_FLAG AS busiFlag,
+	        A.REVISE_STATUS AS reviseStatus,
+	       	B.APPLY_ID  AS applyId
+		FROM
+		(SELECT * FROM 
+			RECONCILE_RESULT 
+			WHERE HISTORY_FLAG = 0 AND STATUS = 1 and BUSI_FLAG != 100
+				<isPropertyAvailable property="WITHDRAW_BANK_ID">
+          		<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+          			WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BANK_TRADE_SEQ">
+          		<isNotEmpty property="BANK_TRADE_SEQ" prepend="AND">
+          			BANK_TRADE_SEQ =  #BANK_TRADE_SEQ#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+          		<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+          			WITHDRAW_BUSI_TYPE =  #WITHDRAW_BUSI_TYPE#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BUSI_FLAG">
+          		<isNotEmpty property="BUSI_FLAG" prepend="AND">
+          			BUSI_FLAG =  #BUSI_FLAG#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="REVISE_STATUS">
+          		<isNotEmpty property="REVISE_STATUS" prepend="AND">
+          			REVISE_STATUS =  #REVISE_STATUS#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="STARTTIME">
+          		<isNotEmpty property="STARTTIME" prepend="AND">
+            		<![CDATA[ TRADE_TIME >= #STARTTIME# ]]>
+	     		</isNotEmpty>
+	        	<isNotEmpty property="ENDTIME" prepend="AND">
+	           		<![CDATA[ TRADE_TIME < #ENDTIME# + 1]]>
+	           	</isNotEmpty>
+          		</isPropertyAvailable>
+		 ) A 
+		INNER JOIN 
+		(SELECT * FROM RECONCILE_APPLY_MAIN WHERE PROCESS_STATUS = 1) B 
+		ON A.RESULT_ID = B.RESULT_ID 
+    </select>
+    
+    <!-- 手工调账审核查询分页 -->
+    <select id="queryRcAudit_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+    	SELECT
+	       COUNT(*)
+		FROM
+		(SELECT * FROM 
+			RECONCILE_RESULT 
+			WHERE HISTORY_FLAG = 0 AND STATUS = 1 and BUSI_FLAG != 100
+				<isPropertyAvailable property="WITHDRAW_BANK_ID">
+          		<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+          			WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BANK_TRADE_SEQ">
+          		<isNotEmpty property="BANK_TRADE_SEQ" prepend="AND">
+          			BANK_TRADE_SEQ =  #BANK_TRADE_SEQ#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+          		<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+          			WITHDRAW_BUSI_TYPE =  #WITHDRAW_BUSI_TYPE#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BUSI_FLAG">
+          		<isNotEmpty property="BUSI_FLAG" prepend="AND">
+          			BUSI_FLAG =  #BUSI_FLAG#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="REVISE_STATUS">
+          		<isNotEmpty property="REVISE_STATUS" prepend="AND">
+          			REVISE_STATUS =  #REVISE_STATUS#
+          		</isNotEmpty>
+          		</isPropertyAvailable> 
+          		<isPropertyAvailable property="STARTTIME">
+          		<isNotEmpty property="STARTTIME" prepend="AND">
+            	<![CDATA[ TRADE_TIME >= #STARTTIME# ]]>
+	     		</isNotEmpty>
+	        	<isNotEmpty property="ENDTIME" prepend="AND">
+	           		<![CDATA[ TRADE_TIME < #ENDTIME# + 1]]>
+	           	</isNotEmpty>
+          		</isPropertyAvailable>
+		 ) A 
+		INNER JOIN 
+		(SELECT * FROM RECONCILE_APPLY_MAIN WHERE PROCESS_STATUS = 1) B 
+		ON A.RESULT_ID = B.RESULT_ID 
+    </select>
+	 
+    <!-- 申请调账明细确认 -->
+    <select id="queryApplyDetail" resultClass="reconciliationDTO" parameterClass="java.util.Map">
+    	SELECT
+			A.RESULT_ID  						resultId			, 
+    		A.WITHDRAW_BANK_ID 		    		withdrawBankId		,
+    		A.WITHDRAW_BUSI_TYPE 				withdrawBusiType	,
+    		A.BUSI_FLAG 						busiFlag			,
+    		NVL(A.TRADE_SEQ,A.BANK_TRADE_SEQ)   transactionNumber	,
+    		NVL(A.TRADE_AMOUNT,A.BANK_AMOUNT)   tradeAmount			,
+    		A.TRADE_TIME 						tradeTime			,
+    		A.BUSI_DATE							bankProcessDate     ,
+    		B.REASON							reason
+    	FROM 
+		(SELECT * FROM RECONCILE_RESULT
+		<dynamic prepend="WHERE">
+			<isPropertyAvailable property="TRADE_SEQ">
+         		<isNotEmpty property="TRADE_SEQ" prepend="AND">
+         			TRADE_SEQ = #TRADE_SEQ#
+         		</isNotEmpty>
+         	</isPropertyAvailable>
+         	<isPropertyAvailable property="WITHDRAW_BANK_ID">
+         		<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+         			WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+         		</isNotEmpty>
+         	</isPropertyAvailable>
+         	<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+         		<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+         			WITHDRAW_BUSI_TYPE = #WITHDRAW_BUSI_TYPE#
+         		</isNotEmpty>
+         	</isPropertyAvailable>
+         	<isPropertyAvailable property="RESULT_ID">
+         		<isNotEmpty property="RESULT_ID" prepend="AND">
+         			RESULT_ID = #RESULT_ID#
+         		</isNotEmpty>
+         	</isPropertyAvailable>
+		</dynamic> 
+		)  A 
+		LEFT JOIN  RECONCILE_APPLY_MAIN B
+    	ON A.RESULT_ID = B.RESULT_ID
+    </select>
+    
+    <!-- 手工调账查询 -->
+    <select id="queryRcResult" resultClass="reconciliationDTO" parameterClass="java.util.Map">
+    	SELECT
+    		RESULT_ID AS resultId, 
+    		WITHDRAW_BANK_ID AS withdrawBankId,
+    		WITHDRAW_BUSI_TYPE AS withdrawBusiType,
+    		NVL(TRADE_SEQ,BANK_TRADE_SEQ) AS transactionNumber,
+    		NVL(TRADE_AMOUNT,BANK_AMOUNT) AS tradeAmount,
+    		TRADE_TIME AS tradeTime,
+    		BUSI_FLAG AS busiFlag,
+    		REVISE_STATUS AS reviseStatus 
+    	FROM RECONCILE_RESULT
+    	WHERE HISTORY_FLAG = 0 AND STATUS = 1 and BUSI_FLAG != 100
+	          	<isPropertyAvailable property="WITHDRAW_BANK_ID">
+          		<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+          			WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BANK_TRADE_SEQ">
+          		<isNotEmpty property="BANK_TRADE_SEQ" prepend="AND">
+          			BANK_TRADE_SEQ =  #BANK_TRADE_SEQ#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+          		<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+          			WITHDRAW_BUSI_TYPE =  #WITHDRAW_BUSI_TYPE#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BUSI_FLAG">
+          		<isNotEmpty property="BUSI_FLAG" prepend="AND">
+          			BUSI_FLAG =  #BUSI_FLAG#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="REVISE_STATUS">
+          		<isNotEmpty property="REVISE_STATUS" prepend="AND">
+          			REVISE_STATUS =  #REVISE_STATUS#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="STARTTIME">
+          		<isNotEmpty property="STARTTIME" prepend="AND">
+            		<![CDATA[ BUSI_DATE >= #STARTTIME# ]]>
+	     		</isNotEmpty>
+	        	<isNotEmpty property="ENDTIME" prepend="AND">
+	           		<![CDATA[ BUSI_DATE < #ENDTIME# + 1]]>
+	           	</isNotEmpty>
+          		</isPropertyAvailable>
+    </select>
+    
+    <!-- 手工调账查询 分页COUNT -->
+    <select id="queryRcResult_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+    	SELECT 
+    		COUNT(*) 
+    	FROM RECONCILE_RESULT
+    	WHERE HISTORY_FLAG = 0 AND STATUS = 1 and BUSI_FLAG != 100
+	          	<isPropertyAvailable property="WITHDRAW_BANK_ID">
+          		<isNotEmpty property="WITHDRAW_BANK_ID" prepend="AND">
+          			WITHDRAW_BANK_ID = #WITHDRAW_BANK_ID#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BANK_SEQ">
+          		<isNotEmpty property="BANK_SEQ" prepend="AND">
+          			BANK_SEQ =  #BANK_SEQ#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="WITHDRAW_BUSI_TYPE">
+          		<isNotEmpty property="WITHDRAW_BUSI_TYPE" prepend="AND">
+          			WITHDRAW_BUSI_TYPE =  #WITHDRAW_BUSI_TYPE#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="BUSI_FLAG">
+          		<isNotEmpty property="BUSI_FLAG" prepend="AND">
+          			BUSI_FLAG =  #BUSI_FLAG#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="REVISE_STATUS">
+          		<isNotEmpty property="REVISE_STATUS" prepend="AND">
+          			REVISE_STATUS =  #REVISE_STATUS#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="STARTTIME">
+          		<isNotEmpty property="STARTTIME" prepend="AND">
+            		<![CDATA[ BUSI_DATE >= #STARTTIME# ]]>
+	     		</isNotEmpty>
+	        	<isNotEmpty property="ENDTIME" prepend="AND">
+	           		<![CDATA[ BUSI_DATE < #ENDTIME# + 1]]>
+	           	</isNotEmpty>
+          		</isPropertyAvailable>
+    </select>
+    
+    <!-- 出款对账调账受理表 -->
+    <insert id="insertRcApplyMain" parameterClass="reconcileApplyMain">
+    	<selectKey resultClass="Long" keyProperty="applyId">
+			SELECT SEQ_RC_APPLY_MAIN_APPLY_ID.NEXTVAL AS ID FROM DUAL
+		</selectKey>
+        INSERT INTO 
+        RECONCILE_APPLY_MAIN (
+       		APPLY_ID, 
+       		APPLY_USER, 
+       		APPLY_DATE, 
+       		WORKFLOW_ID, 
+           	PROCESS_STATUS, 
+           	RESULT_ID,
+           	REASON,           
+  			WITHDRAW_BANK_ID
+        )
+        VALUES (
+        	#applyId:NUMERIC#, 
+        	#applyUser:VARCHAR#,
+        	#applyDate:DATE#, 
+        	#workflowId:VARCHAR#, 
+        	#processStatus:NUMERIC#,
+            #resultId:NUMERIC#,
+            #reason:VARCHAR#,
+            #withdrawBankId:VARCHAR#
+        )
+    </insert>
+    
+    <!-- 更新出款对账结果表状态 -->
+    <update id="updateReconcileResult" parameterClass="java.util.Map">
+    	UPDATE 
+    		RECONCILE_RESULT 
+    	SET REVISE_STATUS = #REVISE_STATUS# 
+    	WHERE RESULT_ID = #RESULT_ID#
+    </update>
+    
+    <!-- 更新出款对账受理表状态 -->
+    <update id="updateReconcileApplyMain" parameterClass="java.util.Map">
+    	UPDATE 
+        RECONCILE_APPLY_MAIN 
+      	SET PROCESS_STATUS = #PROCESS_STATUS# 
+     	WHERE RESULT_ID = #RESULT_ID#
+    </update>
+    
+    <!-- 出款对账调账日志表 -->
+    <insert id="insertReconcileFlow" parameterClass="reconcileFlow">
+    	<selectKey resultClass="Long" keyProperty="logId">
+			SELECT SEQ_RC_FLOW_LOG_ID.NEXTVAL AS ID FROM DUAL
+		</selectKey>
+        INSERT INTO 
+        RECONCILE_FLOW_LOG (
+        	LOG_ID, 
+        	APPLY_ID, 
+        	OPERTOR, 
+        	PROCESS_TIME, 
+        	PROCESS_STATUS,
+            PROCESS_REMARKS
+            )
+        VALUES (
+        	#logId#, 
+        	#applyId#, 
+        	#opertor#, 
+        	#processTime#, 
+        	#processStatus#,
+            #processRemarks#
+        )
+    </insert>
+</sqlMap>

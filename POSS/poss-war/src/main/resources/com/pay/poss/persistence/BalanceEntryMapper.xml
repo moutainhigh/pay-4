@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pay.poss.persistence.BalanceEntryMapper" >
+  <resultMap id="BaseResultMap" type="com.pay.poss.domain.ClearingBalanceEntry" >
+    <id column="BENTRY_ID" property="bentryId" jdbcType="DECIMAL" />
+    <result column="VOUCHER_CODE" property="voucherCode" jdbcType="DECIMAL" />
+    <result column="ACCT_CODE" property="acctCode" jdbcType="VARCHAR" />
+    <result column="CRDR" property="crdr" jdbcType="DECIMAL" />
+    <result column="VALUE" property="value" jdbcType="DECIMAL" />
+    <result column="TEXT" property="text" jdbcType="VARCHAR" />
+    <result column="DEALID" property="dealid" jdbcType="VARCHAR" />
+    <result column="PAYMENT_SERVICE_CODE" property="paymentServiceCode" jdbcType="DECIMAL" />
+    <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="ENTRY_CODE" property="entryCode" jdbcType="DECIMAL" />
+    <result column="POST_DATE" property="postDate" jdbcType="TIMESTAMP" />
+    <result column="ENTRY_TYPE" property="entryType" jdbcType="DECIMAL" />
+    <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+    <result column="EXCHANGE_RATE" property="exchangeRate" jdbcType="DECIMAL" />
+    <result column="TRANSACTION_DATE" property="transactionDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="BALANCE" property="balance" jdbcType="DECIMAL" />
+    <result column="PAY_DATE" property="payDate" jdbcType="TIMESTAMP" />
+    <result column="BALANCE_DIRECT" property="balanceDirect" jdbcType="DECIMAL" />
+    <result column="DEAL_CODE" property="dealCode" jdbcType="DECIMAL" />
+    <result column="VALUE1" property="value1" jdbcType="VARCHAR" />
+    <result column="VALUE2" property="value2" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    BENTRY_ID, VOUCHER_CODE, ACCT_CODE, CRDR, VALUE, TEXT, DEALID, PAYMENT_SERVICE_CODE, 
+    CREATION_DATE, STATUS, ENTRY_CODE, POST_DATE, ENTRY_TYPE, CURRENCY_CODE, EXCHANGE_RATE, 
+    TRANSACTION_DATE, UPDATE_DATE, BALANCE, PAY_DATE, BALANCE_DIRECT, DEAL_CODE, VALUE1, 
+    VALUE2
+  </sql>
+
+  <sql id="Pagination_Head" >
+    <if test="startIndex != null and endIndex != null" >
+      <![CDATA[ select * from ( select row_.*, rownum rn from ( ]]>
+    </if>
+  </sql>
+  <sql id="Pagination_Foot" >
+    <if test="startIndex != null and endIndex != null" >
+      <![CDATA[ ) row_ where rownum <= #{endIndex} ) where rn > #{startIndex} ]]>
+    </if>
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM T_BALANCE_ENTRY
+    WHERE BENTRY_ID = #{bentryId,jdbcType=DECIMAL}
+  </select>
+
+  <!--归还保证金、风控费率、每日清算保证金、每日清算基本户-->
+  <select id="selectSelective" resultType="com.pay.poss.domain.ClearingEntry" parameterType="com.pay.poss.param.BalanceEntryQueryTradeParam">
+    <include refid="Pagination_Head"/>
+    SELECT
+    ACCT_CODE AS entryAcctCode,
+    DEALID AS entryDealId,
+    VALUE AS entryValue,
+    BALANCE AS entryBalance,
+    CRDR AS entryCrdr,
+    BALANCE_DIRECT AS entryBalanceDirect,
+    DEAL_CODE AS entryDealCode,
+    TO_CHAR(CREATION_DATE, 'YYYY-MM-DD') AS entryCreationDate,
+    BENTRY_ID AS entryBentryId,
+    PAYMENT_SERVICE_CODE AS entryPaymentServiceCode,
+    TO_CHAR(TRANSACTION_DATE, 'YYYY-MM-DD') AS entryTransactionDate,
+    TO_CHAR(PAY_DATE, 'YYYY-MM-DD') AS entryPayDate,
+    TO_CHAR(POST_DATE, 'YYYY-MM-DD') AS entryPostDate,
+    CURRENCY_CODE AS entryCurrencyCode,
+    EXCHANGE_RATE AS entryExchangeRate,
+    ENTRY_TYPE AS entryType,
+    STATUS AS entryStatus
+    FROM ACC.T_BALANCE_ENTRY
+    WHERE 1=1
+    <if test="startDate != null">
+      AND TO_CHAR(CREATION_DATE, 'YYYY-MM-DD') >= #{startDate}
+    </if>
+    <if test="endDate != null">
+      <![CDATA[AND TO_CHAR(CREATION_DATE, 'YYYY-MM-DD') <=  #{endDate}]]>
+    </if>
+    <if test="crdr != null">
+      AND CRDR = #{crdr}
+    </if>
+    <if test="dealCode != null">
+      AND  DEAL_CODE = #{dealCode}
+    </if>
+    <if test="orderByColList != null">
+      ORDER BY
+      <foreach collection="orderByColList" item="obj" index="index"
+               open="" close="" separator=",">
+        ${obj}
+      </foreach>
+      <if test="orderType != null">
+        ${orderType}
+      </if>
+    </if>
+    <include refid="Pagination_Foot"/>
+  </select>
+
+
+  <select id="countSelective" resultType="java.lang.Integer" parameterType="com.pay.poss.param.BalanceEntryQueryTradeParam">
+    SELECT
+      COUNT(*)
+    FROM ACC.T_BALANCE_ENTRY
+    WHERE 1=1
+    <if test="startDate != null">
+      AND TO_CHAR(CREATION_DATE, 'YYYY-MM-DD') >= #{startDate}
+    </if>
+    <if test="endDate != null">
+      <![CDATA[AND TO_CHAR(CREATION_DATE, 'YYYY-MM-DD') <=  #{endDate}]]>
+    </if>
+    <if test="crdr != null">
+      AND CRDR = #{crdr}
+    </if>
+    <if test="dealCode != null">
+      AND  DEAL_CODE = #{dealCode}
+    </if>
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from T_BALANCE_ENTRY
+    where BENTRY_ID = #{bentryId,jdbcType=DECIMAL}
+  </delete>
+  <insert id="insert" parameterType="com.pay.poss.domain.ClearingBalanceEntry" >
+    insert into T_BALANCE_ENTRY (BENTRY_ID, VOUCHER_CODE, ACCT_CODE, 
+      CRDR, VALUE, TEXT, 
+      DEALID, PAYMENT_SERVICE_CODE, CREATION_DATE, 
+      STATUS, ENTRY_CODE, POST_DATE, 
+      ENTRY_TYPE, CURRENCY_CODE, EXCHANGE_RATE, 
+      TRANSACTION_DATE, UPDATE_DATE, BALANCE, 
+      PAY_DATE, BALANCE_DIRECT, DEAL_CODE, 
+      VALUE1, VALUE2)
+    values (#{bentryId,jdbcType=DECIMAL}, #{voucherCode,jdbcType=DECIMAL}, #{acctCode,jdbcType=VARCHAR}, 
+      #{crdr,jdbcType=DECIMAL}, #{value,jdbcType=DECIMAL}, #{text,jdbcType=VARCHAR}, 
+      #{dealid,jdbcType=VARCHAR}, #{paymentServiceCode,jdbcType=DECIMAL}, #{creationDate,jdbcType=TIMESTAMP}, 
+      #{status,jdbcType=DECIMAL}, #{entryCode,jdbcType=DECIMAL}, #{postDate,jdbcType=TIMESTAMP}, 
+      #{entryType,jdbcType=DECIMAL}, #{currencyCode,jdbcType=VARCHAR}, #{exchangeRate,jdbcType=DECIMAL}, 
+      #{transactionDate,jdbcType=TIMESTAMP}, #{updateDate,jdbcType=TIMESTAMP}, #{balance,jdbcType=DECIMAL}, 
+      #{payDate,jdbcType=TIMESTAMP}, #{balanceDirect,jdbcType=DECIMAL}, #{dealCode,jdbcType=DECIMAL}, 
+      #{value1,jdbcType=VARCHAR}, #{value2,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.pay.poss.domain.ClearingBalanceEntry" >
+    insert into T_BALANCE_ENTRY
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bentryId != null" >
+        BENTRY_ID,
+      </if>
+      <if test="voucherCode != null" >
+        VOUCHER_CODE,
+      </if>
+      <if test="acctCode != null" >
+        ACCT_CODE,
+      </if>
+      <if test="crdr != null" >
+        CRDR,
+      </if>
+      <if test="value != null" >
+        VALUE,
+      </if>
+      <if test="text != null" >
+        TEXT,
+      </if>
+      <if test="dealid != null" >
+        DEALID,
+      </if>
+      <if test="paymentServiceCode != null" >
+        PAYMENT_SERVICE_CODE,
+      </if>
+      <if test="creationDate != null" >
+        CREATION_DATE,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="entryCode != null" >
+        ENTRY_CODE,
+      </if>
+      <if test="postDate != null" >
+        POST_DATE,
+      </if>
+      <if test="entryType != null" >
+        ENTRY_TYPE,
+      </if>
+      <if test="currencyCode != null" >
+        CURRENCY_CODE,
+      </if>
+      <if test="exchangeRate != null" >
+        EXCHANGE_RATE,
+      </if>
+      <if test="transactionDate != null" >
+        TRANSACTION_DATE,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="balance != null" >
+        BALANCE,
+      </if>
+      <if test="payDate != null" >
+        PAY_DATE,
+      </if>
+      <if test="balanceDirect != null" >
+        BALANCE_DIRECT,
+      </if>
+      <if test="dealCode != null" >
+        DEAL_CODE,
+      </if>
+      <if test="value1 != null" >
+        VALUE1,
+      </if>
+      <if test="value2 != null" >
+        VALUE2,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bentryId != null" >
+        #{bentryId,jdbcType=DECIMAL},
+      </if>
+      <if test="voucherCode != null" >
+        #{voucherCode,jdbcType=DECIMAL},
+      </if>
+      <if test="acctCode != null" >
+        #{acctCode,jdbcType=VARCHAR},
+      </if>
+      <if test="crdr != null" >
+        #{crdr,jdbcType=DECIMAL},
+      </if>
+      <if test="value != null" >
+        #{value,jdbcType=DECIMAL},
+      </if>
+      <if test="text != null" >
+        #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="dealid != null" >
+        #{dealid,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentServiceCode != null" >
+        #{paymentServiceCode,jdbcType=DECIMAL},
+      </if>
+      <if test="creationDate != null" >
+        #{creationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=DECIMAL},
+      </if>
+      <if test="entryCode != null" >
+        #{entryCode,jdbcType=DECIMAL},
+      </if>
+      <if test="postDate != null" >
+        #{postDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entryType != null" >
+        #{entryType,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyCode != null" >
+        #{currencyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null" >
+        #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="transactionDate != null" >
+        #{transactionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balance != null" >
+        #{balance,jdbcType=DECIMAL},
+      </if>
+      <if test="payDate != null" >
+        #{payDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balanceDirect != null" >
+        #{balanceDirect,jdbcType=DECIMAL},
+      </if>
+      <if test="dealCode != null" >
+        #{dealCode,jdbcType=DECIMAL},
+      </if>
+      <if test="value1 != null" >
+        #{value1,jdbcType=VARCHAR},
+      </if>
+      <if test="value2 != null" >
+        #{value2,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.pay.poss.domain.ClearingBalanceEntry" >
+    update T_BALANCE_ENTRY
+    <set >
+      <if test="voucherCode != null" >
+        VOUCHER_CODE = #{voucherCode,jdbcType=DECIMAL},
+      </if>
+      <if test="acctCode != null" >
+        ACCT_CODE = #{acctCode,jdbcType=VARCHAR},
+      </if>
+      <if test="crdr != null" >
+        CRDR = #{crdr,jdbcType=DECIMAL},
+      </if>
+      <if test="value != null" >
+        VALUE = #{value,jdbcType=DECIMAL},
+      </if>
+      <if test="text != null" >
+        TEXT = #{text,jdbcType=VARCHAR},
+      </if>
+      <if test="dealid != null" >
+        DEALID = #{dealid,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentServiceCode != null" >
+        PAYMENT_SERVICE_CODE = #{paymentServiceCode,jdbcType=DECIMAL},
+      </if>
+      <if test="creationDate != null" >
+        CREATION_DATE = #{creationDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=DECIMAL},
+      </if>
+      <if test="entryCode != null" >
+        ENTRY_CODE = #{entryCode,jdbcType=DECIMAL},
+      </if>
+      <if test="postDate != null" >
+        POST_DATE = #{postDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entryType != null" >
+        ENTRY_TYPE = #{entryType,jdbcType=DECIMAL},
+      </if>
+      <if test="currencyCode != null" >
+        CURRENCY_CODE = #{currencyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="exchangeRate != null" >
+        EXCHANGE_RATE = #{exchangeRate,jdbcType=DECIMAL},
+      </if>
+      <if test="transactionDate != null" >
+        TRANSACTION_DATE = #{transactionDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balance != null" >
+        BALANCE = #{balance,jdbcType=DECIMAL},
+      </if>
+      <if test="payDate != null" >
+        PAY_DATE = #{payDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="balanceDirect != null" >
+        BALANCE_DIRECT = #{balanceDirect,jdbcType=DECIMAL},
+      </if>
+      <if test="dealCode != null" >
+        DEAL_CODE = #{dealCode,jdbcType=DECIMAL},
+      </if>
+      <if test="value1 != null" >
+        VALUE1 = #{value1,jdbcType=VARCHAR},
+      </if>
+      <if test="value2 != null" >
+        VALUE2 = #{value2,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where BENTRY_ID = #{bentryId,jdbcType=DECIMAL}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.pay.poss.domain.ClearingBalanceEntry" >
+    update T_BALANCE_ENTRY
+    set VOUCHER_CODE = #{voucherCode,jdbcType=DECIMAL},
+      ACCT_CODE = #{acctCode,jdbcType=VARCHAR},
+      CRDR = #{crdr,jdbcType=DECIMAL},
+      VALUE = #{value,jdbcType=DECIMAL},
+      TEXT = #{text,jdbcType=VARCHAR},
+      DEALID = #{dealid,jdbcType=VARCHAR},
+      PAYMENT_SERVICE_CODE = #{paymentServiceCode,jdbcType=DECIMAL},
+      CREATION_DATE = #{creationDate,jdbcType=TIMESTAMP},
+      STATUS = #{status,jdbcType=DECIMAL},
+      ENTRY_CODE = #{entryCode,jdbcType=DECIMAL},
+      POST_DATE = #{postDate,jdbcType=TIMESTAMP},
+      ENTRY_TYPE = #{entryType,jdbcType=DECIMAL},
+      CURRENCY_CODE = #{currencyCode,jdbcType=VARCHAR},
+      EXCHANGE_RATE = #{exchangeRate,jdbcType=DECIMAL},
+      TRANSACTION_DATE = #{transactionDate,jdbcType=TIMESTAMP},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      BALANCE = #{balance,jdbcType=DECIMAL},
+      PAY_DATE = #{payDate,jdbcType=TIMESTAMP},
+      BALANCE_DIRECT = #{balanceDirect,jdbcType=DECIMAL},
+      DEAL_CODE = #{dealCode,jdbcType=DECIMAL},
+      VALUE1 = #{value1,jdbcType=VARCHAR},
+      VALUE2 = #{value2,jdbcType=VARCHAR}
+    where BENTRY_ID = #{bentryId,jdbcType=DECIMAL}
+  </update>
+</mapper>

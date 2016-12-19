@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commonAudit">
+	<typeAlias alias="commonAudit" type="com.pay.txncore.model.CommonAudit"/>
+    <resultMap id="commonAudit" class="com.pay.txncore.model.CommonAudit">
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="STATUS_B" property="statusB" jdbcType="DECIMAL"/>
+        <result column="STATUS_C" property="statusC" jdbcType="DECIMAL"/>
+        <result column="COMMON_AUDIT_NO" property="commonAuditNo" jdbcType="DECIMAL"/>
+        <result column="OPERATOR_A" property="operatorA" jdbcType="VARCHAR"/>
+        <result column="OPERATOR_B" property="operatorB" jdbcType="VARCHAR"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="OPERATOR_C" property="operatorC" jdbcType="VARCHAR"/>
+        <result column="TRANS_TYPE" property="transType" jdbcType="VARCHAR"/>
+        <result column="AUDIT_TYPE" property="auditType" jdbcType="DECIMAL"/>
+        <result column="ORDER_NO" property="orderNo" jdbcType="DECIMAL"/>
+        <result column="STATUS_A" property="statusA" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="DESC_C" property="descC" jdbcType="VARCHAR"/>
+        <result column="DESC_B" property="descB" jdbcType="VARCHAR"/>
+        <result column="DESC_A" property="descA" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap class="java.util.HashMap" id="commonAuditResultMap">
+     	<result column="COMMONAUDITNO" property="commonAuditNo" />
+      	<result column="AUDITTYPE" property="auditType" />
+      	<result column="TRANSTYPE" property="transType" />
+      	<result column="ORDERNO" property="orderNo" />
+        <result column="STATUSA" property="statusA" />
+        <result column="STATUSB" property="statusB" />
+        <result column="STATUSC" property="statusC" />
+        <result column="OPERATORA" property="operatorA" />
+        <result column="OPERATORB" property="operatorB" />
+        <result column="OPERATORC" property="operatorC" />
+        <result column="DESCA" property="descA" />
+        <result column="DESCB" property="descB" />
+        <result column="DESCC" property="descC" />
+        <result column="CREATEDATE" property="createDate" />
+        <result column="UPDATEDATE" property="updateDate" />
+		<result column="REMARK" property="remark" />
+	</resultMap>
+    
+    <insert id="create" parameterClass="commonAudit">
+    	<selectKey resultClass="java.lang.Long" keyProperty="commonAuditNo">
+    	  SELECT 124 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_COMMON_AUDIT_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO COMMON_AUDIT(
+			REMARK,STATUS_B,STATUS_C,COMMON_AUDIT_NO,OPERATOR_A,
+			OPERATOR_B,UPDATE_DATE,OPERATOR_C,TRANS_TYPE,AUDIT_TYPE,
+			ORDER_NO,STATUS_A,CREATE_DATE,DESC_C,DESC_B,
+			DESC_A
+        )
+        VALUES(
+            #remark#,#statusB#,#statusC#,#commonAuditNo#,#operatorA#,
+			#operatorB#,sysdate,#operatorC#,#transType#,#auditType#,
+			#orderNo#,#statusA#,sysdate,#descC#,#descB#,
+			#descA#
+		)
+    </insert>
+
+    <update id="update" parameterClass="commonAudit">
+        UPDATE COMMON_AUDIT
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="statusB">
+            STATUS_B = #statusB#
+        </isNotNull>
+        <isNotNull prepend="," property="statusC">
+            STATUS_C = #statusC#
+        </isNotNull>
+        <isNotNull prepend="," property="commonAuditNo">
+            COMMON_AUDIT_NO = #commonAuditNo#
+        </isNotNull>
+        <isNotNull prepend="," property="operatorA">
+            OPERATOR_A = #operatorA#
+        </isNotNull>
+        <isNotNull prepend="," property="operatorB">
+            OPERATOR_B = #operatorB#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysdate
+        </isNotNull>
+        <isNotNull prepend="," property="operatorC">
+            OPERATOR_C = #operatorC#
+        </isNotNull>
+        <isNotNull prepend="," property="transType">
+            TRANS_TYPE = #transType#
+        </isNotNull>
+        <isNotNull prepend="," property="auditType">
+            AUDIT_TYPE = #auditType#
+        </isNotNull>
+        <isNotNull prepend="," property="orderNo">
+            ORDER_NO = #orderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="statusA">
+            STATUS_A = #statusA#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="descC">
+            DESC_C = #descC#
+        </isNotNull>
+        <isNotNull prepend="," property="descB">
+            DESC_B = #descB#
+        </isNotNull>
+        <isNotNull prepend="," property="descA">
+            DESC_A = #descA#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+          COMMON_AUDIT_NO = #commonAuditNo#
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM COMMON_AUDIT        
+        <dynamic prepend="WHERE">
+          COMMON_AUDIT_NO = #commonAuditNo#
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="commonAudit">
+        DELETE FROM COMMON_AUDIT        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusB">
+            STATUS_B = #statusB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusC">
+            STATUS_C = #statusC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="commonAuditNo">
+            COMMON_AUDIT_NO = #commonAuditNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorA">
+            OPERATOR_A = #operatorA# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorB">
+            OPERATOR_B = #operatorB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorC">
+            OPERATOR_C = #operatorC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transType">
+            TRANS_TYPE = #transType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditType">
+            AUDIT_TYPE = #auditType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderNo">
+            ORDER_NO = #orderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusA">
+            STATUS_A = #statusA# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descC">
+            DESC_C = #descC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descB">
+            DESC_B = #descB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descA">
+            DESC_A = #descA# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="commonAudit"
+        parameterClass="java.lang.Long">
+        SELECT 
+			REMARK,STATUS_B,STATUS_C,COMMON_AUDIT_NO,OPERATOR_A,
+			OPERATOR_B,UPDATE_DATE,OPERATOR_C,TRANS_TYPE,AUDIT_TYPE,
+			ORDER_NO,STATUS_A,CREATE_DATE,DESC_C,DESC_B,
+			DESC_A
+        FROM COMMON_AUDIT
+        WHERE 
+          COMMON_AUDIT_NO = #commonAuditNo#
+    </select>
+    
+    <select id="findBySelective" resultMap="commonAudit">
+        SELECT 
+			REMARK,STATUS_B,STATUS_C,COMMON_AUDIT_NO,OPERATOR_A,
+			OPERATOR_B,UPDATE_DATE,OPERATOR_C,TRANS_TYPE,AUDIT_TYPE,
+			ORDER_NO,STATUS_A,CREATE_DATE,DESC_C,DESC_B,
+			DESC_A
+        FROM COMMON_AUDIT
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusB">
+            STATUS_B = #statusB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusC">
+            STATUS_C = #statusC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="commonAuditNo">
+            COMMON_AUDIT_NO = #commonAuditNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorA">
+            OPERATOR_A = #operatorA# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorB">
+            OPERATOR_B = #operatorB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorC">
+            OPERATOR_C = #operatorC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transType">
+            TRANS_TYPE = #transType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditType">
+            AUDIT_TYPE = #auditType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderNo">
+            ORDER_NO = #orderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusA">
+            STATUS_A = #statusA# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descC">
+            DESC_C = #descC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descB">
+            DESC_B = #descB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descA">
+            DESC_A = #descA# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM COMMON_AUDIT
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusB">
+            STATUS_B = #statusB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusC">
+            STATUS_C = #statusC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="commonAuditNo">
+            COMMON_AUDIT_NO = #commonAuditNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorA">
+            OPERATOR_A = #operatorA# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorB">
+            OPERATOR_B = #operatorB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operatorC">
+            OPERATOR_C = #operatorC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transType">
+            TRANS_TYPE = #transType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditType">
+            AUDIT_TYPE = #auditType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderNo">
+            ORDER_NO = #orderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusA">
+            STATUS_A = #statusA# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descC">
+            DESC_C = #descC# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descB">
+            DESC_B = #descB# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="descA">
+            DESC_A = #descA# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="queryBSPAuditInfo" parameterClass="java.util.HashMap" resultMap="commonAuditResultMap">
+		  
+           SELECT 
+             c.COMMON_AUDIT_NO commonAuditNo,
+             c.AUDIT_TYPE auditType,
+             c.TRANS_TYPE transType,
+             c.ORDER_NO   orderNo,
+             c.STATUS_A   statusA,
+             c.STATUS_B   statusB,
+             c.STATUS_C   statusC,
+             c.OPERATOR_A operatorA,
+             c.OPERATOR_B operatorB,
+             c.OPERATOR_C operatorC,
+             c.DESC_A     descA,
+             c.DESC_B     descB,
+             c.DESC_C     descC,
+             c.CREATE_DATE createDate,
+             c.UPDATE_DATE updateDate,
+             c.REMARK     remark
+        FROM fi.COMMON_AUDIT c,fi.trade_order t
+        WHERE 
+          c.order_no=t.trade_order_no
+          and (t.status=4 or t.status=5)
+          and c.ORDER_NO = #serialNo#
+        <isNotNull prepend="AND" property="transType">
+            c.TRANS_TYPE = #transType# 
+        </isNotNull>
+	</select>
+</sqlMap>

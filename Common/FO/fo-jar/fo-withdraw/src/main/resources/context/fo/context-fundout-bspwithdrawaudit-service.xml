@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="fundout_bspwithdrawauditdao"
+		class="com.pay.fundout.withdraw.dao.bsp.impl.BspWithdrawAuditDaoImpl"
+		parent="PLATFORM.DEFAULT.DAOSERVICE">
+		<property name="namespace" value="bspWithdrawAudit" />
+	</bean>
+
+	<bean id="fundout_bspwithdrawauditservice"
+		class="com.pay.fundout.bsp.service.impl.BspWithdrawAuditServiceImpl">
+		<property name="bspwithdrawauditdao" ref="fundout_bspwithdrawauditdao" />
+		<property name="queueName" value="fundout.withdraw.request.active" />
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="orderAfterProcService" ref="fundout-orderchandler-orderAfterProcService"/>
+		<property name="orderCallBackService" ref="fundout-withdraw-withDrawOrderCallBack"/>
+		<property name="accountingService" ref="fundout-withdrawFailAccounting"/>
+		<property name="orderAfterFailProcAlertHandler" ref="fundout-orderchandler-failProcHandler"/>
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+		<property name="workorderService" ref="fundout-workorderService" />
+	</bean>
+</beans>

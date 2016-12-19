@@ -1,0 +1,49 @@
+<#if Session["userSession"].scaleType==3>
+<#assign urlPath = 'app' />
+<#else>
+<#assign urlPath = 'corp' />
+</#if>
+	
+			<div class="login_in">
+				<div class="login_in_bd">
+					<p class="login_in_tit">用户信息</p>
+					<div class="login_in_con">
+						<p class="user">
+							<strong class="u_name">${memberInfo.verifyName?default('')}</strong> 欢迎您！
+							<#if Session["userSession"].scaleType==3>
+							<a href="${rc.contextPath}/logout.htm" 	class="log_out">[注销]</a>
+							<#else>
+							<a href="${rc.contextPath}/logout.htm?mtype=2" 	class="log_out">[注销]</a>
+							</#if>
+						</p>
+						<p class="last_login_time">上次登录：
+							<#if Session["epLastLoginTime"]?exists >${Session["epLastLoginTime"]?default('')}</#if>
+						</p>
+						<p class="identity">
+							身份：
+							<#if memberInfo.memberType == 2>
+							<span class="id_name"><#if memberInfo.operatorId == 0>管理员<#else>操作员</#if></span>
+							<#else>
+							<span class="id_name">个人</span>
+							</#if>
+							<a class="my_account" href="javascript:location.href='${rc.contextPath}/${urlPath}/myAccount.htm'">进入我的账户</a>
+						</p>
+						<p class="cur_account">
+							当前账户：<span>${memberInfo.loginName?default('')}</span>
+						</p>
+						<p class="money">
+							可用余额：<span>${(balance?default('0')?string(",##0.00"))}</span> 元
+						</p>
+						<ul class="s_nav">
+						<#if Session["userSession"].bspIdentity!=2>
+							<li><a href="${rc.contextPath}/${urlPath}/acctCharge.htm">充　　值</a></li>
+							<li><a href="${rc.contextPath}/${urlPath}/withdraw.htm">提　　现</a></li>
+							<li><a href="${rc.contextPath}/${urlPath}/pay2account.htm">付　　款</a></li>
+							<li><a href="${rc.contextPath}/${urlPath}/queryBalanceList.htm?method=queryBalance">收支汇总</a></li>
+							<li><a href="${rc.contextPath}/${urlPath}/accountInfo.htm">账户信息</a></li>
+							<li><a href="${rc.contextPath}/${urlPath}/accountActive.htm?method=accountSafe">安全中心</a></li>
+						</#if>
+						</ul>
+					</div>
+				</div>
+			</div>

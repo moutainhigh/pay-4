@@ -1,0 +1,428 @@
+<script src="<@sp.static/>/js/pay/common/bankselect.js" type="text/javascript"></script>
+<!--侧导航企业版 end -->
+<!-- 获取企业还是个人url str -->
+<#if Session["userSession"]?exists>
+	<#if Session["userSession"].scaleType==2>
+		<#assign urlPath = 'corp' />
+	<#elseif Session["userSession"].scaleType==10>
+		<#assign urlPath = 'corp' />
+	<#elseif Session["userSession"].scaleType==3>
+		<#assign urlPath = 'app' />
+	</#if>
+<#else>
+	<#assign urlPath = 'corp' />
+</#if>
+<!-- 获取企业还是个人url end -->
+<div id="paymentchannelDetail_wycz">	
+	<form id="acctForm" name="acctForm" method="post" >
+		<ul class="form_list mt10">
+			<li class="rechargeTab">
+				<label class="form_side">请选择充值方式：</label>
+				<div class="mode_tab">
+					<a id="bankPayHref"  class="cur"><span>网上银行充值</span></a> 
+					<#if channeItemCreditCardDTOs?exists> 
+						<a id="creditCardPayHref"><span>信用卡充值</span></a>
+					</#if>
+				</div>
+		    </li>
+			<li class="checkBankInfo">
+				<label class="form_side2">请选择银行：</label>
+				<p class="myWay">
+					<#if item?exists>
+						<label id="lastImg" for="${item.labelClass?default('')}" class="${item.labelClass?default('')}"></label>
+					<#else>
+						 <label id="lastImg" for="" class=""></label><span id="bankType" class="bank_type">企业</span>
+					</#if>
+	
+				</p>
+				
+			    <div id="other-bank" class="<#if bankCode?exists>hide<#else>other-bank</#if>">
+					<div class="select-banklist per">
+					<#if channelItemB2CDTOs?exists> 
+					<ul>
+						<#list channelItemB2CDTOs as bankB2C>
+							<li>
+								<input name="bankId" type="radio" value="${bankB2C.alias?default('')};${bankB2C.orgcode?default('')}" id="${bankB2C.alias}_radio" >
+								<label id="${bankB2C.alias}" for="${bankB2C.alias}_radio" class="${bankB2C.labelClass?default('')}" ></label>
+							</li>
+						</#list>
+					</ul>
+					</#if>
+					</div>
+					<div class="ico_txtBox bankTipsInfo">
+						<i class="warn_ico"></i>
+						因原深发展银行与原平安银行合并为"平安银行"，原深圳发展银行个人用户请选择"平安银行"个人版进行交易（可支持您使用深发展银行的借记卡与信用卡）。
+						如为初次使用，原深圳发展银行用户需进行网银升级操作，具体操作事宜可咨询银行客服。
+					</div>				
+					<div class="select-banklist bus">
+					<p class="bank_type_tit">企业版网银</p>
+					<#if channelItemB2BDTOs?exists> 
+					<ul>
+						<#list channelItemB2BDTOs as bankB2B>
+							<li>
+								<input name="bankId" type="radio" value="${bankB2B.alias?default('')};${bankB2B.orgcode?default('')}" id="${bankB2B.alias}_radio" onclick="bankTypeShow();">
+								<label id="${bankB2B.alias}" for="${bankB2B.alias}_radio" class="${bankB2B.labelClass?default('')}" onclick="bankTypeShow();"></label>
+							</li>
+						</#list>
+					</ul>
+					</#if>
+					</div>
+				</div>
+				<div id="creditCardPay" class="other-bank hide">
+					<div class="select-banklist per">
+					<#if channeItemCreditCardDTOs?exists> 
+					<ul>
+						<#list channeItemCreditCardDTOs as creditCard>
+							<li>
+								<input name="bankId" type="radio" value="${creditCard.alias?default('')};${creditCard.orgcode?default('')}" id="${creditCard.alias}_radio" onclick="bankTypeHide();">
+								<label id="${creditCard.alias}" for="${creditCard.alias}_radio" class="${creditCard.labelClass?default('')}" onclick="bankTypeHide();"></label>
+							</li>
+						</#list>
+					</ul>
+					</#if>
+					</div>
+				</div>
+			</li>
+			<li>
+				<label class="form_side2"><strong>充值金额</strong>：</label>
+				<input type="text" id="dealAmount" name="dealAmount" tabindex="1" class="inp_normal blod w121" maxlength="12"/>
+				<strong>元</strong> <span class="ml20 c_999">友情提示：充值金额只可用作购物、付款等消费。</span> 
+			</li>
+			<li class="txt_pop">
+				<i id="feeId">
+				</i>
+				<div id="feeShow" class="txt_pop_con" style=" bottom:22px;left:370px; display:none;"> <span class="close_pop" title="关闭" onclick="javascript:closeFeeShow()">X</span>
+					<p class="c_666">使用该信用卡支付渠道时，需缴纳相应手续费，若您日后需要退款，此手续费不做退回</p>
+				</div>
+			</li>
+			<li id="next" class="btn hide">
+				<span class="btn_yel">
+					<button id="postNext" type="button" tabindex="2">下一步</button>
+				</span>
+			</li>
+
+			<#if Session["userSession"]?exists>
+				<#if Session["userSession"].scaleType==3>
+					<li id="goPay" class="btn ">
+						<span >
+							<button id="postSubmit" type="button" tabindex="2" disabled="disabled">去网上银行充值</button>
+						</span>
+						<span class="ml20 c_999">系统升级，该功能暂停使用 。</span> 
+					</li>
+				<#else>
+					<li id="goPay" class="btn ">
+						<span class="btn_yel">
+							<button id="postSubmit" type="button" tabindex="2">去网上银行充值</button>
+						</span>
+					</li>
+				</#if>
+			</#if>
+		</ul>
+		<input type="hidden" id="bankInfo" name="bankInfo" value="<#if item?exists>${item.alias?default('')};${item.orgcode?default('')}</#if>"/>
+		<input type="hidden" name="name" value="${memberInfo.name?default('')}"/>
+		<input type="hidden" name="email" value="${memberInfo.loginName?default('')}"/>
+		<input type="hidden" id="memberCode" name="memberCode" value="${memberInfo.memberCode?default('')}"/>
+	</form>
+</div>
+<div id="bank" class="bank w-box" style="display:display;" ></div>
+
+<script>
+
+	function bankTypeShow(){
+		$("#bankType").show();
+	}
+
+	function bankTypeHide(){
+		$("#bankType").hide();
+	}
+
+	$("#dealAmount").focus();
+	$("#bankType").hide();
+	
+$(function(){
+		var paymentChannelID =  '${paymentChannelID?default('')}';
+		var cookieAlias =  '${alias?default('')}';
+		var bankCode = '${orgcode?default('')}';
+		var bankId = document.getElementsByName("bankId");
+		var loadWin;
+		//页面加载时table页处理------start--
+		loadFunction();
+		//页面加载时table页处理------end------
+
+		$("#postSubmit").click(function(){
+			if($("#postSubmit").attr("disabled")) return;
+			if (checkAcctForm()) {
+				loadWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+				$("#postSpan").addClass("b_off");
+				$("#postSubmit").attr("disabled", true);
+				var bankInfo = $("#bankInfo").val();
+				var name = $("#name").val();
+				var email = $("#email").val();
+				var dealAmount = $("#dealAmount").val();
+				$.ajax({
+					type: "POST",
+					cache: false,
+					url: "${rc.contextPath}/${urlPath}/acctCharge.htm?method=onSubmit",
+					data: "dealAmount="+dealAmount+"&name="+name+"&email="+email+"&bankInfo="+bankInfo+"&payFlag=deposit",
+					async: false,
+					success: function(msg){
+						$.pay.closeLoading(loadWin);
+						//it means timeout if msg is a html page
+						if(0==msg.indexOf("<!DOCTYPE HTML>")){
+							window.location.href = "${rc.contextPath}/index.htm";
+							return false;
+						}
+						if (-1 != msg.indexOf("validateError")){
+							$("#postSpan").removeClass("b_off");
+							$("#postSubmit").attr("disabled", false);
+							var to = msg.length;
+							msg = msg.substring(13, to);
+							$.pay.alert(msg,{h:160,t:'3',close:function(){$("#dealAmount").val("");$("#dealAmount").focus();}});
+							return false;
+						}
+						$.pay.window(msg,{title:'',w:500,h:300,url:false,isClose:false});	
+						$("#bankForm").submit();
+					}
+				});
+			}
+		});
+		
+		$("#dealAmount").keypress(function(e){
+			var keyCode = e.which;
+			if(keyCode == 13){
+		    	$("#postSubmit").click();
+		    	//for do not submit
+		    	return false;
+		    }
+		});
+		
+		$(":radio").keypress(function(e){
+			var keyCode = e.which;
+			if(keyCode == 13){
+		    	$("#postSubmit").click();
+		    	//for do not submit
+		    	return false;
+		    }
+		});
+		
+	function loadFunction() {
+		//目前暂时处理信用卡tab页
+		if(6 == paymentChannelID ){
+			//处理tab页
+			$("#creditCardPayHref").addClass("cur");
+			$("#bankPayHref").removeClass("cur");
+			//处理列表
+			$("#creditCardPay").addClass("show");
+			$("#creditCardPay").removeClass("hide");
+			$("#other-bank").addClass("hide");
+			$("#other-bank").removeClass("show");
+			//放开下一步
+			$("#next").addClass("show");
+			$("#next").removeClass("hide");
+			//隐藏去网上银行充值
+			$("#goPay").addClass("hide");
+			$("#goPay").removeClass("show");
+
+		}
+	}
+	$(":radio[name=bankId]").click(function(){
+		 //处理信用卡大额-------start------------
+		 //当选择信用卡大额时隐藏费用、隐藏去银行付款，显示下一步
+		if($("#creditCardPayHref").attr("class") =='cur'){
+			document.getElementById("feeId").innerHTML = "";   //隐藏费用
+			$("#next").addClass("show");           //显示下一步
+			$("#next").removeClass("hide");
+
+			$("#goPay").addClass("hide");         //隐藏去银行付款
+			$("#goPay").removeClass("show");
+		}
+	    //处理信用卡大额-------end--------------
+	});
+	//点击网上银行充值
+	$("#bankPayHref").click(function(){
+	    clear();
+		$("#bankPayHref").addClass("cur");                      
+		$("#creditCardPayHref").removeClass("cur");
+	    //-------隐藏信用卡大额列表,显示网上银行充值列表
+		$("#other-bank").addClass("show");
+		$("#other-bank").removeClass("hide");
+
+		$("#creditCardPay").addClass("hide");
+		$("#creditCardPay").removeClass("show");
+		 //-------隐藏费用、下一步，显示去银行付款
+		document.getElementById("feeId").innerHTML = "";  //隐藏费用
+		$("#next").addClass("hide");
+		$("#next").removeClass("show");
+		$("#goPay").addClass("show");
+		$("#goPay").removeClass("hide");
+		//处理 记录用户的习惯--------------start
+		if(2==paymentChannelID || 3==paymentChannelID){
+			$("#lastImg").removeClass($("#lastImg").attr("class"));
+			$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+			$("#lastImg").removeClass($("#lastImg").attr("for"));
+			$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+		}
+		var tmpOrgCode = new Array();
+		var element = null;
+		var value = null;
+		for ( var int = 0; int < bankId.length; int++) {
+			element = bankId[int];
+			value = element.value;
+			tmpOrgCode = value.split(';');
+			//使得记录用户习惯选中的条件是 银行code要想等并且是B2B 或者B2C	
+			if (tmpOrgCode[1] == bankCode && (paymentChannelID==2 ||paymentChannelID==3)) {
+				element.checked = true;
+			}
+		}
+		//处理 记录用户的习惯--------------end
+		//处理选择银行时的明细
+		document.getElementById('bank').style.display = '';
+	});
+	//点击信用卡大额
+	$("#creditCardPayHref").click(function(){
+	     clear();
+		$("#creditCardPayHref").addClass("cur");
+		$("#bankPayHref").removeClass("cur");
+		
+		$("#creditCardPay").addClass("show");
+		$("#creditCardPay").removeClass("hide");
+		$("#other-bank").addClass("hide");
+		$("#other-bank").removeClass("show");
+		 //-------隐藏去银行付款，显示下一步
+		$("#next").addClass("show");
+		$("#next").removeClass("hide");
+		$("#goPay").addClass("hide");
+		$("#goPay").removeClass("show");
+		document.getElementById("feeId").innerHTML = "";  //隐藏费用
+		//处理 记录用户的习惯--------------start
+		//第1步：显示银行图标
+		if(6==paymentChannelID){
+			$("#lastImg").removeClass($("#lastImg").attr("class"));
+			$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+			$("#lastImg").removeClass($("#lastImg").attr("for"));
+			$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+		}
+		//第2步：使得radio处于选中
+		//var bankId = document.getElementsByName("bankId");
+		var tmpOrgCode = new Array();
+		var element = null;
+		var value = null;
+		for ( var int = 0; int < bankId.length; int++) {
+			element = bankId[int];
+			value = element.value;
+			tmpOrgCode = value.split(';');
+			//使得记录用户习惯选中的条件是 银行code要想等并且是信用卡大额
+			if (tmpOrgCode[1] == bankCode && paymentChannelID==6) {
+				element.checked = true;
+			}
+		}
+		//处理 记录用户的习惯--------------end
+		//处理选择银行时的明细
+		//document.getElementById('bank').style.display = 'none';
+	});
+	//清空选择的银行和输入金额的值
+	function clear() {
+		//清楚默认选中的图标
+		var classCode =  $("#lastImg").attr("class")
+		$("#lastImg").removeClass(classCode);
+		//清空金额
+		document.getElementById('dealAmount').value = "";
+		//radio如果选中则清空
+		//var bankId = document.getElementsByName("bankId");
+		for ( var int = 0; int < bankId.length; int++) {
+			if( bankId[int].checked = true){
+				 bankId[int].checked = false;
+			}
+		}
+	}
+
+	/*
+	function validate(currency) {
+         return /^((\d{1,3}(,\d{3})*)|(\d+))(\.\d{2})?$/.test(currency);
+	 }
+	*/
+	function validate(s) {
+		var regu = "^(0(\\.\\d{0,2})?|([1-9]+[0]*)+(\\.\\d{0,2})?)$";
+		var re = new RegExp(regu);
+		if (re.test(s)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	//点击下一步
+	$("#postNext").click(function(){
+		//--------金额和银行处理-------start
+		var dealAmount = $("#dealAmount").val();
+		if(dealAmount == 0 || dealAmount==""){
+			$.pay.alert('金额不能为空并且不能为0',{h:160,t:'3'});
+			return;
+		}
+		if(!validate(dealAmount)){
+			$.pay.alert('金额格式输入错误',{h:160,t:'3'});
+			document.getElementById('dealAmount').value='';
+			return;
+		}
+		//var bankId = document.getElementsByName("bankId");
+		var countFlag = 0; //统计是否有选中的银行
+		for ( var int = 0; int < bankId.length; int++) {
+			if( bankId[int].checked == true){
+				 countFlag++;
+			}
+		}
+
+		if(countFlag == 0){
+			$.pay.alert('请选中一个支付银行',{h:160,t:'3'});
+			return;
+		}
+
+		//--------金额和银行处理-------end
+		//-------异步取数据----start----------------------
+		var memberCode = document.getElementById('memberCode').value;
+		var bankInfo = document.getElementById('bankInfo').value; 
+		$.ajax({
+		   type: "POST",
+		   url: "${rc.contextPath}/${urlPath}/acctCharge.htm?method=computeFee",
+		   data:"memberCode="+memberCode+"&dealAmount="+dealAmount+"&bankInfo="+bankInfo,
+		   success: function(ajaxReturnParm){
+			var returnParmArray = new Array();
+			returnParmArray = ajaxReturnParm.split(';');
+			var html = "<label class='form_side'>应付总价：</label>";
+			html = html+ "<strong class='red'>"+returnParmArray[0]+"</strong> 元（含信用卡支付手续费：<span class='red'>"
+				+returnParmArray[1] +"</span> 元）<a onMouseOver='javascript:feeShow()' onmouseout='javascript:closeFeeShow()' class='blue ml20 pointer'>什么是手续费</a></li>"
+		    document.getElementById("feeId").innerHTML = html;
+		   }
+		});
+		 //-------异步取数据----end-----------------------------
+
+		$("#next").addClass("hide");
+		$("#next").removeClass("show");
+		$("#goPay").addClass("show");
+		$("#goPay").removeClass("hide");
+	});	
+	//金额得到焦点时的操作
+	$("#dealAmount").focus(function(){
+	    //如果是网上银行充值
+		if($("#bankPayHref").attr("class") =='cur'){
+			$("#goPay").addClass("show");
+			$("#goPay").removeClass("hide");
+			$("#next").addClass("hide");
+			$("#next").removeClass("show");
+		}
+		if($("#creditCardPayHref").attr("class") =='cur'){
+			$("#next").addClass("show");
+			$("#next").removeClass("hide");
+
+			$("#goPay").addClass("hide");
+			$("#goPay").removeClass("show");
+		}
+	});		
+});	
+	function feeShow(){
+		document.getElementById('feeShow').style.display = '';
+	}
+	function closeFeeShow(){
+		document.getElementById('feeShow').style.display = "none";
+	}
+	
+</script>

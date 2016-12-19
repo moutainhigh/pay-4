@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout-batch2bankValidateService" class="com.pay.fo.order.validate.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fundout-batch2bankRule" />
+	</bean>
+
+	<bean id="fundout-batch2bankRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fundout-paymentPayerCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fundout-paymentPayerCheckRule" class="com.pay.fo.order.validate.rule.PaymentPayerCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-batch2bankBusinessNoCheckRule" />
+		</property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+
+	<bean id="fundout-batch2bankBusinessNoCheckRule"
+		class="com.pay.fo.order.validate.rule.Batch2bankBusinessNoCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-paymentPayerFeetCheckRule" />
+		</property>
+		<property name="batchPaymentReqBaseInfoService" ref="fo-order-batchPaymentReqBaseInfoService" />
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"/>
+		<property name="messageId" value="您填写的业务批次号为空或与上传文件中的业务批次号不一致" />
+	</bean>
+
+	<!-- 拟在此处增加两个规则校验(是否配置了商户批量付款手续费金额和币种｜申请批付时是否配置了手续费币种转换所需要的商户清算汇率)  PengJiangbo Sta -->
+	<!--  -->
+	<bean id="fundout-paymentPayerFeetCheckRule" class="com.pay.fo.order.validate.rule.PaymentPayerFeetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-paymentPayerCurrencyRateCheckRule" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="未设置批量出款手续费，请联系支付运营人员！" />
+	</bean>
+	
+	<bean id="fundout-paymentPayerCurrencyRateCheckRule" class="com.pay.fo.order.validate.rule.PaymentPayerCurrencyRateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-batch2bankDetailPaserAtion" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="currencyRateService" ref="order-currencyRateService" />
+		<property name="messageId" value="没有找到汇率，请联系支付运营人员！" />
+	</bean>
+	<!-- 拟在此处增加两个规则校验(是否配置了商户批量付款手续费金额和币种｜申请批付时是否配置了手续费币种转换所需要的商户清算汇率)  PengJiangbo End -->
+	
+	<bean id="fundout-batch2bankDetailPaserAtion"
+		class="com.pay.fo.order.validate.action.Batch2bankDetailPaserAtion">
+		<property name="nextStep">
+			<ref local="fundout-maxRecordCheckRule" />
+		</property>
+		<property name="batch2bankValidateService">
+			<ref bean="fundout-batch2bankDetailValidateService" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="reqAccountingService" ref="fundout-batchPay2bankFirstAccounting"/>
+		<property name="configurationCalcuFeeService" ref="configurationCalcuFeeService" />
+	</bean>
+	
+	<bean id="fundout-maxRecordCheckRule"
+		class="com.pay.fo.order.validate.rule.Batch2bankMaxRecordCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="maxRecords">
+			<value>3000</value>
+		</property>
+		<property name="messageId" value="您请求处理的记录数不能大于${maxRecords}条" />
+	</bean>	
+
+	<bean id="fundout-batch2bankDetailValidateService" class="com.pay.fo.order.validate.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fundout-batch2bankDetailCheckRule" />
+	</bean>
+
+	<bean id="fundout-batch2bankDetailCheckRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fundout-paymentAmountCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fundout-paymentAmountCheckRule"
+		class="com.pay.fo.order.validate.rule.PaymentAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-outbankCheckRule" />
+		</property>
+		<property name="messageId" value="${row}行,金额格式不正确" />
+	</bean>
+
+	<bean id="fundout-outbankCheckRule"
+		class="com.pay.fo.order.validate.rule.Batch2bankOutbankCheckRule">
+		<constructor-arg>
+			<ref bean="bankService" />
+		</constructor-arg>
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-batch2bankProvinceCheckRule" />
+		</property>
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+		<property name="messageId" value="${row}行,银行名称错误或暂不支持付款到${bankName}" />
+	</bean>
+
+	<bean id="fundout-batch2bankProvinceCheckRule"
+		class="com.pay.fo.order.validate.rule.Batch2bankProvinceCheckRule">
+		<constructor-arg>
+			<ref bean="provinceService" />
+		</constructor-arg>
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-batch2bankCityCheckRule" />
+		</property>
+		<property name="messageId" value="${row}行,开户银行所属省份信息不正确" />
+	</bean>
+
+	<bean id="fundout-batch2bankCityCheckRule"
+		class="com.pay.fo.order.validate.rule.Batch2bankCityCheckRule">
+		<constructor-arg ref="provinceService" />
+		<constructor-arg ref="cityService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-batch2bankTargetTypeCheckRule" />
+		</property>
+		<property name="messageId" value="${row}行,开户银行所属城市信息不正确" />
+	</bean>
+
+	<bean id="fundout-batch2bankTargetTypeCheckRule"
+		class="com.pay.fo.order.validate.rule.Batch2bankTargetTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-pay2bankCardbinCheckRule" />
+		</property>
+		<property name="messageId" value="${row}行,收款方账户类型不正确" />
+	</bean>
+
+	<bean id="fundout-pay2bankCardbinCheckRule"
+		class="com.pay.fo.order.validate.rule.Pay2bankCardbinCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-pay2bankKaihuCheckRule" />
+		</property>
+		<!-- 
+		<property name="cardBinService" ref="cardBinInfoService" /> -->
+		<property name="messageId" value="${row}行,银行账号不正确" />
+	</bean>
+
+	<bean id="fundout-pay2bankKaihuCheckRule"
+		class="com.pay.fo.order.validate.rule.Pay2bankKaihuCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-pay2bankSingleRiskLimitCheckRule" />
+		</property>
+		<property name="messageId" value="${row}行,开户行名称不正确" />
+	</bean>
+
+	<bean id="fundout-pay2bankSingleRiskLimitCheckRule"
+		class="com.pay.fo.order.validate.rule.Pay2bankSingleRiskLimitCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-paymentRemarkCheckRule" />
+		</property>
+		<property name="messageId" value="${row}行,超出单笔限额${limitAmount}" />
+	</bean>
+	
+	
+	<!-- 备注限制********************* -->
+	<bean id="fundout-paymentRemarkCheckRule"
+		class="com.pay.fo.order.validate.rule.PaymentRemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-pay2bankBrancheSettingAction" />
+		</property>
+		<property name="messageId" value="${row}行,${remarkLimitMsg}" />
+		<property name="configBankService" ref="context_fundout_configbank_service"/>
+	</bean>
+	
+
+	<bean id="fundout-pay2bankBrancheSettingAction"
+		class="com.pay.fo.order.validate.action.Pay2bankBrancheSettingAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="luceneService" ref="fundout-lucene-service"/>
+		<property name="bankBrancheInfoService" ref="fundout-bankBrancheInfoService"/>
+	</bean>	
+
+</beans>

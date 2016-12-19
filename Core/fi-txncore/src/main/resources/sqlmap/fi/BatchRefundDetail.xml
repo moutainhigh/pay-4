@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchRefundDetail">
+	<typeAlias alias="batchRefundDetail" type="com.pay.txncore.model.BatchRefundDetail"/>
+    <resultMap id="batchRefundDetailResult" class="batchRefundDetail">
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="REASON" property="reason" jdbcType="VARCHAR"/>
+        <result column="ITEM_NO" property="itemNo" jdbcType="DECIMAL"/>
+        <result column="REFUND_DETAIL_NO" property="refundDetailNo" jdbcType="DECIMAL"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+        <result column="ERROR_MSG" property="errorMsg" jdbcType="VARCHAR"/>
+        <result column="REFUND_TYPE" property="refundType" jdbcType="DECIMAL"/>
+        <result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="RESULT_CODE" property="resultCode" jdbcType="VARCHAR"/>
+        <result column="REFUND_DEST" property="refundDest" jdbcType="DECIMAL"/>
+        <result column="BATCH_REFUND_NO" property="batchRefundNo" jdbcType="DECIMAL"/>
+        <result column="APPLY_AMOUNT" property="applyAmount" jdbcType="DECIMAL"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+    </resultMap>
+     <resultMap id="validFailResult" class="com.pay.txncore.model.RefundOrderQueryResultDetail">
+        <result column="ORDER_ID" property="orderID" jdbcType="VARCHAR"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="VARCHAR"/>
+        <result column="APPLY_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+        <result column="REASON" property="reason" jdbcType="DECIMAL"/>
+        <result column="ERROR_MSG" property="errorMsg" jdbcType="VARCHAR"/>
+        <result column="ITEM_NO" property="itemNo" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+   <resultMap id="RefundOrderQueryResultDetail" class="com.pay.txncore.model.RefundOrderQueryResultDetail">
+        <result column="ORDER_ID" property="orderID" jdbcType="VARCHAR"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="APPLY_AMOUNT" property="applyAmount" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_BACK_NO" property="depositBackNo" jdbcType="DECIMAL"/>
+        <result column="REFUND_ORDER_NO" property="refundNo" jdbcType="VARCHAR"/>
+        <result column="REFUND_AMOUNT" property="refundAmount" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL" nullValue="0"/>
+        <result column="ERROR_CODE" property="resultCode" jdbcType="VARCHAR"/>
+        <result column="RESULT_CODE" property="stateCode" jdbcType="VARCHAR"/>
+        <result column="PAYEE_FEE" property="payeeFee" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <update id="updateResultCode" parameterClass="java.util.HashMap">
+       UPDATE BATCH_REFUND_DETAIL
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="resultCode">
+            RESULT_CODE = #resultCode#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        	 REFUND_ORDER_NO = #refundOrderNo#
+        </dynamic>
+    </update>
+    
+    <select id="queryValidFailResult" resultMap="validFailResult"  parameterClass="java.util.HashMap">
+       select ORDER_ID, ORDER_AMOUNT, APPLY_AMOUNT, REASON, ERROR_MSG,ITEM_NO
+        from BATCH_REFUND_DETAIL r_detail 
+        where BATCH_REFUND_NO = #batchRefundNo#  and PARTNER_ID = #memberCode#
+      	order by  r_detail.refund_detail_no asc
+    </select>
+    
+    <select id="queryBatchRefundDetail" resultMap="RefundOrderQueryResultDetail"  parameterClass="java.util.HashMap">
+	     select r_detail.ORDER_ID,
+	            r_detail.APPLY_AMOUNT,
+	            r_order.DEPOSIT_BACK_NO,
+	            r_order.REFUND_ORDER_NO,
+	            r_order.REFUND_AMOUNT,
+	            r_order.STATUS,
+	            r_order.ERROR_CODE,
+	            r_detail.RESULT_CODE,
+	            t_order.ORDER_AMOUNT,
+	            r_order.PAYEE_FEE
+	       from BATCH_REFUND_DETAIL r_detail
+	       left join REFUND_ORDER r_order
+	         on r_detail.REFUND_ORDER_NO = r_order.REFUND_ORDER_NO
+	       left join trade_order t_order
+	         on t_order.TRADE_ORDER_NO = r_order.TRADE_ORDER_NO
+	      where r_detail.BATCH_REFUND_NO = #batchRefundNo#
+	        and r_detail.PARTNER_ID = #memberCode#
+	      order by r_detail.REFUND_DETAIL_NO asc
+    </select>
+    
+    <insert id="create" parameterClass="batchRefundDetail">
+       <selectKey resultClass="java.lang.Long" keyProperty="refundDetailNo">
+    	  SELECT 183 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_REFUND_DETAIL_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+         INSERT INTO BATCH_REFUND_DETAIL(
+			STATUS,REASON,REFUND_DETAIL_NO,PARTNER_ID,ERROR_MSG,
+			REFUND_TYPE,REFUND_ORDER_NO,ORDER_AMOUNT,RESULT_CODE,REFUND_DEST,
+			BATCH_REFUND_NO,APPLY_AMOUNT,ORDER_ID,ITEM_NO
+        )
+        VALUES(
+            #status#,#reason#,#refundDetailNo#,#partnerId#,#errorMsg#,
+			#refundType#,#refundOrderNo#,#orderAmount#,#resultCode#,#refundDest#,
+			#batchRefundNo#,#applyAmount#,#orderId#,#itemNo#
+		)
+    </insert>
+
+    <update id="update" parameterClass="batchRefundDetail">
+       UPDATE BATCH_REFUND_DETAIL
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="reason">
+            REASON = #reason#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+            PARTNER_ID = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="," property="errorMsg">
+            ERROR_MSG = #errorMsg#
+        </isNotNull>
+        <isNotNull prepend="," property="refundType">
+            REFUND_TYPE = #refundType#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount">
+            ORDER_AMOUNT = #orderAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="resultCode">
+            RESULT_CODE = #resultCode#
+        </isNotNull>
+        <isNotNull prepend="," property="refundDest">
+            REFUND_DEST = #refundDest#
+        </isNotNull>
+        <isNotNull prepend="," property="batchRefundNo">
+            BATCH_REFUND_NO = #batchRefundNo#
+        </isNotNull>
+        <isNotNull prepend="," property="applyAmount">
+            APPLY_AMOUNT = #applyAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+            ORDER_ID = #orderId#
+        </isNotNull>
+        <isNotNull prepend="," property="itemNo">
+            ITEM_NO = #itemNo#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        	 REFUND_DETAIL_NO = #refundDetailNo#
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="batchRefundDetailResult"
+        parameterClass="java.lang.Long">
+         SELECT 
+			STATUS,REASON,REFUND_DETAIL_NO,PARTNER_ID,ERROR_MSG,
+			REFUND_TYPE,REFUND_ORDER_NO,ORDER_AMOUNT,RESULT_CODE,REFUND_DEST,
+			BATCH_REFUND_NO,APPLY_AMOUNT,ORDER_ID,ITEM_NO
+        FROM BATCH_REFUND_DETAIL
+        WHERE 
+         REFUND_DETAIL_NO = #refundDetailNo# 
+    </select>
+    
+    <select id="findBySelective" resultMap="batchRefundDetailResult">
+        SELECT 
+			STATUS,REASON,REFUND_DETAIL_NO,PARTNER_ID,ERROR_MSG,
+			REFUND_TYPE,REFUND_ORDER_NO,ORDER_AMOUNT,RESULT_CODE,REFUND_DEST,
+			BATCH_REFUND_NO,APPLY_AMOUNT,ORDER_ID,ITEM_NO
+        FROM BATCH_REFUND_DETAIL
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="reason">
+            REASON = #reason# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundDetailNo">
+            REFUND_DETAIL_NO = #refundDetailNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorMsg">
+            ERROR_MSG = #errorMsg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundType">
+            REFUND_TYPE = #refundType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="resultCode">
+            RESULT_CODE = #resultCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundDest">
+            REFUND_DEST = #refundDest# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRefundNo">
+            BATCH_REFUND_NO = #batchRefundNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyAmount">
+            APPLY_AMOUNT = #applyAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+          <isNotNull prepend="AND" property="itemNo">
+            ITEM_NO = #itemNo#
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM BATCH_REFUND_DETAIL
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="reason">
+            REASON = #reason# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundDetailNo">
+            REFUND_DETAIL_NO = #refundDetailNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorMsg">
+            ERROR_MSG = #errorMsg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundType">
+            REFUND_TYPE = #refundType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="resultCode">
+            RESULT_CODE = #resultCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundDest">
+            REFUND_DEST = #refundDest# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRefundNo">
+            BATCH_REFUND_NO = #batchRefundNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyAmount">
+            APPLY_AMOUNT = #applyAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="itemNo">
+            ITEM_NO = #itemNo#
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

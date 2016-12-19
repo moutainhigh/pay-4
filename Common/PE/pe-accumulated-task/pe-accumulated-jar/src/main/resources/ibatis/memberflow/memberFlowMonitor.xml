@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MemberFlowMonitor">
+	<typeAlias alias="memberFlowMonitor"
+		type="com.pay.pe.accumulated.memberpackagemonitor.dto.MemberFlowPackageMonitorDto" />
+	<resultMap id="tMemberFlowPackageMonitor" class="com.pay.pe.accumulated.memberpackagemonitor.dto.MemberFlowPackageMonitorDto">
+        <result column="SHUT_DOWN_LINKMAN_MOBILE" property="shutDownLinkmanMobile" jdbcType="VARCHAR"/>
+        <result column="IS_RESEND_WARN" property="isResendWarn" jdbcType="DECIMAL"/>
+        <result column="PRE_PAY_AMOUNT" property="prePayAmount" jdbcType="DECIMAL"/>
+        <result column="WARN_FLOW" property="warnFlow" jdbcType="DECIMAL"/>
+        <result column="PRE_PAY_DATE" property="prePayDate" jdbcType="TIMESTAMP"/>
+        <result column="GATEWAY_STATUS" property="gatewayStatus" jdbcType="DECIMAL"/>
+        <result column="WARN_LINKMAN" property="warnLinkman" jdbcType="VARCHAR"/>
+        <result column="SHUT_DOWN_FLOW" property="shutDownFlow" jdbcType="DECIMAL"/>
+        <result column="WARN_STATUS" property="warnStatus" jdbcType="DECIMAL"/>
+        <result column="BEGIN_DATE" property="beginDate" jdbcType="TIMESTAMP"/>
+        <result column="PRE_PAY_FLOW" property="prePayFlow" jdbcType="DECIMAL"/>
+        <result column="WARN_LINKMAN_MOBILE" property="warnLinkmanMobile" jdbcType="VARCHAR"/>
+        <result column="SHUT_DOWN_LINKMAN" property="shutDownLinkman" jdbcType="VARCHAR"/>
+        <result column="AVERAGE_RATE" property="averageRate" jdbcType="DECIMAL"/>
+        <result column="SHUT_DOWN_LINKMAN_EMAIL" property="shutDownLinkmanEmail" jdbcType="VARCHAR"/>
+        <result column="MEMBER_NAME" property="memberName" jdbcType="VARCHAR"/>
+        <result column="RESIDUAL_FLOW" property="residualFlow" jdbcType="DECIMAL"/>
+        <result column="WARN_LINKMAN_EMAIL" property="warnLinkmanEmail" jdbcType="VARCHAR"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+    </resultMap>
+
+	<insert id="create" parameterClass="memberFlowMonitor">
+		<![CDATA[
+		insert into T_MEMBER_FLOW_PACKAGE_MONITOR( MEMBER_CODE,
+						                           MEMBER_NAME,
+						                           PRE_PAY_AMOUNT,
+						                           PRE_PAY_FLOW,
+						                           PRE_PAY_DATE,
+						                           BEGIN_DATE,
+						                           AVERAGE_RATE,
+						                           WARN_FLOW,
+						                           WARN_LINKMAN,
+						                           WARN_LINKMAN_EMAIL,
+						                           WARN_LINKMAN_MOBILE,
+						                           SHUT_DOWN_FLOW,
+						                           SHUT_DOWN_LINKMAN,
+						                           SHUT_DOWN_LINKMAN_EMAIL,
+						                           SHUT_DOWN_LINKMAN_MOBILE,
+						                           RESIDUAL_FLOW,
+						                           WARN_STATUS,
+						                           GATEWAY_STATUS,
+						                           IS_RESEND_WARN)
+						                    values(#memberCode#,
+						                           #memberName#,
+						                           #prePayAmount#,
+						                           #prePayFlow#,
+						                           #prePayDate#,
+						                           #beginDate#,
+						                           #averageRate#,
+						                           #warnFlow#,
+						                           #warnLinkman#,
+						                           #warnLinkmanEmail#,
+						                           #warnLinkmanMobile#,
+						                           #shutDownFlow#,
+						                           #shutDownLinkman#,
+						                           #shutDownLinkmanEmail#,
+						                           #shutDownLinkmanMobile#,
+						                           #residualFlow#,
+						                           #warnStatus#,
+						                           #gatewayStatus#,
+						                           #isResendWarn#
+						                           )
+				]]>
+	</insert>
+	
+	<select id="findBySelective" resultMap="tMemberFlowPackageMonitor">
+        SELECT 
+			SHUT_DOWN_LINKMAN_MOBILE,IS_RESEND_WARN,PRE_PAY_AMOUNT,WARN_FLOW,PRE_PAY_DATE,
+			GATEWAY_STATUS,WARN_LINKMAN,SHUT_DOWN_FLOW,WARN_STATUS,BEGIN_DATE,
+			PRE_PAY_FLOW,WARN_LINKMAN_MOBILE,SHUT_DOWN_LINKMAN,AVERAGE_RATE,SHUT_DOWN_LINKMAN_EMAIL,
+			MEMBER_NAME,RESIDUAL_FLOW,WARN_LINKMAN_EMAIL,MEMBER_CODE
+        FROM T_MEMBER_FLOW_PACKAGE_MONITOR
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="shutDownLinkmanMobile">
+            SHUT_DOWN_LINKMAN_MOBILE = #shutDownLinkmanMobile# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isResendWarn">
+            IS_RESEND_WARN = #isResendWarn# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="prePayAmount">
+            PRE_PAY_AMOUNT = #prePayAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="warnFlow">
+            WARN_FLOW = #warnFlow# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="prePayDate">
+            PRE_PAY_DATE = #prePayDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="gatewayStatus">
+            GATEWAY_STATUS = #gatewayStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="warnLinkman">
+            WARN_LINKMAN = #warnLinkman# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="shutDownFlow">
+            SHUT_DOWN_FLOW = #shutDownFlow# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="warnStatus">
+            WARN_STATUS = #warnStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="beginDate">
+            BEGIN_DATE = #beginDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="prePayFlow">
+            PRE_PAY_FLOW = #prePayFlow# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="warnLinkmanMobile">
+            WARN_LINKMAN_MOBILE = #warnLinkmanMobile# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="shutDownLinkman">
+            SHUT_DOWN_LINKMAN = #shutDownLinkman# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="averageRate">
+            AVERAGE_RATE = #averageRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="shutDownLinkmanEmail">
+            SHUT_DOWN_LINKMAN_EMAIL = #shutDownLinkmanEmail# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="residualFlow">
+            RESIDUAL_FLOW = #residualFlow# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="warnLinkmanEmail">
+            WARN_LINKMAN_EMAIL = #warnLinkmanEmail# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <update id="update" parameterClass="memberFlowMonitor">
+        update T_MEMBER_FLOW_PACKAGE_MONITOR
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="shutDownLinkmanMobile">
+            SHUT_DOWN_LINKMAN_MOBILE = #shutDownLinkmanMobile# 
+        </isNotNull>
+        <isNotNull prepend="," property="isResendWarn">
+            IS_RESEND_WARN = #isResendWarn# 
+        </isNotNull>
+        <isNotNull prepend="," property="prePayAmount">
+            PRE_PAY_AMOUNT = #prePayAmount# 
+        </isNotNull>
+        <isNotNull prepend="," property="warnFlow">
+            WARN_FLOW = #warnFlow# 
+        </isNotNull>
+        <isNotNull prepend="," property="prePayDate">
+            PRE_PAY_DATE = #prePayDate# 
+        </isNotNull>
+        <isNotNull prepend="," property="gatewayStatus">
+            GATEWAY_STATUS = #gatewayStatus# 
+        </isNotNull>
+        <isNotNull prepend="," property="warnLinkman">
+            WARN_LINKMAN = #warnLinkman# 
+        </isNotNull>
+        <isNotNull prepend="," property="shutDownFlow">
+            SHUT_DOWN_FLOW = #shutDownFlow# 
+        </isNotNull>
+        <isNotNull prepend="," property="warnStatus">
+            WARN_STATUS = #warnStatus# 
+        </isNotNull>
+        <isNotNull prepend="," property="beginDate">
+            BEGIN_DATE = #beginDate# 
+        </isNotNull>
+        <isNotNull prepend="," property="prePayFlow">
+            PRE_PAY_FLOW = #prePayFlow# 
+        </isNotNull>
+        <isNotNull prepend="," property="warnLinkmanMobile">
+            WARN_LINKMAN_MOBILE = #warnLinkmanMobile# 
+        </isNotNull>
+        <isNotNull prepend="," property="shutDownLinkman">
+            SHUT_DOWN_LINKMAN = #shutDownLinkman# 
+        </isNotNull>
+        <isNotNull prepend="," property="averageRate">
+            AVERAGE_RATE = #averageRate# 
+        </isNotNull>
+        <isNotNull prepend="," property="shutDownLinkmanEmail">
+            SHUT_DOWN_LINKMAN_EMAIL = #shutDownLinkmanEmail# 
+        </isNotNull>
+        <isNotNull prepend="," property="residualFlow">
+            RESIDUAL_FLOW = #residualFlow# 
+        </isNotNull>
+        <isNotNull prepend="," property="warnLinkmanEmail">
+            WARN_LINKMAN_EMAIL = #warnLinkmanEmail# 
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM T_MEMBER_FLOW_PACKAGE_MONITOR        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="value">
+            MEMBER_CODE = #id# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

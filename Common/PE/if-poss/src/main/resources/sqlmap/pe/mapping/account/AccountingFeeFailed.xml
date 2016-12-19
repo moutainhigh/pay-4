@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="accountingFeeFailed">
+	 <typeAlias alias="accountingFeeFailed"		type="com.pay.pe.account.dto.AccountingFeeFailedDto" />
+	 <typeAlias alias="accountingFeeFailedParam"		type="com.pay.pe.account.dto.AccountingFeeFailedParamDto" />
+
+   
+   <sql id="searchConditons">
+	
+	and (t.status = 2 or t.status = 0 	)
+	<isNotEmpty property="serviceName">
+		and pss.payment_service_name = #serviceName#
+	</isNotEmpty>	
+	<isNotEmpty property="memberCode">
+   		and t.member_code =  #memberCode#
+   	</isNotEmpty>
+	<isNotEmpty property="memberCodes">
+   		and t.member_code in  ($memberCodesToStr$)
+   	</isNotEmpty>
+   	 <isNotNull property="begin">
+                      and t.create_date &gt;= #begin#
+     </isNotNull>
+     <isNotNull property="begin">
+                      and t.create_date &lt;= #end#
+     </isNotNull>
+   </sql>
+   
+
+  <select id="search"  parameterClass="accountingFeeFailedParam"  resultClass="accountingFeeFailed">
+   	select 
+   		t.create_date  createDate,
+       t.member_Code memberCode,
+       pss.payment_service_name serviceName,
+       ps.price_strategy_name priceStrategyName,
+        '每月累计' calcuMethod,
+       <isNotEmpty property="acctName">
+       '$acctName$' acctName,
+       </isNotEmpty>
+       t.fee/1000 fee,
+       t.DEAL_TYPE dealType,
+       t.voucher_code voucherCode,
+       t.error_msg errorMsg
+  from accumulated_chargeback_log t
+  left join price_strategy ps
+    on ps.price_strategy_code = t.price_strategy_code
+  left join payment_service pss
+    on pss.payment_service_code = ps.payment_service_code
+ where 1 = 1
+ <include refid="searchConditons"/>
+
+   </select>
+   
+    <select id="search_COUNT"  parameterClass="accountingFeeFailedParam"  resultClass="int">
+   		select count(1)
+		from accumulated_chargeback_log t
+		  left join price_strategy ps
+		    on ps.price_strategy_code = t.price_strategy_code
+		  left join payment_service pss
+		    on pss.payment_service_code = ps.payment_service_code
+		 where 1 = 1
+ 		<include refid="searchConditons"/>
+   </select>
+   
+   
+   
+   
+</sqlMap>

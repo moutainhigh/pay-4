@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+    <bean id="MatrixcardHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/matrixCard.htm">matrixCardController</prop>
+				<prop key="/matrixCardView.htm">matrixCardViewController</prop>
+				<prop key="/app/matrixCardBind.htm">matrixCardBindController</prop>
+				<prop key="/app/matrixCardChg.htm">matrixCardChgController</prop>
+				<prop key="/app/matrixCardReset.htm">matrixCardResetController</prop>
+				<prop key="/app/reSendSms.htm">reSendSmsController</prop>
+				<prop key="/app/reSendMail.htm">reSendMailController</prop>
+				<prop key="/app/matrixCardUnBind.htm">matrixCardUnBindController</prop>
+				<prop key="/app/reSendUnBindSms.htm">reSendUnBindSmsController</prop>
+				<prop key="/app/reSendUnBindMail.htm">reSendUnBindMailController</prop>
+			</props>
+		</property>
+	</bean>
+
+     <!-- 口令卡的申请 -->
+	<bean id="matrixCardController" class="com.pay.app.controller.base.matrixcard.MatrixCardRequestController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+        <property name="matrixCardTransMgrService">
+             <ref bean="matrixCardTransMgrService"/>
+        </property>
+        
+          <property name="messageBoxService">
+             <ref bean="app-messageBoxService"/>
+        </property>
+         <property name="matrixCardReqService">
+             <ref bean="matrixCardReqService"/>
+        </property>
+        <property name="matrixCardReqNotifyService">
+             <ref bean="matrixCardReqNotifyService"/>
+        </property>
+        <property name="matrixCardService">
+             <ref bean="matrixCardService"/>
+        </property>
+                
+		<property name="matrixcardIndex">
+			<value>/base/matrixcard/matrixcardIndex</value>
+		</property>				
+		<property name="applyIndex">
+			<value>/base/matrixcard/applyCard</value>
+		</property>	
+		<property name="reqSuccViewNotLogon">
+			<value>/base/matrixcard/applySuccess</value>
+		</property>
+		<property name="reqSuccView">
+			<value>/base/matrixcard/applySuccess</value>
+		</property>	
+		
+	</bean>
+	
+	<!-- 口令卡的显示 -->
+	<bean id="matrixCardViewController" class="com.pay.app.controller.base.matrixcard.MatrixCardViewController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+        <property name="matrixCardService">
+             <ref bean="matrixCardService"/>
+        </property>
+        
+         <property name="matrixCardReqService">
+             <ref bean="matrixCardReqService"/>
+        </property>
+        
+         <property name="iMessageDigest">
+             <ref bean="iMessageDigest"/>
+        </property>
+		
+	</bean>
+	
+	<!-- 口令卡的绑定 -->
+	<bean id="matrixCardBindController" class="com.pay.app.controller.base.matrixcard.MatrixCardBindController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+        <property name="matrixCardService">
+             <ref bean="matrixCardService"/>
+        </property>
+        
+         <property name="matrixCardBindService">
+             <ref bean="matrixCardBindService"/>
+        </property>
+		
+       <property name="bindView">
+			<value>/base/matrixcard/matrixcardBind</value>
+	    </property>
+		
+		<property name="succView">
+			<value>/base/matrixcard/bindSuccess</value>
+	    </property>
+	    
+	   <property name="failView">
+			<value>/base/matrixcard/bindFail</value>
+	    </property>
+	</bean>  
+	
+	<!-- 口令卡的更换 -->
+	<bean id="matrixCardChgController" class="com.pay.app.controller.base.matrixcard.MatrixCardChgController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+        <property name="matrixCardChangeService">
+             <ref bean="matrixCardChangeService"/>
+        </property>
+        
+        <property name="matrixCardService">
+             <ref bean="matrixCardService"/>
+        </property>
+        
+       <property name="chgOldView">
+			<value>/base/matrixcard/matrixcardChangeStep1</value>
+	    </property>
+		
+		<property name="chgNewView">
+			<value>/base/matrixcard/matrixcardChangeStep3</value>
+	    </property>
+	    
+	   <property name="succView">
+			<value>/base/matrixcard/changeSuccess</value>
+	    </property>
+	    
+		<property name="failView">
+			<value>/base/matrixcard/changeFail</value>
+	    </property>
+	</bean>
+	
+	
+	<!--重置手机短信的发送 -->
+	<bean id="reSendSmsController" class="com.pay.app.controller.base.matrixcard.ReSendSmsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+       	<property name="smsService">
+			<ref bean="app-smsService" />
+		</property>
+		
+		 <property name="memberService">
+             <ref bean="base-memberService"/>
+        </property>
+     	
+     	<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		
+		<property name="toMobile">
+			<value>/base/matrixcard/checkPhone</value>
+	    </property>
+	    
+	   <property name="retoMobile">
+			<value>/base/matrixcard/reCheckPhone</value>
+	    </property>
+	    
+		<property name="toFail">
+			<value>/base/matrixcard/resetMessage</value>
+	    </property>
+	</bean>  
+	
+	<!-- 解绑的手机短信发送 -->
+	<bean id="reSendUnBindSmsController" class="com.pay.app.controller.base.matrixcard.ReSendUnBindSmsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+       	<property name="smsService">
+			<ref bean="app-smsService" />
+		</property>
+				 
+		<property name="memberService">
+             <ref bean="base-memberService"/>
+        </property>
+		
+     	<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		
+		<property name="toMobile">
+			<value>/base/matrixcard/sendSms</value>
+	    </property>
+	    
+	   <property name="retoMobile">
+			<value>/base/matrixcard/reSendSms</value>
+	    </property>
+	    
+		<property name="toFail">
+			<value>/base/matrixcard/matrixcardUnBindFail</value>
+	    </property>
+	</bean>
+	
+	<!-- 解绑邮件的发送 -->
+	<bean id="reSendUnBindMailController" class="com.pay.app.controller.base.matrixcard.ReSendMailController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+       	<property name="mailService">
+			<ref bean="app-mailService" />
+		</property>
+		
+		<property name="memberService">
+             <ref bean="base-memberService"/>
+        </property>
+		
+		<property name="checkCodeService">
+			<ref bean="checkCodeService" />
+		</property>
+		
+     	<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		
+		<property name="toEmail">
+			<value>/base/matrixcard/sendEmail</value>
+	    </property>
+	    
+	   <property name="toFail">
+			<value>/base/matrixcard/matrixcardUnBindFail</value>
+	    </property>
+	    
+		<property name="retosuccEmail">
+			<value>/base/matrixcard/reSendEmail</value>
+	    </property>
+	</bean> 
+	
+	<!-- 重置邮件的发送 -->
+	<bean id="reSendMailController" class="com.pay.app.controller.base.matrixcard.ReCheckEmailController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+       	<property name="mailService">
+			<ref bean="app-mailService" />
+		</property>
+		
+		<property name="checkCodeService">
+			<ref bean="checkCodeService" />
+		</property>
+		
+		<property name="memberService">
+		     <ref bean="base-memberService"/>
+		</property>
+		
+     	<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		
+		<property name="toEmail">
+			<value>/base/matrixcard/checkEmail</value>
+	    </property>
+	    
+	   <property name="toFail">
+			<value>/base/matrixcard/resetMessage</value>
+	    </property>
+	    
+		<property name="retosuccEmail">
+			<value>/base/matrixcard/reCheckEmail</value>
+	    </property>
+	</bean> 
+	
+	<!-- 口令卡的重置 -->
+	<bean id="matrixCardResetController" class="com.pay.app.controller.base.matrixcard.MatrixCardResetController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+        <property name="matrixCardResetService">
+             <ref bean="matrixCardResetService"/>
+        </property>
+        
+        <property name="memberService">
+             <ref bean="base-memberService"/>
+        </property>
+                
+        <property name="matrixCardService">
+             <ref bean="matrixCardService"/>
+        </property>
+        
+        <property name="acctService" ref="base-acctService"></property>
+        
+        <property name="smsService">
+             <ref bean="app-smsService"/>
+        </property>
+        
+        <property name="mailService">
+             <ref bean="checkCodeService"/>
+        </property>
+
+       <property name="messageView">
+			<value>/base/matrixcard/resetMessage</value>
+	    </property>
+	    
+	     <property name="resetView">
+			<value>/base/matrixcard/matrixcardReset</value>
+	    </property>
+		
+		<property name="step1View">
+			<value>/base/matrixcard/matrixcardResetPhone</value>
+	    </property>
+	    
+	   <property name="step2View">
+			<value>/base/matrixcard/matrixcardResetEmail</value>
+	    </property>
+	    
+		<property name="successView">
+			<value>/base/matrixcard/resetSuccess</value>
+	    </property>
+	    
+	    <property name="emailView">
+			<value>/base/matrixcard/checkEmail</value>
+	    </property>
+	    
+	    <property name="phoneView">
+			<value>/base/matrixcard/checkPhone</value>
+	    </property>
+	    
+	     <property name="rephoneView">
+			<value>/base/matrixcard/reCheckPhone</value>
+	    </property>
+	    
+	    <property name="loginView">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+	</bean>  
+
+    <!-- 口令卡的解绑  -->
+    <bean id="matrixCardUnBindController" class="com.pay.app.controller.base.matrixcard.MatrixCardUnBindController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        
+         <property name="memberService">
+             <ref bean="base-memberService"/>
+        </property>
+       	<property name="mailService">
+			<ref bean="checkCodeService" />
+		</property>
+		
+		<property name="smsService">
+			<ref bean="app-smsService" />
+		</property>
+		
+		<property name="acctService" ref="base-acctService"></property>
+			
+		<property name="matrixCardService">
+			<ref bean="matrixCardService" />
+		</property>
+		
+		<property name="matrixCardUnBindService">
+			<ref bean="matrixCardUnBindService" />
+		</property>
+		
+	   <property name="alertView">
+			<value>/base/matrixcard/alertPage</value>
+	    </property>
+		
+        <property name="messageView">
+			<value>/base/matrixcard/matrixcardUnBindFail</value>
+	    </property>
+		
+		<property name="step1View">
+			<value>/base/matrixcard/matrixcardUnBindEmail</value>
+	    </property>
+	    
+	   <property name="step2View">
+			<value>/base/matrixcard/matrixcardUnBindPhone</value>
+	    </property>
+	    
+		<property name="successView">
+			<value>/base/matrixcard/matrixcardUnBindSuccess</value>
+	    </property>
+	    
+	   <property name="emailView">
+			<value>/base/matrixcard/sendEmail</value>
+	    </property>
+		
+		<property name="reEmailView">
+			<value>/base/matrixcard/reSendEmail</value>
+	    </property>
+	    
+	   <property name="smsView">
+			<value>/base/matrixcard/sendSms</value>
+	    </property>
+	    
+		<property name="reSmsView">
+			<value>/base/matrixcard/reSendSms</value>
+	    </property>
+	    
+	    <property name="loginView">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+	</bean>
+
+</beans>

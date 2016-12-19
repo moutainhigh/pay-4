@@ -1,0 +1,376 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<#setting number_format="0">
+<meta charset="utf-8">
+<title>安捷支付交易记录明细</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<link type="text/css" rel="stylesheet" href="
+<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<link type="text/css" rel="stylesheet" href="
+<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+
+</head>
+<body>
+<!--导航 str-->
+<#if Session["userSession"].scaleType==2>
+<@sp.head channel=2/>
+<#else>
+<@sp.head channel=4/>
+</#if>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<@sp.banner toptit="交易管理" toptit2="交易记录"
+glide=true/>
+
+<!--侧导航企业版 str --> 
+<#if Session["userSession"].scaleType==2>
+<@sp.menu channel="3_1"/> 
+<#else>
+<@sp.menu channel="3_1"/> 
+</#if>
+<!--侧导航企业版 end -->
+<#if Session["userSession"].scaleType==2>
+<#assign urlPath = 'corp' />
+<#else>
+<#assign urlPath = 'app' />
+</#if>
+       
+<div class="box_w800 fr">
+
+
+
+<!--订单查询-->
+<div class="order_search2">
+	<form class="form"
+	action="${rc.contextPath}/${urlPath}/queryHistoryTradeList.htm?method=queryHistoryTrade"
+	method="post" name="tradeListForm" id="tradeListForm">
+		<ul>
+			<li>
+				<label>时间：</label>
+				<input class="input_txt w130" type="text"
+	id="startTime" readonly="readonly" name="startTime"<#if
+stValue?default('')!=""> value="${stValue?default('')}" </#if> /> <span>—</span>
+<input class="input_txt w130" id="endTime" readonly="readonly" name="endTime"
+	type="text"<#if eValue?default('')!="">
+value="${eValue?default('')}" </#if> />
+			</li>
+			<li>
+				<label class="txt4">交 易 号：</label>
+				<input id="businessNumber" name="businessNumber"
+class="input_txt w200" type="text"<#if
+bnValue?default('')!=""> value="${bnValue?default('')}" </#if> />
+</li>
+			<li>
+				<label>收支：</label>
+				
+				
+				<select id="businessType" name="businessType" class="input_txt w130">
+	<option value="incomeandexpenses_all"<#if
+	btValue?default('')=='incomeandexpenses_all'>selected</#if>>全部</option>
+	<option value="recieve"<#if
+	btValue?default('')=='recieve'>selected</#if>>收入</option>
+	<option value="payment"<#if
+	btValue?default('')=='payment'>selected</#if>>支出</option>
+</select>
+			</li>
+			<li>
+				<label class="txt4">交易对方：</label>
+				
+				<input id="bargainerVal" name="bargainerVal" class="input_txt w200"  type="text"<#if
+bargainerVal?default('')!=""> value="${bargainerVal?default("")}" </#if> />
+			</li>
+		</ul>
+		<input type="hidden" id="queryListHidden"
+	name="queryListHidden" value="${qlHidden?default('')}"/> <input type="hidden" id="queryPro"
+	name="queryPro" value="${qValue?default('')}"/>
+		<i class="btn_yel_b">
+		<button onclick="checkInputClick();">查 询</button>
+		</i>
+	</form>
+</div>
+<!--/订单查询--> <#if errorMsg?exists>
+<div class="refund_list">
+<div class="barg_table">
+<table>
+	<tr class="gray">
+		<td>
+		<div class="tip">
+		<div class="ico"></div>
+		<h2>系统繁忙,请稍后再试!</h2>
+		<p>您可以：<em><a href="${rc.contextPath}/${urlPath}/myAccount.htm">查看账户首页</a>
+		<a href="${rc.contextPath}/${urlPath}/acctCharge.htm">充值安捷支付支付</a></em></p>
+
+		</div>
+		</td>
+	</tr>
+</table>
+</div>
+</div>
+<#else> <!--退款记录明细开始-->
+<div class="refund_list">
+<div class="refund_title"><!--tab str -->
+<div class="mode_tit">
+<h2<#if qlHidden=="queryList_all"> class="sel"</#if>
+id="queryList_all"><a href="#">全部交易</a></h2>
+<h2<#if qlHidden=="queryList_ing"> class="sel"</#if>
+id="queryList_ing"><a href="#">正在交易</a></h2>
+<h2<#if qlHidden=="queryList_end"> class="sel"</#if>
+id="queryList_end"><a href="#">已完成交易</a></h2>
+<h2<#if qlHidden=="queryList_err"> class="sel"</#if>
+id="queryList_err"><a href="#">失败的交易</a></h2>
+</div>
+
+<!--tab str --> <span><a href="#" onclick=
+	excelHistoryTrade();;
+>
+<#if businessList?has_content>导出EXCEL</#if></a></span></div>
+<div class="refund_box"><!--价格开始-->
+<div class="list_sum"><select id="queryProSelect"
+	name="queryProSelect">
+	<option value="queryProAll"<#if
+	qValue?default('')=='queryProAll'>selected</#if>>全部明细</option>
+	<option value="weekPro"<#if
+	qValue?default('')=='weekPro'>selected</#if>>本周</option>
+	<option value="monthPro"<#if
+	qValue?default('')=='monthPro'>selected</#if>>本月</option>
+	<option value="daypro"<#if
+	qValue?default('')=='daypro'>selected</#if>>今日</option>
+</select>
+<div class="price"><span>总收入(<em class="num_price">${countSum.incomeSumNoCount?default(0)}</em>)：<em
+	class="num_price">#{countSum.incomeSumNo?default(0);m2}</em>元</span> <span>总支出(<em
+	class="num_price">${countSum.expensesSumNoCount?default(0)}</em>)：<em
+	class="num_price">#{countSum.expensesSumNo?default(0);m2}</em>元</span></div>
+
+</div>
+<!--价格结束 --> <!--退款记录表开始-->
+<div class="barg_table">
+<table>
+	<tr>
+		<th width="100">日 期 </th>
+		<th>交易名称 | 交易号</th>
+		<th width="90">交易对方</th>
+		<th width="60">收支</th>
+		<th width="80">状态</th>
+		<th width="80">金额(元)</th>
+		<th width="90">操作</th>
+		<!--  <th width="100">备注</th>-->
+	</tr>
+
+	<#if businessList?has_content> <#list businessList as bs>
+
+	<tr
+		<#if bs_index%2==0>class="gray"</#if>>
+		<td><span class="time">${bs.businessDate[0..10]?default("")}<br/>${bs.businessDate[10..18]?default("")}</span></td>
+				<td><div class="text">${bs.productName?default("")}
+				<span>交易号：${bs.businessNo?default("")}</span></div>
+				</td>
+				<td><span class="name" title="${bs.bargainer?default("")}">
+				<#if bs.bargainer?has_content>
+					<#if bs.bargainer?length gt 4>
+							${bs.bargainer[0..3]}...
+					<#else>
+							${bs.bargainer?default("")}
+					</#if>
+				</#if>
+				</span>
+				<a style="<#if bs.linkerStates>display:none</#if>" class="user" href="javascript:void(0);"  title="添加联系人" onclick="addlinker('${bs.bargainerMemberCode?default(0)}','${bs.bargainer?default("")}');return true;"></a>
+				</td>
+				<td>${bs.incomeAndExpenses?default("")}</td>
+				<td>${bs.businessStatus?default("")}</td>
+
+				<td><em class="num_price">#{bs.price?default(0);m2}</em></td>
+				<td><div class="handle">
+					<#if bs.incomeAndExpenses?default("")=="支出" && bs.businessStatus?default("")=="交易未付款">
+								<a href="${rc.contextPath}/app/shoppingcityQueryRedirect.htm?method=queryPay&transactionNo=${bs.businessNo?default('')}&totalAmount=#{bs.price?default(0);m2}&partner=${bs.partner}" class="pay"><span>付款</span></a>
+							<br/>
+					</#if>
+					<#if bs.businessType?default("") == "1">
+						<a target="_blank" href="${rc.contextPath}/${urlPath}/pay2account.htm?method=detail&id=${bs.businessNo?default("")}">详情</a>
+					<#elseif bs.businessType?default("") == "2">
+					    <a target="_blank" href="${rc.contextPath}/${urlPath}/pay2bank.htm?method=detail&id=${bs.businessNo?default("")}">详情</a>
+					<#elseif bs.tradeType?default("")!="1000" && bs.url?exists>
+						<a target="_blank" href="${bs.url?default("")}">详情</a>
+					</#if>
+				
+				</div></td>
+				<!-- <td>${bs.payReason?default("")}</td> -->
+		</tr>
+	</#list> <#else>
+	<tr class="gray">
+		<td colspan="7">
+		<div class="tip">
+		<!-- <div class="ico"></div>-->
+		<h2>暂无任何记录</h2>
+		<p>您可以：<em><a href="${rc.contextPath}/${urlPath}/myAccount.htm">查看账户首页</a>
+		<a href="${rc.contextPath}/${urlPath}/acctCharge.htm">充安捷支付生支付</a></em></p>
+
+		</div>
+		</td>
+	</tr>
+
+	</#if>
+</table>
+
+</div>
+<!--价格结束--> <!--分页 str --> <@sp.pagination pu=pu /> <!--分页 end --></div>
+<input type="hidden" value="${pu.curPageNo}" id="curPage"></div>
+<!--退款记录明细结束--></div>
+</#if></div>
+
+
+
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+//$("#startTime").simpleDatepicker();
+$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+$(".mode_tit h2").click(function(){
+$("#queryListHidden").val($(this).attr("id"));
+$("#queryPro").val($(":select [name=queryProSelect]").val());
+$("#businessType").val($(":select [name=businessType]").val());
+//$("#businessStatus").val($(":select [name=businessStatus]").val());
+$("#tradeListForm").submit(); 
+});
+$(":select [name=queryProSelect]").change(function(){
+$("#queryPro").val($(this).val());
+$("#tradeListForm").submit(); 
+});
+
+$('#businessNumber').bind('keyup',checkInputKeyup);
+$('#bargainerVal').bind('keyup',checkLegalString);
+});
+
+//输入时校验交易号
+var checkInputKeyup = function(){
+	var reg = /^\d{1,19}$/;
+	var result = reg.test(this.value);
+	if(!result){
+	this.value = this.value.replace(/\s+/g,"");
+	if(this.value.length>0)
+	this.value = this.value.substring(0,this.value.length - 1);
+	}	
+};
+
+//交易对方查询输入特殊字符
+var checkLegalString = function(f,str) {
+	var reg = /^[^`~!@#$%^&*()+=|\\\][\]\{\}:;'\,.<>/?]{1}[^`~!@$%^&()+=|\\\][\]\{\}:;'\,.<>?]{0,50}$/;
+	var result = reg.test(this.value);
+	if(!result){
+	this.value = this.value.replace(/\s+/g,"");
+	if(this.value.length>0)
+	this.value = this.value.substring(0,this.value.length - 1);
+	}
+	};
+
+//提交时校验交易号
+var checkInputClick = function(){
+
+	var result = true;
+	var resultx = true;
+	
+	if($("#businessNumber").val().length>0){
+	var reg = /^\d{19}$/;
+	result = reg.test($("#businessNumber").val());
+	if(!result){
+		alert("订单号输入格式错误");
+	}
+	}
+	
+	if($("#bargainerVal").val().length>0){
+		var regx = /^[a-zA-Z0-9_\u4e00-\u9fa5]+$/;
+		resultx = regx.test($("#bargainerVal").val());
+		if(!resultx){
+			alert("交易对方输入格式错误");
+	}
+	}
+	
+	if(result && resultx){
+			$("#tradeListForm").submit();
+		}
+};
+
+function addlinker(str,name){
+if(str==''||name=='')
+{
+return ;
+}else{
+$.pay.confirm("确认添加'"+name+"'为联系人吗? ",{title:"添加联系人",h:200,t:'1',confirm:function(){
+$.ajax({
+ type: "POST",
+ url: "${rc.contextPath}/app/addlinker.htm",
+ data:   "memberCode="+str,
+ success: function(msg){ 
+  if(msg=="Y"){
+  $.pay.alert("添加联系人成功 ",{h:160,t:'1',close:function(){
+  location.reload();
+  }});
+}else if(msg=="N"){
+	$.pay.alert("添加失败:联系人已存在 ",{h:160,t:'2',close:function(){}});
+}else{
+    $.pay.alert("添加失败:你没有权限做此操作 ",{h:160,t:'2',close:function(){}});
+}
+} 
+});
+},cancel:function(){}});
+}
+}
+
+$("#checkedPay").click(function(){
+var orderIDs = "";
+var partner = "";
+$(":checkbox[id^=checkOrder_]").each(function(i){
+if(this.checked){
+orderIDs = orderIDs + this.value + "|";
+var id = this.id;
+partner = id.substr(id.lastIndexOf("_")+1, id.length);
+}
+});
+if(orderIDs == "") {
+alert("请选择要合并付款的交易");
+return false;
+} else {
+var orders = orderIDs.substring(0,orderIDs.length-1);
+url = "${rc.contextPath}/app/shoppingcityQueryRedirect.htm?method=queryPay&transactionNo="+ orders + "&partner=" + partner;
+window.location.href=url;
+}
+});
+function queryListByBusinessStatus(str){
+document.getElementById('queryListHidden').value=str;
+document.tradeListForm.submit();
+}
+function excelHistoryTrade(){
+  var   sDate  = document.getElementById('startTime').value;
+  var   eDate  = document.getElementById('endTime').value;
+  var numCount = ${pu.totalCount};
+  var businessType = document.getElementById('businessType').value;
+  var queryProSelect = document.getElementById('queryProSelect').value;
+  var bargainerVal = document.getElementById('bargainerVal').value;
+  var queryListHidden = "${qlHidden}";
+  window.location ="${rc.contextPath}/${urlPath}/excelHistoryTrade.htm?method=excelHistoryTrade&startTime="+sDate+"&endTime="+eDate+"&numCount="+numCount+"&businessType="+businessType+"&queryPro="+queryProSelect+"&queryListHidden="+queryListHidden+"&bargainerVal="+bargainerVal;
+} 
+</script>
+
+</body>
+</html>

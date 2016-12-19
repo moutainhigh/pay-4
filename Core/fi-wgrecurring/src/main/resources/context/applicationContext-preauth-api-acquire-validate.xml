@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境API收单 -->
+	<bean id="preauthApiAcquireValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="preauth-api-acquireRule" />
+	</bean>
+
+	<bean id="preauth-api-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="preauth-api-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="preauth-api-versionCheckRule" class="com.pay.gateway.validate.preauth.api.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="版本号不正确" />
+	</bean>
+
+	<bean id="preauth-api-orderIdCheckRule" class="com.pay.gateway.validate.preauth.api.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="订单号不合法" />
+	</bean>
+
+
+	<bean id="preauth-api-submitTimeCheckRule"
+		class="com.pay.gateway.validate.preauth.api.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-siteIdCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="订单提交时间不正确" />
+	</bean>
+
+	<bean id="preauth-api-siteIdCheckRule" class="com.pay.gateway.validate.preauth.api.SiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-orderAmountCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="未授权的域名" />
+	</bean>
+
+	<bean id="preauth-api-orderAmountCheckRule"
+		class="com.pay.gateway.validate.preauth.api.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="订单金额不正确" />
+	</bean>
+
+	<bean id="preauth-api-typeCheckRule"
+		class="com.pay.gateway.validate.preauth.api.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="未授权交易类型" />
+	</bean>
+
+	<bean id="preauth-api-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-merchantStatusCheckRule" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="message" value="交易币种不正确" />
+	</bean>
+
+	<bean id="preauth-api-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.preauth.api.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="商户状态异常" />
+	</bean>
+
+	<bean id="preauth-api-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.preauth.api.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-merchantAcctCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="未授权限的商户" />
+	</bean>
+
+	<bean id="preauth-api-merchantAcctCheckRule"
+		class="com.pay.gateway.validate.preauth.api.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-billFirstNameCheckRule" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="message" value="商户账户状态异常" />
+	</bean>
+
+	<bean id="preauth-api-billFirstNameCheckRule" class="com.pay.gateway.validate.preauth.api.BillFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-billLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="账单名不能为空" />
+	</bean>
+	
+	<bean id="preauth-api-billLastNameCheckRule" class="com.pay.gateway.validate.preauth.api.BillLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="message" value="账单姓不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillAddressCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="message" value="账单地址不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillEmailCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0020" />
+		<property name="message" value="账单邮箱不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0021" />
+		<property name="message" value="账单电话不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillPostalCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillStreetCheckRule" />
+		</property>
+		<property name="messageId" value="0022" />
+		<property name="message" value="账单邮编不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillStreetCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillStreetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillCityCheckRule" />
+		</property>
+		<property name="messageId" value="0023" />
+		<property name="message" value="账单街道不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillCityCheckRule" class="com.pay.gateway.validate.preauth.api.BillCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillStateCheckRule" />
+		</property>
+		<property name="messageId" value="0024" />
+		<property name="message" value="账单城市不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillStateCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-BillCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0025" />
+		<property name="message" value="账单州不能为空" />
+	</bean>
+
+	<bean id="preauth-api-BillCountryCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.api.BillCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardHolderNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0026" />
+		<property name="message" value="账单国家不能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardHolderNumberCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardHolderFirstNameCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0037" />
+		<property name="message" value="持卡人卡号能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardHolderFirstNameCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardHolderFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardHolderLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0038" />
+		<property name="message" value="持卡人名不能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardHolderLastNameCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardHolderLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardExpirationMonthCheckRule" />
+		</property>
+		<property name="messageId" value="0039" />
+		<property name="message" value="持卡人姓不能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardExpirationMonthCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardExpirationMonthCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardExpirationYearCheckRule" />
+		</property>
+		<property name="messageId" value="0040" />
+		<property name="message" value="持卡人卡片有效月不能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardExpirationYearCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardExpirationYearCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-SecurityCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0041" />
+		<property name="message" value="持卡人卡片有效年不能为空" />
+	</bean>
+
+	<bean id="preauth-api-SecurityCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.api.SecurityCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardHolderEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0042" />
+		<property name="message" value="持卡人卡片安全码不能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardHolderEmailCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardHolderEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-CardHolderPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0043" />
+		<property name="message" value="持卡人邮箱不能为空" />
+	</bean>
+
+	<bean id="preauth-api-CardHolderPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.preauth.api.CardHolderPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0044" />
+		<property name="message" value="持卡人电话不能为空" />
+	</bean>
+
+	<bean id="preauth-api-charsetCheckRule" class="com.pay.gateway.validate.preauth.api.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="编码方式不正确" />
+	</bean>
+
+	<bean id="preauth-api-signTypeCheckRule" class="com.pay.gateway.validate.preauth.api.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="签名类型不正确" />
+	</bean>
+
+	<bean id="preauth-api-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.preauth.api.PreauthApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="签名校验不通过" />
+	</bean>
+
+	<bean id="preauth-api-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.preauth.api.OrderRepeatCheckRule">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-RiskCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="订单号重复" />
+	</bean>
+	
+	<bean id="preauth-api-RiskCheckRule"
+		class="com.pay.gateway.validate.preauth.api.RiskBlackListCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-RiskCybsCheckRule" />
+		</property>
+		<property name="blackWhiteListService" ref="blackWhiteListService" />
+		<property name="messageId" value="0052" />
+		<property name="message" value="风控检查异常" />
+	</bean>
+	
+	<bean id="preauth-api-RiskCybsCheckRule"
+		class="com.pay.gateway.validate.preauth.api.RiskCybsCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-api-gatewayRequestSaveAction" />
+		</property>
+		<property name="invokeService" ref="client-cybsService"/>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0053" />
+		<property name="message" value="风控校验异常" />
+	</bean>
+
+	<bean id="preauth-api-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.preauth.api.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="preauth-api-exceptionAction" class="com.pay.gateway.validate.preauth.api.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelResponse">
+	<typeAlias alias="channelResponse" type="com.pay.channel.model.ChannelResponse"/>
+    <resultMap id="channelResponseMap" class="channelResponse">
+        <result column="RESULT" property="result" jdbcType="VARCHAR"/>
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_CODE" property="channelCode" jdbcType="VARCHAR"/>
+        <result column="SUBMIT_CHANNEL_ID" property="submitChannelId" jdbcType="DECIMAL"/>
+        <result column="PROTOCOL_NO" property="protocolNo" jdbcType="DECIMAL"/>
+        <result column="RESPONSE_CONTEXT" property="responseContext" jdbcType="VARCHAR"/>
+        <result column="RETURN_CHANNEL_ID" property="returnChannelId" jdbcType="DECIMAL"/>
+        <result column="RESULT_INFO" property="resultInfo" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+   <insert id="create" parameterClass="channelResponse">
+	<selectKey resultClass="java.lang.Long" keyProperty="orgResponseNo">
+		SELECT 114 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_ID.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	 	INSERT INTO CHANNEL_RESPONSE(
+			ID,RESULT,CHANNEL_CODE,SUBMIT_CHANNEL_ID,PROTOCOL_NO,
+			RESPONSE_CONTEXT,RETURN_CHANNEL_ID,RESULT_INFO,CREATE_DATE
+        )
+        VALUES(
+            #id#,#result#,#channelCode#,#submitChannelId#,#protocolNo#,
+			#responseContext#,#returnChannelId#,#resultInfo#,sysDate
+		)
+	</insert>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM CHANNEL_RESPONSE  where ID = #id#   
+    </delete>
+
+    <select id="findById" resultMap="channelResponseMap"
+        parameterClass="java.lang.Long">
+        SELECT * FROM CHANNEL_RESPONSE
+        WHERE ID=#id#
+    </select>
+    
+</sqlMap>

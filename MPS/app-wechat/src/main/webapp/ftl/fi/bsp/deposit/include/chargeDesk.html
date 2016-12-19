@@ -1,0 +1,48 @@
+<!--侧导航企业版 end -->
+<#if channelDTOs?exists> 
+	<div>
+		<div class="checkout_box">
+		<!-- 
+			<div class="mode_tit mt10">
+			<h2 id="paymentChannel_EBANK">
+					<a onclick="$.chargeDesk.displayChannelDetail('EBANK');" href="javascript:void(0);">网银充值</a>
+				</h2>
+			</div>
+		-->
+		</div>
+	</div>
+</#if>
+
+<script type="text/javascript">
+
+var channelCodeTmp = "${channelCode?default('')}";
+$("#paymentChannel_EBANK").addClass("sel");
+
+(function($){
+	$.chargeDesk={
+		displayChannelDetail:function(channelCode){
+			if (null != channelCode) {
+			//	$("#paymentChannel_"+channelCodeTmp).removeClass("sel");
+			//	$("#paymentChannel_"+channelCode).addClass("sel");
+			//	channelCodeTmp = channelCode;
+
+			//	alert($("#paymentChannel_"+channelCodeTmp));
+			}
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/corp/bsp/depositCashier.htm?method=displayPaymentChannel",
+				data: "&channelCode="+channelCode,
+				success: function(msg){
+					//it means timeout if msg is a html page
+					   if(0==msg.indexOf("<!DOCTYPE HTML>")){
+						   window.location.href = "${rc.contextPath}/index.htm";
+					   } else {
+						   $("#channelItemDetail").html(msg);
+					   }
+				}
+			});
+		}
+	}
+})(jQuery);
+$.chargeDesk.displayChannelDetail(channelCodeTmp);
+</script>

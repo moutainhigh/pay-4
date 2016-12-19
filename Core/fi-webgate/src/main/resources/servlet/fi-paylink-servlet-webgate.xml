@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!-- Controller -->
+<beans>
+	<!-- 支付链支付Controller url映射 -->
+	<bean id="payLinkPayUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/paylinkGened.htm">payLinkPayController</prop>
+			</props>
+		</property>
+	</bean>
+	
+   <!-- 支付链支付Controller -->
+   <bean id="payLinkPayController" class="com.pay.gateway.controller.paylink.PayLinkPayController">
+   		<property name="methodNameResolver">
+   			<ref bean="paramResolver"/>
+   		</property>
+   		
+   		<property name="indexRedirectUrl" value="${gateway.paylinkUrl}" />
+   		<property name="invalidRedirectUrl" value="${gateway.paylinkInvalidUrl}" />
+   		
+   		<property name="payLinkService" ref="payLinkService" />
+   		<property name="gatewayRequestService" ref="gatewayRequestService"/>
+   		<property name="payLinkUrl" value="${paylink.url}" />
+   		
+   </bean>
+   
+</beans>

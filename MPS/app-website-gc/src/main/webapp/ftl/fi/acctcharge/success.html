@@ -1,0 +1,42 @@
+<!--侧导航企业版 end -->
+<#if Session["userSession"].scaleType==2>
+<#assign urlPath = 'corp' />
+<#else>
+<#assign urlPath = 'app' />
+</#if>
+<script type="text/javascript">
+	$(function(){
+		window.setTimeout("timeout()", 1*60*1000);
+		var name = $('#name').val();
+		var greeting =  $('#greeting').val();
+		var status = '${status?default('')}';
+		var msg = '${msg?default('')}';
+		var errorCode = '${errorCode?default('')}';
+		if(status=='1'){
+			if(msg!='msg'){
+				if(errorCode=='00000'||errorCode=='00001'){
+					window.location.href="${rc.contextPath}/${urlPath}/cardChannel.htm?method=cardChannelPaySuccess";
+				}else{
+					window.location.href="${rc.contextPath}/${urlPath}/cardChannel.htm?method=tradeCardFail";
+				}
+			}else{
+				setTimeout("getCayPayStatus()", 6*1000)	
+			}
+		}else if(status=='2'){
+			window.location.href="${rc.contextPath}/${urlPath}/cardChannel.htm?method=cardChannelPaySuccess";
+		}else if(status=='3'){
+			window.location.href="${rc.contextPath}/${urlPath}/cardChannel.htm?method=tradeCardFail";
+		}
+	});
+	
+	function timeout(){
+		var status = '${status?default('')}';
+		if(status=='1'){
+			var payFlag = '${payFlag?default('')}';
+			if(payFlag=='0'){
+				window.location.href="${rc.contextPath}/${urlPath}/cardChannel.htm?method=tradeCardFail";
+			}else
+				window.location.href="${rc.contextPath}/${urlPath}/cardChannel.htm?method=tradeCardTimeOut";
+		}
+	}
+</script>

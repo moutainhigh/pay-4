@@ -1,0 +1,453 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>运单管理</title>
+	<#include "/common/macro/seoPerson.ftl"> 
+	<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+	<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+	<meta http-equiv="pragma" content="no-cache"> 
+	<meta http-equiv="cache-control" content="no-cache"> 
+	<meta http-equiv="expires" content="0">
+	<script>
+		$(function(){
+			var uploadeTrackingForm,saveTrackingForm;
+			var uploadeDialog,saveDialog;
+			saveDialog=$("#dialog-editAndsave" ).dialog({
+			      autoOpen: false,
+			      height: 300,
+			      width: 400,
+			      modal: true,
+			      buttons: {
+			          "取消": function() {
+			        	  $("#dialog-editAndsave" ).dialog( "close" );
+			          },
+		      		  "确定":function() {
+		      				trackingSave();
+			          }
+			        },
+			      close: function() {
+			    	  document.getElementById("saveTracking").reset();
+			    	  //saveTrackingForm[0].reset();
+			    	  //$("#dialog-editAndsave").dialog( "close" );
+			      }
+			    });
+			uploadeDialog=$("#dialog-uploade" ).dialog({
+			      autoOpen: false,
+			      height: 300,
+			      width: 400,
+			      modal: true,
+			      buttons: {
+			          "取消": function() {
+			        	  $("#dialog-uploade" ).dialog( "close" );
+			          },
+		      	      "确定":function() {
+		      	    	  alert(1);
+		      	    	  batchUpload();
+		      	      }
+			        },
+			      close: function() {
+			    	  document.getElementById("uploadeTracking").reset();
+			    	  //uploadeTrackingForm[0].reset();
+			    	  //$("#dialog-uploade" ).dialog( "close" );
+			      }
+			    });
+		function reloadSite(){
+			location.reload();
+		}
+		 function batchUpload(){
+			 
+			 $('#uploadeTracking').submit();
+			/**var opt={};
+			opt.close=reloadSite;
+			var url = "${rc.contextPath}/corp/cross/trackingMgr.htm?method=submitUploade";
+			$.ajax({
+				type : "post",
+				url : url,
+				data:$('#uploadeTracking').serialize(),
+				datatype : "json",
+				success : function(data) {
+					var str = data;
+					var jsonStr = eval("("+str+")");
+					if (jsonStr.result === "success") {
+						$.pay.alert(jsonStr.message);
+						$("#dialog-uploade" ).dialog( "close" );
+						return;
+					} else {
+						$.pay.alert(jsonStr.message);
+						return;
+					}
+				}
+			});
+			**/
+		}
+		function trackingSave(){
+			var opt={};
+			opt.close=reloadSite;
+/* 			var vTradeOrderNo=$("#vTradeOrderNo").val();
+			var vTrackingNo=$("#vTrackingNo").val();
+			var vExpressCom=$("#expressCom").val();*/
+			var vQueryUrl=$("#queryUrl").val(); 
+		 	var regUrl=new RegExp("(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\&%_\./-~-]*)?");  
+		    if(!regUrl.test(vQueryUrl)){  
+		    	$.pay.alert("快递公司网站格式不正确");
+		    	return false;
+		    }  
+			var url = "${rc.contextPath}/corp/cross/trackingMgr.htm?method=SaveTracking";
+			/**var param = {
+					'tradeOrderNo' : vTradeOrderNo,
+					'trackingNo' : vTrackingNo,
+					'expressCom' : vExpressCom,
+					'queryUrl' : vQueryUrl,
+					
+				};
+			**/
+			$.ajax({
+				cache:true,
+				type : "post",
+				url : url,
+				data:$('#saveTracking').serialize(),
+				datatype : "json",
+				async:false,
+				success : function(data) {
+					var str = data;
+					var jsonStr = eval("("+str+")");
+					if (jsonStr.result == "success") {
+						$.pay.alert(jsonStr.message);
+						$("#dialog-editAndsave" ).dialog( "close" );
+						window.location.href = window.location.href;
+						return;
+					} else {
+						$.pay.alert(jsonStr.message);
+						return;
+					}
+				}
+			});
+		}
+		
+		/* saveTrackingForm = saveDialog.find( "form" ).on( "submit", function( event ) {
+	        event.preventDefault();
+	        trackingSave();
+	      });
+		alert(saveTrackingForm);
+		uploadeTrackingForm = uploadeDialog.find( "form" ).on( "submit", function( event ) {
+	        event.preventDefault();
+	        batchUpload();
+	      });  */
+		  })
+	 </script>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+			<#if tradeOrderNo?has_content>
+			$("#tradeOrderNo").val("${tradeOrderNo}");
+			</#if>	
+			<#if trackingNo?has_content>
+			$("#trackingNo").val("${trackingNo}");
+			</#if>	
+			$("#beginTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+			<#if beginTime?has_content>
+			$("#beginTime").val("${beginTime}");
+			</#if>
+			<#if endTime?has_content>
+				$("#endTime").val("${endTime}");	
+			</#if>
+			$("#checkStartTime").simpleDatepicker({compare:true,compareTime:'checkEndTime'});
+			<#if checkStartTime?has_content>
+			$("#checkStartTime").val("${checkStartTime}");
+			</#if>
+			<#if checkEndTime?has_content>
+				$("#checkEndTime").val("${checkEndTime}");	
+			</#if>
+			<#if status?has_content>
+				$("#status").val("${status}");
+			</#if>			
+			<#if completeFlg?has_content>
+			$("#completeFlg").val("${completeFlg}");
+		</#if>
+		});
+	</script>
+	
+	<script type="text/javascript">
+	function saveTrackingFunc(id,status){
+		var vID=id;
+		var vStatus=status;
+		$("#vTradeOrderNo").val(vID);
+		if(vStatus=="0"){
+			 $("#dialog-editAndsave" ).dialog( "option", "title", "运单信息保存" );
+		}
+		else if(vStatus=="1"){
+			 $("#dialog-editAndsave" ).dialog( "option", "title", "运单信息修改" );
+		}
+	    $("#dialog-editAndsave" ).dialog( "open" );
+	}
+	
+  </script>
+  
+<script type="text/javascript">
+	function uploadeTrackingFunc(){
+	    $("#dialog-uploade" ).dialog( "open" );
+	}
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head  mCode="corp_query_balance" />
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container">
+	<div class="refund_list">
+		<div class="refund_title"> 
+			<!--tab str -->
+			<div class="mode_tit">
+				<h2 class="sel"><a hre="javascript:void(0)">运单管理</a></h2>
+			</div>
+			<!--tab str --> 
+		</div>
+		<!--查询 str-->
+		<div class="order_search">
+			<form class="form" action="${rc.contextPath}/corp/cross/trackingMgr.htm?method=onSubmit" method="post" name="TrackingDetailForm" id="TrackingDetailForm">
+				<ul class="mt10">
+					<li>
+					    <label class="side">交易号：</label>
+						<input type="text" class="inp_normal w250"  value="" name="tradeOrderNo" id="tradeOrderNo">	
+					</li>
+					<li>
+					    <label class="side">运单号：</label>
+						<input type="text" class="inp_normal w250"  value="" name="trackingNo" id="trackingNo">	
+					</li>
+					<li>
+					    <label class="side">交易时间：</label>
+						<input type="text" class="Wdate inp_normal w380" name="beginTime"  readonly="readonly" id="beginTime" gtbfieldid="109" value="<#if startTime?has_content>${startTime?date}</#if>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false})">
+						<span>-</span>
+						<input type="text" class="Wdate inp_normal w380" name="endTime" readonly="readonly" id="endTime" gtbfieldid="110" value="<#if endTime?has_content>${endTime?date}</#if>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false})">
+					</li>
+					<li>
+					    <label class="side">审核时间：</label>
+						<input type="text" class="Wdate inp_normal w380" name="checkStartTime"  readonly="readonly" id="checkStartTime" gtbfieldid="109" value="<#if startTime?has_content>${startTime?date}</#if>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false})">
+						<span>-</span>
+						<input type="text" class="Wdate inp_normal w380" name="checkEndTime" readonly="readonly" id="checkEndTime" gtbfieldid="110" value="<#if endTime?has_content>${endTime?date}</#if>" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false})">
+					</li>
+					<li>
+						<label class="side">运单状态：</label>
+						<select id="status" name="status" class="inp_normal w100">
+							<option value="">请选择</option>
+							<option value="0">未上传</option>
+							<option value="1">已上传</option>
+							<option value="2">已审核</option>
+							<option value="3">审核未通过</option>
+						</select>
+					</li>
+					<li>
+						<label class="side">是否妥投：</label>
+						<select id="completeFlg" name="completeFlg" class="inp_normal w100">
+							<option value="">请选择</option>
+							<option value="0">否</option>
+							<option value="1">是</option>
+						</select>
+					</li>
+					<li>
+						<span class="btnC" style="margin-left:100px">
+							<button type="submit">查 询</button>
+						</span>
+					</li>
+					<li>
+						<span class="btnC" style="margin-left:100px">
+							<button type="button" onclick="return uploadeTrackingFunc();">批量上传运单</button>
+						</span>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<!--查询 end-->
+		
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title font14">查询结果</h3>
+				</div>
+				<div class="refund_box">
+					<div class="barg_table">
+					
+						<table>
+							<thead>
+									<tr>
+											<th>交易号</th>
+											<th>所属网站</th>
+											<th>订单号</th>
+											<th>运单号</th>
+											<th>上传时间</th>
+											<th>交易币种</th>
+											<th>外币金额</th>
+											<th>交易时间</th>
+											<th>运单状态</th>
+											<th>是否妥投</th>
+											<th>审核时间</th>
+											<th>操作</th>
+									</tr>
+								</thead>
+							<tbody>
+								<#if resultList?has_content>
+							 		<#list resultList as ts>
+										<tr <#if ts_index%2==0> class="gray" </#if> >
+											<td>${ts.tradeOrderNo!('')}</td>
+											<td>${ts.siteId}</td>
+			   								<td>${ts.orderId!('')}</td>
+			   								<td>${ts.trackingNo!('')}</td>
+			   								<td>
+			   									<#if ts.uploadeDate?exists>
+													${ts.uploadeDate?date}
+												</#if>
+											</td>
+											<td>${ts.currencyCode}</td>
+											<td>${ts.orderAmount?string}</td>
+											<td>
+												${ts.createDate?date}
+											</td>
+											<td>
+												<#if ts.status?exists>
+													<#if ts.status = '0'>
+														未上传
+													</#if>
+													<#if ts.status = '1'>
+														已上传
+													</#if>
+													<#if ts.status = '2'>
+														已审核
+													</#if>
+													<#if ts.status = '3'>
+														审核未通过
+													</#if>
+												<#else>
+													未上传
+												</#if>
+											</td>
+											<td>
+												<#if ts.deliveryStrtus?exists>
+													<#if ts.orderStatus = '0'>
+														否
+													</#if>
+													<#if ts.deliveryStrtus = '1'>
+														是
+													</#if>
+												<#else>
+													否
+												</#if>
+											</td>
+											<td>
+												<#if ts.checkDate?default("")?length lt 19>
+													${ts.checkDate?default("")}
+												<#else>
+													${ts.checkDate[0..18]}
+												</#if>
+											</td>
+											<td>
+												<#if ts.status?exists>
+													<#if ts.status = '0'>
+														<a href="javascript:void(0)" onclick="saveTrackingFunc('${ts.tradeOrderNo}',0);" style="text-decoration:underline;">保存</a>
+													</#if>
+													<#if ts.status = '1'>
+														<a href="javascript:void(0)"  onclick="saveTrackingFunc('${ts.tradeOrderNo}',1)" style="text-decoration:underline;">修改</a>
+													</#if>
+												<#else>
+														<a href="javascript:void(0)" onclick="saveTrackingFunc('${ts.tradeOrderNo}',0);" style="text-decoration:underline;">保存</a>
+												</#if>												
+											</td>
+										</tr> 
+									</#list>
+								</#if>
+								<!--<tr class="gray">-->
+							</tbody>
+						</table>
+					</div>
+					<div class="page_box">
+						<#if pu?exists>
+							<@sp.pagination pu=pu/>
+						</#if>
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+
+
+<div id="dialog-editAndsave" style="display: none; text-align:center">
+  <form id="saveTracking" name=saveTracking>
+  	<table style="text-align:center">
+  	  <tr><td>&nbsp; </td><td></td></tr>
+  	  <tr>
+      <td><label for="lbl_tradeOrderNo" class="side" style="margin-left:50px">交易号&nbsp;&nbsp;</label></td>
+      <td><input type="text" class="inp_normal w200" name="tradeOrderNo" id="vTradeOrderNo" value="" readonly="readonly"></td>
+      </tr>
+      <tr><td>&nbsp; </td><td></td></tr>
+      <tr><td><label for="lbl_trackingNo" class="side" style="margin-left:50px">运单号&nbsp;&nbsp;</label></td>
+      <td><input type="text" class="inp_normal w200" name="trackingNo" id="vTrackingNo" value=""></td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+      <tr><td><label for="lbl_ExpressName" class="side" style="margin-left:50px">快递公司名称&nbsp;&nbsp;</label></td>
+      <td><input type="text" class="inp_normal w200" name="expressCom" id="expressCom" value=""></td></tr>
+       <tr><td>&nbsp; </td><td></td></tr>
+       <tr><td><label for="lbl_ExpressURL" class="side" style="margin-left:50px">快递公司网站&nbsp;&nbsp;</label></td>
+      <td><input type="text" class="inp_normal w200" name="queryUrl" id="queryUrl" value=""></td></tr>
+ 
+      <!-- Allow form submission with keyboard without duplicating the dialog button -->
+     
+      <tr><td><input type="submit" tabindex="-1" style="position:absolute; top:-1000px"></td></tr>
+    </table>
+  </form>
+</div>
+<div id="dialog-uploade" title="运单批量上传" style="display: none; text-align:center">
+  <form action="${rc.contextPath}/corp/cross/trackingMgr.htm?method=submitUploade" id="uploadeTracking" enctype="multipart/form-data" name="uploadeTracking" method="post" target="hidden_frame" >
+  	<table style="text-align:center">
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr>
+      <td><label for="lbl_template" class="side" style="margin-left:50px">下载模板</label></td>
+      <td><a href="${rc.contextPath}/corp/cross/trackingMgr.htm?method=downLoadFile&fileName=Express_Template.csv" id="url_template" name="url_template" style="text-decoration:underline;">运单模板.csv</a></td>
+      </tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+      <tr><td><label for="lbl_trackingfile" class="side" style="margin-left:50px">上传文件</label></td>
+      <td><input type="file"  name="file_trackinguploade" id="file_trackinguploade" accept=".csv"  value="点击上传"></td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+<!--       Allow form submission with keyboard without duplicating the dialog button     --> 
+      <tr><td><input type="submit" tabindex="-1" style="position:absolute; top:-1000px"></td></tr>
+   </table>
+   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+  </form>
+</div>
+</html>
+
+<script type="text/javascript">
+	function callback(result){  
+		//window.parent.location.reload();
+		var opt={};
+		opt.close=reloadSite;
+	    //document.getElementById("file_trackinguploade").outerHTML = document.getElementById("file_trackinguploade").outerHTML; 
+	    var statue=result.split("|")[0];
+	    var msg=result.split("|")[1];
+	    if(statue=="Y"){
+			$.pay.alert(msg);
+			$("#dialog-uploade" ).dialog( "close" );
+			window.location.href = window.location.href;
+	    	}else if(statue=="N"){
+				$.pay.alert(msg);
+	    	}
+	    }
+</script>

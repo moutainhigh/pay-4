@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="operatorMenu" >
+  <typeAlias alias="operator_menu" type="com.pay.poss.featuremenu.model.OperatorMenu"/>
+    <resultMap id="operator_menu_map" class="operator_menu" >
+    <result column="OP_MENU_ID" property="opMenuId" jdbcType="INT" nullValue="0" />
+    <result column="OPERATE_ID" property="operateId" jdbcType="INT" nullValue="0"/>
+    <result column="MENU_ARRAY" property="menuArray" jdbcType="VARCHAR"/>
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATETIME"/>
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME"/>
+  </resultMap>
+  
+  <insert id="create" parameterClass="operator_menu">
+    	<selectKey resultClass="java.lang.Long" keyProperty="opMenuId">
+			SELECT seq_operator_menu_id.nextval as opMenuId FROM dual  
+		</selectKey>     
+        INSERT INTO t_operator_menu (op_menu_id, operate_id, menu_array, create_date, update_date)
+           VALUES(#opMenuId#,#operateId#,#menuArray#,SYSDATE,SYSDATE)
+    </insert>
+    
+   <select id="getByOpMenuId" parameterClass="java.lang.Long" resultMap="operator_menu_map">
+	SELECT op_menu_id, operate_id, menu_array, create_date, update_date FROM t_operator_menu WHERE op_menu_id = #opMenuId#
+  </select> 
+  
+    <select id="getByOperateId" parameterClass="java.lang.Long" resultMap="operator_menu_map">
+	SELECT op_menu_id, operate_id, menu_array, create_date, update_date FROM t_operator_menu WHERE operate_id = #operatorId#
+  </select>
+  
+   <update id="updateByOperateId" parameterClass="java.util.Map">
+     UPDATE t_operator_menu
+   		SET menu_array = #menuArray#,
+       		update_date = SYSDATE
+ 		WHERE operate_id = #operatorId#
+   </update>
+ </sqlMap>

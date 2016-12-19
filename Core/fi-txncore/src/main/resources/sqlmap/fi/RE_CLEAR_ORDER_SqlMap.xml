@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="RE_CLEAR_ORDER">
+    <resultMap class="com.pay.txncore.crosspay.model.ReclearOrder" id="BaseResultMap">
+      <result column="ID" jdbcType="DECIMAL" property="id" />
+      <result column="TRADE_BASE_NO" jdbcType="DECIMAL" property="tradeBaseNo" />
+      <result column="TRADE_ORDER_NO" jdbcType="DECIMAL" property="tradeOrderNo" />
+      <result column="REQUEST_SERIAL_ID" jdbcType="VARCHAR" property="requestSerialId" />
+      <result column="PARTNER_ID" jdbcType="VARCHAR" property="partnerId" />
+      <result column="ORDER_ID" jdbcType="VARCHAR" property="orderId" />
+      <result column="REMARK" jdbcType="VARCHAR" property="remark" />
+      <result column="STATUS" jdbcType="CHAR" property="status" />
+      <result column="REASON" jdbcType="CHAR" property="reason" />
+      <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+      <result column="UPDATE_DATE" jdbcType="TIMESTAMP" property="updateDate" />
+    </resultMap>
+    <sql id="RE_CLEAR_ORDER.Example_Where_Clause">
+      <iterate conjunction="or" prepend="where" property="oredCriteria" removeFirstPrepend="iterate">
+        <isEqual compareValue="true" property="oredCriteria[].valid">
+          (
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithoutValue">
+            <![CDATA[ $oredCriteria[].criteriaWithoutValue[]$ ]]>
+          </iterate>
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithSingleValue">
+            <![CDATA[ $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value# ]]>
+          </iterate>
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithListValue">
+            <![CDATA[ $oredCriteria[].criteriaWithListValue[].condition$ ]]>
+            <iterate close=")" conjunction="," open="(" property="oredCriteria[].criteriaWithListValue[].values">
+              <![CDATA[ #oredCriteria[].criteriaWithListValue[].values[]# ]]>
+            </iterate>
+          </iterate>
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithBetweenValue">
+            <![CDATA[
+            $oredCriteria[].criteriaWithBetweenValue[].condition$
+            #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+            #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+            ]]>
+          </iterate>
+          )
+        </isEqual>
+      </iterate>
+    </sql>
+    <sql id="RE_CLEAR_ORDER.oracle_Pagination_Head">
+      <dynamic>
+        <isNotEmpty property="oracleStart">
+          <isNotEmpty property="oracleEnd">
+            <![CDATA[ select * from ( select row_.*, rownum rownum_ from ( ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="RE_CLEAR_ORDER.oracle_Pagination_Tail">
+      <dynamic>
+        <isNotEmpty property="oracleStart">
+          <isNotEmpty property="oracleEnd">
+            <![CDATA[ ) row_ where rownum <= #oracleEnd# ) where rownum_ > #oracleStart# ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="RE_CLEAR_ORDER.Base_Column_List">
+      ID, TRADE_BASE_NO, TRADE_ORDER_NO, REQUEST_SERIAL_ID, PARTNER_ID, ORDER_ID, REMARK, 
+      STATUS, REASON, CREATE_DATE, UPDATE_DATE
+    </sql>
+    <select id="RE_CLEAR_ORDER.selectByExample" parameterClass="com.pay.txncore.crosspay.model.ReclearOrderCriteria" resultMap="BaseResultMap">
+      <include refid="RE_CLEAR_ORDER.oracle_Pagination_Head" />
+      select
+      <isParameterPresent>
+        <isEqual compareValue="true" property="distinct">
+          distinct
+        </isEqual>
+      </isParameterPresent>
+      <include refid="RE_CLEAR_ORDER.Base_Column_List" />
+      from RE_CLEAR_ORDER
+      <isParameterPresent>
+        <include refid="RE_CLEAR_ORDER.Example_Where_Clause" />
+        <isNotNull property="orderByClause">
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="RE_CLEAR_ORDER.oracle_Pagination_Tail" />
+    </select>
+    <select id="RE_CLEAR_ORDER.selectByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.ReclearOrder" resultMap="BaseResultMap">
+      select 
+      <include refid="RE_CLEAR_ORDER.Base_Column_List" />
+      <![CDATA[
+      from RE_CLEAR_ORDER
+      where ID = #id:DECIMAL#
+      ]]>
+    </select>
+    <insert id="RE_CLEAR_ORDER.insert" parameterClass="com.pay.txncore.crosspay.model.ReclearOrder">
+      <![CDATA[
+      insert into RE_CLEAR_ORDER (ID, TRADE_BASE_NO, TRADE_ORDER_NO, REQUEST_SERIAL_ID, 
+        PARTNER_ID, ORDER_ID, REMARK, STATUS, REASON, 
+        CREATE_DATE, UPDATE_DATE)
+      values (#id:DECIMAL#, #tradeBaseNo:DECIMAL#, #tradeOrderNo:DECIMAL#, #requestSerialId:VARCHAR#, 
+        #partnerId:VARCHAR#, #orderId:VARCHAR#, #remark:VARCHAR#, #status:CHAR#, #reason:CHAR#, 
+        #createDate:TIMESTAMP#, #updateDate:TIMESTAMP#)
+      ]]>
+    </insert>
+    <insert id="RE_CLEAR_ORDER.insertSelective" parameterClass="com.pay.txncore.crosspay.model.ReclearOrder">
+      insert into RE_CLEAR_ORDER
+      <dynamic prepend="(">
+        <isNotNull prepend="," property="id">
+          ID
+        </isNotNull>
+        <isNotNull prepend="," property="tradeBaseNo">
+          TRADE_BASE_NO
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo">
+          TRADE_ORDER_NO
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId">
+          REQUEST_SERIAL_ID
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+          PARTNER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+          ORDER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+          REMARK
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+          STATUS
+        </isNotNull>
+        <isNotNull prepend="," property="reason">
+          REASON
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+          CREATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+          UPDATE_DATE
+        </isNotNull>
+        )
+      </dynamic>
+      values
+      <dynamic prepend="(">
+        <isNotNull prepend="," property="id">
+          <![CDATA[ #id:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeBaseNo">
+          <![CDATA[ #tradeBaseNo:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo">
+          <![CDATA[ #tradeOrderNo:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId">
+          <![CDATA[ #requestSerialId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+          <![CDATA[ #partnerId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+          <![CDATA[ #orderId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+          <![CDATA[ #remark:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+          <![CDATA[ #status:CHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="reason">
+          <![CDATA[ #reason:CHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+          <![CDATA[ #createDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+          <![CDATA[ #updateDate:TIMESTAMP# ]]>
+        </isNotNull>
+        )
+      </dynamic>
+    </insert>
+    <select id="RE_CLEAR_ORDER.countByExample" parameterClass="com.pay.txncore.crosspay.model.ReclearOrderCriteria" resultClass="java.lang.Integer">
+      select count(*) from RE_CLEAR_ORDER
+      <include refid="RE_CLEAR_ORDER.Example_Where_Clause" />
+    </select>
+    <update id="RE_CLEAR_ORDER.updateByExampleSelective">
+      update RE_CLEAR_ORDER
+      <dynamic prepend="set">
+        <isNotNull prepend="," property="record.id">
+          <![CDATA[ ID = #record.id:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.tradeBaseNo">
+          <![CDATA[ TRADE_BASE_NO = #record.tradeBaseNo:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.tradeOrderNo">
+          <![CDATA[ TRADE_ORDER_NO = #record.tradeOrderNo:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.requestSerialId">
+          <![CDATA[ REQUEST_SERIAL_ID = #record.requestSerialId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerId">
+          <![CDATA[ PARTNER_ID = #record.partnerId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.orderId">
+          <![CDATA[ ORDER_ID = #record.orderId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.remark">
+          <![CDATA[ REMARK = #record.remark:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.status">
+          <![CDATA[ STATUS = #record.status:CHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.reason">
+          <![CDATA[ REASON = #record.reason:CHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.createDate">
+          <![CDATA[ CREATE_DATE = #record.createDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.updateDate">
+          <![CDATA[ UPDATE_DATE = #record.updateDate:TIMESTAMP# ]]>
+        </isNotNull>
+      </dynamic>
+      <isParameterPresent>
+        <include refid="RE_CLEAR_ORDER.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="RE_CLEAR_ORDER.updateByExample">
+      <![CDATA[
+      update RE_CLEAR_ORDER
+      set ID = #record.id:DECIMAL#,
+        TRADE_BASE_NO = #record.tradeBaseNo:DECIMAL#,
+        TRADE_ORDER_NO = #record.tradeOrderNo:DECIMAL#,
+        REQUEST_SERIAL_ID = #record.requestSerialId:VARCHAR#,
+        PARTNER_ID = #record.partnerId:VARCHAR#,
+        ORDER_ID = #record.orderId:VARCHAR#,
+        REMARK = #record.remark:VARCHAR#,
+        STATUS = #record.status:CHAR#,
+        REASON = #record.reason:CHAR#,
+        CREATE_DATE = #record.createDate:TIMESTAMP#,
+        UPDATE_DATE = #record.updateDate:TIMESTAMP#
+      ]]>
+      <isParameterPresent>
+        <include refid="RE_CLEAR_ORDER.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="RE_CLEAR_ORDER.updateByPrimaryKeySelective" parameterClass="com.pay.txncore.crosspay.model.ReclearOrder">
+      update RE_CLEAR_ORDER
+      <dynamic prepend="set">
+        <isNotNull prepend="," property="tradeBaseNo">
+          <![CDATA[ TRADE_BASE_NO = #tradeBaseNo:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo">
+          <![CDATA[ TRADE_ORDER_NO = #tradeOrderNo:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId">
+          <![CDATA[ REQUEST_SERIAL_ID = #requestSerialId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+          <![CDATA[ PARTNER_ID = #partnerId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+          <![CDATA[ ORDER_ID = #orderId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+          <![CDATA[ REMARK = #remark:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+          <![CDATA[ STATUS = #status:CHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="reason">
+          <![CDATA[ REASON = #reason:CHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+          <![CDATA[ CREATE_DATE = #createDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+          <![CDATA[ UPDATE_DATE = #updateDate:TIMESTAMP# ]]>
+        </isNotNull>
+      </dynamic>
+      <![CDATA[
+      where ID = #id:DECIMAL#
+      ]]>
+    </update>
+    <update id="RE_CLEAR_ORDER.updateByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.ReclearOrder">
+      <![CDATA[
+      update RE_CLEAR_ORDER
+      set TRADE_BASE_NO = #tradeBaseNo:DECIMAL#,
+        TRADE_ORDER_NO = #tradeOrderNo:DECIMAL#,
+        REQUEST_SERIAL_ID = #requestSerialId:VARCHAR#,
+        PARTNER_ID = #partnerId:VARCHAR#,
+        ORDER_ID = #orderId:VARCHAR#,
+        REMARK = #remark:VARCHAR#,
+        STATUS = #status:CHAR#,
+        REASON = #reason:CHAR#,
+        CREATE_DATE = #createDate:TIMESTAMP#,
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      where ID = #id:DECIMAL#
+      ]]>
+    </update>
+  </sqlMap>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="fo-autowithdrawPropertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		p:ignoreUnresolvablePlaceholders="true" p:order="1">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/poss/context-poss.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fundout_auto_time_task"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="fundout_auto_time_service" />
+		</property>
+            <!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>executeStartQuartz</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout_auto_more_time_task"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="fundout_auto_more_time_service" />
+		</property>
+            <!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>executeStartQuartz</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout_auto_quota_task"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="fundout_auto_quota_service" />
+		</property>
+            <!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>executeStartQuartz</value>
+		</property>
+	</bean>
+	
+    <!-- 自动提现定时 触发,规则时间根据后台设置-->
+	<bean id="fundout_auto_time_trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout_auto_time_task" />
+		</property>
+            <!-- cron表达式 -->
+		<property name="cronExpression">
+			<value>${fundout.autotime.withdraw.quartz}</value>
+		</property>
+	</bean>
+	
+	 <!-- 自动提现定期按时间点 触发,规则时间根据后台设置-->
+	<bean id="fundout_auto_more_time_trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout_auto_more_time_task" />
+		</property>
+            <!-- cron表达式 -->
+		<property name="cronExpression">
+			<value>${fundout.automoretime.withdraw.quartz}</value>
+		</property>
+	</bean>
+
+    <!-- 自动提现定额触发 每1小是执行一次-->
+	<bean id="fundout_auto_quota_trigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout_auto_quota_task" />
+		</property>
+            <!-- cron表达式 -->
+		<property name="cronExpression">
+			<value>${fundout.autoquota.withdraw.quartz}</value>
+		</property>
+	</bean>
+</beans>

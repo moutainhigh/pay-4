@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>gcpayment支付-代客下单交易查询</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+});
+</script>
+
+</head>
+<body>
+<@sp.head mCode="corp_proxyorder,bsp_pay_detail"/>
+<div class="container share_wrap">
+	<div> 
+		<div class="order_search">
+			<form class="form" action="${rc.contextPath}/corp/proxyorder.htm?method=query" method="post" name="incomeDetailForm" id="incomeDetailForm">
+			<div class="slelct_down">
+					<ul>
+						<li>
+							<label class="side">手机号码：</label>
+							<input type="text" name="mobile" id="mobile" gtbfieldid="110" value="${proxyOrder.mobile}" class="inp_normal w200"/>
+						</li> 
+						<li>
+							<label class="side">身份证号：</label>
+							<input type="text" name="idNo" id="idNo" gtbfieldid="110" value="${proxyOrder.idNo}" class="inp_normal w200"/>
+						</li>
+						<li>
+							<label class="side">姓       名：</label>
+							<input type="text" name="name" id="name" gtbfieldid="110" value="${proxyOrder.name}" class="inp_normal w200"/>
+						</li>
+						<li>
+							<label class="side">订单号：</label>
+							<input type="text" name="id" id="id" gtbfieldid="110" value="${proxyOrder.id}" class="inp_normal w200"/>
+						</li>
+						
+						<li>
+							<label class="side">订单状态：</label>
+							<select name="status" id="status" class="inp_normal w200" >
+								<option value="">--请选择--</option>
+								<option value="0" <#if proxyOrder.status==0>selected="selected"</#if>>进行中</option>
+								<option value="1" <#if proxyOrder.status==1>selected="selected"</#if>>成功</option>
+								<option value="2" <#if proxyOrder.status==2>selected="selected"</#if>>失败</option>
+							</select>
+						</li>
+						<li>
+							<label class="side">订单时间：</label>
+							<input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate inp_normal w130" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',maxDate:'#F{$dp.$D(\'endTime\')}'})" gtbfieldid="109" value="${proxyOrder.createTime?string("yyyy-MM-dd HH:mm:ss")}">
+							<span>-</span>
+							<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate inp_normal w130" onClick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'startTime\')}'})" gtbfieldid="110" value="${proxyOrder.endTime?string("yyyy-MM-dd HH:mm:ss")}"	/>
+						</li>
+					</ul>
+						<ul id="moreContent" style="padding-left:98px;">
+							<span class="btn_yel" >
+							<button type="submit" id="payAction" name="payAction" tabindex="11">查询</button>
+							</span>
+						</ul>
+					
+				</div>
+				</form>
+		</div>
+		
+		<div class="refund_list">
+			<div class="refund_title"> 
+				<div class="mode_tit" style="height:1px;">
+				</div>
+			</div>
+			<div class="refund_box"> 
+				<div class="barg_table">
+				<table>
+					<tr>
+						<th width="8%">订单号</th>
+						<th width="5%">姓名</th>
+						<th width="15%">身份证号</th>
+						<th width="15%">银行卡号</th>
+						<th>手机号码</th>
+						<th>支付订单号</th>
+						<th>交易金额</th>
+						<th>商品描述</th>
+						<th>订单状态</th>
+						<th>操作</th>
+					</tr>
+					 <#if proxyOrderList?has_content>
+		   				<#list proxyOrderList as ts>
+							<tr>
+								<td align="center">${ts.id?default('')}</td>
+								<td align="center">${ts.name?default('')}</td>
+								<td align="center"><#if (ts.idNo)??>${ts.idNo[0..5]}****${ts.idNo?substring(ts.idNo?length-4)}</#if></td>
+								<td align="center"><#if (ts.bankNo)??>${ts.bankNo[0..5]}****${ts.bankNo?substring(ts.bankNo?length-4)}</#if></td>
+								<td align="center">${ts.mobile?default('')}</td>
+								<td align="center">${ts.id?default('')}</td>
+								<td align="center">${(ts.amount*0.001)?string(",##0.00")}</td>
+								<td align="center">${ts.voiceContent?default('')}</td>
+								<td align="center">
+									<#if ts.status == 0>
+										进行中
+									<#elseif ts.status == 1>
+										支付成功
+									<#elseif ts.status == 2>
+										支付失败
+									<#else>
+										${ts.status}
+									</#if>	
+								</td>
+								<td align="center"><a target="_blank" class="blues" href="${rc.contextPath}/corp/proxyorder.htm?method=detail&id=${ts.id!''}">查看</a></td>
+							</tr>
+						</#list>
+		 			</#if>
+				</table>
+				</div>
+				<#if pu?has_content>
+					<@sp.pagination pu=pu/>
+				</#if>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

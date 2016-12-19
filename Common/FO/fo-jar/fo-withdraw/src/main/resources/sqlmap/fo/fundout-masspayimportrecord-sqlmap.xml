@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="masspayimportrecord">
+	<typeAlias alias="masspayImportRecord"
+		type="com.pay.fundout.withdraw.model.batchpaytoaccount.MasspayImportRecord" />
+	<typeAlias alias="masspayImportRecordDTO"
+		type="com.pay.fundout.withdraw.dto.batchpaytoaccount.MasspayImportRecordDTO" />
+
+	<select id="getImportFileByGenerateOrderFail" parameterClass="map"
+		resultClass="masspayImportRecord">
+	SELECT 
+    MR.PAYEE_NAME AS PAYEENAME,
+    MR.PAYMENT_AMOUNT AS AMOUNT,
+    MR.ORDER_STATUS AS STATUS,
+    MR.REQUEST_SEQ AS FILEKY,
+    MR.DETAIL_SEQ AS SEQUENCEID,
+    MR.CREATE_DATE AS CREATEDATE,
+    MR.PAYEE_LOGINNAME AS PAYEELOGINNAME,
+    T.TYPE PAYEEMEMBERTYPE,
+    MR.REQUEST_AMOUNT AS AMOUNTINFO,
+    MR.REMARK REMARK,
+    BP.PAYER_LOGINNAME PAYERLOGINNAME,
+    BP.PAYER_NAME PAYERNAME,
+    BP.BUSINESS_BATCH_NO BUSINESSBATCHNO
+  	FROM FO.BATCH_PAYMENTTOACCTREQDETAIL MR,FO.BATCH_PAYMENTORDER BP,FO.BATCH_PAYMENTREQBASEINFO BPR,ACC.T_MEMBER T
+ 	WHERE BP.PAYER_MEMBERCODE = BPR.PAYER_MEMBERCODE
+    AND BP.BUSINESS_BATCH_NO = BPR.BUSINESS_BATCHNO
+    AND BPR.REQUEST_SEQ = MR.REQUEST_SEQ
+    AND MR.PAYEE_LOGINNAME = T.LOGIN_NAME
+    AND ORDER_TYPE = 2
+    AND MR.ORDER_STATUS = 0
+    AND BPR.REQUEST_TYPE = 2
+    AND BP.PAYMENT_COUNT <![CDATA[<>]]> (SELECT COUNT(1) FROM FO.PAY_TOACCTORDER WHERE PARENT_ORDERID IS NOT NULL AND PARENT_ORDERID = BP.ORDER_ID)
+        <isNotEmpty prepend="AND" property="batchNum">
+            BP.BUSINESS_BATCH_NO = #batchNum#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="payerMember">
+        	BP.PAYER_MEMBERCODE = #payerMember#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="startDate">
+            BP.create_date >= to_date(#startDate#,'yyyy-MM-dd')
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+        	BP.create_date <![CDATA[<]]> to_date(#endDate#,'yyyy-MM-dd') +1
+        </isNotEmpty>
+    </select>
+
+	<select id="getImportFileByGenerateOrderFail_COUNT"
+		parameterClass="map" resultClass="Integer">
+	SELECT 
+    COUNT(1)
+  	FROM FO.BATCH_PAYMENTTOACCTREQDETAIL MR,FO.BATCH_PAYMENTORDER BP,FO.BATCH_PAYMENTREQBASEINFO BPR,ACC.T_MEMBER T
+ 	WHERE BP.PAYER_MEMBERCODE = BPR.PAYER_MEMBERCODE
+    AND BP.BUSINESS_BATCH_NO = BPR.BUSINESS_BATCHNO
+    AND BPR.REQUEST_SEQ = MR.REQUEST_SEQ
+    AND MR.PAYEE_LOGINNAME = T.LOGIN_NAME
+    AND ORDER_TYPE = 2
+    AND MR.ORDER_STATUS = 0
+    AND BPR.REQUEST_TYPE = 2
+    AND BP.PAYMENT_COUNT <![CDATA[<>]]> (SELECT COUNT(1) FROM FO.PAY_TOACCTORDER WHERE PARENT_ORDERID IS NOT NULL AND PARENT_ORDERID = BP.ORDER_ID)
+        <isNotEmpty prepend="AND" property="batchNum">
+            BP.BUSINESS_BATCH_NO = #batchNum#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="payerMember">
+        	BP.PAYER_MEMBERCODE = #payerMember#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="startDate">
+            BP.create_date >= to_date(#startDate#,'yyyy-MM-dd')
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+        	BP.create_date <![CDATA[<]]> to_date(#endDate#,'yyyy-MM-dd') +1
+        </isNotEmpty>
+    </select>
+</sqlMap>

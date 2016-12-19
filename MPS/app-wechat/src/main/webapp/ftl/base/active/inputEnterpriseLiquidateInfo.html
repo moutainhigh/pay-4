@@ -1,0 +1,270 @@
+	<!DOCTYPE HTML>
+<html>
+<#escape x as x?html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${fill_register_message}${title}</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/css.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript">
+function isBankNameRight(sId,obj){
+	var bkText=$("#bankCode").find("option:selected").text(); 
+	if($(obj).val().indexOf(bkText)<0){
+			return "开户行名称不正确";
+		}
+	return true;
+}
+
+function checkBankNo(sId,obj){
+	var bankCode =$("#bankAcct1").val();
+	var bankNo = $("#bankId").val();
+	if(bankCode != '' && bankNo != ''){                   
+      $.get("${rc.contextPath}/app/checkBankCard.htm?method=checkBankNo",{bankCode:bankCode,bankId:bankNo}, 
+      function(result){
+          if(result == 1){
+        	  $("#bankAcct1Tip").html("您输入的卡号非借记卡！");
+        	   $("#liquidate_submit").attr("disabled", true);
+        	  return false;
+          }
+          else if(result == 2){
+        	  $("#bankAcct1Tip").html("您输入的卡号与开户行不匹配！");
+        	   $("#liquidate_submit").attr("disabled", true);
+        	  return false;
+        	 
+          }
+          else{
+        	  $("#sub_button").attr("disabled", false);
+        	  $("#liquidate_submit").html("");
+        	  return true;
+          }
+
+      });
+    }
+}
+
+
+function checkSearch(){
+	if($("#bankId").val() == '' || $("#bankId").val().length < 1){
+		$("#bankIdTip").html("<font color='red'>请选择需要添加的银行。</font>");
+		$("#bankIdTip").addClass('onshow');			
+		return false;
+	}
+	if($("#province").val() == '' || $("#province").val().length < 1){
+		$("#provinceTip").html("<font color='red'>请选择银行所在地区。</font>");
+		$("#provinceTip").addClass('onshow');			
+		return false;
+	}
+	if($("#city").val() == '' || $("#city").val().length < 1){
+		$("#provinceTip").html("<font color='red'>请选择银行所在地区。</font>");
+		$("#provinceTip").addClass('onshow');			
+		return false;
+	}
+}
+
+$(function(){
+	
+	$("#bankName").keyup(function(){
+		var strs = $("#bankName").val();
+		if(checkSearch() == false || "" == strs || null == strs){
+			$("#add_auto").hide();
+			return false;
+		}
+		if(strs != null && strs != ''){
+			var bank = $("#bankId").find("option:selected").text();
+			var province = $("#province").find("option:selected").text();
+			var city = $("#city").find("option:selected").text();
+			$("#add_auto").load("${rc.contextPath}/liquidateInfo.htm?method=queryBanksFO",{strs:strs,bank:bank,province:province,city:city},function(callback){
+				if(callback.indexOf("li")==-1){
+					$("#add_auto").hide();
+					return false;
+				}else{
+					if($.browser.msie){
+						if($.browser.version.indexOf("6")!=-1){
+							if(($("#add_auto").attr("clientHeight")==0 && $("#add_auto").html()!='') || $("#add_auto").attr("clientHeight")>138){
+								$("#add_auto").css("height","138px");
+							}else{
+								$("#add_auto").css("height","auto");	
+							}
+						}
+					}
+					$("#add_auto").show();
+					return true;
+				}
+			});
+		}
+	});
+	
+	$.formValidator.initConfig({
+		formid:"inputEnterpriseLiquidateInfo",
+		onerror:function(msg,obj){
+			$("#liquidate_submit").attr("disabled", false);
+		},
+		onsuccess:function(msg,obj){
+			$("#liquidate_submit").attr("disabled", true);
+			return true;
+		}});
+
+	$("input").blur(function(){
+		$(this).val($(this).val().trim());
+	});
+	$("#bankId").blur(function(){
+		checkBankNo();
+	});
+	 $("#bankAcct1").formValidator({tipid:"bankAcct1Tip",onshow:"银行卡号位数必须8-30位,请确认",onfocus:"银行卡号不能为空",oncorrect:" "})
+		.inputValidator({min:8,max:30,empty:false,onerror:"银行卡号位数必须8-30位,请确认"})
+		.regexValidator({regexp:"numeric",datatype:"enum",onerror:"银行卡号只能输入整数，请重新输入"});
+
+	 $("#bankAcct2").formValidator({tipid:"bankAcct2Tip",onshow:"银行卡号位数必须8-30位,请确认",onfocus:"银行卡号不能为空",oncorrect:" "})
+		.inputValidator({min:8,max:30,empty:false,onerror:"银行卡号位数必须8-30位,请确认"})
+		.regexValidator({regexp:"numeric",datatype:"enum",onerror:"银行卡号只能输入整数，请重新输入"})
+		.compareValidator({desid:"bankAcct1",operateor:"=",onerror:"两次银行卡不一致,请确认"});
+	 
+	$("#province").formValidator({tipid:"provinceTip",onshow:" ",onfocus:" ",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"请选择企业开户行所在地区"})
+		.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"包含非法字符，请重新输入"});
+
+	$("#city").formValidator({tipid:"cityTip",onshow:" ",onfocus:"",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"请选择企业开户行所在地区"})
+		.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"包含非法字符，请重新输入"});
+
+ 	$("#bankName").formValidator({tipid:"bankNameTip",onshow:"例如：中国工商银行上海支行",onfocus:"开户行名称不能为空",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"开户行名称不能为空,请确认"})
+		.functionValidator({fun:isBankNameRight});
+	
+	$("#bankId").formValidator({tipid:"bankIdTip",onshow:" ",onfocus:" ",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"选择企业开户银行"});
+
+	
+
+	$("#province").change(function(){
+		var city = $("#cy").attr("value");
+		$("#city").load("${rc.contextPath}/province.htm?method=city&provinceId="+$(this).val()+"&defaultCity="+city);
+	});
+
+	$("#liquidate_submit").click(function(){
+		$("#inputEnterpriseLiquidateInfo").submit();
+	});
+	
+	$(document).ready(function(){
+		var province = $("#pv").attr("value");
+		var city = $("#cy").attr("value");
+		$("#province").load("${rc.contextPath}/province.htm?defaultProvince="+province);
+		if(province!='' && city!=''){
+			$("#city").load("${rc.contextPath}/province.htm?method=city&provinceId="+province+"&defaultCity="+city);
+		}
+	});
+});
+
+
+</script>
+<style>
+#add_auto #banks li{ padding:0 22px 0 5px;white-space:nowrap; overflow:hidden;clear:both;_float:left;_display:inline;zoom:1;}
+</style>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=1 type=2/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box lightUp">
+		<div class="tit">
+			<h3><strong>用户注册</strong></h3>
+			<a class="more red" href="${rc.contextPath}/baseHelp.htm?method=enterpriseAccessDetails&select=10">查看开户许可证示例</a>
+		</div>
+		<form class="con_box" method="post" id="inputEnterpriseLiquidateInfo" action="${rc.contextPath}/liquidateInfo.htm?method=saveLiquidateInfo">
+				<div class="step">
+					<ol class="step-2">
+						<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+						<li class="li-1"><span><i>1</i>填写注册信息</span></li>
+						<li class="li-2"><i>2</i>填写银行信息</li>
+						<li class="li-3"><i>3</i>激活帐号</li>
+						<li class="li-4"><span><i>4</i>注册成功</span></li>
+					</ol>
+				</div>
+				<div class="ico_txtBox mt10"><i class="warn_ico"></i><span>银行信息填写</span></div>
+				<ul>
+					<li><p class="onError">${errMsg?default('')}</p></li>
+					<li>
+						<label for=""><i>*</i>开户公司名称：</label>
+						<strong>${companyName?default('')}</strong>
+					</li>
+					
+					<li>
+						<label for=""><i>*</i>开户银行名称：</label>
+						<select id="bankId" name="bankId"  class="selType2">
+							<option value="">请选择银行</option>									
+							<#if bankList?exists>
+								<#list bankList as list>
+									<#if bankId?exists>									
+							<option <#if list.bankId = bankId>selected="selected"</#if> value="${list.bankId?default(0)}">${list.bankName?default('')}</option>
+									<#else>
+							<option value="${list.bankId?default(0)}">${list.bankName?default('')}</option>
+									</#if>
+								</#list>
+							</#if>
+						</select>
+						<span id="bankIdTip"></span>
+					</li>
+					
+					<li>
+						<label for=""><i>*</i>开户银行所在地：</label>
+						<select name="province" id="province" class="selType2" >
+							<#list provinceList as p>
+								<#if province?exists>
+								<option <#if p.provincecode = province>selected="selected"</#if> value="${p.provincecode}">${p.provincename}</option>
+								<#else>
+								<option value="${p.provincecode}">${p.provincename}</option>
+								</#if>
+							</#list>
+						</select>&nbsp;
+						<select name="city" id="city" class="selType2">										
+							<option value="" selected="selected">---请选择城市---</option>					
+						</select>
+						
+						<span id="provinceTip"></span>
+					</li>
+					
+					<li class="rel">
+						<label for=""><i>*</i>开户支行名称：</label>
+						<input class="inp_normal w200" disableautocomplete autocomplete="off" id="bankName" value="" name="bankName" type="text" />
+						<div id="add_auto" style="width:auto;height:auto; max-height:138px;left:157px;top:29px; overflow:hidden; overflow-y:auto; display:none;">
+						</div>
+						<div id="hide_div_add_auto" style="display:none"></div>
+						<span id="bankNameTip"></span>
+					</li>
+					
+					<li>
+						<label for=""><i>*</i>公司银行帐号：</label>
+						<input class="inp_normal w200" id="bankAcct1" value="${bankAcct1?default('')}" name="bankAcct1" type="text" /><span id="bankAcct1Tip"></span>
+					</li>
+					
+					<li>
+						<label for=""><i>*</i>请再输入一遍：</label>
+						<input class="inp_normal w200" id="bankAcct2" value="${bankAcct2?default('')}" name="bankAcct2" type="text" /><span id="bankAcct2Tip"></span>
+					</li>
+					
+					<li class="btn"><span class="btn_yel"><button id="liquidate_submit">确认提交</button></span></li>
+				</ul>
+				<input type="hidden" id="pv" value="${province?default('')}">
+				<input type="hidden" id="cy" value="${city?default('')}">
+		</form>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+</#escape>
+</html>

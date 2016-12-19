@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="chargeup-balanceEntry">
+	<typeAlias alias="BalanceEntry" type="com.pay.ma.chargeup.model.BalanceEntry" />
+	<!-- 查询记录失败的分录 -->
+	<select id="queryBalanceEntryWithSerialNo" parameterClass="map" resultClass="BalanceEntry">
+			
+				select
+						voucher_code				as vouchercode,
+						acct_code					as acctcode,
+						crdr						as crdr,
+						value						as value,
+						text						as text,
+						dealId						as dealId,
+						payment_service_code		as paymentServiceId,
+						creation_date				as createdate,
+						status						as status,
+						entry_code					as entrycode,
+						post_date					as postDate,
+						entry_type					as entryType,
+						currency_code				as currencyCode,
+						EXCHANGE_RATE				as exchangeRate,
+						transaction_date			as transactiondate,
+						bentry_id					as id,
+						update_date					as updateDate,
+						balance						as balance,
+						pay_date					as payDate,
+						balance_direct				as maBlanceBy
+				from
+					T_BALANCE_ENTRY
+				where
+					dealId	=  #serialNo#
+					and deal_code = #dealCode#
+				<isNotNull prepend="AND" property="voucherCode">
+           			voucher_code = #voucherCode# 
+       	 		</isNotNull>
+	</select>
+</sqlMap>

@@ -1,0 +1,164 @@
+<div class="pay_cashier hide" id="acctPay">
+	<ul>
+		<li  class="txt_pop">
+		<label class="form_side">应付总价：</label><strong class="red">${orderAmount?default('')}</strong> 元   
+				(含手续费金额：<span class='red'>${acctfee?default('0')}</span> 元)<span class='blue ml20 pointer' onMouseOver='javascript:gatewayACCTfeeShow()'  onmouseout='javascript:closeAcctFeeShow()' >关于手续费</span>
+				
+				<div id="gatewayACCTfeeShow" class="txt_pop_con" style=" bottom:10px;left:340px; display:none;"> <span class="close_pop" title="关闭" onclick="javascript:closeFeeShow()">X</span>
+					<p class="c_666">经该商户约定，使用本支付渠道时，需缴纳${acctfee?default('')}元使用手续费</p>
+				</div>
+		</li>
+	<ul>
+	
+	<br/>
+	<#if tempMember?exists>
+		<div class="ico_txtBox"><i class="warn_ico"></i>
+			<p>您的账户还没有激活，请在<a href="${rc.contextPath}/toActiveMember.htm?loginName=${loginName?default('')}" class="reds">激活</a>之后使用安捷支付余额支付</p>
+		</div>
+	<#else>
+		
+		<#if ACCT?default('') == "YES" && ACCT_B?default('') == "YES">
+			<div id="radio_div">
+				<label class="form_side">支付类型：</label>	
+				<input type="radio" id="radio_type1" name="radio_type1" onclick="radio_type1();" checked="true">个人账户
+				<input type="radio" id="radio_type2" name="radio_type2" onclick="radio_type2();">企业账户
+			</div>
+		<#elseif ACCT?default('') == "YES" && ACCT_B?default('') != "YES">
+			<div id="radio_div"  style="display:none;">
+				<label class="form_side">支付类型：</label>		
+				<input type="radio" id="radio_type1" name="radio_type1" onclick="radio_type1();" checked="true">个人账户
+				<input type="radio" id="radio_type2" name="radio_type2" onclick="radio_type2();">企业账户
+			</div>
+		<#elseif ACCT?default('') != "YES" && ACCT_B?default('') == "YES">
+			<div id="radio_div"  style="display:none;">
+				<label class="form_side">支付类型：</label>		
+				<input type="radio" id="radio_type1" name="radio_type1" onclick="radio_type1();" checked="true">个人账户
+				<input type="radio" id="radio_type2" name="radio_type2" onclick="radio_type2();">企业账户
+			</div>
+			
+			<div id="acct2">
+				<br/>
+				<form id="acctbPayForm" name="acctbPayForm" autocomplete="off" action="${rc.contextPath}/acctBusinessPay.htm?method=checkCode" method="post" onSubmit="return false;">
+					<ul class="form_list">
+						
+						<li>
+							<label class="form_side">支付账号：</label>
+							<input id="acctb1" type="text" class="inp_normal w200" name="acctb1" tabindex="1" 
+							value="<#if loginName?default('') != "">${loginName?default('')}<#else>${mobileNo?default('')}</#if>" />
+						</li>
+						
+						<li>
+							<label class="form_side">操作员：</label>
+							<input id="acctb2" type="text" class="inp_normal w200" name="acctb2" tabindex="1" />
+						</li>
+						<li>
+							<label class="form_side">验证码：</label>
+							<input id="randCode" name="randCode" type="text" class="txtType3"  maxlength="4" style="width:80px;"  tabindex="1"/>
+							<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+							<a id="refush" href="javascript:void(0);">换一张</a>
+						</li>
+						
+						<li>
+							<p class="red"><span class="red" id="acctbErr"> ${CHECK_ACCTB_FLAG?default('')}</span></p>
+						</li>
+						<li id="acctPayFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctbPayFormSubmit"><button onclick="onSub();">下一步</button></span>
+						</li>
+					</ul>
+				</form>
+			</div>
+			
+			<script>
+			$(function(){
+				 document.getElementById('acct1').style.display = "none";
+			});
+			</script>
+	</#if>
+		
+		<div id="acct1">
+			<br/>
+			<form id="acctPayForm" name="acctPayForm" autocomplete="off" action="${rc.contextPath}/acctPay.htm?method=onSubmit" method="post" onSubmit="return false;">
+				<ul class="form_list">
+				<#if !hasLogin?exists>
+					<li><label class="form_side">支付账户：</label><strong>${loginName?default('')}</strong></li>
+					<li><label class="form_side">当前余额：</label><strong class="red">${balance?default(0)}</strong> 元 <a href="${rc.contextPath}/app/acctCharge.htm" class="blue ml30">充 值</a></li>
+				</#if>
+				<#if hasLogin?exists>
+					<li><label class="form_side">输入支付账号：</label><input id="account" type="text" class="inp_normal w200" name="loginName" tabindex="1"
+									value="<#if loginName?default('') != "">${loginName?default('')}<#else>${mobileNo?default('')}</#if>" /></li>
+				</#if>
+				<#if paymentpasswordSetted?exists>
+					<li><label class="form_side">请输入支付密码：</label><@sp.password cid="paySafeEdit" id="acctPassword" tabindex="2" nextTabid="acctPayFormSubmit" name="acctPassword" width="209px" form="acctPayForm" height="24px" style="margin-bottom: 0px;" class="inp_normal" useCert="0"/>
+						<span class="c_999 ml20">支付密码如果连续输错3次，账户将被锁定</span>
+						<p class="red"><span class="red" id="acctErr"> ${verifyMsg?default('')}</span></p>
+					</li>
+				<#else>
+					<li><label class="form_side">未设置支付密码：</label>
+						点击<a class="reds" href="${rc.contextPath}/app/toupdatepaypwdpage.do?paypwdurl=set" target="_bank"> 这里设置支付密码</a>。</td>
+					</tr>
+				</#if>
+				<li id="acctPayFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctPayFormSubmit"><button>确认付款</button></span>
+				</li>
+				</ul>
+					<input type="hidden" name="loginName" value="${loginName?default('')}"/>
+					<input type="hidden" name="password" value=""/>
+					<input type="hidden" name="ordersKey" value="${ordersKey?default('')}"/>
+			</form>
+		</div>
+		
+		<div id="acct2" style="display:none;">
+			<br/>
+			<form id="acctbPayForm" name="acctbPayForm" autocomplete="off" action="${rc.contextPath}/acctBusinessPay.htm?method=checkCode" method="post" onSubmit="return false;">
+			<ul class="form_list">
+				
+				<li>
+					<label class="form_side">支付账号：</label>
+					<input id="acctb1" type="text" class="inp_normal w200" name="acctb1" tabindex="1" 
+					value="<#if loginName?default('') != "">${loginName?default('')}<#else>${mobileNo?default('')}</#if>" />
+				</li>
+				
+				<li>
+					<label class="form_side">操作员：</label>
+					<input id="acctb2" type="text" class="inp_normal w200" name="acctb2" tabindex="1" />
+				</li>
+				<li>
+					<label class="form_side">验证码：</label>
+					<input id="randCode" name="randCode" type="text" class="txtType3"  maxlength="4" style="width:80px;"  tabindex="1"/>
+					<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+					<a id="refush" href="javascript:void(0);">换一张</a>
+				</li>
+				
+				<li>
+					<p class="red"><span class="red" id="acctbErr"> ${CHECK_ACCTB_FLAG?default('')}</span></p>
+				</li>
+				<li id="acctPayFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctPayFormSubmit"><button onclick="onSub();">下一步</button></span>
+				</li>
+			</ul>
+			</form>
+		</div>
+		
+		<div id="acct3"  style="display:none;">
+	
+			<form id="acctbPayCheckForm" name="acctbPayCheckForm" autocomplete="off" action="${rc.contextPath}/acctPay.htm?method=onSubmit" method="post" onSubmit="return false;">
+				<ul class="form_list">	
+					<li><label class="form_side">问候语：</label>${ACCTB_GREET?default('')}</li>
+					<li><label class="form_side">支付金额：</label><strong class="red">${totalAmount?default('')}</strong> 元</li>
+					<li><label class="form_side">请输入支付密码：</label>
+					<@sp.password cid="paySafeEdit1" id="acctPassword1" tabindex="1" nextTabid="acctbPayCheckFormSubmit" name="acctPassword1" width="209px" form="acctbPayCheckForm" height="24px" style="margin-bottom: 0px;" class="inp_normal" memberCode="${memberCode?default('')}" operatorId="${operatorId?default('')}" />
+						<span class="c_999 ml20">支付密码如果连续输错3次，账户将被锁定</span>
+						<p class="red"><span class="red" id="acctcbErr"> ${verifyMsg?default('')}</span></p>
+						<a class="blues ml10" href="javascript:void(0);" id="findselect" onclick="findSelect();">找回支付密码</a>
+					</li>
+					<li id="acctbPayCheckFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctbPayCheckFormSubmit">
+						<button>确认付款</button></span>
+						<a href="javascript:void(0);" id="goback" onclick="goback();">返回修改</a>
+					</li>
+				</ul>	
+					<input type="hidden" name="CHECK_ACCTB_LN" value="${CHECK_ACCTB_LN?default('')}"/>
+					<input type="hidden" name="CHECK_ACCTB_AH" value="${CHECK_ACCTB_AH?default('')}"/>
+					<input type="hidden" name="ACCTB_GREET" value="${ACCTB_GREET?default('')}"/>
+					<input type="hidden" name="password" value=""/>
+					<input type="hidden" name="ordersKey" value="${ordersKey?default('')}"/>
+			</form>
+		</div>
+</#if>
+</div>

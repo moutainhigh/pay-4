@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="personMultipartResolver"
+       class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- set the max upload size100MB -->
+        <property name="maxUploadSize">
+        	<value>104857600</value>
+    	</property>
+	    <property name="maxInMemorySize">
+	        <value>4096</value>
+	    </property>
+   	</bean>
+	<bean id="paramResolver" 
+		class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName" value="method" />
+		<property name="defaultMethodName">
+			<value>index</value>
+		</property>
+	</bean>
+	<bean name="mutiActionHander" 
+		class="org.springframework.web.servlet.mvc.multiaction.MultiActionController">
+		<property name="methodNameResolver" ref="paramResolver" />
+	</bean>
+	
+	<bean id="personSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/personAcctInfoSearch.do">personAcctSearchController</prop>		
+				<prop key="/personalAcctManager.do">personalAcctManagerController</prop>			
+				<prop key="/personalLoginHistory.do">personalLoginHistoryController</prop>	
+				<prop key="/personalMemberOperate.do">personalMemberOperateController</prop>	
+				<prop key="/personalAcctAssociate.do">personalAcctAssociateController</prop>
+				<prop key="/personalAcctBalance.do">personalAcctBalanceController</prop>
+				<prop key="/personalMemberInfoDetail.do">personalMemberInfoDetailController</prop>
+				<prop key="/personalMemberAcctMessage.do">personalMemberAcctMessageController</prop>
+				<prop key="/personalAcctBalanceExport.do">personalAcctBalanceExportController</prop>
+				
+				<prop key="/personalAcctManagerForCusSer.do">personalAcctManagerForCusSerController</prop>	
+				<prop key="/personAcctInfoSearchForCusSer.do">personAcctSearchForCusSerController</prop>	
+			</props>       
+		</property>
+	</bean>
+
+	<bean id="personAcctSearchController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctListSearchController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctListSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctListSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalMemberInfoDetailController"
+		class="com.pay.poss.personmanager.controller.PersonalMemberInfoDetailController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalMemberInfoDetail</value>
+		</property>	
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	
+	<bean id="personalAcctManagerController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctManagerController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctInfoSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctInfoSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalLoginHistoryController"
+		class="com.pay.poss.personmanager.controller.PersonalLoginHistoryController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalLoginHistorySearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalLoginHistorySearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalMemberOperateController"
+		class="com.pay.poss.personmanager.controller.PersonalMemberOperateController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctInfoSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctInfoSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalAcctAssociateController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctAssociateController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctAssociateSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctAssociateSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalAcctBalanceController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctBalanceController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctBalanceSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctBalanceSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalMemberAcctMessageController"
+		class="com.pay.poss.personmanager.controller.PersonalMemberAcctMessageController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalMemberAcctMessageSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalMemberAcctMessageSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalAcctBalanceExportController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctBalanceExportController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personalAcctManagerForCusSerController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctManagerForCusSerController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctInfoSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctInfoSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+	<bean id="personAcctSearchForCusSerController"
+		class="com.pay.poss.personmanager.controller.PersonalAcctListSearchForCusSerController">
+		<property name="commandName">
+			<value>personSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.personmanager.formbean.PersonSearchFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/personmanager/personalAcctListSearch</value>
+		</property>	
+		<property name="successView">
+			<value>/personmanager/personalAcctListSearchResult</value>
+		</property>
+		<property name="personMemberService" ref="personMemberService" />
+	</bean>
+</beans>
+
+

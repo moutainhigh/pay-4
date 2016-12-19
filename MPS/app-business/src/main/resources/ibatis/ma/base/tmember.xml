@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+
+<sqlMap namespace="tmember">
+		<typeAlias alias="member" type="com.pay.base.model.Member" />
+		
+		<resultMap id="memberMap" class="member">
+				<result column="MEMBER_CODE" property="memberCode" jdbcType="INT" columnIndex="1" nullValue="0" />
+				<result column="TYPE" property="type" jdbcType="INT" columnIndex="2" nullValue="0" />
+				<result column="SERVICE_LEVEL_CODE" property="serviceLevelCode" jdbcType="INT" columnIndex="3" nullValue="0" />
+				<result column="GREETING" property="greeting" jdbcType="VARCHAR" columnIndex="4" />
+				<result column="STATUS" property="status" jdbcType="INT" columnIndex="5" nullValue="0" />
+				<result column="SECURITY_QUESTION" property="securityQuestion" jdbcType="INT" columnIndex="6" nullValue="0" />
+				<result column="SECURITY_ANSWER" property="securityAnswer" jdbcType="VARCHAR" columnIndex="7" />
+				<result column="SSO_USER_ID" property="ssoUserId" jdbcType="VARCHAR" columnIndex="8" />
+				<result column="LOGIN_TYPE" property="loginType" jdbcType="INT" columnIndex="9" nullValue="0" />
+				<result column="LOGIN_NAME" property="loginName" jdbcType="VARCHAR" columnIndex="10" />
+				<result column="LOGIN_PWD" property="loginPwd" jdbcType="VARCHAR" columnIndex="11" />
+				<result column="CREATE_DATE" property="createDate" jdbcType="DATETIME" columnIndex="12" />
+				<result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME" columnIndex="13" />
+		</resultMap>
+		
+		<resultMap id="memberBalancesDtoMap" class="com.pay.base.dto.MemberBalancesDto">
+				<result column="MEMBER_CODE" property="memberCode" jdbcType="INT" columnIndex="1" nullValue="0" />
+				<result column="TYPE" property="type" jdbcType="INT" columnIndex="2" nullValue="0" />
+				<result column="SERVICE_LEVEL_CODE" property="serviceLevelCode" jdbcType="INT" columnIndex="3" nullValue="0" />
+				<result column="GREETING" property="greeting" jdbcType="VARCHAR" columnIndex="4" />
+				<result column="STATUS" property="status" jdbcType="INT" columnIndex="5" nullValue="0" />
+				<result column="SECURITY_QUESTION" property="securityQuestion" jdbcType="INT" columnIndex="6" nullValue="0" />
+				<result column="SECURITY_ANSWER" property="securityAnswer" jdbcType="VARCHAR" columnIndex="7" />
+				<result column="SSO_USER_ID" property="ssoUserId" jdbcType="VARCHAR" columnIndex="8" />
+				<result column="LOGIN_TYPE" property="loginType" jdbcType="INT" columnIndex="9" nullValue="0" />
+				<result column="LOGIN_NAME" property="loginName" jdbcType="VARCHAR" columnIndex="10" />
+				<result column="LOGIN_PWD" property="loginPwd" jdbcType="VARCHAR" columnIndex="11" />
+				<result column="CREATE_DATE" property="createDate" jdbcType="DATETIME" columnIndex="12" />
+				<result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME" columnIndex="13" />
+				<result column="SON_ZH_NAME" property="name" jdbcType="VARCHAR" columnIndex="14" />
+				<result column="SON_USTEEL_NAME" property="usteelName" jdbcType="VARCHAR" columnIndex="14" />
+		</resultMap>
+		
+		<select id="getMemberByMemCode" parameterClass="java.lang.Long" resultMap="memberMap">
+				SELECT member_code,
+				type,
+				service_level_code,
+				greeting,
+				status,
+				security_question,
+				security_answer,
+				sso_user_id,
+				login_type,
+				login_name,
+				LOGIN_PWD,
+				create_date,
+				update_date
+				FROM t_member
+				WHERE member_code = #memberCode#
+  </select>
+  <select id="findMemberByLogin" parameterClass="java.util.Map" resultMap="memberMap">
+		SELECT 
+			member_code,
+			type,
+			service_level_code,
+			greeting,
+			status,
+			security_question,
+			security_answer,
+			sso_user_id,
+			login_type,
+			login_name,
+			LOGIN_PWD,
+			create_date,
+			update_date
+		FROM 
+			t_member
+		WHERE 
+			login_name = #loginName# and status !=4 and type=#type#
+  </select>
+  
+  <select id="queryMemberBySsoUserid" parameterClass="java.lang.String" resultMap="memberMap">
+				SELECT member_code,
+				type,
+				service_level_code,
+				greeting,
+				status,
+				security_question,
+				security_answer,
+				sso_user_id,
+				login_type,
+				login_name,
+				LOGIN_PWD,
+				create_date,
+				update_date
+				FROM 
+					T_MEMBER
+				WHERE 
+					SSO_USER_ID = #ssoUserId#
+  </select>
+    <select id="queryPersonMemberBySsoUserid" parameterClass="java.lang.String" resultMap="memberMap">
+				SELECT member_code,
+				type,
+				service_level_code,
+				greeting,
+				status,
+				security_question,
+				security_answer,
+				sso_user_id,
+				login_type,
+				login_name,
+				LOGIN_PWD,
+				create_date,
+				update_date
+				FROM 
+					T_MEMBER
+				WHERE 
+					SSO_USER_ID = #ssoUserId#
+					AND
+					TYPE		= 1
+					
+  </select>
+  
+
+  <select id="getMemberByLoginName" parameterClass="java.lang.String" resultMap="memberMap">
+				SELECT 
+					member_code,
+					type,
+					service_level_code,
+					greeting,
+					status,
+					security_question,
+					security_answer,
+					sso_user_id,
+					login_type,
+					login_name,
+					LOGIN_PWD,
+					create_date,
+					update_date
+				FROM t_member
+				WHERE login_name = #loginName# and status !=4 
+  </select>
+  <select id="findMemberCodeByLoginName" parameterClass="java.util.Map" resultClass="java.lang.Long">
+				SELECT member_code
+				FROM t_member
+				WHERE login_name = #loginName# 
+					and 
+					  status 	=1
+  </select>
+
+
+<update id="updateMember" parameterClass="member">
+     UPDATE t_member
+   		SET service_level_code = #serviceLevelCode#,
+       		greeting           = #greeting#,
+       		status             = #status#,
+       		security_question  = #securityQuestion#,
+       		security_answer    = #securityAnswer#,
+       		sso_user_id        = #ssoUserId#,
+       		login_type         = #loginType#,
+       		login_pwd          = #loginPwd#,
+       		update_date        = SYSDATE
+ 		WHERE member_code = #memberCode#
+   </update>
+   
+   <update id="updateMemberSsoUserid" parameterClass="java.util.Map">
+     	UPDATE 
+     		t_member
+   		SET 					  
+     		sso_user_id        = #ssoUserid#,
+     		update_date        = SYSDATE
+ 		WHERE 
+ 			member_code = #memberCode#
+   </update>
+  
+  <select id="getMemberByLogin" parameterClass="java.util.Map" resultClass="java.lang.Long">
+        SELECT member_code
+        FROM t_member
+        WHERE login_name = #loginName# and login_pwd=#loginPwd# and status !=4 and type=#type#
+  </select>
+
+
+
+	<insert id="create" parameterClass="com.pay.base.model.Member">
+		<selectKey resultClass="java.lang.Long" keyProperty="memberCode">
+			SELECT SEQ_MEMBER_MEMBER_CODE.nextval as memberCode FROM dual 
+		</selectKey>
+				insert into t_member
+				(
+					MEMBER_CODE ,
+					SERVICE_LEVEL_CODE ,
+					GREETING ,
+				  SECURITY_QUESTION ,
+					SECURITY_ANSWER ,
+					SSO_USER_ID ,
+					LOGIN_TYPE ,
+					LOGIN_NAME ,
+					LOGIN_PWD 
+					)
+				values
+				(
+				  #memberCode#,
+				  #serviceLevelCode#,
+				  #greeting#,
+				  #securityQuestion#,
+				  #securityAnswer#,
+				  #ssoUserId#,
+				  #loginType#,
+				  #loginName#,
+				  #loginPwd#
+				)
+	</insert>
+
+	<insert id="createCorpMember" parameterClass="com.pay.base.model.Member">
+				<selectKey resultClass="java.lang.Long" keyProperty="memberCode">
+						SELECT SEQ_MEMBER_MEMBER_CODE.nextval as memberCode FROM dual 
+    </selectKey>
+				insert into t_member
+				(
+					MEMBER_CODE ,
+					TYPE,
+					SERVICE_LEVEL_CODE ,
+					GREETING ,
+				  	SECURITY_QUESTION ,
+					SECURITY_ANSWER ,
+					SSO_USER_ID ,
+					LOGIN_TYPE ,
+					LOGIN_NAME ,
+					LOGIN_PWD 
+					)
+				values
+				(
+				  #memberCode#,
+				  #type#,
+				  #serviceLevelCode#,
+				  #greeting#,
+				  #securityQuestion#,
+				  #securityAnswer#,
+				  #ssoUserId#,
+				  #loginType#,
+				  #loginName#,
+				  #loginPwd#
+				)
+		</insert>
+	<update id="updateMemberStatus" parameterClass="java.lang.Long">
+        UPDATE t_member
+        SET
+        status = 1
+        WHERE member_code = #memberCode# 
+        and type=1
+   </update>
+   <select id="validateSecurMemberQuestion" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+   		  <![CDATA[
+   		  	select 
+   		  			count(1)
+			from  
+					t_member
+			where   
+					MEMBER_CODE=#memberCode# and SECURITY_QUESTION=#questionId# and SECURITY_ANSWER=#securInfo#
+   		   ]]>
+   
+   </select>
+   
+   
+    <select id="getCountByLoginName" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+       <![CDATA[
+        SELECT count(*)
+        FROM t_member
+        WHERE login_name = #value# and status !=4
+         ]]>
+    </select>
+    
+    <select id="getStatusByLoginName" parameterClass="java.lang.String" resultClass="java.lang.Integer">
+       <![CDATA[
+        SELECT status
+        FROM t_member
+        WHERE login_name = #value# and status !=4
+         ]]>
+    </select>
+   
+   <update id="updateStatusByMemberCode" parameterClass="java.util.Map">
+        UPDATE t_member
+        SET
+        status = #status#,
+        update_date = SYSDATE
+        WHERE member_code = #memberCode# 
+   </update>
+	
+	<update id="updateServiceLevelByMemCode" parameterClass="java.util.Map">
+        UPDATE t_member
+        SET
+        service_level_code = #serviceLevelCode#,
+        update_date = SYSDATE
+        WHERE member_code = #memberCode# 
+   </update>
+   
+	<update id="updateMemberType" parameterClass="java.util.Map">
+		UPDATE T_MEMBER SET TYPE=#type# WHERE  MEMBER_CODE=#memberCode#
+	</update>
+	
+	<!-- 分页查询子会员 -->
+	<select id="querySonMemberByParent" parameterClass="map" resultMap="memberBalancesDtoMap">
+		SELECT * FROM ( SELECT rownum linenum, t.* FROM (
+		 SELECT t1.member_code,
+                 t1.type,
+                 t1.service_level_code,
+                 t1.greeting,
+                 t1.status,
+                 t1.security_question,
+                 t1.security_answer,
+                 t1.sso_user_id,
+                 t1.login_type,
+                 t1.login_name,
+                 t1.LOGIN_PWD,
+                 t1.create_date,
+                 t1.update_date,
+                 t2.son_zh_name,
+                 t2.son_usteel_name
+            FROM T_MEMBER t1, t_member_relation t2
+           WHERE t1.member_code = t2.son_member_code
+           　AND t2.father_member_code = #fatherMemberCode#
+           <isNotNull prepend="AND" property="startDate">
+            t1.create_date &gt;= #startDate#
+           </isNotNull>
+           <isNotNull prepend="AND" property="endDate">
+            t1.create_date &lt;= #endDate#
+           </isNotNull>
+           <isNotEmpty prepend="AND" property="sonMemberName">
+             t2.son_zh_name like '%' || #sonMemberName# || '%'
+           </isNotEmpty>
+           <isNotEmpty prepend="AND" property="status">
+           	t1.status in 
+				<iterate conjunction="," open="(" close=")" property="status">
+					#status[]#
+				</iterate>
+			</isNotEmpty>
+            ORDER BY t1.create_date DESC
+         ) t WHERE rownum &lt;= #pageEndRow# )
+       		 where (linenum &gt; #pageStartRow#)
+ 	</select>
+ 	
+ 	 <select id="querySonMemberCountByParent" resultClass="int" parameterClass="map">
+        SELECT count(1)
+            FROM T_MEMBER t1, t_member_relation t2
+           WHERE t1.member_code = t2.son_member_code
+           　AND t2.father_member_code = #fatherMemberCode#
+           <isNotNull prepend="AND" property="startDate">
+            t1.create_date &gt;= #startDate#
+           </isNotNull>
+           <isNotNull prepend="AND" property="endDate">
+            t1.create_date &lt;= #endDate#
+           </isNotNull>
+           <isNotEmpty prepend="AND" property="sonMemberName">
+            t2.son_zh_name like  '%' || #sonMemberName# || '%'
+           </isNotEmpty>
+           <isNotEmpty prepend="AND" property="status">
+           		t1.status in 
+				<iterate conjunction="," open="(" close=")"  property="status">
+				#status[]#
+				</iterate>
+			</isNotEmpty>
+           
+    </select>
+</sqlMap>

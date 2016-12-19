@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="appeal">
+     <typeAlias alias="appeal"	    		    type="com.pay.poss.appealmanager.model.Appeal" />
+     <typeAlias alias="appealHistory"	    	type="com.pay.poss.appealmanager.model.AppealHistory" />
+     <typeAlias alias="appealHistoryDto"    	type="com.pay.poss.appealmanager.dto.AppealHistoryDto" />
+     <typeAlias alias="appealDto"				type="com.pay.poss.appealmanager.dto.AppealDto" />
+     <typeAlias alias="appealTaskSearchDto"		type="com.pay.poss.appealmanager.dto.AppealTaskSearchDto" />
+     <typeAlias alias="appealTaskListDto"		type="com.pay.poss.appealmanager.dto.AppealTaskListDto" />
+     
+    
+    <insert id="insertAppealHistory" parameterClass="appealHistory">
+    	<selectKey resultClass="java.lang.Long" keyProperty="appealHistoryId">
+			SELECT SEQ_APPEAL_HISTORY_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_APPEAL_HISTORY (APPEAL_HISTORY_ID, APPEAL_ID, APPEAL_STATUS_CODE,
+            OPERATOR_ID, OPERATOR_DEPT_CODE, REMARK, CREATE_TIME)
+        values (#appealHistoryId#, #appealId#, #appealStatusCode#, #operatorId#,
+            #operatorDeptCode#, #remark#, #createTime#)
+    </insert>
+    <select id="getAppealListForDispense" resultClass="appealTaskListDto" parameterClass="appealTaskSearchDto">
+	    select b.* from 
+		(select a.*,rownum as linenum from (
+			select 
+				a.appeal_id as appealId,
+				a.appeal_code as appealCode,
+				a.customer_name as customerName,
+				a.occur_time as occurTime,
+				a.is_urgency as isUrgency,
+				a.appeal_status_code as appealStatusCode,
+				a.update_time as updateTime 
+			from t_appeal a 
+			where a.appeal_status_code in (1,9,10)			
+		    order by a.update_time 
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="getAppealListForDept" resultClass="appealTaskListDto" parameterClass="appealTaskSearchDto">
+	    select b.* from 
+		(select a.*,rownum as linenum from (
+			select 
+				a.appeal_id as appealId,
+				a.appeal_code as appealCode,
+				a.customer_name as customerName,
+				a.occur_time as occurTime,
+				a.is_urgency as isUrgency,
+				a.appeal_status_code as appealStatusCode,
+				a.update_time as updateTime 
+			from t_appeal a 
+			where (a.appeal_status_code in (2,11,12))
+			<isNotEmpty prepend="and" property="appealDeptCode">  
+	          	a.appeal_dept_code = #appealDeptCode#
+	        </isNotEmpty> 		
+		    order by a.update_time 
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="getAppealListForCallBack" resultClass="appealTaskListDto" parameterClass="appealTaskSearchDto">
+	    select b.* from 
+		(select a.*,rownum as linenum from (
+			select 
+				a.appeal_id as appealId,
+				a.appeal_code as appealCode,
+				a.customer_name as customerName,
+				a.occur_time as occurTime,
+				a.is_urgency as isUrgency,
+				a.appeal_status_code as appealStatusCode,
+				a.update_time as updateTime 
+			from t_appeal a 
+			where (a.appeal_status_code in(4,8) )		
+		    order by a.update_time 
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="getAppealListForFinish" resultClass="appealTaskListDto" parameterClass="appealTaskSearchDto">
+	    select b.* from 
+		(select a.*,rownum as linenum from (
+			select 
+				a.appeal_id as appealId,
+				a.appeal_code as appealCode,
+				a.customer_name as customerName,
+				a.occur_time as occurTime,
+				a.is_urgency as isUrgency,
+				a.appeal_status_code as appealStatusCode,
+				a.update_time as updateTime 
+			from t_appeal a 
+			where (a.appeal_status_code in (3,5,7))		
+		    order by a.update_time 
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<insert id="insertAppeal" parameterClass="appeal">
+    	<selectKey resultClass="java.lang.Long" keyProperty="appealId">
+			SELECT SEQ_APPEAL_ID.nextval FROM DUAL
+		</selectKey>		
+        insert into T_APPEAL (APPEAL_ID, APPEAL_CODE, CUSTOMER_NAME, CALL_PHONE, LINK_PHONE,LINK_EMAIL,
+            OCCUR_TIME, APPEAL_BODY, IS_URGENCY, IS_NEED_REPLY, APPEAL_SOURCE_CODE,BUSINESS_TYPE_CODE, 
+            PRODUCT_BIG_TYPE_CODE, PRODUCT_LITTLE_TYPE_CODE, CUSTOMER_REPLY_CODE, IS_SELF_DUTY, 
+            APPEAL_STATUS_CODE,CREATE_TIME, UPDATE_TIME, APPEAL_TYPE_CODE, APPEAL_LEVEL_CODE, APPEAL_DEPT_CODE)
+        values (#appealId#, #appealCode#, #customerName#, #callPhone#, #linkPhone#, #linkEmail#,#occurTime#,
+            #appealBody#, #isUrgency#, #isNeedReply#, #appealSourceCode#, #businessTypeCode#,
+            #productBigTypeCode#, #productLittleTypeCode#, #customerReplyCode#, #isSelfDuty#,#appealStatusCode#,
+            #createTime#, #updateTime#, #appealTypeCode#, #appealLevelCode#, #appealDeptCode#)
+    </insert>
+	 <select id="getAppealListForSearch" resultClass="appealTaskListDto" parameterClass="appealTaskSearchDto">
+	    select b.* from 
+		(select a.*,rownum as linenum from (
+			select 
+				a.appeal_id as appealId,
+				a.appeal_code as appealCode,
+				a.customer_name as customerName,
+				a.occur_time as occurTime,
+				a.call_phone as callPhone,
+				a.link_phone as linkPhone,
+				a.link_email as linkEmail,
+				a.appeal_status_code as appealStatusCode,
+				a.create_time as createTime 
+			from t_appeal a 
+			where 1=1
+			<isNotEmpty prepend="and" property="appealCode">  
+	          	a.APPEAL_CODE = #appealCode#
+	        </isNotEmpty> 	
+	        <isNotEmpty prepend="and" property="customerName">  
+	          	a.CUSTOMER_NAME = #customerName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealBody">  
+	          	a.APPEAL_BODY like '%'||#appealBody#||'%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="callPhone">  
+	          	a.CALL_PHONE = #callPhone#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="linkPhone">  
+	          	a.LINK_PHONE = #linkPhone#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="linkEmail">  
+	          	a.LINK_EMAIL = #linkEmail#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealTypeCode">  
+	          	a.APPEAL_TYPE_CODE = #appealTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealLevelCode">  
+	          	a.APPEAL_LEVEL_CODE = #appealLevelCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealDeptCode">  
+	          	a.APPEAL_DEPT_CODE = #appealDeptCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="businessTypeCode">  
+	          	a.BUSINESS_TYPE_CODE = #businessTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="productBigTypeCode">  
+	          	a.PRODUCT_BIG_TYPE_CODE = #productBigTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="productLittleTypeCode">  
+	          	a.PRODUCT_LITTLE_TYPE_CODE = #productLittleTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealSourceCode">  
+	          	a.APPEAL_SOURCE_CODE = #appealSourceCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealStatusCode">  
+	          	a.APPEAL_STATUS_CODE = #appealStatusCode#
+	        </isNotEmpty>	
+	        <isNotEmpty prepend="and" property="startTime"> 
+		        a.CREATE_TIME<![CDATA[>=]]>TO_DATE(#startTime#,'YYYY-MM-DD')
+		    </isNotEmpty>
+		    <isNotEmpty prepend="and" property="endTime">
+		        a.CREATE_TIME<![CDATA[<]]>TO_DATE(#endTime#,'YYYY-MM-DD')+1
+		    </isNotEmpty>	
+		    order by a.update_time DESC
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	<select id="getAppealListForSearchCount" resultClass="java.lang.Integer" parameterClass="appealTaskSearchDto">
+	   
+			select 
+				count(1)
+			from t_appeal a 
+			where 1=1
+			<isNotEmpty prepend="and" property="appealCode">  
+	          	a.APPEAL_CODE = #appealCode#
+	        </isNotEmpty> 	
+	        <isNotEmpty prepend="and" property="customerName">  
+	          	a.CUSTOMER_NAME = #customerName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealBody">  
+	          	a.APPEAL_BODY like '%'||#appealBody#||'%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="callPhone">  
+	          	a.CALL_PHONE = #callPhone#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="linkPhone">  
+	          	a.LINK_PHONE = #linkPhone#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="linkEmail">  
+	          	a.LINK_EMAIL = #linkEmail#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealTypeCode">  
+	          	a.APPEAL_TYPE_CODE = #appealTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealLevelCode">  
+	          	a.APPEAL_LEVEL_CODE = #appealLevelCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealDeptCode">  
+	          	a.APPEAL_DEPT_CODE = #appealDeptCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="businessTypeCode">  
+	          	a.BUSINESS_TYPE_CODE = #businessTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="productBigTypeCode">  
+	          	a.PRODUCT_BIG_TYPE_CODE = #productBigTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="productLittleTypeCode">  
+	          	a.PRODUCT_LITTLE_TYPE_CODE = #productLittleTypeCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealSourceCode">  
+	          	a.APPEAL_SOURCE_CODE = #appealSourceCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="appealStatusCode">  
+	          	a.APPEAL_STATUS_CODE = #appealStatusCode#
+	        </isNotEmpty>	
+	        <isNotEmpty prepend="and" property="startTime"> 
+		        a.CREATE_TIME<![CDATA[>=]]>TO_DATE(#startTime#,'YYYY-MM-DD')
+		    </isNotEmpty>
+		    <isNotEmpty prepend="and" property="endTime">
+		        a.CREATE_TIME<![CDATA[<]]>TO_DATE(#endTime#,'YYYY-MM-DD')+1
+		    </isNotEmpty>	
+		   
+	</select>
+	<select id="getAppealListForDispenseCount" resultClass="java.lang.Integer">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_status_code in (1,9,10)				
+	</select>
+	<select id="getAppealListForDeptCount" resultClass="java.lang.Integer" parameterClass="appealTaskSearchDto">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where (a.appeal_status_code in (2,11,12))
+			<isNotEmpty prepend="and" property="appealDeptCode">  
+	          	a.appeal_dept_code = #appealDeptCode#
+	        </isNotEmpty> 			
+	</select>
+	<select id="getAppealListForCallBackCount" resultClass="java.lang.Integer" parameterClass="appealTaskSearchDto">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_status_code in (4,8)				
+	</select>
+	<select id="getAppealListForFinishCount" resultClass="java.lang.Integer" parameterClass="appealTaskSearchDto">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_status_code in (3,5,7)				
+	</select>
+   <select id="vaildateCallBack" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_id =#appealId# and a.appeal_status_code in (4,8)				
+	</select>
+	<select id="vaildateFinish" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_id =#appealId# and a.appeal_status_code in (3,5,7)					
+	</select>
+	<select id="vaildateDept" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_id =#appealId# and a.appeal_status_code in (2,11,12)					
+	</select>
+	<select id="vaildateDispense" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+	  		select 
+				count(1)
+			from t_appeal a 
+			where a.appeal_id =#appealId# and a.appeal_status_code in (1,9,10)					
+	</select>
+    <update id="updateAppeal" parameterClass="appealDto">
+        update T_APPEAL
+        <dynamic prepend="set">
+        	 UPDATE_TIME = sysdate,
+            <isNotNull prepend="," property="appealCode">
+                APPEAL_CODE = #appealCode#
+            </isNotNull>
+            <isNotNull prepend="," property="customerName">
+                CUSTOMER_NAME = #customerName#
+            </isNotNull>
+            <isNotNull prepend="," property="callPhone">
+                CALL_PHONE = #callPhone#
+            </isNotNull>
+            <isNotNull prepend="," property="linkPhone">
+                LINK_PHONE = #linkPhone#
+            </isNotNull>
+            <isNotNull prepend="," property="linkEmail">
+                LINK_EMAIL = #linkEmail#
+            </isNotNull>
+            <isNotNull prepend="," property="occurTime">
+                OCCUR_TIME = #occurTime#
+            </isNotNull>
+            <isNotNull prepend="," property="appealBody">
+                APPEAL_BODY = #appealBody#
+            </isNotNull>
+            <isNotNull prepend="," property="isUrgency">
+                IS_URGENCY = #isUrgency#
+            </isNotNull>
+            <isNotNull prepend="," property="isNeedReply">
+                IS_NEED_REPLY = #isNeedReply#
+            </isNotNull>
+            <isNotNull prepend="," property="appealSourceCode">
+                APPEAL_SOURCE_CODE = #appealSourceCode#
+            </isNotNull>
+            <isNotNull prepend="," property="businessTypeCode">
+                BUSINESS_TYPE_CODE = #businessTypeCode#
+            </isNotNull>
+            <isNotNull prepend="," property="productBigTypeCode">
+                PRODUCT_BIG_TYPE_CODE = #productBigTypeCode#
+            </isNotNull>
+            <isNotNull prepend="," property="productLittleTypeCode">
+                PRODUCT_LITTLE_TYPE_CODE = #productLittleTypeCode#
+            </isNotNull>
+            <isNotNull prepend="," property="customerReplyCode">
+                CUSTOMER_REPLY_CODE = #customerReplyCode#
+            </isNotNull>
+            <isNotNull prepend="," property="isSelfDuty">
+                IS_SELF_DUTY = #isSelfDuty#
+            </isNotNull>
+            <isNotNull prepend="," property="appealStatusCode">
+                APPEAL_STATUS_CODE = #appealStatusCode#
+            </isNotNull>            
+            <isNotNull prepend="," property="appealTypeCode">
+                APPEAL_TYPE_CODE = #appealTypeCode#
+            </isNotNull>
+            <isNotNull prepend="," property="appealLevelCode">
+                APPEAL_LEVEL_CODE = #appealLevelCode#
+            </isNotNull>
+            <isNotNull prepend="," property="appealDeptCode">
+                APPEAL_DEPT_CODE = #appealDeptCode#
+            </isNotNull>
+        </dynamic>
+        where APPEAL_ID = #appealId#
+    </update>
+ 
+    <select id="getAppealById" resultClass="appealDto"   parameterClass="java.lang.Long">
+        select 
+        	a.APPEAL_ID as appealId, 
+        	a.APPEAL_CODE as appealCode, 
+        	a.CUSTOMER_NAME as customerName,
+        	a.CALL_PHONE as callPhone, 
+        	a.LINK_PHONE as linkPhone,
+        	a.LINK_EMAIL as linkEmail, 
+        	a.OCCUR_TIME as occurTime,
+            a.APPEAL_BODY as appealBody, 
+           	a.IS_URGENCY as isUrgency, 
+           	a.IS_NEED_REPLY as isNeedReply, 
+            a.APPEAL_SOURCE_CODE as appealSourceCode, 
+            a.BUSINESS_TYPE_CODE as businessTypeCode,
+            a.PRODUCT_BIG_TYPE_CODE as productBigTypeCode, 
+            a.PRODUCT_LITTLE_TYPE_CODE as productLittleTypeCode, 
+            a.CUSTOMER_REPLY_CODE as customerReplyCode, 
+            a.IS_SELF_DUTY as isSelfDuty,
+            a.APPEAL_STATUS_CODE as appealStatusCode,        
+            a.CREATE_TIME as createTime,
+            a.UPDATE_TIME as updateTime, 
+            a.APPEAL_TYPE_CODE as appealTypeCode, 
+            a.APPEAL_LEVEL_CODE as appealLevelCode, 
+            a.APPEAL_DEPT_CODE as appealDeptCode
+        from T_APPEAL a
+        where a.APPEAL_ID = #appealId#
+    </select>
+    <select id="getAppealCode" resultClass="java.lang.String">
+        SELECT SEQ_APPEAL_CODE.nextval as appealCode FROM DUAL
+    </select>
+    <select id="getAppealHistoryByAppealId" resultClass="appealHistoryDto" parameterClass="java.lang.Long">
+        select 
+        	APPEAL_HISTORY_ID as appealHistoryId, 
+        	APPEAL_ID as appealId, 
+        	APPEAL_STATUS_CODE as appealStatusCode, 
+        	OPERATOR_ID as operatorId, 
+        	OPERATOR_DEPT_CODE as operatorDeptCode,
+            REMARK as remark, 
+            CREATE_TIME as createTime
+        from T_APPEAL_HISTORY
+        where APPEAL_ID = #appealId#
+        order by CREATE_TIME
+    </select>
+</sqlMap>

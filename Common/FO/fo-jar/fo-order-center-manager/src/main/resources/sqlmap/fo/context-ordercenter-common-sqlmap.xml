@@ -1,0 +1,1530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	<!-- 提现/付款到银行/批量付款到银行/提现退款 -->
+<sqlMap namespace="ordercentercommon">
+	<!-- 订单查询条件 -->
+	<typeAlias alias="context_fundout_orderCenterQueryDTO" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<!-- 订单查询提现付款到银行结果 -->
+	<typeAlias alias="context_fundout_orderCenterResultDTO" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	
+	<select id="context_ordercenter_common_query" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="context_fundout_orderCenterResultDTO">
+		SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1004 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 0  and o.ORDER_SEQ_ID is null
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+		 	
+	UNION ALL
+	
+		SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1011 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 0 and o.ORDER_SEQ_ID is not null  
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	
+			SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1013 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 3  
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	
+		SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1012 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 2   
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	       
+	  UNION ALL
+	
+		SELECT 	
+				o.SEQUENCE_ID orderKy, 
+				'' bankOrderKy, 
+				1008 orderType, 
+				AMOUNT orderAmount, 
+				o.STATUS orderStatus, 
+				to_char(MEMBER_CODE) payerAccountNo,
+       			'' payerBankNo,
+       			'' payerBankName, 
+       			to_char(BANK_ACCT) payeeAccountNo, 
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName, 
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+	    FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 4 
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(o.SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	 		
+	 	SELECT   
+	        MASS_ORDER_SEQ orderKy, 
+	        '' bankOrderKy, 
+	        1008 orderType, 
+	        TOTAL_AMOUNT orderAmount, 
+	        decode(STATUS, 111, 111, 112, 112, 101) orderStatus, 
+	        to_char(PAYER_MEMBER_CODE) payerAccountNo,
+	        '' payerBankNo,
+	        '' payerBankName, 
+	        '' payeeAccountNo, 
+	        '' payeeBankNo, 
+	        '' payeeBankName, 
+	        CREATE_DATE orderDate,
+	        '' workflowKy,
+	        to_char(PAYER_MEMBER_CODE) payerMemberCode,
+	        to_char(PAYER_ACCT_TYPE) payerAccType,
+	        '' payeeMemberCode,
+	        '' payeeAccType,
+	        ''								busiType,
+	        0								orderSrc
+	      FROM   mass_paytobank_order m 
+	      <dynamic prepend="WHERE">  
+	       		<isNotEmpty  property="memberCode" prepend="AND">
+		            to_char(m.PAYER_MEMBER_CODE) = #memberCode# 
+		        </isNotEmpty>
+		        <isNotEmpty  property="accType" prepend="AND">
+		            m.PAYER_ACCT_TYPE = #accType#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderStatus" prepend="AND">
+		            m.STATUS = #orderStatus#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderKy" prepend="AND">
+		            to_char(m.MASS_ORDER_SEQ) = #orderKy#
+		        </isNotEmpty>
+		        <isNotEmpty property="startTime" prepend="AND">
+			 		<![CDATA[ m.CREATE_DATE >= #startTime# ]]>
+				</isNotEmpty>
+			 	<isNotEmpty property="endTime" prepend="AND">
+			    	<![CDATA[ m.CREATE_DATE <= #endTime# ]]>
+			 	</isNotEmpty>
+			 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+		        <isNotEmpty  property="bankOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+	       </dynamic>
+		 	
+	UNION ALL
+	
+		SELECT 	
+				SEQUENCE_ID orderKy, 
+				BANK_ORDER_ID bankOrderKy, 
+				1010 orderType, 
+				REALPAY_AMOUNT orderAmount, 
+				STATUS orderStatus,
+           		to_char(PAYER_ACCT_CODE) payerAccountNo, 
+           		BANK_CODE payerBankNo, 
+           		'' payerBankName, 
+           		to_char(PAYEE_MEMBER_CODE) payeeAccountNo,
+		       	BANK_CODE payeeBankNo, 
+		       	'' payeeBankName, 
+		       	CREATE_DATE orderDate,
+       			wf_instance_id workflowKy,
+       			'' payerMemberCode,
+       			'' payerAccType,
+       			to_char(PAYEE_MEMBER_CODE) payeeMemberCode,
+	           	to_char(payee_acct_type) payeeAccType,
+	        	''								busiType,
+	        	0								orderSrc
+	    FROM T_BANK_REFUND_ORDER
+		<dynamic prepend="WHERE"> 
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(PAYEE_MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYEE_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            to_char(BANK_ORDER_ID) = #bankOrderKy#
+	        </isNotEmpty>
+        </dynamic> 
+        
+	UNION ALL
+		
+		SELECT 
+			   d.DETAIL_KY    orderKy,
+	           d.RECHARGE_BANK_ORDER        bankOrderKy,
+	           1005         orderType,
+	           d.APPLY_AMOUNT orderAmount,
+	           decode(d.STATUS, 111, 111, 112, 112, 101) orderStatus,
+	           to_char(m.member_code)   payerAccountNo ,
+	           ''           payerBankNo,
+	           ''           payerBankName,
+	           ''        payeeAccountNo,
+	           d.recharge_bank          payeeBankNo,
+	           '' payeeBankName, 
+	           m.APPLY_TIME    orderDate,
+	           w.workflow_ky workflowKy,
+	           to_char(m.member_code) payerMemberCode,
+	           to_char(m.MEMBER_ACC_TYPE) payerAccType,
+	           '' payeeMemberCode,
+	           '' payeeAccType,
+	        	''								busiType,
+	        	0								orderSrc
+	    FROM refund_order_m m,refund_order_d d,refund_workorder w
+	    where m.order_ky = w.refund_m_ky and d.master_ky = m.order_ky
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(m.MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            m.MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            d.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(d.DETAIL_KY) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ m.APPLY_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ m.APPLY_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	   
+	   		SELECT 
+             m.ORDER_KY    orderKy,
+             ''        bankOrderKy,
+             1005         orderType,
+             m.APPLY_AMOUNT orderAmount,
+             decode(m.STATUS, 111, 111, 112, 112, 101) orderStatus,
+             to_char(m.member_code)   payerAccountNo ,
+             ''                       payerBankNo,
+             m.MEMBER_NAME            payerBankName,
+             ''                       payeeAccountNo,
+             ''                       payeeBankNo,
+             ''                       payeeBankName, 
+             m.APPLY_TIME             orderDate,
+             ''                       workflowKy,
+             to_char(m.member_code)   payerMemberCode,
+             to_char(m.MEMBER_ACC_TYPE) payerAccType,
+             ''                         payeeMemberCode,
+             ''                         payeeAccType,
+	        ''								busiType,
+	        0								orderSrc
+      		FROM refund_order_m m
+      		<dynamic prepend="WHERE">
+		        <isNotEmpty  property="memberCode" prepend="AND">
+		            to_char(m.MEMBER_CODE) = #memberCode# 
+		        </isNotEmpty>
+		        <isNotEmpty  property="accType" prepend="AND">
+		            m.MEMBER_ACC_TYPE = #accType#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderStatus" prepend="AND">
+		            m.STATUS = #orderStatus#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderKy" prepend="AND">
+		            to_char(m.ORDER_KY) = #orderKy#
+		        </isNotEmpty>
+		        <isNotEmpty property="startTime" prepend="AND">
+			 		<![CDATA[ m.APPLY_TIME >= #startTime# ]]>
+				</isNotEmpty>
+			 	<isNotEmpty property="endTime" prepend="AND">
+			    	<![CDATA[ m.APPLY_TIME <= #endTime# ]]>
+			 	</isNotEmpty>
+			 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+		        <isNotEmpty  property="bankOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+	        </dynamic>
+
+	UNION ALL
+	
+		SELECT 
+			   SEQUENCE_ID  	ORDERKY,
+		       ''  				BANKORDERKY,
+		       1006         	ORDERTYPE,
+		       AMOUNT       	ORDERAMOUNT,
+		       STATUS       	ORDERSTATUS,
+		       TO_CHAR(PAYER_MEMBER)  PAYERACCOUNTNO ,
+		       ''           	PAYERBANKNO,
+		       ''           	PAYERBANKNAME,
+		       TO_CHAR(PAYEE_MEMBER)  PAYEEACCOUNTNO,
+		       ''      			PAYEEBANKNO,
+		       '' PAYEEBANKNAME,
+		       CREATE_DATE  	ORDERDATE,
+       		   '' WORKFLOWKY,
+       		   TO_CHAR(PAYER_MEMBER) PAYERMEMBERCODE,
+       		   TO_CHAR(PAYER_ACCT_TYPE) PAYERACCTYPE,
+       		   TO_CHAR(PAYEE_MEMBER) PAYEEMEMBERCODE,
+               TO_CHAR(PAYEE_ACCT_TYPE) PAYEEACCTYPE,
+	        ''								BUSITYPE,
+	        0								ORDERSRC
+		FROM MASSPAY_ORDER 
+		WHERE PARENT_ORDER IS NULL
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PAYER_MEMBER) = #memberCode# OR to_char(PAYEE_MEMBER) = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+        
+	UNION ALL
+	
+		SELECT 
+			   SEQUENCE_ID  orderKy,
+		       ''  bankOrderKy,
+		       1007         orderType,
+		       PAY_TOTAL_AMOUNT       orderAmount,
+		       STATUS       orderStatus,
+		       to_char(PAYER_MEMBER)   payerAccountNo ,
+		       ''           payerBankNo,
+		       ''           payerBankName,
+		       to_char(PAYEE_MEMBER)    payeeAccountNo,
+		       ''      payeeBankNo,
+		       '' payeeBankName,
+		       CREATE_TIME  orderDate,
+       		   '' workflowKy,
+       		   to_char(PAYER_MEMBER) payerMemberCode,
+       		   to_char(PAYER_ACCT_TYPE) payerAccType,
+       		   to_char(PAYEE_MEMBER) payeeMemberCode,
+               to_char(PAYEE_ACCT_TYPE) payeeAccType,
+	        ''								busiType,
+	        0								orderSrc
+		FROM masspay_batch_order 
+		<dynamic prepend="WHERE">
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PAYER_MEMBER) = #memberCode# OR to_char(PAYEE_MEMBER) = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+        </dynamic>
+        
+    UNION ALL 
+	   
+	   	SELECT 
+			   SEQUENCE_ID  	ORDERKY,
+		       ''  				BANKORDERKY,
+		       1007         	ORDERTYPE,
+		       AMOUNT       	ORDERAMOUNT,
+		       STATUS       	ORDERSTATUS,
+		       TO_CHAR(PAYER_MEMBER)  PAYERACCOUNTNO ,
+		       ''           	PAYERBANKNO,
+		       ''           	PAYERBANKNAME,
+		       TO_CHAR(PAYEE_MEMBER)  PAYEEACCOUNTNO,
+		       ''      			PAYEEBANKNO,
+		       '' PAYEEBANKNAME,
+		       CREATE_DATE  	ORDERDATE,
+       		   '' WORKFLOWKY,
+       		   TO_CHAR(PAYER_MEMBER) PAYERMEMBERCODE,
+       		   TO_CHAR(PAYER_ACCT_TYPE) PAYERACCTYPE,
+       		   TO_CHAR(PAYEE_MEMBER) PAYEEMEMBERCODE,
+               TO_CHAR(PAYEE_ACCT_TYPE) PAYEEACCTYPE,
+	        ''								BUSITYPE,
+	        0								ORDERSRC
+		FROM MASSPAY_ORDER 
+		WHERE PARENT_ORDER IS NOT NULL
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PAYER_MEMBER) = #memberCode# OR to_char(PAYEE_MEMBER) = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+        
+	UNION ALL
+	   
+   SELECT SD.DEPOSIT_ORDER_NO ORDERKY,
+          DP.SERIAL_NO BANKORDERKY,
+          1001 ORDERTYPE,
+          DP.DEPOSIT_AMOUNT ORDERAMOUNT,
+          DECODE(DP.STATUS, 0, 101, 1, 111, 2, 112, 112) ORDERSTATUS,
+          '' PAYERACCOUNTNO,
+          TO_CHAR(DP.CHANNEL_NO) PAYERBANKNO,
+          PCI.ITEM_NAME PAYERBANKNAME,
+          TO_CHAR(SD.CUSTOMER) PAYEEACCOUNTNO,
+          '' PAYEEBANKNO,
+          '' PAYEEBANKNNAME,
+          DP.CREATE_DATE ORDERDATE,
+          '' WORKFLOWKY,
+          '' PAYERMEMBERCODE,
+          '' PAYERACCTYPE,
+          TO_CHAR(SD.CUSTOMER) PAYEEMEMBERCODE,
+          TO_CHAR(SD.CUSTOMER_TYPE) PAYEEACCTYPE,
+          '' BUSITYPE,
+          0 ORDERSRC
+   
+     FROM FI.DEPOSIT_ORDER        SD,
+          FI.DEPOSIT_PROTOCOL     DP,
+          FI.PAYMENT_CHANNEL_ITEM PCI
+    WHERE SD.DEPOSIT_ORDER_NO = DP.DEPOSIT_ORDER_NO
+      AND PCI.ALIAS = SD.ORG_CODE
+
+		<dynamic >
+			<isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(sd.customer) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		sd.STATUS = 0 
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		sd.STATUS = 1
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		sd.STATUS = 2
+	        	</isEqual>		        
+		    </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(sd.Deposit_Order_No) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            to_char(dp.SERIAL_NO) = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ sd.CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ sd.CREATE_DATE <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+		 </dynamic>
+	
+	UNION ALL
+		SELECT   
+	        SEQUENCE_ID 								orderKy, 
+	        '' 											bankOrderKy, 
+	        1014 										orderType, 
+	        APP_AMOUNT 										orderAmount,
+	        decode(STATUS, 111, 111, 112, 112, 101) 	orderStatus, 
+	        ''					 						payerAccountNo,
+	        '' 											payerBankNo,
+	        '' 											payerBankName, 
+	        ''				 							payeeAccountNo, 
+	        ''		 									payeeBankNo, 
+	        '' 											payeeBankName, 
+	        CREATE_TIME 								orderDate,
+	        ''			 								workflowKy,
+	        to_char(PAYER_MEMBER) 						payerMemberCode,
+	        to_char(PAYER_ACCT_TYPE) 					payerAccType,
+	        to_char(PAYEE_MEMBER) 						payeeMemberCode,
+	        to_char(PAYEE_ACCT_TYPE) 					payeeAccType,
+	        APP_TYPE									busiType,
+	        SEQUENCE_SRC								orderSrc
+	    FROM  BACK_FUNDMENT_ORDER
+	    <dynamic prepend=" WHERE ">
+          <isNotEmpty  property="memberCode" prepend="AND">
+              (PAYER_MEMBER = #memberCode# OR PAYEE_MEMBER=#memberCode#)
+          </isNotEmpty>
+          <isNotEmpty  property="accType" prepend="AND">
+              (PAYER_ACCT_TYPE = #accType# OR PAYEE_ACCT_TYPE = #accType#)
+          </isNotEmpty>
+          <isNotEmpty  property="orderStatus" prepend="AND">
+              STATUS = #orderStatus#
+          </isNotEmpty>
+          <isNotEmpty  property="orderKy" prepend="AND">
+              SEQUENCE_ID = #orderKy#
+          </isNotEmpty>
+          <isNotEmpty property="startTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME >= #startTime# ]]>
+      	  </isNotEmpty>
+       	  <isNotEmpty property="endTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME <= #endTime# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty  property="merchantOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  <isNotEmpty  property="bankOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  </dynamic>	
+		
+	UNION ALL
+SELECT ROI.Refund_Order_No orderKy,
+       '' bankOrderKy,
+       1003 orderType,
+       ROI.REFUND_AMOUNT orderAmount,
+       DECODE(ROI.STATUS, 0, 101, 1, 111, 2, 112, 112) orderStatus,
+       TO_CHAR(PO.PAYER) payerAccountNo,
+       '' payerBankNo,
+       '' payerBankName,
+       TO_CHAR(PO.PAYEE_TYPE) payeeAccountNo,
+       '' payeeBankNo,
+       '' payeeBankNname,
+       ROI.CREATE_DATE orderDate,
+       '' workflowKy,
+       TO_CHAR(PO.PAYER) payerMemberCode,
+       TO_CHAR(PO.PAYER_TYPE) payerAccType,
+       TO_CHAR(PO.PAYEE) payeeMemberCode,
+       TO_CHAR(PO.PAYEE_TYPE) payeeAccType,
+       '' busiType,
+       0 orderSrc
+  from FI.TRADE_ORDER TOI, FI.REFUND_ORDER ROI, FI.PAYMENT_ORDER PO
+ WHERE TOI.TRADE_ORDER_NO = ROI.TRADE_ORDER_NO
+   AND TOI.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+   
+		<dynamic>
+			<isNotEmpty  property="memberCode" prepend="AND">
+	            ( to_char(PO.PAYER) = #memberCode#  
+	              or  to_char(PO.PAYEE) = #memberCode#)	 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		ROI.STATUS = 0
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		ROI.STATUS = 1
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		ROI.STATUS = 2
+	        	</isEqual>		
+		    </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(ROI.Refund_Order_No) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="merchantOrderKy" prepend="AND">
+	           to_char(TOI.ORDER_ID) = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ ROI.CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ ROI.CREATE_DATE <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty> 
+		</dynamic>
+		
+		</select>
+	
+	<select id="context_ordercenter_common_query_COUNT" parameterClass="context_fundout_orderCenterQueryDTO" resultClass="integer">
+		SELECT COUNT(1) FROM (
+		
+SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1004 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 0  and o.ORDER_SEQ_ID is null
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+		 	
+	UNION ALL
+	
+		SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1011 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 0 and o.ORDER_SEQ_ID is not null  
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	
+			SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1013 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 3  
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	
+		SELECT  
+				SEQUENCE_ID  orderKy,
+				'' bankOrderKy,
+				1012 orderType,
+				AMOUNT orderAmount,
+				o.STATUS orderStatus,
+       			to_char(MEMBER_CODE) payerAccountNo, 
+       			'' payerBankNo, 
+       			'' payerBankName,
+       			to_char(BANK_ACCT) payeeAccountNo,
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName,  
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+  		FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 2   
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	       
+	  UNION ALL
+	
+		SELECT 	
+				o.SEQUENCE_ID orderKy, 
+				'' bankOrderKy, 
+				1008 orderType, 
+				AMOUNT orderAmount, 
+				o.STATUS orderStatus, 
+				to_char(MEMBER_CODE) payerAccountNo,
+       			'' payerBankNo,
+       			'' payerBankName, 
+       			to_char(BANK_ACCT) payeeAccountNo, 
+       			BANK_KY payeeBankNo, 
+       			'' payeeBankName, 
+       			o.CREATE_TIME orderDate,
+       			w.workflow_ky workflowKy,
+       			to_char(MEMBER_CODE) payerMemberCode,
+       			to_char(MEMBER_ACC_TYPE) payerAccType,
+       			'' payeeMemberCode,
+	           	'' payeeAccType,
+	           	''								busiType,
+	        	0								orderSrc
+	    FROM 	WITHDRAW_ORDER o,withdraw_workorder w
+		WHERE 	o.sequence_id= w.order_seq(+) and BUSI_TYPE = 4 
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            o.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(o.SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ o.CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ o.CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	 		
+	 	SELECT   
+	        MASS_ORDER_SEQ orderKy, 
+	        '' bankOrderKy, 
+	        1008 orderType, 
+	        TOTAL_AMOUNT orderAmount, 
+	        decode(STATUS, 111, 111, 112, 112, 101) orderStatus, 
+	        to_char(PAYER_MEMBER_CODE) payerAccountNo,
+	        '' payerBankNo,
+	        '' payerBankName, 
+	        '' payeeAccountNo, 
+	        '' payeeBankNo, 
+	        '' payeeBankName, 
+	        CREATE_DATE orderDate,
+	        '' workflowKy,
+	        to_char(PAYER_MEMBER_CODE) payerMemberCode,
+	        to_char(PAYER_ACCT_TYPE) payerAccType,
+	        '' payeeMemberCode,
+	        '' payeeAccType,
+	        ''								busiType,
+	        0								orderSrc
+	      FROM   mass_paytobank_order m 
+	      <dynamic prepend="WHERE">  
+	       		<isNotEmpty  property="memberCode" prepend="AND">
+		            to_char(m.PAYER_MEMBER_CODE) = #memberCode# 
+		        </isNotEmpty>
+		        <isNotEmpty  property="accType" prepend="AND">
+		            m.PAYER_ACCT_TYPE = #accType#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderStatus" prepend="AND">
+		            m.STATUS = #orderStatus#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderKy" prepend="AND">
+		            to_char(m.MASS_ORDER_SEQ) = #orderKy#
+		        </isNotEmpty>
+		        <isNotEmpty property="startTime" prepend="AND">
+			 		<![CDATA[ m.CREATE_DATE >= #startTime# ]]>
+				</isNotEmpty>
+			 	<isNotEmpty property="endTime" prepend="AND">
+			    	<![CDATA[ m.CREATE_DATE <= #endTime# ]]>
+			 	</isNotEmpty>
+			 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+		        <isNotEmpty  property="bankOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+	       </dynamic>
+		 	
+	UNION ALL
+	
+		SELECT 	
+				SEQUENCE_ID orderKy, 
+				BANK_ORDER_ID bankOrderKy, 
+				1010 orderType, 
+				REALPAY_AMOUNT orderAmount, 
+				STATUS orderStatus,
+           		to_char(PAYER_ACCT_CODE) payerAccountNo, 
+           		BANK_CODE payerBankNo, 
+           		'' payerBankName, 
+           		to_char(PAYEE_MEMBER_CODE) payeeAccountNo,
+		       	BANK_CODE payeeBankNo, 
+		       	'' payeeBankName, 
+		       	CREATE_DATE orderDate,
+       			wf_instance_id workflowKy,
+       			'' payerMemberCode,
+       			'' payerAccType,
+       			to_char(PAYEE_MEMBER_CODE) payeeMemberCode,
+	           	to_char(payee_acct_type) payeeAccType,
+	        	''								busiType,
+	        	0								orderSrc
+	    FROM T_BANK_REFUND_ORDER
+		<dynamic prepend="WHERE"> 
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(PAYEE_MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYEE_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            to_char(BANK_ORDER_ID) = #bankOrderKy#
+	        </isNotEmpty>
+        </dynamic> 
+        
+	UNION ALL
+		
+		SELECT 
+			   d.DETAIL_KY    orderKy,
+	           d.RECHARGE_BANK_ORDER        bankOrderKy,
+	           1005         orderType,
+	           d.APPLY_AMOUNT orderAmount,
+	           decode(d.STATUS, 111, 111, 112, 112, 101) orderStatus,
+	           to_char(m.member_code)   payerAccountNo ,
+	           ''           payerBankNo,
+	           ''           payerBankName,
+	           ''        payeeAccountNo,
+	           d.recharge_bank          payeeBankNo,
+	           '' payeeBankName, 
+	           m.APPLY_TIME    orderDate,
+	           w.workflow_ky workflowKy,
+	           to_char(m.member_code) payerMemberCode,
+	           to_char(m.MEMBER_ACC_TYPE) payerAccType,
+	           '' payeeMemberCode,
+	           '' payeeAccType,
+	        	''								busiType,
+	        	0								orderSrc
+	    FROM refund_order_m m,refund_order_d d,refund_workorder w
+	    where m.order_ky = w.refund_m_ky and d.master_ky = m.order_ky
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(m.MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            m.MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            d.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(d.DETAIL_KY) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ m.APPLY_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ m.APPLY_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        
+	UNION ALL
+	   
+	   		SELECT 
+             m.ORDER_KY    orderKy,
+             ''        bankOrderKy,
+             1005         orderType,
+             m.APPLY_AMOUNT orderAmount,
+             decode(m.STATUS, 111, 111, 112, 112, 101) orderStatus,
+             to_char(m.member_code)   payerAccountNo ,
+             ''                       payerBankNo,
+             m.MEMBER_NAME            payerBankName,
+             ''                       payeeAccountNo,
+             ''                       payeeBankNo,
+             ''                       payeeBankName, 
+             m.APPLY_TIME             orderDate,
+             ''                       workflowKy,
+             to_char(m.member_code)   payerMemberCode,
+             to_char(m.MEMBER_ACC_TYPE) payerAccType,
+             ''                         payeeMemberCode,
+             ''                         payeeAccType,
+	        ''								busiType,
+	        0								orderSrc
+      		FROM refund_order_m m
+      		<dynamic prepend="WHERE">
+		        <isNotEmpty  property="memberCode" prepend="AND">
+		            to_char(m.MEMBER_CODE) = #memberCode# 
+		        </isNotEmpty>
+		        <isNotEmpty  property="accType" prepend="AND">
+		            m.MEMBER_ACC_TYPE = #accType#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderStatus" prepend="AND">
+		            m.STATUS = #orderStatus#
+		        </isNotEmpty>
+		        <isNotEmpty  property="orderKy" prepend="AND">
+		            to_char(m.ORDER_KY) = #orderKy#
+		        </isNotEmpty>
+		        <isNotEmpty property="startTime" prepend="AND">
+			 		<![CDATA[ m.APPLY_TIME >= #startTime# ]]>
+				</isNotEmpty>
+			 	<isNotEmpty property="endTime" prepend="AND">
+			    	<![CDATA[ m.APPLY_TIME <= #endTime# ]]>
+			 	</isNotEmpty>
+			 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+		        <isNotEmpty  property="bankOrderKy" prepend="AND">
+		            1 != 1
+		        </isNotEmpty>
+	        </dynamic>
+
+	UNION ALL
+	
+		SELECT 
+			   SEQUENCE_ID  	ORDERKY,
+		       ''  				BANKORDERKY,
+		       1006         	ORDERTYPE,
+		       AMOUNT       	ORDERAMOUNT,
+		       STATUS       	ORDERSTATUS,
+		       TO_CHAR(PAYER_MEMBER)  PAYERACCOUNTNO ,
+		       ''           	PAYERBANKNO,
+		       ''           	PAYERBANKNAME,
+		       TO_CHAR(PAYEE_MEMBER)  PAYEEACCOUNTNO,
+		       ''      			PAYEEBANKNO,
+		       '' PAYEEBANKNAME,
+		       CREATE_DATE  	ORDERDATE,
+       		   '' WORKFLOWKY,
+       		   TO_CHAR(PAYER_MEMBER) PAYERMEMBERCODE,
+       		   TO_CHAR(PAYER_ACCT_TYPE) PAYERACCTYPE,
+       		   TO_CHAR(PAYEE_MEMBER) PAYEEMEMBERCODE,
+               TO_CHAR(PAYEE_ACCT_TYPE) PAYEEACCTYPE,
+	        ''								BUSITYPE,
+	        0								ORDERSRC
+		FROM MASSPAY_ORDER 
+		WHERE PARENT_ORDER IS NULL
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PAYER_MEMBER) = #memberCode# OR to_char(PAYEE_MEMBER) = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+        
+	UNION ALL
+	
+		SELECT 
+			   SEQUENCE_ID  orderKy,
+		       ''  bankOrderKy,
+		       1007         orderType,
+		       PAY_TOTAL_AMOUNT       orderAmount,
+		       STATUS       orderStatus,
+		       to_char(PAYER_MEMBER)   payerAccountNo ,
+		       ''           payerBankNo,
+		       ''           payerBankName,
+		       to_char(PAYEE_MEMBER)    payeeAccountNo,
+		       ''      payeeBankNo,
+		       '' payeeBankName,
+		       CREATE_TIME  orderDate,
+       		   '' workflowKy,
+       		   to_char(PAYER_MEMBER) payerMemberCode,
+       		   to_char(PAYER_ACCT_TYPE) payerAccType,
+       		   to_char(PAYEE_MEMBER) payeeMemberCode,
+               to_char(PAYEE_ACCT_TYPE) payeeAccType,
+	        ''								busiType,
+	        0								orderSrc
+		FROM masspay_batch_order 
+		<dynamic prepend="WHERE">
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PAYER_MEMBER) = #memberCode# OR to_char(PAYEE_MEMBER) = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_TIME <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+        </dynamic>
+        
+    UNION ALL 
+	   
+	   	SELECT 
+			   SEQUENCE_ID  	ORDERKY,
+		       ''  				BANKORDERKY,
+		       1007         	ORDERTYPE,
+		       AMOUNT       	ORDERAMOUNT,
+		       STATUS       	ORDERSTATUS,
+		       TO_CHAR(PAYER_MEMBER)  PAYERACCOUNTNO ,
+		       ''           	PAYERBANKNO,
+		       ''           	PAYERBANKNAME,
+		       TO_CHAR(PAYEE_MEMBER)  PAYEEACCOUNTNO,
+		       ''      			PAYEEBANKNO,
+		       '' PAYEEBANKNAME,
+		       CREATE_DATE  	ORDERDATE,
+       		   '' WORKFLOWKY,
+       		   TO_CHAR(PAYER_MEMBER) PAYERMEMBERCODE,
+       		   TO_CHAR(PAYER_ACCT_TYPE) PAYERACCTYPE,
+       		   TO_CHAR(PAYEE_MEMBER) PAYEEMEMBERCODE,
+               TO_CHAR(PAYEE_ACCT_TYPE) PAYEEACCTYPE,
+	        ''								BUSITYPE,
+	        0								ORDERSRC
+		FROM MASSPAY_ORDER 
+		WHERE PARENT_ORDER IS NOT NULL
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PAYER_MEMBER) = #memberCode# OR to_char(PAYEE_MEMBER) = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCT_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(SEQUENCE_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ CREATE_DATE <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+        
+	UNION ALL
+	   
+   SELECT SD.DEPOSIT_ORDER_NO ORDERKY,
+          DP.SERIAL_NO BANKORDERKY,
+          1001 ORDERTYPE,
+          DP.DEPOSIT_AMOUNT ORDERAMOUNT,
+          DECODE(DP.STATUS, 0, 101, 1, 111, 2, 112, 112) ORDERSTATUS,
+          '' PAYERACCOUNTNO,
+          TO_CHAR(DP.CHANNEL_NO) PAYERBANKNO,
+          PCI.ITEM_NAME PAYERBANKNAME,
+          TO_CHAR(SD.CUSTOMER) PAYEEACCOUNTNO,
+          '' PAYEEBANKNO,
+          '' PAYEEBANKNNAME,
+          DP.CREATE_DATE ORDERDATE,
+          '' WORKFLOWKY,
+          '' PAYERMEMBERCODE,
+          '' PAYERACCTYPE,
+          TO_CHAR(SD.CUSTOMER) PAYEEMEMBERCODE,
+          TO_CHAR(SD.CUSTOMER_TYPE) PAYEEACCTYPE,
+          '' BUSITYPE,
+          0 ORDERSRC
+   
+     FROM FI.DEPOSIT_ORDER        SD,
+          FI.DEPOSIT_PROTOCOL     DP,
+          FI.PAYMENT_CHANNEL_ITEM PCI
+    WHERE SD.DEPOSIT_ORDER_NO = DP.DEPOSIT_ORDER_NO
+      AND PCI.ALIAS = SD.ORG_CODE
+
+		<dynamic >
+			<isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(sd.customer) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		sd.STATUS = 0 
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		sd.STATUS = 1
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		sd.STATUS = 2
+	        	</isEqual>		        
+		    </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(sd.Deposit_Order_No) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            to_char(dp.SERIAL_NO) = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ sd.CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ sd.CREATE_DATE <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty>
+		 </dynamic>
+	
+	UNION ALL
+		SELECT   
+	        SEQUENCE_ID 								orderKy, 
+	        '' 											bankOrderKy, 
+	        1014 										orderType, 
+	        APP_AMOUNT 										orderAmount,
+	        decode(STATUS, 111, 111, 112, 112, 101) 	orderStatus, 
+	        ''					 						payerAccountNo,
+	        '' 											payerBankNo,
+	        '' 											payerBankName, 
+	        ''				 							payeeAccountNo, 
+	        ''		 									payeeBankNo, 
+	        '' 											payeeBankName, 
+	        CREATE_TIME 								orderDate,
+	        ''			 								workflowKy,
+	        to_char(PAYER_MEMBER) 						payerMemberCode,
+	        to_char(PAYER_ACCT_TYPE) 					payerAccType,
+	        to_char(PAYEE_MEMBER) 						payeeMemberCode,
+	        to_char(PAYEE_ACCT_TYPE) 					payeeAccType,
+	        APP_TYPE									busiType,
+	        SEQUENCE_SRC								orderSrc
+	    FROM  BACK_FUNDMENT_ORDER
+	    <dynamic prepend=" WHERE ">
+          <isNotEmpty  property="memberCode" prepend="AND">
+              (PAYER_MEMBER = #memberCode# OR PAYEE_MEMBER=#memberCode#)
+          </isNotEmpty>
+          <isNotEmpty  property="accType" prepend="AND">
+              (PAYER_ACCT_TYPE = #accType# OR PAYEE_ACCT_TYPE = #accType#)
+          </isNotEmpty>
+          <isNotEmpty  property="orderStatus" prepend="AND">
+              STATUS = #orderStatus#
+          </isNotEmpty>
+          <isNotEmpty  property="orderKy" prepend="AND">
+              SEQUENCE_ID = #orderKy#
+          </isNotEmpty>
+          <isNotEmpty property="startTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME >= #startTime# ]]>
+      	  </isNotEmpty>
+       	  <isNotEmpty property="endTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME <= #endTime# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty  property="merchantOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  <isNotEmpty  property="bankOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  </dynamic>	
+		
+	UNION ALL
+SELECT ROI.Refund_Order_No orderKy,
+       '' bankOrderKy,
+       1003 orderType,
+       ROI.REFUND_AMOUNT orderAmount,
+       DECODE(ROI.STATUS, 0, 101, 1, 111, 2, 112, 112) orderStatus,
+       TO_CHAR(PO.PAYER) payerAccountNo,
+       '' payerBankNo,
+       '' payerBankName,
+       TO_CHAR(PO.PAYEE_TYPE) payeeAccountNo,
+       '' payeeBankNo,
+       '' payeeBankNname,
+       ROI.CREATE_DATE orderDate,
+       '' workflowKy,
+       TO_CHAR(PO.PAYER) payerMemberCode,
+       TO_CHAR(PO.PAYER_TYPE) payerAccType,
+       TO_CHAR(PO.PAYEE) payeeMemberCode,
+       TO_CHAR(PO.PAYEE_TYPE) payeeAccType,
+       '' busiType,
+       0 orderSrc
+  from FI.TRADE_ORDER TOI, FI.REFUND_ORDER ROI, FI.PAYMENT_ORDER PO
+ WHERE TOI.TRADE_ORDER_NO = ROI.TRADE_ORDER_NO
+   AND TOI.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+   
+		<dynamic>
+			<isNotEmpty  property="memberCode" prepend="AND">
+	            ( to_char(PO.PAYER) = #memberCode#  
+	              or  to_char(PO.PAYEE) = #memberCode#)	 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		ROI.STATUS = 0
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		ROI.STATUS = 1
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		ROI.STATUS = 2
+	        	</isEqual>		
+		    </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(ROI.Refund_Order_No) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="merchantOrderKy" prepend="AND">
+	           to_char(TOI.ORDER_ID) = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ ROI.CREATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ ROI.CREATE_DATE <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	        </isNotEmpty> 
+		</dynamic>
+		)
+	</select>
+	
+</sqlMap>

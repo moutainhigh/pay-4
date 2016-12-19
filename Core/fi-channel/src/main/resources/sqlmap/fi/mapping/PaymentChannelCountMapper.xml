@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.channel.dao.PaymentChannelCountMapper">
+
+  <resultMap id="BaseResultMap" class="com.pay.channel.model.PaymentChannelCount">
+    <result column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="PAYMENT_CHANNEL_ITEM_ID" jdbcType="DECIMAL" property="paymentChannelItemId" />
+    <result column="SUCCESS_TIMES" jdbcType="DECIMAL" property="successTimes" />
+    <result column="FAILURE_TIMES" jdbcType="DECIMAL" property="failureTimes" />
+    <result column="REJECT_TIMES" jdbcType="DECIMAL" property="rejectTimes" />
+    <result column="AMOUNT" jdbcType="DECIMAL" property="amount" />
+    <result column="MONTH_STAMP" jdbcType="VARCHAR" property="monthStamp" />
+  </resultMap>
+
+  <resultMap id="dtoResultMap" class="com.pay.channel.dto.PaymentChannelCountDTO" extends="BaseResultMap">
+    <result column="NAME" property="paymentChannelName" jdbcType="VARCHAR"/>
+    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ID, PAYMENT_CHANNEL_ITEM_ID, SUCCESS_TIMES, FAILURE_TIMES, REJECT_TIMES, AMOUNT, 
+    MONTH_STAMP
+  </sql>
+
+  <select id="findById" parameterClass="java.math.BigDecimal" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from PAYMENT_CHANNEL_COUNT
+    where ID = #id#
+  </select>
+
+  <delete id="delete" parameterClass="java.math.BigDecimal">
+    delete from PAYMENT_CHANNEL_COUNT
+    where ID = #id#
+  </delete>
+
+  <insert id="create" parameterClass="com.pay.channel.model.PaymentChannelCount">
+    <selectKey resultClass="java.math.BigDecimal" keyProperty="id">
+      SELECT SEQ_PAYMENT_CHANNEL_COUNT.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into PAYMENT_CHANNEL_COUNT (ID, PAYMENT_CHANNEL_ITEM_ID, SUCCESS_TIMES, 
+      FAILURE_TIMES, REJECT_TIMES, AMOUNT,
+      MONTH_STAMP)
+    values (#id#, #paymentChannelItemId#, #successTimes#,
+    #failureTimes#, #rejectTimes#, #amount#,
+      TO_CHAR(SYSDATE,'yyyymm'))
+  </insert>
+
+  <update id="updateModelByModel" parameterClass="com.pay.channel.model.PaymentChannelCount">
+    update PAYMENT_CHANNEL_COUNT
+    set
+      SUCCESS_TIMES = #successTimes#,
+      FAILURE_TIMES = #failureTimes#,
+      REJECT_TIMES = #rejectTimes#,
+      AMOUNT = #amount#
+    where ID = #id#
+  </update>
+
+  <select id="findByCriteria" parameterClass="com.pay.channel.dto.PaymentChannelCountDTO" resultMap="dtoResultMap">
+    SELECT
+    pct.ID, pct.PAYMENT_CHANNEL_ITEM_ID, pct.SUCCESS_TIMES,
+    pct.FAILURE_TIMES, pct.REJECT_TIMES, pct.AMOUNT,
+    pct.MONTH_STAMP,pci.NAME, pci.ORG_CODE
+    FROM PAYMENT_CHANNEL_COUNT pct,PAYMENT_CHANNEL_ITEM pci
+    WHERE 1=1 AND pct.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+)
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      pct.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="monthStamp">
+      pct.MONTH_STAMP = #monthStamp#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="startMonth">
+      pct.MONTH_STAMP >= #startMonth#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="endMonth">
+      pct.MONTH_STAMP >= #endMonth#
+    </isNotEmpty>
+    order by ID asc
+  </select>
+
+  <select id="countByCriteria" parameterClass="com.pay.channel.dto.PaymentChannelCountDTO" resultClass="java.lang.Integer">
+    SELECT
+    count(1)
+    FROM PAYMENT_CHANNEL_COUNT pct,PAYMENT_CHANNEL_ITEM pci
+    WHERE 1=1 AND pct.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+)
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      pct.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="monthStamp">
+      pct.MONTH_STAMP = #monthStamp#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="startMonth">
+      pct.MONTH_STAMP >= #startMonth#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="endMonth">
+      pct.MONTH_STAMP >= #endMonth#
+    </isNotEmpty>
+  </select>
+
+</sqlMap>

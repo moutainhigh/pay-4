@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CLEAR_COLLECT">
+    <resultMap class="com.pay.txncore.crosspay.model.ClearCollect" id="BaseResultMap">
+      <result column="ID" jdbcType="DECIMAL" property="id" />
+      <result column="PARTNER_ID" jdbcType="VARCHAR" property="partnerId" />
+      <result column="TRADE_AMOUNT" jdbcType="DECIMAL" property="tradeAmount" />
+      <result column="REFUND_AMOUNT" jdbcType="DECIMAL" property="refundAmount" />
+      <result column="REFUND_FEE" jdbcType="DECIMAL" property="refundFee" />
+      <result column="FROZEN_AMOUNT" jdbcType="DECIMAL" property="frozenAmount" />
+      <result column="REFUSE_PAYMENT_AMOUNT" jdbcType="DECIMAL" property="refusePaymentAmount" />
+      <result column="REFUSE_FEE" jdbcType="DECIMAL" property="refuseFee" />
+      <result column="CLEAR_AMOUNT" jdbcType="DECIMAL" property="clearAmount" />
+      <result column="FEE_AMOUNT" jdbcType="DECIMAL" property="feeAmount" />
+      <result column="PLEDGE_AMOUNT" jdbcType="DECIMAL" property="pledgeAmount" />
+      <result column="REMARK" jdbcType="VARCHAR" property="remark" />
+      <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+      <result column="UPDATE_DATE" jdbcType="TIMESTAMP" property="updateDate" />
+      <result column="UNCLEAR_AMOUNT" jdbcType="DECIMAL" property="unclearAmount" />
+      <result column="EXPRESS_FEE" jdbcType="DECIMAL" property="expressFee" />
+    </resultMap>
+    <sql id="CLEAR_COLLECT.Example_Where_Clause">
+      <iterate conjunction="or" prepend="where" property="oredCriteria" removeFirstPrepend="iterate">
+        <isEqual compareValue="true" property="oredCriteria[].valid">
+          (
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithoutValue">
+            <![CDATA[ $oredCriteria[].criteriaWithoutValue[]$ ]]>
+          </iterate>
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithSingleValue">
+            <![CDATA[ $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value# ]]>
+          </iterate>
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithListValue">
+            <![CDATA[ $oredCriteria[].criteriaWithListValue[].condition$ ]]>
+            <iterate close=")" conjunction="," open="(" property="oredCriteria[].criteriaWithListValue[].values">
+              <![CDATA[ #oredCriteria[].criteriaWithListValue[].values[]# ]]>
+            </iterate>
+          </iterate>
+          <iterate conjunction="and" prepend="and" property="oredCriteria[].criteriaWithBetweenValue">
+            <![CDATA[
+            $oredCriteria[].criteriaWithBetweenValue[].condition$
+            #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+            #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+            ]]>
+          </iterate>
+          )
+        </isEqual>
+      </iterate>
+    </sql>
+    <sql id="CLEAR_COLLECT.oracle_Pagination_Head">
+      <dynamic>
+        <isNotEmpty property="oracleStart">
+          <isNotEmpty property="oracleEnd">
+            <![CDATA[ select * from ( select row_.*, rownum rownum_ from ( ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="CLEAR_COLLECT.oracle_Pagination_Tail">
+      <dynamic>
+        <isNotEmpty property="oracleStart">
+          <isNotEmpty property="oracleEnd">
+            <![CDATA[ ) row_ where rownum <= #oracleEnd# ) where rownum_ > #oracleStart# ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="CLEAR_COLLECT.Base_Column_List">
+      ID, PARTNER_ID, TRADE_AMOUNT, REFUND_AMOUNT, REFUND_FEE, FROZEN_AMOUNT, REFUSE_PAYMENT_AMOUNT, 
+      REFUSE_FEE, CLEAR_AMOUNT, FEE_AMOUNT, PLEDGE_AMOUNT, REMARK, CREATE_DATE, UPDATE_DATE, 
+      UNCLEAR_AMOUNT, EXPRESS_FEE
+    </sql>
+    <select id="selectByCriteria" resultMap="BaseResultMap" parameterClass="com.pay.txncore.crosspay.model.ClearCollectCriteria" >
+     <include refid="CLEAR_COLLECT.oracle_Pagination_Head" />
+      select
+      <isParameterPresent >
+        <isEqual property="distinct" compareValue="true" >
+          distinct
+        </isEqual>
+      </isParameterPresent>
+      <include refid="CLEAR_COLLECT.Base_Column_List" />
+      from CLEAR_COLLECT
+      <isParameterPresent>
+        <include refid="CLEAR_COLLECT.Example_Where_Clause" />
+        <isNotNull property="orderByClause">
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="CLEAR_COLLECT.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="CLEAR_COLLECT.selectByExample" parameterClass="com.pay.txncore.crosspay.model.ClearCollectCriteria" resultMap="BaseResultMap">
+      <include refid="CLEAR_COLLECT.oracle_Pagination_Head" />
+      select
+      <isParameterPresent>
+        <isEqual compareValue="true" property="distinct">
+          distinct
+        </isEqual>
+      </isParameterPresent>
+      <include refid="CLEAR_COLLECT.Base_Column_List" />
+      from CLEAR_COLLECT
+      <isParameterPresent>
+        <include refid="CLEAR_COLLECT.Example_Where_Clause" />
+        <isNotNull property="orderByClause">
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="CLEAR_COLLECT.oracle_Pagination_Tail" />
+    </select>
+    <select id="CLEAR_COLLECT.selectByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.ClearCollect" resultMap="BaseResultMap">
+      select 
+      <include refid="CLEAR_COLLECT.Base_Column_List" />
+      <![CDATA[
+      from CLEAR_COLLECT
+      where ID = #id:DECIMAL#
+      ]]>
+    </select>
+    <select id="findByPartnerId" resultMap="BaseResultMap" parameterClass="java.lang.String" >
+      select 
+      <include refid="CLEAR_COLLECT.Base_Column_List" />
+      <![CDATA[
+      from CLEAR_COLLECT
+      where PARTNER_ID = #memberCode#
+      ]]>
+    </select>
+    <insert id="CLEAR_COLLECT.insert" parameterClass="com.pay.txncore.crosspay.model.ClearCollect">
+      <![CDATA[
+      insert into CLEAR_COLLECT (ID, PARTNER_ID, TRADE_AMOUNT, REFUND_AMOUNT, 
+        REFUND_FEE, FROZEN_AMOUNT, REFUSE_PAYMENT_AMOUNT, REFUSE_FEE, 
+        CLEAR_AMOUNT, FEE_AMOUNT, PLEDGE_AMOUNT, REMARK, 
+        CREATE_DATE, UPDATE_DATE, UNCLEAR_AMOUNT, EXPRESS_FEE
+        )
+      values (#id:DECIMAL#, #partnerId:VARCHAR#, #tradeAmount:DECIMAL#, #refundAmount:DECIMAL#, 
+        #refundFee:DECIMAL#, #frozenAmount:DECIMAL#, #refusePaymentAmount:DECIMAL#, #refuseFee:DECIMAL#, 
+        #clearAmount:DECIMAL#, #feeAmount:DECIMAL#, #pledgeAmount:DECIMAL#, #remark:VARCHAR#, 
+        #createDate:TIMESTAMP#, #updateDate:TIMESTAMP#, #unclearAmount:DECIMAL#, #expressFee:DECIMAL#
+        )
+      ]]>
+    </insert>
+    <insert id="CLEAR_COLLECT.insertSelective" parameterClass="com.pay.txncore.crosspay.model.ClearCollect">
+      insert into CLEAR_COLLECT
+      <dynamic prepend="(">
+        <isNotNull prepend="," property="id">
+          ID
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+          PARTNER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="tradeAmount">
+          TRADE_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount">
+          REFUND_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="refundFee">
+          REFUND_FEE
+        </isNotNull>
+        <isNotNull prepend="," property="frozenAmount">
+          FROZEN_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="refusePaymentAmount">
+          REFUSE_PAYMENT_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="refuseFee">
+          REFUSE_FEE
+        </isNotNull>
+        <isNotNull prepend="," property="clearAmount">
+          CLEAR_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="feeAmount">
+          FEE_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="pledgeAmount">
+          PLEDGE_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+          REMARK
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+          CREATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+          UPDATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="unclearAmount">
+          UNCLEAR_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="expressFee">
+          EXPRESS_FEE
+        </isNotNull>
+        )
+      </dynamic>
+      values
+      <dynamic prepend="(">
+        <isNotNull prepend="," property="id">
+          <![CDATA[ #id:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+          <![CDATA[ #partnerId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeAmount">
+          <![CDATA[ #tradeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount">
+          <![CDATA[ #refundAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refundFee">
+          <![CDATA[ #refundFee:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="frozenAmount">
+          <![CDATA[ #frozenAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refusePaymentAmount">
+          <![CDATA[ #refusePaymentAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refuseFee">
+          <![CDATA[ #refuseFee:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="clearAmount">
+          <![CDATA[ #clearAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="feeAmount">
+          <![CDATA[ #feeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="pledgeAmount">
+          <![CDATA[ #pledgeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+          <![CDATA[ #remark:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+          <![CDATA[ #createDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+          <![CDATA[ #updateDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="unclearAmount">
+          <![CDATA[ #unclearAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="expressFee">
+          <![CDATA[ #expressFee:DECIMAL# ]]>
+        </isNotNull>
+        )
+      </dynamic>
+    </insert>
+    <select id="CLEAR_COLLECT.countByExample" parameterClass="com.pay.txncore.crosspay.model.ClearCollectCriteria" resultClass="java.lang.Integer">
+      select count(*) from CLEAR_COLLECT
+      <include refid="CLEAR_COLLECT.Example_Where_Clause" />
+    </select>
+    <update id="CLEAR_COLLECT.updateByExampleSelective">
+      update CLEAR_COLLECT
+      <dynamic prepend="set">
+        <isNotNull prepend="," property="record.id">
+          <![CDATA[ ID = #record.id:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerId">
+          <![CDATA[ PARTNER_ID = #record.partnerId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.tradeAmount">
+          <![CDATA[ TRADE_AMOUNT = #record.tradeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.refundAmount">
+          <![CDATA[ REFUND_AMOUNT = #record.refundAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.refundFee">
+          <![CDATA[ REFUND_FEE = #record.refundFee:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.frozenAmount">
+          <![CDATA[ FROZEN_AMOUNT = #record.frozenAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.refusePaymentAmount">
+          <![CDATA[ REFUSE_PAYMENT_AMOUNT = #record.refusePaymentAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.refuseFee">
+          <![CDATA[ REFUSE_FEE = #record.refuseFee:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.clearAmount">
+          <![CDATA[ CLEAR_AMOUNT = #record.clearAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.feeAmount">
+          <![CDATA[ FEE_AMOUNT = #record.feeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.pledgeAmount">
+          <![CDATA[ PLEDGE_AMOUNT = #record.pledgeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.remark">
+          <![CDATA[ REMARK = #record.remark:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.createDate">
+          <![CDATA[ CREATE_DATE = #record.createDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.updateDate">
+          <![CDATA[ UPDATE_DATE = #record.updateDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.unclearAmount">
+          <![CDATA[ UNCLEAR_AMOUNT = #record.unclearAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.expressFee">
+          <![CDATA[ EXPRESS_FEE = #record.expressFee:DECIMAL# ]]>
+        </isNotNull>
+      </dynamic>
+      <isParameterPresent>
+        <include refid="CLEAR_COLLECT.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="CLEAR_COLLECT.updateByExample">
+      <![CDATA[
+      update CLEAR_COLLECT
+      set ID = #record.id:DECIMAL#,
+        PARTNER_ID = #record.partnerId:VARCHAR#,
+        TRADE_AMOUNT = #record.tradeAmount:DECIMAL#,
+        REFUND_AMOUNT = #record.refundAmount:DECIMAL#,
+        REFUND_FEE = #record.refundFee:DECIMAL#,
+        FROZEN_AMOUNT = #record.frozenAmount:DECIMAL#,
+        REFUSE_PAYMENT_AMOUNT = #record.refusePaymentAmount:DECIMAL#,
+        REFUSE_FEE = #record.refuseFee:DECIMAL#,
+        CLEAR_AMOUNT = #record.clearAmount:DECIMAL#,
+        FEE_AMOUNT = #record.feeAmount:DECIMAL#,
+        PLEDGE_AMOUNT = #record.pledgeAmount:DECIMAL#,
+        REMARK = #record.remark:VARCHAR#,
+        CREATE_DATE = #record.createDate:TIMESTAMP#,
+        UPDATE_DATE = #record.updateDate:TIMESTAMP#,
+        UNCLEAR_AMOUNT = #record.unclearAmount:DECIMAL#,
+        EXPRESS_FEE = #record.expressFee:DECIMAL#
+      ]]>
+      <isParameterPresent>
+        <include refid="CLEAR_COLLECT.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="CLEAR_COLLECT.updateByPrimaryKeySelective" parameterClass="com.pay.txncore.crosspay.model.ClearCollect">
+      update CLEAR_COLLECT
+      <dynamic prepend="set">
+        <isNotNull prepend="," property="partnerId">
+          <![CDATA[ PARTNER_ID = #partnerId:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeAmount">
+          <![CDATA[ TRADE_AMOUNT = #tradeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount">
+          <![CDATA[ REFUND_AMOUNT = #refundAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refundFee">
+          <![CDATA[ REFUND_FEE = #refundFee:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="frozenAmount">
+          <![CDATA[ FROZEN_AMOUNT = #frozenAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refusePaymentAmount">
+          <![CDATA[ REFUSE_PAYMENT_AMOUNT = #refusePaymentAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refuseFee">
+          <![CDATA[ REFUSE_FEE = #refuseFee:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="clearAmount">
+          <![CDATA[ CLEAR_AMOUNT = #clearAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="feeAmount">
+          <![CDATA[ FEE_AMOUNT = #feeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="pledgeAmount">
+          <![CDATA[ PLEDGE_AMOUNT = #pledgeAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+          <![CDATA[ REMARK = #remark:VARCHAR# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+          <![CDATA[ CREATE_DATE = #createDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+          <![CDATA[ UPDATE_DATE = #updateDate:TIMESTAMP# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="unclearAmount">
+          <![CDATA[ UNCLEAR_AMOUNT = #unclearAmount:DECIMAL# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="expressFee">
+          <![CDATA[ EXPRESS_FEE = #expressFee:DECIMAL# ]]>
+        </isNotNull>
+      </dynamic>
+      <![CDATA[
+      where ID = #id:DECIMAL#
+      ]]>
+    </update>
+    <update id="CLEAR_COLLECT.updateByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.ClearCollect">
+      <![CDATA[
+      update CLEAR_COLLECT
+      set PARTNER_ID = #partnerId:VARCHAR#,
+        TRADE_AMOUNT = #tradeAmount:DECIMAL#,
+        REFUND_AMOUNT = #refundAmount:DECIMAL#,
+        REFUND_FEE = #refundFee:DECIMAL#,
+        FROZEN_AMOUNT = #frozenAmount:DECIMAL#,
+        REFUSE_PAYMENT_AMOUNT = #refusePaymentAmount:DECIMAL#,
+        REFUSE_FEE = #refuseFee:DECIMAL#,
+        CLEAR_AMOUNT = #clearAmount:DECIMAL#,
+        FEE_AMOUNT = #feeAmount:DECIMAL#,
+        PLEDGE_AMOUNT = #pledgeAmount:DECIMAL#,
+        REMARK = #remark:VARCHAR#,
+        CREATE_DATE = #createDate:TIMESTAMP#,
+        UPDATE_DATE = #updateDate:TIMESTAMP#,
+        UNCLEAR_AMOUNT = #unclearAmount:DECIMAL#,
+        EXPRESS_FEE = #expressFee:DECIMAL#
+      where ID = #id:DECIMAL#
+      ]]>
+    </update>
+  </sqlMap>

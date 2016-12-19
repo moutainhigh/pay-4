@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+
+<title>提现查询</title>
+</head>
+<body>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+			    
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+			    		
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+			    		
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+			    		
+							<li id="topmenu_2" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                            <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>						
+                <ul class="submenu" style="display: block;" id="secmenuul_5">
+                     						
+								<li class="other" id="secmenu_5_52">
+									<a href="${rc.contextPath}/corp/myAccount.htm">基本信息</a>
+								</li>
+								<li class="current" id="secmenu_5_51">
+									<a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">账户余额明细</a>
+								</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+<div class="mainbox"><div class="wrap">
+    <div class="section01">
+    	<div class="tit">
+    		<span class="current">提现详情</span>
+    	</div>
+    	<div class="seccon">
+				<#if detail?exists>
+				<table class="tab03">
+						<tbody>
+					<tr>
+						<td class="type" width="200">交易号：</td>
+						<td>${detail.dealId}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">创建时间：</td>
+						<td>${detail.startDate?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">结束时间：</td>
+						<td>${detail.endDate?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">账户类型：</td>
+						<td>人民币账户</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">收支：</td>
+						<td><#if detail.crdr == 1>支出<#else>收入</#if></td>
+					</tr>
+					<#if detail.dealType == 1>
+					<tr>
+						<td class="type" width="200">收款银行：</td>
+						<td>${detail.payeeBankName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">收款开户行名称：</td>
+						<td>${detail.openingBankName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">收款开户行所在城市：</td>
+						<td>${detail.cityName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">收款方户名：</td>
+						<td>${detail.payeeName?default("")}</td>
+					</tr>
+					<tr>
+						<td class="type" width="200">收款方银行账户：</td>
+						<td>****${detail.payeeBankNo?default("")}</td>
+					</tr>
+					</#if>
+					<tr>
+						<td class="type" width="200">金额：</td>
+						<td>${(detail.dealAmount/1000)?default(0)?string(",##0.00")}元</td>
+					</tr>
+					<tr>
+					  	<td class="type" width="200">费用：</td>
+					  	<td>${(detail.dealFee/10*0.01)?default(0)?string(",##0.00")}元</td>
+					</tr>
+					<tr>
+					  	<td class="type" width="200">交易状态：</td>
+					  	<td>
+					  	<#if detail.dealStatus == 100>初始化
+					  	<#elseif detail.dealStatus == 101>进行中
+					  	<#elseif detail.dealStatus == 102>申请失败
+					  	<#elseif detail.dealStatus == 111>成功
+					  	<#elseif detail.dealStatus == 112>失败
+					  	<#elseif detail.dealStatus == 113>失败
+					  	</#if>
+					  	</td>
+					</tr>
+                <#if detail.refundReason?exists>
+					<tr>
+					  	<td class="type" width="200">失败原因：</td>
+					  	<td></td>
+					</tr>
+			   </#if>
+					<tr>
+					  	<td class="type" width="200">备注：</td>
+					  	<td>${detail.remark?default("")}</td>
+					</tr>
+					<#if detail.dealStatus == 111>
+						<tr>
+						  	<td class="type" width="200">操作：</td>
+						  	<td></td>
+						</tr>
+					</#if>
+					</tbody>
+					</table>
+					<#else>
+						<div class="content txtC">
+							<div class="result_tips">
+								<div class="set_height clearfix">
+									<span class="pop_fail"></span>
+									<p class="words f14"><strong>无效订单</strong></p>
+									<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a>|<a href="${rc.contextPath}/index.htm">返回gcpayment支付首页</a></p>
+								</div>
+							</div>
+						</div>
+					</#if>
+    	</div>
+</div>
+</div></div>
+<#include "/include/myfoot.html">
+</body>
+</html>

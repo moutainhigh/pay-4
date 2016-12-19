@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	<!-- DataSource -->
+	<bean id="base-enterpriseBaseService"
+		class="com.pay.base.service.enterprise.impl.EnterpriseBaseServiceImpl">
+		<property name="enterpriseBaseDAO" ref="base-enterpriseBaseDAO" />
+	</bean>
+	<bean id="base-enterpriseContactService"
+		class="com.pay.base.service.enterprise.impl.EnterpriseContactServiceImpl">
+		<property name="enterpriseContactDAO" ref="base-enterpriseContactDAO" />
+	</bean>
+	<!-- 企业会员结算信息服务 -->
+	<bean id="base-liquidateInfoService"
+		class="com.pay.base.service.enterprise.impl.LiquidateInfoServiceImpl">
+		<property name="liquidateInfoDAO" ref="base-liquidateInfoDAO" />
+		<property name="bankAcctServiceFacade" ref="app-bankAcctServiceFacade"></property>
+		<property name="memberRelationService" ref="base-memberRelationService"></property>
+	</bean>
+	<bean id="enterpriseRegisterService"
+		class="com.pay.base.service.enterprise.impl.EnterpriseRegisterServiceImpl">
+		<property name="enterpriseContactDAO" ref="base-enterpriseContactDAO" />
+		<property name="enterpriseBaseDAO" ref="base-enterpriseBaseDAO" />
+		<property name="enterpriseContractDAO" ref="base-enterpriseContractDAO" />
+		<property name="memberDAO" ref="base-memberDAO" />
+		<property name="operatorDAO" ref="base-operatorDAO" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="acctDAO" ref="base-acctDAO" />
+		<!-- <property name="riskService" ref="rm_facade_service"/> -->
+		<property name="liquidateInfoService">
+			<ref bean="base-liquidateInfoService"/>
+		</property>
+	</bean>
+</beans> 

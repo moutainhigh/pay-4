@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ma-blackwhitelist-approval">
+	<typeAlias alias="blackWhiteListApprovalDto" type="com.pay.rm.blackwhitelist.dto.BlackWhiteListApprovalDto" />
+
+	<sql id="blackWhiteListApproval.paging_start">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="blackWhiteListApproval.paging_end">
+       	<![CDATA[
+       	  ) t1    )
+       		 where (linenum <= #pageEndRow#) and (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	<insert id="create" parameterClass="blackWhiteListApprovalDto">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_BLACK_WHITE_LIST_APAL_ID.nextval from dual
+		</selectKey>
+		insert into	t_black_white_list_approval
+		(id,member_code ,business_type_id ,list_type ,status ,create_date,CONTENT,PART_TYPE,operator,approval_type,approval_user,remark,value1,value2, black_white_list_id)
+		values(#id#,#memberCode#,#businessTypeId#,#listType#,#status#,#createDate#,#content#,#partType#,#operator#,#approvalType#,#approvalUser#,
+		#remark#,#value1#,#value2#,#blackWhiteListId#)
+	</insert>
+	
+	
+	<sql id="blackWhiteListApprovalCommon">
+       	<isNotEmpty property="id">
+    		<![CDATA[   and tbwl.id = #id#	]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="memberCode">
+    		<![CDATA[   and tbwl.member_code = #memberCode#	]]>
+    	</isNotEmpty>
+    	<isNotNull property="businessTypeId">
+    		<![CDATA[   and tbwl.business_type_id = #businessTypeId#	]]>
+    	</isNotNull>
+    	<isNotNull property="listType">
+    		<![CDATA[   and tbwl.list_type = #listType#	]]>
+    	</isNotNull>
+    	<isNotNull property="status">
+    		<![CDATA[   and tbwl.status = #status#	]]>
+    	</isNotNull>
+    	<isNotEmpty property="content">
+    		<![CDATA[   and tbwl.content = #content#]]>
+    	</isNotEmpty>
+    	<isNotNull property="partType">
+    		<![CDATA[   and tbwl.PART_TYPE = #partType#	]]>
+    	</isNotNull>
+    	<isNotEmpty property="approvalType">
+    		<![CDATA[   and tbwl.APPROVAL_TYPE = #approvalType#	]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="blackWhiteListId">
+    		<![CDATA[   and tbwl.BLACK_WHITE_LIST_ID = #blackWhiteListId#	]]>
+    	</isNotEmpty>
+    	<isNotNull property="remark">
+    		<![CDATA[   and tbwl.REMARK = #remark#	]]>
+    	</isNotNull>
+    	<isNotNull property="operator">
+    		<![CDATA[   and tbwl.OPERATOR = #operator#	]]>
+    	</isNotNull>
+    	<isNotNull property="approvalUser">
+    		<![CDATA[   and tbwl.APPROVAL_USER = #approvalUser#	]]>
+    	</isNotNull>
+    	<isNotNull property="value1">
+    		<![CDATA[   and tbwl.VALUE1 = #value1#	]]>
+    	</isNotNull>
+    	<isNotNull property="value2">
+    		<![CDATA[   and tbwl.VALUE2 = #value2#	]]>
+    	</isNotNull>
+	</sql>
+	
+		<sql id="blackWhiteListApprovalCheck">
+       	<isNotEmpty property="id">
+    		<![CDATA[   and tbwl.id = #id#	]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="memberCode">
+    		<![CDATA[   and tbwl.member_code = #memberCode#	]]>
+    	</isNotEmpty>
+    	<isNotNull property="businessTypeId">
+    		<![CDATA[   and tbwl.business_type_id = #businessTypeId#	]]>
+    	</isNotNull>
+    	<isNotNull property="listType">
+    		<![CDATA[   and tbwl.list_type = #listType#	]]>
+    	</isNotNull>
+    	<isNotEmpty property="content">
+    		<![CDATA[   and tbwl.content = #content#]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="status">
+    	            and tbwl.status=#status#
+    	</isNotEmpty>
+    	<isNotNull property="partType">
+    		<![CDATA[   and tbwl.PART_TYPE = #partType#	]]>
+    	</isNotNull>
+    	<isNotEmpty property="approvalType">
+    		<![CDATA[   and tbwl.APPROVAL_TYPE = #approvalType#	]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="blackWhiteListId">
+    		<![CDATA[   and tbwl.BLACK_WHITE_LIST_ID = #blackWhiteListId#	]]>
+    	</isNotEmpty>
+    	<isNotNull property="remark">
+    		<![CDATA[   and tbwl.REMARK = #remark#	]]>
+    	</isNotNull>
+    	<isNotNull property="operator">
+    		<![CDATA[   and tbwl.OPERATOR = #operator#	]]>
+    	</isNotNull>
+    	<isNotNull property="approvalUser">
+    		<![CDATA[   and tbwl.APPROVAL_USER = #approvalUser#	]]>
+    	</isNotNull>
+    	<isNotNull property="value1">
+    		<![CDATA[   and tbwl.VALUE1 = #value1#	]]>
+    	</isNotNull>
+    	<isNotNull property="value2">
+    		<![CDATA[   and tbwl.VALUE2 = #value2#	]]>
+    	</isNotNull>
+	</sql>
+	
+	<select id="queryBlackWhiteListApproval" resultClass="blackWhiteListApprovalDto" parameterClass="blackWhiteListApprovalDto">
+		<include refid="blackWhiteListApproval.paging_start" />
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        PART_TYPE partType,
+			        content,
+			        operator,
+			        remark,
+			        approval_user approvalUser,
+			        approval_type approvalType,
+			        black_white_list_id blackWhiteListId,
+			        value1,
+			        value2
+			 from t_black_white_list_approval tbwl
+			 where 1=1
+		 <include refid="ma-blackwhitelist-approval.blackWhiteListApprovalCommon" />
+		 	order by nvl(tbwl.update_date,tbwl.create_date) desc
+		 <include refid="blackWhiteListApproval.paging_end" />
+	</select>
+	
+	<select id="queryBlackWhiteListApprovalByCriteria" resultClass="blackWhiteListApprovalDto" parameterClass="blackWhiteListApprovalDto">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        PART_TYPE partType,
+			        content,
+			        operator,
+			        remark,
+			        approval_user approvalUser,
+			        approval_type approvalType,
+			        black_white_list_id blackWhiteListId,
+			        value1,
+			        value2
+			 from t_black_white_list_approval tbwl
+			 where 1=1
+		 <include refid="blackWhiteListApprovalCommon" />
+	</select>
+	
+	<select id="queryBlackWhiteListApprovalCheck" resultClass="blackWhiteListApprovalDto" parameterClass="blackWhiteListApprovalDto">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        PART_TYPE partType,
+			        content,
+			        operator,
+			        remark,
+			        approval_user approvalUser,
+			        approval_type approvalType,
+			        black_white_list_id blackWhiteListId,
+			        value1,
+			        value2
+			 from t_black_white_list_approval tbwl
+			 where 1=1
+		 <include refid="blackWhiteListApprovalCheck" />
+	</select>
+	
+	<select id="countBlackWhiteListApproval" resultClass="java.lang.Integer" parameterClass="blackWhiteListApprovalDto">
+		select count(tbwl.id)
+		   from t_black_white_list_approval tbwl
+		  where 1=1
+		<include refid="blackWhiteListApprovalCommon" />
+	</select>
+	
+	<update id="updateBlackWhiteListApproval" parameterClass="blackWhiteListApprovalDto">
+       update t_black_white_list_approval tbwl   
+       <dynamic prepend="SET">
+    	<isNotEmpty prepend="," property="memberCode">
+    		 tbwl.member_code = #memberCode#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="businessTypeId">
+    		 tbwl.business_type_id = #businessTypeId#
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="listType">
+    		 tbwl.list_type = #listType#
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="status">
+    		 tbwl.status = #status#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="content">
+    		 tbwl.content = #content#
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="partType">
+    		 tbwl.part_type = #partType#
+    	</isNotEmpty>
+    	<isNotNull prepend="," property="approvalType">
+    		<![CDATA[ tbwl.APPROVAL_TYPE = #approvalType#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="blackWhiteListId">
+    		<![CDATA[tbwl.BLACK_WHITE_LIST_ID = #blackWhiteListId#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="remark">
+    		<![CDATA[tbwl.REMARK = #remark#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="operator">
+    		<![CDATA[ tbwl.OPERATOR = #operator#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="approvalUser">
+    		<![CDATA[ tbwl.APPROVAL_USER = #approvalUser#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="value1">
+    		<![CDATA[ tbwl.VALUE1 = #value1#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="value2">
+    		<![CDATA[ tbwl.VALUE2 = #value2#	]]>
+    	</isNotNull>
+    	<isNotNull prepend="," property="updateDate">
+    		<![CDATA[ tbwl.UPDATE_DATE = #updateDate#	]]>
+    	</isNotNull>
+    	</dynamic>
+ 		 where tbwl.id = #id#
+    </update>
+    
+    <delete id="deleteBlackWhiteListApproval" parameterClass="blackWhiteListApprovalDto">
+       delete t_black_white_list_approval tbwl  
+       	 where  tbwl.id = #id#
+    </delete>
+
+	<select id="checkInDatabase" parameterClass="blackWhiteListApprovalDto" resultClass="java.lang.Integer">
+		select sum(inCheck) * 10 + sum(inlist) from
+			(select count(1) inCheck, 0 inlist from t_black_white_list_approval t
+				where t.business_type_id = #businessTypeId#
+				and t.list_type = #listType#
+				and t.part_type =  #partType#
+				and t.content = #content#
+				and t.status = '0'
+			UNION  ALL
+			select 0 inCheck, count(1) inlist from t_black_white_list m
+				where m.business_type_id = #businessTypeId#
+				and m.list_type = #listType#
+				and m.part_type =  #partType#
+				and m.content = #content#)
+	</select>
+    
+	<select id="queryBlackWhiteListApprovalById" resultClass="blackWhiteListApprovalDto" parameterClass="blackWhiteListApprovalDto">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        part_type partType,
+			        content,
+			        operator,
+			        remark,
+			        approval_user approvalUser,
+			        approval_type approvalType,
+			        black_white_list_id blackWhiteListId,
+			        value1,
+			        value2
+			 from t_black_white_list_approval tbwl
+			 where tbwl.id = #id#	
+	</select>
+	
+	<select id="queryBlackWhiteListApprovalByBuIDAndListType" resultClass="blackWhiteListApprovalDto" parameterClass="blackWhiteListApprovalDto">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        part_type partType,
+			        content,
+			        operator,
+			        remark,
+			        approval_user approvalUser,
+			        approval_type approvalType,
+			        black_white_list_id blackWhiteListId,
+			        value1,
+			        value2
+			 from t_black_white_list_approval tbwl
+			 where 1=1 and status = 1
+			 <isNotNull property="businessTypeId">
+    			<![CDATA[   and tbwl.business_type_id = #businessTypeId#	]]>
+    		 </isNotNull>
+    		 <isNotNull property="listType">
+    		 	<![CDATA[   and tbwl.list_type = #listType#	]]>
+    		 </isNotNull>
+	</select>
+</sqlMap>
+

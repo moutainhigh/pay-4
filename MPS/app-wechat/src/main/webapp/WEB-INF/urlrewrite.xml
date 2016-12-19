@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE urlrewrite PUBLIC "-//tuckey.org//DTD UrlRewrite 3.0//EN"
+    "http://tuckey.org/res/dtds/urlrewrite3.0.dtd">
+
+<urlrewrite use-query-string="true">
+	<!-- 所有以app,corp为前缀的用级目录url -->
+	<outbound-rule>		
+		<from>^*/(app|corp)/([^/]+)\.htm\?method=([^/]*)$</from>
+		<to last="false">/$1/$2.htm\?method=${replace:$3:&amp;:-_}</to>
+	</outbound-rule> 
+	<outbound-rule>		
+		<from>^*/(app|corp)/([^/]+)\.htm\?method=([^/]*)$</from>
+		<to>/$1/$2/${replace:$3:=:---}.htm</to>
+	</outbound-rule> 
+	
+	<outbound-rule>		
+		<from>^*/(app|corp)/([^/]+)\.htm\?([^/]*)$</from>
+		<to last="false">/$1/$2.htm\?${replace:$3:&amp;:-_}</to>
+	</outbound-rule> 
+	<outbound-rule>		
+		<from>^*/(app|corp)/([^/]+)\.htm\?([^/]*)$</from>
+		<to>/$1/$2-_${replace:$3:=:---}.htm</to>
+	</outbound-rule> 
+
+ 	<rule>
+		<from>^/(app|corp)/([^/]+)/(.*)\.htm$</from>
+		<to type="forward" last="false">/$1/$2/${replace:$3:-_:&amp;}.htm</to>
+	</rule>
+	
+	<rule>
+		<from>^/(app|corp)/([^/]+)/(.*)\.htm$</from>
+		<to type="forward">/$1/$2.htm?method=${replace:$3:---:=}</to>
+	</rule>	
+	
+	 <rule>
+		<from>^/(app|corp)/([^/]+)-_(.*)\.htm$</from>
+		<to type="forward" last="false">/$1/$2-_${replace:$3:-_:&amp;}.htm</to>
+	</rule>
+	
+	<rule>
+		<from>^/(app|corp)/([^/]+)-_(.*)\.htm$</from>
+		<to type="forward">/$1/$2.htm?${replace:$3:---:=}</to>
+	</rule>	
+	
+	<!-- 所有以matrixCard为前缀的一级目录url  -->
+	<outbound-rule>		
+		<from>^*/(matrixCard|logout)\.htm\?method=([^/]*)$</from>
+		<to last="false">/$1.htm\?method=${replace:$2:&amp;:-_}</to>
+	</outbound-rule> 
+	<outbound-rule>		
+		<from>^*/(matrixCard|logout)\.htm\?method=([^/]*)$</from>
+		<to>/$1/${replace:$2:=:---}.htm</to>
+	</outbound-rule>
+	
+	 <rule>
+		<from>^/(matrixCard|logout)/(.*)\.htm$</from>
+		<to type="forward" last="false">/$1/${replace:$2:-_:&amp;}.htm</to>
+	</rule>
+	
+	<rule>
+		<from>^/(matrixCard|logout)/(.*)\.htm$</from>
+		<to type="forward">/$1.htm?method=${replace:$2:---:=}</to>
+	</rule>	
+	
+</urlrewrite>
+

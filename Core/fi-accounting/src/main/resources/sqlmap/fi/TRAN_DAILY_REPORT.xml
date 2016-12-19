@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="trandailyreport">
+	
+	<typeAlias alias="tranDailyReportVo" type="com.pay.txncore.model.TranDailyReportVo"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+    
+    <!-- 创建交易日报表数据 -->
+    <insert id="create" parameterClass="tranDailyReportVo">
+		<selectKey keyProperty="tranDailyReportNo" resultClass="java.lang.Long">
+			SELECT	191 || TO_CHAR(SYSDATE, 'yymmddhh24mi')	||LPAD(SEQ_TRAN_DAILY_REPORT_NO.nextval, 6, 0) FROM DUAL 
+		</selectKey>
+	 	INSERT
+		INTO TRAN_DAILY_REPORT
+		  (
+		    TRAN_DAILY_REPORT_NO,
+		    CHANNEL_ORDER_NO,
+		    TRADE_ORDER_NO,
+		    PAYMENT_ORDER_NO,
+		    ORDER_ID,
+		    PARTNER_SETTLEMENT_ORDER_NO,
+		    TRAN_TYPE,
+		    ORG_CODE,
+		    ORG_NAME,
+		    CREATE_DATE,
+		    PARTNER_ID,
+		    CURRENCY_CODE,
+		    TRAN_AMOUNT,
+		    TRAN_CURRENCY_CODE,
+		    PAY_AMOUNT,
+		    PAY_RATE,
+		    PAY_CURRENCY_CODE,
+		    FEE_RATE,
+		    SETTLEMENT_CURRENCY_CODE,
+		    SETTLEMENT_AMOUNT,
+		    SETTLEMENT_RATE,
+		    PER_FEE,
+		    AUTHORISATION,
+		    MERCHANT_NO,
+		    STATUS,
+		    BANK_PER_FEE,
+		    BANK_PER_CURRENCY_CODE,
+		    BANK_FIXED_FEE,
+		    BANK_FIXED_CURRENCY_CODE,
+		    BANK_AMOUNT,
+		    BANK_CURRENCY_CODE,
+		    PAY_CNY_RATE,
+		    BANK_PAY_AMOUNT_CNY,
+		    BANK_PER_FEE_CNY,
+		    BANK_FIXED_FEE_CNY,
+		    BASE_AMOUNT,
+		    ASSURE_AMOUNT,
+		    FIXED_FEE,
+		    SETTLEMENT_CNY_RATE,
+		    SETTLEMENT_AMOUNT_CNY,
+		    BASE_AMOUNT_CNY,
+		    ASSURE_AMOUNT_CNY,
+		    FIXED_FEE_CNY,
+		    RATE_INCOME,
+		    RATE_RATE,
+		    TOTAL_INCOME,
+		    PROFIT,
+		    PROFIT_RATE,
+		    PAY_TYPE,
+		    SETTLEMENT_DATE,
+		    FLAG,
+		    SETTLEMENT_FLG,
+		    RECONCILIATION_FLG,
+		    ASSURE_SETTLEMENT_FLG,
+		    REMARK,
+		    PER_FEE_CNY,
+		    TRAN_FEE
+		  )
+		  VALUES
+		  (
+			#tranDailyReportNo#,
+			#channelOrderNo#,
+			#tradeOrderNo#,
+			#paymentOrderNo#,
+			#orderId#,
+			#partnerSettlementOrderNo#,
+			#tranType#,
+			#orgCode#,
+			#orgName#,
+			#createDate#,
+			#partnerId#,
+			#currencyCode#,
+			#tranAmount#,
+			#tranCurrencyCode#,
+			#payAmount#,
+			#payRate#,
+			#payCurrencyCode#,
+			#feeRate#,
+			#settlementCurrencyCode#,
+			#settlementAmount#,
+			#settlementRate#,
+			#perFee#,
+			#authorisation#,
+			#merchantNo#,
+			#status#,
+			#bankPerFee#,
+			#bankPerCurrencyCode#,
+			#bankFixedFee#,
+			#bankFixedCurrencyCode#,
+			#bankAmount#,
+			#bankCurrencyCode#,
+			#payCnyRate#,
+			#bankPayAmountCny#,
+			#bankPerFeeCny#,
+			#bankFixedFeeCny#,
+			#baseAmount#,
+			#assureAmount#,
+			#fixedFee#,
+			#settlementCnyRate#,
+			#settlementAmountCny#,
+			#baseAmountCny#,
+			#assureAmountCny#,
+			#fixedFeeCny#,
+			#rateIncome#,
+			#rateRate#,
+			#totalIncome#,
+			#profit#,
+			#profitRate#,
+			#payType#,
+			#settlementDate#,
+			#flag#,
+			#settlementFlg#,
+			#reconciliationFlg#,
+			#assuresettlementFlg#,
+			#remark#,
+			#perFeeCny#,
+			#tranFee#		  
+		  )  
+	</insert>
+   
+   <!-- 查询交易日报表最迟记录的时间  -->
+    <select id="queryTranDailyReportMaxDate" resultClass="String">
+    	select max(to_char(CREATE_DATE, 'yyyyMMdd')) from TRAN_DAILY_REPORT
+    </select>
+    
+    <!-- 交易日报表更新 -->
+    <update id="update" parameterClass="hMap">
+    	UPDATE TRAN_DAILY_REPORT
+		<dynamic prepend="set">
+			<isNotEmpty property="bankPerFee" prepend=",">
+				BANK_PER_FEE=#bankPerFee#
+			</isNotEmpty>
+			<isNotEmpty property="bankPerCurrencyCode" prepend=",">
+				BANK_PER_CURRENCY_CODE=#bankPerCurrencyCode#
+			</isNotEmpty>
+			<isNotEmpty property="bankFixedFee" prepend=",">
+				BANK_FIXED_FEE=#bankFixedFee#
+			</isNotEmpty>
+			<isNotEmpty property="bankFixedCurrencyCode" prepend=",">
+				BANK_FIXED_CURRENCY_CODE=#bankFixedCurrencyCode#
+			</isNotEmpty>
+			<isNotEmpty property="bankAmount" prepend=",">
+				BANK_AMOUNT=#bankAmount#
+			</isNotEmpty>
+			<isNotEmpty property="bankCurrencyCode" prepend=",">
+				BANK_CURRENCY_CODE=#bankCurrencyCode#
+			</isNotEmpty>
+			<isNotEmpty property="bankPayAmountCny" prepend=",">
+				BANK_PAY_AMOUNT_CNY=#bankPayAmountCny#
+			</isNotEmpty>
+			<isNotEmpty property="reconciliationFlg" prepend=",">
+				RECONCILIATION_FLG=#reconciliationFlg#
+			</isNotEmpty>
+			<isNotEmpty property="flag" prepend=",">
+				FLAG=#flag#
+			</isNotEmpty>
+			<!-- 此处主要是针对农行的数据sta -->
+			<isNotEmpty property="rateIncome" prepend=",">
+				RATE_INCOME=#rateIncome#
+			</isNotEmpty>
+			<isNotEmpty property="rateRate" prepend=",">
+				RATE_RATE=#rateRate#
+			</isNotEmpty>
+			<isNotEmpty property="totalIncome" prepend=",">
+				TOTAL_INCOME=#totalIncome#
+			</isNotEmpty>
+			<isNotEmpty property="profit" prepend=",">
+				PROFIT=#profit#
+			</isNotEmpty>
+			<isNotEmpty property="profitRate" prepend=",">
+				PROFIT_RATE=#profitRate#
+			</isNotEmpty>
+			<isNotEmpty property="bankPerFeeCny" prepend=",">
+				BANK_PER_FEE_CNY=#bankPerFeeCny#
+			</isNotEmpty>
+			<!-- 此处主要是针对农行的数据end -->
+			
+			<isNotEmpty property="channelOrderNo" prepend="where">
+				CHANNEL_ORDER_NO=#channelOrderNo#
+			</isNotEmpty>
+		</dynamic>
+		<!-- <dynamic prepend="where">
+			
+		</dynamic> -->
+
+    </update>
+    
+    <!-- 查询 -->
+    <select id="queryTranDailyReportForUpdate" parameterClass="java.util.HashMap" resultClass="tranDailyReportVo">
+    	SELECT TRAN_DAILY_REPORT_NO tranDailyReportNo,
+		  CHANNEL_ORDER_NO channelOrderNo,
+		  PARTNER_ID partnerId,
+		  SETTLEMENT_AMOUNT_CNY settlementAmountCny,
+		  FIXED_FEE_CNY fixedFeeCny,
+		  PER_FEE_CNY perFeeCny,
+		  BANK_FIXED_FEE_CNY bankFixedFeeCny,
+		  SETTLEMENT_AMOUNT settlementAmount,
+		  BANK_PER_FEE_CNY bankPerFeeCny
+		FROM TRAN_DAILY_REPORT 
+		where 1 = 1 
+		<isNotEmpty property="channelOrderNo" prepend="and">
+			CHANNEL_ORDER_NO=#channelOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="flag" prepend="and">
+			FLAG=#flag#
+		</isNotEmpty>
+    </select>
+    
+</sqlMap>

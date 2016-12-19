@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>资金管理-分账-退款查询</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		var startTime = "${startTime}";
+		var endTime = "${endTime}";
+		$("#startTime").focus(function (){
+			var startMax = $("#endTime").val();
+			startMax = (startMax.length != 0)? startMax:endTime;
+			WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false, maxDate:startMax});
+
+		});
+		$("#endTime").focus(function (){
+			var endMin = $("#startTime").val();
+			endMin = (endMin.length != 0)? endMin:startTime;
+			WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',skin:'whyGreen',isShowClear:false,minDate:endMin,maxDate:endTime});
+		});
+		
+		$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+		
+	});
+</script>
+</head>
+<body>
+<@sp.head mCode="corp_share"/>
+<!--导航 end--> 
+
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+		<form class="form" action="${rc.contextPath}/corp/corpShare.htm?method=queryShareRefundSubmit" method="post" name="sharingOrderForm" id="sharingOrderForm">
+			<div class="tit_box">
+				<h3 class="title f14"><strong>退款查询</strong></h3>
+			</div>
+			<form class="pad_center">
+				<ul class="form_list">
+					<li>
+						<label class="form_side">商家订单号：</label>
+						<input class="inp_normal w250" name="orderSeq" id="orderSeq" value="${orderSeq?default("")}" type="text">
+					</li>
+					<li>
+						<label class="form_side">交易状态：</label>
+							<select name="tradeStatus" id="tradeStatus" class="inp_normal w200" >
+								<option <#if tradeStatus?default('') == "">selected</#if>  value="">全部</option>
+								<option <#if tradeStatus?default('') == "1">selected</#if> value="1">退款中</option>
+								<option <#if tradeStatus?default('') == "2">selected</#if> value="2">退款成功</option>
+								<option <#if tradeStatus?default('') == "3">selected</#if> value="3">退款失败</option>
+							</select>
+					</li>
+					<li>
+						<label class="form_side">时间范围：</label>
+						<input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate inp_normal" gtbfieldid="109" value="${startTime?default('')}">
+						<span>-</span>
+						<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate inp_normal" gtbfieldid="110" value="${endTime?default('')}"	/>
+			
+					</li>
+					
+					
+					<li class="btn"><span class="btnC">
+						<button type="submit" id="submitId">查 询</button>
+						</span></li>
+				</ul>
+			</form>
+			<div class="query_results">
+				<h3 class="tit">查询结果(<span class="red blod">${listSize?default("0")}</span>)条</h3>
+				<table class="table txtC">
+					<thead>
+						<tr>
+							<th>交易时间</th>
+							<th>交易类型</th>
+							<th>商家订单号</th>
+							<th>订单金额</th>
+							<th>付款方名称</th>
+							<th>退款金额</th>
+							<th>手续费</th>
+							<th>交易状态</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+					 <#if sharingRefund4QueryDTOList?exists>
+		   				<#list sharingRefund4QueryDTOList as ts>
+						<tr>
+							<td>${ts.updateDate?string('yyyy-MM-dd HH:mm:ss')}</td>
+							<td>分账退款</td>
+							<td>${ts.orderId?default("")}</td>
+							<td>${(ts.orderAmount*0.001)?string(",##0.00")}</td>
+							<td>${ts.payerName?default("")}</td>
+							<td>${(ts.refundAmount*0.001)?string(",##0.00")}</td>
+							<td>${(ts.fee*0.001)?string(",##0.00")}</td>
+							<td>
+							  <#if ts.status??>
+									<#if ts.status?has_content>
+										
+										<#if ts.status =="0">
+											退款中
+										<#elseif ts.status =="1">
+											退款中
+										<#elseif ts.status =="2">
+											退款成功
+										<#elseif ts.status =="3">
+											退款失败
+										</#if>
+									</#if>
+								</#if>
+							</td>
+							<td><a target="_blank" class="blues" href="${rc.contextPath}/corp/corpShare.htm?method=queryShareRefunddetail&sharingRefundNo=${ts.sharingRefundNo!('')}">查看</a></td>
+						</tr>
+					</#list>
+		 			</#if>
+					</tbody>
+				</table>
+				<#if sharingRefund4QueryDTOList?has_content>
+					<@sp.pagination pu=pu/> 
+				</#if>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

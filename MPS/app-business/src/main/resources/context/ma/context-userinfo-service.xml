@@ -1,0 +1,30 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	<!-- DataSource -->
+
+	<!-- 对应ACC用户表 -->
+	<bean id="base-userLogService" class="com.pay.base.service.user.impl.UserLogServiceImpl">
+		<property name="mainDao" ref="base-userLogDAO" />
+	</bean>
+
+	<!-- 用户登录服务 -->
+	<bean id="base-userLoginService" class="com.pay.base.service.user.impl.UserLoginServiceImpl">
+		<property name="memberService" ref="base-memberService" />
+		<property name="operatorServiceFacade" ref="base-operatorService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="individualInfoService" ref="base-individualInfoService" />
+		<property name="userLogService" ref="base-userLogService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" /> 
+		<property name="memberOperateService" ref="base-memberOperateService" /> 
+		<property name="notifyFacadeService" ref="acc-notifyFacadeServiceImpl" />
+	</bean>
+	
+	<!-- 图片文件上传下载服务 -->
+	<bean id="imgFileUpAndDownLoadService" class="com.pay.base.service.file.impl.ImgFileUpAndDownLoadImpl"/>
+</beans> 

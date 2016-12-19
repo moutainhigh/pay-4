@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" >
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/ma/la/la.properties</value>
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<bean id="laQueryHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/externalQuery.htm">laExternalQueryControll</prop>
+			</props>
+		</property>
+		
+	</bean>
+
+	
+	<!--对外服务 -->
+	<bean id="laExternalQueryControll"
+		class="com.pay.app.controller.external.LaExternalQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+		<property name="laMemberQueryService">
+			<ref bean="acc-laMemberQueryService" />
+		</property>
+		<property name="publicKey" value="${la.publicKey}" />
+		
+	</bean>
+
+
+</beans>

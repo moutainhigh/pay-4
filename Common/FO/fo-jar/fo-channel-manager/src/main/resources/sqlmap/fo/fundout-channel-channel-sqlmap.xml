@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutchannel">
+	<typeAlias alias="fundoutChannel" type="com.pay.fundout.channel.model.channel.FundoutChannel"/>
+	<typeAlias alias="foBusiness" type="com.pay.fundout.channel.model.business.FundoutBusiness"/>
+	<typeAlias alias="fundoutChannelQueryDTO" type="com.pay.fundout.channel.dto.channel.FundoutChannelQueryDTO"/>
+    <resultMap id="fundoutChannelResult" class="com.pay.fundout.channel.model.channel.FundoutChannel">
+        <result column="CHANNEL_ID" property="channelId" />
+        <result column="MODE_CODE" property="modeCode" />
+        <result column="BANK_ID" property="bankId" />
+        <result column="BUSINESS_CODE" property="businessCode" />
+        <result column="STATUS" property="status" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="UPDATE_DATE" property="updateDate" />
+        <result column="OPERATOR" property="operator" />
+        <result column="MARK" property="mark" />
+        <result column="CHANNEL_NAME" property="channelName" />
+        <result column="CODE" property="code" />
+    </resultMap>
+    
+    <resultMap id="fundoutChannelQueryDTO" class="com.pay.fundout.channel.dto.channel.FundoutChannelQueryDTO">
+        <result column="CHANNEL_ID" property="channelId" />
+        <result column="MODE_CODE" property="modeCode" />
+        <result column="BANK_ID" property="bankId" />
+        <result column="BUSINESS_CODE" property="businessCode" />
+        <result column="STATUS" property="status" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="UPDATE_DATE" property="updateDate" />
+        <result column="OPERATOR" property="operator" />
+        <result column="MARK" property="mark" />
+        <result column="CHANNEL_NAME" property="channelName" />
+        <result column="CODE" property="code" />
+    </resultMap>
+    
+    <insert id="create" parameterClass="fundoutChannel">
+     <selectKey resultClass="java.lang.Long" keyProperty="channelId">
+			select  SEQ_FUNDOUT_CHANNEL_CHANNEL_ID.nextval as id from DUAL 
+	</selectKey>
+        insert into FUNDOUT_CHANNEL (CHANNEL_ID, MODE_CODE, BANK_ID, BUSINESS_CODE, STATUS, 
+             OPERATOR, MARK, CHANNEL_NAME,CODE)
+        values (#channelId#, #modeCode#, #bankId#, #businessCode#, #status#, 
+            #operator#, #mark#, #channelName#,#code#)
+    </insert>
+    
+    <update id="updateFundoutChannelById" parameterClass="fundoutChannel">
+        update FUNDOUT_CHANNEL
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="modeCode">
+                MODE_CODE = #modeCode#
+            </isNotNull>
+            <isNotNull prepend="," property="bankId">
+                BANK_ID = #bankId#
+            </isNotNull>
+            <isNotNull prepend="," property="businessCode">
+                BUSINESS_CODE = #businessCode#
+            </isNotNull>
+            <isNotNull prepend="," property="status">
+                STATUS = #status#
+            </isNotNull>
+            <isNotNull prepend="," property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotNull>
+            <isNotNull prepend="," property="updateDate">
+                UPDATE_DATE = #updateDate#
+            </isNotNull>
+            <isNotNull prepend="," property="operator">
+                OPERATOR = #operator#
+            </isNotNull>
+            <isNotNull prepend="," property="mark">
+                MARK = #mark#
+            </isNotNull>
+            <isNotNull prepend="," property="channelName">
+                CHANNEL_NAME = #channelName#
+            </isNotNull>
+        </dynamic>
+        where CHANNEL_ID = #channelId#
+    </update>
+    
+    <select id="getFundoutChannelById" resultMap="fundoutChannelResult" parameterClass="long">
+        select CHANNEL_ID, MODE_CODE, BANK_ID, BUSINESS_CODE, STATUS, CREATE_DATE, UPDATE_DATE, OPERATOR,
+            MARK, CHANNEL_NAME ,CODE
+        from FUNDOUT_CHANNEL
+        where CHANNEL_ID = #value#
+    </select>
+    
+    <select id="getFundoutChannelList" parameterClass="map" resultMap="fundoutChannelQueryDTO">
+    	select * from fundout_channel
+    	<dynamic prepend="where">
+    		<isNotNull prepend="AND" property="code">
+	            CODE = #code#
+	        </isNotNull>
+	    	<isNotEmpty prepend="AND" property="channelName">
+	            CHANNEL_NAME like '%'||#channelName#||'%'
+	        </isNotEmpty>
+	        <isNotNull prepend="AND" property="bankId">
+	            BANK_ID = #bankId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="businessCode">
+	            BUSINESS_CODE = #businessCode#
+	        </isNotNull>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status#
+	        </isNotEmpty>
+	        <isNotNull prepend="AND" property="channelId">
+	            CHANNEL_ID = #channelId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="modeCode">
+	            MODE_CODE = #modeCode#
+	        </isNotNull>
+        </dynamic>
+        order by channel_name
+    </select>
+    
+    <select id="getFundoutChannelList_COUNT" parameterClass="map" resultClass="integer">
+    	select count(*) from fundout_channel
+    	<dynamic prepend="where">
+	    	<isNotNull prepend="AND" property="code">
+	            CODE = #code#
+	        </isNotNull>
+	    	<isNotNull prepend="AND" property="channelName">
+	            CHANNEL_NAME = #channelName#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankId">
+	            BANK_ID = #bankId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="businessCode">
+	            BUSINESS_CODE = #businessCode#
+	        </isNotNull>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status#
+	        </isNotEmpty>
+	        <isNotNull prepend="AND" property="channelId">
+	            CHANNEL_ID = #channelId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="modeCode">
+	            MODE_CODE = #modeCode#
+	        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="getbusiIdByBankId" parameterClass="long" resultClass="fundoutChannelQueryDTO">
+    	SELECT A.CODE businessCode,A.NAME businessName FROM FUNDOUT_BUSINESS A
+		WHERE A.CODE IN (SELECT BUSINESS_CODE FROM FUNDOUT_CHANNEL WHERE BANK_ID=#value#)
+    </select>
+    
+    <select id="getChannelId" parameterClass="map" resultClass="string">
+    	select CODE from fundout_channel
+    	where status = 1
+	        <isNotNull prepend="AND" property="withdrawBankCode">
+	            CODE = #withdrawBankCode#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="withdrawType">
+	            MODE_CODE = #withdrawType#
+	        </isNotNull>
+    </select>
+    
+    <select id="getFundoutChannelListByProductCode" parameterClass="map" resultClass="fundoutChannelQueryDTO">
+    	SELECT 
+    		fc.CHANNEL_ID		channelId, 
+    		fc.MODE_CODE		modeCode, 
+    		fc.BANK_ID			bankId, 
+    		fc.BUSINESS_CODE	businessCode, 
+    		fc.STATUS			status, 
+    		fc.CREATE_DATE 		createDate, 
+    		fc.UPDATE_DATE		updateDate, 
+    		fc.OPERATOR			operator,
+            fc.MARK				mark, 
+            fc.CHANNEL_NAME		channelName,
+            fc.CODE				code 
+    		FROM FUNDOUT_CHANNEL fc,
+    			 FUNDOUT_CHANNEL_RELATION fcr,
+    			 FUNDOUT_PRODUCT fp 
+    		WHERE fc.CHANNEL_ID = fcr.CHANNEL_ID AND fcr.PRODUCT_CODE = fp.CODE
+   		<isNotNull prepend="AND" property="productCode">
+            fcr.PRODUCT_CODE = #productCode#
+        </isNotNull>
+    </select>
+</sqlMap>

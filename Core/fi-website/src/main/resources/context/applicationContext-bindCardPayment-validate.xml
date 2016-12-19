@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境收银台收单 -->
+	<bean id="bindCard-CrosspayPaymentValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="bindCard-onlinePaymentRule" />
+	</bean>
+
+	<bean id="bindCard-onlinePaymentRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="bindCard-cardHolderNumberCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="bindCard-cardHolderNumberCheckRule" class="com.pay.gateway.validate.rule.bindcard.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="bindCard-cardNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0037" />
+		<property name="message" value="请输入正确的银行卡号" />
+		<property name="messageEn" value="Please enter the correct number." />
+	</bean>
+
+	<bean id="bindCard-cardNumberCheckRule" class="com.pay.gateway.validate.rule.bindcard.CardOrgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="bindCard-cardExpirationMonthCheckRule" />
+		</property>
+		<property name="messageId" value="0055" />
+		<property name="message" value="您输入的卡号与卡组织不一致" />
+		<property name="messageEn" value="Please enter the correct number." />
+	</bean>
+
+	<bean id="bindCard-cardExpirationMonthCheckRule"
+		class="com.pay.gateway.validate.rule.bindcard.CardExpirationMonthCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="bindCard-cardExpirationYearCheckRule" />
+		</property>
+		<property name="message" value="持卡人卡片有效月不能为空" />
+		<property name="messageId" value="0040" />
+		<property name="messageEn" value="Please enter the correct valid month." />
+	</bean>
+
+	<bean id="bindCard-cardExpirationYearCheckRule"
+		class="com.pay.gateway.validate.rule.bindcard.CardExpirationYearCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="bindCard-cardHolderFirstNameCheckRule" />
+		</property>
+
+		<property name="messageId" value="0040" />
+		<property name="message" value="持卡人卡片有效年不能为空" />
+		<property name="messageEn" value="Please enter the correct valid year." />
+	</bean>
+
+	<bean id="bindCard-cardHolderFirstNameCheckRule"
+		class="com.pay.gateway.validate.rule.bindcard.CardHolderFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="bindCard-cardHolderLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="请输入账单名" />
+		<property name="messageEn" value="Please enter this First name." />
+	</bean>
+
+	<bean id="bindCard-cardHolderLastNameCheckRule"
+		class="com.pay.gateway.validate.rule.bindcard.CardHolderLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="bindCard-securityCodeCheckRule" />
+		</property>
+
+		<property name="messageId" value="0018" />
+		<property name="message" value="请输入账单姓" />
+		<property name="messageEn" value="Please enter the last name." />
+	</bean>
+
+	<bean id="bindCard-securityCodeCheckRule" class="com.pay.gateway.validate.rule.bindcard.SecurityCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="messageId" value="0042" />
+		<property name="message" value="请输入卡片校验码" />
+		<property name="messageEn" value="Please enter the security code." />
+	</bean>
+</beans>

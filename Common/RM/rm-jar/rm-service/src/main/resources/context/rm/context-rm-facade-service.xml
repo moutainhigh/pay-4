@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 限额服务供风控接口调用 -->
+	<bean id="rm_limit_facadeservice"
+		class="com.pay.rm.service.service.facade.impl.RCLimitServiceImpl">
+		<property name="rcUserLimitDAO" ref="rm_limit_userlimitdao" />
+		<property name="rcInnerLimitDAO" ref="rm_rcInnerLimitDAO" />
+		<property name="rcMccLimitDAO" ref="rm_limit_mcclimitdao" />
+		<property name="rcBusinessLimitCustomDAO" ref="rm_limit_businesslimitcustomdao" />
+		<property name="rcBusinessLimitDAO" ref="rm_limit_businesslimitdao" />
+	</bean>
+	
+	
+	<!-- 风控对外接口服务 -->
+	<bean id="rm_facade_service" class="com.pay.rm.service.service.facade.impl.RiskControlServiceImpl">
+		<property name="rcLimitService" ref="rm_limit_facadeservice"/>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="memberVerifyService" ref="acc-memberVerifyService" />
+	</bean>	
+	
+	
+	<bean id="rcNameListDAO"
+		class="com.pay.rm.service.dao.rmnamelist.impl.RcNameListDAOImpl"
+		parent="RM_DEFAULT_DAOSERVICE">
+		<property name="namespace" value="rcnamelist" />
+	</bean>
+	<!-- 风控黑白名单服务 -->
+	<bean id="rm_facade_name_list_service" class="com.pay.rm.service.service.facade.impl.RCNameListServiceImpl">
+		<property name="rcNameListDAO" ref="rcNameListDAO"/>
+	</bean>
+	
+</beans>

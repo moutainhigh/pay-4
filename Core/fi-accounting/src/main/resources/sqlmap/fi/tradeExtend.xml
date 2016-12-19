@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tradeExtends">
+	<typeAlias alias="tradeExtends" type="com.pay.txncore.model.TradeExtends"/>
+    <resultMap id="tradeExtendsResult" class="tradeExtends">
+    
+        <result column="TRADE_EXTENDS_NO" property="tradeExtendsNo" jdbcType="DECIMAL"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="CARDHOLDER_ACCT" property="cardHolderAcct" jdbcType="VARCHAR"/>
+        <result column="CARDHOLDER_NAME" property="cardHolderName" jdbcType="VARCHAR"/>
+        <result column="CARDHOLDER_CERTTYPE" property="cardHolderCertType" jdbcType="VARCHAR"/>
+        <result column="CARDHOLDER_CERTNO" property="cardHolderCertNo" jdbcType="VARCHAR"/>
+        <result column="CARDHOLDER_CARDNO" property="cardHolderCardNo" jdbcType="VARCHAR"/>
+        <result column="CARDHOLDER_MOBILE" property="cardHolderMobile" jdbcType="VARCHAR"/>
+        
+        <result column="EXT_ORDER_INFO_1" property="extOrderInfo1" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_2" property="extOrderInfo2" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_3" property="extOrderInfo3" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_4" property="extOrderInfo4" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_5" property="extOrderInfo5" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_6" property="extOrderInfo6" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_7" property="extOrderInfo7" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_8" property="extOrderInfo8" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_9" property="extOrderInfo9" jdbcType="VARCHAR"/>
+        <result column="EXT_ORDER_INFO_10" property="extOrderInfo10" jdbcType="VARCHAR"/>
+        <result column="ORDERS_IP" property="ordersIp" jdbcType="VARCHAR"/>
+        <result column="REMARK1" property="remark1" jdbcType="VARCHAR"/>
+        <result column="REMARK2" property="remark2" jdbcType="VARCHAR"/>
+        <result property="registerUserId" column="REGISTER_USER_ID" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="tradeExtends">
+   		 <selectKey resultClass="java.lang.Long" keyProperty="tradeExtendsNo">
+    		SELECT 182 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_TRADE_EXTENDS_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO TRADE_EXTENDS(
+			TRADE_EXTENDS_NO,TRADE_ORDER_NO,CARDHOLDER_ACCT,CARDHOLDER_NAME,CARDHOLDER_CERTTYPE,CARDHOLDER_CERTNO,
+			CARDHOLDER_CARDNO,CARDHOLDER_MOBILE,EXT_ORDER_INFO_1,EXT_ORDER_INFO_2,EXT_ORDER_INFO_3,
+			EXT_ORDER_INFO_4,EXT_ORDER_INFO_5,EXT_ORDER_INFO_6,EXT_ORDER_INFO_7,EXT_ORDER_INFO_8,
+			EXT_ORDER_INFO_9,EXT_ORDER_INFO_10,ORDERS_IP,REMARK1,REMARK2,REGISTER_USER_ID
+        )
+        VALUES(
+            #tradeExtendsNo#,#tradeOrderNo#,
+            #cardHolderAcct#,#cardHolderName#,#cardHolderCertType#,#cardHolderCertNo#,#cardHolderCardNo#,#cardHolderMobile#,
+            #extOrderInfo1#,#extOrderInfo2#,#extOrderInfo3#,
+			#extOrderInfo4#,#extOrderInfo5#,#extOrderInfo6#,#extOrderInfo7#,#extOrderInfo8#,
+			#extOrderInfo9#,#extOrderInfo10#,#ordersIp#,#remark1#,#remark2#,#registerUserId#
+		)
+    </insert>
+
+    <select id="findById" resultMap="tradeExtendsResult" parameterClass="java.lang.Long">
+        SELECT * FROM TRADE_EXTENDS WHERE TRADE_EXTENDS_NO = #tradeExtendsNo#
+    </select>
+    
+    <select id="findByTradeOrderNo" parameterClass="java.lang.Long" resultMap="tradeExtendsResult">
+        select * from trade_extends te where te.TRADE_ORDER_NO = #tradeOrderNo#
+    </select>
+    
+</sqlMap>

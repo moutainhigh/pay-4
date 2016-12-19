@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/orderfilter/orderfilterRule.do">orderFilterRuleController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 商户订单过滤规则 -->
+	<bean id="orderFilterRuleController"
+		class="com.pay.poss.controller.risk.PartnerOrderFilterRuleController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/orderfilterrule/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/orderfilterrule/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/orderfilterrule/recordList</value>
+		</property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="orderFilterService" ref="orderFilterService"/>
+		<property name="cardBinInfoService" ref="if-cardBinInfoService"/>
+		<property name="ipCountryInfoService" ref="inf-ipCountryInfoService"/>
+	</bean>
+
+</beans>

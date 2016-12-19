@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dccNameSpace">
+	<typeAlias alias="dccConfig" type="com.pay.dcc.model.PartnerDCCConfig" />
+
+	<select id="findAccessToken" resultClass="java.lang.String">
+		select ACCESS_TOKEN from BASIC_ACCESSTOKEN
+	</select>
+	<resultMap id="partnerDCCconfig" class="com.pay.dcc.model.PartnerDCCConfig">
+		<result column="ID" property="id" jdbcType="NUMBER" />
+		<result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+		<result column="CURRENCY_CODE" property="currencyCode"
+			jdbcType="VARCHAR" />
+		<result column="PARTNER_NAME" property="partnerName" jdbcType="VARCHAR" />
+		<result column="MARK_UP" property="markUp" jdbcType="VARCHAR" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="DATE" />
+		<result column="STATUS" property="status" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="findByCriteria" resultMap="partnerDCCconfig"
+		parameterClass="dccConfig">
+		select * from PARTNER_DCC_CONFIG where 1=1
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerName">
+			PARTNER_NAME = #partnerName#
+		</isNotEmpty>
+	</select>
+	
+	<select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+		select count(*) from PARTNER_DCC_CONFIG where 1=1
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerName">
+			PARTNER_NAME = #partnerName#
+		</isNotEmpty>
+    </select>
+  
+	
+	<insert id="insertPartnerDCCConfig" parameterClass="dccConfig">
+		<selectKey resultClass="java.lang.Integer" keyProperty="id">
+			SELECT	SEQ_CURRENCYEXCHANGE_ID.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO
+		PARTNER_DCC_CONFIG 
+		(ID,PARTNER_ID,PARTNER_NAME,CURRENCY_CODE,MARK_UP,OPERATOR,CREATE_TIME,UPDATE_TIME,STATUS)
+		values(#id#,#partnerId#,#partnerName#,#currencyCode#,#markUp#,#operator#,#createTime#,#updateTime#,#status#)
+	</insert>
+	
+	
+	<update id="updatePartnerDCCConfig" parameterClass="dccConfig">
+		UPDATE 	PARTNER_DCC_CONFIG SET 	CURRENCY_CODE = #currencyCode# ,MARK_UP=#markUp#, UPDATE_TIME=sysdate WHERE ID=#id#
+	</update>
+	
+	<update id="bulkUpdateDCC" parameterClass="dccConfig">
+		UPDATE PARTNER_DCC_CONFIG SET MARK_UP=#markUp#, UPDATE_TIME=sysdate WHERE PARTNER_ID=#partnerId# AND CURRENCY_CODE=#currencyCode#
+	</update>
+	
+</sqlMap>

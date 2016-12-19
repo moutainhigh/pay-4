@@ -1,0 +1,40 @@
+<#-- 首页页面，登录面板中的企业登录页面 -->
+					<div id="corp_loginDiv" class="login_con login_bus" <#if curpage == '1'>style="display: none"</#if>>
+						<form id="corp_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+							<div id="corp_errtipDiv" class="error" style="display: none">
+							<div class="error_bd">
+								<table class="err_span">
+									<tr>
+										<td><p id="corp_errtips">您已输错3次，请24小时后再试!</p><i class="ico_close">x</i></td>
+									</tr>
+								</table>
+							</div>
+							</div>
+							<div class="con_box">
+							<label>账 户 名:</label><input type="text" tabindex="1" class="gray" disableautocomplete autocomplete="off" id="corp_loginName" name="loginName" value="请输入电子邮箱"/><a id="delCorpLoginName" href="javascript:void(0);" class="del">X</a>
+							<label>操 作 员:</label><input type="text" tabindex="2" name="operatorName" id="corp_operatorName"/>
+							<label>登录密码:</label>
+							<#if Session["hascode"]?has_content>
+								<@sp.password cid="corp_HnSafeEdit" id="corp_passWord" tabindex="3" nextTabid="corp_rand_Code" from="login" form="corp_loginForm" name="passWord" width="148px" height="24px"  />
+							<#else>
+								<@sp.password cid="corp_HnSafeEdit" id="corp_passWord" tabindex="3" nextTabid="corp_loginbtn" from="login" form="corp_loginForm" name="passWord" width="148px" height="24px"  />
+							</#if>
+							<#if Session["hascode"]?has_content>
+							<label>验 证 码:</label><input type="text" class="code_inp" disableautocomplete autocomplete="off" tabindex=4 name="rand_Code" id="corp_rand_Code" maxlength="4">
+							<span class="code_img" style="cursor:pointer" id="corp_refush" title="换一张"><#if curpage == '2'>
+							<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68" height="23" id="code" style="vertical-align: top" /></#if>
+							</span>
+							</#if>
+							
+							<p class="btn">
+								<button id="corp_loginbtn" type="button" tabindex=5>立即登录</button>
+								<a href="${rc.contextPath}/help/b/swithconservice.htm#qa2" class="bus_join">商户接入>></a>
+							</p>
+							<input type="hidden" name="memberType" value="2"/>
+							<input id="corp_randCode" name="randCode" type="hidden">
+							</div>
+						</form>
+						<p class="operate">
+							<a href="${rc.contextPath}/help/b/accmanage.htm#qa4">忘记登录密码?</a> | <a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayEdit">安全控件下载</a>
+						</p>
+					</div>

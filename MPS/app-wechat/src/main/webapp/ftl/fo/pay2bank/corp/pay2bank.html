@@ -1,0 +1,521 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付付款到银行</title>
+<#include "/common/macro/seoPerson.ftl"> 
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script src="<@sp.static/>/js/pay/pay2bank/validate.js" type="text/javascript"></script>
+<script type="text/javascript">
+var isSupport  = false;
+
+$(function(){
+
+	$("#contDiv").hide();
+	//检查收款方姓名
+	$("#payeeName").blur(function(){
+		this.value = this.value.Trim();
+		checkPayeeName(this.value);		
+	});
+	//开户银行
+	$("#payeeBankCode").blur(function(){
+		checkPayeeBankCode(this);
+		if(isSupport){
+			var selectValue = document.getElementById("payeeBankName").value;
+			if(selectValue!=""){
+				$("#payeeBankCodeTip").attr("class","onshow");
+				$("#payeeBankCodeTip").html("");
+			}
+		}
+		var bankAcct = $("#payeeBankAcctCode").val();
+		if(bankAcct.Trim() != ""){
+			checkPayeeBankAccount("${rc.contextPath}/corp/pay2bankvalidate.htm");
+		}
+	});
+	$("#payeeBankCode").change(function(){
+		$.ajaxSetup({ 
+			  async: false 
+		}); 
+		var msg = "";
+		var data = {"method":"checkBank","orgCode":this.value};
+		jQuery.post("${rc.contextPath}/corp/pay2bankvalidate.htm?date="+new Date(),data,function(response){
+			if(""!=response){
+				msg = getMessage(response);
+				showMsg("payeeBankCodeTip",msg);
+				isSupport = false;
+			}else{
+				isSupport = true;
+			}
+			
+		});
+		
+		$.ajaxSetup({ 
+			  async: true 
+		}); 
+		
+		//交易备注字符限制
+		var data = {"method":"checkPaymentReason","orgCode":this.value};
+		jQuery.post("${rc.contextPath}/corp/pay2bankvalidate.htm?date="+new Date(),data,function(response){
+			msg = getMessageTip(response);
+			$("#reasonTip").html(msg);
+			$("#paymentReasonBankCode").val(response);
+		});
+		
+		$("#payeeOpeningBankNameKey").val('');
+		if(isSupport){
+			getOpeningBankNames();
+		}else{
+			$("#payeeOpeningBankName").html("<option value=''>请选择开户行</option>");
+		}
+		
+		
+	});
+	//开户行所在城市
+	$("#payeeBankProvince").blur(function(){
+		checkPayeeBankProvince(this);
+	});
+	$("#payeeBankCity").blur(function(){
+		checkPayeeBankCity(this);
+	});
+	$("#payeeBankCity").change(function(){
+		$("#payeeOpeningBankNameKey").val('');
+		if(isSupport){
+			getOpeningBankNames();
+		}else{
+			$("#payeeOpeningBankName").html("<option value=''>请选择开户行</option>");
+		}
+	});
+	$("#payeeOpeningBankName").blur(function(){
+		checkPayeeOpeningBankName(this.value);
+		
+	});
+	$("#payeeBankAcctCode").blur(function(){
+		this.value = this.value.Trim();
+		checkPayeeBankAccount("${rc.contextPath}/corp/pay2bankvalidate.htm");
+	});
+	$("#payeeRepeatBankAcctCode").blur(function(){
+		this.value = this.value.Trim();
+		checkPayeeRepeatBankAccount(this.value);
+	});
+	$("#requestAmount").blur(function(){
+		this.value = this.value.Trim();
+		var singleAmount = parseFloat('${(command.singleLimitAmount?default(0))}');
+		var balance = parseFloat('${command.currentBanlance?default(0)}');
+		var dayLimitAmount = parseFloat('${command.dayLimitAmount?default(0)}');
+		var monthLimitAmount = parseFloat('${command.monthLimitAmount?default(0)}');
+		var currentDayAmount = parseFloat('${command.TodayPaymentAmount?default(0)}');
+		var currentMonthAmount = parseFloat('${command.currentMonthPaymnetAmount?default(0)}');
+		var url = "${rc.contextPath}/corp/pay2bank.htm";
+		checkPaymentAmount(this.value,singleAmount,balance,dayLimitAmount,monthLimitAmount,currentDayAmount,currentMonthAmount,url);
+	});
+	$("#paymentReason").blur(function(){
+		this.value = this.value.Trim();
+	});
+
+	var province = $("#pv").attr("value");
+	var city = $("#cy").attr("value");
+
+	$("#payeeBankProvince").load("${rc.contextPath}/province.htm?defaultProvince="+province);
+	if(province!='' && city!=''){
+		$("#payeeBankCity").load("${rc.contextPath}/province.htm?method=city&provinceId="+province+"&defaultCity="+city);
+	}
+
+	$("#payeeBankProvince").change(function(){
+		$("#payeeBankCity").load("${rc.contextPath}/province.htm?method=city&provinceId="+$(this).val()+"&defaultCity="+city);
+		$("#payeeOpeningBankNameKey").val('');
+		if(isSupport){
+			getOpeningBankNames();
+		}else{
+			$("#payeeOpeningBankName").html("<option value=''>请选择开户行</option>");
+		}
+	});
+	$("#addRea").click(function() {
+		if($(this).is(":checked")) {
+			$("#rea").show();
+		}else {
+			$("#rea").hide();
+			$("#payeeMobile").val("");
+		}
+	});
+
+	$("#selectRecentPayee").click(function(){
+		$("#contDiv").show();
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/corp/pay2bank.htm?method=queryRecentPayee",
+			data: "",
+			success: function(result) {
+				$('#linkerlist').html(result);
+			}
+		});
+		return false;
+	});
+});
+
+//关闭contDiv
+function closeContDiv(){
+	$("#contDiv").hide();
+}
+//选择近期收款方
+function recentPayee(payeeName,payeeAcctType,payeeBankName,payeeBankprovince,payeeBankcity,payeeOpeningbankname,payeeBankacctcode){
+	
+	//收款方户名
+	$("#payeeName").val(payeeName);
+	//账户类型
+	if(payeeAcctType == 0){
+		 $("input[name='tradeType'][value='0'").attr("checked",true); 
+	}else if(payeeAcctType == 1){
+		 $("input[name='tradeType'][value='1'").attr("checked",true); 
+	}
+	
+	//开户银行
+	$("#payeeBankCode").val(payeeBankName);
+	$("#payeeBankName").val($("#payeeBankCode").find("option:selected").text());
+	$("#payeeBankProvince").val(payeeBankprovince);
+	$("#payeeBankProvinceName").val($("#payeeBankProvince").find("option:selected").text());
+	
+	$("#payeeBankCity").load("${rc.contextPath}/province.htm?method=city&provinceId="+payeeBankprovince+"&defaultCity="+payeeBankcity,function(){
+		$("#payeeBankCity").val(payeeBankcity);
+		$("#payeeBankCityName").val($("#payeeBankCity").find("option:selected").text());
+		
+		$("#payeeOpeningBankName").html("<option value=''>请选择开户行</option>");
+		var payeeBankName = "";
+		if($("#payeeBankCode").val()!=''){
+			var payeeBank = document.getElementById('payeeBankCode');
+			var selectValue = payeeBank.options[payeeBank.selectedIndex].text;
+			payeeBankName = $.trim(selectValue);
+		}
+		var payeeBankProvinceName = "";
+		if($("#payeeBankProvince").val()!=''){
+			var province = document.getElementById('payeeBankProvince');
+			var selectValue = province.options[province.selectedIndex].text;
+			payeeBankProvinceName = $.trim(selectValue);
+		}
+		var payeeBankCityName =  '';
+		if($("#payeeBankCity").val()!=''){
+			var city = document.getElementById('payeeBankCity');
+			var selectValue = city.options[city.selectedIndex].text;
+			payeeBankCityName = $.trim(selectValue);
+		}
+		var payeeOpeningBankNameKey = $.trim($("#payeeOpeningBankNameKey").val());
+		var url = "${rc.contextPath}/corp/pay2bank.htm";
+
+		if(payeeBankName != '' && payeeBankProvinceName != '' && payeeBankCityName != '') {
+			var bankOrgCode = document.getElementById('payeeBankCode').options[payeeBank.selectedIndex].value;
+			var data = {"method":"queryOpeningBankNameList","b":payeeBankName,"p":payeeBankProvinceName,"c":payeeBankCityName,"k":payeeOpeningBankNameKey,"bankOrgCode":bankOrgCode};
+			jQuery.post(url+"?date="+new Date(),data,function(response){
+				if(""!=response){
+					$("#payeeOpeningBankName").append(response);
+					$("#payeeOpeningBankName").find("option[text="+payeeOpeningbankname+"]").attr("selected",true);
+				}
+			});
+		}
+		
+		//交易备注字符限制
+		var bankOrgCode = document.getElementById('payeeBankCode').options[payeeBank.selectedIndex].value;
+		var data = {"method":"checkPaymentReason","orgCode":bankOrgCode};
+		jQuery.post("${rc.contextPath}/corp/pay2bankvalidate.htm?date="+new Date(),data,function(response){
+			msg = getMessageTip(response);
+			$("#reasonTip").html(msg);
+			$("#paymentReasonBankCode").val(response);
+		});
+	});
+	
+	$("#payeeBankAcctCode").val(payeeBankacctcode);
+	$("#payeeRepeatBankAcctCode").val(payeeBankacctcode);
+}
+
+function addRea(){
+	if($("#addRea").is(":checked")) {
+		$("#rea").show();
+	}else {
+		$("#rea").hide();
+		$("#payeeMobile").val("");
+	}
+}
+
+function getOpeningBankNames(){
+	
+	$("#payeeOpeningBankName").html("<option value=''>请选择开户行</option>");
+	var payeeBankName = "";
+	if($("#payeeBankCode").val()!=''){
+		var payeeBank = document.getElementById('payeeBankCode');
+		var selectValue = payeeBank.options[payeeBank.selectedIndex].text;
+		payeeBankName = $.trim(selectValue);
+	}
+	var payeeBankProvinceName = "";
+	if($("#payeeBankProvince").val()!=''){
+		var province = document.getElementById('payeeBankProvince');
+		var selectValue = province.options[province.selectedIndex].text;
+		payeeBankProvinceName = $.trim(selectValue);
+	}
+	var payeeBankCityName =  '';
+	if($("#payeeBankCity").val()!=''){
+		var city = document.getElementById('payeeBankCity');
+		var selectValue = city.options[city.selectedIndex].text;
+		payeeBankCityName = $.trim(selectValue);
+	}
+	var payeeOpeningBankNameKey = $.trim($("#payeeOpeningBankNameKey").val());
+	var url = "${rc.contextPath}/corp/pay2bank.htm";
+
+	if(payeeBankName != '' && payeeBankProvinceName != '' && payeeBankCityName != '') {
+		var bankOrgCode = document.getElementById('payeeBankCode').options[payeeBank.selectedIndex].value;
+		var data = {"method":"queryOpeningBankNameList","b":payeeBankName,"p":payeeBankProvinceName,"c":payeeBankCityName,"k":payeeOpeningBankNameKey,"bankOrgCode":bankOrgCode};
+		jQuery.post(url+"?date="+new Date(),data,function(response){
+			if(""!=response){
+				$("#payeeOpeningBankName").append(response);
+			}
+		});
+	}
+}
+
+function checkFundAmountLimit(_requestAmount){
+	$.ajaxSetup({ 
+		async: false 
+	});
+	var status = true;
+	var bankName = $("#payeeBankCode").find("option:selected").text();
+	var type=$('input:radio[name="tradeType"]:checked').val();
+	var url="${rc.contextPath}/corp/pay2bank.htm";
+	var data="method=checkFundAmountLimit&bankCode="+$("#payeeBankCode").val()+"&requestAmount="+$("#requestAmount").val()+"&tradeType="+type+"&city="+$("#payeeBankCity").val();
+	$.post(url, data, function(res){
+		if(res != ""){
+			status = false;
+			showMsg("requestAmountTip", bankName + "付款限额为" + res + "元，您的付款金额必须小于单笔付款限额");
+			$("#requestAmount").focus();
+		}
+	});
+	return status;
+}
+</script>
+<body>
+<#escape x as x?html>
+<!--导航 str-->
+<@sp.head mCode="corp_pay2account,bsp_corp_pay2account"/>
+
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	
+	<div> 
+		<!--box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<div class="title sub_nav3">
+						<#if sp.hasProduct('PAY2ACCT')>
+							<a href="${rc.contextPath}/corp/pay2account.htm">单笔付款到账户</a><span>|</span>
+						<#else>
+						</#if>
+						<a href="${rc.contextPath}/corp/pay2bank.htm" class="cur">单笔付款到银行</a>
+						<#if sp.hasProduct('BATCH2ACCT')>
+							<span>|</span><a href="${rc.contextPath}/corp/batchpay2acct.htm">批量付款到账户</a>
+						<#else>
+						</#if>
+						<#if sp.hasProduct('BATCH2BANK')>
+							<span>|</span><a href="${rc.contextPath}/corp/batchpay2bank.htm">批量付款到银行</a>
+						<#else>
+						</#if>
+					</div>
+				</div>
+				<div class="step">
+					<ol class="step-1">
+						<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+						<li class="li-1 last"><span><i>1</i>填写付款信息</span> </li>
+						<li class="li-2 last"><i>2</i>确认信息</li>
+						<li class="li-3 last"><span><i>3</i>付款提交成功</span></li>
+					</ol>
+				</div>
+				<div class="ico_txtBox mt10"><i class="warn_ico"></i>
+					<p>如果您想将款项提取到自己的银行账户，<a class="red" href="${rc.contextPath}/corp/withdraw.htm">点此提现</a>。</p>
+					<p>单笔最多付款${command.singleLimitAmountStr?default("0.00")}元。</p>
+				</div>
+				<!--表单str -->
+				<form id="pay2bankform" onsubmit="return checkSubmit(this,${command.singleLimitAmount?default(0)});" class="pad_center" enctype="multipart/form-data"   action="${rc.contextPath}/corp/pay2bank.htm" name="pay2bankform" method="post">
+	                  
+					<ul class="form_list">
+						<li><label class="form_side">选择账户：</label><select><option>人民币账户</option></select></li>
+						<li>
+						 	<label class="form_side">可用余额：</label><strong class="red">${command.currentBanlanceStr?default("0.00")}  </strong>元（您今日还可以付款<strong class="red">${command.allowPaymentTimes?default(0)}</strong>次）</span>
+						</li>
+						<li>
+							<label class="form_side"><span>*</span>收款方户名：</label>
+							<input id="payeeName" name="payeeName" tabindex="1" type="text" size="20" maxlength="30" class="inp_normal w200" value="${command.payeeName?default('')}" onblur="">
+							
+							<!-- 选择近期收款方 -->
+							<span class="ml10 rel z9"><a href="#" id="selectRecentPayee" class="red">选择常用收款方</a> 
+							<!--银行列表-->
+							<div style="top:20px; left:0; width:460px;" class="contList" id="contDiv"> 
+							<a href="#" class="close" id="contclose" onclick="closeContDiv();return false;">关闭</a>
+								<ul class="tab clearfix mt10">
+									<li class="on"><i>近期收款方户名</i></li>
+								</ul>
+								<div id="linkerlist">
+								</div>
+							</div>
+							<!--/银行列表--> 
+							</span>
+							<!--/选择近期收款方 -->
+							
+							<em id="payeeNameTip"><span class='c_999'>收款方户名与银行账号户名必须一致，否则打款失败</span></em>
+						</li>
+						<li>
+							<label class="form_side"><span>*</span>账户类型：</label>
+							<input name="tradeType" type="radio"  <#if command.tradeType?default(0)==0>checked="checked"</#if> value="0" id="tradeType0"><label for="tradeType0">个人账户</label>
+							<input class="ml20" name="tradeType" type="radio" <#if command.tradeType?default(0)==1>checked="checked"</#if>  value="1" id="tradeType1"><label for="tradeType1">企业账户</label>
+							<em id="tradeTypeTip"></em>
+						</li>
+						<li>
+							<label class="form_side"><span>*</span>开户银行：</label>
+							<select id="payeeBankCode" name="payeeBankCode" class="inp_normal" tabindex="2" >
+								<option value="">请选择银行</option>
+								<#if bankList?exists>
+									<#list bankList as bank>	
+										<#if command.payeeBankCode?exists && bank.bankId==command.payeeBankCode>
+										<option value="${bank.bankId?default('')}" selected>${bank.bankName?default('')}</option>
+										<#else> 
+										<option value="${bank.bankId?default('')}">${bank.bankName?default('')}</option>
+										</#if>
+									</#list>
+								</#if>
+							</select>
+							<input type="hidden" id="payeeBankName" name="payeeBankName" value="${command.payeeBankName?default('')}">
+							<em id="payeeBankCodeTip"></em>
+						</li>
+						<li>
+							<label class="form_side"><span class="red pfstar">*</span>开户行所在城市：</label>
+							<select name="payeeBankProvince" id="payeeBankProvince" class="inp_normal" tabindex="3"  >
+								<option value="" selected>---请选择省份---</option>		
+							</select>
+							<input type="hidden" id="payeeBankProvinceName" name="payeeBankProvinceName" value="${command.payeeBankProvinceName?default('')}" >
+							<span id="city">
+								<select name="payeeBankCity" id="payeeBankCity" class="inp_normal" tabindex="4">										
+										<option value="" selected>---请选择城市---</option>					
+								</select>
+							</span>	
+							<span class="gray_txt"></span>
+							<input type="hidden" id="payeeBankCityName" name="payeeBankCityName" value="${command.payeeBankCityName?default('')}"  >
+							<em id="payeeBankCityTip"></em>	
+						</li>																				
+						<li>
+							<label class="form_side"><span>*</span>开户行名称：</label>
+							<input autocomplete="off"  id="payeeOpeningBankNameKey" name="payeeOpeningBankNameKey" tabindex="5" type="text" maxlength="60" size="35" class="inp_normal">
+							<a class="red ml10" href="javascript:void(0);" onclick="getOpeningBankNames()">按所填关键字过滤</a>
+							<span class="gray_txt">如：高安支行，如果您无法确定，建议您致电银行客服询问。</span>
+							<p class="mt10">
+								<select id="payeeOpeningBankName" name="payeeOpeningBankName" class="inp_normal" style="width:340px;">
+								<#if command.payeeOpeningBankName?default('')==''>
+									<option value=''>请选择开户行</option>
+								<#else>
+									<option value="${command.payeeOpeningBankName?default('')}" selected="selected">${command.payeeOpeningBankName?default('')}</option>
+								</#if>
+								</select>
+								<span class="gray_txt ml10" id="payeeOpeningBankNameTip">如果选择开户行名称错误，可能导致付款失败。</span>
+							</p>
+						</li>
+						<li>
+							<label class="form_side"><span>*</span>银行账号：</label>
+							<input type="text" id="payeeBankAcctCode" name="payeeBankAcctCode" tabindex="6" value="${command.payeeBankAcctCode?default('')}" maxlength="32" size="32"  class="inp_normal w200 blod" >
+							<em id="payeeBankAcctCodeTip"><span class=\"gray_txt\">不支持信用卡</span></em>
+						</li>
+						<li>
+							<label class="form_side"><span>*</span>重复银行账号：</label>
+							<input type="text" id="payeeRepeatBankAcctCode"  name="payeeRepeatBankAcctCode" tabindex="7" value="${command.payeeRepeatBankAcctCode?default('')}" maxlength="32" size="32"   onkeydown="if(event.ctrlKey) return false;" onmousedown="this.oncontextmenu = function() { return false;} " class="inp_normal w200 blod"">
+							<em id="payeeRepeatBankAcctCodeTip"></em>
+						</li>
+						
+						<li>
+							<label class="form_side"><span>*</span>付款金额：</label>
+							<input id="requestAmount" accept="requestAmount" name="requestAmount" tabindex="9" type="text" size="20" value="" class="inp_normal w100 blod" >
+							元 <em id="requestAmountTip"></em>	
+							
+						</li>
+						<li>
+							<label class="form_side"><span></span>手续费：</label><strong class="red"><span id="requestFee" class="red">0.00</span></strong> 元
+						</li>
+						<input type="hidden" name="isPayerPayFee" value="1" />
+						<li>
+							<label class="form_side"><span></span>需付金额：</label><strong class="red"><span id="realpayAmountStr" class="red">0.00</span></strong> 元
+							<input type="hidden" id="realpayAmount" name="realpayAmount"/>
+						</li>
+						<li>
+							<label class="form_side"><span></span>到账金额：</label><strong class="red"><span id="realoutAmountStr" class="red">0.00</span></strong> 元
+							<input type="hidden" id="realoutAmount" name="realoutAmount"/>
+						</li>
+						<li>
+							
+							<label class="form_side">付款理由：</label>
+								<textarea id="paymentReason" name="paymentReason" tabindex="10" class="inp_normal w250 v_b" rows="3" cols="60" >${command.paymentReason?default('')}</textarea>
+								<span  class="c_999" id="reasonTip"></span>
+								<p class="g_tips" id="paymentReasonTip"></p>
+								<input type="hidden" id="paymentReasonBankCode" name="paymentReasonBankCode">
+						</li>
+						<li><input type="checkbox" name="addRea" id="addRea"   value="1" />免费短信通知对方</li>
+						<li id="rea" style="display:none;">
+								<label class="form_side"><span></span>收款方手机号码：</label>
+								<input id="payeeMobile" accept="payeeMobile" name="payeeMobile" tabindex="10" type="text" size="20" value="${command.payeeMobile?default('')}" class="inp_normal w200" >
+								<span id="payeeMobileTip"></span>
+								
+						</li>
+						</li>
+						<li cllass="btn"><span class="btn_yel">
+							<button type="submit" id="pay2bank_submit" name="pay2bank_submit" tabindex="11" <#if command.allowPaymentTimes?default(0)&lt;=0> disabled="disabled"</#if> >下一步</button>
+							</span></li>
+					</ul>
+					<div class="btn_box txtC">
+						<p align="center" ></p>
+					</div>
+					<input type="hidden" id="method" name="method" value="confirm">
+	    			<input type="hidden" id="singleLimitAmount" name="singleLimitAmount" value="${command.singleLimitAmount?default(0)}" >
+	    			<input type="hidden" id="maxLimitStr" name="maxLimitStr" value="${command.singleLimitAmountStr?default('0.00')}" >
+	    			<input type="hidden" id="dayLimitAmountStr" name="dayLimitAmountStr" value="${command.dayLimitAmountStr?default('0.00')}"  >
+	    			<input type="hidden" id="monthLimitAmountStr" name="monthLimitAmountStr" value="${command.monthLimitAmountStr?default('0.00')}"  >
+	    			<input type="hidden" id="allowPaymentAmountStr" name="allowPaymentAmountStr" value="${command.allowPaymentAmount?default('0.00')}"  >
+	    			<input type="hidden" id="currentBanlance" name="currentBanlance" value="${command.currentBanlance?default(0)}" >
+	                 <input type="hidden" id="token" name="token" value="${token?default('')}">
+	                <input type="hidden" id="pv" value="${command.payeeBankProvince?default('')}">
+					<input type="hidden" id="cy" value="${command.payeeBankCity?default('')}">
+					<input type="hidden" id="fee" name="fee">
+				</form>
+				<!--表单end --> 
+				
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--box end --> 
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+	<#include "/common/include/footer.html">
+</#escape>
+</body>
+<script type="text/javascript">
+<#if message?exists>
+	var message = '${message}';
+	if(''!=message&&null!=message){
+		$.pay.alert(message, {
+			h : 160,
+			w : 450,
+			t : '3',
+			close:function(){
+			$("#pay2bank_submit").focus();
+			$("#pay2bank_submit").attr("disabled", false);
+		}});
+	}
+</#if>
+<#if command.addRea?default(0)==1>
+	$("#addRea").click();
+	addRea();
+</#if>
+</script>
+</html>

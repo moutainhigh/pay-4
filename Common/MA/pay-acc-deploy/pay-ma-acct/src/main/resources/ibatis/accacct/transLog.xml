@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-transLog">
+
+    <typeAlias alias="TransLog" type="com.pay.acc.translog.model.TransLog"/>
+    
+    <insert id="create" parameterClass="TransLog">
+    <selectKey resultClass="java.lang.Long" keyProperty="id">
+		select SEQ_TRANS_TRANS_ID.nextval from DUAL 
+	</selectKey>
+	<![CDATA[
+		insert into T_TRANS_LOG(
+			trans_id,
+			serial_no,
+			pay_type,
+			pay_date,
+			confirm_date,
+			status,
+			amount,
+			recv_acct,
+			pay_acct,
+			relatx_serial_no,
+			acct_type,
+			create_date,
+			update_date		
+		)	
+        values(
+        #id#,
+        #serialNo#,
+        #payType#,
+        #payDate#,
+        #confirmDate#,
+        #status#,
+        #amount#,
+        #recvAcct#,
+        #payAcct#,
+        #relatxSerialNo#,
+        #acctType#,
+        sysdate,
+        sysdate
+        
+        )
+        ]]>
+    </insert>  
+    
+    <select id="queryWithdrawBalanceHistoryByAcctCodeAndDate" parameterClass="java.util.Map" resultClass="transLog">
+        select 
+        	TRANS_ID					as transId, 
+        	SERIAL_NO					as serialNo, 
+            pay_type					as payType, 
+            PAY_DATE					as payDate, 
+            confirm_date				as confirmDate, 
+            amount						as amount,
+            STATUS						as status, 
+            RECV_ACCT					as recvAcct, 
+            PAY_ACCT					as payAcct, 
+            create_date					as createDate
+        from 
+        	T_TRANS_LOG
+        where 
+       		PAY_TYPE      	 = 3
+       		and
+        	create_date <![CDATA[>=]]>	  #fromDate#  
+        	and
+        	create_date <![CDATA[<=]]>	  #toDate#
+        	and
+        	RECV_ACCT 			=         #acctCode#
+    </select>
+    <select id="queryTransLogWithSerialNo" parameterClass="java.lang.Long" resultClass="TransLog">
+    <![CDATA[
+    	select 
+    		trans_id				as id,
+			serial_no				as serialNo,
+			pay_type				as payType,
+			pay_date				as payDate,
+			confirm_date			as confirmDate,
+			status					as status,
+			amount					as amount,
+			recv_acct				as recvAcct,
+			pay_acct				as payAcct,
+			relatx_serial_no		as relatxSerialNo,
+			acct_type				as acctType,
+			create_date				as createDate,
+			update_date				as updateDate	
+			
+		from 		
+    		T_TRANS_LOG
+    		
+    	where
+    		
+    		SERIAL_NO=#serialNo#   
+    ]]>
+      
+    </select>
+    
+	<select id="getTransLogBySerialNo"  parameterClass="java.lang.Long" resultClass="TransLog">
+		Select  
+		trans_id				as id,
+			serial_no				as serialNo,
+			pay_type				as payType,
+			pay_date				as payDate,
+			confirm_date			as confirmDate,
+			status					as status,
+			amount					as amount,
+			recv_acct				as recvAcct,
+			pay_acct				as payAcct,
+			relatx_serial_no		as relatxSerialNo,
+			acct_type				as acctType,
+			create_date				as createDate,
+			update_date				as updateDate
+			FROM t_trans_log Where Serial_no = #serialNo#
+	</select>    
+	
+	<update id="updateLinkId">
+		update t_trans_log Set Link_id = #linkId# Where trans_id = #id#
+	</update>
+    
+</sqlMap>

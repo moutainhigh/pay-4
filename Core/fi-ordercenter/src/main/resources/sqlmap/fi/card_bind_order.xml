@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cardBindOrder">
+	<typeAlias alias="cardBindOrder" type="com.pay.txncore.model.CardBindOrder"/>
+    <resultMap id="cardBindOrdrResult" class="cardBindOrder">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+        <result column="REGISTER_USER_ID" property="registerUserId" jdbcType="VARCHAR"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+        <result column="TOKEN_PAY_ID" property="tokenPayId" jdbcType="DECIMAL"/>     
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="COMPLETED_TIME" property="completedTime" jdbcType="TIMESTAMP"/>
+        <result column="ORDER_COMMIT_TIME" property="orderCommitTime" jdbcType="TIMESTAMP"/>
+        <result column="type"  property="type" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <insert id="CreateCardBindOrder" parameterClass="cardBindOrder">
+        <selectKey resultClass="java.lang.Long" keyProperty="id">
+    		SELECT 103 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_CARD_BIND_ORDER_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO card_bind_order(ID,STATUS,PARTNER_ID,REGISTER_USER_ID,ORDER_ID,TOKEN_PAY_ID,CREATE_DATE,TYPE
+        ,COMPLETED_TIME,ORDER_COMMIT_TIME)
+        VALUES(#id#,#status#,#partnerId#,#registerUserId#,#orderId#,#tokenPayId#,#createDate#,#type#
+        ,#completedTime#,#orderCommitTime#)
+    </insert> 
+
+    <select id="findByCriteria" resultMap="cardBindOrdrResult">
+        SELECT A.*
+         FROM card_bind_order A
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="id">
+           A.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+           A.partner_id = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="registerUserId">
+          A.register_user_id=#registerUserId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+          A.order_id = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tokenPayId">
+           A.token_pay_id = #tokenPayId# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>      
+        </dynamic>
+        order by A.CREATE_DATE desc
+    </select>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM card_bind_order A
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="id">
+           A.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+           A.partner_id = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="registerUserId">
+          A.register_user_id=#registerUserId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+          A.order_id = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tokenPayId">
+           A.token_pay_id = #tokenPayId# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>         
+        </dynamic>
+    </select>
+    
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM card_bind_order A
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="id">
+           A.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+           A.partner_id = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="registerUserId">
+          A.register_user_id=#registerUserId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+          A.order_id = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tokenPayId">
+           A.token_pay_id = #tokenPayId# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>              
+        </dynamic>
+    </select>
+    
+	<select id="findById" resultMap="cardBindOrdrResult" parameterClass="java.lang.Long">
+        SELECT * FROM card_bind_order WHERE id = #id#
+	</select>
+    
+    <delete id="delete" parameterClass="cardBindOrder">
+        delete from card_bind_order 
+        <dynamic prepend="where">
+            <isNotNull prepend="and" property="id">
+                 id=#id#
+            </isNotNull>
+           <isNotNull prepend="and" property="partnerId">
+                 partner_id=#partnerId#
+            </isNotNull>
+            <isNotNull prepend="and" property="registerUserId">
+                 register_user_id=#registerUserId#
+            </isNotNull>
+            <isNotNull prepend="and" property="orderId">
+                 order_id=#orderId#
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <update id="update" parameterClass="cardBindOrder">
+        UPDATE CARD_BIND_ORDER
+        <dynamic prepend="SET">
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        </dynamic>
+        where ID = #id#
+    </update>
+</sqlMap>

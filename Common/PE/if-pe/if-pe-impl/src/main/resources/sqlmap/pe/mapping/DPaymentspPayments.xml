@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dPaymentspPayments">
+	<typeAlias alias="dPaymentspPayments" type="com.pay.pe.model.PaymentSrvPkgAssignment"/>
+    <resultMap id="dPaymentspPayments" class="com.pay.pe.model.PaymentSrvPkgAssignment">
+        <result column="PAYMENT_SERVICE_PKG_CODE" property="paymentServicePkgCode" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_SERVICE_CODE" property="paymentServiceCode" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		PAYMENT_SERVICE_PKG_CODE,PAYMENT_SERVICE_CODE
+    </sql>
+    <insert id="create" parameterClass="dPaymentspPayments">
+        INSERT INTO D_PAYMENTSP_PAYMENTS(
+			PAYMENT_SERVICE_PKG_CODE,PAYMENT_SERVICE_CODE
+        )
+        VALUES(
+            #paymentServicePkgCode#,#paymentServiceCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="dPaymentspPayments">
+        UPDATE D_PAYMENTSP_PAYMENTS
+        <dynamic prepend="SET"> 
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+            </isNotNull>
+            <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    
+    <delete id="deleteBySelective" parameterClass="dPaymentspPayments">
+        DELETE FROM D_PAYMENTSP_PAYMENTS        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    
+    <select id="findBySelective" resultMap="dPaymentspPayments">
+        SELECT 
+			PAYMENT_SERVICE_PKG_CODE,PAYMENT_SERVICE_CODE
+        FROM D_PAYMENTSP_PAYMENTS
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM D_PAYMENTSP_PAYMENTS
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

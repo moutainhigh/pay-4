@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>账户代扣明细导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="8" style="text-align: middle;">#==============支付账户代扣==============</td>
+		   </tr>
+			<tr>
+				<th>商户交易号</th>
+				<th>代扣人姓名</th>
+				<th>账号</th>
+				<th>金额</th>
+				<th>流水状态</th>
+				<th>失败原因</th>
+				<th>创建时间</th>
+				<th>修改时间</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if dateList?has_content>
+			<#list dateList as dl>
+			<tr>
+				<td>${dl.merchantOrderId!''}</td>
+				<td>${dl.payerName!''}</td>
+				<td>${dl.payerLoginName!''}</td>
+				<td>${dl.orderAmount!''}</td>
+				<td>
+					<#if dl.status = 111>
+						处理成功
+					<#elseif dl.status= 112>
+						处理失败
+					</#if>
+				</td>
+				<td>${dl.errorMsg!''}</td>
+				<td>${dl.createDate?string("yyyy-MM-dd HH:mm")}</td>
+				<td>${dl.updateDate?string("yyyy-MM-dd HH:mm")}</td>
+			</tr>
+			</#list>
+			</#if>
+		</tbody>
+	</table>
+</body>
+</html>

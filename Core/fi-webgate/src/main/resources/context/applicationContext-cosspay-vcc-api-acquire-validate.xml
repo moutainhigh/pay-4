@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境API VCC虚拟信用卡接口校验收单 -->
+	<bean id="crosspayVccApiAcquireValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="crosspay-api-vcc-acquireRule" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="crosspay-api-vcc-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="crosspay-api-vcc-versionCheckRule" class="com.pay.gateway.validate.crosspay.api.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-orderIdCheckRule" class="com.pay.gateway.validate.crosspay.api.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-goodsNameCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-goodsNameCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.GoodsNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-goodsDescCheckRule" />
+		</property>
+		<property name="messageId" value="0004" />
+		<property name="message" value="Goods name is empty or too long:商品名称为空或过长" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-goodsDescCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.GoodsDescCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="message" value="Goods description is empty or too long:商品描述为空或过长" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-submitTimeCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-siteIdCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Transaction submit time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-siteIdCheckRule" class="com.pay.gateway.validate.crosspay.api.SiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-orderAmountCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="Unauthorized Domian:未授权的域名" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-orderAmountCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="Order amount is incorrect:订单金额不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-typeCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-typeMatchCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="Unauthorized trade type:未授权交易类型" />
+	</bean>
+	
+	<bean id="crosspay-api-vcc-typeMatchCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.VccTradeTypeMatchCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="Unauthorized trade type:未授权交易类型" />
+	</bean>
+  
+	<bean id="crosspay-api-vcc-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="vcc-dccProductCheckRule" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Transaction currency is wrong:交易币种不正确" />
+	</bean>
+	
+	<bean id="vcc-dccProductCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.DCCProductCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-settlementCurrencyCodeCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-settlementCurrencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.SettlementCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-borrowingMarkedCheckRule" />
+		</property>
+		<property name="messageId" value="0012" />
+		<property name="message" value="Invalid settlement currency:结算币种不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-borrowingMarkedCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.BorrowingMarkedCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0013" />
+		<property name="message" value="Invalid value for paramter borrowingMarked:资金来源借贷标识不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-noticeUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-merchantAcctCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-merchantAcctCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-PayModeCheckRule" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="message" value="Merchant account status is abnormal:商户账户状态异常" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-PayModeCheckRule" class="com.pay.gateway.validate.crosspay.api.PayModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-CardHolderNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="message" value="The payment method is not correct:支付方式不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-CardHolderNumberCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-CardExpirationMonthCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0037" />
+		<property name="message" value="CardHolderNumber is empty or too long:持卡人卡号为空或过长" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-CardExpirationMonthCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.CardExpirationMonthCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-CardExpirationYearCheckRule" />
+		</property>
+		<property name="messageId" value="0040" />
+		<property name="message" value="Month validity is empty or too long:持卡人卡片有效月为空或不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-CardExpirationYearCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.CardExpirationYearCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0041" />
+		<property name="message" value="Year validity is empty or wrong.Please input the last two digits of year:持卡人卡片有效年为空或输入不正确、正确输入为年的后2位" />
+	</bean>
+    
+	<bean id="crosspay-api-vcc-charsetCheckRule" class="com.pay.gateway.validate.crosspay.api.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-signTypeCheckRule" class="com.pay.gateway.validate.crosspay.api.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-MerchantChannelCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="crosspay-api-vcc-MerchantChannelCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.MerchantChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-MerchantSettlementCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="messageId" value="0050" />
+		<property name="message" value="No avalible channel for the merchant:商户无可用渠道" />
+	</bean>
+	
+	<bean id="crosspay-api-vcc-MerchantSettlementCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.MerchantSettlementCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-api-vcc-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-vcc-gatewayRequestSaveAction" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="0051" />
+		<property name="message" value="No merchant settlement info:商户未配置结算信息" />
+	</bean>
+	
+	<bean id="crosspay-api-vcc-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.crosspay.api.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="crosspay-api-vcc-exceptionAction" class="com.pay.gateway.validate.crosspay.api.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

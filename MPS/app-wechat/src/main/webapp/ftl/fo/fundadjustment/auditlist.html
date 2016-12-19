@@ -1,0 +1,42 @@
+<div class="refund_box"> 
+	<div class="barg_table">
+		<table>
+			<thead>
+				<tr>
+					<th width="16%">交易流水号</th>
+					<th width="10%">业务类型</th>
+					<th width="10%">创建时间</th>
+					<th width="15%">付款方名称</th>
+					<th width="15%">收款方名称</th>
+					<th>调拨金额（元）</th>
+					<th width="10%">复核状态</th>
+					<th width="10%">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+	   				<#list auditQueryOrderList as rd>
+					<tr>
+						<td>${rd.orderId}</td>
+						<td>资金调拨</td> 
+						<td><span class="time">${rd.createDate?if_exists?string("yyyy-MM-dd")}<br>${rd.createDate?if_exists?string("HH:mm:ss")}</span></td>
+						<td>${rd.payerName}</td>
+						<td>${rd.payeeName}</td>
+						<td>${(rd.amount/1000)?string("#,##0.00")}</td>
+						<td class="red">
+							<#if rd.workOrderStatus==0>待复核</#if>
+							<#if rd.workOrderStatus==1>复核通过</#if>
+							<#if rd.workOrderStatus==2>复核拒绝</#if>
+						</td>
+						<td><a href="javascript:void(0);" onclick="viewDetail('${rd.orderId}')" class="blues">查看</a></td>
+					</tr>
+					</#list>
+			</tbody>
+		</table>
+	</div>
+	<div class="page_box">
+		<#if pu?has_content>
+			<@sp.pagination pu=pu/>
+			<i class="fr mr20">共<span class="blod blue">${pu.totalCount}</span>条信息</i>
+		</#if>
+	</div>
+</div>

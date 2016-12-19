@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>交易详情</title>
+</head>
+
+<body>
+   <#include "/include/topbar.html">
+   <@sp.head  mCode="corp_paylink_transaction"/>
+	
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="${rc.contextPath}/corp/paylinkTransaction.htm">支付链交易查询</a></span>
+					<span><a href="${rc.contextPath}/corp/paylinkTransaction.htm?method=refundQuery">退款查询</a></span>
+				</div>
+				<form class="form" action="javascript:void(0);" method="post" name="" id="">
+					<div class="seccon">
+						<div class="bgbox">
+							<table class="tab01">
+							</table>
+						</div>	
+						<div id="resultListDiv" class="listFence" ></div>	
+					</div>
+				</form>
+				交易详情
+				<hr>
+			</div>
+			<div class="section01">
+				<table id="incomeTable" class="tab03" border="1" style="width:99%;margin:0 auto;">
+					<tr>
+						<td colspan="8" style="border:0px;"><div align="left">订单信息</div></td>
+					</tr>
+					<tr>
+						<th width="12%">下单时间</th>						
+						<th width="15%">商户订单号</th>
+						<th width="8%">交易号</th>
+						<th width="8%">商品名称</th>
+						<th width="8%">订单币种</th>
+						<th width="10%">订单金额</th>
+					</tr>
+					<tr>
+						<td align="center"><#if map.tradeCreateDate?has_content>${map.tradeCreateDate}</#if></td>
+						<td align="center">${map.orderId?default('')}</td>
+						<td align="center">${map.tradeOrderNo?default('')}</td>
+						<td align="center">${map.goodsName?default('')}</td>
+						<td align="center">${map.orderCurrencyCode?default('')}</td>
+						<td>${(map.paymentAmount?default(0)?number/1000)?string("#,##0.000")}</td>
+					</tr>
+					<tr>
+						<td colspan="8"></td>
+					</tr>
+					<tr>
+						<th>支付渠道</th>
+						<th>支付状态</th>
+						<th>支付时间</th>
+						<th>支付失败原因</th>
+						<th colspan="2">清算状态</th>
+						<!-- <th>清算汇率</th> -->
+					</tr>
+					<tr>
+						<td>
+							<#if map.orgCode?has_content>
+								<#if map.orgCode == '00000000' >
+									MOCK
+								</#if>
+								<#if map.orgCode == '10076001' >
+									中银卡司
+								</#if>
+								<#if map.orgCode == '10003001' >
+									中国银行
+								</#if>
+								<#if map.orgCode == '10002001' >
+									农业银行
+								</#if>
+								<#if map.orgCode == '10075001' >
+									Credorax
+								</#if>
+							</#if>
+						</td>
+						<td>
+							<#if map.tradeStatus?has_content>
+								<#if map.tradeStatus == 0>
+									未付款
+								<#elseif map.tradeStatus == 1>
+									支付中
+								<#elseif map.tradeStatus == 3>
+									支付成功
+								<#elseif map.tradeStatus == 4>
+									支付成功
+								<#elseif map.tradeStatus == 5>
+									支付失败
+								</#if>
+							</#if>
+						</td>
+						<td><#if map.chnOrderCreateDate?has_content>${map.chnOrderCreateDate}</#if></td>
+						<td>
+							<#if map.errorCode?has_content>
+								<#if map.errorCode != '0000'>
+									${map.errorMsg?default('')}
+								</#if>
+							</#if>
+							<#-- <#if map.errorMsg?has_content>
+								${map.errorMsg?default('')}
+							</#if> -->
+						</td>
+						<td colspan="2">
+							
+							<#if map.settlementStatus?has_content>
+								<#if map.settlementStatus == 0>
+									未清算
+									<#elseif map.settlementStatus == 1>
+										已清算
+									<#elseif map.settlementStatus == 2>
+										清算失败
+									<#elseif map.settlementStatus == 4>
+										已退款
+								</#if>
+							</#if>
+						</td>
+						<#-- <td>${map.settlementRate?default('')}</td> -->
+					</tr>
+				</table>
+				
+				<table id="incomeTable" class="tab03" border="1" style="width:99%;margin:0 auto;">
+					<tr>
+						<td colspan="8" style="border:0px;"><div align="left">账单信息</div></td>
+					</tr>
+					<tr>
+						<th>账单姓名</th>
+						<th>公司名称</th>
+						<th>手机号码</th>
+						<th>邮箱</th>
+					</tr>
+					<tr>
+						<td>${map.billName?default('')}</td>
+						<td>${map.companyName?default('')}</td>
+						<td>${map.billPhone?default('')}</td>
+						<td>${map.billEmail?default('')}</td>
+					</tr>
+				</table>
+				<table id="incomeTable" class="tab03" border="1" style="width:99%;margin:0 auto;">
+					<tr>
+						<td colspan="8" style="border:0px;"><div align="left"></div></td>
+					</tr>
+					<tr>
+						<th>账单国家</th>
+						<th>账单州省</th>
+						<th>账单城市</th>
+						<th>账单地址</th>
+						<th>邮编</th>
+					</tr>
+					<tr>
+						<td>${map.billCountry?default('')}</td>
+						<td>${map.billState?default('')}</td>
+						<td>${map.billCity?default('')}</td>
+						<td>${map.billAddress?default('')}</td>
+						<td>${map.billPostCode?default('')}</td>
+					</tr>
+				</table>
+				<table id="incomeTable" class="tab03" border="1" style="width:99%;margin:0 auto;">
+					<tr>
+						<td colspan="8" style="border:0px;"><div align="left">收货信息</div></td>
+					</tr>
+					<tr>
+						<th>收货人姓名</th>
+						<th>公司名称</th>
+						<th>收货人手机号码</th>
+						<th>收货人邮箱</th>
+					</tr>
+					<tr>
+						<td>${map.shippingName?default('')}</td>
+						<td>${map.companyName?default('')}</td>
+						<td>${map.shippingPhone?default('')}</td>
+						<td>${map.shippingEmail?default('')}</td>
+					</tr>
+				</table>
+				<table id="incomeTable" class="tab03" border="1" style="width:99%;margin:0 auto;">
+					<tr>
+						<td colspan="8" style="border:0px;"><div align="left"></div></td>
+					</tr>
+					<tr>
+						<th>收货国家</th>
+						<th>收货州省</th>
+						<th>收货城市</th>
+						<th>收货地址</th>
+						<th>邮编</th>
+					</tr>
+					<tr>
+						<td>${map.shippingCountry?default('')}</td>
+						<td>${map.shippingState}</td>
+						<td>${map.shippingCity?default('')}</td>
+						<td>${map.shippingAddress?default('')}</td>
+						<td>${map.shippingPostCode?default('')}</td>
+					</tr>
+					<tr>
+						<td colspan="8">
+							<div align="center"><input type="button" class="btn_blue2" value="关闭详情" onclick="javascript:window.history.go(-1);""/></div>
+						</td>
+					</tr>
+				</table>
+				<div style="height:10xp;width:auto;">&nbsp;</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

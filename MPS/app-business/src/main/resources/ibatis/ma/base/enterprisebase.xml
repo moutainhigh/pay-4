@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="enterpriseBase" >
+  <typeAlias alias="enterpriseBase" type="com.pay.base.model.EnterpriseBase"/>
+  <resultMap id="enterpriseBaseMap" class="enterpriseBase" >
+	  <result column="ENTERPRISE_ID"  property="enterpriseId" jdbcType="INT" nullValue="0" />
+	  <result column="MEMBER_CODE" property="memberCode" jdbcType="INT"/>  
+	  <result column="MERCHANT_CODE" property="merchantCode" jdbcType="INT"/>
+	  <result column="ENTERPRISE_TYPE" property="enterpriseType" jdbcType="INT"/>      
+	  <result column="AUDI_STATUS" property="audiStatus" jdbcType="INT"/>    
+	  <result column="ZH_NAME" property="zhName" jdbcType="VARCHAR"/>     
+	  <result column="EN_NAME" property="enName" jdbcType="VARCHAR"/>     
+	  <result column="WEBSITE" property="website" jdbcType="VARCHAR"/>    
+	  <result column="NATION" property="nation" jdbcType="VARCHAR"/> 
+	  <result column="REGION" property="region" jdbcType="VARCHAR"/> 
+	  <result column="CITY" property="city" jdbcType="VARCHAR"/>
+	  <result column="INDUSTRY_KIND" property="industryKind" jdbcType="VARCHAR"/>
+	  <result column="INDUSTRY_TYPE" property="industryType" jdbcType="VARCHAR"/>    
+	  <result column="IN_INDUSTRY" property="inIndustry" jdbcType="VARCHAR"/>      
+	  <result column="BIZ_LICENCE_CODE" property="bizLicenceCode" jdbcType="VARCHAR"/>
+	  <result column="EXPIRE" property="expire" jdbcType="DATETIME"/>
+	  <result column="GOV_CODE" property="govCode" jdbcType="VARCHAR"/>
+	  <result column="TAX_CODE" property="taxCode" jdbcType="VARCHAR"/>
+	  <result column="RISK_LEVE_CODE" property="riskLeveCode" jdbcType="VARCHAR"/>
+	  <result column="CREATE_DATE" property="createDate" jdbcType="DATETIME"/>
+	  <result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME"/>
+	  <result column="SEARCH_KEY" property="searchKey" jdbcType="VARCHAR"/>
+   	  <result column="IDENTITY" property="identity" jdbcType="INT"/>
+   	  <result column="SETTLEMENT_CYCLE" property="settlementCycle" jdbcType="INT"/>
+  </resultMap>  
+ 	<insert id="create" parameterClass="com.pay.base.model.EnterpriseBase">
+    	<selectKey resultClass="java.lang.Long" keyProperty="enterpriseId">
+			SELECT seq_enterp_base_enterp_id.nextval as enterpriseId FROM dual 
+		</selectKey>     
+        insert into t_enterprise_base
+	  (enterprise_id,
+	   member_code,
+	   merchant_code,
+	   enterprise_type,
+	   audi_status,
+	   zh_name,
+	   en_name,
+	   website,
+	   nation,
+	   region,
+	   city,
+	   industry_kind,
+	   industry_type,
+	   in_industry,
+	   biz_licence_code,
+	   expire,
+	   gov_code,
+	   tax_code,
+	   risk_leve_code,
+	   create_date,
+	   update_date,
+	   search_key,
+	   IDENTITY
+	   )
+	values
+	  (#enterpriseId#,
+	   #memberCode#,
+	   #merchantCode#,
+	   #enterpriseType#,
+	   #audiStatus#,
+	   #zhName#,
+	   #enName#,
+	   #website#,
+	   #nation#,
+	   #region#,
+	   #city#,
+	   #industryKind#,
+	   #industryType#,
+	   #inIndustry#,
+	   #bizLicenceCode#,
+	   #expire#,
+	   #govCode#,
+	   #taxCode#,
+	   #riskLeveCode#,
+	   sysdate,
+	   sysdate,
+	   #searchKey#,
+	   #identity#)
+    </insert>
+    <select id="queryCurrMaxMerchantCode"  resultClass="enterpriseBase"  parameterClass="java.lang.String">
+        select MERCHANT_CODE as merchantCode
+        from T_ENTERPRISE_BASE
+        where MERCHANT_CODE like #merchantCodeTemp#||'%'
+    </select>
+    <update id="updateEnterpriseBase"  parameterClass="enterpriseBase">
+    	
+		update t_enterprise_base
+		   set
+		    <isNotEmpty property="enterpriseType"> 
+            	enterprise_type  = #enterpriseType#,
+            </isNotEmpty> 
+		    <isNotEmpty property="audiStatus"> 
+            	audi_status = #audiStatus#,
+            </isNotEmpty>
+		    <isNotEmpty property="zhName"> 
+            	zh_name = #zhName#,
+            </isNotEmpty>   
+		    <isNotEmpty property="enName"> 
+            	en_name = #enName#,
+            </isNotEmpty>   
+		    <isNotEmpty property="website"> 
+            	website = #website#,
+            </isNotEmpty>    
+		    <isNotEmpty property="nation"> 
+            	nation  = #nation#,
+            </isNotEmpty>    
+		    <isNotEmpty property="region"> 
+            	region  = #region#,
+            </isNotEmpty>   
+		    <isNotEmpty property="city">   
+		       city  = #city#,
+		    </isNotEmpty>
+		    <isNotEmpty property="industryKind"> 
+		       industry_kind = #industryKind#,
+		    </isNotEmpty>
+		    <isNotEmpty property="industryType">
+		       industry_type = #industryType#,
+		    </isNotEmpty>
+		    <isNotEmpty property="inIndustry">
+		       in_industry = #inIndustry#,
+		    </isNotEmpty>
+		    <isNotEmpty property="bizLicenceCode">
+		       biz_licence_code = #bizLicenceCode#,
+		    </isNotEmpty>
+		    <isNotEmpty property="expire">
+		       expire = #expire#,
+		    </isNotEmpty>
+		    <isNotEmpty property="govCode">
+		       gov_code = #govCode#,
+		    </isNotEmpty>
+		    <isNotEmpty property="taxCode">
+		       tax_code = #taxCode#,
+		    </isNotEmpty>
+		    <isNotEmpty property="riskLeveCode">
+		       risk_leve_code = #riskLeveCode#,
+		    </isNotEmpty>
+		    <isNotEmpty property="riskLeveCode">
+		       search_key  = #searchKey#,
+		    </isNotEmpty>
+		       update_date = SYSDATE
+		 where enterprise_id = #enterpriseId#
+
+    </update>
+   
+    <select id="findByMemberCode" resultMap="enterpriseBaseMap" parameterClass="java.lang.Long">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		       identity,
+		       search_key,
+		       SETTLEMENT_CYCLE
+		       FROM t_enterprise_base WHERE member_code = #memberCode#
+    </select>
+    
+     <select id="findByMerchantCode" resultMap="enterpriseBaseMap" parameterClass="java.lang.Long">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		       identity,
+		       search_key
+		       FROM t_enterprise_base WHERE merchant_code = #merchantCode#
+    </select>
+    
+   
+    <select id="findByEnterpriseId" resultMap="enterpriseBaseMap" parameterClass="java.lang.Long">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		        identity,
+		       search_key
+		       FROM t_enterprise_base WHERE enterprise_id = #enterpriseId#
+    </select>	
+    
+    <select id="queryByBizLicenceCode" resultMap="enterpriseBaseMap" parameterClass="java.lang.String">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		        identity,
+		       search_key
+		       FROM t_enterprise_base WHERE BIZ_LICENCE_CODE = #bizLicenceCode#
+    </select>
+    
+    
+    <select id="queryByGovCode" resultMap="enterpriseBaseMap" parameterClass="java.lang.String">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		        identity,
+		       search_key
+		       FROM t_enterprise_base WHERE GOV_CODE = #govCode#
+    </select>
+    <select id="queryByTaxCode" resultMap="enterpriseBaseMap" parameterClass="java.lang.String">
+    	SELECT enterprise_id,
+		       member_code,
+		       merchant_code,
+		       enterprise_type,
+		       audi_status,
+		       zh_name,
+		       en_name,
+		       website,
+		       nation,
+		       region,
+		       city,
+		       industry_kind,
+		       industry_type,
+		       in_industry,
+		       biz_licence_code,
+		       expire,
+		       gov_code,
+		       tax_code,
+		       risk_leve_code,
+		       create_date,
+		       update_date,
+		        identity,
+		       search_key
+		       FROM t_enterprise_base WHERE TAX_CODE = #taxCode#
+    </select>
+ </sqlMap>

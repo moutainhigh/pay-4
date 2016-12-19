@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="autoquotaconfig">
+	<typeAlias alias="autoQuotaConfig" type="com.pay.fundout.autofundout.custom.model.AutoQuotaConfig"/>
+    <resultMap id="autoQuotaConfig" class="com.pay.fundout.autofundout.custom.model.AutoQuotaConfig">
+        <result column="SEQUENCEID" property="sequenceid" jdbcType="DECIMAL"/>
+        <result column="BASE_AMOUNT" property="baseAmount" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="CONFIG_ID" property="configId" jdbcType="DECIMAL"/>
+    </resultMap>
+    <sql id="Column_List">
+		SEQUENCEID,BASE_AMOUNT,CREATE_DATE,CONFIG_ID
+    </sql>
+    <insert id="create" parameterClass="autoQuotaConfig">
+        <selectKey resultClass="java.lang.Long" keyProperty="sequenceid">
+			SELECT SEQ_AUTO_QUOTA_CONFIG.nextval AS SEQUENCE_ID FROM DUAL
+		</selectKey>
+        INSERT INTO AUTO_QUOTA_CONFIG(
+			SEQUENCEID,BASE_AMOUNT,CREATE_DATE,CONFIG_ID
+        )
+        VALUES(
+            #sequenceid#,#baseAmount#,sysdate,#configId#
+		)
+    </insert>
+    <update id="update" parameterClass="autoQuotaConfig">
+        UPDATE AUTO_QUOTA_CONFIG
+        <dynamic prepend="SET"> 
+	        <isNotNull prepend="," property="baseAmount">
+	            BASE_AMOUNT = #baseAmount#
+	        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    <select id="findId" parameterClass="java.util.Map"
+        resultClass="java.lang.Long">
+        SELECT  SEQUENCEID
+        FROM AUTO_QUOTA_CONFIG
+        WHERE CONFIG_ID=#configId#
+    </select>
+    <select id="findById" parameterClass="java.lang.Long"
+        resultMap="autoQuotaConfig">
+        SELECT *  FROM AUTO_QUOTA_CONFIG
+        WHERE CONFIG_ID=#configId#
+    </select>
+     <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM AUTO_QUOTA_CONFIG        
+	    WHERE CONFIG_ID=#configId#
+    </delete>
+</sqlMap>

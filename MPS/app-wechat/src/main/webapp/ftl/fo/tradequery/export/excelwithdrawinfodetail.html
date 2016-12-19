@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>gcpayment支付提现记录excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="6" style="text-align: middle;">#==============gcpayment支付提现记录明细==============</td>
+		   </tr>
+			<tr>
+				<th width="10%">创建时间</th>
+				<th width="18%">交易流水号</th>
+				<th width="10%">交易类型</th>
+				<th width="8%">收/支</th>
+				<th width="15%">提现渠道</th>
+				<th width="10%">提现状态</th>
+				<th width="8%">提现金额(元)</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists>
+				<#list incomeDetailList as ts>
+				<tr>
+					<td class="excel_txt">${ts.createDate}</td>
+					<td class="excel_txt" align="center">${ts.orderId!('')}</td>
+					<td class="excel_txt" align="center">提现</td>
+					<td class="excel_txt" align="center">支</td>
+					<td class="excel_txt" align="center">${ts.bankName!('')} ${ts.bankAcctCode?substring((ts.bankAcctCode?length)-4)}</td>
+					<td class="excel_txt" align="center">
+						<#if ts.status?has_content>
+							<#if ts.status=100>
+								初始状态
+							<#elseif ts.status=101>
+								正在交易
+							<#elseif ts.status=111>
+								付款完成
+							<#elseif ts.status=112 || ts.status=113>
+								付款失败
+							<#else>
+								${ts.status!''}
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">${((ts.orderAmount!(0)?number)* 0.001)?string(",##0.00")}</td>
+				</tr>
+			</#list>
+		  </#if>
+		</tbody>
+	</table>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.base.model.externalLog">
+		
+	<resultMap id="externalLogMap" class="com.pay.base.model.ExternalLog">
+		<result column="ID"              	property="id"              			jdbcType="NUMBER" />  
+		<result column="ORDER_NO"       	property="orderNo"         			jdbcType="VARCHAR"/>
+		<result column="EXTERNAL_TYPE"  	property="externalType"    			jdbcType="NUMBER" />   
+		<result column="CARD_NO"     		property="cardNo"       			jdbcType="VARCHAR"/> 
+		<result column="PROCESS_STATUS" 	property="processStatus"   			jdbcType="NUMBER"/> 
+		<result column="AMOUNT"         	property="amount"          			jdbcType="NUMBER"/> 
+		<result column="CREATE_DATE"    	property="createDate"      			jdbcType="TIMESTAMP"/>   
+		<result column="UPDATE_DATE"    	property="updateDate"      			jdbcType="TIMESTAMP"/>   
+		<result column="REMARK"         	property="remark"          			jdbcType="VARCHAR"/>
+		<result column="CURRENCY_CODE"  	property="currencyCode"    			jdbcType="NUMBER"/> 
+		<result column="TRADING_WAY"       	property="tradingWay"         		jdbcType="NUMBER"/> 
+		<result column="PAYER_MEMBER_CODE"  property="payerMemberCode"      	jdbcType="VARCHAR"/> 
+		<result column="VALUE1"        		property="value1"          			jdbcType="VARCHAR"/>  
+		<result column="VALUE2"         	property="value2"          			jdbcType="VARCHAR"/>
+		<result column="EXTERNAL_PROCESS_STATUS"	property="externalProcessStatus"  	jdbcType="NUMBER"/> 
+		<result column="PAYER_NAME"        	property="payerName"          		jdbcType="VARCHAR"/>  
+		<result column="PAYER_CONTACT"      property="payerContact"          	jdbcType="VARCHAR"/>
+		<result column="GATEWAY_NO"       	property="gatewayNo"         		jdbcType="VARCHAR"/>
+	</resultMap>
+		
+	<select id="findById" parameterClass="long" resultMap="externalLogMap">
+		select ID,
+	       ORDER_NO,
+	       EXTERNAL_TYPE,
+	       CARD_NO,
+	       PROCESS_STATUS,
+	       AMOUNT,
+	       CREATE_DATE,
+	       UPDATE_DATE,
+	       REMARK,
+	       CURRENCY_CODE,
+	       TRADING_WAY,
+	       PAYER_MEMBER_CODE,
+	       VALUE1,
+	       VALUE2,
+	       EXTERNAL_PROCESS_STATUS,
+	       PAYER_NAME,
+	       PAYER_CONTACT,
+	       GATEWAY_NO
+	  from T_EXTERNAL_LOG
+	  where ID = #id#
+	</select>
+		
+	<!-- 根据时间+seq 生成订单流水号 -->
+    <select id="selectOrderId" resultClass="string" >
+		select CONCAT(to_char(sysdate, 'yyyymmddhh24miss'),seq_external_order_num.nextval) from DUAL 
+    </select>
+    
+	<insert id="create" parameterClass="com.pay.base.model.ExternalLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select seq_external_Log.nextval from DUAL 
+		</selectKey>
+		
+		insert into T_EXTERNAL_LOG (
+			ID, 
+			ORDER_NO,
+			EXTERNAL_TYPE, 
+			CARD_NO, 
+			PROCESS_STATUS, 
+			AMOUNT, 
+			CREATE_DATE, 
+			UPDATE_DATE, 
+			REMARK, 
+			CURRENCY_CODE, 
+			TRADING_WAY, 
+			PAYER_MEMBER_CODE, 
+			VALUE1, 
+			VALUE2,
+			EXTERNAL_PROCESS_STATUS,
+			PAYER_NAME,
+			PAYER_CONTACT,
+			GATEWAY_NO
+			)
+		values (
+			#id#,
+			#orderNo#,
+			#externalType#,
+			#cardNo#,
+			#processStatus#,
+			#amount#,
+			sysdate,
+			#updateDate#,
+			#remark#,
+			#currencyCode#,
+			#tradingWay#,
+			#payerMemberCode#,
+			#value1#,
+			#value2#,
+			#externalProcessStatus#,
+			#payerName#,
+			#payerContact#,
+			#gatewayNo#
+			)
+	</insert>
+	
+	<!-- 必须是 process_status 为 0初始化 时才能更新状态 -->
+	<update id="update" parameterClass="com.pay.base.model.ExternalLog">
+        update T_EXTERNAL_LOG
+        SET	UPDATE_DATE = sysdate
+	        <isNotNull prepend="," property="processStatus" >
+	            PROCESS_STATUS = #processStatus#
+	        </isNotNull>
+	        <isNotNull prepend="," property="remark">
+	            REMARK = #remark#
+	        </isNotNull>
+	        <isNotNull prepend="," property="gatewayNo">
+	            GATEWAY_NO = #gatewayNo#
+	        </isNotNull>
+	        <isNotNull prepend="," property="externalProcessStatus">
+	            EXTERNAL_PROCESS_STATUS = #externalProcessStatus#
+	        </isNotNull>
+          where  ID = #id#
+          and (PROCESS_STATUS  = 0 or PROCESS_STATUS  = 2) 
+          and  NVL(EXTERNAL_PROCESS_STATUS,2)  in  (2,3) 
+    </update>
+	
+	<!-- 必须是 process_status 为 0初始化 时才能更新 -->
+	<update id="updateProcessStatus" parameterClass="map" >
+		update T_EXTERNAL_LOG t 
+		set t.PROCESS_STATUS = #processStatus#,
+			t.UPDATE_DATE = sysdate
+		where t.ID = #id# 
+		and t.PROCESS_STATUS in (0,2)
+	</update>
+	
+	<!-- 必须是 process_status 为 0 并且 EXTERNAL_STATUS 为空或是 2（失败） 3（超时，可能是补单更新的）才能更新状态   -->
+	<update id="updateExternalProcessStatus" parameterClass="map" >
+		update T_EXTERNAL_LOG t 
+		set t.EXTERNAL_PROCESS_STATUS = #externalprocessstatus#,
+			t.UPDATE_DATE = sysdate
+		where t.ID = #id# 
+		  and t.PROCESS_STATUS in (0,2) 
+		  and nvl(t.EXTERNAL_PROCESS_STATUS,2) in  (2,3) 
+	</update>
+	
+	<select id="findByOrderNo" parameterClass="java.lang.String" resultMap="externalLogMap">
+		select ID,
+	       ORDER_NO,
+	       EXTERNAL_TYPE,
+	       CARD_NO,
+	       PROCESS_STATUS,
+	       AMOUNT,
+	       CREATE_DATE,
+	       UPDATE_DATE,
+	       REMARK,
+	       CURRENCY_CODE,
+	       TRADING_WAY,
+	       PAYER_MEMBER_CODE,
+	       VALUE1,
+	       VALUE2,
+	       EXTERNAL_PROCESS_STATUS,
+	       PAYER_NAME,
+	       PAYER_CONTACT,
+	       GATEWAY_NO
+	  from T_EXTERNAL_LOG
+		WHERE ORDER_NO = #orderNo#
+	</select>
+		
+
+   	<select id="selectExernalTransByStatus"  parameterClass="map"  resultMap="externalLogMap">
+	   	select ID,
+	       ORDER_NO,
+	       EXTERNAL_TYPE,
+	       CARD_NO,
+	       PROCESS_STATUS,
+	       AMOUNT,
+	       CREATE_DATE,
+	       UPDATE_DATE,
+	       REMARK,
+	       CURRENCY_CODE,
+	       TRADING_WAY,
+	       PAYER_MEMBER_CODE,
+	       VALUE1,
+	       VALUE2,
+	       EXTERNAL_PROCESS_STATUS,
+	       PAYER_NAME,
+	       PAYER_CONTACT,
+	       GATEWAY_NO
+	  from T_EXTERNAL_LOG t
+		<dynamic prepend="where"> 
+		   	<isNotNull prepend="AND" property="id">
+	            t.ID=#id#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="processStatus">
+	            t.PROCESS_STATUS != #processStatus#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="externalProcessStatus">
+	            t.EXTERNAL_PROCESS_STATUS = #externalProcessStatus#
+	        </isNotNull>
+	     </dynamic>
+   	</select>
+	
+</sqlMap>

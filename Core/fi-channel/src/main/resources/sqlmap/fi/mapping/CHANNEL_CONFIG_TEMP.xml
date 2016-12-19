@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelConfigTemp">
+
+	<typeAlias alias="channelConfigTemp" type="com.pay.channel.model.ChannelConfigTemp"/>
+
+     <insert id="create" parameterClass="channelConfigTemp">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_CONFIG_UPLOAD_ID.nextval FROM DUAL
+		</selectKey>
+	 	INSERT INTO CHANNEL_CONFIG_UPLOAD(ACCESS_CODE,BATCH_NO,CREATE_DATE,CURRENCY_CODE,
+	 	FLAG,ID,KEY_FILE_PATH,MCC,MERCHANT_BILL_NAME,OPERATOR,ORG_CODE,ORG_KEY,
+	 	ORG_MERCHANT_CODE,PATTERN,REQUEST_MERCHANT_NAME,STATUS,
+	 	SUPPORT_WEBSITE,TERMINAL_CODE,TRANS_TYPE, FIT_MERCHANT_TYPE)
+        VALUES(
+            #accessCode#,#batchNo#,sysdate,#currencyCode#,#flag#,#id#,#keyFilePath#,#mcc#,#merchantBillName#,#operator#,#orgCode#,#orgKey#,#orgMerchantCode#,#pattern#,#requestMerchantName#
+            ,#status#,#supportWebsite#,#terminalCode#,#transType#,#fitMerchantType#
+		)
+	</insert>
+    
+        
+    <!-- 存储过程参数定义 -->
+    <parameterMap id="procBtchNoParam" class="java.util.Map" >
+		<parameter property="p_batch_no" 	    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="p_operator" 		mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+	</parameterMap>
+	
+    <procedure id="callChannelConfigValidationPr" parameterMap="procBtchNoParam" >
+			{call channel_config_validation_pr(?,?)}
+	</procedure>
+	
+	<select id="findByCriteria"  parameterClass="java.util.Map"  resultClass="channelConfigTemp">
+				SELECT 
+			TRANS_TYPE     			transType,
+			TERMINAL_CODE				terminalCode,
+			SUPPORT_WEBSITE			supportWebsite,
+			STATUS												,		
+			REQUEST_MERCHANT_NAME		requestMerchantName,
+			PATTERN				,
+			ORG_MERCHANT_CODE  orgMerchantCode,
+			ORG_KEY					orgKey,
+			ORG_CODE			 orgCode,
+			OPERATOR	,
+			MERCHANT_BILL_NAME merchantBillName,
+			MCC		,
+			KEY_FILE_PATH  keyFilePath,
+			ID			,
+			FLAG,
+			CURRENCY_CODE   currencyCode,
+			CREATE_DATE    createDate,
+			COMMENTS    comments,
+			BATCH_NO   batchNo,
+			ACCESS_CODE		accessCode,
+			FIT_MERCHANT_TYPE fitMerchantType
+				FROM CHANNEL_CONFIG_UPLOAD
+				where 
+					FLAG = 'N'
+				<isNotEmpty prepend="AND" property="p_batch_no">
+						BATCH_NO = #p_batch_no#
+				</isNotEmpty>
+	</select>
+    
+</sqlMap>

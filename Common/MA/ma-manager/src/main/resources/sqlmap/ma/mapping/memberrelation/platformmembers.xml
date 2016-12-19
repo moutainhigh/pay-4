@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pltMembers">
+	<typeAlias alias="platformMembers" type="com.pay.poss.platformmembers.model.PlatformMembers"/>
+	<resultMap id="platformMembersResult" class="platformMembers">
+        <result column="id" property="id" jdbcType="DECIMAL"/>
+        <result column="father_member_code" property="fatherMemberCode" jdbcType="DECIMAL"/>
+        <result column="father_operator_id" property="fatherOperatorId" jdbcType="DECIMAL"/>
+        <result column="son_member_code" property="sonMemberCode" jdbcType="DECIMAL"/>
+        <result column="son_operator_id" property="sonOperatorId" jdbcType="DECIMAL"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+    	<result column="update_date" property="updateDate" jdbcType="TIMESTAMP"/>
+    	
+    	<result column="father_zh_name" property="fatherZhName" jdbcType="VARCHAR"/>
+    	<result column="son_zh_name" property="sonZhName" jdbcType="VARCHAR"/>
+    	<result column="father_operator" property="fatherOperator" jdbcType="VARCHAR"/>
+    	<result column="son_operator" property="sonOperator" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+	<!-- 新增接口日志-->
+	<insert id="create" parameterClass="platformMembers">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+				select seq_t_platform_members_id.nextval from DUAL  
+		</selectKey>
+		 <![CDATA[
+		insert into acc.t_platform_members(
+			   id,
+               father_member_code,
+               father_operator_id,
+               son_member_code,
+               son_operator_id,
+               status,
+               create_date,
+               update_date)
+        values(#id#,
+               #fatherMemberCode#,
+               #fatherOperatorId#,
+               #sonMemberCode#,
+               #sonOperatorId#,
+               #status#,
+               sysdate,
+               sysdate)
+			 ]]>
+	</insert>
+	
+   <update id="update" parameterClass="platformMembers">
+	   	update acc.t_platform_members
+	   	set status = #status#, 
+	   	    update_date = sysdate
+	   	where id = #id#
+   </update>
+   
+   <select id="findByCriteria" resultMap="platformMembersResult">
+ 		select 	
+ 			pm.*,
+       		f_base.zh_name father_zh_name,
+       		s_base.zh_name son_zh_name,
+			f_o.identity father_operator,
+			s_o.identity son_operator
+	 	from acc.t_platform_members pm ,
+	 		 acc.t_operator f_o, 
+			 acc.t_operator s_o,
+			 acc.t_enterprise_base f_base, 
+			 acc.t_enterprise_base s_base
+		where pm.father_operator_id=f_o.operator_id 
+			and pm.son_operator_id=s_o.operator_id 
+			and pm.father_member_code = f_base.member_code 
+			and pm.son_member_code = s_base.member_code
+		<isNotNull prepend="AND" property="id">
+           pm.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fatherMemberCode">
+           pm.father_member_code = #fatherMemberCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           pm.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sonMemberCode">
+           pm.son_member_code = #sonMemberCode# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+		   pm.create_date <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           pm.create_date <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>      
+        order by pm.create_date desc
+   </select>
+   
+   <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        select count(*)
+		from acc.t_platform_members pm ,
+	 		 acc.t_operator f_o, 
+			 acc.t_operator s_o,
+			 acc.t_enterprise_base f_base, 
+			 acc.t_enterprise_base s_base
+		where pm.father_operator_id=f_o.operator_id 
+			and pm.son_operator_id=s_o.operator_id 
+			and pm.father_member_code = f_base.member_code 
+			and pm.son_member_code = s_base.member_code
+		<isNotNull prepend="AND" property="id">
+           pm.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fatherMemberCode">
+           pm.father_member_code = #fatherMemberCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           pm.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sonMemberCode">
+           pm.son_member_code = #sonMemberCode# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+		   pm.create_date <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           pm.create_date <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+    </select>
+   
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        select count(*)
+		from acc.t_platform_members pm ,
+	 		 acc.t_operator f_o, 
+			 acc.t_operator s_o,
+			 acc.t_enterprise_base f_base, 
+			 acc.t_enterprise_base s_base
+		where pm.father_operator_id=f_o.operator_id 
+			and pm.son_operator_id=s_o.operator_id 
+			and pm.father_member_code = f_base.member_code 
+			and pm.son_member_code = s_base.member_code
+		<isNotNull prepend="AND" property="id">
+           pm.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fatherMemberCode">
+           pm.father_member_code = #fatherMemberCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           pm.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sonMemberCode">
+           pm.son_member_code = #sonMemberCode# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+		   pm.create_date <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           pm.create_date <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+    </select>
+    
+</sqlMap>

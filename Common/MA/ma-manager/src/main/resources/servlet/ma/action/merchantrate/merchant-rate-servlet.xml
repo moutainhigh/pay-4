@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="MerchantRateHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/merchantRate.do">merchantRateController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="merchantRateController"
+		class="com.pay.poss.merchantmanager.controller.MerchantRateController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryIndexView">
+			<value>/merchantrate/merchantListForEdit</value>
+		</property>
+		<property name="merchantListView">
+			<value>/merchantrate/merchantListForEditResult</value>
+		</property>
+		<property name="merchantEditView">
+			<value>/merchantrate/enterpriseView</value>
+		</property>
+		<property name="merchantRateService">
+			<ref bean="acc-merchantRateService" />
+		</property>
+		<property name="enterpriseBaseService">
+			<ref bean="acc-enterpriseBaseService" />
+		</property>
+		<property name="bouncedFineConfigService" ref="bouncedFineConfigService" />
+		<property name="merchantService" ref="merchantService" />
+		<property name="enterpriseService" ref="enterpriseService" />
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService" />
+		<property name="bankService" ref="bankService" />
+		<property name="autoFundoutConfigService">
+			<ref bean="fundout-autoFundoutConfigService" />
+		</property>
+		<property name="currencyService" ref="currencyService" />
+		<property name="rcLimitRuleFacade">
+			<ref bean="rm-rclimitrulefacade" />
+		</property>
+		<property name="accountQueryService" ref="acc-accountQueryService"/>
+		<property name="acctService" ref="acc-acctService" />
+		
+	</bean>
+
+</beans>

@@ -1,0 +1,138 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;  
+}
+</style> 
+<meta charset="utf-8">
+<title>清算查询导出excel表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="12" style="text-align: middle;">#==============清算明细==============</td>
+		   </tr>
+		  
+		   <tr>
+		       <td colspan="12">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+		   <tr>
+		       <td colspan="12">清算账户 ：<#if acctName?exists>${acctName?default('')}</#if> </td>
+		   </tr>
+		   <tr><td colspan="12">#------------清算查询明细列表--------------</td></tr>
+			<tr>
+				<th>商户订单号</th>
+				<th>交易时间</th>
+				<th>交易金额</th>
+				<th>交易币种</th>
+				<th>保证金</th>
+				<th>保证金币种</th>
+				<th>清算金额</th>
+				<th>清算币种</th>
+				<th>清算状态</th>									
+				<th>单笔处理费</th> 										
+				<th>单笔处理费币种</th> 										
+				<th>交易手续费</th>
+				<th>交易手续费币种</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if resultList?has_content>
+			 		<#list resultList as ts>
+						
+						<tr <#if ts_index%2==0> class="gray" </#if> >
+							<td class="excel_txt">${ts.orderId ? default("")}</td>
+							<td>${ts.createDate?date}</td>
+							<td class="excel_txt" style="text-align: right;" >${(ts.orderAmount?default(0)/1000)?string("0.000") }</td>	
+							<td>${ts.currencyCode}</td>	
+							<!-- 保证金 -->
+							<td class="excel_txt" style="text-align: right;" >
+								${((ts.assureAmount?default(0)*ts.settlementRate?default(0)?number)/1000)?string("0.000")}
+							</td>
+							<!-- 保证金币种 -->
+							<td>
+								${ts.settlementCurrencyCode} 
+							</td>
+							<!-- 清算金额 -->
+							<td class="excel_txt" style="text-align: right;" >										
+								<#if ts.settlementFlg == 1>
+									 ${((ts.orderAmount?default(0)*ts.settlementRate?default(0)?number)/1000)?string("0.000")}
+									
+								</#if>								
+							</td>
+							<!-- 清算币种 -->
+							<td>										
+								<#if ts.settlementFlg == 1>
+									${ts.settlementCurrencyCode}
+								</#if>								
+							</td>
+							<!-- 清算状态 -->
+							<td>
+								<#if ts.settlementFlg == 0>
+									未清算
+								<#elseif ts.settlementFlg == 1>
+									已清算
+								<#elseif ts.settlementFlg == 2>
+									未清算
+								<#elseif ts.settlementFlg == 4>
+									已退款
+								</#if>
+							</td>
+							<td class="excel_txt" style="text-align: right;" >
+	 								<#if ts.settlementFlg == 1 && ts.fixedFeeSettlementAmount?? >
+													${((ts.fixedFeeSettlementAmount?default(0)?number)/1000)?string("0.000")}
+									</#if>
+	 						</td> 
+	 						<!--单笔处理费币种  -->
+							<td>
+	 								<#if ts.settlementFlg == 1 && ts.fixedFeeSettlementAmount?? >
+													${ts.settlementCurrencyCode}
+									</#if>
+	 						</td> 
+	 						<td class="excel_txt" style="text-align: right;" >
+									<#if ts.settlementFlg == 1 && ts.perFee??>
+														${(ts.perFee?default(0)/10000)?string("0.000")}
+									<#else>
+														
+									</#if>
+							</td>
+							<!--交易手续费币种  -->
+	 						<td>
+									<#if ts.settlementFlg == 1 && ts.perFee??>
+											${ts.settlementCurrencyCode}
+									<#else>
+														
+									</#if>
+							</td>
+						</tr>
+					</#list>
+				</#if>
+		   <tr><td colspan="12">#------------清算查询明细列表--------------</td></tr>
+		</tbody>
+	</table>
+	
+	
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css">
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style>
+<meta charset="utf-8">
+<title><!-- iPayLinks支付网关订单收款明细 -->调单查询下载
+</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+			<tr>
+				<td colspan="14" style="text-align: middle;">#==============调单查询明细==============</td>
+			</tr>
+			<tr>
+				<td colspan="14">下载时间 ：<#if
+					nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if></td>
+			</tr>
+			<tr>
+				<th>商户订单号</th>
+				<th>交易时间</th>
+				<th>交易金额</th>
+				<th>交易币种</th>
+				<th>清算汇率</th>
+				<th>清算金额(基本户)</th>
+				<th>清算金额(保证金)</th>
+				<th>清算币种</th>
+				<th>调单金额</th>
+				<th>调单币种</th>
+				<th>调单时间</th>
+				<th>调单原因</th>
+				<th>调单状态</th>
+				<th>最晚回复时间</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists> <#list incomeDetailList as ts>
+			<tr>
+				<td style="text-align: center;" class="excel_txt">${ts.orderNo?default("")}</td>
+
+				<td style="text-align: center;" class="excel_txt">
+					${ts.tradeDate?default("")}</td>
+
+				<td align="right">${(ts.tradeAmount*0.001)?string(",##0.000")}
+				</td>
+
+				<td style="text-align: center;" class="excel_txt">
+					${ts.currencyCode?default("")}</td>
+
+				<td align="right">${ts.transRate!('')}</td>
+
+				<td align="right">
+					${(ts.baseAmount?default(0)?number*0.001*ts.settlementRate?default(0)?number)?string(",##0.000")}</td>
+				<td align="right">
+					${(ts.assureAmount?default(0)?number*0.001*ts.settlementRate?default(0)?number)?string(",##0.000")}</td>
+
+				<td align="center">
+					${(ts.settlementCurrencyCode!(''))}</td>
+
+				<td align="right">
+					${(ts.chargeBackAmount*0.001)?string(",##0.000")}</td>
+				
+				<td align="center">
+					${ts.cpCurrencyCode?default("")}</td>
+
+				<td align="center">${ts.cpdDate?default("")}</td>
+
+				<td align="center"><#if ts.visableCode?exists>
+												<#if ts.visableCode == '1'>
+													需要交易凭证
+												<#elseif ts.visableCode == '2'>
+													未收到货物或服务
+												<#elseif ts.visableCode == '3'>
+													未授权交易
+												<#elseif ts.visableCode == '4'>
+													重复处理
+												<#elseif ts.visableCode == '5'>
+													欺诈伪冒
+												<#elseif ts.visableCode == '6'>
+													货不对版
+												<#elseif ts.visableCode == '7'>
+													不承认
+												<#elseif ts.visableCode == '8'>
+													要求个人纪录
+												<#elseif ts.visableCode == '9'>
+													商品已退回未退款
+												<#elseif ts.visableCode == '10'>
+													未收到退款
+												<#elseif ts.visableCode == '11'>
+													金额不符
+												<#elseif ts.visableCode == '12'>
+													未提供单据
+												<#elseif ts.visableCode == '13'>
+													重复扣款
+												</#if>
+											</#if></td>
+
+				<td align="center"><#if ts.status?exists> <#if ts.status == 0>
+					未处理 <#elseif ts.status == 1> 已上传资料 <#elseif ts.status == 2> 已递交银行
+					<#elseif ts.status == 3> 申诉失败待复核 <#elseif ts.status == 4> 申诉成功待复核
+					<#elseif ts.status == 5> 申诉失败 <#elseif ts.status == 6> 申诉成功
+					<#elseif ts.status == 7> 不申诉 </#if> </#if></td>
+
+
+				<td><#if ts.latestAnswerDate?exists> <#if
+					ts.latestAnswerDate?exists> ${ts.latestAnswerDate?default("")}
+					</#if> <#else>  </#if></td>
+			</tr>
+
+			</#list> </#if>
+			<tr>
+				<td colspan="14">#------------调单查询明细列表--------------</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

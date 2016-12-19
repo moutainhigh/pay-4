@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 订单查询-->
+	<bean name="/fo-ordercentermanager-list.htm"
+		class="com.pay.fo.controller.ordercenter.OrderCenterCommonController"
+		parent="abstractBaseController">
+		<property name="methodNameResolver" ref="paraMethodResolver" />
+		<property name="urlMap">
+			<map>
+				<entry key="ordercentermanagerInit" value="/ordercentermanager/ordercentermanagerInit" />
+				<entry key="ordercentermanagerList" value="/ordercentermanager/ordercentermanagerList" />
+				<entry key="backfundoutList" value="/ordercentermanager/backfundoutList" />
+				<entry key="orderdetailtab" value="/ordercentermanager/orderdetailtab" />
+				<entry key="carryoverorderdetail" value="/ordercentermanager/carryoverorderdetail" />
+				<entry key="fundoutchannelSelect" value="/ordercentermanager/fundoutchannelSelect" />
+				<entry key="ordercentermanagerurlInit"
+					value="/ordercentermanager/ordercenteropenurl/ordercentermanagerurlInit" />
+				<entry key="ordercentermanagerurlList"
+					value="/ordercentermanager/ordercenteropenurl/ordercentermanagerurlList" />
+				<entry key="backfundouturlList"
+					value="/ordercentermanager/ordercenteropenurl/backfundouturlList" />
+
+				<entry key="ACCT_CHARGE">
+					<value>/ordercentermanager/ordercentermanagerList</value>
+				</entry>
+				<entry key="GATEWAY_PAYMENT">
+					<value>/ordercentermanager/ordercentermanagerList</value>
+				</entry>
+				<entry key="GATEWAY_REFUND">
+					<value>/ordercentermanager/ordercentermanagerList</value>
+				</entry>
+				<entry key="WITHDRAW">
+					<value>/ordercentermanager/fundout2bankList</value>
+				</entry>
+				<entry key="CHARGE_REFUND">
+					<value>/ordercentermanager/ordercentermanagerList</value>
+				</entry>
+				<entry key="PAY_ACCT">
+					<value>/ordercentermanager/fundoutList</value>
+				</entry>
+				<entry key="BATCH2ACCT">
+					<value>/ordercentermanager/fundoutList</value>
+				</entry>
+				<entry key="BATCH2BANK">
+					<value>/ordercentermanager/fundout2bankList</value>
+				</entry>
+				<entry key="FUNDOUT_REFUND">
+					<value>/ordercentermanager/backfundoutList</value>
+				</entry>
+				<entry key="PAY2BANK">
+					<value>/ordercentermanager/fundout2bankList</value>
+				</entry>
+				<entry key="FUNDOUT_FAIL">
+					<value>/ordercentermanager/backfundoutList</value>
+				</entry>
+			</map>
+		</property>
+		<property name="orderCenterCommonServiceMap" ref="orderCenterCommonServiceMap" />
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="fundoutChannelService" ref="fo_channel_fundoutchannelservice" />
+	</bean>
+
+	<bean id="orderCenterCommonServiceMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<!-- 充值 -->
+				<entry key="ACCT_CHARGE">
+					<ref bean="context_ordercenter_recharge_service" />
+				</entry>
+				<!-- 网关付款 -->
+				<entry key="GATEWAY_PAYMENT">
+					<ref bean="context_ordercenter_paygateway_service" />
+				</entry>
+				<!-- 交易退款 -->
+				<entry key="GATEWAY_REFUND">
+					<ref bean="context_ordercenter_traderefund_service" />
+				</entry>
+				<!-- 提现 -->
+				<entry key="WITHDRAW">
+					<ref bean="context_fundout_orderCenterWithdrawService" />
+				</entry>
+				<!-- 充退 -->
+				<entry key="CHARGE_REFUND">
+					<ref bean="context_ordercenter_refund_service" />
+				</entry>
+				<!-- 单笔付款到账户 -->
+				<entry key="PAY_ACCT">
+					<ref bean="context_ordercenter_pay2account_service" />
+				</entry>
+				<!-- 批量付款到账户 -->
+				<entry key="BATCH2ACCT">
+					<ref bean="context_ordercenter_batchpay2account_service" />
+				</entry>
+				<!--批量到银行 -->
+				<entry key="BATCH2BANK">
+					<ref bean="context_fundout_orderCenterBtachPay2BankService" />
+				</entry>
+				<!-- 出款退款 -->
+				<entry key="FUNDOUT_REFUND">
+					<ref bean="context_fundout_orderCenterBackWithdrawService" />
+				</entry>
+				<entry key="PAY2BANK">
+					<ref bean="context_fundout_ordercenterpay2bankservice" />
+				</entry>
+				<entry key="FUNDOUT_FAIL">
+					<ref bean="context_fundout_ordercenterbackfundoutservice" />
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>
+
+

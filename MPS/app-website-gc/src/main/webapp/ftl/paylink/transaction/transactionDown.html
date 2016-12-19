@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title><!-- iPayLinks支付网关订单收款明细 -->交易查询下载</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="8" style="text-align: middle;">#==============支付链交易查询列表明细==============</td>
+		   </tr>
+		   <tr>
+		       <td colspan="8">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+		   <tr>
+				<th>交易时间</th>						
+				<th>账单邮箱</th>
+				<th>支付链ID</th>
+				<th>网关订单流水号</th>
+				<th>交易币种</th>
+				<th>交易金额</th>
+				<th>交易状态</th>
+				<th>退款状态</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if transactionOrders ? has_content>
+				<#list transactionOrders as order>
+					<tr>
+						<td align="center">
+							<#if order.tradeDate?exists>
+								${order.tradeDate?date}
+							</#if>
+						</td>
+						<td align="center">${order.billEmail?default('')}</td>
+						<td align="center" class="excel_txt">${order.payLinkNo?default('')}</td>
+						<td align="center" class="excel_txt">${order.tradeOrderNo?default('')}</td>
+						<td align="center">${order.currencyCode?default('')}</td>
+						<td class="excel_txt">${(order.tradeAmout*0.001)?string(",##0.000")}</td>
+						<td>
+							<#if order.tradeStatus?has_content>
+								<#if order.tradeStatus == 0>
+									未付款
+								<#elseif order.tradeStatus == 1>
+									支付中
+								<#elseif order.tradeStatus == 3>
+									支付成功
+								<#elseif order.tradeStatus == 4>
+									支付成功
+								<#elseif order.tradeStatus == 5>
+									支付失败
+								</#if>
+							</#if>
+						</td>
+						<td>
+							<#if order.tradeStatus?has_content>
+								<#if order.tradeStatus ==3>
+									<#if (order.refundAmount?default("0")?number gt 0)>
+									         已部分退款
+									<#elseif order.refundAmount?default("0")?number lte 0>
+									         全额退款
+									 <#else>
+                                                                                                                                           否
+									</#if>									
+								</#if>
+							</#if>
+							
+							<#if order.tradeStatus?has_content>
+								<#if order.tradeStatus ==4>
+									<#if (order.refundAmount?default("0")?number lte 0)>
+									   	全额退款
+									<#elseif order.refundAmount?default("0")?number lt order.tradeAmout?default("0")?number>
+									 	已部分退款
+									<#else>
+                                        	  	否
+									 	
+									</#if>									
+								                                                                           
+								</#if>
+							</#if>
+							<#if order.tradeStatus?has_content>
+								<#if order.tradeStatus ==0 || order.tradeStatus ==1 || order.tradeStatus ==5>
+									否
+								</#if>
+							</#if>
+						</td>
+					</tr>
+				</#list>
+			</#if>
+		</tbody>
+	</table>
+</body>
+</html>

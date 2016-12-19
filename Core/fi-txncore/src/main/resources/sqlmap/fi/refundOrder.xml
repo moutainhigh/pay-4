@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundOrder">
+	<typeAlias alias="refundOrder" type="com.pay.txncore.model.RefundOrder"/>
+    <resultMap id="refundOrderResult" class="refundOrder">
+        <result column="REFUND_OBJ_TYPE" property="refundObjType" jdbcType="VARCHAR"/>
+        <result column="REQUEST_SERIAL_ID" property="requestSerialId" jdbcType="VARCHAR"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_BACK_NO" property="depositBackNo" jdbcType="DECIMAL"/>
+        <result column="PAGE_URL" property="pageUrl" jdbcType="VARCHAR"/>
+        <result column="REFUND_VALUE" property="refundValue" jdbcType="DECIMAL"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="PARTNER_REFUND_TIME" property="partnerRefundTime" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_TYPE" property="refundType" jdbcType="VARCHAR"/>
+        <result column="COMPLATE_DATE" property="complateDate" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+        <result column="PAYEE_FEE" property="payeeFee" jdbcType="DECIMAL"/>
+        <result column="PAYER_FEE" property="payerFee" jdbcType="DECIMAL"/>
+        <result column="BG_URL" property="bgUrl" jdbcType="VARCHAR"/>
+        <result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+        <result column="PARTNER_REFUND_ORDER_ID" property="partnerRefundOrderId" jdbcType="VARCHAR"/>
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="SERIAL_NO" property="serialNo" jdbcType="VARCHAR"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="TRANSFER_AMOUNT" property="transferAmount" jdbcType="DECIMAL"/>
+        <result column="REFUND_SOURCE" property="refundSource" jdbcType="VARCHAR"/>
+        <result column="RECONCILIATION_FLG" property="reconciliationFlg" jdbcType="NUMBER"/>
+        <result column="REFUND_ORG_CODE" property="refundOrgCode" jdbcType="VARCHAR"/>
+        <result column="CHANNEL_RETURN_NO" property="channelReturnNo" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap class="refundOrder" id="refundOrderResult2" extends="refundOrderResult">
+      <result column="SETTLEMENT_RATE" property="rate" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <typeAlias alias="refundOrderDetail" type="com.pay.txncore.model.RefundOrderDetail"/>
+	<resultMap id="refundOrderDetailResult" class="refundOrderDetail">
+        <result column="CREATE_DATE" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_ORDER_NO" property="refundOrderID" jdbcType="DECIMAL"/>
+        <result column="ORDER_ID" property="orderID" jdbcType="VARCHAR"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="REFUND_AMOUNT" property="applyAmount" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="REFUND_OBJ_TYPE" property="refundObjType" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_BACK_NO" property="depositBackNo" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <typeAlias alias="refundExceptionMonitor" type="com.pay.txncore.model.RefundExceptionMonitor"/>
+    <resultMap class="refundExceptionMonitor" id="refundExceptionMonitorResult">
+    	<result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL"/>
+    	<result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+    	<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+    	<result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+    	<result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+    	<result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+    	<result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+    	<result column="STATUS" property="status" jdbcType="DECIMAL"/>
+    	<result column="CREATE_DATE" property="createDate" jdbcType="DATE"/>
+    </resultMap>
+    
+    <resultMap class="com.pay.txncore.model.RefundPayLinkOrder" id="refundPayLinkOrderResult">
+    	<result column="create_date" property="createDate" jdbcType="DATE"/>
+    	<result column="bill_email" property="billEmail" jdbcType="VARCHAR"/>
+    	<result column="refund_order_no" property="refundOrderNo" jdbcType="VARCHAR"/>
+    	<result column="trade_order_no" property="tradeOrderNo" jdbcType="VARCHAR"/>
+    	<result column="complete_date" property="completeDate" jdbcType="DATE"/>
+    	<result column="currency_code" property="currencyCode" jdbcType="VARCHAR"/>
+    	<result column="refund_amount" property="refundAmount" jdbcType="DECIMAL"/>
+    	<result column="status" property="status" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <insert id="create" parameterClass="refundOrder">
+    	<selectKey resultClass="java.lang.Long" keyProperty="refundOrderNo">
+    	  SELECT 106 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_REFUND_ORDER_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO REFUND_ORDER(
+			REFUND_OBJ_TYPE,REQUEST_SERIAL_ID,TRADE_ORDER_NO,STATUS,DEPOSIT_BACK_NO,
+			PAGE_URL,REFUND_VALUE,PARTNER_ID,PAYMENT_ORDER_NO,PARTNER_REFUND_TIME,
+			REFUND_TYPE,COMPLATE_DATE,REFUND_ORDER_NO,PAYEE_FEE,PAYER_FEE,BG_URL,
+			REFUND_AMOUNT,PARTNER_REFUND_ORDER_ID,ERROR_CODE,CREATE_DATE,REMARK,UPDATE_DATE,SERIAL_NO,TRANSFER_AMOUNT,
+			REFUND_ORG_CODE
+        )
+        VALUES(
+            #refundObjType#,#requestSerialId#,#tradeOrderNo#,#status#,#depositBackNo#,
+			#pageUrl#,#refundValue#,#partnerId#,#paymentOrderNo#,#partnerRefundTime#,
+			#refundType#,#complateDate#,#refundOrderNo#,#payeeFee#,#payerFee#,#bgUrl#,
+			#refundAmount#,#partnerRefundOrderId#,#errorCode#,#createDate#,#remark#,#updateDate#,#serialNo#,#transferAmount#,
+			#refundOrgCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="refundOrder">
+        UPDATE REFUND_ORDER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="refundObjType">
+            REFUND_OBJ_TYPE = #refundObjType#
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId">
+            REQUEST_SERIAL_ID = #requestSerialId#
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo#
+        </isNotNull>
+        <isNotNull prepend="," property="pageUrl">
+            PAGE_URL = #pageUrl#
+        </isNotNull>
+        <isNotNull prepend="," property="refundValue">
+            REFUND_VALUE = #refundValue#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+            PARTNER_ID = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerRefundTime">
+            PARTNER_REFUND_TIME = #partnerRefundTime#
+        </isNotNull>
+        <isNotNull prepend="," property="refundType">
+            REFUND_TYPE = #refundType#
+        </isNotNull>
+        <isNotNull prepend="," property="complateDate">
+            COMPLATE_DATE = #complateDate#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="payerFee">
+            PAYER_FEE = #payerFee#
+        </isNotNull>
+         <isNotNull prepend="," property="payeeFee">
+            PAYEE_FEE = #payeeFee#
+        </isNotNull>
+        <isNotNull prepend="," property="bgUrl">
+            BG_URL = #bgUrl#
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount">
+            REFUND_AMOUNT = #refundAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerRefundOrderId">
+            PARTNER_REFUND_ORDER_ID = #partnerRefundOrderId#
+        </isNotNull>
+        <isNotNull prepend="," property="errorCode">
+            ERROR_CODE = #errorCode#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="serialNo">
+            SERIAL_NO = #serialNo#
+        </isNotNull>
+        <isNotNull prepend="," property="refundSource">
+            REFUND_SOURCE = #refundSource#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrgCode">
+            REFUND_ORG_CODE = #refundOrgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="channelReturnNo">
+            CHANNEL_RETURN_NO = #channelReturnNo#
+        </isNotNull>   
+        </dynamic>
+        <dynamic prepend="WHERE">
+         REFUND_ORDER_NO = #refundOrderNo#
+        </dynamic>
+    </update>
+    
+	<update id="updateRefundOrderState" parameterClass="java.util.HashMap">
+      	UPDATE REFUND_ORDER 
+      		SET STATUS = #status#,UPDATE_DATE=sysdate
+      	 	<isNotNull prepend="," property="errorCode">
+            	ERROR_CODE = #errorCode#
+       		 </isNotNull>
+       		<isNotNull prepend="," property="depositBackNo">
+            	DEPOSIT_BACK_NO = #depositBackNo#
+       		 </isNotNull>
+      	WHERE REFUND_ORDER_NO = #refundOrderNo#
+	</update>
+    
+     <update id="updateForTradeUNLock" parameterClass="java.util.HashMap">
+		UPDATE TRADE_ORDER 
+			set UPDATE_DATE = sysdate,LOCK_FLG = 0
+		where 
+			TRADE_ORDER_NO = #tradeOrderNo# AND LOCK_FLG = 1
+	</update>
+        
+     <select id="countByPidAndOrderId" resultClass="java.lang.Long" parameterClass="java.util.HashMap">
+		select count(REFUND_ORDER_NO)
+  			FROM refund_order
+ 		where PARTNER_ID = #partnerId#
+ 		  and PARTNER_REFUND_ORDER_ID = #orderId#
+    </select>
+
+    <select id="queryRefundByTradeOrderNo" resultMap="refundOrderDetailResult" parameterClass="java.lang.Long">
+	 select rorder.CREATE_DATE
+           ,rorder.REFUND_ORDER_NO
+           ,rorder.REFUND_OBJ_TYPE
+           ,rorder.REFUND_AMOUNT
+           ,rorder.STATUS
+           ,NVL(rorder.DEPOSIT_BACK_NO,0) AS DEPOSIT_BACK_NO
+           ,'' as ORDER_AMOUNT
+           ,'' as ORDER_ID
+		from  Refund_Order rorder
+		where 	rorder.TRADE_ORDER_NO = #tradeOrderNo#
+		order by CREATE_DATE desc
+    </select>
+    
+    <select id="queryRefundOrderDetail" resultMap="refundOrderDetailResult" parameterClass="java.util.HashMap">
+	    select r_o.CREATE_DATE,
+		       r_o.REFUND_ORDER_NO,
+		       t_o.ORDER_ID,
+		       t_o.ORDER_AMOUNT,
+		       r_o.REFUND_AMOUNT,
+		       r_o.STATUS,
+		       r_o.REFUND_OBJ_TYPE,
+		       r_o.DEPOSIT_BACK_NO
+		from  REFUND_ORDER r_o,
+		      TRADE_ORDER t_o
+		where 	t_o.TRADE_ORDER_NO = r_o.trade_order_no
+				and r_o.PARTNER_ID = #partnerID#
+		<isNotEmpty prepend="AND" property="fromTime">
+			r_o.CREATE_DATE <![CDATA[>=]]> to_date(#fromTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toTime">
+			r_o.CREATE_DATE <![CDATA[<=]]> to_date(#toTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<dynamic>
+			<isEqual prepend="and" property="status" compareValue="1">
+				r_o.STATUS in (2, 4, 5, 6)
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="2">
+				r_o.STATUS = 1
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="3">
+				r_o.STATUS = 3
+			</isEqual>
+		</dynamic>
+		<isNotEmpty prepend="AND" property="orderId">
+			t_o.ORDER_ID = #orderId#
+		</isNotEmpty>
+			order by r_o.CREATE_DATE desc
+    </select>
+    
+    <select id="countRefundOrderDetail" resultClass="java.lang.Integer" parameterClass="java.util.HashMap">
+	    select count(r_o.REFUND_ORDER_NO)
+		from  REFUND_ORDER r_o,
+		      TRADE_ORDER t_o
+		where 	t_o.TRADE_ORDER_NO = r_o.trade_order_no
+				and r_o.PARTNER_ID = #partnerID#
+		<isNotEmpty prepend="AND" property="fromTime">
+			r_o.CREATE_DATE <![CDATA[>=]]> to_date(#fromTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toTime">
+			r_o.CREATE_DATE <![CDATA[<=]]> to_date(#toTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<dynamic>
+			<isEqual prepend="and" property="status" compareValue="1">
+				r_o.STATUS in (2, 4, 5, 6)
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="2">
+				r_o.STATUS = 1
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="3">
+				r_o.STATUS = 3
+			</isEqual>
+		</dynamic>
+		<isNotEmpty prepend="AND" property="orderId">
+			t_o.ORDER_ID = #orderId#
+		</isNotEmpty>
+    </select>
+    
+     <select id="lockedRefundForUpdate" parameterClass="java.lang.Long" resultMap="refundOrderResult">
+		SELECT ro.*,to_.ORDER_ID,to_.CURRENCY_CODE FROM REFUND_ORDER ro,trade_order to_
+        WHERE  REFUND_ORDER_NO = #refundOrderNo# and ro.trade_order_no = to_.trade_order_no
+   		 for update wait 10
+    </select>
+    
+    <select id="queryRefundFee" resultClass="java.util.HashMap"  parameterClass="java.lang.Long">
+		SELECT NVL(SUM(NVL(PAYEE_FEE,0)),0) AS TOTAL_PAYEE_FEE
+		 ,NVL(SUM(NVL(PAYER_FEE, 0)), 0) AS TOTAL_PAYER_FEE
+			FROM REFUND_ORDER
+ 		 WHERE PAYMENT_ORDER_NO = #paymentOrderNo#
+   		AND STATUS IN (1,2,4,5,6)
+    </select>
+    
+      <select id="queryRefundAmount" resultClass="java.lang.Long" parameterClass="java.lang.Long">
+		 SELECT NVL(SUM(NVL(REFUND_AMOUNT,0)),0) AS TOTAL_REFUND_AMOUNT
+			FROM REFUND_ORDER
+ 		 WHERE TRADE_ORDER_NO = #tradeOrderNo#
+   		AND STATUS IN (1,2,4,5,6)
+    </select>
+    
+     <select id="queryPartnerRefundAmount" resultClass="java.lang.Long" parameterClass="java.lang.Long">
+		SELECT
+			NVL(SUM(NVL(REFUND_AMOUNT, 0) - NVL(PAYEE_FEE, 0)),0) AS REFUND_AMOUNT
+  		FROM REFUND_ORDER
+ 			WHERE PAYMENT_ORDER_NO = #paymentOrderNo#
+   		AND STATUS IN (1,2,4,5,6)
+    </select>
+    
+     <select id="findById" resultMap="refundOrderResult"  parameterClass="java.lang.Long">
+        SELECT 
+			ro.*,to_.ORDER_ID,to_.CURRENCY_CODE
+        FROM REFUND_ORDER ro,trade_order to_
+        WHERE  REFUND_ORDER_NO = #refundOrderNo# and ro.trade_order_no = to_.trade_order_no
+    </select>
+    
+    <select id="findByCriteria" resultMap="refundOrderResult2">
+ 	   SELECT 
+        	ro.*,to_.ORDER_ID,to_.CURRENCY_CODE, pso.SETTLEMENT_RATE
+        FROM REFUND_ORDER ro,
+        trade_order to_ ,
+        partner_settlement_order pso
+        where ro.TRADE_ORDER_NO = to_.trade_order_no
+		and
+		ro.TRADE_ORDER_NO = pso.TRADE_ORDER_NO
+        <dynamic>  
+        <isNotNull prepend="AND" property="refundObjType">
+            ro.REFUND_OBJ_TYPE = #refundObjType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="requestSerialId">
+            ro.REQUEST_SERIAL_ID = #requestSerialId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            ro.TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotEmpty prepend="AND" property="status">
+                ro.STATUS = #status# 
+        </isNotEmpty>
+        <isNotNull prepend="AND" property="depositBackNo">
+            ro.DEPOSIT_BACK_NO = #depositBackNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageUrl">
+            ro.PAGE_URL = #pageUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundValue">
+            ro.REFUND_VALUE = #refundValue# 
+        </isNotNull>
+        <isNotEmpty prepend="AND" property="partnerId">
+            ro.PARTNER_ID = #partnerId# 
+        </isNotEmpty>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            ro.PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerRefundTime">
+            ro.PARTNER_REFUND_TIME = #partnerRefundTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundType">
+            ro.REFUND_TYPE = #refundType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="complateDate">
+            ro.COMPLATE_DATE = #complateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            ro.REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            ro.PAYER_FEE = #payerFee# 
+        </isNotNull>
+       <isNotNull prepend="AND" property="payeeFee">
+            ro.PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="bgUrl">
+            ro.BG_URL = #bgUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundAmount">
+            ro.REFUND_AMOUNT = #refundAmount# 
+        </isNotNull>
+        <isNotEmpty prepend="AND" property="partnerRefundOrderId">
+            ro.PARTNER_REFUND_ORDER_ID = #partnerRefundOrderId# 
+        </isNotEmpty>
+        <isNotNull prepend="AND" property="errorCode">
+            ro.ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            ro.CREATE_DATE = #createDate# 
+        </isNotNull>
+          <isNotNull prepend="AND" property="remark">
+            ro.REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            to_.ORDER_ID = #orderId#
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			ro.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	ro.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>     
+		<isNotEmpty prepend="AND" property="compStartTime">
+			ro.COMPLATE_DATE <![CDATA[>=]]> to_date(#compStartTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="compEndTime">
+           	ro.COMPLATE_DATE <![CDATA[<=]]> to_date(#compEndTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>        
+        </dynamic>
+        order by ro.CREATE_DATE desc
+    </select>
+
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+ 		SELECT 
+        	count(1)
+        FROM REFUND_ORDER ro,
+        trade_order to_ ,
+        partner_settlement_order pso
+        where ro.TRADE_ORDER_NO = to_.trade_order_no
+		and
+		ro.TRADE_ORDER_NO = pso.TRADE_ORDER_NO
+        <dynamic>
+        <isNotNull prepend="AND" property="refundObjType">
+            ro.REFUND_OBJ_TYPE = #refundObjType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="requestSerialId">
+            ro.REQUEST_SERIAL_ID = #requestSerialId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            ro.TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            ro.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackNo">
+            ro.DEPOSIT_BACK_NO = #depositBackNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="pageUrl">
+            ro.PAGE_URL = #pageUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundValue">
+            ro.REFUND_VALUE = #refundValue# 
+        </isNotNull>
+        <isNotEmpty prepend="AND" property="partnerId">
+            ro.PARTNER_ID = #partnerId# 
+        </isNotEmpty>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            ro.PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerRefundTime">
+            ro.PARTNER_REFUND_TIME = #partnerRefundTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundType">
+            ro.REFUND_TYPE = #refundType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="complateDate">
+            ro.COMPLATE_DATE = #complateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            ro.REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+          <isNotNull prepend="AND" property="payerFee">
+            ro.PAYER_FEE = #payerFee# 
+        </isNotNull>
+       <isNotNull prepend="AND" property="payeeFee">
+            ro.PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="bgUrl">
+            ro.BG_URL = #bgUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundAmount">
+            ro.REFUND_AMOUNT = #refundAmount# 
+        </isNotNull>
+        <isNotEmpty prepend="AND" property="partnerRefundOrderId">
+            ro.PARTNER_REFUND_ORDER_ID = #partnerRefundOrderId# 
+        </isNotEmpty>
+        <isNotNull prepend="AND" property="errorCode">
+            ro.ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            ro.CREATE_DATE = #createDate# 
+        </isNotNull>
+          <isNotNull prepend="AND" property="remark">
+            ro.REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            to_.ORDER_ID = #orderId#
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			ro.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	ro.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>    
+		<isNotEmpty prepend="AND" property="compStartTime">
+			ro.COMPLATE_DATE <![CDATA[>=]]> to_date(#compStartTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="compEndTime">
+           	ro.COMPLATE_DATE <![CDATA[<=]]> to_date(#compEndTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>      
+        </dynamic>
+    </select>
+    
+    <select id="queryBeRefundOrderDetail" resultMap="refundOrderDetailResult" parameterClass="java.util.HashMap">
+	    select r_o.CREATE_DATE,
+		       r_o.REFUND_ORDER_NO,
+		       t_o.ORDER_ID,
+		       t_o.ORDER_AMOUNT,
+		       r_o.REFUND_AMOUNT,
+		       r_o.REFUND_OBJ_TYPE,
+		       r_o.STATUS,
+		       r_o.DEPOSIT_BACK_NO
+		from  REFUND_ORDER r_o,
+		      TRADE_ORDER t_o,
+              PAYMENT_ORDER po
+		where 	t_o.TRADE_ORDER_NO = r_o.trade_order_no
+		       and  po.trade_order_no =t_o.trade_order_no
+		       and po.payer=#partnerID#
+		       and r_o.STATUS in (2, 4, 5, 6)
+		<isNotEmpty prepend="AND" property="fromTime">
+			r_o.CREATE_DATE <![CDATA[>=]]> to_date(#fromTime#, 'YYYY/MM/DD HH24:MI:SS')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toTime">
+			r_o.CREATE_DATE <![CDATA[<=]]> to_date(#toTime#, 'YYYY/MM/DD HH24:MI:SS')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="fromAmount">
+			r_o.REFUND_AMOUNT <![CDATA[>=]]> #fromAmount#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toAmount">
+			r_o.REFUND_AMOUNT <![CDATA[<=]]> #toAmount#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="orderId">
+			t_o.ORDER_ID = #orderId#
+		</isNotEmpty>
+			order by r_o.CREATE_DATE desc
+    </select>
+    
+    <select id="countBeRefundOrderDetail" resultClass="java.lang.Integer" parameterClass="java.util.HashMap">
+	    select count(r_o.REFUND_ORDER_NO)
+		from  REFUND_ORDER r_o,
+		      TRADE_ORDER t_o,
+              PAYMENT_ORDER po
+		where 	t_o.TRADE_ORDER_NO = r_o.trade_order_no
+		       and  po.trade_order_no =t_o.trade_order_no
+		       and po.payer=#partnerID#
+		       and r_o.STATUS in (2, 4, 5, 6)
+		<isNotEmpty prepend="AND" property="fromTime">
+			r_o.CREATE_DATE <![CDATA[>=]]> to_date(#fromTime#, 'YYYY/MM/DD HH24:MI:SS')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toTime">
+			r_o.CREATE_DATE <![CDATA[<=]]> to_date(#toTime#, 'YYYY/MM/DD HH24:MI:SS')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="fromAmount">
+			r_o.REFUND_AMOUNT <![CDATA[>=]]> #fromAmount#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toAmount">
+			r_o.REFUND_AMOUNT <![CDATA[<=]]> #toAmount#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="orderId">
+			t_o.ORDER_ID = #orderId#
+		</isNotEmpty>
+    </select>
+    
+    <select id="getMaxRefundSerialNo" resultClass="java.lang.Long">
+    	select nvl(max(to_number(SERIAL_NO)),0)+1 from REFUND_ORDER where 1=1
+    </select>
+    
+    <select id="findByTradeOrderNo" resultMap="refundOrderResult">
+    	SELECT 
+			ro.*,to_.ORDER_ID,to_.CURRENCY_CODE
+        FROM REFUND_ORDER ro,trade_order to_ 
+        where ro.TRADE_ORDER_NO = to_.trade_order_no and ro.trade_order_no = #tradeOrderNo#
+    </select>
+    
+    <select id="checkLastRefundOrder" resultClass="java.lang.Integer">
+    	select count(1) cnt from trade_order t,refund_order r 
+		where t.trade_order_no = r.trade_order_no
+		and t.refund_amount = 0
+		and r.status = 1
+		and t.trade_order_no = #tradeOrderNo#
+		and r.refund_order_no <![CDATA[<>]]> #refundOrderNo#
+    </select>
+    
+    <select id="getExceptionMonitor" parameterClass="java.util.Map" resultMap="refundExceptionMonitorResult">
+    	select t.PARTNER_ID,r.REFUND_ORDER_NO,t.ORDER_ID,t.TRADE_ORDER_NO,
+    	c.ORG_CODE,r.REFUND_AMOUNT,c.CURRENCY_CODE,r.STATUS,r.CREATE_DATE
+		from  REFUND_ORDER r left join TRADE_ORDER t on t.TRADE_ORDER_NO = r.trade_order_no
+        left join  CHANNEL_ORDER c on r.PAYMENT_ORDER_NO=c.PAYMENT_ORDER_NO where 1=1
+        <isNotEmpty prepend="and" property="merchantOrderNo">
+        	t.ORDER_ID = #merchantOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="tradeOrderNo">
+        	t.TRADE_ORDER_NO = #tradeOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="refundOrderNo">
+        	r.REFUND_ORDER_NO = #refundOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="partnerId">
+        	t.PARTNER_ID = #partnerId#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="startTime">
+        	r.CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endTime">
+        	r.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+       	and r.STATUS in ($status$) order by r.CREATE_DATE desc
+    </select>
+    
+    <select id="getExceptionMonitor_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+    	select count(*) from REFUND_ORDER r left join TRADE_ORDER t on t.TRADE_ORDER_NO = r.trade_order_no  
+    	left join  CHANNEL_ORDER c on r.PAYMENT_ORDER_NO=c.PAYMENT_ORDER_NO where 1=1
+        <isNotEmpty prepend="and" property="merchantOrderNo">
+        	t.ORDER_ID = #merchantOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="tradeOrderNo">
+        	t.TRADE_ORDER_NO = #tradeOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="refundOrderNo">
+        	r.REFUND_ORDER_NO = #refundOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="partnerId">
+        	t.PARTNER_ID = #partnerId#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="startTime">
+        	r.CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endTime">
+        	r.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd')
+        </isNotEmpty>
+       	and r.STATUS in ($status$)
+    </select>
+    
+    <select id="refundPayLink" parameterClass="java.util.Map" resultMap="refundPayLinkOrderResult">
+    	SELECT ro.create_date,et.bill_email,ro.refund_order_no,to_.trade_order_no,to_.complete_date,c.currency_code,
+    	ro.refund_amount,ro.status FROM REFUND_ORDER ro left join trade_order to_ on ro.TRADE_ORDER_NO = to_.trade_order_no
+    	left join express_tracking et on to_.order_id=et.order_id left join channel_order c on ro.payment_order_no=c.payment_order_no
+    	 where to_.PAYMENT_WAY='P' and et.id=(select max(id) from express_tracking eett where TO_.TRADE_ORDER_NO=eett.TRADE_ORDER_NO)
+    	 <isNotEmpty prepend="and" property="refundOrderNo">
+        	ro.refund_order_no = #refundOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="payLinkNo">
+        	to_.pay_link_no = #payLinkNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="tradeOrderNo">
+        	to_.trade_order_no = #tradeOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="currencyCode">
+        	c.currency_code = #currencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="status">
+        	ro.status in ($status$)
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="billName">
+        	et.bill_name = #billName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="billEmail">
+           et.BILL_EMAIL = #billEmail#
+		</isNotEmpty>
+        <isNotEmpty prepend="and" property="startCreateDate">
+        	ro.create_date  <![CDATA[>=]]> to_date(#startCreateDate#,'yyyy-mm-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endCreateDate">
+        	ro.create_date <![CDATA[<=]]> to_date(#endCreateDate#,'yyyy-mm-dd hh24:mi:ss')+1
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="startCompleteDate">
+        	to_.create_date <![CDATA[>=]]> to_date(#startCompleteDate#,'yyyy-mm-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endCompleteDate">
+        	to_.create_date <![CDATA[<=]]> to_date(#endCompleteDate#,'yyyy-mm-dd hh24:mi:ss')+1
+        </isNotEmpty>
+        <isNotNull prepend="and" property="partnerId">
+            to_.PARTNER_ID = #partnerId#
+        </isNotNull>
+        order by ro.CREATE_DATE desc
+    </select>
+    
+    <select id="refundPayLink_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+    	SELECT count(*) FROM REFUND_ORDER ro left join trade_order to_ on ro.TRADE_ORDER_NO = to_.trade_order_no
+    	left join express_tracking et on to_.order_id=et.order_id left join channel_order c on 
+    	ro.payment_order_no=c.payment_order_no where to_.PAYMENT_WAY='P'
+    	and et.id=(select max(id) from express_tracking eett where TO_.TRADE_ORDER_NO=eett.TRADE_ORDER_NO)
+    	 <isNotEmpty prepend="and" property="refundOrderNo">
+        	ro.refund_order_no = #refundOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="payLinkNo">
+        	to_.pay_link_no = #payLinkNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="tradeOrderNo">
+        	to_.trade_order_no = #tradeOrderNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="currencyCode">
+        	c.currency_code = #currencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="status">
+        	ro.status in  ($status$)
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="billName">
+        	et.bill_name = #billName#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="billEmail">
+           et.BILL_EMAIL = #billEmail#
+		</isNotEmpty>
+        <isNotEmpty prepend="and" property="startCreateDate">
+        	ro.create_date <![CDATA[>=]]> to_date(#startCreateDate#,'yyyy-mm-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endCreateDate">
+        	ro.create_date <![CDATA[<=]]> to_date(#endCreateDate#,'yyyy-mm-dd hh24:mi:ss')+1
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="startCompleteDate">
+        	to_.create_date  <![CDATA[>=]]> to_date(#startCompleteDate#,'yyyy-mm-dd hh24:mi:ss')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="endCompleteDate">
+        	to_.create_date <![CDATA[<=]]> to_date(#endCompleteDate#,'yyyy-mm-dd hh24:mi:ss')+1
+        </isNotEmpty>
+        <isNotNull prepend="and" property="partnerId">
+            to_.PARTNER_ID = #partnerId#
+        </isNotNull>
+    </select>
+</sqlMap>

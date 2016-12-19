@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<!-- 定义映射-->
+	<bean id="Pay2AccountHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/app/pay2account.htm">pay2AcctController</prop>
+				<prop key="/app/pay2acctvalidate.htm">pay2AcctValidateController</prop>
+				<prop key="/corp/pay2account.htm">Epay2AcctController</prop>
+				<prop key="/corp/pay2acctvalidate.htm">Epay2AcctValidateController</prop>
+				<prop key="/corp/pay2acctaudit.htm">Epay2AcctAuditController</prop>
+			</props>
+		</property>
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     </property>
+	</bean>
+	<bean id="pay2AcctController" class="com.pay.controller.fo.pay2acct.Pay2AcctController" parent="abstractPay2AcctController">
+		<property name="indexView">
+			<value>/fo/pay2acct/pay2acct</value>
+		</property>
+		<property name="confirmView">
+			<value>/fo/pay2acct/confirm</value>
+		</property>
+		<property name="successView">
+			<value>/fo/pay2acct/success</value>
+		</property>
+		<property name="failView">
+			<value>/fo/pay2acct/fail</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/pay2acct/error</value>
+		</property>
+		<property name="recentPayee">
+			<value>/fo/pay2acct/recentPayee</value>
+		</property>
+		<property name="commonlyUsedContactsService" ref="fo-order-commonlyUsedContactsService" />
+		<property name="accountingService" ref="fundout-pay2acctPayerFeeAccounting"/>
+	</bean>
+	<bean id="pay2AcctValidateController" class="com.pay.controller.fo.pay2acct.Pay2AcctValidateController" parent="abstractPay2AcctController"/>
+	<bean id="Epay2AcctController" class="com.pay.controller.fo.pay2acct.Pay2AcctController" parent="abstractPay2AcctController">
+		<property name="indexView">
+			<value>/fo/pay2acct/corp/pay2acct</value>
+		</property>
+		<property name="confirmView">
+			<value>/fo/pay2acct/corp/confirm</value>
+		</property>
+		<property name="successView">
+			<value>/fo/pay2acct/corp/success</value>
+		</property>
+		<property name="failView">
+			<value>/fo/pay2acct/corp/fail</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/pay2acct/corp/error</value>
+		</property>
+		<property name="recentPayee">
+			<value>/fo/pay2acct/corp/recentPayee</value>
+		</property>
+		<property name="commonlyUsedContactsService" ref="fo-order-commonlyUsedContactsService" />
+		<property name="accountingService" ref="fundout-pay2acctPayerFeeAccounting"/>
+	</bean>
+	<bean id="Epay2AcctValidateController" class="com.pay.controller.fo.pay2acct.Pay2AcctValidateController" parent="abstractPay2AcctController"/>
+	<bean id="Epay2AcctAuditController" class="com.pay.controller.fo.pay2acct.Pay2AcctAuditController" parent="abstractPay2AcctController">
+		<property name="indexView">
+			<value>/fo/pay2acct/corp/auditindex</value>
+		</property>
+		<property name="detailView">
+			<value>/fo/pay2acct/corp/auditdetail</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/pay2acct/corp/auditerror</value>
+		</property>
+		<property name="successView">
+			<value>/fo/pay2acct/corp/auditsuccess</value>
+		</property>
+	</bean>
+   <bean id="abstractPay2AcctController" class="com.pay.controller.fo.pay2acct.AbstractPay2AcctController" abstract="true">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService"></property>
+		<property name="payToAcctOrderService" ref="fo-order-payToAcctOrderService"></property>
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService"/>
+		<property name="accountQueryFacadeService" ref="fo-maapi-accountQueryFacadeService"></property>
+		<property name="pay2AcctOrderValidateService" ref="fo-order-pay2AcctOrderValidateService"></property>
+		<property name="pay2AcctOrderService" ref="fo-order-pay2AcctOrderService"></property>
+		<property name="memberProductService" ref="acc-memberProductService" />
+		<property name="workorderService" ref="fo-order-audit-workorderService"></property>
+		<property name="singleAuditQueryService" ref="fo-order-audit-singleAuditQueryService"></property>
+	</bean>
+</beans>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelRequest">
+	<typeAlias alias="channelRequest" type="com.pay.channel.model.ChannelRequest"/>
+    <resultMap id="channelRequestMap" class="channelRequest">
+        <result column="CHANNEL_CODE" property="channelCode" jdbcType="VARCHAR"/>
+        <result column="PROTOCOL_TYPE" property="protocolType" jdbcType="DECIMAL"/>
+        <result column="SUBMIT_CHANNEL_ID" property="submitChannelId" jdbcType="DECIMAL"/>
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="RESPONSE_CONTEXT" property="responseContext" jdbcType="VARCHAR"/>
+        <result column="PROTOCOL_NO" property="protocolNo" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+     <insert id="create" parameterClass="channelRequest">
+	<selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT
+			113 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+			||LPAD(SEQ_ORG_REQUEST_NO.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	 	 INSERT INTO CHANNEL_REQUEST(
+			ID,CHANNEL_CODE,PROTOCOL_TYPE,SUBMIT_CHANNEL_ID,RESPONSE_CONTEXT,
+			PROTOCOL_NO,CREATE_DATE
+        )
+        VALUES(
+            #id#,#channelCode#,#protocolType#,#submitChannelId#,#responseContext#,
+			#protocolNo#,sysDate
+		)
+	</insert>
+
+    <update id="update" parameterClass="channelRequest">
+        UPDATE CHANNEL_REQUEST
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="channelCode">
+            CHANNEL_CODE = #channelCode#
+        </isNotNull>
+        <isNotNull prepend="," property="protocolType">
+            PROTOCOL_TYPE = #protocolType#
+        </isNotNull>
+        <isNotNull prepend="," property="submitChannelId">
+            SUBMIT_CHANNEL_ID = #submitChannelId#
+        </isNotNull>
+        <isNotNull prepend="," property="responseContext">
+            RESPONSE_CONTEXT = #responseContext#
+        </isNotNull>
+        <isNotNull prepend="," property="protocolNo">
+            PROTOCOL_NO = #protocolNo#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="and" property="id">
+            ID = #id#
+        </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM CHANNEL_REQUEST where  ID = #id#    
+    </delete>
+
+    <select id="findById" resultMap="channelRequestMap"
+        parameterClass="java.lang.Long">
+        SELECT * FROM CHANNEL_REQUEST
+        WHERE ID=#id#
+    </select>
+    
+   <select id="findByDepositProtocolNo" resultMap="channelRequestMap"
+        parameterClass="java.lang.Long">
+        SELECT * FROM CHANNEL_REQUEST
+        WHERE PROTOCOL_NO=#depositProtocolNo#
+    </select>
+
+</sqlMap>

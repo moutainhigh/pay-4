@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="userhabit">
+    <typeAlias alias="userhabit" type="com.pay.app.model.Userhabit"/>
+    
+    <insert id="create" parameterClass="userhabit">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_userhabit_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	userhabit 
+        	(
+        		id, 	
+        		lastLoginTime, 
+        		bankCode, 
+        		remark, 
+        		payway,
+        		memberCode
+            )
+        values 
+        	(
+        		#id#,	
+        		#lastLoginTime#, 
+        		#bankCode#, 
+        		#remark#, 
+        		#payway#,
+        		#memberCode#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		userhabit
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		userhabit
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="userhabit">
+        update 
+        	userhabit
+        set 
+        		lastLoginTime = #lastLoginTime#, 
+        		bankCode = #bankCode#, 
+        		remark = #remark#, 
+        		payway = #payway#,
+        		memberCode = #memberCode#
+        where 
+        	ID 				= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		userhabit
+    </select>
+    
+    
+    <select id="findById" resultClass="userhabit" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		lastLoginTime, 
+        		bankCode, 
+        		remark, 
+        		payway,
+        		memberCode
+        from 
+        	userhabit
+        where 
+        	ID 	= #id#
+    </select>
+    <select id="read" resultClass="userhabit" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	userhabit
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="userhabit" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		lastLoginTime, 
+        		bankCode, 
+        		remark, 
+        		payway,
+        		memberCode
+        from 
+        	userhabit
+    </select>
+    
+    <select id="findByMemberCode" resultClass="userhabit" parameterClass="java.util.HashMap">
+select * From (
+select 
+        		id, 	
+            lastLoginTime, 
+            bankCode, 
+            remark, 
+            payway,
+            memberCode
+        from 
+            userhabit
+        where 
+            memberCode = #memberCode#
+            and bankCode is not null
+            order by id desc
+) where rownum = 1
+    </select>          
+    
+</sqlMap>

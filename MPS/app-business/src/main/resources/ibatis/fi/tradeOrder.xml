@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tradeorder">
+    <typeAlias alias="tradeOrder" type="com.pay.base.fi.model.TradeOrder"/>
+    <typeAlias alias="transactionYesterdaySum" type="com.pay.base.fi.model.TransactionYesterdaySum"/>
+
+    <resultMap id="tradeOrder" class="com.pay.base.fi.model.TradeOrder">
+        <result column="GOODS_NAME" property="goodsName" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="DEBIT_FLG" property="debitFlg" jdbcType="VARCHAR"/>
+        <result column="PAYER" property="payer" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+ 		<result column="ORDER_STATUS_NAME" property="orderStatusName" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="transactionSomeDaysSum" class="com.pay.base.fi.model.TransactionSomeDaysSum">
+        <result column="TRAN_SUM" property="tranSum" jdbcType="Long"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="VARCHAR"/>
+    </resultMap>
+ 	
+    
+   <select id="findByPayer" resultMap="tradeOrder" parameterClass="map">
+   		select tb.GOODS_NAME,
+           tb.STATUS,
+           tb.TRADE_ORDER_NO,
+           tb.ORDER_AMOUNT,
+           tb.DEBIT_FLG,
+           tb.PAYER,
+           tb.PAYER_TYPE,
+           tb.CREATE_DATE,
+           tb.PAYMENT_ORDER_NO,
+           decode(tb.PAYEE, #payer#, '收', '支') as ORDER_STATUS_NAME
+      from (  select t.GOODS_NAME,
+          po.STATUS,      
+          t.TRADE_ORDER_NO,        
+          t.ORDER_AMOUNT,             
+          tb.DEBIT_FLG,              
+          po.PAYEE,  
+          po.payer,              
+          po.PAYER_TYPE,            
+          po.CREATE_DATE,       
+          po.PAYMENT_ORDER_NO
+              from TRADE_ORDER t, TRADE_BASE tb, PAYMENT_ORDER po     
+             where t.TRADE_BASE_NO = tb.TRADE_BASE_NO          
+            and t.TRADE_ORDER_NO = po.TRADE_ORDER_NO         
+          and (po.PAYER= #payer#  OR po.PAYEE = #payer#)
+      and po.CREATE_DATE >= trunc(sysdate, 'mm')
+            order by po.CREATE_DATE desc
+      )  tb
+        where rownum &lt;= #rownum#
+   </select>
+    
+   <select id="findByPayerCount" resultClass="java.lang.Integer" parameterClass="java.lang.Long">
+	select count(*)
+	from PAYMENT_ORDER po
+	where (po.PAYER = #payer# OR po.PAYEE = #payer#)
+	and po.CREATE_DATE >= trunc(sysdate, 'mm')	
+   </select>
+	<!-- 昨日交易情况查询 -->
+	<select id="queryCountByConditions" parameterClass="java.util.HashMap" resultClass="transactionYesterdaySum">
+		select 
+			count(0) as yesterdaySum,count(case when status in(3,4) then 1 end) as yesterdaySuccess
+		FROM trade_order tro 
+		where 
+			tro.PARTNER_ID = #memberCode# and TO_CHAR(tro.CREATE_DATE, 'yyyy-MM-dd hh24:mm:ss') &gt;= #startTime# 
+			and TO_CHAR(tro.CREATE_DATE, 'yyyy-MM-dd hh24:mm:ss') &lt; #endTime#
+	</select>	
+	<!-- 近30交易量统计 -->
+	<select id="queryCountBySomeDays" parameterClass="map" resultMap="transactionSomeDaysSum">
+		select TO_CHAR(tro.CREATE_DATE, 'MM-dd') as CREATE_DATE,count(*) AS TRAN_SUM from TRADE_ORDER tro
+		where  tro.PARTNER_ID = #memberCode# 
+		and tro.status in(3,4)
+		and TO_CHAR(tro.CREATE_DATE, 'yyyy-MM-dd hh24:mm:ss') &gt;= #startTime# 
+		and TO_CHAR(tro.CREATE_DATE, 'yyyy-MM-dd hh24:mm:ss') &lt;= #endTime#
+		group by TO_CHAR(tro.CREATE_DATE, 'MM-dd') order by TO_CHAR(tro.CREATE_DATE, 'MM-dd')	
+	</select>	
+		
+</sqlMap>

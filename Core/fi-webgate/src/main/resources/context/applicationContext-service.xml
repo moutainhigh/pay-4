@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/hessian/hessian.properties</value>
+				<value>file:/opt/pay/config/gateway/bank/migs/configure.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+	
+	<bean id="gatewayRequestService" class="com.pay.gateway.service.impl.GatewayRequestServiceImpl">
+		<property name="gatewayRequestDAO" ref="gatewayRequestDAO" />
+	</bean>
+
+	<bean id="gatewayResponseService" class="com.pay.gateway.service.impl.GatewayResponseServiceImpl">
+		<property name="gatewayResponseDAO" ref="gatewayResponseDAO" />
+	</bean>
+	
+	<bean id="gateway3DRequestService" class="com.pay.gateway.service.impl.Gateway3DRequestServiceImpl">
+	<property name="reqUrl" value="${gateway.bank.migs3d.reqUrl}" />
+	<property name="vpc_Version" value="${gateway.bank.migs.version}" />
+	</bean>
+</beans> 

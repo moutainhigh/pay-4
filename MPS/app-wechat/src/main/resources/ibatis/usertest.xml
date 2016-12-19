@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="usertest">
+
+	<typeAlias alias="userTest" type="com.pay.wechat.model.UserTest" />
+	<resultMap id="userTest" class="userTest">
+        <result column="ID" property="id" jdbcType="NUMBER"/>
+        <result column="USERNAME" property="username" jdbcType="VARCHAR2"/>
+        <result column="PASSWORD" property="password" jdbcType="VARCHAR2"/>
+    </resultMap>
+	
+	<insert id="insertUserTest" parameterClass="userTest">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_T_USERTEST_ID.nextval AS ID from dual 
+		</selectKey>
+		insert into
+		usertest
+		(
+		ID,
+		USERNAME,
+		PASSWORD
+		)
+		values
+		(
+		#id#,
+		#username#,
+		#password#
+		)
+	</insert>
+	<insert id="insertUserWidthBack" parameterClass="userTest">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_T_USERTEST_ID.nextval AS ID from dual 
+		</selectKey>
+		insert into
+		usertest
+		(
+		ID,
+		USERNAME,
+		PASSWORD
+		)
+		values
+		(
+		#id#,
+		#username#,
+		#password#
+		)
+	</insert>
+	
+	
+	<insert id="inserUserBatch" parameterClass="java.util.List">
+		insert all
+		<iterate conjunction=" "> <!--  open="(" close=")"  --> 
+		  into usertest
+			(ID,USERNAME,PASSWORD) 
+		  values 
+		    ( 
+		       get_seq(),#list[].username#,#list[].password#
+		    )    
+		</iterate> 
+     	select * from dual 
+	</insert>
+	
+</sqlMap>

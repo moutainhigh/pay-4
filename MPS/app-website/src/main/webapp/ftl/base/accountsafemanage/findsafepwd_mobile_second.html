@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${mobile_back_paypwd}${title}</title>
+<meta name="Keywords" content="${mobile_back_paypwd_Keywords}" />
+<meta name="Description" content="${mobile_back_paypwd_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#checkCode").focus();
+	
+	$("#updatepaypasswordformtip").submit(function(){
+		if($("#checkCode").val()==''){
+			$.pay.alert("请输入短信验证码",{close:function(){$("#checkCode").focus();}});
+			return false;
+		}
+	
+	});
+});
+function resend(){
+	var mobile = $("#mobile").val();
+	$.ajax( {
+		type : "POST",
+		url : "${rc.contextPath}/app/resendCheckCodeformobile.htm",
+		data : "mobile=${currentMobile}",
+		success : function(msg) {
+			if (msg == "Y") {
+				$.pay.alert("短信发送成功 ,请及时查收", {
+					h : 160,
+					t : '1',
+					close : function() {
+					}
+				});
+			} else if(msg=="N"){
+				$.pay.alert("短信发送失败 ,请联系客服", {
+					h : 160,
+					t : '2',
+					close : function() {
+					}
+				});
+			} else if(msg.indexOf("login")!=-1){
+				window.location.href="${rc.contextPath}/logout.htm?method=out&mtype=1";
+			}
+		}
+	});
+}
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="app_accountSafe"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box_a">
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg secure_box">
+			<div class="tit_box">
+					<h3 class="title font14"><span class="ico_dot2"></span><strong>通过手机短信找回支付密码</strong></h3>
+			</div>
+<form action="${rc.contextPath}/app/foundpaypwdbymobileverify.htm"
+	method="post" id="updatepaypasswordformtip"
+	name="updatepaypasswordform">
+<div class="feedback warning">
+<h1 class="ie6_png">系统已发送短信至您填写的手机！</h1>
+<p><em>已向您的手机发送了短信验证码，请在下面输入您收到的短信验证码。</em></p>
+<div class="pay_login">
+<ul>
+	<li><label>手机号：</label>*******${mobile}</li>
+	<li><label>请输入短信验证码：</label><input type="text"
+		name="checkCode" id="checkCode" maxlength="6" width="6" size="6" class="inp_normal w80"/>
+		<input type="button" value="" id="seconds" ></input>
+	</li>
+	<li style="padding-left: 0px;">如果您长时间未收到验证码短信，可以通过‘重发校验码短信’重新获取。此服务免费</li>
+	<li class="login_area"><span class="btn_yel botton_yel"> <input
+		type="hidden" name="mobile" value="${mobile?default('')}" id="mobile"/>
+	<button type="submit">确 认</button>
+	</span></li>
+</ul>
+</div>
+</div>
+</div>
+</form>
+<p class="bot"><i></i></p>
+</div>
+
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+<script type="text/javascript">
+if($("#endtime").text() != null)
+{
+    var iTime = 60;
+    var Account;
+    RemainTime();
+}
+function RemainTime(){
+    var iDay,iHour,iMinute,iSecond;
+    var sDay="",sHour="",sMinute="",sSecond="",sTime="";
+    if (iTime > 0){
+        if(iTime==60){
+        	iSecond = parseInt(iTime/1);
+        }else{
+        	iSecond = parseInt(iTime%60);
+        }
+        if (iSecond >= 0){
+            sSecond = iSecond + "秒";
+        }
+        if ((sDay=="")&&(sHour=="")){
+            sTime=sSecond   //"<span style='color:darkorange'>" + sMinute+sSecond + "</font>";
+        }
+        else
+        {
+            sTime=sDay+sHour+sMinute+sSecond;
+        }
+        if(sTime == "1秒"){
+	       	   clearTimeout(Account);
+	           $("#seconds").val("重发校验码短信");
+	           document.getElementById("seconds").disabled='';
+	     }
+	     else{
+	         Account = setTimeout("RemainTime()",1000);
+	         $("#seconds").val("("+sTime+"之后)重新获取短信");
+	         document.getElementById("seconds").disabled='disabled';
+	     }
+         iTime=iTime-1;
+    }
+    $("#endtime").show().html(sTime);
+}
+$(function() {
+	$("#seconds").click(function(){
+	    if($("#seconds").attr("disabled")!="disabled"){
+	 		resend();
+	 		iTime = 60;	 	  	
+	 	   	RemainTime();
+	    }
+	    return false;
+  	});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="taskRecurring">
+
+	<typeAlias alias="recurringQue" type="com.pay.recurring.model.RecurringQue"/>	
+	
+	<insert id="create">
+    insert into 
+     fi.T_Recurring_que(MEMBER_CODE,ORDER_ID,PAYMENT_DATE,CURRENCY_CODE,AMOUNT,ISSUENO,FAILED_RETRY_DAYS,CREATE_DATE,UPD_DATE,STR_CONTENT,EFF_FLAG)
+		SELECT 
+			MEMBER_CODE,	
+			ORDER_ID,
+			NEXT_PAYMENT_DATE,
+			CURRENCY_CODE,
+			AMOUNT,
+			ISSUENO,
+			FAILED_RETRY_DAYS,
+			sysdate,
+			sysdate,
+			STR_CONTENT,
+			EFF_FLAG
+		FROM  fi.T_Recurring r
+		WHERE EFF_FLAG = 'Y'
+		AND NEXT_PAYMENT_DATE &lt; = trunc(sysdate)
+		and PERIOD > 0
+		and not exists (select 1 from fi.T_Recurring_que q where q.MEMBER_CODE= r.MEMBER_CODE and q.ORDER_ID = r.ORDER_ID and  q.eff_flag='Y' and trunc(q.CREATE_DATE)  = r.NEXT_PAYMENT_DATE )
+	</insert>
+	
+	<update id="update">
+	update  fi.T_Recurring
+	set
+		NEXT_PAYMENT_DATE = DECODE(FREQUENCY,'M',ADD_MONTHS(trunc(create_date), (issueno)),'Y',ADD_MONTHS(NEXT_PAYMENT_DATE,12)),
+		ISSUENO = ISSUENO+1
+	where
+		EFF_FLAG = 'Y'
+		AND NEXT_PAYMENT_DATE &lt; = trunc(sysdate)
+	</update>
+	
+	
+	<select id="findRecurringQue" resultClass="recurringQue">
+	select 
+		MEMBER_CODE memberCode,
+		ORDER_ID orderId,
+		PAYMENT_DATE paymentDate,
+		CURRENCY_CODE currencyCode,
+		amount,
+		FAILED_TIMES failedTimes,
+		FAILED_RETRY_DAYS failedRetryDays,
+		issueno,
+		STR_CONTENT strContent
+	from 
+		T_Recurring_que
+		WHERE
+			PAYMENT_DATE &lt;= trunc(sysdate)
+		AND 
+			EFF_FLAG = 'Y'
+	</select>
+
+	<delete id="delRecurringQue" parameterClass="recurringQue">
+	DELETE FROM
+		T_RECURRING_QUE	
+	WHERE	
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#
+	</delete>
+
+	<update id="updateRecurring" parameterClass="recurringQue">
+	UPDATE 
+		T_RECURRING	
+	SET
+		PERIOD = PERIOD-1,
+		LASTEST_PAYMENT_DATE = trunc(sysdate),
+		<!-- NEXT_PAYMENT_DATE = DECODE(FREQUENCY,'M',ADD_MONTHS(NEXT_PAYMENT_DATE,1),'Y',ADD_MONTHS(NEXT_PAYMENT_DATE,12)), -->
+		UPD_DATE = SYSDATE
+	WHERE 
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#		
+	</update>
+	
+	<update id="updateFailedRecurring" parameterClass="recurringQue">
+	UPDATE 
+		T_RECURRING	
+	SET
+	<!-- 	<isNotEmpty prepend="AND" property="nextPaymentDate">
+			NEXT_PAYMENT_DATE = DECODE(FREQUENCY,'M',ADD_MONTHS(NEXT_PAYMENT_DATE,1),'Y',ADD_MONTHS(NEXT_PAYMENT_DATE,12)),
+		</isNotEmpty> -->
+		PERIOD = PERIOD-1,
+		UPD_DATE = SYSDATE
+	WHERE 
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#	
+	</update>
+
+	<update id="updateRecurringQue" parameterClass="recurringQue">
+	UPDATE
+		T_RECURRING_QUE
+	SET 
+		FAILED_TIMES = FAILED_TIMES + 1,
+		UPD_DATE = SYSDATE,
+		EFF_FLAG = 'N'
+	WHERE 
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#
+	and
+		EFF_FLAG = 'Y'
+	</update>
+		
+	<select id="findMaxFailedTimes" parameterClass="recurringQue" resultClass="java.lang.Integer">
+	SELECT 
+		MAX_FAILED_TIMES	
+	FROM 
+		T_RECURRING
+	WHERE 
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#
+	AND 
+		EFF_FLAG = 'Y'
+	</select>
+	
+	<select id="findFailedTimes"  parameterClass="recurringQue" resultClass="java.lang.Integer">
+	SELECT 
+		FAILED_TIMES	
+	FROM 
+		T_RECURRING_QUE
+	WHERE 
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#
+	AND 
+		EFF_FLAG = 'Y'
+	</select>
+	
+	<update id="updateSingleFailedRecurringQue" parameterClass="recurringQue" >
+	UPDATE
+		T_RECURRING_QUE
+	SET 
+		FAILED_TIMES = FAILED_TIMES + 1,
+		UPD_DATE =SYSDATE,
+		PAYMENT_DATE = PAYMENT_DATE+FAILED_RETRY_DAYS
+	WHERE 
+		MEMBER_CODE = #memberCode#
+	AND
+		ORDER_ID = #orderId#
+	</update>
+		
+</sqlMap>

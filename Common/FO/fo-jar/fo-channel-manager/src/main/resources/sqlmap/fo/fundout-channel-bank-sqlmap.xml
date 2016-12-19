@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutbank">
+	
+	<typeAlias alias="fundoutBank" type="com.pay.fundout.channel.model.bank.FundoutBank"/>
+	
+    <resultMap id="fundoutBankMap" class="com.pay.fundout.channel.model.bank.FundoutBank">
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BANK_NAME" property="bankName" jdbcType="VARCHAR"/>
+        <result column="MARK" property="mark" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="BANK_ID" property="bankId" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+	<!-- 新增出款银行 -->
+	<insert id="create" parameterClass="fundoutBank">
+		insert into fundout_bank(BANK_ID,BANK_NAME,
+								OPERATOR,
+								STATUS,
+								MARK,UPDATE_DATE)
+					values(	#bankId:NUMERIC#,
+							#bankName:VARCHAR#,
+							#operator:VARCHAR#,
+							#status:NUMERIC#,
+							#mark:VARCHAR#,
+							sysdate)
+	</insert>
+	
+	<!-- 更新出款银行信息 -->
+	<update id="update" parameterClass="fundoutBank">
+		UPDATE FUNDOUT_BANK
+        <dynamic prepend="SET"> 
+	        <isNotEmpty prepend="," property="status">
+	            STATUS = #status#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="bankName">
+	            BANK_NAME = #bankName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="mark">
+	            MARK = #mark#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="updateDate">
+	            UPDATE_DATE = sysdate
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="operator">
+	            OPERATOR = #operator#
+	        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="bankId">
+            BANK_ID = #bankId# 
+            </isNotNull>
+        </dynamic>
+	</update>
+
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM FUNDOUT_BANK        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="bankId">
+            BANK_ID = #bankId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="fundoutBank">
+        DELETE FROM FUNDOUT_BANK        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="bankName">
+            BANK_NAME = #bankName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="mark">
+            MARK = #mark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="bankId">
+            BANK_ID = #bankId# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="fundoutBankMap"
+        parameterClass="java.lang.String">
+        SELECT 
+			STATUS,BANK_NAME,MARK,CREATE_DATE,UPDATE_DATE,
+			OPERATOR,BANK_ID
+        FROM FUNDOUT_BANK
+        WHERE 
+            BANK_ID = #bankId# 
+    </select>
+    
+    <select id="findBySelective" parameterClass="fundoutBank" resultMap="fundoutBankMap">
+        SELECT 
+			STATUS,BANK_NAME,MARK,CREATE_DATE,UPDATE_DATE,
+			OPERATOR,BANK_ID
+        FROM FUNDOUT_BANK
+        <dynamic prepend="WHERE"> 
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="bankName">
+	            BANK_NAME = #bankName# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="mark">
+	            MARK = #mark# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="operator">
+	            OPERATOR = #operator# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="bankId">
+	            BANK_ID = #bankId# 
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="findBySelective_COUNT"  parameterClass="fundoutBank" resultClass="java.lang.Integer">
+        SELECT count(1) FROM FUNDOUT_BANK
+        <dynamic prepend="WHERE"> 
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="bankName">
+	            BANK_NAME = #bankName# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="mark">
+	            MARK = #mark# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="operator">
+	            OPERATOR = #operator# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="bankId">
+	            BANK_ID = #bankId# 
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

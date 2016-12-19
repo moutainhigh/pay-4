@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="toperator" >
+  <typeAlias alias="operator" type="com.pay.base.model.Operator"/>
+  <resultMap id="operatorMap" class="operator" >
+	  <result column="OPERATOR_ID"  property="operatorId" jdbcType="INT" nullValue="0" />
+	  <result column="IDENTITY" property="identity" jdbcType="VARCHAR"/>  
+	  <result column="MEMBER_CODE" property="memberCode" jdbcType="INT"/>
+	  <result column="NAME" property="name" jdbcType="VARCHAR"/>      
+	  <result column="STATUS" property="status" jdbcType="INT"/>    
+	  <result column="EMAIL" property="email" jdbcType="VARCHAR"/>     
+	  <result column="PHONE" property="phone" jdbcType="VARCHAR"/>     
+	  <result column="MOBILE" property="mobile" jdbcType="VARCHAR"/>    
+	  <result column="LOGIN_PWD" property="password" jdbcType="VARCHAR"/> 
+	  <result column="CERT_CODE" property="certCode" jdbcType="VARCHAR"/> 
+	  <result column="CREATE_DATE" property="createDate" jdbcType="DATETIME"/>
+	  <result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME"/>
+	  <result column="DEPART" property="depart" jdbcType="VARCHAR"/>    
+	  <result column="NOTE" property="note" jdbcType="VARCHAR"/>      
+	  <result column="CERT_TYPE" property="certType" jdbcType="INT" nullValue="0"/>
+  </resultMap>  
+  
+  <resultMap id="operatorLoginInfoMap" extends="operatorMap" class="com.pay.base.model.OperatorExtLoginInfo">
+	  <result column="MENU_ARRAY"  property="menuArray" jdbcType="VARCHAR" />
+	  <result column="LOGIN_NAME"  property="loginName" jdbcType="VARCHAR" />
+	  <result column="LOGIN_DATE"  property="loginDate" jdbcType="DATETIME" />
+	  <result column="LOGIN_IP"  property="loginIP" jdbcType="VARCHAR" />
+  </resultMap> 
+   
+   <resultMap id="operatorMenuInfoMap" extends="operatorMap" class="com.pay.base.model.OperatorExtLoginInfo">
+	  <result column="MENU_ARRAY"  property="menuArray" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <insert id="create" parameterClass="com.pay.base.model.Operator">
+    	<selectKey resultClass="java.lang.Long" keyProperty="operatorId">
+			SELECT seq_operator_operator_id.nextval as operatorId FROM dual 
+		</selectKey>     
+        INSERT INTO t_operator (operator_id,identity,member_code,name,status,email,phone,mobile,login_pwd,
+                                 cert_code,create_date,update_date,depart,note,cert_type,pay_password)
+           VALUES(#operatorId#,#identity#,#memberCode#,#name#,#status#,#email#,#phone#,#mobile#,#password#,
+                      #certCode#,SYSDATE,SYSDATE,#depart#,#note#,#certType#,#payPassWord#)
+    </insert>
+    <update id="updateOperatorLoginPassWord" parameterClass="java.util.Map">
+    	UPDATE t_operator
+		   SET
+		   login_pwd = #password#,
+		   update_date = SYSDATE
+		WHERE operator_id = #operatorId# and member_code=#memberCode#	   
+    </update>
+    <update id="updateOperator"  parameterClass="com.pay.base.model.Operator">
+    	UPDATE t_operator
+		   SET 
+		   		<isNotEmpty property="name">
+		   			name = #name#,
+		   		</isNotEmpty>
+		   	<isNotEmpty property="email">
+		   			 email = #email#,
+		   		</isNotEmpty>
+		      <isNotEmpty property="phone">
+		   			 phone = #phone#,
+		   		</isNotEmpty>
+		   		<isNotEmpty property="mobile">
+		   			 mobile = trim(#mobile#),
+		   		</isNotEmpty>
+		   		<isNotEmpty property="certCode">
+		   			 cert_code = #certCode#,
+		   		</isNotEmpty>
+		   		<isNotEmpty property="certType">
+		   			 cert_type = #certType#,
+		   		</isNotEmpty>
+		   		<isNotEmpty property="depart">
+		   			 depart = #depart#,
+		   		</isNotEmpty>
+		   		<isNotEmpty property="note">
+		   			 note = #note#,
+		   		</isNotEmpty>
+		       update_date = SYSDATE
+		 WHERE operator_id = #operatorId#
+    </update>
+    <update id="updateOperatorStatus"  parameterClass="java.util.Map">
+    	UPDATE t_operator set status = #status#,update_date = SYSDATE WHERE member_code = #memberCode# AND operator_id = #operatorId# 
+    </update>
+    
+    <update id="updateOperatorPayPwd"  parameterClass="java.util.Map">
+    	UPDATE t_operator set pay_password = #payPassWord#,update_date = SYSDATE WHERE member_code = #memberCode# AND operator_id = #operatorId# 
+    </update>
+    
+    <update id="activeOperator" parameterClass="java.util.Map">
+    	UPDATE t_operator
+		   SET
+		   login_pwd = #password#,
+		   identity = #identity#,
+		   status = 1,
+		   update_date = SYSDATE
+		WHERE operator_id = #operatorId#
+    </update>
+    <select id="findByOperatorId"  resultClass="operator" parameterClass="java.lang.Long">
+    	SELECT operator_id as operatorId,
+	       identity as identity,
+	       member_code as memberCode,
+	       name as name,
+	       status as status,
+	       email as email,
+	       phone as phone,
+	       mobile as mobile,
+	       login_pwd as password,
+	       cert_code as certCode,
+	       create_date as createDate,
+	       update_date as updateDate,
+	       depart as depart,
+	       note as note,
+	       cert_type as certType,
+	       pay_password as payPassWord
+  		FROM t_operator
+ 		WHERE operator_id = #operatorId#
+    </select>
+    
+    <select id="findByIdentityAndMemberCode" resultMap="operatorMap" parameterClass="java.util.Map">
+    	SELECT operator_id,
+	       identity,
+	       member_code,
+	       name,
+	       status,
+	       email,
+	       phone,
+	       mobile,
+	       login_pwd,
+	       cert_code,
+	       create_date,
+	       update_date,
+	       depart,
+	       note,
+	       cert_type
+  		FROM t_operator
+ 		WHERE lower(identity) = lower(#identity#) and member_code = #memberCode# and status != 3
+    </select>
+    
+    
+    
+    <select id="findByLogin" resultClass="com.pay.base.model.Operator" parameterClass="java.util.Map">
+      SELECT operator_id as operatorId,
+         identity,
+         member_code as memberCode,
+         name,
+         status,
+         email,
+         phone,
+         mobile,
+         cert_code as certCode,
+         create_date as createDate,
+         update_date as updateDate,
+         depart,
+         note,
+         cert_type as certType
+      FROM t_operator
+    WHERE status != 3 AND identity = #identity# and login_pwd=#loginPwd#  and member_code=#memberCode#
+    </select>
+    
+    
+     <select id="findByIdentity" resultMap="operatorMap" parameterClass="java.lang.String">
+    	SELECT operator_id,
+	       identity,
+	       member_code,
+	       name,
+	       status,
+	       email,
+	       phone,
+	       mobile,
+	       login_pwd,
+	       cert_code,
+	       create_date,
+	       update_date,
+	       depart,
+	       note,
+	       cert_type
+  		FROM t_operator
+ 		WHERE identity = #identity# and status != 3
+    </select>
+    
+    <select id="queryCountByMemberCode" resultClass="java.lang.Integer" parameterClass="java.lang.Long">
+    	SELECT count(operator_id)
+  		FROM t_operator
+ 		WHERE member_code = #memberCode# and status != 3
+    </select>	
+    <!--  分页处理 -->
+    <select id="findByMemberCode" resultMap="operatorMap" parameterClass="java.util.Map">
+    	SELECT operator_id,
+		       identity,
+		       member_code,
+		       name,
+		       status,
+		       email,
+		       phone,
+		       mobile,
+		       login_pwd,
+		       cert_code,
+		       create_date,
+		       update_date,
+		       depart,
+		       note,
+		       cert_type
+		  FROM (SELECT rownum as line, t.*
+		          from (SELECT *
+		                  FROM t_operator
+		                 WHERE member_code = 10000000032
+		                   and status != 3
+		                 order by operator_id desc) t) a
+	 		 <dynamic prepend="WHERE">
+			<isNotEmpty property="endNum">
+				a.line &lt;=#endNum#    
+          	</isNotEmpty>
+			<isNotEmpty property="beginNum">
+				AND a.line &gt;#beginNum# 
+			</isNotEmpty>
+			</dynamic>
+    </select>	
+    
+    <select id="getOperatorNameByMemberCode" resultClass="java.lang.String" parameterClass="java.lang.Long">
+    	SELECT name FROM t_operator WHERE member_code = #memberCode# and status != 3 group by name
+    </select>
+    <!--  分页处理 -->
+    <select id="getOperatorExtLoginCountByMemberCode" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+    SELECT COUNT(o.operator_id)
+        FROM t_operator o, t_operator_menu om, t_user_log ul
+        WHERE o.operator_id = om.operate_id 
+         AND  o.operator_id = ul.operator_id  AND ul.log_type in (1,17,18)
+             <isNotEmpty property="status" prepend="AND"> 
+             	o.status = #status#
+             </isNotEmpty>
+             <isEmpty property="status" prepend="AND">
+             	o.status != 3
+             </isEmpty>
+             <isNotEmpty property="operatorName" prepend="AND"> 
+             	o.name = #operatorName#
+             </isNotEmpty>
+             <isNotEmpty property="startTime" prepend="AND">
+				ul.login_date &gt;= to_date(#startTime#,'YYYY-MM-DD')    
+	       	</isNotEmpty>
+	       	<isNotEmpty property="endTime" prepend="AND">
+				ul.login_date &lt; to_date(#endTime#,'YYYY-MM-DD')+1    
+	       	</isNotEmpty>
+	       	 AND o.member_code = #memberCode#
+    </select>
+    <select id="getOperatorExtLoginInfoByMemberCode" resultMap="operatorLoginInfoMap" parameterClass="java.util.Map">
+    	select operator_id,
+		       identity,
+		       member_code,
+		       name,
+		       status,
+		       email,
+		       phone,
+		       mobile,
+		       login_pwd,
+		       cert_code,
+		       create_date,
+		       update_date,
+		       depart,
+		       note,
+		       cert_type,
+		       menu_array,
+		       login_name,
+		       login_date,
+		       login_ip
+		  from (SELECT rownum as line, t.*
+		          from (SELECT o.*,
+		                       om.menu_array,
+		                       ul.login_name,
+		                       ul.login_date,
+		                       ul.login_ip
+		                  FROM t_operator o, t_operator_menu om, t_user_log ul
+		                  WHERE o.operator_id = om.operate_id
+		                  AND o.operator_id = ul.operator_id AND ul.log_type in (1,17,18)
+		                 <isNotEmpty property="status"  prepend="AND"> 
+		                 	o.status = #status#
+		                 </isNotEmpty>
+		                 <isEmpty property="status"  prepend="AND">
+		                 	o.status != 3
+		                 </isEmpty>
+		                 <isNotEmpty property="operatorName" prepend="AND"> 
+		                 	o.name = #operatorName#
+		                 </isNotEmpty>
+		                 <isNotEmpty property="startTime" prepend="AND">
+							ul.login_date &gt;= to_date(#startTime#,'YYYY-MM-DD')    
+			          	</isNotEmpty>
+			          	<isNotEmpty property="endTime" prepend="AND">
+							ul.login_date &lt; to_date(#endTime#,'YYYY-MM-DD')+1    
+			          	</isNotEmpty>
+		                   AND o.member_code = #memberCode#
+		                 ORDER BY ul.login_date DESC) t) a
+			 <dynamic prepend="WHERE">
+			<isNotEmpty property="endNum">
+				a.line &lt;=#endNum#    
+          	</isNotEmpty>
+			<isNotEmpty property="beginNum">
+				AND a.line &gt;#beginNum# 
+			</isNotEmpty>
+			</dynamic>
+    </select>	
+    
+    <select id="getOperatorPageCountByMemberCode" resultClass="java.lang.Integer" parameterClass="java.lang.Long">
+    	SELECT COUNT(o.operator_id) FROM t_operator o ,t_operator_menu om 
+    	      WHERE o.operator_id = om.operate_id and o.status != 3 and o.member_code = #memberCode#
+    </select>
+    <select id="getOperatorPageInfoByMemberCode" resultMap="operatorMenuInfoMap" parameterClass="java.util.Map">
+    	select operator_id,
+	           identity,
+	           member_code,
+	           name,
+	           status,
+	           email,
+	           phone,
+	           mobile,
+	           login_pwd,
+	           cert_code,
+	           create_date,
+	           update_date,
+	           depart,
+	           note,
+	           cert_type,
+	           menu_array
+	      from (SELECT rownum as line, t.*
+	              from (SELECT o.*,
+	                           om.menu_array
+	                      FROM t_operator o ,t_operator_menu om
+	                     where
+	                     o.operator_id = om.operate_id and 
+	                     o.status != 3 and 
+	                     o.member_code = #memberCode# 
+	                     ORDER BY o.operator_id ASC) t) a
+	       <dynamic prepend="WHERE">
+		      <isNotEmpty property="endNum">
+		        a.line &lt;=#endNum#    
+		            </isNotEmpty>
+		      <isNotEmpty property="beginNum">
+		        AND a.line &gt;#beginNum# 
+		      </isNotEmpty>
+	      </dynamic>  
+    </select>
+    <select id="getAdminOperator" resultMap="operatorMap" parameterClass="java.lang.Long">
+    	SELECT operator_id,
+	       identity,
+	       member_code,
+	       name,
+	       status,
+	       email,
+	       phone,
+	       mobile,
+	       login_pwd,
+	       cert_code,
+	       create_date,
+	       update_date,
+	       depart,
+	       note,
+	       cert_type
+  		FROM t_operator
+ 		WHERE status != 3 and name='admin' and member_code = #memberCode#
+    </select>
+    <!-- 校验操作员的支付密码 -->
+    <select id="checkOperatorPaymentPwd" resultMap="operatorMap" parameterClass="java.util.HashMap">
+    	SELECT operator_id,
+	       identity,
+	       member_code,
+	       name,
+	       status,
+	       email,
+	       phone,
+	       mobile,
+	       login_pwd,
+	       cert_code,
+	       create_date,
+	       update_date,
+	       depart,
+	       note,
+	       cert_type
+  		FROM t_operator
+ 		WHERE member_code = #memberCode# 
+ 			and name = #name# and PAY_PASSWORD=#paymentPwd#
+    </select>
+ </sqlMap>

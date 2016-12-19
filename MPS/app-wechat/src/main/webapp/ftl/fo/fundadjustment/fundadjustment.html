@@ -1,0 +1,296 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>资金调拨_gcpayment支付</title>
+<#include "/common/macro/seoPerson.ftl"> 
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	
+	$("#payerName").blur(function(){
+		this.value = $.trim(this.value);
+		validatePayer(this.value);
+	});
+	
+	$("#payeeName").blur(function(){
+		this.value = $.trim(this.value);
+		validatePayee(this.value);
+	});
+	
+	$("#requestAmount").blur(function(){
+		if($("#payerName").val()==''){
+			$("#payerNameTip").attr("class", "g_tips red");
+			$("#payerNameTip").html("请输入付款方交易商名称");
+			return;
+		}
+		if($("#payeeName").val()==''){
+			$("#payeeNameTip").attr("class", "g_tips red");
+			$("#payeeNameTip").html("请输入收款方交易商名称");
+			return;
+		}
+		this.value = $.trim(this.value);
+		checkAmount(this.value);
+	});
+	
+	$("#remarks").blur(function(){
+		this.value = $.trim(this.value);
+		checkRemark(this.value);
+	});
+	
+});
+function validatePayer(payerName){
+	if(payerName==''){
+		$("#payerNameTip").attr("class", "g_tips red");
+		$("#payerNameTip").html("请输入付款方交易商名称");
+	}else{
+		$("#payerNameTip").attr("class", "g_tips c_999");
+		$("#payerNameTip").html("输入付款方交易商名称");
+	}
+	
+	var url = "${rc.contextPath}/corp/fundadjustmentvalidate.htm";
+	var status = false;
+	
+	var data = {"method":"validatePayerName","payerName":payerName};
+	jQuery.post(url+"?date="+new Date(),data,function(response){
+		if(""!=response){
+			obj = eval("("+response+")");
+			if(obj.message==''){
+				$("#payerNameTip").html('付款方交易商账户可用余额：<span class="blue">'+obj.balanceStr+'</span>元');
+				$("#currentBanlance").val(obj.balance);
+				$("#currentBanlanceStr").val(obj.balanceStr);
+				status = true;
+			}else{
+				$("#payerNameTip").attr("class", "g_tips red");
+				$("#payerNameTip").html(obj.message);
+				$("#currentBanlance").val(0);
+				$("#currentBanlanceStr").val('0.00');
+			}
+			
+			
+		}
+	});
+	return status;
+}
+
+function validatePayee(payeeName){
+	var status = false;
+	if(payeeName==''){
+		$("#payeeNameTip").attr("class", "g_tips red");
+		$("#payeeNameTip").html("请输入收款方交易商名称");
+		return status;
+	}else{
+		$("#payeeNameTip").attr("class", "g_tips c_999");
+		$("#payeeNameTip").html("输入收款方交易商名称");
+	}
+	
+	var payerName = $("#payerName").val();
+	if(payerName == payeeName){
+		$("#payeeNameTip").attr("class", "g_tips red");
+		$("#payeeNameTip").html("收款方与付款方不能是同一个交易商");
+		return status;
+	}
+	
+	var url = "${rc.contextPath}/corp/fundadjustmentvalidate.htm";
+	
+	var data = {"method":"validatePayeeName","payeeName":payeeName};
+	jQuery.post(url+"?date="+new Date(),data,function(response){
+		if(""!=response){
+			$("#payeeNameTip").attr("class", "g_tips red");
+			$("#payeeNameTip").html(response);
+		}else{
+			status = true;
+		}
+	});
+	return status;
+}
+
+function validateForm(){
+	
+	$.ajaxSetup({   
+	    async : false  
+	});
+	
+	var payerName =  $.trim($("#payerName").val());
+	if(!validatePayer(payerName)){
+		$("#payerName").focus();
+		return false;
+	}
+	
+	var payeeName =  $.trim($("#payeeName").val());
+	
+	
+	if(!validatePayee(payeeName)){
+		$("#payeeName").focus();
+		return false;
+	}
+	
+	
+	var requestAmount =  $.trim($("#requestAmount").val());
+	if(!checkAmount(requestAmount)){
+		$("#requestAmount").focus();
+		return false;
+	}
+	
+	var remark =  $.trim($("#remarks").val());
+	if(!checkRemark(remark)){
+		$("#remarks").focus();
+		return false;
+	}
+	
+	$("#sub_button").attr("disabled", true);
+	return true;
+}
+</script>
+</head>
+<script src="<@sp.static/>/js/pay/common/common.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<body>
+<!--导航 str-->
+<@sp.head mCode="bsp_fund_allot"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg ">
+			<div class="tit_box ">
+				<div class="title sub_nav3"><strong class="cur">资金调拨</strong></div>
+			</div>
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写调拨信息</li>
+					<li class="li-2">2.确认调拨信息</li>
+					<li class="li-3">3.提交调拨申请</li>
+				</ol>
+			</div>
+			<div class="content">
+				<form action="${rc.contextPath}/corp/fundadjustment.htm" id="fundAdjustmentForm" method="post" class="mod_form pad_center" onsubmit="return validateForm();">
+					<ul class="form_list">
+						<li>
+							<label class="form_side">付款方名称：</label>
+							<input type="text" name="payerName" id="payerName" class="inp_normal w200" value="${command.payerName?default('')}">
+							<p class="g_tips c_999" id="payerNameTip">输入付款方交易商名称</p>
+							<input type="hidden" id="currentBanlance" name="currentBanlance")>
+							<input type="hidden" id="currentBanlanceStr" name="currentBanlanceStr")>
+							</li>
+						<li>
+							<label class="form_side">收款方名称：</label>
+							<input type="text"  name="payeeName" id="payeeName" class="inp_normal w200" value="${command.payeeName?default('')}">
+							<p class="g_tips c_999" id="payeeNameTip">输入收款方交易商名称</p>
+							</li>
+						<li>
+							<label class="form_side">调拨金额：</label>
+							<input type="text"  name="requestAmount" id="requestAmount" class="inp_normal w100" > 元
+							
+							<p class="g_tips red" id="requestAmountTip"></p>
+						</li>
+						<li>
+							<label class="form_side">备注：</label>
+							<textarea  name="remarks" id="remarks" class="inp_normal w250 v_b" rows="3">${command.remarks?default('')}</textarea>
+							<span class="c_999 ml20">最多50个汉字/100个字母</span>
+							<p class="g_tips red" id="remarksTip"></p>
+						</li>
+						<li class="btn"><span class="btn_yel">
+							<button type="submit" id="sub_button">下一步</button>
+							</span></li>
+					</ul>
+					<input type="hidden" id="method" name="method" value="confirm">
+					<input type="hidden" id="token" name="token" value="${token?default('')}">
+				</form>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+<script type="text/javascript">
+function checkAmount(requestAmount){
+	
+	if (requestAmount == '') {
+		$("#requestAmountTip").html("请输入调拨金额");
+		return false;
+	}
+	if (!isNumber(requestAmount)) {
+		$("#requestAmountTip").html("请输入正确的调拨金额");
+		return false;
+	}
+	var a=/^[0-9]*(\.[0-9]{1,2})?$/;
+	if(!a.test(requestAmount))
+	{	
+		$("#requestAmountTip").html("请输入正确的调拨金额");
+		return false;
+	}
+	if (parseFloat(requestAmount) <=0) {
+		$("#requestAmountTip").html("调拨金额不能小于等于零");
+		return false;
+	}
+	if (requestAmount == '0') {
+		$("#requestAmountTip").html("调拨金额不能等于零");
+		return false;
+	}
+	var paymentAmount =parseFloat(requestAmount)*1000;
+	
+	var currentBanlance = $("#currentBanlance").val();
+	if(currentBanlance<paymentAmount){
+		$("#requestAmountTip").html("调拨金额不能大于当前付款方交易商账户余额 ");
+		return false;
+	}
+
+	$("#requestAmountTip").html("");
+	return true;
+}
+
+function checkRemark(remarks) {
+	var strc = 0;
+	for(var i=0;i<remarks.length;i++){
+      if(remarks.charCodeAt(i)>255){
+    	  strc += 2;
+      }else{
+    	  strc++;
+      }
+	}
+	if('' != remarks && strc>100){
+		$("#remarksTip").html("备注长度超出限制");
+		return false;
+	}
+	$("#remarksTip").html("");
+	return true;
+}
+</script>
+</html>
+<script type="text/javascript">	
+<#if command.payerName?exists>
+	var _PayerName = $("#payerName").val();
+	validatePayer(_PayerName);
+</#if>
+<#if message?exists>
+	var message = '${message}';
+	if(''!=message&&null!=message){
+		$.pay.alert(message, {
+			h : 160,
+			w : 450,
+			t : '3',
+			close:function(){
+			$("#sub_button").attr("disabled", false);
+		}});
+	}
+
+</#if>
+
+</script>

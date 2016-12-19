@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout-batchpayment-api-destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="fundout.batchpayment.api.active" />
+	</bean>
+
+	<bean id="fundout-batchpayment-api-RequestListener"
+		class="com.pay.fundout.mdp.withdraw.api.BatchpaymentApiJmsQueueListener">
+		<property name="merchantNotifyService" ref="fo-api-NotifyBatchPaymentDetail" />
+	</bean>
+
+	<bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout-batchpayment-api-destination" />
+		<property name="messageListener" ref="fundout-batchpayment-api-RequestListener" />
+	</bean>
+
+</beans>

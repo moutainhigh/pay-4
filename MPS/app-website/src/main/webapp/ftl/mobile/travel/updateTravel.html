@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>修改旅游信息</title>
+<#include "/common/macro/seoPerson.ftl"> 
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/moblie.css" rel="stylesheet" type="text/css">
+</head>
+<script src="<@sp.static/>/js/pay/common/common.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<body>
+<!--导航 str-->
+<@sp.head mCode="mpay_add_index"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+		<#if travel?has_content>
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">修改旅游产品</strong></div>
+			</div>
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1 last">1、填写旅游产品信息</li>
+					<li class="li-2 last">2、修改成功</li>
+				</ol>
+			</div>
+			<form class="" method="post" id="form0" name="form0"  action="${rc.contextPath}/corp/updatetravel.htm" enctype="multipart/form-data">
+				<div class="pb_sort"><span class="blod">基本信息</span></div>
+				<ul class="form_list">
+				
+					<li class="users_pro_pic">
+						<label class="form_side"><span>*</span>图片1：</label>
+						<#if travel.pics?has_content>
+							<#if travel.pics[0]?has_content>
+								<img id="imgimg1" src="${travel.pics[0].pictureUrl!''}" />
+								<input type="hidden" name="pic1" value="${travel.pics[0].pictureId}">
+							</#if>
+						</#if>
+						
+							<input type="file" style="display: none;" size="40" id="img1" name="img1">
+						<a href="javascript:void(0)" style="display: none;" class="blues ml10" onclick="cancelUpdate('img1');" id="cancelimg1">取消修改</a>
+						<a href="javascript:void(0)" class="blues ml10" onclick="updateImg('img1');" id="updateimg1">修改</a>
+						
+						<span class="c_999 ml20">您最多可以上传5张图片</span><a href="javascript:void(0)" class="blues ml5" id="continueAdd">继续添加</a>
+						<p class="g_tips red" id="imgTips"></p>
+					</li>
+					
+					<li class="users_pro_pic" id="liImg2">
+						<label class="form_side">图片2：</label>
+							<#if travel.pics[1]?has_content>
+								<img id="imgimg2" src="${travel.pics[1].pictureUrl!''}" />
+								<input type="file" style="display: none;" size="40" id="img2" name="img2">
+								<input type="hidden" name="pic2" value="${travel.pics[1].pictureId}">
+								<a href="javascript:void(0)" style="display: none;" id="deleteimg2" class="reds ml30" onclick="deleteImg('img2','liImg2','');">删除</a>
+								<a href="javascript:void(0)" style="display: none;" class="blues ml10" onclick="cancelUpdate('img2');" id="cancelimg2">取消修改</a>
+								<a href="javascript:void(0)" class="blues ml10" onclick="updateImg('img2');" id="updateimg2">修改</a>
+								<a href="javascript:void(0)" class="reds ml30" id="delimg2" onclick="deleteImg('img2','liImg2','${travel.pics[1].pictureId!""}');">删除</a>
+								
+							<#else>
+								<input type="file" size="40" id="img2" name="img2">
+								<a href="javascript:void(0)" class="reds ml30" onclick="deleteImg('img2','liImg2','');">删除</a>
+							</#if>
+						<p class="g_tips red"></p>
+					</li>
+					
+					<li class="users_pro_pic" id="liImg3">
+						<label class="form_side">图片3：</label>
+							<#if travel.pics[2]?has_content>
+								<img id="imgimg3" src="${travel.pics[2].pictureUrl!''}" />
+								<input type="file" style="display: none;" size="40" id="img3" name="img3">
+								<input type="hidden" name="pic3" value="${travel.pics[2].pictureId}">
+								<a href="javascript:void(0)" style="display: none;" id="deleteimg3" class="reds ml30" onclick="deleteImg('img3','liImg3','');">删除</a>
+								
+								<a href="javascript:void(0)" style="display: none;" class="blues ml10" onclick="cancelUpdate('img3');" id="cancelimg3">取消修改</a>
+								<a href="javascript:void(0)" class="blues ml10" onclick="updateImg('img3');" id="updateimg3">修改</a>
+								<a href="javascript:void(0)" class="reds ml30" id="delimg3" onclick="deleteImg('img3','liImg3','${travel.pics[2].pictureId!""}');">删除</a>
+							<#else>
+								<input type="file" size="40" id="img3" name="img3">
+								<a href="javascript:void(0)" class="reds ml30" onclick="deleteImg('img3','liImg3','');">删除</a>
+							</#if>
+						<p class="g_tips red"></p>
+					</li>
+					
+					<li class="users_pro_pic" id="liImg4">
+						<label class="form_side">图片4：</label>
+							<#if travel.pics[3]?has_content>
+								<img id="imgimg4" src="${travel.pics[3].pictureUrl!''}" />
+								<input type="file" style="display: none;" size="40" id="img4" name="img4">
+								<input type="hidden" name="pic4" value="${travel.pics[3].pictureId}">
+								<a href="javascript:void(0)" style="display: none;" id="deleteimg4" class="reds ml30" onclick="deleteImg('img4','liImg4','');">删除</a>
+								
+								<a href="javascript:void(0)" style="display: none;" class="blues ml10" onclick="cancelUpdate('img4');" id="cancelimg4">取消修改</a>
+								<a href="javascript:void(0)" class="blues ml10" onclick="updateImg('img4');" id="updateimg4">修改</a>
+								<a href="javascript:void(0)" class="reds ml30" id="delimg4" onclick="deleteImg('img4','liImg4','${travel.pics[3].pictureId!""}');">删除</a>
+							<#else>
+								<input type="file" size="40" id="img4" name="img4">
+								<a href="javascript:void(0)" class="reds ml30" onclick="deleteImg('img4','liImg4','');">删除</a>
+							</#if>
+						<p class="g_tips red"></p>
+					</li>
+					
+					<li class="users_pro_pic"  id="liImg5">
+						<label class="form_side">图片5：</label>
+							<#if travel.pics[4]?has_content>
+								<img id="imgimg5" src="${travel.pics[4].pictureUrl!''}" />
+								<input type="file" style="display: none;" size="40" id="img5" name="img5">
+								<input type="hidden" name="pic5" value="${travel.pics[4].pictureId}">
+								<a href="javascript:void(0)" style="display: none;" id="deleteimg5" class="reds ml30" onclick="deleteImg('img5','liImg5','');">删除</a>
+								
+								<a href="javascript:void(0)" style="display: none;" class="blues ml10" onclick="cancelUpdate('img5');" id="cancelimg5">取消修改</a>
+								<a href="javascript:void(0)" class="blues ml10" onclick="updateImg('img5');" id="updateimg5">修改</a>
+								<a href="javascript:void(0)" class="reds ml30" id="delimg5" onclick="deleteImg('img5','liImg5','${travel.pics[4].pictureId!""}');">删除</a>
+							<#else>
+								<input type="file" size="40" id="img5" name="img5">
+								<a href="javascript:void(0)" class="reds ml30" onclick="deleteImg('img5','liImg5','');">删除</a>
+							</#if>
+						<p class="g_tips red"></p>
+					</li>
+					
+					<li>
+						<label class="form_side"><span>*</span>景点名称：</label>
+						<input type="text" class="inp_normal w300" name="productName" id="productName" value="${travel.productName?default('')}" maxlength="40">
+						<p class="g_tips red" id="productNameTip"></p>
+					</li>
+						<!-- <li>
+						<label class="form_side"><span>*</span>景点提供商名称：</label>
+						<input type="text" class="inp_normal w300"  id="serviceProvider"  name="serviceProvider"  value="${travel.serviceProvider?default('')}"  maxlength="42">
+						<p class="g_tips red" id="serviceProviderTip"></p>
+					</li> -->
+					<li>
+						<label class="form_side"><span>*</span>价格：</label>
+						<input type="text" class="inp_normal w100" name="price" id="price" value="${((travel.price!0)/1000)?string("##0.00")}" maxlength="10">
+						<p class="g_tips red" id="priceTip"></p>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>所在地区：</label>
+						<input type="text" class="inp_normal w300" name="city" id="city" value="${travel.city!('')}" maxlength="10" />
+						<p class="g_tips red" id="cityTip"></p>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>景点地址：</label>
+						<input type="text" class="inp_normal w300" name="address" id="address" value="${travel.address?default('')}"  maxlength="80"/>
+						<span class="btn_yel"><button id="obt_xy" name="obt_xy" tabindex="4" type="button" onclick="getXYFun()" >从地图搜索地址</button></span>
+						<p class="g_tips red" id="addressTip"></p>
+					</li>
+					
+					<li>
+						<label class="form_side"><span>*</span>联系电话：</label>
+						<input type="text" class="inp_normal w300" name="telphone" id="telphone" value="${travel.telphone?default('')}" maxlength="20" />
+						<p class="g_tips red" id="telphoneTip"></p>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>行程安排：</label>
+						<textarea rows="10"  class="inp_normal w300  v_t" name="travelPlan" id="travelPlan" >${travel.travelPlan!''}</textarea>
+						<p class="g_tips red" id="travelPlanTip"></p>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>产品特色：</label>
+						<textarea rows="3" class="inp_normal w300  v_t" name="feature" id="feature" maxlength="300">${travel.feature!''}</textarea>
+						<p class="g_tips red" id="featureTip"></p>
+					</li>
+				</ul>
+				<div class="pb_sort pointer"><span class="blod" id="riSupplement">相关信息补充 <i>▼</i></span> <span class="c_999 ml20" id="spanDetails">丰富的信息有助于提高订单转换率</span></div>
+				<ul class="form_list" id="riSupplementUi" style="display: none;">
+					<li>
+						<label class="form_side">预定须知：</label>
+						<textarea rows="3" class="inp_normal w300  v_t" id="orderNote" name="orderNote" maxlength="300">${travel.orderNote!''}</textarea>
+						<p class="g_tips red" id="orderNoteTip" ></p>
+					</li>
+					<li>
+						<label class="form_side">费用己包含：</label>
+						<textarea rows="3" class="inp_normal w300  v_t"  id="feeInclude" name="feeInclude" maxlength="150">${travel.feeInclude!''}</textarea>
+						<p class="g_tips red" id="feeIncludeTip"></p>
+					</li>
+					<li>
+						<label class="form_side">费用不包含：</label>
+						<textarea rows="3" class="inp_normal w300  v_t" name="feeNoInclude" id="feeNoInclude" maxlength="150">${travel.feeNoInclude!''}</textarea>
+						<p class="g_tips red"  id="feeNoIncludeTip"></p>
+					</li>
+					<li>
+						<label class="form_side">温馨提示：</label>
+						<textarea rows="3" class="inp_normal w300  v_t"  id="friendNote" name="friendNote" maxlength="150">${travel.friendNote!''}</textarea>
+						<p class="g_tips red" id="friendNoteTip"></p>
+					</li>
+					<li>
+						<label class="form_side">优惠信息：</label>
+						<textarea rows="3" class="inp_normal w300  v_t" name="promote" id="promote" maxlength="300"> ${travel.promote!''}</textarea>
+						<p class="g_tips red" id="promoteTip"></p>
+					</li>
+					<li>
+						<label class="form_side">地理位置信息：</label>
+						<textarea rows="3" class="inp_normal w300  v_t" id="postionInfo" name="postionInfo"  maxlength="100">${travel.postionInfo!''}</textarea>
+						<span class="btn_yel"><button id="obt_xy" name="obt_xy" tabindex="4" type="button" onclick="getXYFun()" >从地图中得到坐标</button></span>
+						<p class="g_tips red" id="postionInfoTip"></p>
+					</li>
+				</ul>
+				<ul class="form_list mb20">
+					<li class="btn"><span class="btn_yel">
+						<button id="submitButton" name="submitButton" tabindex="4" type="submit" >确认修改</button>
+						</span> <a href="${rc.contextPath}/corp/travelquery.htm" class="blues ml30" >返 回</a></li>
+				</ul>
+				<input type="hidden" name="travelProductId" value="${travel.travelProductId}">
+				<input type="hidden" name="token" value="${token!''}" />
+			</form>
+			<#else>
+				<p align="center">
+					<strong class="cur">不存在该产品信息</strong>
+					<a href="${rc.contextPath}/corp/travelquery.htm" class="blues ml30" >返 回</a>
+				</p>
+			</#if>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+<script type="text/javascript">
+	$(function(){
+		$(function(){
+			$("#riSupplement,#spanDetails").click(function(){
+				$("#riSupplementUi").slideToggle(1000);
+			});
+			
+		
+		$("#continueAdd").click(function(){
+			
+			if($("#liImg2").is(":hidden")){
+				$("#liImg2").show();
+				return;
+			}
+			if($("#liImg3").is(":hidden")){
+				$("#liImg3").show();
+				return;
+			}
+			if($("#liImg4").is(":hidden")){
+				$("#liImg4").show();
+				return;
+			}
+			if($("#liImg5").is(":hidden")){
+				$("#liImg5").show();
+				return;
+			}
+		});
+		
+		if($("#price").val() == 0){
+			$("#price").val("");
+		}
+		
+		
+		
+		<#if errorMsg?has_content>
+		$.pay.alert("${errorMsg}");
+	</#if>
+		
+		$.formValidator.initConfig({formid:"form0",onerror:function(msg,obj){}});
+		$("#price").formValidator({tipid:"priceTip",empty:false,onshow:"请填写景点价格",onfocus:"请填写景点价格，单位是元，可保留两位小数",oncorrect:" "})
+		.inputValidator({min:0.01,max:99999999.99,type:"value",onerrormin:"你输入的值必须大于等于0.01",onerrormax:"你输入的值必须小于等于99999999.99"})
+		.regexValidator({regexp:"amount",datatype:"enum",onerror:"你输入的价格格式不正确，输入格式参考如：12.34、单位是元，精确到分"});
+
+	$("#productName").formValidator({tipid:"productNameTip",empty:false,onshow:"请输入景点名称",onfocus:"请输入景点名称，最多40个汉字",oncorrect:" "})
+		.inputValidator({min:1,onerror:"请输入景点名称，不能为空，最多40个汉字"});
+
+	$("#city").formValidator({tipid:"cityTip",empty:false,onshow:"请输入景点所在的地区，如：上海",onfocus:"请输入景点所在的地区，如：上海",oncorrect:" "})
+	.inputValidator({min:1,onerror:"请输入景点所在的地区，不能为空，如：上海"});
+	
+	$("#address").formValidator({tipid:"addressTip",empty:false,onshow:"请输入景点详细地址，方便用户查询",onfocus:"请输入景点详细地址，方便用户查询",oncorrect:" "})
+	.inputValidator({min:1,max:160,onerror:"请输入景点详细地址，不能为空！"});
+		
+		$("#telphone").formValidator({tipid:"telphoneTip",empty:false,onshow:"请输入的手机或电话",onfocus:"格式例如：02188888888或11位手机号码",oncorrect:" "})
+		.inputValidator({min:1,onerror:"联系方式不能为空"})
+			.regexValidator({regexp:"^[\\+\\-\\d\\*\\#]+$",onerror:"手机或电话只能由*、#、+、-及数字组成，格式如021-88888888或13900000000"});
+//.regexValidator({regexp:"^((\\d{11})|^((\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1})|(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1}))$)$",onerror:"手机或电话格式不正确"});
+
+		
+		$("#travelPlan").formValidator({tipid:"travelPlanTip",empty:false,onshow:"请输入行程安排，不超过400个汉字或800个字母",onfocus:"请输入行程安排，不超过不超过400个汉字或800个字母",oncorrect:" "})
+		.inputValidator({min:1,max:400,onerror:"请输入行程安排，不超过不超过400个汉字或800个字母"});
+		$("#feature").formValidator({tipid:"featureTip",empty:false,onshow:"请简要描述您的产品特色，不超过300个汉字",onfocus:"请简要描述您的产品特色，不超过300个汉字",oncorrect:" "})
+		.inputValidator({min:1,max:600,onerror:"不能为空，也不超过300个汉字或600个字母。"});			
+		
+		/////
+		
+		$("#orderNote").formValidator({tipid:"orderNoteTip",empty:true,onshow:"请输入预定需要注意的事项，没有可不填，不超过300个汉字",onfocus:"请输入预定需要注意的事项，没有可不填，不超过300个汉字",oncorrect:" "})
+		.inputValidator({max:600,onerror:"不能超过300个汉字或600个字母。"});		
+		$("#feeInclude").formValidator({tipid:"feeIncludeTip",onshow:"请输入请说明费用包含哪些服务",onfocus:"请输入请说明费用包含哪些服务",oncorrect:" "})
+		.inputValidator({max:300,onerror:"不能超过150个汉字或300个字母。"});		
+		$("#feeNoInclude").formValidator({tipid:"feeNoIncludeTip",onshow:"请输入请说明费用不包含哪些服务",onfocus:"请输入请说明费用不包含哪些服务",oncorrect:" "})
+		.inputValidator({max:300,onerror:"请不要超过150个汉字或300个字母"});
+		$("#friendNote").formValidator({tipid:"friendNoteTip",onshow:"请输入如当地的一些常见事情等等小提示",onfocus:"请输入如当地的一些常见事情等等小提示",oncorrect:" "})
+		.inputValidator({max:300,onerror:"请不要超过150个汉字或300个字母"});
+		
+	
+
+		$("#postionInfo").formValidator(
+				{tipid:"postionInfoTip",empty:false,onshow:"地理位置坐标用半角的逗号“,”经度,纬度,放大级别，分开如：11.222212,23.212131,13",
+					onfocus:"地理位置坐标用半角的逗号“,”经度,纬度,放大级别，参考：11.222212,23.212131,13",oncorrect:" "})
+					.regexValidator({regexp:"^(\\d{1,})(\\.\\d{1,})?\\,(\\d{1,})(\\.\\d{1,})?(\\,\\d{1,2})$",onerror:"你输入的地理位置格式不正确，格式：经度,纬度,放大级别，参考：11.222212,23.212131,13"});
+					
+		
+		
+		$("#promote").formValidator({tipid:"promoteTip",empty:false,onshow:"请输入如当地的一些常见事情等等小提示",onfocus:"请输入如当地的一些常见事情等等小提示",oncorrect:" "})
+		.inputValidator({max:600,onerror:"不能超过300个汉字或600个字母。"});	
+		
+	});
+	
+		
+	});
+	
+	function updateImg(id){
+		$("#img"+id).hide();
+		$("#"+id).show();
+		$("#cancel"+id).show();
+		$("#update"+id).hide();
+		
+	}
+	
+	function cancelUpdate(id){
+		$("#img"+id).show();
+		$("#"+id).hide();
+		var file = $("#"+id);
+		file.after(file.clone().val(""));  
+		file.remove(); 
+		
+		$("#cancel"+id).hide();
+		$("#update"+id).show();
+	}
+	
+	function deleteImg(img,li,pictureId){
+		if('' != pictureId){
+			var pars = "picId=" + pictureId;
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/corp/deleteImg.htm",
+				data: pars,
+				success: function(result) {
+					if(1 == result){
+						$("#img"+img).hide();
+						$("#"+img).show();
+						$("#delete"+img).show();
+						$("#update"+img).hide();
+						$("#del"+img).hide();
+					}else{
+						alert("删除图片提交失败");
+					}
+				}
+			});	
+		}else{
+			$("#"+li).hide();
+			var file = $("#"+img);
+			file.after(file.clone().val(""));  
+			file.remove(); 
+		}	
+	}
+	
+	
+	 ///取得地图某个点的坐标
+	function getXYFun(){
+		var params = "point="+$("#postionInfo").val()+"&city="+
+		$("#city").val()+"&address="+$("#address").val()+"&name="+$("#productName").val()+"&pointId=postionInfo&addressId=address"
+		
+		win1 = window.open ('<@sp.static/>/html/obtain_xy.html?'+params,'mapWindow','height=600,width=700,top=100,left=100,toolbar=no,menubar=no,scrollbars=yes, resizable=no,location=no, status=no');
+		win1.focus();
+	}
+</script>
+</html>

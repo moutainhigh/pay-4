@@ -1,0 +1,680 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付送礼金</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript"><!--	
+
+	var payWin;
+	var cityWin;
+	var cityDiv;
+	var contextPath="${rc.contextPath}";
+	var isRealname = 0;
+	var rentedErrorMsg = "";
+	
+	$(document).ready(function() {
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+		})
+		
+		
+		if($("#rented").val() != "" && $("#rented").val() * 1 >= 1){
+			$("#sms").attr("checked", true);
+			$("#mid").show();
+			}else{
+				}
+		$.ajax( {
+			type : "GET",
+			url : contextPath + "/realnameverify.htm",
+			dataType : "html",
+			success : function(msg) {
+				if (msg == "YES") {
+					isRealname = 1;
+				}
+			}
+		});
+	});
+
+	function refushCode() {
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+		document.getElementById("code").src = src;
+	}	
+	
+	$(function() {
+		$.formValidator.initConfig( {
+			formid : "presentBankForm",
+			onerror : function(msg, obj) {
+				$.pay.alert(msg);
+			}
+		});		
+		$("#refush").click(
+				function() {
+					var d = new Date();
+					var src = contextPath + "/validatecode/validatecode.htm?date="
+							+ d.getTime();
+					$("#code").attr("src", src);
+				});
+		
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : "请输入验证码",
+			onfocus : "",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "验证码不能为空"
+		});
+	
+		$("#bankAccountName").formValidator( {
+			tipid : "accountNameTip",
+			onshow : "请输入银行卡开户人姓名",
+			onfocus : "请填写真实姓名",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "银行卡开户人姓名不能为空"
+		});
+		$("#bankName").inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "开户行名称不能为空"
+		});
+		$("#cardNo").formValidator( {
+			tipid : "cardNoTip",
+			onshow : "请输入15-19位银行卡号",
+			onfocus : "请输入15-19位银行卡号",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 15,
+			max : 19,
+			empty : false,
+			onerror : "请输入15-19位银行卡号"
+		}).regexValidator( {
+			regexp : "num",
+			datatype : "enum",
+			onerror : "请输入数字"
+		});		
+		$("#cardNo1").formValidator( {
+			tipid : "cardNoTip1",
+			onshow : "请再次确认输入的银行卡号",
+			onfocus : "两次填写的银行卡号必须一致",
+			oncorrect : "您两次输入的卡号完全一致"
+		}).inputValidator( {
+			min : 15,
+			max : 19,
+			empty : false,
+			onerror : "请输入15-19位银行卡号"
+		}).compareValidator( {
+			desid : "cardNo",
+			operateor : "=",
+			onerror : "您两次输入的银行卡号不一致,请仔细检查"
+		}).regexValidator( {
+			regexp : "num",
+			datatype : "enum",
+			onerror : "请输入数字"
+		});
+		
+		$("#cardNo1").focus(function() {
+			$("#cardNoTip").text("");
+		});
+		
+		$("#cardNo").blur(function() {
+			var cardNo = $("#cardNo").val();
+			if (cardNo != '') {
+				$.ajax( {
+					type : "post",
+					url : contextPath + "/validate.htm?payeeAccountNo=" + cardNo,
+					datatype : "json",
+					success : function(data) {
+						if (null != data && data != '') {
+							
+							$("#cardNoTip") .show() .html("<font color=red>请确认您输入的银行卡号,如果正确无误请继续！</font>");
+						}
+					}
+				});
+			}
+		});
+		
+		$("#sms").click(function() {
+			if ($("#sms").attr("checked") == true) {
+				$("#mid").show();
+			} else {
+				$("#mid").hide();
+				$("#mobile").val("");
+				$("#mobileTip").html("");
+			}
+		});
+	
+		$("#acctcity").click(function() {
+			$("#add_provinces").show(3);
+		});
+		
+		$("#rented").formValidator( {
+			tipid : "rentedTip",
+			onshow : "",
+			onfocus : "",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "礼金金额不能为空"
+		}).regexValidator( {
+			regexp : "num",
+			datatype : "enum",
+			onerror : "礼金金额不正确"
+		}).ajaxValidator( {
+			type : "POST",
+			url : contextPath
+					+ "/charge.htm?billType=4&acctType=1&catalogType=1&isRealname="
+					+ isRealname,
+			dataType : "json",
+			success : function(msg) {
+				if (parseFloat(eval("(" + msg + ")").amount) >= 0) {
+					$("#chargeDiv").show();
+					$("#rentedTip").show();
+					$("#chargeSpan").html(
+							eval("(" + msg + ")").amount + "元");
+					//$("#charge").val(msg);
+					$("#charge").val(eval("(" + msg + ")").amount);
+					if ($("#rented").val() * 1 > 0) {
+						$("#sms").attr("disabled", "");
+					} else {
+						$("#sms").attr("checked", "");
+						$("#mid").hide();
+						$("#mobile").val("");
+						$("#sms").attr("disabled", "disabled");
+					}
+					return true;
+				} else {
+					rentedErrorMsg = eval("(" + msg + ")").errMsg;
+					$("#chargeDiv").hide();
+					$("#rentedTip").show();
+					$("#charge").val("");
+					return false;
+				}
+			},
+			error : function() {
+				alert("服务器没有返回数据，可能服务器忙，请重试");
+			},
+			onerror : "礼金金额不正确",
+			onerrorResult : function() {
+				return rentedErrorMsg;
+			},
+			onwait : "正在验证金额合法性，请稍候..."
+		});
+				
+		$("#remark").formValidator({
+			tipid : "remarkTip",
+			onshow : "",
+			onfocus : "",
+			oncorrect : ""			
+			}).inputValidator( {		
+			min : 1,
+			max : 1000,
+			empty : false,
+			onerror : "寄语不能为空,不能超过500个中文字"
+		});
+			
+		$("#payerSign").formValidator({
+			tipid : "payerSignTip",
+			onshow : "请输入您的署名",
+			onfocus : "请输入您的署名",
+			oncorrect : ""
+			}).inputValidator( {
+				min : 1,
+				empty : false,
+				onerror : "署名不能为空"	
+			});
+		$("#rented").blur();
+		
+	//	$("#rented").blur(function() {
+		//	var charge = $("#rented").val();
+		//	if(charge!= "" && !isNaN(charge*1)){			
+		//	    if(charge.indexOf('.') == -1) {
+		//	    	$('#rented').val(charge*1);
+		//		}else {				
+		//			$('#rented').val(parseFloat(charge).toFixed(2));
+		//	    } 
+			   // if((charge*1) < 1){
+			   // 	$("#mobile").val("");
+			   // 	$("#sms").attr("disabled",true );
+				//    }else{
+				//    	$("#sms").attr("disabled",false );
+				//	}
+		//	}else{
+		//		$("#sms").attr("disabled",true );
+		//		}	
+		//});
+
+		$("#rented").blur(function() {
+			if (!this.value.indexOf(".") == 0) {
+				if (parseFloat(this.value)) {
+					if (!isNaN(this.value)) {
+						this.value = parseFloat(this.value).toFixed(2);
+					}
+				}
+			}
+			if(this.value==''){
+					$("#sms").attr("disabled", "disabled");
+					$("#sms").attr("checked", "");
+					$("#chargeDiv").hide();
+					$("#charge").val("");
+					$("#mid").hide();
+			}
+		});
+		$("#bankName").blur(function(){ 
+            var selBankName=$('#bankCode option:selected').text();
+            var payeeBankName=$("#bankName").val();
+            if($("#bankCode")!=0 && payeeBankName != ""){
+	            if(payeeBankName.indexOf(selBankName) == -1){
+	            	$("#bankNameTip").show().html("<font color=red>开户行名称不正确,如果您无法确认,请致电银行客服</font>");
+	            	alert($("#bankNameTip").text()); 
+	            	$("#bankName").focus();   
+	            	return false;
+	            }else{
+	            	$("#bankNameTip").text(""); 
+	            }
+            }
+        });
+		$("#prvinceClose").click(function() {
+			$("#add_provinces").hide();
+		});
+	
+		$("#btnOk").click(function() {
+			if ($("#sms").attr("checked") == true) {
+				var mobile = $("#mobile").val();
+				var regxM=/^(13|15|18)[0-9]{9}$/;
+				if (mobile == '') {
+					$("#mobileTip").html("<font color=red>请填写收礼人手机号码才能短信通知</font>");
+					$("#mobileTip").show();
+					return false;
+				}else{
+					if(!regxM.test(mobile)){
+						$("#mobileTip").html("<font color=red>手机号码格式不正确</font>");
+						$("#mobileTip").show();
+						$("#mobile").focus();
+						return false;
+					}
+				}
+			}
+			
+			if($("#bankCode").val()=="" || $("#bankCode").val()==0){
+					//alert($("#bankCode").val());
+					$("#bankCodeTip").html("<font color=red>请选择开户行</font>");
+					$("#bankCodeTip").show();
+					return false;
+				}
+			$("#presentBankForm").attr("action","${rc.contextPath}/presentMoneyBank.htm?method=presentMoneyBankConfirm");
+			$("#presentBankForm").submit();
+		});
+	
+		$("#recent").click(function() {
+			$("#deafSendWord").removeClass("on");
+			$("#recent").addClass("on");
+			$.ajax( {
+				type : "POST",
+				url : "${rc.contextPath}/sendword.htm?method=getRecentSendWord",
+				dataType : "html",
+				success : function(msg) {
+					// alert(msg);
+					if (msg != '') {
+						$("#SendWordList").html(msg.substring(0, msg.indexOf(",")));
+						$("#send_words").show();
+					} else {
+						$("#SendWordList").html("---目前没有使用过寄语---");
+					}
+				}
+			});
+		});
+	
+		$("#commSendWord").click(function() {
+			var top = $("#commSendWord")[0].offsetTop;
+			var left = $("#commSendWord")[0].offsetLeft;
+			$("#send_word").css( {
+				top : top + 20 + "px",
+				left : left + "px"
+			});
+			$("#deafSendWord").removeClass("on");
+			$("#recent").addClass("on");
+			$.ajax( {
+				type : "POST",
+				url : "${rc.contextPath}/sendword.htm?method=getRecentSendWord",
+				dataType : "html",
+				success : function(msg) {
+					//alert(msg);
+					if (msg != '') {
+						$("#SendWordList").html(msg.substring(0, msg.indexOf(",")));
+						$("#send_words").show();
+					} else {
+						$("#SendWordList").html("<li>---目前没有使用过寄语---</li>");
+						$("#send_words").show();
+					}
+				}
+			});
+		});
+		
+		$("#deafSendWord").click(function() {
+			$.ajax( {
+				type : "POST",
+				url : "${rc.contextPath}/sendword.htm?method=getCommonSendWord",
+				dataType : "html",
+				success : function(msg) {
+					// alert(msg);
+					if (msg != '') {
+						$("#SendWordList").html(msg.substring(0, msg.indexOf(",")));
+					} else {
+						$("#SendWordList").html("<li>---目前没有可使用的寄语---</li>");
+					}
+					$("#recent").removeClass("on");
+					$("#deafSendWord").addClass("on");
+				}
+			});
+		});
+	
+		$("#sendWordClose").click(function() {
+			$("#send_words").hide();
+		});
+
+		$("#cards li").click(function(){
+			var cardstyle=$(this).find("img").attr("src");
+			cardstyle=cardstyle.substring(0,cardstyle.indexOf("."))+"_style"+".jpg";
+			$("#selCardStyle1").css( {
+				"background-image" : "url(" + cardstyle + ")"
+			});
+			$("#selCardStyle").val(cardstyle);
+			$("#cards li").removeClass("current");
+			$(this).addClass("current");
+		});
+	});
+	
+	function selectSendWord(mySendword) {
+		var mySendwordB = mySendword;
+		//alert(mySendword);
+		while (mySendwordB.indexOf("<br>") != -1) {
+			mySendwordB = mySendwordB.replace("<br>", "\r\n");
+		}
+		while (mySendwordB.indexOf("apos;") != -1){
+			mySendwordB = mySendwordB.replace("apos;", "'");
+			}
+		//alert(mySendwordB);
+		$("#remark").val(mySendwordB);
+		$("#send_words").hide();
+		//alert($("#remark").text());
+	}
+
+	function getOffsetTop(elm) {
+		var mOffsetTop = elm.offsetTop;
+		var mOffsetParent = elm.offsetParent;
+		return mOffsetTop;
+	}
+	
+	function getOffsetLeft(elm) {
+		var mOffsetLeft = elm.offsetLeft;
+		var mOffsetParent = elm.offsetParent;
+		return mOffsetLeft;
+	}
+
+	$().ready(function(){
+	    var	bankCode = $("#bankCode").val;
+	    
+		<#if bankMap?has_content> 
+			<#assign keys = bankMap?keys>
+				<#list keys as key>
+						$("#bankCode").append("<option value='${bankMap[key]}'>" + "${bankMap[key]}".split(',')[1] + "</option>");
+				</#list> 
+		</#if>
+	});
+	
+	$().ready(function(){
+		 var	bankCode = $("#input_bankCode").val().split(',')[0];
+	    $("#bankCode option").each(function(){
+		      if($(this).val().split(',')[0]==bankCode){
+		    	    $(this).attr('selected','selected')
+			    }
+		 });
+		if ($("#rented").val() != '' && $("#rented").val() * 1 > 0) {
+			$("#sms").attr("disabled", "");
+		} else {
+			$("#sms").attr("disabled", "disabled");
+		}
+
+		if ($("#mobile").val() != '') {
+			$("#sms").attr("disabled", "");
+			$("#mid").show();
+			$("#sms").attr("checked", "checked");
+		} else {
+			$("#sms").attr("disabled", "disabled");
+			$("#mid").hide();
+			$("#sms").attr("checked", "");
+		}
+		
+	});
+
+--></script>
+<#if errorMsg?exists>
+<script type="text/javascript">	
+		$(function(){	
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+		});
+	</script>
+</#if>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="送礼金"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container"><!--侧导航 str -->
+	<@sp.ebillmenu
+channel="1_8"/>
+	<!--侧导航 end -->
+	<div class="box_main">
+		<div class="form_box">
+			<div class="form_tit">
+				<h3 class="dotted_r"><a href="${rc.contextPath}/presentAccount.htm">送礼金到账户</a></h3>
+				<h3 class="cur"><i>送礼金到银行卡</i></h3>
+				<em class="step_cur_1"></em> </div>
+			<div class="content"> 
+				<!--表单str -->
+				<form class="mod_form2 li_height" action="${rc.contextPath}/presentMoneyBank.htm?method=presentMoneyBankConfirm" name="presentBankForm" method="post" id="presentBankForm">
+					<!--左str -->
+					<div class="form_list_l">
+						<ul class="form_list">
+							<li class="sort_tit">账户信息</li>
+							<li>
+								<label class="form_side2">开户人姓名：</label>
+								<input type="text" class="input_txt2 w170" maxlength="20" name="bankAccountName" tabindex="1" value="${command.bankAccountName?default('')}" id="bankAccountName">
+								<p id="accountNameTip"></p>
+							</li>
+							<li>
+								<label class="form_side2">开户行：</label>
+								<input type="hidden" id="input_bankCode" value="${command.bankCode?default('')}"/>
+								<select id="bankCode" name="bankCode" class="select2 w170"
+					value="${command.bankCode?default('')}">
+									<option value="0"> --请选择开户行-- </option>
+								</select>
+							</li>
+							<li id="get_add">
+								<label class="form_side2">开户行所在地：</label>
+								<input type="text" class="input_txt2 w170" id="acctcity" name="city" readonly="readonly" value="${command.city?default('')}">
+								<p class="onShow">请点击选择开户行所在城市</p>
+								<!--弹出层 str--> 
+								<!--自动完成地址
+								<div id="add_auto" style="display: none;">
+									<ul>
+										<li>上海（<span class="red">sh</span>anghai）</li>
+										<li class="current">上海（<span class="red">sh</span>anghai）</li>
+										<li>上海（<span class="red">sh</span>anghai）</li>
+										<li>上海（<span class="red">sh</span>anghai）</li>
+										<li>上海（<span class="red">sh</span>anghai）</li>
+										<li>上海（<span class="red">sh</span>anghai）</li>
+									</ul>
+								</div>-->
+								<!--/自动完成地址--> <!--省份,直辖市--> <#include "/common/include/province.html"> 
+								<!--/省份,直辖市--> <!--弹出层 end--></li>
+							<li>
+								<label class="form_side2">开户行名称：</label>
+								<input type="text" class="input_txt2 w170" maxlength="20" value="${command.bankAccountName?default('')}" id="bankName" name="bankName">
+								<p id="bankNameTip" class="onShow">请正确填写银行卡开户行名称</p>
+							</li>
+							<li>
+								<label class="form_side2">银行卡号：</label>
+								<input type="text" class="input_txt2 w170" value="" id="cardNo" name="cardNo" maxlength="19" oncopy="return false">
+								<p id="cardNoTip"></p>
+								<p id="cardNoTip2"></p>
+							</li>
+							<li>
+								<label class="form_side2">重复银行卡号：</label>
+								<input type="text" class="input_txt2 w170" id="cardNo1" maxlength="19" onpaste="return false" name="cardNo1">
+								<p id="cardNoTip1"></p>
+							</li>
+							<li>
+								<label class="form_side2">礼金金额：</label> 
+								<input type="text" class="input_txt2 w120" maxlength="10" value="${command.amount?default('')}" id="rented" name="amount">
+								元
+								<p id="rentedTip" class="gray_txt"></p>
+							</li>
+							<li id="chargeDiv"<#if !command.charge?has_content>style="display: none;"</#if>>
+							<label class="form_side">手续费：</label>
+							<strong id="chargeSpan" class="red">${command.charge?default('')}</strong>
+							</li>
+							<li class="relative z2">
+								<label class="form_side2">我的寄语：</label>
+								<textarea id="remark" name="remark" rows="1" class="textarea w170">${command.remark?default('')}</textarea>
+								<a id="commSendWord" name="commSendWord" href="javascript:void(0);" class="common_message">常用寄语</a>
+								<p id="remarkTip"></p>
+								<div id="send_words" name="send_words" class="pay_to_host" style="display: none; _width:220px; overflow:hidden;">
+									<div id="send_word" class="contList"> <a href="javascript:void(0);" id="sendWordClose" class="close">关闭</a>
+										<ul class="tab clearfix mt10">
+											<li id="recent" class="on"><i>最近使用</i></li>
+											<li id="deafSendWord"><i>默认寄语</i></li>
+										</ul>
+										<div id="SendWordList" class="SendWordList"></div>
+									</div>
+								</div>
+							</li>
+							<li>
+								<label class="form_side2">送礼人：</label>
+								<input type="text" class="input_txt2 w170" maxlength="16" id="payerSign" name="payerSign" value="${command.payerSign?default('')}">
+								<p id="payerSignTip"></p>
+							</li>
+							<li class="send_msg">
+								<input id="sms" type="checkbox" />
+								免费短信通知
+								<p class="onShow"></p>
+							</li>
+							<li id="mid" style="display: none;">
+								<label class="form_side2">收礼人手机号码：</label>
+								<input type="text" class="input_txt2 w170" maxlength="11"
+		id="mobile" value="${command.mobile?default('')}" name="mobile">
+								<p id="mobileTip"></p>
+							</li>
+						</ul>
+					</div>
+					<!--左end --> 
+					<!--右str -->
+					<div class="form_list_l">
+						<ul class="form_list">
+							<li class="sort_tit">选择贺卡</li>
+							<li class="clearfix cards_li">
+								<div class="cards_box">
+									<ul id="cards">
+										<li class="current"><img src="<@sp.static/>/img/pay/sample/img_card_01.jpg"	alt="贺卡_新婚燕尔">
+											<h5>新婚燕尔</h5>
+										</li>
+										<li><img src="<@sp.static/>/img/pay/sample/img_card_02.jpg"	alt="贺卡_生日快乐">
+											<h5>生日快乐</h5>
+										</li>
+										<li><img src="<@sp.static/>/img/pay/sample/img_card_03.jpg"	alt="贺卡_步步高升">
+											<h5>步步高升</h5>
+										</li>
+										<li><img src="<@sp.static/>/img/pay/sample/img_card_04.jpg"	alt="贺卡_弄璋徵喜">
+											<h5>弄璋徵喜</h5>
+										</li>
+									</ul>
+									<div id="selCardStyle1" name="selCardStyle1" class="message" style="background: url(<@sp.static/>/img/pay/sample/img_card_01_style.jpg)">
+										<p class="to">亲爱的XXX：</p>
+										<textarea cols="60" rows="5" class="textarea">你用优美的色彩
+堆积起你独特的日历而每一年
+为你 My good friend
+献上我最真诚的祝福</textarea>
+										<p class="from">XXX敬上</p>
+										<input type="hidden" id="selCardStyle" name="selCardStyle" value="<@sp.static/>/img/pay/sample/img_card_01_style.jpg"/>
+									</div>
+								</div>
+								</li>
+								<li>
+								<label class="form_side2">验证码：</label>
+								<input name="randCode" type="text" class="input_txt2" maxlength="4" id="randCode" size="8">
+							<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张">
+								<p id="randCodeTip">输入上图中的文字</p>
+							</li>
+							<li class="l_btn"><span class="btn_yel botton_yel">
+						<button type="submit">下一步</button>
+						</span></li>
+						</ul>
+					</div>
+					<!--右end -->
+					<input type="hidden" name="charge" id="charge" value="${command.charge?default('')}" />
+					<input type="hidden" name="cityCode" id="cityCode" value="${command.cityCode?default('')}">
+					<input type="hidden" name="provinceCode" id="provinceCode" value="${command.provinceCode?default('')}">
+					<input type="hidden" name="selCity" id="selCity" value="">
+				</form>
+				<div class="bottom_border"><p></p><p></p></div>
+				<!--表单end --> 
+				<!--步骤str
+				<div class="step_mod">
+					<dl>
+						<dt>流程说明:</dt>
+						<dd class="cur"><i>1</i>填写信息</dd>
+						<dd><i>2</i>确认信息</dd>
+						<dd><i>3</i>付 款</dd>
+						<dd><i>4</i>成 功</dd>
+					</dl>
+				</div>-->
+				<!--步骤end--> 
+			</div>
+		</div>
+		<!--问答 str-->
+		<div class="mod_box_a q_a">
+			<div class="con_box">
+				<div class="mod_tit">
+					<h3 class="title font14"><strong>有问题 我帮您</strong></h3>
+					<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a></div>
+				<dl class="ico_txtBox">
+					<dt><i class="q_ico"></i>送礼金产生的交易流量计算在哪一方？</dt>
+					<dd><i class="a_ico"></i>答：创建交易方（即送礼金者）。</dd>
+					<dt><i class="q_ico"></i>为什么最高只能交2000元，如何提高？</dt>
+					<dd><i class="a_ico"></i>答：因为您还没有实名认证，申请实名认证之后，您的每日限额会提高到20000元。</dd>
+				</dl>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--问答 end--> 
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer --> 
+<#include "/common/include/footer.html">
+</body>
+</html>

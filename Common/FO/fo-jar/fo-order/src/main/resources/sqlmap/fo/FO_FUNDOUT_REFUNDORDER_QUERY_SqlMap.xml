@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="FO_FUNDOUT_REFUNDORDER" >
+
+	<resultMap id="bankRefundOrderQueryResult" class="com.pay.fo.order.model.bankrefund.BankRefundOrderQueryModel" >
+	    <result column="ORDER_ID" property="orderId"/>
+	    <result column="REFUND_ORDER_ID" property="refundOrderId"/>
+	    <result column="PAYEE_BANKNAME" property="payeeBankName"/>
+	    <result column="PAYEE_OPENINGBANKNAME" property="payeeOpeningBankName"/>
+	    <result column="PAYEE_BANKACCTCODE" property="payeeBankAcctCode"/>
+	    <result column="ORDER_AMOUNT" property="orderAmount"/>
+	    <result column="PAYEE_NAME" property="payeeName"/>
+	    <result column="CREATE_DATE" property="createDate"/>
+	    <result column="webAuditTime" property="webAuditTime"/>
+	    <result column="ORDER_TYPE" property="orderType"/>
+	    <result column="ORDER_STATUS" property="orderStatus"/>
+	    <result column="BANK_ORDERID" property="bankOrderId"/>
+	    <result column="REFUND_REASON" property="refundReason"/>
+    </resultMap>
+
+	<!-- 查询可退款的订单 -->
+	<select id="queryAllowRefundList" resultMap="bankRefundOrderQueryResult">
+	        SELECT T.ORDER_ID,
+			       T.PAYEE_BANKNAME,
+			       T.PAYEE_OPENINGBANKNAME,
+			       T.PAYEE_BANKACCTCODE,
+			       T.ORDER_AMOUNT,
+			       T.PAYEE_NAME,
+			       T.CREATE_DATE,
+			       w.create_time as webAuditTime,
+			       T.ORDER_TYPE,
+			       T.ORDER_STATUS,
+			       T.BANK_ORDERID,
+			       NULL REFUND_ORDER_ID,
+			       NULL REFUND_REASON
+			  FROM FUNDOUT_ORDER T,withdraw_workorder w
+			 WHERE t.order_id = w.order_seq and T.ORDER_TYPE IN (0, 3, 4)
+			       AND T.ORDER_STATUS = 111
+		      	   AND NOT EXISTS(SELECT FR.SRC_ORDERID FROM FUNDOUT_REFUNDORDER FR WHERE FR.SRC_ORDERID=T.ORDER_ID and fr.order_status in (111,100))
+	        <isNotNull prepend="AND" property="createTime">
+	            to_char(w.create_time,'yyyy-mm-dd')=to_char(#createTime#,'yyyy-mm-dd')
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="busiType">
+	            T.ORDER_TYPE = #busiType# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankKy">
+	            T.PAYEE_BANKCODE = #bankKy# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="orderSeqId">
+	            T.BANK_ORDERID = #orderSeqId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankAcct">
+	            T.PAYEE_BANKACCTCODE = #bankAcct# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="sequenceId">
+	            T.ORDER_ID = #sequenceId# 
+	        </isNotNull>
+	        ORDER BY T.CREATE_DATE DESC
+	</select>
+	<select id="queryAllowRefundList_COUNT" resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+			  FROM FUNDOUT_ORDER T,withdraw_workorder w
+			 WHERE t.order_id = w.order_seq and T.ORDER_TYPE IN (0, 3, 4)
+			       AND T.ORDER_STATUS = 111
+			       AND NOT EXISTS(SELECT FR.SRC_ORDERID FROM FUNDOUT_REFUNDORDER FR WHERE FR.SRC_ORDERID=T.ORDER_ID and fr.order_status in (111,100))
+	        <isNotNull prepend="AND" property="createTime">
+	            to_char(w.create_time,'yyyy-mm-dd')=to_char(#createTime#,'yyyy-mm-dd')
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="busiType">
+	            T.ORDER_TYPE = #busiType# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankKy">
+	            T.PAYEE_BANKCODE = #bankKy# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="orderSeqId">
+	            T.BANK_ORDERID = #orderSeqId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankAcct">
+	            T.PAYEE_BANKACCTCODE = #bankAcct# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="sequenceId">
+	            T.ORDER_ID = #sequenceId# 
+	        </isNotNull>
+	</select>
+	
+	<!-- 查询退款中/成功的订单 -->
+	<select id="queryHasRefundList" resultMap="bankRefundOrderQueryResult">
+	        SELECT T.ORDER_ID,
+	        	   FR.ORDER_ID REFUND_ORDER_ID,
+			       T.PAYEE_BANKNAME,
+			       T.PAYEE_OPENINGBANKNAME,
+			       T.PAYEE_BANKACCTCODE,
+			       T.ORDER_AMOUNT,
+			       T.PAYEE_NAME,
+			       T.CREATE_DATE,
+			       w.create_time as webAuditTime,
+			       T.ORDER_TYPE,
+			       T.ORDER_STATUS,
+			       T.BANK_ORDERID,
+			       FR.REFUND_REASON
+			  FROM FUNDOUT_ORDER T,FUNDOUT_REFUNDORDER FR,withdraw_workorder w
+			 WHERE t.order_id = w.order_seq and T.ORDER_TYPE IN (0, 3, 4)
+			       AND T.ORDER_ID = FR.SRC_ORDERID
+	        <isNotNull prepend="AND" property="hasRefund">
+	            T.ORDER_STATUS=113
+	        </isNotNull>
+	         <isNull prepend="AND" property="hasRefund">
+	            FR.ORDER_STATUS=100
+	        </isNull>
+	        <isNotNull prepend="AND" property="bankRefundOrderId">
+	            FR.ORDER_ID=#bankRefundOrderId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="createTime">
+	            to_char(w.create_time,'yyyy-mm-dd')=to_char(#createTime#,'yyyy-mm-dd')
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="busiType">
+	            T.ORDER_TYPE = #busiType# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankKy">
+	            T.PAYEE_BANKCODE = #bankKy# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="orderSeqId">
+	            T.BANK_ORDERID = #orderSeqId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankAcct">
+	            T.PAYEE_BANKACCTCODE = #bankAcct# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="sequenceId">
+	            T.ORDER_ID = #sequenceId# 
+	        </isNotNull>
+	        ORDER BY T.CREATE_DATE DESC
+	</select>
+	<select id="queryHasRefundList_COUNT" resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+			  FROM FUNDOUT_ORDER T,FUNDOUT_REFUNDORDER FR,withdraw_workorder w
+			 WHERE t.order_id = w.order_seq and T.ORDER_TYPE IN (0, 3, 4)
+			       AND T.ORDER_ID = FR.SRC_ORDERID
+		    <isNotNull prepend="AND" property="hasRefund">
+	            T.ORDER_STATUS=113
+	        </isNotNull>
+	        <isNull prepend="AND" property="hasRefund">
+	            FR.ORDER_STATUS =100
+	        </isNull>
+	       	<isNotNull prepend="AND" property="bankRefundOrderId">
+	            FR.ORDER_ID=#bankRefundOrderId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="createTime">
+	            to_char(w.create_time,'yyyy-mm-dd')=to_char(#createTime#,'yyyy-mm-dd')
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="busiType">
+	            T.ORDER_TYPE = #busiType# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankKy">
+	            T.PAYEE_BANKCODE = #bankKy# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="orderSeqId">
+	            T.BANK_ORDERID = #orderSeqId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankAcct">
+	            T.PAYEE_BANKACCTCODE = #bankAcct# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="sequenceId">
+	            T.ORDER_ID = #sequenceId# 
+	        </isNotNull>
+	</select>
+	
+	<!-- 查询单笔退款详情  -->
+	<select id="queryHasRefundDetail" resultMap="bankRefundOrderQueryResult">
+	        SELECT T.ORDER_ID,
+	        	   FR.ORDER_ID REFUND_ORDER_ID,
+			       T.PAYEE_BANKNAME,
+			       T.PAYEE_OPENINGBANKNAME,
+			       T.PAYEE_BANKACCTCODE,
+			       T.ORDER_AMOUNT,
+			       T.PAYEE_NAME,
+			       T.CREATE_DATE,
+			       w.create_time as webAuditTime,
+			       T.ORDER_TYPE,
+			       T.ORDER_STATUS,
+			       T.BANK_ORDERID,
+			       FR.REFUND_REASON
+			  FROM FUNDOUT_ORDER T,FUNDOUT_REFUNDORDER FR,withdraw_workorder w
+			 WHERE t.order_id = w.order_seq and T.ORDER_TYPE IN (0, 3, 4)
+			       AND T.ORDER_ID = FR.SRC_ORDERID
+	        <isNotNull prepend="AND" property="hasRefund">
+	            FR.ORDER_STATUS=#hasRefund#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankRefundOrderId">
+	            FR.ORDER_ID=#bankRefundOrderId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="createTime">
+	            to_char(w.create_time,'yyyy-mm-dd')=to_char(#createTime#,'yyyy-mm-dd')
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="busiType">
+	            T.ORDER_TYPE = #busiType# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankKy">
+	            T.PAYEE_BANKCODE = #bankKy# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="orderSeqId">
+	            T.BANK_ORDERID = #orderSeqId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankAcct">
+	            T.PAYEE_BANKACCTCODE = #bankAcct# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="sequenceId">
+	            T.ORDER_ID = #sequenceId# 
+	        </isNotNull>
+	</select>
+	
+	<!-- 查询未生成退款订单详情  -->
+	<select id="queryRefundDetail" resultMap="bankRefundOrderQueryResult">
+	        SELECT T.ORDER_ID,
+	        	   NULL REFUND_ORDER_ID,
+			       T.PAYEE_BANKNAME,
+			       T.PAYEE_OPENINGBANKNAME,
+			       T.PAYEE_BANKACCTCODE,
+			       T.ORDER_AMOUNT,
+			       T.PAYEE_NAME,
+			       T.CREATE_DATE,
+			       w.create_time as webAuditTime,
+			       T.ORDER_TYPE,
+			       T.ORDER_STATUS,
+			       T.BANK_ORDERID,
+			       NULL REFUND_REASON
+			  FROM FUNDOUT_ORDER T,withdraw_workorder w
+			 WHERE t.order_id = w.order_seq and T.ORDER_TYPE IN (0, 3, 4)
+	        <isNotNull prepend="AND" property="createTime">
+	            to_char(w.create_time,'yyyy-mm-dd')=to_char(#createTime#,'yyyy-mm-dd')
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="busiType">
+	            T.ORDER_TYPE = #busiType# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankKy">
+	            T.PAYEE_BANKCODE = #bankKy# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="orderSeqId">
+	            T.BANK_ORDERID = #orderSeqId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="bankAcct">
+	            T.PAYEE_BANKACCTCODE = #bankAcct# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="sequenceId">
+	            T.ORDER_ID = #sequenceId# 
+	        </isNotNull>
+	</select>
+</sqlMap>

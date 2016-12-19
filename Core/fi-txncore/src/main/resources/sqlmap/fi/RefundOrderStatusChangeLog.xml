@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundOrderStatusChangeLog">
+    <typeAlias alias="refundOrderStatusChangeLog" type="com.pay.txncore.model.RefundOrderStatusChangeLog"/>
+    <resultMap class="refundOrderStatusChangeLog" id="refundOrderStatusChangeLogResult">
+    	<result column="REFUND_STATUSCHANGE_NO" property="refundStatusChangeNo" jdbcType="DECIMAL"/>
+    	<result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+    	<result column="OLDSTATUS" property="oldStatus" jdbcType="DECIMAL"/>
+    	<result column="NEWSTATUS" property="newStatus" jdbcType="DECIMAL"/>
+		<result column="ACTION" property="action" jdbcType="VARCHAR"/>
+		<result column="SETTLEMENT_AMOUNT_DELTA" property="settlementAmountDelta" jdbcType="DECIMAL"/>
+		<result column="TRADE_REFUND_DELTA" property="tradeRefundDelta" jdbcType="DECIMAL"/>		
+    	<result column="CREATE_DATE" property="createDate" jdbcType="DATE"/>
+  		<result column="SETTLEMENT_MODIFY_FLG" property="settlementModifyFlg" jdbcType="DECIMAL"/>   	
+    	<result column="OLD_SETTLEMENT_FLG" property="oldSettlementFlg" jdbcType="DECIMAL"/>
+    	<result column="NEW_SETTLEMENT_FLG" property="newSettlementFlg" jdbcType="DECIMAL"/>
+    	<result column="OLD_ASSURESETTLEMENT_FLG" property="oldAssureSettlementFlg" jdbcType="DECIMAL"/>
+    	<result column="NEW_ASSURESETTLEMENT_FLG" property="newAssureSettlementFlg" jdbcType="DECIMAL"/>
+    	<result column="OLD_SETTLEMENT_DATE" property="oldSettlementDate" jdbcType="DATE"/> 
+    	<result column="NEW_SETTLEMENT_DATE" property="newSettlementDate" jdbcType="DATE"/> 
+    </resultMap>
+    
+     <insert id="create" parameterClass="refundOrderStatusChangeLog">  	
+        <selectKey resultClass="java.lang.Long" keyProperty="refundStatusChangeNo">
+			SELECT SEQ_REFUNDORDER_STATUSLOG_ID.nextval as refundStatusChangeNo FROM dual 
+		</selectKey>  
+		
+        INSERT INTO REFUND_ORDER_STATUSLOG(
+			REFUND_STATUSCHANGE_NO,REFUND_ORDER_NO,OLDSTATUS,NEWSTATUS,
+			ACTION,SETTLEMENT_AMOUNT_DELTA,TRADE_REFUND_DELTA,CREATE_DATE,SETTLEMENT_MODIFY_FLG,
+			OLD_SETTLEMENT_FLG,NEW_SETTLEMENT_FLG,OLD_ASSURESETTLEMENT_FLG,NEW_ASSURESETTLEMENT_FLG,
+			OLD_SETTLEMENT_DATE,NEW_SETTLEMENT_DATE
+        )
+        VALUES(
+            #refundStatusChangeNo#,#refundOrderNo#,#oldStatus#,#newStatus#,
+			#action#,#settlementAmountDelta#,#tradeRefundDelta#,sysdate,#settlementModifyFlg#,
+			#oldSettlementFlg#,#newSettlementFlg#,#oldAssureSettlementFlg#,#newAssureSettlementFlg#,
+			#oldSettlementDate#,#newSettlementDate#
+		)
+    </insert>
+    
+    <select id="findByRefundOrderNo" parameterClass="java.lang.Long" resultMap="refundOrderStatusChangeLogResult">
+        select * from refund_order_statuslog re where re.REFUND_ORDER_NO = #refundOrderNo#
+    </select>
+    
+</sqlMap>

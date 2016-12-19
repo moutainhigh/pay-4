@@ -1,0 +1,31 @@
+<!--侧导航企业版 end -->
+<#if Session["userSession"].scaleType==2>
+<#assign urlPath = 'corp' />
+<#else>
+<#assign urlPath = 'app' />
+</#if>
+
+<div class="tip_page" >
+	<div class="con_box tips_cont">
+		<div class="popup_content" style="*height:auto;">
+			<h3>请您在新打开的网上银行页面上完成<#if buttonLabel?exists>充值<#else>付款</#if>。</h3>
+			<p class="other_condition"><#if buttonLabel?exists>充值<#else>付款</#if>完成前不要关闭此窗口。<br /><em class="red">完成<#if buttonLabel?exists>充值<#else>付款</#if>后请根据您的情况点击此按钮：</em></p>
+			<span class="pop_war"></span>
+		</div>
+		<p>
+			<span class="btn_yel botton_yel">
+				<button id="finishDeposit" name="finishDeposit" onclick="javascript:window.location.href='${rc.contextPath}/${urlPath}/acctCharge.htm?method=success&orderAmount=${orderAmount?default(0)}&transactionNo=${transactionNo?default('')}&payeeName=${payeeName?default('')}&payeeMemberCode=${payeeMemberCode?default('')}';">
+					已完成<#if buttonLabel?exists>充值<#else>付款</#if>
+				</button>
+			</span>
+			<span class="btn_grey_b botton_grey">
+				<button onclick="javascript:window.location.href='${rc.contextPath}/baseHelp.htm'"><#if buttonLabel?exists>充值<#else>付款</#if>遇到问题</button>
+			</span>
+		</p>
+	</div>
+	<form id="bankForm" action="${post2Bankurl?default('')}" method="${action?default('post')}" target="_blank">
+		<#list bankFormMap?keys as paramKey>  
+			<input type="hidden" name="${paramKey?default('')}" value="${bankFormMap[paramKey]?default('')}"/>
+		</#list>
+	</form>
+</div>

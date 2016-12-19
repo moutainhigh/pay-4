@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>购结汇查询</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<script type="text/javascript"
+	src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<link
+	href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css"
+	type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css"
+	href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css"
+	href="<@sp.static/>/mps/css/main.css" />
+<link
+	href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css"
+	type="text/css" rel="stylesheet" />
+<link href="<@sp.static/>/css/pay/public.css?v=20101230.css"
+	rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=20101230.css"
+	rel="stylesheet" type="text/css">
+<link
+	href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=20101230.css"
+	rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/website.js"></script>
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico"
+	rel="shortcut icon" />
+<script>
+	$(function() {
+		$("#tabs").tabs({
+			collapsible : true
+		});
+	});
+	function downwExcel(){
+		var action=$("#bspQuery_from").attr("action");
+		//alert(action)
+		$("#bspQuery_from").attr("action","${rc.contextPath}/BuySettleParitiesController/buySettleParitiesQuery/buySettleParitiesDownload.do");
+	/* window.location.href = "${rc.contextPath}/BuySettleParitiesController/buySettleParitiesQuery/buySettleParitiesDownload.do"; */
+		$("#bspQuery_from").submit();
+		$("#bspQuery_from").attr("action","${rc.contextPath}/BuySettleParitiesController/buySettleParitiesQuery/query.do");
+	}
+</script>
+</head>
+<body>
+	<#include "/include/topbar.html"> <@sp.head mCode="corp_/buySettleParities"/>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span> <a
+						href="${rc.contextPath}/corp/BuySettleParitiesController/buyParities/into.do">购汇申请</a></span>
+					<span><a
+						href="${rc.contextPath}/corp/BuySettleParitiesController/settleParitiesApply/into.do">结汇申请</a></span>
+					<span class="current"> <a
+						href="${rc.contextPath}/corp/BuySettleParitiesController/buySettleParitiesQuery/into.do">购结汇查询</a></span>
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="seccon">
+							<div class="bgbox">
+								<form id="bspQuery_from" class="form single" action="${rc.contextPath}/BuySettleParitiesController/buySettleParitiesQuery/query.do" method="post">
+									<table class="tab01 formtable">
+										<colgroup>
+											<col width="100px;" />
+											<col width="450px;"/>
+											<col width="100px;" />
+											<col />
+										</colgroup>
+										<tr>
+											<td><div align="right">会员名称：</div></td>
+											<td><div>${data.zhName}</div></td>
+											<td><div align="right">会员号：</div></td>
+											<td><div>${data.memberCode}</div></td>
+										</tr>
+										<tr>
+											<td><div align="right">选择账户：</div></td>
+											<td colspan="1">
+												<select style="width: 120px" name="data['currencyCode']" size="1">
+													<option  value="">—请选择—</option>
+													<#if cuuryCodeList?has_content>
+														<#list cuuryCodeList as item>
+															<#if item!='CNY'>
+																<option value="${item?default('')}" >
+																	<#if item='USD'>美元账户
+																		<#elseif item='EUR'>欧元账户
+																		<#elseif item='GBP'>英镑账户
+																		<#elseif item='HKD'>港元账户
+																		<#elseif item='AUD'>澳元账户
+																		<#elseif item='CAD'>加元账户
+																		<#elseif item='JPY'>日元账户
+																		<#elseif item='SGD'>新加坡元账户
+																	</#if>
+																</option>
+															</#if>
+														</#list>
+													</#if>
+												</select>
+											</td>
+											<td><div align="right">交易类型：</div></td>
+											<td colspan="1">
+												<select style="width: 120px" class="" name="data['type']" size="1">
+													<option value="">全部</option>
+													<option value="0">购汇</option>
+													<option value="1">结汇</option>
+												</select>
+											</td>
+										</tr>
+										<tr>
+											<td><div align="right">入账时间：</div></td>
+											<td colspan="1"><input class="Wdate" type="text"
+												id="startTime" name="data['startTime']" readonly="readonly"
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})"
+												value="${stValue!''}"> 至 <input
+												class="Wdate" type="text" id="endTime" name="data['endTime']"
+												readonly="readonly"
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'startTime\')}',maxDate:'%y-%M-%d %H:%m:%s'})"
+												value="${eValue!''}"></td>
+											<!-- <td><div align="right">交易流水号：</div></td>
+												<td><input type="text" id="payNo" name="payNo" class="base-input" value="${payNo!''}"></td> -->
+											<td>
+												<div align="right">购汇状态：</div>
+											</td>
+											<td><select style="width: 120px" class="" name="data['status']"  size="1">
+													<option value="">全部</option>
+													<option value="0">处理中</option>
+													<option value="1">交易成功</option>
+													<option value="2">交易失败</option>
+											</select></td>
+										</tr>
+										<!-- <tr>
+												<td></td>
+												<td colspan="">
+													<input type="hidden" name="queryPro" id="queryPro"> 
+													<input type="submit" class="btn_blue" value="查  询" alt="查询">
+												</td>													
+												<td>
+													&nbsp;
+												</td>
+												<td>
+													<input type="button" class="btn_blue" value="下  载" alt="下  载" onclick="javascript:downwExcel() ;"/>
+												</td> 
+											</tr> -->
+										<tr>
+											<td colspan="4" style="">
+												<div class="divquery">
+													<!-- <input type="hidden" name="queryPro" id="queryPro">  -->
+													<input type="submit" class="btn_blue" value="查  询"
+														alt="查  询">
+												</div>
+												<div class="divdown">
+													<input type="button" class="btn_blue2" value="下载" alt="下载"
+														onclick="javascript:downwExcel() ;" />
+												</div>
+											</td>
+										</tr>
+									</table>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div id="resultListDiv" class="listFence" style="margin-top: 10px">
+						<!--余额明细 str-->
+						<div class="barg_table mb20">
+							<table
+								style="width: 100%; line-height: 25px;text-align:center" class="tab03">
+								<tr>
+									<th width="10%">交易流水号</th>
+									<th width="17%">交易时间</th>
+									<th width="15%">交易类型</th>
+									<th width="13%">卖出金额</th>
+									<th width="10%">汇率</th>
+									<th width="10%">买入金额</th>
+									<th width="10%">手续费</th>
+									<th width="10%">交易状态</th>
+								</tr>
+								<#if infoList?exists> <#list infoList as ls>
+								<tr>
+									<td>${ls.exchangeNo}</td>
+									<td>${ls.createDate?datetime}</td>
+									<td><#if ls.type =="0">购汇<#else>结汇</#if></td>
+									<td>
+										${((ls.exchAmount?default(0)/1000))?string(",##0.000")}  ${ls.exchCurrencyCode} </td>
+									<td>${ls.exchangeRate}</td>
+									<td>${((ls.orderAmount?default(0)/1000))?string(",##0.000")}    ${ls.currencyCode} </td>
+									<td>${((ls.tradeFee?default(0)/1000))?string(",##0.000")}         ${ls.exchCurrencyCode}
+									</td>
+									<td><#if ls.status =="0">交易中<#elseif ls.status
+										=="1">交易成功<#else>交易失败</#if></td>
+								</tr>
+								</#list> </#if>
+							</table>
+							<div style="text-align: right">
+								<!--分页 str -->
+									<#if pu?exists>
+									<@sp.pagination pu=pu/>
+								</#if>
+								<!--分页 end -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

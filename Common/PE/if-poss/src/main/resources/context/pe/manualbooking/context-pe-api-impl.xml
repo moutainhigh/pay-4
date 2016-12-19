@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="accService" class="com.pay.pe.manualbooking.service.impl.AccServiceImpl">
+		<property name="accountBalanceHandlerService">
+			<ref bean="acc-accountBalanceHandlerService"/>
+		</property>
+			<property name="acctService">
+			<ref bean="acc-acctService"/>
+		</property>
+		<property name="acctAttribService">
+			<ref bean="acc-acctAttribService"/>
+		</property>
+		<property name="peService">
+			<ref bean="peService"/>
+		</property>
+	</bean>
+
+
+	<bean id="vouchService"
+		class="com.pay.pe.manualbooking.service.impl.VouchServiceImpl">
+		<property name="accService">
+			<ref bean="accService"/>
+		</property>
+		
+		<property name="vouchAccountingService">
+			<ref bean="vouchAccountingService"/>
+		</property>
+		<property name="vouchUserService">
+			<ref bean="vouchUserService"/>
+		</property>
+		<property name="vouchSeqGenerator">
+			<ref bean="vouchSeqGenerator"/>
+		</property>
+		<property name="vouchDataDao">
+			<ref bean="vouchDataDao"/>
+		</property>
+		<property name="vouchDetailDataDao">
+			<ref bean="vouchDetailDataDao"/>
+		</property>
+	</bean>
+	
+	<bean id="vouchUserService" class="com.pay.pe.manualbooking.service.impl.VouchUserServiceImpl">
+	</bean>
+	
+	<bean id="vouchSeqGenerator" class="com.pay.pe.manualbooking.service.impl.VouchSeqGeneratorServiceImpl">
+	 
+		<property name="dataSource">
+			<ref bean="peDs"/>
+		</property>
+		
+	</bean>
+	
+	<bean id="vouchAccountingService" class="com.pay.pe.manualbooking.service.impl.VouchAccountingServiceImpl">
+	<!--  
+		<property name="postingService">
+			<ref bean="postingService"/>
+		</property>
+		<property name="accountDairyService">
+			<ref bean="accountDairyService"/>
+		</property>
+		-->
+	</bean>
+	
+	<bean id="vouchLogService" class="com.pay.pe.manualbooking.service.impl.VouchLogServiceImpl">
+		<property name="vouchDataLogDao">
+			<ref bean="vouchDataLogDao"/>
+		</property>
+	</bean>
+	
+</beans>

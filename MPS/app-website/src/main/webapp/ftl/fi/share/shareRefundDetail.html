@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>资金管理-分账-分账明细</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#closeDetail").click(function(){
+		window.close();
+	});
+});
+</script>
+</head>
+<body>
+<@sp.head mCode="corp_share"/>
+<div class="container share_wrap">
+	<div class="container">
+		<div class="mod_box_a">
+				<p class="top"><i></i></p>
+				<div class="con_box has_bg">
+						<div class="tit_box">
+								<h3 class="title font14"><strong>退款查询详情</strong></h3>
+						</div>
+						<#if sharingOrderList?exists>
+		   				<#list sharingOrderList as ts>
+						<table class="verify_table set_width">
+								<tbody>
+										<tr>
+											<td colspan="2" class="thead">退款查询详情</td>
+										</tr>
+										<tr>
+											<td class="type">iPayLinks交易号：</td>
+											<td>${ts.tradeOrderNo?default("")}</td>
+										</tr>
+										<tr>
+											<td class="type">交易创建时间：</td>
+											<td>${ts.createDate?string('yyyy-MM-dd HH:mm:ss')}</td>
+										</tr>
+										<tr>
+											<td class="type">交易结束时间：</td>
+											<td>${ts.updateDate?string('yyyy-MM-dd HH:mm:ss')}</td>
+										</tr>
+										<tr>
+											<td class="type">交易类型：</td>
+											<td>
+												分账退款
+											</td>
+										</tr>
+										<tr>
+											<td class="type">商家订单号：</td>
+											<td>${ts.orderId?default("")}</td>
+										</tr>
+										<tr>
+											<td class="type">订单金额：</td>
+											<td>${(ts.orderAmount*0.001)?string(",##0.00")}</td>
+										</tr>
+										<tr>
+											<td class="type">付款方名称：</td>
+											<td>${ts.payerName?default("")}</td>
+										</tr>
+										<tr>
+											<td class="type">退款金额：</td>
+											<td>${(ts.refundAmount*0.001)?string(",##0.00")}</td>
+										</tr>
+										<tr>
+											<td class="type">手续费：</td>
+											<td>${(ts.fee*0.001)?string(",##0.00")}</td>
+										</tr>
+										<tr>
+											<td class="type">实际交易金额：</td>
+											<td>${(ts.actualAmount*0.001)?string(",##0.00")}</td>
+										</tr>
+										<tr>
+											<td class="type">交易状态：</td>
+											<td>
+												 <#if ts.status??>
+													<#if ts.status?has_content>
+														<#if ts.status =="0">
+															退款中
+														<#elseif ts.status =="1">
+															退款中
+														<#elseif ts.status =="2">
+															退款成功
+														<#elseif ts.status =="3">
+															退款失败
+														</#if>
+													</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">备注：</td>
+											<td>${ts.remark?default("")}</td>
+										</tr>
+					</tbody>
+				</table>
+							
+							
+						</td>
+					</tr>
+								</tbody>
+						</table>
+						  </#list>
+						<#else>
+						<div class="content txtC">
+							<div class="result_tips">
+								<div class="set_height clearfix">
+									<span class="pop_fail"></span>
+									<p class="words f14"><strong>无效订单</strong></p>
+									<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a>|<a href="${rc.contextPath}/index.htm">返回iPayLinks支付首页</a></p>
+								</div>
+							</div>
+						</div>
+						</#if>
+						<p class="btn_box"><span class="btn_yel">
+						<button id="closeDetail">关闭</button>
+						</span></p>
+				</div>
+				<p class="bot"><i></i></p>
+		</div>
+</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

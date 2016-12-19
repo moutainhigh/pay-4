@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap namespace="samismile">
+	<!-- 订单查询条件 -->
+	<typeAlias alias="ma_ordercenterquerydto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<!-- 订单查询结果 -->
+	<typeAlias alias="ma_ordercenterresultdto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	<!-- 订单详情 -->
+	<typeAlias alias="ma_orderdetaildto" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+	<!-- 关联订单 -->
+	<typeAlias alias="ma_orderrelationdto" type="com.pay.poss.service.ordercenter.dto.relationorder.OrderRelationDTO" />
+	
+	
+	
+	<select id="ma_queryOrder" parameterClass="ma_ordercenterquerydto" resultClass="ma_ordercenterresultdto">		
+		select 
+			t.serial_no as orderKy,			
+			decode(t.pay_type, 16, 1015, 17, 1016)  as orderType,
+			t.amount as orderAmount,
+			decode(t.status, 1, 111, 2, 112,101) as orderStatus,
+			t.pay_acct as payerAccountNo,
+			t.recv_acct as payeeAccountNo,
+			t.confirm_date as orderDate,
+			'' as bankOrderKy,
+			'' as payerBankNo,
+			'' as payerBankName,
+			'' as payeeBankNo,
+	        '' as payeeBankNname,	     
+	        '' as payerMemberCode,
+	        '' as payerAccType,
+	        '' as payeeMemberCode,
+	        '' as payeeAccType,
+	        '' as workflowKy
+		from acc.t_trans_log t 
+		where 1=1 
+		<isNotEmpty prepend="and" property="orderType"> 
+			<isEqual property="orderType" compareValue="1015">
+	        		 t.pay_type=16
+	        </isEqual>	 
+	        <isEqual property="orderType" compareValue="1016">
+	        		 t.pay_type=17
+	        </isEqual>	
+	    </isNotEmpty> 
+	    <isNotEmpty prepend="and" property="orderKy">  
+	          t.serial_no=#orderKy#
+	    </isNotEmpty> 
+	    <isNotEmpty prepend="and" property="orderStatus"> 
+	   		<isEqual property="orderStatus" compareValue="111">
+	        		t.status=1
+	        </isEqual>	 
+	        <isEqual property="orderStatus" compareValue="112">
+	        		t.status=2
+	        </isEqual>	
+	        <isEqual property="orderStatus" compareValue="101">
+	        		1!=1
+	        </isEqual> 
+	    </isNotEmpty>	    
+	    <isNotEmpty prepend="and" property="startTime">
+	    <![CDATA[ t.confirm_date >= #startTime# ]]>
+	    	  
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="endTime">
+		<![CDATA[ t.confirm_date <= #endTime# ]]>
+		     
+		</isNotEmpty>
+		<isNotEmpty  property="memberCode" prepend="AND">
+	            1 != 1
+	    </isNotEmpty>
+	    <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	    </isNotEmpty>
+	    <isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	    </isNotEmpty>	
+	</select>
+	<select id="ma_queryOrder_COUNT" parameterClass="ma_ordercenterquerydto" resultClass="java.lang.Integer">		
+		select 
+			count(1)
+		from acc.t_trans_log t 
+		where 1=1 
+		<isNotEmpty prepend="and" property="orderType"> 
+			<isEqual property="orderType" compareValue="1015">
+	        		 t.pay_type=16
+	        </isEqual>	 
+	        <isEqual property="orderType" compareValue="1016">
+	        		 t.pay_type=17
+	        </isEqual>	
+	    </isNotEmpty> 
+	    <isNotEmpty prepend="and" property="orderKy">  
+	          t.serial_no=#orderKy#
+	    </isNotEmpty> 
+	    <isNotEmpty prepend="and" property="orderStatus"> 
+	   		<isEqual property="orderStatus" compareValue="111">
+	        		t.status=1
+	        </isEqual>	 
+	        <isEqual property="orderStatus" compareValue="112">
+	        		t.status=2
+	        </isEqual>
+	         <isEqual property="orderStatus" compareValue="101">
+	        		1!=1
+	        </isEqual> 	 
+	    </isNotEmpty>	    
+	    <isNotEmpty prepend="and" property="startTime">
+	    <![CDATA[ t.confirm_date >= #startTime# ]]>
+	    	  
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="endTime">
+		<![CDATA[ t.confirm_date <= #endTime# ]]>
+		     
+		</isNotEmpty>
+		<isNotEmpty  property="memberCode" prepend="AND">
+	            1 != 1
+	    </isNotEmpty>
+	    <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            1 != 1
+	    </isNotEmpty>
+	    <isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            1 != 1
+	    </isNotEmpty>	
+	</select>
+	<select id="ma_queryOrderRelation" parameterClass="java.util.Map" resultClass="ma_orderrelationdto">		
+		select 
+			t.serial_no as orderKy,
+			decode(t.pay_type, 16, 1015, 17, 1016) as orderType,
+			t.amount as orderAmount,
+			decode(t.status, 1, 111, 2, 112,101) as orderStatus,
+			t.confirm_date as orderDate
+		from acc.t_trans_log t 
+		where t.relatx_serial_no=#orderId# and t.pay_type=decode(#orderType#, 1015, 16, 1016, 17)
+	</select>	
+	 
+</sqlMap>

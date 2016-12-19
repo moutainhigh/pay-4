@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="2" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/fo/notifyTemplateId.properties</value>
+			</list>
+		</property>
+	</bean>			
+			
+	<!-- 手工生成批次文件 -->
+	<bean id="refundHandworkService" class="com.pay.poss.refund.service.impl.RefundHandworkServiceImpl">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"/>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="queueName" value="fundout.refund.accounting.response"/>
+		<property name="accountingServiceSucc" ref="accounting-500-508"/>
+		<property name="accountingServiceFail" ref="accounting-500-511"/>
+		<property name="orderCallBackService" ref="fundout-withdraw-chargeRefundCallBack"/>
+	</bean>
+	
+	<!-- 充退管理**********DAO***********begin -->
+	<bean id="refundDao"
+		class="com.pay.poss.refund.dao.impl.RefundIbatisDao">
+		<property name="sqlMapClient" ref="sqlMapClientPoss"/>
+	</bean>
+	<!-- 充退管理**********DAO***********end -->
+
+	<!-- 充退管理Service配置 begin -->
+	<bean id="refundManageService" class="com.pay.poss.refund.service.impl.RefundManageServiceImpl">
+		<property name="baseDao" ref="PLATFORM.DEFAULT.DAOSERVICE"/>
+		<!-- property name="foRD4GatewayService" ref="foRD4GatewayService"></property-->
+		<property name="foRD4MaServiceApi" ref="foRD4MaService"/>
+		<property name="accountingServiceApply" ref="accounting-500-503"/>
+		<property name="queueName" value="fundout.refund.accounting.response"/>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"/>
+		<property name="workorderOperationService" ref="fo-workorderOperationService"/>
+		<property name="refundValidateService" ref="fundout-refundValidateService"/>
+		<property name="emailTemplateId">
+			<value>${chargeRefund.request.email}</value>
+		</property>
+		<property name="smsTemplateId">
+			<value>${chargeRefund.request.sms}</value>
+		</property>
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="refundOrderService" ref="fo-refundOrderService"/>
+		<property name="channelClientService" ref="fo-refund-txncoreClientService"/>
+	</bean>
+	
+	<bean id="refundFileService" class="com.pay.poss.refund.service.impl.FileProcessServiceImpl">
+		<property name="baseDao" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="queueName" value="fundout.refund.accounting.response"></property>
+		<!-- property name="bpmService" ref="bpmService"></property-->
+		<property name="fileParserService" ref="fo-batchinfo-refundFileParserService"></property>
+	</bean>
+	<!-- 充退管理Service配置 end -->
+	
+	<!-- add jason_wang -->
+	<bean id="auditInfoExcel" class="com.pay.poss.base.common.poi.impl.OperatorPoiExcelImpl">
+		<property name="cellWidth" value="16" />
+		<property name="keyCount" value="8"/>
+		<property name="keyValueString" value="{thead1-会员号,thead2-会员姓名 ,thead3-商户名称 ,thead4-账户类型 ,thead5-充退流水号,thead6-充退金额(元),thead7-充退时间,thead8-充退状态}" />
+		<property name="targetClass" value="com.pay.poss.refund.model.RefundDetailInfoDTO" />
+		<property name="propertyNames" value="memberCode,memberName,payeeName,accTypeStr,orderKy,applyAmount,applyTime,statusStr" />
+	</bean>
+	
+	<bean id="reAuditInfoExcel" class="com.pay.poss.base.common.poi.impl.OperatorPoiExcelImpl">
+		<property name="cellWidth" value="16" />
+		<property name="keyCount" value="8"/>
+		<property name="keyValueString" value="{thead1-会员号,thead2-会员姓名 ,thead3-商户名称 ,thead4-账户类型 ,thead5-充退流水号,thead6-充退金额(元),thead7-充退时间,thead8-充退状态}" />
+		<property name="targetClass" value="com.pay.poss.refund.model.RefundDetailInfoDTO" />
+		<property name="propertyNames" value="memberCode,memberName,payeeName,accTypeStr,orderKy,applyAmount,applyTime,statusStr" />
+	</bean>
+	<!-- end jason_wang -->
+	
+	<!-- 自动生成批次文件 -->
+	<bean id="fundout-refund-refundAutoBatchFile" class="com.pay.poss.refund.schedule.autobatch.RefundAutoBatchFileImpl" />
+	
+	<!-- add by sean_yi -->
+	<bean id="refundManageSchedule" class="com.pay.poss.refund.schedule.impl.RefundManageScheduleImpl">
+		<property name="refundManageService">
+			<ref bean="refundManageService"/>
+		</property>
+	</bean>
+	
+	<bean id="fo-refundOrderService" class="com.pay.poss.refund.service.impl.RefundOrderServiceImpl">
+		<property name="baseDao" ref="PLATFORM.DEFAULT.DAOSERVICE"/>
+	</bean>
+	
+</beans>

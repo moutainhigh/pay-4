@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Payment</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="stylesheet" href="css/amazeui.min.css"/>
+    <link href="css/ipaylinks20150704.css" rel="stylesheet" type="text/css" />
+  <script src="<@sp.static/>/js/pay/common/jquery-1.3.2.js" type="text/javascript"></script>
+</head>
+<body>
+
+<!-- content start -->
+<div class="admin-content" style="font-size: 14px;">
+        <form class="am-form" action="${rc.contextPath}/channelPay.htm?method=onSubmit" method="post" id="frm1">
+          <table class="am-table am-table-striped am-table-hover table-main">
+            <thead>
+              <tr>
+                 <th colspan="4" style="border: none;"></th>
+              </tr>          
+            <tr>
+              <td style="width:25%;border-top:0px;" align="center">汇率</td>
+              <td align="center" style="border-top: 0px;width:25%">
+                 ${currencyCode?default('')}/${Currency?default('')}
+              </td>
+              <td style="border-top:0px;width:25%" align="left">
+                    ${Conversion_Rate?default('')}
+              </td>
+              <td style="border-top: 0px;width:25%"></td>
+            </tr>
+            <tr>
+              <td style="border-top:0px;" colspan="4"></td>
+            </tr>
+            <tr>
+              <td align="center" style="border-top: 0px;width:50%" colspan="2">
+                    <input type="button" id="edcPay" value="支付  ${currencyCode?default('')}&nbsp;${amountLoc?default('')}" class="am-btn am-btn-primary" 
+                    style="background-color:#FF8B00;width:auto;border:1px solid #D74C00"/>
+              </td>
+              <td style="border-top:0px;width:50%" align="center" colspan="2">
+                 <input type="button" id="dccPay" value="支付  ${Currency?default('')}&nbsp;${amountFor?default('')}" class="am-btn am-btn-primary"
+                 style="background-color:#FF8B00;width:auto;border:1px solid #D74C00"/>
+              </td>
+            </tr>
+            <tr>
+              <td style="border-top:0px;" colspan="4"></td>
+            </tr>
+             <tr>
+              <td style="border-top:0px;" colspan="4"></td>
+            </tr>
+            <tr>
+              <td style="border-top:0px;" colspan="4" align="left">
+                 <p style="top:">我声明该支付页面有支付币种的选择并且我的选择作为最终决定.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="border-top:0px;" colspan="4"></td>
+            </tr>
+          </thead>
+        </table>
+        
+		<input type="hidden" name="tradeOrderNo" id="tradeOrderNo" value="${tradeOrderNo}"/>			
+		<input type="hidden" name="partnerId" id="partnerId" value="${partnerId}"/>			
+		<input type="hidden" name="dccAmount" id="orderAmount" value="${amountFor}"/>
+		<input type="hidden" name="amountLoc" id="amountLoc" value="${amountLoc}"/>
+		<input type="hidden" name="dccCurrencyCode" id="dccCurrency" value="${Currency}"/>
+		<input type="hidden" name="orderAmount" id="orderAmount" value="${orderAmount}"/>			
+		<input type="hidden" name="currencyCode" id="currencyCode" value="${currencyCode}"/>			
+		<input type="hidden" name="orderId" id="orderId" value="${orderId}"/>			
+		<input type="hidden" name="orgCode" value="${orgCode!''}"/>		
+		<input type="hidden" name="orgMerchantCode" value="${orgMerchantCode!''}"/>		
+		<input type="hidden" name="cardHolderNumber" value="${cardHolderNumber!''}"/>
+		<input type="hidden" name="cardHolderLastName" value="${cardHolderLastName!''}"/>
+		<input type="hidden" name="cardHolderFirstName" value="${cardHolderFirstName!''}"/>		
+		<input type="hidden" name="cardExpirationYear" value="${cardExpirationYear!''}"/>		
+		<input type="hidden" name="cardExpirationMonth" value="${cardExpirationMonth!''}"/>		
+		<input type="hidden" name="securityCode" value="${securityCode!''}"/>
+		<input type="hidden" name="language" value="${language?default('cn')}"/>
+		<input type="hidden" name="orderTerminal" value="${orderTerminal?default('01')}"/>
+		<input type="hidden" name="remark" value="${remark?default('')}"/>
+		<input type="hidden" name="customerIP" id="customerIP" value="${customerIP?default('')}"/>		
+    </form>
+    <input type="hidden" name="prdtCode" id="prdtCode" value="${prdtCode?default('')}"/>
+</div>
+ <script type="text/javascript">
+ $(function(){
+		
+		$("#edcPay").click(function(){
+			var pars = $("#frm1").serialize() + "&dccFlg=EDC";
+			window.location.href='${rc.contextPath}/channelPay.htm?method=dccPay&'+pars;
+		});
+		
+		$("#dccPay").click(function(){
+			var pars = $("#frm1").serialize() + "&dccFlg=DCC&prdtCode="+$("#prdtCode").val();
+			window.location.href='${rc.contextPath}/channelPay.htm?method=dccPay&'+pars;
+		});
+		
+	});
+</script> 
+<!-- content end -->
+</body>
+</html>

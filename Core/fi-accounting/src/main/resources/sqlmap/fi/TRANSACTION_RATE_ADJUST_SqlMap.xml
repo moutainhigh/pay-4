@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="TRANSACTION_RATE_ADJUST" >
+
+	<typeAlias alias="transactionRateAdjust" type="com.pay.txncore.model.TransactionRateAdjust"/>
+	<resultMap id="BaseResultMap" class="transactionRateAdjust" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="CURRENCY" property="currency" jdbcType="VARCHAR" />
+	    <result column="ADJUST_RATE" property="adjustRate" jdbcType="VARCHAR" />
+	    <result column="TARGET_CURRENCY" property="targetCurrency" jdbcType="VARCHAR" />
+	    <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR"/>
+	    <result column="ADJUST_TAG" property="adjustTag" jdbcType="VARCHAR"/>
+	    <result column="REVERSE_ADJUST_RATE" property="reverseAdjustRate" jdbcType="VARCHAR"/>
+	    <result column="REVERSE_ADJUST_TAG" property="reverseAdjustTag" jdbcType="VARCHAR"/>
+	    <result column="EFFECT_DATE" property="effectDate" jdbcType="TIMESTAMP" />
+	    <result column="EXPIRE_DATE" property="expireDate" jdbcType="TIMESTAMP" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	    <result column="STATUS" property="status" jdbcType="CHAR" />
+	    <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+	    <result column="CARD_ORG" property="cardOrg" jdbcType="VARCHAR" />
+	    <result column="LEAST_TRANS_AMOUNT" property="leastTransAmount" jdbcType="DECIMAL" />
+	    <result column="LTA_CURRENCY_CODE" property="ltaCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="START_POINT" property="startPoint" jdbcType="DECIMAL" />
+        <result column="END_POINT" property="endPoint" jdbcType="DECIMAL" />
+	</resultMap>
+  
+  <sql id="Criteria_Where_Clause">
+  	<isNotNull prepend="and" property="currency" >
+        CURRENCY = #currency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="targetCurrency" >
+        TARGET_CURRENCY = #targetCurrency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="adjustRate" >
+        ADJUST_RATE = #adjustRate:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="effectDate" >
+        EFFECT_DATE &gt;= #effectDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="expireDate" >
+        EXPIRE_DATE &lt;= #expireDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardOrg" >
+        CARD_ORG = #cardOrg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="leastTransAmount" >
+        LEAST_TRANS_AMOUNT = #leastTransAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="ltaCurrencyCode" >
+        <![CDATA[LTA_CURRENCY_CODE = #ltaCurrencyCode:VARCHAR#]]>
+      </isNotNull>
+  </sql>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="transactionRateAdjust" >
+    select ID, MEMBER_CODE,CURRENCY,TARGET_CURRENCY, ADJUST_RATE, EFFECT_DATE, EXPIRE_DATE,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,ADJUST_TAG,REVERSE_ADJUST_RATE,REVERSE_ADJUST_TAG
+      ,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE,START_POINT,END_POINT
+    from TRANSACTION_RATE_ADJUST where 1=1
+    <isParameterPresent >
+      <include refid="TRANSACTION_RATE_ADJUST.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </select>
+  
+  <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM TRANSACTION_RATE_ADJUST where 1=1 
+        <isParameterPresent >
+         <include refid="TRANSACTION_RATE_ADJUST.Criteria_Where_Clause" />
+      </isParameterPresent>
+    </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select ID, MEMBER_CODE,CURRENCY,TARGET_CURRENCY, ADJUST_RATE, EFFECT_DATE, EXPIRE_DATE,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,ADJUST_TAG,REVERSE_ADJUST_RATE,REVERSE_ADJUST_TAG
+      ,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE,START_POINT,END_POINT
+    from TRANSACTION_RATE_ADJUST
+    where ID = #id:DECIMAL#
+  </select>
+  
+  <insert id="create" parameterClass="transactionRateAdjust" >
+  	<selectKey keyProperty="id">
+  		SELECT SEQ_TRANSACTION_RATE_ADJUST_ID.NEXTVAL FROM DUAL
+  	</selectKey>
+    insert into TRANSACTION_RATE_ADJUST(ID,MEMBER_CODE, CURRENCY,TARGET_CURRENCY,ADJUST_RATE,
+      EFFECT_DATE, EXPIRE_DATE, CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,ADJUST_TAG,REVERSE_ADJUST_RATE,REVERSE_ADJUST_TAG
+      ,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE,START_POINT,END_POINT)
+    values (#id:DECIMAL#,#memberCode:VARCHAR#, #currency:VARCHAR#, #targetCurrency:VARCHAR#,
+      #adjustRate#,#effectDate:TIMESTAMP#, #expireDate:TIMESTAMP#,
+      #createDate:TIMESTAMP#, #updateDate:TIMESTAMP#, #status:CHAR#, #operator:VARCHAR#, #adjustTag:VARCHAR#
+      ,#reverseAdjustRate:VARCHAR#,#reverseAdjustTag:VARCHAR#,#cardOrg:VARCHAR#,#leastTransAmount:DECIMAL#
+      ,#ltaCurrencyCode:VARCHAR#,#startPoint:DECIMAL#,#endPoint:DECIMAL#)
+  </insert>
+  
+  <delete id="delete">
+  	delete from TRANSACTION_RATE_ADJUST where id=#id#
+  </delete>
+  
+  <select id="countByCriteria" parameterClass="transactionRateAdjust" resultClass="java.lang.Integer" >
+    select count(*) from TRANSACTION_RATE_ADJUST where 1=1
+    <include refid="TRANSACTION_RATE_ADJUST.Criteria_Where_Clause" />
+  </select>
+  
+  <update id="update" parameterClass="transactionRateAdjust" >
+    update TRANSACTION_RATE_ADJUST
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="currency" >
+        CURRENCY = #currency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="targetCurrency" >
+        TARGET_CURRENCY = #targetCurrency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="adjustRate" >
+        ADJUST_RATE = #adjustRate:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="effectDate" >
+        EFFECT_DATE = #effectDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="expireDate" >
+        EXPIRE_DATE = #expireDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="adjustTag" >
+        ADJUST_TAG = #adjustTag:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cardOrg" >
+        CARD_ORG = #cardOrg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="leastTransAmount" >
+        LEAST_TRANS_AMOUNT = #leastTransAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="ltaCurrencyCode" >
+        LEAST_TRANS_AMOUNT = #ltaCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="startPoint" >
+        START_POINT = #startPoint:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="endPoint" >
+        END_POINT = #endPoint:DECIMAL#
+      </isNotNull>
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+    
+    <update id="batchValidStatus" parameterClass="transactionRateAdjust">
+            update TRANSACTION_RATE_ADJUST set STATUS='0'
+            WHERE STATUS=#status:CHAR# and 
+                          CURRENCY=#currency:VARCHAR# and TARGET_CURRENCY=#targetCurrency:VARCHAR# 
+                          and MEMBER_CODE=#memberCode:VARCHAR#
+    </update>
+  
+  <select id="findCurrentCurrencyRate" resultMap="BaseResultMap">
+    select ID, MEMBER_CODE,CURRENCY,TARGET_CURRENCY, ADJUST_RATE, EFFECT_DATE, EXPIRE_DATE,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,ADJUST_TAG,REVERSE_ADJUST_RATE,REVERSE_ADJUST_TAG
+      ,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE,START_POINT,END_POINT
+    from TRANSACTION_RATE_ADJUST
+    where 1=1
+    and CURRENCY = #sourceCurrency:VARCHAR#
+    and TARGET_CURRENCY = #targetCurrency:VARCHAR#
+    and STATUS = #status:VARCHAR#
+    order by id desc
+  </select>
+</sqlMap>

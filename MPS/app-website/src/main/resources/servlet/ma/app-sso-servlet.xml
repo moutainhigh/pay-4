@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <list>
+                <value>file:/opt/pay/config/ma/commonconfigure.properties</value>
+            </list>
+        </property>
+    </bean>
+	<bean id="simpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="userLogInterceptor" />
+			</list>
+		</property>
+		<property name="mappings">
+			<props>
+				<prop key="/login.htm">memberController</prop>
+				<prop key="/doCheckLocalCert.htm">memberController</prop>
+				<prop key="/outapp.htm">OutAppController</prop>
+				<prop key="/index.htm">homeController</prop>
+				<prop key="/logout.htm">loginOutController</prop>
+				<prop key="/register.htm">registerController</prop>
+				<prop key="/sso.htm">ssoController</prop>
+				<prop key="/app/matrixLogin.htm">matrixCardLoginController</prop>
+				<prop key="/individualLogin.htm">loginController</prop>
+				<!-- <prop key="/corpRegister.htm">corpRegisterController</prop> -->
+			</props>
+		</property>
+	</bean>
+
+	<bean id="loginController" class="com.pay.app.controller.base.login.LoginController">
+		<property name="individualLogin">
+			<value>/base/login/individualLogin</value>
+		</property>
+
+		<property name="enterpriceLogin">
+			<value>/base/login/enterpriceLogin</value>
+		</property>
+	</bean>
+
+
+	<!-- 用户登录的Controller -->
+	<bean id="memberController" class="com.pay.app.controller.base.login.MemberController">
+		<!-- 未激活 ,提示激活 -->
+		<property name="malllogin">
+			<value>/base/usercheck/related</value>
+		</property>
+
+		<property name="autoJump">
+			<value>/base/login/autoJump</value>
+		</property>
+		<property name="autoCertJump">
+			<value>/base/login/autoCertJump</value>
+		</property>
+
+
+		<property name="companyIndex">
+			<value>/index</value>
+		</property>
+
+		<property name="individualLogout">
+			<value>/base/login/individualLogin</value>
+		</property>
+
+		<property name="enterpriceLogout">
+			<value>/base/login/enterpriceLogin</value>
+		</property>
+
+		<property name="individualSecurityLogout">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="enterpriceSecurityLogout">
+			<value>/base/login/enterpriceSecurityLogin</value>
+		</property>
+
+		<!-- 广告service -->
+		<property name="announcementService">
+			<ref bean="app-announcementService" />
+		</property>
+
+		<!-- 判断是否是从商城过来的 -->
+		<property name="notActivation">
+			<ref bean="app-notActivation" />
+		</property>
+
+		<property name="matrixCardLoginService">
+			<ref bean="matrixCardLoginService" />
+		</property>
+
+		<property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="userLoginService">
+			<ref bean="base-userLoginService" />
+		</property>
+		<property name="advertiseService">
+			<ref bean="base-advertiseService" />
+		</property>
+
+		<property name="userHelper">
+			<ref bean="base-userHelper" />
+		</property>
+		
+		<property name="platformMemberService">
+			<ref bean="platformMemberService"/>
+		</property>
+		
+		
+		
+	</bean>
+
+	<!-- 清除session cookie Controller -->
+	<bean id="OutAppController" class="com.pay.app.controller.base.login.OutAppController">
+		<property name="outapp">
+			<value>/base/sso/logout</value>
+		</property>
+	</bean>
+
+	<!-- 登出的Controller -->
+	<bean id="loginOutController" class="com.pay.app.controller.base.login.LoginOutController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="logout">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="individualLogout">
+			<value>/base/login/individualLogin</value>
+		</property>
+
+		<property name="individualSecurityLogout">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="activePage">
+			<value>/base/login/activeLogin</value>
+		</property>
+
+		<property name="enterpriceLogout">
+			<value>/base/login/enterpriceLogin</value>
+		</property>
+
+		<property name="enterpriceSecurityLogout">
+			<value>/base/login/enterpriceSecurityLogin</value>
+		</property>
+		<property name="securityLogOut">
+			<value>/base/login/securityLogin</value>
+		</property>
+	</bean>
+
+
+	<!-- 首页的Controller -->
+	<bean id="homeController" class="com.pay.app.controller.base.home.HomeController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toIndex">
+			<value>/index</value>
+		</property>
+		<property name="companyIndex">
+			<value>/index</value>
+		</property>
+		<!-- 广告service -->
+		<property name="announcementService">
+			<ref bean="app-announcementService" />
+		</property>
+		<!-- 余额查询services -->
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+
+
+		<!-- 查询会员信息 -->
+		<property name="baseMemberService">
+			<ref bean="base-memberService" />
+		</property>
+
+		<property name="advertiseService">
+			<ref bean="base-advertiseService" />
+		</property>
+	</bean>
+
+
+	<!-- 会员注册 -->
+	<bean id="registerController" class="com.pay.app.controller.base.login.RegisterController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toRegister">
+			<value>/base/login/register</value>
+		</property>
+		<property name="toIndex">
+			<value>/base/login/regIndex</value>
+		</property>
+		<property name="toSecond">
+			<value>/base/login/regSelect</value>
+		</property>
+		<property name="toSupplementary">
+			<value>/base/usercheck/supplementary</value>
+		</property>
+		<property name="toSsoTimeOut">
+			<value>/base/usercheck/timeout</value>
+		</property>
+		<property name="baseMemberService">
+			<ref bean="base-memberService" />
+		</property>
+		<property name="smsService">
+			<ref bean="app-smsService" />
+		</property>
+		<property name="mailService">
+			<ref bean="app-mailService" />
+		</property>
+		<property name="mailUrlAction" value="${MAIL_URL_ACTIVATION}" />
+	</bean>
+	
+	<!-- 企业会员注册 <bean id="corpRegisterController" class="com.pay.app.controller.base.login.CorpRegisterController"> 
+		<property name="methodNameResolver"> <ref bean="paramResolver" /> </property> 
+		<property name="toRegister"> <value>/base/login/enterpriceRegister</value> 
+		</property> <property name="enterpriseRegisterService"> <ref bean="enterpriseRegisterService"/> 
+		</property> <property name="baseMemberService"> <ref bean="base-memberService"/> 
+		</property> </bean> -->
+
+	<bean id="ssoController" class="com.pay.app.controller.base.sso.SsoController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toCheckView">
+			<value>/base/sso/sso-check-user</value>
+		</property>
+	</bean>
+
+
+	<bean id="matrixCardLoginController"
+		class="com.pay.app.controller.base.login.MatrixCardLoginController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="matrixLogin">
+			<value>/base/login/matrixLogin</value>
+		</property>
+		<property name="matrixCardLoginService">
+			<ref bean="matrixCardLoginService" />
+		</property>
+
+	</bean>
+
+
+
+</beans>

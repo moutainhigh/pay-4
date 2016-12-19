@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-memberoperate">
+    <typeAlias alias="memberoperate" type="com.pay.acc.member.model.MemberOperate"/>
+	<typeAlias alias="operate" type="com.pay.acc.member.model.Operator"/>
+   <insert id="create" parameterClass="memberoperate">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_MEMBER_OPERATE_ID.nextval as ID from dual 
+		</selectKey>    
+ 		insert into t_member_operate(
+                                id,
+                                member_code,
+                                type,
+                                acc_type,
+                                fail_time,
+                                create_time,
+                                update_time,
+                                value1,
+                                value2,
+                                value3,
+                                value4,
+                                value5,
+                                last_login_time)
+                          values(
+                                    #id#,
+                                    #memberCode#,
+                                    #type#,
+                                    #accType#,
+                                    #failTime#,
+                                    sysdate,
+                                    sysdate,
+                                    #value1#,
+                                    #value2#,
+                                    #value3#,
+                                    #value4#,
+                                    #value5#,
+                                    #lastLoginTime#                                    
+                                )
+    </insert>
+  
+ 	<!-- 更新 会员登陆密码，支付密码验证次数sql -->
+	<sql id="MEMBER_OPERATE_UPDATE">
+		UPDATE t_member_operate SET update_time = sysdate
+		<isNotEmpty property="memberCode" prepend=",">
+			member_code = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="type" prepend=",">
+			type = #type#
+		</isNotEmpty>
+		<isNotEmpty property="accType" prepend=",">
+			acc_type = #accType#
+		</isNotEmpty>
+		<isNotEmpty property="failTime" prepend=",">
+			fail_time = #failTime#
+		</isNotEmpty>
+		<isNotEmpty property="value1" prepend=",">
+			value1 = #value1#
+		</isNotEmpty>
+		<isNotEmpty property="value2" prepend=",">
+			value2 = #value2#
+		</isNotEmpty>
+		<isNotEmpty property="value3" prepend=",">
+			value3 = #value3#
+		</isNotEmpty>
+		<isNotEmpty property="value4" prepend=",">
+			value4 = #value4#
+		</isNotEmpty>
+		<isNotEmpty property="value5" prepend=",">
+			value5 = #value5#
+		</isNotEmpty>
+		<isNotEmpty property="lastLoginTime" prepend=",">
+			last_login_time = #lastLoginTime#
+		</isNotEmpty>		
+		WHERE id = #id#
+	</sql>     
+  
+    
+   <update id="update" parameterClass="memberoperate">
+		<include refid="MEMBER_OPERATE_UPDATE"/>
+    </update>
+    
+    
+    <sql id="COMMON_CONDITION_MEMBER_OPERATE_DETAIL">
+    	<isNotEmpty property="id" prepend="and">
+			t.ID = #id#
+		</isNotEmpty>
+    	<isNotEmpty property="memberCode" prepend="and">
+			t.member_code = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="type" prepend="and">
+			t.type = #type#
+		</isNotEmpty>
+		<isNotEmpty property="accType" prepend="and">
+			t.acc_type = #accType#
+		</isNotEmpty>
+		<isNotEmpty property="failTime" prepend="and">
+			t.fail_time = #failTime#
+		</isNotEmpty>
+		<isNotEmpty property="createTime" prepend="and">
+			t.create_time = #createTime#
+		</isNotEmpty>
+		<isNotEmpty property="updateTime" prepend="and">
+			t.update_time = #updateTime#
+		</isNotEmpty>
+		<isNotEmpty property="value1" prepend="and">
+			t.value1 = #value1#
+		</isNotEmpty>
+		<isNotEmpty property="value2" prepend="and">
+			t.value2 = #value2#
+		</isNotEmpty>
+		<isNotEmpty property="value3" prepend="and">
+			t.value3 = #value3#
+		</isNotEmpty>
+		<isNotEmpty property="value4" prepend="and">
+			t.value4 = #value4#
+		</isNotEmpty> 
+				<isNotEmpty property="value5" prepend="and">
+			t.value5 = #value5#
+		</isNotEmpty>
+		<isNotEmpty property="lastLoginTime" prepend="and">
+			t.last_login_time = #lastLoginTime#
+		</isNotEmpty> 
+		 
+    </sql>  
+    
+      <sql id="DETAIL_SELECT_MEMBER_OPERATE">
+    	<![CDATA[
+	    select t.id,
+	           t.member_code memberCode,
+	           t.type,
+	           t.acc_type accType,
+	           t.fail_time failTime,
+	           t.create_time createTime,
+	           t.update_time updateTime,
+	           t.value1,
+	           t.value2,
+	           t.value3,
+	           t.value4,
+	           t.value5,
+	           t.last_login_time lastLoginTime
+	    from t_member_operate t
+	          where 1=1
+        ]]>
+    </sql>
+    
+   	<select id="findById" resultClass="memberoperate" parameterClass="java.lang.Long">
+		<include refid="DETAIL_SELECT_MEMBER_OPERATE"/>
+		<![CDATA[
+		        AND  t.ID 	= #id#
+		]]>
+    </select>
+   
+    
+    <!-- 根据参数查询-->
+    <select id="selectAccountMemberOperateByMap" resultClass="memberoperate" parameterClass="map">
+			<include refid="DETAIL_SELECT_MEMBER_OPERATE"/>
+			<![CDATA[
+		        AND  type=#type# and exists(select 1 from t_acct t1 where t1.member_code=t.member_code and t1.member_code=#memberCode#)
+			]]>
+    </select>
+    
+    
+    <select id="selectMemberOperateByMap" resultClass="memberoperate" parameterClass="map">
+			<include refid="DETAIL_SELECT_MEMBER_OPERATE"/>
+			<include refid="COMMON_CONDITION_MEMBER_OPERATE_DETAIL"/>
+    </select>
+    
+    <select id="count" resultClass="java.lang.Integer" parameterClass="map">
+    	<![CDATA[	select 
+    					count(1) 
+    				from 
+    				t_member_operate t
+    				where 1=1
+    	]]>	
+    	<include refid="COMMON_CONDITION_MEMBER_OPERATE_DETAIL"/>
+    </select>
+    
+    
+<select id="findByOperatorId" resultClass="operate" parameterClass="java.lang.Long">
+    	SELECT operator_id as operatorId,
+	       identity as identity,
+	       member_code as memberCode,
+	       name as name,
+	       status as status,
+	       email,
+	       phone,
+	       mobile,
+	       login_pwd as password,
+	       cert_code as certCode,
+	       create_date as createDate,
+	       update_date as updateDate,
+	       depart as depart,
+	       note,
+	       cert_type as certType,
+	       pay_password as payPassWord
+  		FROM t_operator
+ 		WHERE operator_id = #operatorId#
+    </select>
+    
+    <select id="findByMemberCodeAndIdentity" resultClass="operate" parameterClass="map">
+    	SELECT operator_id as operatorId,
+	       identity as identity,
+	       member_code as memberCode,
+	       name as name,
+	       status as status,
+	       email,
+	       phone,
+	       mobile,
+	       login_pwd as password,
+	       cert_code as certCode,
+	       create_date as createDate,
+	       update_date as updateDate,
+	       depart as depart,
+	       note,
+	       cert_type as certType,
+	       pay_password as payPassWord
+  		FROM t_operator
+		where status = 1
+     	<isNotNull prepend="AND" property="memberCode">
+            member_code = #memberCode#
+        </isNotNull>
+        <isNotNull prepend="AND" property="identity">
+            identity = #identity#
+        </isNotNull>
+    </select>
+    
+    
+    <select id="findErrLoginLogsByMember" resultClass="java.lang.Integer" parameterClass="map">
+    		select count(*) from t_user_log t where t.log_type=19 
+ 				and t.member_code=#memberCode#
+				and to_char(t.login_date,'yyyy-mm-dd hh24:mi:ss') >=  to_char(sysdate-(30/24/60), 'yyyy-mm-dd hh24:mi:ss')
+    </select>
+</sqlMap>

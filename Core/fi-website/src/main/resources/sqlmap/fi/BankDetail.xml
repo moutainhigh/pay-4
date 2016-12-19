@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bankDetail">
+	<typeAlias alias="bankDetail" type="com.pay.gateway.model.BankDetail"/>
+	<resultMap id="bankDetailResult" class="bankDetail" >
+	    <result column="BANK_DETAIL_ID" property="bankDetailId" jdbcType="DECIMAL" />
+	    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+	    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+	    <result column="RESV_FLD1" property="resvFld1" jdbcType="VARCHAR" />
+	    <result column="RESV_FLD2" property="resvFld2" jdbcType="VARCHAR" />
+	    <result column="ORG_NAME" property="orgName" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<resultMap id="bankDetailResultWithBLOBs" class="bankDetail" extends="bankDetailResult" >
+		<result column="BANK_DETAIL" property="bankDetail" jdbcType="CLOB" />
+	</resultMap>
+ 
+  <select id="selectbankDetailResultWithOrgCode" resultMap="bankDetailResultWithBLOBs" parameterClass="java.lang.String" >
+    select * from BANK_DETAIL
+    where ORG_CODE = #orgCode#
+  </select>
+
+</sqlMap>

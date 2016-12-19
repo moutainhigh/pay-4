@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="withdrawlimitconfigure">
+	<typeAlias alias="withdrawlimitconfigure"
+		type="com.pay.app.model.WithdrawLimitConfigure" />
+
+	<insert id="create" parameterClass="withdrawlimitconfigure">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			SEQ_withdrawlimitconfigure_ID.nextval as ID from dual 
+		</selectKey>
+		insert into
+		withdrawlimitconfigure
+		(
+		id,
+		type,
+		memberCode,
+		maxCount,
+		maxAmount,
+		creationDate
+		)
+		values
+		(
+		#id#,
+		#type#,
+		#memberCode#,
+		#maxCount#,
+		#maxAmount#,
+		#creationDate#
+		)
+	</insert>
+	<delete id="delete">
+		delete from
+		withdrawlimitconfigure
+		where
+		ID = #id#
+    </delete>
+
+	<delete id="deletes" parameterClass="java.util.List">
+		delete from
+		withdrawlimitconfigure
+		where
+		ID
+		in
+		<iterate open="(" close=")" conjunction=",">
+			#ids[]#
+            </iterate>
+	</delete>
+	<update id="update" parameterClass="withdrawlimitconfigure">
+		update
+		withdrawlimitconfigure
+		set
+		type = #type#,
+		memberCode = #memberCode#,
+		maxCount = #maxCount#,
+		maxAmount = #maxAmount#,
+		creationDate = #creationDate#
+		where
+		id = #id#
+    </update>
+	<select id="count" resultClass="java.lang.Integer">
+		select
+		count(id)
+		from
+		withdrawlimitconfigure
+    </select>
+
+
+	<select id="findById" resultClass="withdrawlimitconfigure"
+		parameterClass="java.lang.Long">
+		select
+		id,
+		type,
+		memberCode,
+		maxCount,
+		maxAmount,
+		creationDate
+		from
+		withdrawlimitconfigure
+		where
+		ID = #id#
+    </select>
+
+	<select id="findByMemberCodeAndType" resultClass="withdrawlimitconfigure"
+		parameterClass="java.util.HashMap">
+		select
+		id,
+		type,
+		memberCode,
+		maxCount,
+		maxAmount,
+		creationDate
+		from
+		withdrawlimitconfigure
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="type">
+				type = #type#
+        	</isNotNull>
+			<isNotNull prepend="AND" property="memberCode">
+				memberCode = #memberCode#
+        	</isNotNull>
+		</dynamic>
+	</select>
+
+	<select id="read" resultClass="withdrawlimitconfigure"
+		parameterClass="java.lang.Long">
+		select
+		ID
+		from
+		withdrawlimitconfigure
+		where
+		ID = #id#
+    </select>
+
+	<select id="loadAll" resultClass="withdrawlimitconfigure"
+		parameterClass="java.util.List">
+		select
+		id,
+		type,
+		memberCode,
+		maxCount,
+		maxAmount,
+		creationDate
+		from
+		withdrawlimitconfigure
+    </select>
+
+</sqlMap>

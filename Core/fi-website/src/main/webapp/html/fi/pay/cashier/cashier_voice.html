@@ -1,0 +1,106 @@
+<div class="pay_cashier hide" id="voicePay" >
+
+	 <form method="post" action="${rc.contextPath}/ivrPayment.htm?method=onSubmit" onSubmit="return false;" id="ivrForm" name="ivrForm" enctype="multipart/form-data">
+		<input type="hidden" name="partner" id="partner" value="${partner?default('')}"/>
+		<input type="hidden" name="ordersKey" id="ordersKey" value="${ordersKey?default('')}"/> 
+		<ul class="form_list">
+		
+			<li class="txt_pop">
+				<i id="noFeeId" style=" bottom:22px;left:370px; display:display;" >
+					<label class="form_side">应付总价：</label>
+					<strong class="red">${banktotalAmountFee?default('')}</strong>元
+					(含手续费金额：<span class='red'>${bankfee?default('')}</span> 元)
+				</i>
+			</li>
+			<li>
+				<label class="form_side">手机号码：</label>
+				<input class="inp_normal w150" type="text"  id="mobile" name="mobile" maxlength= "11" />
+			</li>
+			<li>
+				<label class="form_side">身份证号码：</label>
+				<input class="inp_normal w150" type="text"  id="idNo" name="idNo" maxlength= "18" />
+			</li>
+			<li>
+				<label class="form_side">银行卡号：</label>
+				<input class="inp_normal w150" type="text"  id="bankAcct" name="bankAcct" />
+			</li>
+			<li>
+				<label class="form_side">姓名：</label>
+				<input class="inp_normal w150" type="text"  id="name" name="name" />
+			</li>
+			<li>
+				<label class="form_side">银行归属地：</label>
+				<@sp.area areaId="areaCode" areaName="areaCode" cityId="cityCode" cityName="cityCode" areaSelected="" citySelected=""/>
+			</li>
+			<li class="btn">
+				<span class="btn_yel mt10"><button id="ivrPost" type="button">确认支付</button></span>
+			</li>
+		</ul>
+	</form>
+</div>
+
+
+
+<script type="text/javascript">
+
+$(function(){
+	
+	
+	$("#ivrPost").click(function(){
+		var mobile = $('#mobile').val();
+		if('' == mobile){
+			$.pay.alert('请填写手机号！',{h:160,t:'3'});
+			return;
+		}
+		
+		var idNo = $('#idNo').val();
+		if('' == idNo){
+			$.pay.alert('请填写身份证号！',{h:160,t:'3'});
+			return;
+		}
+		var bankAcct = $('#bankAcct').val();
+		if('' == bankAcct){
+			$.pay.alert('请填写银行卡号！',{h:160,t:'3'});
+			return;
+		}
+		var name = $('#name').val();
+		if('' == name){
+			$.pay.alert('请填写姓名！',{h:160,t:'3'});
+			return;
+		}
+		
+		var areaCode = $("#areaCode").val();
+		if('' == areaCode){
+			$.pay.alert('请选择省份！',{h:160,t:'3'});
+			return;
+		}
+		
+		var cityCode = $("#cityCode").val();
+		if('' == cityCode){
+			$.pay.alert('请选择城市！',{h:160,t:'3'});
+			return;
+		}
+		
+		var ordersKey = $('#ordersKey').val();
+		
+		loadWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+		var data = "mobile=" + mobile + "&idNo=" + idNo + "&ordersKey=" + ordersKey + "&bankAcct=" + bankAcct + "&name=" + name +"&areaCode=" + areaCode + "&cityCode=" + cityCode;
+		$.ajax({
+			   type: "POST",
+			   url: "${rc.contextPath}/ivrPayment.htm?method=onSubmit",
+			   cache: false,
+			   data: data,
+			   async : false,
+			   contentType: "application/x-www-form-urlencoded; charset=utf-8",
+			   success: function(msg){
+				    //alert(msg);
+			   		$.pay.window(msg,{title:'',w:550,h:300,url:false,isClose:false});
+			   		$.pay.closeLoading(loadWin);
+					$("#ivrPost").addClass("b_off");
+			   		//$("#ivrForm").submit();
+			  	}
+		})
+	});
+	
+});
+</script>

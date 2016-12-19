@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!-- Controller -->
+<beans>
+	<bean id="payChainUrlMapping"
+			class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/paychain/generateChain.htm">payChainController</prop>
+				<prop key="/corp/paychain/payChainQuery.htm">payChainQueryController</prop>
+				<prop key="/corp/zfl/upload/payChainUpload.htm">payChainUploadController</prop>
+			</props>
+		</property>
+		
+	</bean>
+	
+
+<bean id="payChainpayUrlMapping"
+			class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		
+		<property name="mappings">
+			<props>
+				<prop key="/paychain.htm">payChainPayController</prop>
+				<prop key="/paychain/pay.htm">payChainPayController</prop>
+				<prop key="/private/paychain/pay.htm">payChainPayController</prop>
+				<prop key="/paychain/notice.htm">payChainPayController</prop>
+				<prop key="/paychain/back.htm">payChainPayController</prop>
+				<prop key="/paychain/excel.htm">payChainPayController</prop>
+			</props>
+		</property>
+		
+	</bean>
+	
+	<bean id="payChainController" class="com.pay.app.controller.base.paychain.PayChainController">
+		<property name="generateIndex">
+			<value>/paychain/generateIndex</value>
+		</property>
+		<property name="generateConfirm">
+			<value>/paychain/generateConfirm</value>
+		</property>
+		<property name="generateSuccess">
+			<value>/paychain/generateSuccess</value>
+		</property>
+		<property name="generateFaile">
+			<value>/paychain/generateFaile</value>
+		</property>
+		<property name="preview">
+			<value>/paychain/preview</value>
+		</property>
+		<property name="generateRepeat">
+			<value>/paychain/generateRepeat</value>
+		</property>
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+		<property name="payChainService">
+			<ref bean="base-payChainService"/>
+		</property>
+		<property name="enterpriseContactService">
+			<ref bean="base-enterpriseContactService" />
+		</property>
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+		<property name="provinceServiceFacade">
+			<ref bean="app-bankAcctServiceFacade" />
+		</property>
+		<property name="contextPicService">
+			<ref bean="base-contextPicService" />
+		</property>
+		
+	</bean>
+	
+	<bean id="payChainQueryController" class="com.pay.app.controller.base.paychain.PayChainQueryController">
+		<property name="payChainService">
+			<ref bean="base-payChainService"/>
+		</property>
+		<property name="queryStatView">
+			<value>/paychain/query_stat_list</value>
+		</property>
+		<property name="queryPayChainDetailView">
+			<value>/paychain/query_paychain_detail</value>
+		</property>
+		<property name="queryStatExportErrorView">
+			<value>/paychain/export_excel_error</value>
+		</property>
+		<property name="exportPayChainStatPath">
+			<value>/ftl/paychain/query_stat_list_excel.xls</value>
+		</property>
+		<property name="exportPayChainDetailPath">
+			<value>/ftl/paychain/query_paychain_detail_excel.xls</value>
+		</property>
+		<property name="contextPicService">
+			<ref bean="base-contextPicService" />
+		</property>
+		
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+	</bean>
+	
+	<bean name="payChainControllerMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+   		<property name="mappings">
+   			<props>
+	   			<prop key="/paychain.htm">index</prop>
+	   			<prop key="/paychain/pay.htm">submitPay</prop>
+	   			<prop key="/private/paychain/pay.htm">submitPay</prop>
+	   			<prop key="/paychain/notice.htm">payNotice</prop>
+				<prop key="/paychain/back.htm">payCallback</prop>
+				<prop key="/paychain/excel.htm">excel</prop>
+			</props>
+   		</property>
+   </bean>
+
+   
+   <bean id="payChainPayController" class="com.pay.app.controller.base.paychain.PayChainPayController">
+		
+		<property name="indexPage">
+			<value>/paychain/pay/payinput</value>
+		</property>
+		<property name="errorPage">
+			<value>/paychain/pay/chainNumError</value>
+		</property>
+		<property name="payPage">
+			<value>/paychain/pay/pay</value>
+		</property>
+		<property name="payResultPage">
+			<value>/paychain/pay/payResult</value>
+		</property>
+		<property name="payExcelPage">
+			<value>/paychain/pay/payExcel</value>
+		</property>
+		<property name="methodNameResolver">
+			<ref bean="payChainControllerMethodNameResolver"/>
+		</property>
+		<property name="payChainService">
+			<ref bean="base-payChainService"/>
+		</property>
+		<property name="payChainPayInfoService">
+			<ref bean="base-payChainPayInfoService" />
+		</property>
+		<property name="payChainPayService">
+			<ref bean="base-payChainPayService" />
+		</property>
+		<property name="externalLogService">
+			<ref bean="base-externalLogService" />
+		</property>
+		<property name="externalNoticeService">
+			<ref bean="base-externalNoticeService"/>
+		</property>
+		<property name="contextPicService">
+			<ref bean="base-contextPicService" />
+		</property>
+	</bean>
+   
+   	<bean id="payChainUploadController" class="com.pay.app.controller.base.paychain.BaseUploadController">
+		<property name="payChainUploadService">
+			<ref bean="base-payChainUploadService"/>
+		</property>
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+   </bean>
+</beans>

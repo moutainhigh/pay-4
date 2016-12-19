@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+  <!--     <script  type="text/javascript" src="<@sp.static/>/mps/js/zidingyi.js"></script> -->
+
+<!-- jquery validate -->
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/pay/common/website.js"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>调单查询</title> 
+
+</head>
+ 
+<body>
+<script type="text/javascript">
+</script>
+<script type="text/javascript">   
+</script> 
+<script type="text/javascript">
+</script>
+<#include "/include/topbar.html">
+<@sp.head  mCode="03"/>
+<!-- 获取企业还是个人url str -->
+
+	<div class="mainbox">
+<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<!-- <span class="current"><a href="${rc.contextPath}/corp/bounced.htm">调单查询 </a></span> -->
+			</div>
+				<div class="seccon">
+					<div class="bgbox">
+					<form class="form" action="${rc.contextPath}/corp/bouncedFine.htm" method="post" name="bouncedFineForm" id="bouncedFineForm">
+						<input type="hidden" name="method" value="bouncedFineQuery">
+						<table class="tab01" style="line-height: 25px">
+							<tbody>
+								<tr>
+                                   <td width="100"><span style="float:right">拒付月份：</span></td>
+                                   <td>
+	                                  <input type="text" class="Wdate inp_normal w380" name="tradeBeginTime"  readonly="readonly" id="tradeBeginTime" gtbfieldid="109" value="<#if requetParam.startTime?has_content>${requetParam.startTime!('')}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM'})" value="${requetParam.startTime!''}">
+							          <span>-</span>
+							          <input type="text" class="Wdate inp_normal w380" name="tradeEndTime" readonly="readonly" id="tradeEndTime" gtbfieldid="110" value="<#if requetParam.endTime?has_content>${requetParam.endTime!('')}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM'})" value="${requetParam.endTime!''}">
+	                                     
+                                   </td>
+                                   <td colspan="4" style="">
+										<div class="divquery">
+											<input class="btn_blue2" type="submit" id="submitId" alt="查  询" value="查  询" >
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</form>
+					</div>
+				<div><font color="red"></font></div>
+					<div class="listFence" id="resultListDiv">
+						
+						<div>
+							<table class="tab03">
+								<thead>
+									<tr>
+										<th>统计月份</th>
+										<th>卡组织</th>
+										<th>当月拒付率</th>
+										<th>当月欺诈率</th>
+										<th>本月罚款金额</th>
+										<th>扣款时间</th>
+									</tr>
+								</thead>
+								<tbody>
+								<#if resultList?has_content>
+							 		<#list resultList as ts>
+										<tr <#if ts_index%2==0> class="gray" </#if> >
+											<td>${ts.bouncedDate!('')}</td>
+											<td>
+												${ts.cardOrg?default("")}
+											</td>
+											<td>
+												${ts.bouncedRate?default("0.00%")}
+											</td>
+			   								<td>${ts.fraudRate!('0.00%')}</td>
+			   								<td>
+			   									${(ts.fineAmount*0.001)?string(",##0.000")}&nbsp;&nbsp;${ts.currencyCode?default("")}
+											</td>
+											<td>
+												${ts.executeDate?default("")}
+											</td>
+										</tr> 
+									</#list>
+								</#if>
+								<tbody>
+							</tbody></table>
+						 </div>
+						<div class="page_box" style="text-align: right">
+						<!-- 分页str -->
+						<#if pu?exists>
+							<@sp.pagination pu=pu/>
+						</#if>
+						<!-- 分页end -->
+					</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+	<!-- 申诉 -->
+	<div id="dialog-uploade" title="调单申诉" style="display: none;">
+	  <form action="${rc.contextPath}/corp/bounced.htm?method=uploadChargeFile" id="uploadeSite" enctype="multipart/form-data" name="uploadeSite" method="post" target="hidden_frame" >
+	  	<input type="hidden" name="d_cpType" id="d_cpType" value="1" /><!-- 调单 -->
+	  	<input type="hidden" name="d_orderId" id="d_orderId" value="" />
+	  	<input type="hidden" name="d_refNo" id="d_refNo" value="" />
+	  	<input type="hidden" name="d_batchNo" id="d_batchNo" value="" />
+	  	<div style="margin-top: 20px;">   	 
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;">
+	  			<span style="width:230px;display: inline-block;padding:0 5px 0 5px;">商户订单号: <font id="d_orderNo"></font></span>
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;">清算金额(基本户)：<font id="d_baseAmount"></font></span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;">
+	  			<span style="width:230px;display: inline-block;padding:0 5px 0 5px;">交易金额： <font id="d_orderAmount"></font></span>
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;">拒付金额：<font id="d_chargeBackAmount"></font></span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;">
+	  			<span style="width:230px;display: inline-block;padding:0 5px 0 5px;">清算汇率：<font id="d_settlementRate"></font></span>
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;">清算金额(保证金)：<font id="d_assAmount"></font></span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;text-align: center;">
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;color:red;visibility: hidden;" id="d_fileSize">(文件大小不能超5M)</span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;text-align: center;">
+	  			<input type="file" name="file" id="file" />
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;text-align: center;">
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;color:red;visibility: hidden;" id="d_fileEmpty">请上传回复资料</span>
+	  		</div>
+	    <!-- <input type="submit" tabindex="-1" style="position:absolute; top:-1000px"> -->
+	   </div>
+	   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+	  </form>
+	  <script type="text/javascript">
+		function callback(result){  
+			var opt={};
+		    var statue=result.split("|")[0];
+		    var msg=result.split("|")[1];
+		    //var success = result.split("|")[2] ;
+		    if(statue=="Y"){
+				$.pay.alert(msg);
+				$("#dialog-uploade" ).dialog( "close" );
+			}else if(statue=="N"){
+				$.pay.alert(msg);
+			}
+		}
+	</script>
+	</div>
+</body>
+</html>
+

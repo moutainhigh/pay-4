@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="autoriskcontrol">
+	<select id="findfundoutamounts" parameterClass="map" resultClass="java.util.HashMap">
+		select payer_membercode, sum(order_amount) totalAmount from fundout_order
+		where trunc(create_date, 'dd') = trunc(sysdate-#timeintenal#, 'dd')
+		and order_status in(101, 111)
+		and payer_membercode = #payermembercode#
+		group by payer_membercode having sum(order_amount) &gt; #fundoutamount#
+	</select>
+	
+	<select id="findpayeebankaccs" parameterClass="map" resultClass="java.util.HashMap">
+		select payer_membercode, count(1) totalCount from fundout_order
+		where trunc(create_date, 'dd') = trunc(sysdate-#timeintenal#, 'dd')
+		and payer_membercode = #payermembercode#
+		and payee_bankacctcode = #payeebankacccode#
+		and order_status in(101, 111)
+		group by payer_membercode having count(1) &gt; #payeebankacc#
+	</select>
+	
+	<select id="findreceivedpersonacctransferamounts" parameterClass="map" resultClass="java.util.HashMap">
+		select payee_membercode, count(1) totalCount from pay_toacctorder
+		where trunc(create_date, 'dd') = trunc(sysdate-#timeintenal#, 'dd')
+		and payee_membercode = #payermembercode#
+		and trade_type=0
+		and order_status in(111)
+		group by payee_membercode having count(1) &gt; #transfertimes#
+	</select>
+	
+	<select id="findreceivedpersonacctransfertimes" parameterClass="map" resultClass="java.util.HashMap">
+		select payee_membercode, sum(order_amount) totalCount from pay_toacctorder
+		where trunc(create_date, 'dd') = trunc(sysdate-#timeintenal#, 'dd')
+		and payee_membercode = #payermembercode#
+		and trade_type=0
+		and order_status in(111)
+		group by payee_membercode having sum(order_amount) &gt; #transferamount#
+	</select>
+</sqlMap>

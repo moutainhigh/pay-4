@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="memberRelation">
+	<typeAlias alias="memberRelation" type="com.pay.poss.memberrelation.model.MemberRelation"/>
+	
+	<!-- 新增接口日志-->
+	<insert id="create" parameterClass="memberRelation">
+	<selectKey resultClass="java.lang.Long" keyProperty="memberRelationId">
+			select seq_t_member_relation_id.nextval from DUAL  
+	</selectKey>
+	 <![CDATA[
+	insert into t_member_relation(MEMBER_RELATION_ID,
+	                              father_member_code,
+	                              father_operator_id,
+	                              son_zh_name,
+	                              son_en_name,
+	                              son_member_code,
+	                              son_operator_id,
+	                              son_merchant_code,
+	                              son_usteel_id,
+	                              son_usteel_name,
+	                              relation_type,
+	                              status,
+	                              value1,
+	                              value2,
+	                              create_date,
+	                              update_date)
+	                       values(#memberRelationId#,
+	                              #fatherMemberCode#,
+	                              #fatherOperatorId#,
+	                              #sonZhName#,
+	                              #sonEnName#,
+	                              #sonMemberCode#,
+	                              #sonOperatorId#,
+	                              #sonMerchantCode#,
+	                              #sonUsteelId#,
+	                              #sonUsteelName#,
+	                              #relationType#,
+	                              #status#,
+	                              #value1#,
+	                              #value2#,
+	                              sysdate,
+	                              sysdate)
+		 ]]>
+	</insert>
+	
+    <sql id="CONDITION.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="CONDITION.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 WHERE (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+   
+   <sql id="QUERY_RECORD_CONDITION">
+		<isNotEmpty prepend="and" property="fatherMemberCode">			
+           	r.father_member_code=trim(#fatherMemberCode#)            
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="loginName">			
+           	m.login_name=trim(#loginName#)            
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="relationType">			
+           	r.relation_type=#relationType#            
+		</isNotEmpty>
+	</sql>
+     
+     <select id="queryMemberRelationByCondition"  parameterClass="memberRelation"  resultClass="memberRelation">
+   	 	<include refid="CONDITION.PAGING_START" />
+		   	select 	r.father_member_code,
+		   		   	r.son_member_code sonMemberCode,
+		   		   	r.relation_type relationType,		   		   	
+		       		r.value1,
+		      		r.value2,
+		       		i.name,
+		       		m.login_name loginName,
+		       		i.mobile 
+		 	from t_member_relation r ,t_member m,t_individual_info i
+			where r.son_member_code=m.member_code and i.member_code=m.member_code
+		<include refid="QUERY_RECORD_CONDITION"/>				
+			order by r.create_date desc         
+		<include refid="CONDITION.PAGING_END" />
+   </select>
+   
+    <select id="countMemberRelationByCondition"  parameterClass="memberRelation"  resultClass="int">
+   		        select count(1)
+		 	from t_member_relation r ,t_member m,t_individual_info i
+			where r.son_member_code=m.member_code and i.member_code=m.member_code	
+		<include refid="QUERY_RECORD_CONDITION"/>
+   </select>
+   
+   
+</sqlMap>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="prstgytem">
+	<typeAlias alias="prStgyTemDTO" type="com.pay.pe.template.dto.PrStgyTemDTO"/>
+	<!-- 
+    <resultMap id="prStgyTemDTO" class="com.pay.pe.template.dto.PrStgyTemDTO">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="TEMPLATE_NAME" property="templateName" jdbcType="VARCHAR"/>
+        <result column="FIXED_CHARGE" property="fixedCharge" jdbcType="DECIMAL"/>
+        <result column="CHARGE_RATE" property="chargeRate" jdbcType="DECIMAL"/>
+        <result column="RANG_FROM" property="rangFrom" jdbcType="DECIMAL"/>
+        <result column="RANG_TO" property="rangTo" jdbcType="DECIMAL"/>
+        <result column="MAX_CHARGE" property="maxCharge" jdbcType="DECIMAL"/>
+        <result column="MIN_CHARGE" property="minCharge" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="CREATED_BY" property="createdBy" jdbcType="VARCHAR"/>
+        <result column="MODIFIED_BY" property="modifiedBy" jdbcType="VARCHAR"/>
+    </resultMap>
+   -->
+    <insert id="create" parameterClass="prStgyTemDTO">
+       <selectKey resultClass="java.lang.Long" keyProperty="id">			
+			select SEQ_TEMPLATE_ID.NEXTVAL from DUAL
+		</selectKey>
+		
+		insert into PRICE_STRATEGY_TEMPLATE
+			(ID,TEMPLATE_NAME,FIXED_CHARGE,CHARGE_RATE,RANG_FROM,RANG_TO,MAX_CHARGE,MIN_CHARGE,CREATE_DATE,UPDATE_DATE,CREATED_BY,MODIFIED_BY,PRICE_STRATEGY_TYPE)
+		values
+		  (#id#, #templateName#, #fixedCharge#, #chargeRate#, #rangFrom#, #rangTo#, #maxCharge#, #minCharge#,#createDate#,#updateDate#,#createdBy#,#modifiedBy#,#priceStrategyType#)
+    </insert>
+
+    <update id="update" parameterClass="prStgyTemDTO">
+        update PRICE_STRATEGY_TEMPLATE
+        set
+        	TEMPLATE_NAME = #templateName#,
+        	FIXED_CHARGE = #fixedCharge#,
+        	CHARGE_RATE = #chargeRate#,
+        	RANG_FROM = #rangFrom#,
+        	RANG_TO = #rangTo#,
+        	MAX_CHARGE = #maxCharge#,
+        	MIN_CHARGE = #minCharge#,
+        	UPDATE_DATE = #updateDate#,
+        	MODIFIED_BY = #modifiedBy#,
+        	PRICE_STRATEGY_TYPE = #priceStrategyType#
+        where
+            ID = #id#
+    </update>
+	
+	<update id="updateBySelective" parameterClass="prStgyTemDTO">
+        update PRICE_STRATEGY_TEMPLATE
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="templateName">
+            TEMPLATE_NAME = #templateName#
+        </isNotNull>
+        <isNotNull prepend="," property="fixedCharge">
+            FIXED_CHARGE = #fixedCharge#
+        </isNotNull>
+        <isNotNull prepend="," property="chargeRate">
+            CHARGE_RATE = #chargeRate#
+        </isNotNull>
+        <isNotNull prepend="," property="rangFrom">
+            RANG_FROM = #rangFrom#
+        </isNotNull>
+        <isNotNull prepend="," property="rangTo">
+            RANG_TO = #rangTo#
+        </isNotNull>
+        <isNotNull prepend="," property="maxCharge">
+            MAX_CHARGE = #maxCharge#
+        </isNotNull>
+        <isNotNull prepend="," property="minCharge">
+            MIN_CHARGE = #minCharge#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        <isNotNull prepend="," property="modifiedBy">
+            MODIFIED_BY = #modifiedBy#
+        </isNotNull>
+        <isNotNull prepend="," property="priceStrategyType">
+            PRICE_STRATEGY_TYPE = #priceStrategyType#
+        </isNotNull>
+        </dynamic>
+        where
+            ID = #id#
+    </update>
+    
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM PRICE_STRATEGY_TEMPLATE  
+        where
+        	ID = #id#      
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="prStgyTemDTO">
+        DELETE FROM PRICE_STRATEGY_TEMPLATE        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="id">
+            ID = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="templateName">
+            TEMPLATE_NAME = #templateName# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <select id="findById" resultClass="prStgyTemDTO" parameterClass="java.lang.Long">
+	      select 
+	       ID as id,
+	       TEMPLATE_NAME  as templateName,
+	       FIXED_CHARGE  as fixedCharge,
+	       CHARGE_RATE  as chargeRate,
+	       RANG_FROM as rangFrom,
+	       RANG_TO as rangTo,
+	       MAX_CHARGE as maxCharge,
+	       MIN_CHARGE as minCharge,
+	       CREATE_DATE as createDate,
+	       UPDATE_DATE as updateDate,
+	       CREATED_BY as createdBy,
+	       MODIFIED_BY as  modifiedBy,
+	       PRICE_STRATEGY_TYPE as  priceStrategyType
+		  from PRICE_STRATEGY_TEMPLATE
+	       WHERE 
+           ID = #id# 
+    </select>
+    
+    <select id="findBySelective" resultClass="prStgyTemDTO" parameterClass="prStgyTemDTO">
+        select 
+	       ID as id,
+	       TEMPLATE_NAME  as templateName,
+	       FIXED_CHARGE  as fixedCharge,
+	       CHARGE_RATE  as chargeRate,
+	       RANG_FROM as rangFrom,
+	       RANG_TO as rangTo,
+	       MAX_CHARGE as maxCharge,
+	       MIN_CHARGE as minCharge,
+	       CREATE_DATE as createDate,
+	       UPDATE_DATE as updateDate,
+	       CREATED_BY as createdBy,
+	       MODIFIED_BY as  modifiedBy,
+	       PRICE_STRATEGY_TYPE as  priceStrategyType
+		from PRICE_STRATEGY_TEMPLATE
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="id">
+            ID = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="templateName">
+            TEMPLATE_NAME = #templateName# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <!-- 综合查询 -->
+    <select id="findByQuery" resultClass="prStgyTemDTO" parameterClass="prStgyTemDTO">
+        select 
+	       ID as id,
+	       TEMPLATE_NAME  as templateName,
+	       FIXED_CHARGE  as fixedCharge,
+	       CHARGE_RATE  as chargeRate,
+	       RANG_FROM as rangFrom,
+	       RANG_TO as rangTo,
+	       MAX_CHARGE as maxCharge,
+	       MIN_CHARGE as minCharge,
+	       CREATE_DATE as createDate,
+	       UPDATE_DATE as updateDate,
+	       CREATED_BY as createdBy,
+	       MODIFIED_BY as  modifiedBy,
+	       PRICE_STRATEGY_TYPE as  priceStrategyType
+		from PRICE_STRATEGY_TEMPLATE
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="id">
+            ID = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="templateName">
+            TEMPLATE_NAME = #templateName# 
+        </isNotNull>
+        </dynamic>
+        order by CREATE_DATE
+    </select>
+    
+    <!-- 分页查询 -->
+    <sql id="PRSTRGYTEM.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="PRSTRGYTEM.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 where (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	<select id="findByPageQuery" resultClass="prStgyTemDTO" parameterClass="map">
+		<include refid="PRSTRGYTEM.PAGING_START" />
+        select 
+	       ID as id,
+	       TEMPLATE_NAME  as templateName,
+	       FIXED_CHARGE  as fixedCharge,
+	       CHARGE_RATE  as chargeRate,
+	       RANG_FROM as rangFrom,
+	       RANG_TO as rangTo,
+	       MAX_CHARGE as maxCharge,
+	       MIN_CHARGE as minCharge,
+	       CREATE_DATE as createDate,
+	       UPDATE_DATE as updateDate,
+	       CREATED_BY as createdBy,
+	       MODIFIED_BY as  modifiedBy,
+	       PRICE_STRATEGY_TYPE as  priceStrategyType
+		from PRICE_STRATEGY_TEMPLATE
+		where 1=1 
+        <isNotEmpty prepend="AND" property="id">
+            ID = #id# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="priceStrategyType">
+            PRICE_STRATEGY_TYPE = #priceStrategyType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="templateName">
+            TEMPLATE_NAME  like '%$templateName$%'
+        </isNotEmpty>
+        order by CREATE_DATE
+        <include refid="PRSTRGYTEM.PAGING_END" />
+    </select>
+    
+    <select id="findCountByQuery" resultClass="int" parameterClass="prStgyTemDTO">
+        select count(1) from PRICE_STRATEGY_TEMPLATE
+        where 1=1 
+        <isNotEmpty prepend="AND" property="id">
+            ID = #id# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="priceStrategyType">
+            PRICE_STRATEGY_TYPE = #priceStrategyType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="templateName">
+            TEMPLATE_NAME  like '%$templateName$%' 
+        </isNotEmpty>
+    </select>
+
+</sqlMap>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="queryReportHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/if_poss_query/queryReport.do">
+					queryReportController
+				</prop>
+				<prop key="/if_poss_query/sumaryReport.do">
+					reportController
+				</prop>
+				<prop key="/if_poss_query/performanceReport.do">
+					performanceReportController
+				</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="performanceReportController" class="com.pay.pe.report.controller.PerformanceReportController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="queryReportService" ref="queryReportService" />
+		<property name="indexView">
+			<value>/report/performanceReportIndex</value>
+		</property>
+		<property name="reportView">
+			<value>/report/performanceReportList</value>
+		</property>
+	</bean>
+	<bean id="queryReportController" class="com.pay.pe.report.controller.QueryReportController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="queryReportService" ref="queryReportService" />
+		<property name="indexView">
+			<value>/report/queryReport</value>
+		</property>
+		<property name="fundInView">
+			<value>/report/fundInList</value>
+		</property>
+		<property name="reFundInView">
+			<value>/report/refundInList</value>
+		</property>
+		<property name="fundOutView">
+			<value>/report/fundOutList</value>
+		</property>
+		<property name="reFundOutView">
+			<value>/report/refundOutList</value>
+		</property>
+	</bean>
+ 
+ 	<bean id="reportController" class="com.pay.pe.report.controller.ReportController">
+		<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="queryReportService" ref="queryReportService" />
+		<property name="indexView">
+			<value>/report/reportIndex</value>
+		</property>
+		<property name="reportView">
+			<value>/report/reportList</value>
+		</property>
+	</bean>
+</beans>

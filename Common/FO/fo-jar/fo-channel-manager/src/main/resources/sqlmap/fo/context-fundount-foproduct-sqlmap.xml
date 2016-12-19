@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutproduct">
+	<typeAlias alias="fundoutProduct" type="com.pay.fundout.channel.model.product.FundoutProduct"/>
+
+	<resultMap id="fundoutProductResult" class="com.pay.fundout.channel.model.product.FundoutProduct">
+		<result column="NAME" property="name" />
+		<result column="CODE" property="code" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="MARK" property="mark" />
+		<result column="STATUS" property="status" />
+	</resultMap>
+	
+	<insert id="create" parameterClass="fundoutProduct">
+		insert into FUNDOUT_PRODUCT (CODE, NAME, CREATE_DATE, MARK, STATUS)
+		values (#code#, #name#, sysdate, #mark#, #status#)
+	</insert>
+	
+	<select id="findByCode" resultMap="fundoutProductResult" parameterClass="string">
+		select NAME, CREATE_DATE, MARK, STATUS, CODE
+		from FUNDOUT_PRODUCT
+		where CODE = #code#
+	</select>
+
+	<select id="queryProductList" resultMap="fundoutProductResult" parameterClass="fundoutProduct">
+		select NAME, CREATE_DATE, MARK, STATUS, CODE
+		from FUNDOUT_PRODUCT
+		where 1 = 1
+		<isNotEmpty property="name" prepend="AND">
+			name = #name#
+		</isNotEmpty>
+		<isNotEmpty property="status" prepend="AND">
+			status = #status#
+		</isNotEmpty>
+		<isNotEmpty property="code" prepend="AND">
+			code = #code#
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryProductList_COUNT" resultClass="java.lang.Integer" parameterClass="fundoutProduct">
+		select count(1)
+		from FUNDOUT_PRODUCT
+		where 1 = 1
+		<isNotEmpty property="name" prepend="AND">
+			name = #name#
+		</isNotEmpty>
+		<isNotEmpty property="status" prepend="AND">
+			status = #status#
+		</isNotEmpty>
+		<isNotEmpty property="code" prepend="AND">
+			code = #code#
+		</isNotEmpty>
+	</select>
+	
+	<update id="update" parameterClass="fundoutProduct">
+		UPDATE FUNDOUT_PRODUCT
+		<dynamic prepend="SET">
+			<isNotEmpty prepend="," property="status">
+				STATUS = #status#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="name">
+				name = #name#
+			</isNotEmpty>
+			<isNotEmpty prepend="," property="mark">
+				MARK = #mark#
+			</isNotEmpty>
+		</dynamic>
+		where CODE = #code#
+	</update>
+</sqlMap>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatisfin.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bank_branche_info">
+
+	<typeAlias alias="bankBrancheInfo" type="com.pay.lucene.model.BankBrancheInfo" />
+
+	<insert id="create" parameterClass="bankBrancheInfo">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT NVL(MAX(ID),0) + 1 FROM BANK_BRANCHE_INFO
+		</selectKey>
+		INSERT INTO BANK_BRANCHE_INFO(ID,BANKNUMBER,BANKNAME,PROVINCE,CITY,BANKKAIHU,ADDRESS,FLAG,type,create_time)
+		VALUES(#id#,#bankNumber#,#bankName#,#province#,#city#,#bankKaihu#,#address#,#flag#,#type#,sysdate)
+    </insert>
+    
+    <update id="update" parameterClass="bankBrancheInfo">
+    	UPDATE BANK_BRANCHE_INFO
+    	SET 
+    	BANKNUMBER = #bankNumber#,
+    	BANKNAME = #bankName#,
+    	PROVINCE = #province#,
+    	CITY = #city#,
+    	BANKKAIHU = #bankKaihu#,
+    	ADDRESS = #address#,
+    	FLAG = #flag#,
+    	TYPE = #type#
+    	WHERE ID = #id#
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+    	UPDATE BANK_BRANCHE_INFO
+    	SET FLAG = 0
+    	WHERE ID = #id#
+    </delete>
+    
+    <select id="findById" parameterClass="java.lang.Long" resultClass="bankBrancheInfo">
+    	SELECT * FROM BANK_BRANCHE_INFO WHERE ID = #id#
+    </select>
+    
+    <select id="findByBankName" parameterClass="java.lang.String" resultClass="bankBrancheInfo">
+    	SELECT * FROM BANK_BRANCHE_INFO WHERE BANKKAIHU = #bankName#
+    </select>
+    
+    <select id="findByBankNameAndType" parameterClass="java.util.Map" resultClass="bankBrancheInfo">
+    	SELECT * FROM BANK_BRANCHE_INFO WHERE BANKKAIHU = #bankName# AND TYPE = #type#
+    </select>
+    
+    <select id="loadAll" resultClass="bankBrancheInfo">
+        SELECT * FROM BANK_BRANCHE_INFO
+    </select>
+    
+    <select id="loadAllActive" resultClass="bankBrancheInfo">
+        SELECT * FROM BANK_BRANCHE_INFO WHERE FLAG = 1
+    </select>
+    
+    <select id="loadCommonBanks" resultClass="bankBrancheInfo">
+        SELECT * FROM BANK_BRANCHE_INFO WHERE FLAG = 1 AND TYPE = 1
+    </select>
+
+	<select id="loadSpecialBanks" resultClass="bankBrancheInfo"
+		parameterClass="java.lang.String">
+		SELECT * FROM BANK_BRANCHE_INFO WHERE FLAG = 1 AND TYPE = 2 AND BANKNAME = #bankName#
+    </select>
+    
+    <select id="findByCondition" resultClass="bankBrancheInfo" parameterClass="bankBrancheInfo">
+        SELECT * FROM BANK_BRANCHE_INFO 
+        	WHERE 1 = 1
+        	<isNotEmpty prepend="and" property="bankNumber">
+        		BANKNUMBER = #bankNumber#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="bankName">
+        		BANKNAME = #bankName#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="province">
+        		PROVINCE = #province#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="city">
+        		CITY = #city#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="bankKaihu">
+        		BANKKAIHU like '%$bankKaihu$%'
+        	</isNotEmpty>
+        	<isNotNull prepend="and" property="flag">
+        		FLAG = #flag#
+        	</isNotNull>
+        	<isNotNull prepend="and" property="type">
+        		TYPE = #type#
+        	</isNotNull>
+        	<isNotNull prepend="and" property="size">
+        	    rownum &lt;= #size#
+        	</isNotNull>
+    </select>
+    
+    <select id="findByCondition_COUNT" resultClass="java.lang.Integer" parameterClass="bankBrancheInfo">
+        SELECT COUNT(1) FROM BANK_BRANCHE_INFO 
+        	WHERE 1 = 1
+        	<isNotEmpty prepend="and" property="bankNumber">
+        		BANKNUMBER = #bankNumber#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="bankName">
+        		BANKNAME = #bankName#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="province">
+        		PROVINCE = #province#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="city">
+        		CITY = #city#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="bankKaihu">
+        		BANKKAIHU like '%$bankKaihu$%'
+        	</isNotEmpty>
+        	<isNotNull prepend="and" property="flag">
+        		FLAG = #flag#
+        	</isNotNull>
+        	<isNotNull prepend="and" property="type">
+        		TYPE = #type#
+        	</isNotNull>
+    </select>
+
+</sqlMap>

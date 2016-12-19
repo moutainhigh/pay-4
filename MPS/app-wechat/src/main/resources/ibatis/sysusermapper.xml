@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sysusermapper">
+
+	<typeAlias alias="sysUserMapper" type="com.pay.wechat.model.SysUserMapper" />
+	<typeAlias alias="string" type="java.lang.String" />
+	<typeAlias alias="hMap" type="java.util.Map"/>
+	
+	<!-- 系统商户绑定 -->
+	<resultMap class="com.pay.wechat.model.SysUserMapper" id="sysUserMapper">
+		<result property="id" column="ID" jdbcType="NUMBER"/>
+		<result property="login_name" column="LOGIN_NAME" jdbcType="VARCHAR2" />
+		<result property="openID" column="OPENID" jdbcType="VARCHAR2" />
+		<result property="bindTime" column="BINDTIME" jdbcType="VARCHAR2" />
+		<result property="login_dpwd" column="LOGIN_PWD" jdbcType="VARCHAR2" />
+		<result property="statu" column="STATU" jdbcType="NUMBER" />
+		<result property="member_code" column="MEMBER_CODE" jdbcType="NUMBER"/>
+		<result property="scale_type" column="SCALE_TYPE" jdbcType="NUMBER"/>
+	</resultMap>
+	
+	<!-- 更新登录密码 -->
+	<update id="updateSysUserMapLoginDpwd" parameterClass="string" >
+		update sys_user_mapper set login_dpwd = #dpwd#
+	</update>
+	
+	<delete id="deleteSysUserMapperByMemberCode" parameterClass="string">
+		delete from sys_user_mapper where openid = #openID#
+	</delete>
+	
+</sqlMap>

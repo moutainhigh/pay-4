@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundout-gatewayFacade">
+
+<!-- sandy -->
+	<typeAlias alias="incomeDetailParaDto" type="com.pay.poss.dto.fi.IncomeDetailParaDTO"/>
+	<resultMap class="java.util.HashMap" id="incomeDetailDTOResultMap">
+		<result column="CREATEDATE" property="createDate" />
+		<result column="TRADEORDERNO" property="tradeOrderNo" />
+		<result column="ORDERID" property="orderId" />
+		<result column="PAYTYPE" property="payType" />
+		<result column="ORDERSTATUS" property="orderStatus" />
+		<result column="ORDERAMOUNT" property="orderAmount" />
+		<result column="PAYSTATUS" property="payStatus" />
+		<result column="PARTNERID" property="partnerId" />
+	</resultMap>
+	<resultMap class="java.util.HashMap" id="singleIncomeDetailResultMap">
+		<result column="TRADEORDERNO" property="tradeOrderNo" />
+		<result column="CREATEDATE" property="createDate" />
+		<result column="UPDATEDATE" property="updateDate" />
+		<result column="TRADETYPE" property="tradeType" />
+		<result column="ORDERID" property="orderId" />
+		<result column="FLOW" property="flow" />
+		<result column="GOODSNAME" property="goodsName" />
+		<result column="ORDERAMOUNT" property="orderAmount" />
+		<result column="STATUS" property="status" />
+		<result column="PAYTYPE" property="payType" />
+		<result column="PAYEEFEE" property="payeeFee" />
+		<result column="RETURNSTATUS" property="returnStatus" />
+		<result column="ORDERNO" property="orderNo" />
+		<result column="ISREFUND" property="isRefund" />
+		<result column="bankProtocolNo" property="bankProtocolNo"/>
+		<result column="bankSerialNo" property="bankSerialNo"/>
+	</resultMap>
+<!-- sandy -->
+	<resultMap id="fundout-queryDepositResult"
+		class="com.pay.poss.dto.fi.QueryDepositDetalisDTO">
+		<result column="MEMBERCODE" property="memberCode" />
+		<result column="ACCOUNT_TYPE" property="accountType" />
+		<result column="DEPOSIT_PROTOCOLID" property="depositProtocolId" />
+		<result column="BANK_ORDER_ID" property="bankOrderId" />
+		<result column="BANK_SERIALNO" property="bankSerialNo" />
+		<result column="DEPOSIT_DATE" property="depositDate" />
+		<result column="DEPOSIT_AMOUNT" property="depositAmount" />
+		<result column="BANK_CHANNEL" property="bankChannel" />
+		<result column="DEPOSIT_STATUS" property="depositStatus" />
+		<result column="MERCHANT_ID" property="merchantId" />
+		<result column="REFUNDTYPE" property="refundType" />
+		<result column="BANK_CHANNEL_NAME" property="bankChannelName" />
+	</resultMap> 
+	
+    <resultMap id="fundout-payOnlineDetail" class="com.pay.poss.dto.fi.PayOnlineDetailDTO">
+        <result column="PAY_ONLINE_DETAIL_ID" property="payOnlineDetailId" />
+        <result column="PAY_ONLINE_ID" property="payOnlineId" />
+        <result column="TRADE_ORDER_INFO_ID" property="tradeOrderInfoId" />
+        <result column="PAY_AMOUNT" property="payAmount" />
+        <result column="SELLER" property="seller" />
+        <result column="SELLER_ACC_TYPE" property="sellerAccType" />
+        <result column="STATUS" property="status" />
+        <result column="ERROR_CODE" property="errorCode" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="UPDATE_DATE" property="updateDate" />
+        <result column="PAY_TYPE" property="payType" />
+    </resultMap>
+    
+    <resultMap id="fundout-refundOnline" class="com.pay.poss.dto.fi.RefundOnlineDTO">
+        <result column="REFUND_ONLINE_ID" property="refundOnlineId" />
+        <result column="REFUND_ORDER_INFO_ID" property="refundOrderInfoId" />
+        <result column="PAY_ONLINE_DETAIL_ID" property="payOnlineDetailId" />
+        <result column="REFUND_AMOUNT" property="refundAmount" />
+        <result column="REFUND_TYPE" property="refundType" />
+        <result column="STATUS" property="status" />
+        <result column="ERROR_CODE" property="errorCode" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="UPDATE_DATE" property="updateDate" />
+    </resultMap>    	
+
+<!-- charge refund query --> 
+ 	<select id="fundout-queryDepositDetail" resultMap="fundout-queryDepositResult"
+		parameterClass="java.util.Map">
+		
+SELECT * FROM (		
+<![CDATA[		
+	SELECT     
+		   SD.CUSTOMER            AS MEMBERCODE,
+           SD.CUSTOMER_TYPE       AS ACCOUNT_TYPE,
+           SD.DEPOSIT_ORDER_NO    AS DEPOSIT_PROTOCOLID,
+           DP.deposit_protocol_no           AS BANK_ORDER_ID,
+           DP.RETURN_NO           AS BANK_SERIALNO,
+           DP.CREATE_DATE         AS DEPOSIT_DATE,
+           SD.DEPOSIT_AMOUNT      AS DEPOSIT_AMOUNT,
+           PCI.ORGCODE            AS BANK_CHANNEL,
+           PCI.ITEM_NAME          AS BANK_CHANNEL_NAME,
+           DP.STATUS              AS DEPOSIT_STATUS,
+           SD.CUSTOMER            AS MERCHANT_ID,
+           1                      AS REFUNDTYPE
+     FROM FI.DEPOSIT_PROTOCOL DP, FI.DEPOSIT_ORDER SD,FI.PAYMENT_CHANNEL_ITEM PCI
+     WHERE DP.DEPOSIT_ORDER_NO = SD.DEPOSIT_ORDER_NO
+           AND DP.CHANNEL_NO = PCI.ID
+           AND SD.DEPOSIT_BACK_AMOUNT > (SELECT NVL(SUM(D.APPLY_AMOUNT),0) FROM FO.REFUND_ORDER_D D,REFUND_ORDER_M M WHERE ORDER_KY = MASTER_KY AND D.STATUS <> 112 AND RECHARGE_ORDER_SEQ = SD.DEPOSIT_ORDER_NO)
+]]>
+		<isNotNull prepend="and" property="memberCode">
+			SD.CUSTOMER = #memberCode#
+		</isNotNull>
+		<isNotNull prepend="and" property="memberType">
+			sd.customer_type = #memberType#
+		</isNotNull>
+		<isNotNull prepend="and" property="depositProtocolId">
+			SD.DEPOSIT_ORDER_NO = #depositProtocolId#				
+		</isNotNull>
+		<isNotNull prepend="and" property="status">
+			dp.STATUS =	#status#
+		</isNotNull>
+		<isNotNull prepend="and" property="bankOrderId">
+			DP.deposit_protocol_no = #bankOrderId#				
+		</isNotNull>
+		<isNotNull prepend="and" property="bankSerialNo">
+			DP.RETURN_NO = #bankSerialNo#				
+		</isNotNull>
+		<isNotNull prepend="and" property="bankChannel">
+			SD.ORG_CODE = #bankChannel#				
+		</isNotNull>
+		<isNotNull prepend="and" property="startTime">
+			<![CDATA[sd.create_date >= to_date(#startTime#,'yyyy/mm/dd hh24:mi:ss') ]]>
+		</isNotNull>
+		<isNotNull prepend="and" property="endTime">
+			<![CDATA[sd.create_date < to_date(#endTime#,'yyyy/mm/dd hh24:mi:ss')+1 ]]>
+		</isNotNull>
+	
+)           
+    ORDER BY DEPOSIT_DATE DESC
+	</select>
+
+	<select id="fundout-queryDepositDetailCount" resultClass="java.lang.Integer"
+		parameterClass="java.util.Map">
+SELECT COUNT(*) AS INTCOUNT FROM (			
+<![CDATA[		
+	SELECT     
+		   1
+     FROM FI.DEPOSIT_PROTOCOL DP, FI.DEPOSIT_ORDER SD,FI.PAYMENT_CHANNEL_ITEM PCI
+     WHERE DP.DEPOSIT_ORDER_NO = SD.DEPOSIT_ORDER_NO
+           AND DP.CHANNEL_NO = PCI.ID
+           AND SD.DEPOSIT_BACK_AMOUNT > (SELECT NVL(SUM(D.APPLY_AMOUNT),0) FROM FO.REFUND_ORDER_D D,REFUND_ORDER_M M WHERE ORDER_KY = MASTER_KY AND D.STATUS <> 112 AND RECHARGE_ORDER_SEQ = SD.DEPOSIT_ORDER_NO)
+]]>
+		<isNotNull prepend="and" property="memberCode">
+			SD.CUSTOMER = #memberCode#
+		</isNotNull>
+		<isNotNull prepend="and" property="memberType">
+			sd.customer_type = #memberType#
+		</isNotNull>
+		<isNotNull prepend="and" property="depositProtocolId">
+			SD.DEPOSIT_ORDER_NO = #depositProtocolId#				
+		</isNotNull>
+		<isNotNull prepend="and" property="status">
+			dp.STATUS =	#status#
+		</isNotNull>
+		<isNotNull prepend="and" property="bankOrderId">
+			DP.deposit_protocol_no = #bankOrderId#				
+		</isNotNull>
+		<isNotNull prepend="and" property="bankSerialNo">
+			DP.RETURN_NO = #bankSerialNo#				
+		</isNotNull>
+		<isNotNull prepend="and" property="bankChannel">
+			SD.ORG_CODE = #bankChannel#				
+		</isNotNull>
+		<isNotNull prepend="and" property="startTime">
+			<![CDATA[sd.create_date >= to_date(#startTime#,'yyyy/mm/dd hh24:mi:ss') ]]>
+		</isNotNull>
+		<isNotNull prepend="and" property="endTime">
+			<![CDATA[sd.create_date < to_date(#endTime#,'yyyy/mm/dd hh24:mi:ss')+1 ]]>
+		</isNotNull>
+			
+)		
+	</select>
+	
+<!-- gateway deal refund query -->	
+	
+	<select id="fundout-fiBankChannelQuery" resultClass="java.util.HashMap">
+		<![CDATA[		
+				SELECT DISTINCT 
+					PCI.ORG_CODE AS ALIAS  ,
+					PCI.NAME AS ORGNAME
+					FROM FI.PAYMENT_CHANNEL_ITEM PCI
+        		WHERE PCI.STATUS = 1
+		]]>
+	</select>	
+	
+    <select id="fundout-findByTradeOrderInfoId" resultMap="fundout-payOnlineDetail" parameterClass="java.lang.String">
+      SELECT TRO.TRADE_ORDER_NO PAY_ONLINE_DETAIL_ID,
+             TRO.TRADE_BASE_NO PAY_ONLINE_ID,
+             TRO.TRADE_ORDER_NO TRADE_ORDER_INFO_ID,
+             TRO.ORDER_AMOUNT PAY_AMOUNT,
+             TRO.PARTNER_ID SELLER,
+             10 AS SELLER_ACC_TYPE,
+             TRO.STATUS,
+             '' ERROR_CODE,
+             TRO.CREATE_DATE CREATE_DATE,
+             TRO.UPDATE_DATE UPDATE_DATE,
+             TB.PAY_TYPE PAY_TYPE
+        FROM FI.TRADE_BASE TB, FI.TRADE_ORDER TRO
+       WHERE TB.TRADE_BASE_NO = TRO.TRADE_BASE_NO
+        AND   TRO.TRADE_ORDER_NO = #tradeOrderInfoId#
+    </select>	
+    
+    <select id="fundout-findByRefundOrderInfoId" resultMap="fundout-refundOnline" parameterClass="java.lang.String">
+      SELECT TRADE_ORDER_NO   REFUND_ONLINE_ID,
+             REFUND_ORDER_NO  REFUND_ORDER_INFO_ID,
+             PAYMENT_ORDER_NO PAY_ONLINE_DETAIL_ID,
+             REFUND_AMOUNT,
+             REFUND_TYPE,
+             STATUS,
+             ERROR_CODE,
+             RO.CREATE_DATE   CREATE_DATE,
+             RO.UPDATE_DATE   UPDATE_DATE
+        FROM FI.REFUND_ORDER RO
+        WHERE 
+        	RO.REFUND_ORDER_NO = #refundOrderInfoId#
+    </select>
+     
+	<!-- sandy start -->
+	<select id="queryIncomeDetailList" parameterClass="incomeDetailParaDto" resultMap="incomeDetailDTOResultMap">
+		SELECT tor.CREATE_DATE createDate,
+		       tor.TRADE_ORDER_NO tradeOrderNo,
+	           tor.ORDER_ID orderId,
+		       T.PAY_TYPE payType,
+		       tor.STATUS orderStatus,
+		       tor.order_amount orderAmount,
+		       T.STATUS payStatus,
+		       tor.PARTNER_ID PARTNERID,
+			   T.Payment_Order_No,
+			   T.Create_Date,
+			   T.Update_Date
+		  FROM fi.TRADE_ORDER tor,FI.PAYMENT_ORDER T
+		  WHERE tor.TRADE_ORDER_NO = t.TRADE_ORDER_NO(+)
+		   AND tor.Partner_Id = #memberCode#
+		   <isNotEmpty property="startTime">
+				AND tor.CREATE_DATE >= #startTime#
+		   </isNotEmpty>
+		   <isNotEmpty property="endTime">
+		   		<![CDATA[
+				AND tor.CREATE_DATE < #endTime#
+				]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="serialNo">
+				AND tor.TRADE_ORDER_NO = #serialNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="orderSeq">
+				AND tor.ORDER_ID = #orderSeq#
+		   </isNotEmpty>
+		   <isNotEmpty property="sOrderAmount">
+				<![CDATA[
+				AND tor.order_amount >= #sOrderAmount#
+				]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="eOrderAmount">
+		   		<![CDATA[
+				AND tor.order_amount <= #eOrderAmount#
+				]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="orderStatus" prepend="AND"> <!-- ALL 全部， [0:未付款;1:交易关闭;2:已付款;3:交易已退款;4:交易成功] -->
+	 			tor.STATUS = #orderStatus#
+		 	</isNotEmpty>
+			 group by tor.CREATE_DATE ,
+           tor.TRADE_ORDER_NO ,
+                 tor.ORDER_ID ,
+           T.PAY_TYPE ,
+           tor.STATUS ,
+           tor.order_amount ,
+           T.STATUS ,
+           tor.PARTNER_ID ,
+           T.Payment_Order_No,
+           T.Create_Date,
+           T.Update_Date
+       having 
+            T.Payment_Order_No is null or
+           T.Update_Date = (select max(T1.Update_Date)
+           		 from fi.payment_order T1 where T1.Trade_Order_No = tor.trade_order_no)
+		    ORDER BY tor.CREATE_DATE DESC
+	</select>
+	
+    <select id="queryIncomeDetailList_COUNT" parameterClass="incomeDetailParaDto" resultClass="java.lang.Integer">
+		select count(*) from
+		(
+			SELECT 
+			tor.CREATE_DATE createDate,
+		       tor.TRADE_ORDER_NO tradeOrderNo,
+	           tor.ORDER_ID orderId,
+		       T.PAY_TYPE payType,
+		       tor.STATUS orderStatus,
+		       tor.order_amount orderAmount,
+		       T.STATUS payStatus,
+		       tor.PARTNER_ID PARTNERID,
+			   T.Payment_Order_No,
+			   T.Create_Date
+		 
+		  FROM fi.TRADE_ORDER tor,FI.PAYMENT_ORDER T
+		  WHERE tor.TRADE_ORDER_NO = t.TRADE_ORDER_NO(+)
+		   AND tor.Partner_Id = #memberCode#
+		   <isNotEmpty property="startTime">
+				AND tor.CREATE_DATE >= #startTime#
+		   </isNotEmpty>
+		   <isNotEmpty property="endTime">
+		   		<![CDATA[
+				AND tor.CREATE_DATE < #endTime#
+				]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="serialNo">
+				AND tor.TRADE_ORDER_NO = #serialNo#
+		   </isNotEmpty>
+		   <isNotEmpty property="orderSeq">
+				AND tor.ORDER_ID = #orderSeq#
+		   </isNotEmpty>
+		   <isNotEmpty property="sOrderAmount">
+				<![CDATA[
+				AND tor.order_amount >= #sOrderAmount#
+				]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="eOrderAmount">
+		   		<![CDATA[
+				AND tor.order_amount < #eOrderAmount#
+				]]>
+		   </isNotEmpty>
+		  <isNotEmpty property="orderStatus" prepend="AND"> <!-- ALL 全部， [0:未付款;1:交易关闭;2:已付款;3:交易已退款;4:交易成功] -->
+	 			tor.STATUS = #orderStatus#
+		 	</isNotEmpty>
+
+			group by tor.CREATE_DATE ,
+           tor.TRADE_ORDER_NO ,
+                 tor.ORDER_ID ,
+           T.PAY_TYPE ,
+           tor.STATUS ,
+           tor.order_amount ,
+           T.STATUS ,
+           tor.PARTNER_ID ,
+           T.Payment_Order_No,
+           T.Create_Date
+       having 
+            T.Payment_Order_No is null or
+           T.Payment_Order_No = ( 
+           select T1.PAYMENT_ORDER_NO TD from fi.payment_order T1 where T1.Trade_Order_No = tor.TRADE_ORDER_NO
+           AND ROWNUM = 1
+           ) 
+        ORDER BY tor.CREATE_DATE DESC
+	) 
+	</select>
+	
+	<select id="querySingleIncomeDetail" parameterClass="java.util.HashMap" resultMap="singleIncomeDetailResultMap">
+		   SELECT *
+			  FROM (SELECT TRO.TRADE_ORDER_NO tradeorderno,
+			               TRO.CREATE_DATE createdate,
+			               TRO.UPDATE_DATE updatedate,
+			               TRB.TRADE_TYPE tradetype,
+			               TRO.ORDER_ID orderid,
+			               '收' flow,
+			               TRO.GOODS_NAME goodsname,
+			               TRO.ORDER_AMOUNT / 1000 orderamount
+			          FROM FI.TRADE_ORDER TRO, FI.TRADE_BASE TRB
+			         WHERE TRO.TRADE_BASE_NO = TRB.TRADE_BASE_NO
+			           AND TRO.PARTNER_ID = #memberCode#
+			           AND TRO.TRADE_ORDER_NO = #serialNo#) A,
+			       (SELECT status, paytype, payeefee, tradeorderno, bankProtocolNo, bankSerialNo
+			          FROM (SELECT PO.STATUS status,
+			                       PO.PAY_TYPE paytype,
+			                       PO.PAYEE_FEE / 1000 payeefee,
+			                       PO.TRADE_ORDER_NO tradeorderno,
+			                       DR.DEPOSIT_PROTOCOL_NO bankProtocolNo,
+			                       DR.SERIAL_NO bankSerialNo
+			                  FROM FI.PAYMENT_ORDER PO, FI.DEPOSIT_PROTOCOL DR
+			                 WHERE PO.DEPOSIT_ORDER_NO = DR.DEPOSIT_ORDER_NO(+)
+			                 AND PO.TRADE_ORDER_NO = #serialNo#
+			                 ORDER BY PO.CREATE_DATE DESC)
+			                 <![CDATA[	
+			         WHERE status = 2) B,
+			       (SELECT returnstatus, orderno
+			          FROM (SELECT GR.RETURN_STATUS returnstatus, GR.ORDER_NO orderno
+			                  FROM FI.GATEWAY_RESPONSE GR
+			                 WHERE GR.ORDER_NO = #serialNo#
+			                 ORDER BY GR.CREATE_DATE DESC) GR
+			         WHERE ROWNUM <= 1) C,
+			         			]]>
+			       (SELECT COUNT(RO.TRADE_ORDER_NO)  isrefund
+			          FROM FI.REFUND_ORDER RO
+			         WHERE RO.TRADE_ORDER_NO = #serialNo#) D
+			 WHERE A.tradeorderno = B.tradeorderno(+)
+			   AND A.tradeorderno = C.orderno(+)
+	</select>
+	
+	<!-- sandy end-->
+</sqlMap>

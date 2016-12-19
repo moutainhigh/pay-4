@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="blacklistfile">
+	<typeAlias alias="blackListFile" type="com.pay.fundout.batchinfo.service.model.BlackListFile"/>
+	<insert id="create" parameterClass="blackListFile">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT seq_fo_black_list_file.NEXTVAL AS id FROM DUAL
+		</selectKey>
+		INSERT INTO fundout_black_list_file(id, name, max_length, current_length, download_status, create_time, update_time)
+		VALUES(#id#, #name#, #maxLength#, #currentLength#, #downloadStatus#, #createTime#, #updateTime#)
+	</insert>
+	<select id="findById" resultClass="blackListFile">
+		SELECT id id, name name, max_length maxLength, current_length currentLength, download_status downloadStatus, create_time createTime, update_time updateTime
+		FROM fundout_black_list_file
+		WHERE id = #id#
+	</select>
+	<select id="findDealingFile" resultClass="blackListFile">
+		SELECT id id, name name, max_length maxLength, current_length currentLength, download_status downloadStatus, create_time createTime, update_time updateTime
+		FROM fundout_black_list_file
+		WHERE current_length &lt; max_length AND download_status = '0'
+	</select>
+	<update id="update" parameterClass="blackListFile">
+        UPDATE fundout_black_list_file
+        <dynamic prepend="set">
+            <isNotNull prepend="," property="name">
+                name = #name#
+            </isNotNull>
+            <isNotNull prepend="," property="maxLength">
+                max_length = #maxLength#
+            </isNotNull>
+            <isNotNull prepend="," property="currentLength">
+                current_length = #currentLength#
+            </isNotNull>
+            <isNotNull prepend="," property="downloadStatus">
+                download_status = #downloadStatus#
+            </isNotNull>
+            <isNotNull prepend="," property="updateTime">
+                update_time = #updateTime#
+            </isNotNull>
+        </dynamic>
+        WHERE id = #id#
+    </update>
+    <select id="queryBlackListFile" parameterClass="map" resultClass="blackListFile">
+    	select id id, name name, max_length maxLength, current_length currentLength, download_status downloadStatus, create_time createTime, update_time updateTime
+    	from fundout_black_list_file
+    	<dynamic prepend="where">
+    		<isNotNull prepend="AND" property="downloadStatus">
+	            download_status = #downloadStatus#
+	        </isNotNull>
+	    	<isNotNull prepend="AND" property="startTime">
+	            <![CDATA[update_time >= to_date(#startTime#,'yyyy-mm-dd hh24:mi:ss')]]>
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="endTime">
+	        	<![CDATA[update_time <= to_date(#endTime#,'yyyy-mm-dd hh24:mi:ss')]]>
+	        </isNotNull>
+        </dynamic>
+        ORDER BY update_time DESC
+    </select>
+    <select id="queryBlackListFile_COUNT" parameterClass="map" resultClass="integer">
+    	select count(1)
+    	from fundout_black_list_file
+    	<dynamic prepend="where">
+    		<isNotNull prepend="AND" property="downloadStatus">
+	            download_status = #downloadStatus#
+	        </isNotNull>
+	    	<isNotNull prepend="AND" property="startTime">
+	            <![CDATA[update_time >= to_date(#startTime#,'yyyy-mm-dd hh24:mi:ss')]]>
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="endTime">
+	        	<![CDATA[update_time <= to_date(#endTime#,'yyyy-mm-dd hh24:mi:ss')]]>
+	        </isNotNull>
+        </dynamic>
+        ORDER BY update_time DESC
+    </select>
+</sqlMap>

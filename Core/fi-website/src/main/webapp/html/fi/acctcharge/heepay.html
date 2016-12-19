@@ -1,0 +1,112 @@
+<div>
+	<!--骏网充值-->
+	<div id="tradeCardDeposit">
+		<form method="post" action="">
+			<ul>
+				<li class="mt10">
+					<span class="fl" style="position: relative; display: inline-block;text-align:right; width:95px;">
+						充值金额：<strong class="red"></strong>
+					</span> 
+					<input type="text" id="heepayDealAmount" name="heepayDealAmount" tabindex="1" class="fl" /> 
+					<strong>&nbsp&nbsp元</strong>
+				</li>
+				<li class="mt10">
+					<label class="form_side col333" style=" display:inline-block; text-align:right; width:95px;">实际到账金额：</label> 
+					<strong class="red"> <span id="realPay">0</span>
+				</strong>元 | 服务费： <strong class="red"><span id="feePay">0</span></strong> 元</li>
+				<p class="txtC mt10">
+					<span id="postHeepaySpan" class="btn_yel botton_yel">
+						<button id="postHeepaySubmit" type="button" tabindex="2" onclick="postHeePay();">去骏网充值</button>
+					</span>
+				</p>
+			</ul>
+		</form>
+	</div>
+	<!--骏网充值-->
+</div>
+
+<script>
+
+	$("#heepayDealAmount").focus();
+	
+	$("#heepayDealAmount").keypress(function(e){
+		//document.getElementById('heepayDealAmount').onchange=null;
+		var keyCode = e.which;
+		if(keyCode == 13){
+			caculateFee();
+			$("#postHeepaySubmit").click();
+	    	//for do not submit
+	    	return false;
+	    }
+	});
+
+	$("#heepayDealAmount").blur(function(){
+		caculateFee();
+	});
+	
+	function caculateFee(){
+		var amountVal = $("#heepayDealAmount").val();
+		var isValid = true;
+		if (amountVal == '') {
+			isValid = false;
+		}
+		if (!isNumber(amountVal)) {
+			isValid = false;
+		}
+		if (amountVal <= 0) {
+			isValid = false;
+		}	
+		if (isValid){
+			var val = new Array();
+			$.ajax({
+			   type: "POST",
+			   url: "${rc.contextPath}/app/heePaySend.htm?method=caculateFee",
+			   data: "dealAmount="+amountVal,
+			   success: function(result){
+				   val = result.split(';');
+				   $("#realPay").html(val[0]);
+				   $("#feePay").html(val[1]);
+			   }
+			});
+		}else {
+		   $("#realPay").html('0');
+		   $("#feePay").html('0');
+		}
+	}
+	
+	function postHeePay(){
+		if($("#postHeepaySubmit").attr("disabled")) return;
+		var loadHeeWin;
+		if (checkCardForm()) {
+			loadHeeWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+			$("#postHeepaySpan").addClass("b_off");
+			$("#postHeepaySubmit").attr("disabled", true);
+			var dealAmount = $("#heepayDealAmount").val();
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/app/heePaySend.htm?method=onSubmit",
+				data: "dealAmount="+dealAmount+"&bankInfo=jcard001;JCARD",
+				async: false,
+				success: function(msg){
+					$.pay.closeLoading(loadHeeWin);
+					//it means timeout if msg is a html page
+					if(0==msg.indexOf("<!DOCTYPE HTML>")){
+						window.location.href = "${rc.contextPath}/index.htm";
+						return false;
+					}
+					if (-1 != msg.indexOf("validateError")){
+						$("#postHeepaySpan").removeClass("b_off");
+						$("#postHeepaySubmit").attr("disabled", false);
+						var to = msg.length;
+						msg = msg.substring(13, to);
+						$.pay.alert(msg,{h:160,t:'3',close:function(){$("#heepayDealAmount").val("");$("#heepayDealAmount").focus();}});
+						return false;
+					}
+					$.pay.window(msg,{title:'',w:500,h:300,url:false,isClose:false});	
+					$("#tradeCardForm").submit();
+				}
+			});	
+		}
+	}
+	
+</script>

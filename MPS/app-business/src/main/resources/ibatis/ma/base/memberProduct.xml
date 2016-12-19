@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="memberProdcut">
+		<typeAlias alias="menu" type="com.pay.base.model.Menu" />
+    
+    <select id="findMemberProductMenuByMemberCode" resultClass="menu" parameterClass="java.lang.Long">
+        select 
+        MENU_ID as menuId,
+        TYPE as type,
+        HIERARCHY as hierarchy,
+        PARENT_ID as parentId,
+        ORDER_ID as orderId,
+        NAME as name,
+        URL as url,
+        DESCRIPTION as description,
+        STATUS as status,
+        DISPLAY_FLAG as displayFlag,
+        CREATE_DATE as  createDate,
+        UPDATE_DATE as  updateDate,
+        menu_code as menuCode   
+        FROM  T_MENU m 
+        WHERE  EXISTS (select menu_id from t_product_menu pm where product_id in 
+        		(select product_id from t_member_product where status = 1 AND member_code=#memberCode#) and pm.menu_id = m.menu_id)               
+        order by ORDER_ID ASC
+    </select>
+    
+    
+</sqlMap>

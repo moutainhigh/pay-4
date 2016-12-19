@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+            
+	<bean id="fo-order-bspWithdrawOrderService" class="com.pay.fo.order.service.bspwithdraw.impl.BSPWithdrawOrderServiceImpl">
+		<property name="fundoutOrderProcessService" ref="fo-order-fundoutOrderProcessService"/>
+		<property name="orderAfterProcessService" ref="fo-order-orderAfterProcessService"></property>
+		<property name="orderCallbackService" ref="fo-order-bspWithdrawOrderCallbackService"></property>
+		<property name="reqAccountingService" ref="fundout-withdrawFirstAccounting" />
+		<property name="successAccountingService" ref="fundout-withdrawSuccessAccounting" />
+		<property name="failAccountingService" ref="fundout-withdrawFailAccounting" />
+		<property name="refundAccountingService" ref="fundout-withdrawReturnAccounting"></property>
+		<property name="workorderService" ref="fo-order-audit-workorderService"></property>
+		<property name="queueName" value="fundout.withdraw.request.active"></property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"></property>
+	</bean>
+	<!-- 提现订单回调处理 -->
+	<bean id="fo-order-bspWithdrawOrderCallbackService" class="com.pay.fo.order.service.bspwithdraw.callback.BSPWithdrawOrderCallbackServiceImpl" parent="fo-order-abstractOrderCallbackService">
+		<property name="fundoutOrderProcessService" ref="fo-order-fundoutOrderProcessService"></property>
+	</bean>
+</beans>

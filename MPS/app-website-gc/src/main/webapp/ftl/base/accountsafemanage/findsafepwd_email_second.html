@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${back_mail}${title}</title>
+<meta name="Keywords" content="${back_mail_Keywords}" />
+<meta name="Description" content="${back_mail_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#resend").click(function() {
+			var email = $("#email").val();
+			$.ajax( {
+				type : "POST",
+				url : "${rc.contextPath}/app/findpaypwdbyemailresend.htm",
+				data : "email=" + email,
+				success : function(msg) {
+					if (msg == "Y") {
+						$.pay.alert("邮件发送成功 ,请及时查收", {
+							h : 160,
+							t : '1',
+							close : function() {
+							}
+						});
+					} else if (msg == "N"){
+						$.pay.alert("邮件发送失败 ,请联系客服", {
+							h : 160,
+							t : '2',
+							close : function() {
+							}
+						});
+					}else if(msg.indexOf("login")!=-1){
+						window.location.href="${rc.contextPath}/logout.htm?method=out&mtype=1";
+					}
+				}
+			});
+
+		});
+	});
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="app_accountSafe"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box_a">
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg secure_box">
+			<div class="tit_box">
+					<h3 class="title font14"><span class="ico_dot2"></span><strong>通过注册邮箱找回支付密码</strong></h3>
+			</div>
+
+<div class="feedback warning">
+<h1 class="ie6_png">系统已发送密码修改链接至您填写的邮箱！</h1>
+<p><em>iPayLinks支付发送"密码修改链接"到您的邮箱：</em>${email?default('')}<br />
+<em>请您收到邮件后，点击信中的链接，修改支付密码。</em></p>
+<h3>未收到？</h3>
+<ul>
+	<li>1、请检查您输入的邮箱是否正确</li>
+	<li>2、是否自动过滤成了垃圾邮件</li>
+</ul>
+<div class="btn_area"><span class="btn_yel botton_yel">
+<span id="resend">重新发送</span>
+</span>
+<!-- <span class="btn_grey_b botton_grey">
+<button type="button">去邮箱查收</button>
+</span> --> </div>
+<input type="hidden" name="email" value="${email?default('')}"
+	id="email" /></div>
+</div>
+<p class="bot"><i></i></p>
+</div>
+
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

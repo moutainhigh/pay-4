@@ -1,0 +1,190 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>数字证书管理</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/cert/certManage.js"></script>
+<style>
+.logining{ width:50%;  min-width:300px;_width:expression((document.documentElement.clientWidth||document.body.clientWidth)<450?"250px":"60%");/*ie6 min-width*/ margin:5% auto 0;_margin-top:50px;padding:30px; border:2px solid #FFD887; background:#FEFEEC; font-size:20px;font-family:\5fae\8f6f\96c5\9ed1,\5b8b\4f53,sans-serif; color:#000;}
+.logining img{ margin-left:20px; vertical-align:middle;}
+</style>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_cert_manager"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="box_w720 fl"> 
+		<!--主内容 str -->
+		<div class="border_t3">
+			<p class="ico_line"><i></i></p>
+			<p class="f16b mb10">证书使用地点管理</p>
+			
+			<div id="certList" style="display:none;"><div class="logining">加载中，请稍候...<img src="<@sp.static/>/img/pay/loading2.gif" /></div></div>
+			
+			<div id="pkiTip" class="pki_tips" style="display:none;">
+				<div class="result_tips">
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class="pop_war"></span>
+						<p class="words f14b">您是数字证书用户，但本台电脑还未安装数字证书，您暂不能进行此操作！</p>
+						<p class="c_999">目前您只能进行账户查询。</p>
+						<p class="c_666">如要进行账户资金操作，您需要导入之前备份的证书进行按装。</p>
+						<p class="link mt10"><a class="btn_yel" href="javascript:void(0);" id="importCertBut"><span>立即导入</span></a></p>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+
+		<div class="border_t3 mt10">
+			<p class="ico_line"><i></i></p>
+			<p class="f16b mb10">证书相关操作</p>
+			<ul class="certificate_mod">
+				<li><p><a class="btnB" href="javascript:void(0);" id="disableCertBut"><span>取消数字证书</span></a></p>取消数字证书后，您将不再受到数字证书保护</li>
+				<li><p><a class="btnB" href="javascript:void(0);" id="bindMobileBut"><span>更换绑定手机</span></a></p>如果当前己绑定手机不能正常接收短信，您可以修改绑定手机</li>
+				<li><p><a class="btnB" href="javascript:void(0);" id="backupCertBut"><span>备份数字证书</span></a></p>备份数字证书，您将可以在其它电脑上进行数字证书安装</li>
+			</ul>
+		</div>
+	</div>
+	<!--主内容 end --> 
+	<!--侧栏 str -->
+	<div class="box_w230 fr"> 
+		<!--安全小贴士 -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><strong>安全小贴士</strong></h3>
+				</div>
+				<ul class="list_square">
+					<li>1、安装一款杀毒软件，定期更新</li>
+					<li>2、不要向他人泄露密码</li>
+					<li>3、定期更换登录密码、支付密码</li>
+					<li>4、警惕陌生人传输的链接、文件</li>
+					<li>5、操作完毕，及时退出</li>
+				</ul>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--/安全小贴士 --> 
+		<!--常见问题 -->
+		<div class="mod_box_a mt10">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><strong>常见问题</strong></h3>
+				</div>
+				<ul class="list_square">
+						<li><a href="<@sp.contextPath/>/help/b/trademanage.htm#qa2" target="_blank">到哪里查询我的订单记录？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/trademanage.htm#qa1" target="_blank">能否查询当天的对账单？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/serviceswitch.htm#qa1" target="_blank">如何调试服务接口？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/accsafe.htm#qa2" target="_blank">遗忘了支付密码怎么办？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/fundsmanage.htm#qa2" target="_blank">提现为什么失败？</a></li>
+				</ul>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--/常见问题 --> 
+	</div>
+	<!--侧栏 end --> 
+</div>
+
+<!--主内容 end -->
+
+<!--footer -->
+<#include "/common/include/footer.html">
+<script type="text/javascript">
+$(function(){
+	
+	var webroot = "${rc.contextPath}";
+	var isAdmin = "${isAdmin?default('0')}";
+	
+	//根据用户的cn 判断当前机器是否安装了数字证书
+	var cn = "${memberCert.CN?default('')}";
+	var isLocalCertUser = "${isLocalCertUser?default('0')}";
+	
+	if(isLocalCertUser != '1' || !iscert(cn)){
+		$("#pkiTip").show();
+		$("#certList").hide();
+	}else{
+		$("#pkiTip").hide();
+		$("#certList").show();
+		checkLocalInstall(webroot,function(result){
+			if(result == 'true'){
+				//查询用户数字证书安装地点
+				getCerManageFun(webroot);
+			}else{
+				$("#certList").hide();
+				$("#pkiTip").show();
+			}
+		});
+	}
+	
+	//取消数字证书
+	$("#disableCertBut").click(function(){
+		disableCertFun(cn,isLocalCertUser);
+	});
+	
+	//导入证书
+	$("#importCertBut").click(function(event){
+		event.preventDefault();
+		importCertFun(isLocalCertUser,webroot);
+	});
+	
+	//备份数字证书
+	$("#backupCertBut").click(function(){
+		backupCertFun(cn,isLocalCertUser,webroot);
+	});
+	
+	//更换绑定手机
+	$("#bindMobileBut").click(function(){
+		if(isAdmin == "1"){
+			window.location.href="${rc.contextPath}/corp/bindNewMobile.htm";
+		}else{
+			$.pay.alert("请联系管理员，更换绑定手机！");
+		}
+	});
+});
+</script>
+<!-- 弹出框页面元素 -->
+<div id="delhtm" style="display: none; ">
+	<div class="win_tips" >
+	 <p class="f14b">正在删除证书，请稍后...</p>
+	 <p style="margin-left: 60px;"><img src="<@sp.static/>/img/pay/loading2.gif" /></p>
+	 <p class="c_999">请耐心等待几秒，或重新登录</p>
+	</div>
+</div>
+<div id="disablehtm" style="display: none; ">
+	<div class="win_tips" >
+	 <!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+	 <span class="pop_war"></span>
+	 <p class="f14b">您确定要取消证书吗？</p>
+	 <p class="c_999">证书一旦取消，你将失去证书保护功能，此操作请慎重！</p>
+	 <p class="c_999">如有需要，你可以取消完成后重新申请证书。</p>
+	 <p class="c_999">点击 "确认取消" 后gcpayment支付将向你绑定的手机发送一组校验码。</p><br/>
+	 <p class="link mt10" style="margin-left: 50px;"><a id="disableWinOkBut" href="#" onclick="disableWinFun();return false;" class="btnC"><span>确认取消</span></a> <a id="disableWinCancelBut" href="javascript:void(0);" onclick="closeDisableWin();" class="btnC_2 ml30"><span>返　回</span></a></p>
+	</div>	
+</div>
+<div id="disablehtmMsg" style="display: none; ">
+	<div class="win_tips" >
+	 <p class="f14b">正在请求注销，请稍后...</p><br/>
+	 <p style="margin-left: 60px;"><img src="<@sp.static/>/img/pay/loading2.gif" /></p>
+	</div>
+</div>
+<form style="display: none;" id="disableForm" action="${rc.contextPath}/corp/cert/disable.htm" method="post">
+	<input id="isInstall" name="isInstall" value="false" />
+</form>
+</div>
+<@sp.cfca />
+
+</body>
+</html>

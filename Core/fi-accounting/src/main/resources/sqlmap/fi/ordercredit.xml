@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ordercredit">
+	
+	<typeAlias alias="orderCreditDTO" type="com.pay.txncore.dto.OrderCreditDTO"/>
+	<typeAlias alias="orderCreditDetailDTO" type="com.pay.txncore.dto.OrderCreditDetailDTO"/>
+	
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<resultMap class="orderCreditDTO" id="orderCredit_resultMap">
+		<result column="CREDIT_ID"                  property="creditId"                    jdbcType="NUMBER"/>
+		<result column="PARTNER_ID"                 property="partnerId"                   jdbcType="NUMBER"/>
+		<result column="PARTNER_NAME"               property="partnerName"                 jdbcType="VARCHAR2"/>
+		<result column="CREDIT_TYPE"                property="creditType"                  jdbcType="CHAR"/>
+		<result column="APPLY_DATE"                 property="applyDateStr"                jdbcType="DATE"/>
+		<result column="ACCOUNT_DATE"               property="accountDate"                 jdbcType="DATE"/>
+		<result column="CREDIT_COUNT"               property="creditCount"                 jdbcType="NUMBER"/>
+		<result column="CURRENCY_CODE"              property="currencyCode"                jdbcType="VARCHAR2"/>
+		<result column="DAY_RATE"                   property="dayRate"                     jdbcType="VARCHAR2"/>
+		<result column="ACCOUNT_AMOUNT"             property="accountAmount"               jdbcType="NUMBER"/>
+		<result column="CREDIT_AMOUNT"              property="creditAmount"                jdbcType="NUMBER"/>
+		<result column="CHARGE"                     property="charge"                      jdbcType="NUMBER"/>
+		<result column="STATUS"                     property="status"                      jdbcType="CHAR"/>
+		<result column="PARTNER_REGISTER_NAME"      property="partnerRegisterName"         jdbcType="VARCHAR2"/>
+		<result column="ORDER_AMOUNT" 				property="orderAmount"				   jdbcType="Number"/>
+	</resultMap>     
+	                               
+	<resultMap class="orderCreditDetailDTO" id="orderCreditDetail_resultMap">
+		<result column="CREDIT_DETAIL_ID"	                   property="creditDetailId"		             jdbcType="NUMBER"/>
+		<result column="CREDIT_ID"	                           property="creditId"		                     jdbcType="NUMBER"/>
+		<result column="PARTNER_ID"	                           property="partnerId"		                     jdbcType="NUMBER"/>
+		<result column="PARTNER_NAME"	                       property="partnerName"		                 jdbcType="VARCHAR2"/>
+		<result column="ACCOUNT_DATE"               	       property="accountDateStr"                 	 jdbcType="DATE"/>
+		<result column="TRADE_ORDER_ID"	                       property="tradeOrderId"		                 jdbcType="NUMBER"/>
+		<result column="PARTNER_SETTLEMENT_ORDER_ID"	       property="partnerSettlementOrderId"		     jdbcType="NUMBER"/>
+		<result column="ORDER_AMOUNT"	                       property="orderAmount"		                 jdbcType="NUMBER"/>
+		<result column="CREDIT_AMOUNT"	                       property="creditAmount"		                 jdbcType="NUMBER"/>
+		<result column="CHARGE"	                               property="charge"		                     jdbcType="NUMBER"/>
+		<result column="ACCOUNT_AMOUNT"	                       property="accountAmount"		                 jdbcType="NUMBER"/>
+		<result column="APPLY_DATE"	                           property="applyDateStr"		                 jdbcType="DATE"/>
+		<result column="SETTLEMENT_DATE"	                   property="settlementDateStr"		             jdbcType="DATE"/>
+		<result column="STATUS"	                               property="status"		                     jdbcType="CHAR"/>
+		<result column="SETTLEMENT_FLG" 					   property="settlementFlg"   					 jdbcType="NUMBER"/>
+		<result column="ORDER_ID" 					   		   property="orderId"   					     jdbcType="VARCHAR2"/>
+		<result column="TRAN_CURRENCY_CODE" 				   property="tranCurrencyCode"					 jdbcType="VARCHAR2"/>
+		<result column="CREDIT_CURRENCY_CODE" 				   property="creditCurrencyCode"				 jdbcType="VARCHAR2"/>
+		<result column="DAY_RATE" 				   			   property="dayRate"				             jdbcType="VARCHAR2"/>
+		
+	</resultMap>                                           
+	
+	<!-- 创建融资订单 -->
+	<insert id="createOrderCredit" parameterClass="orderCreditDTO">
+		<selectKey keyProperty="creditId" resultClass="java.lang.Long" >
+			SELECT 201 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_ORDER_CREDIT_ID.nextval, 6, 0)  FROM DUAL
+		</selectKey>
+		INSERT
+		INTO ORDER_CREDIT
+		  (
+		    CREDIT_ID,
+		    PARTNER_ID,
+		    PARTNER_NAME,
+		    CREDIT_TYPE,
+		    APPLY_DATE,
+		    ACCOUNT_DATE,
+		    CREDIT_COUNT,
+		    CURRENCY_CODE,
+		    DAY_RATE,
+		    ACCOUNT_AMOUNT,
+		    CREDIT_AMOUNT,
+		    CHARGE,
+		    STATUS,
+		    PARTNER_REGISTER_NAME,
+		    ORDER_AMOUNT
+		  )
+		  VALUES
+		  (
+		    #creditId#,
+		    #partnerId#,
+		    #partnerName#,
+		    #creditType#,
+		    #applyDate#,
+		    #accountDate#,
+		    #creditCount#,
+		    #currencyCode#,
+		    #dayRate#,
+		    #accountAmount#,
+		    #creditAmount#,
+		    #charge#,
+		    #status#,
+		    #partnerRegisterName#,
+			#orderAmount#		    
+		  )
+	</insert>
+	
+	<!-- 融资订单详情 -->
+	<insert id="createOrderCreditDetailBatch" parameterClass="orderCreditDetailDTO">
+		<selectKey keyProperty="creditDetailId" resultClass="java.lang.Long">
+			SELECT 202 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_ORDER_CREDIT_DETAIL_ID.nextval, 6, 0)  FROM DUAL
+		</selectKey>
+		INSERT
+		INTO ORDER_CREDIT_DETAIL
+		  (
+		    CREDIT_DETAIL_ID,
+		    CREDIT_ID,
+		    PARTNER_ID,
+		    PARTNER_NAME,
+		    TRADE_ORDER_ID,
+		    PARTNER_SETTLEMENT_ORDER_ID,
+		    ORDER_AMOUNT,
+		    CREDIT_AMOUNT,
+		    CHARGE,
+		    ACCOUNT_AMOUNT,
+		    APPLY_DATE,
+		    SETTLEMENT_DATE,
+		    STATUS,
+		    SETTLEMENT_FLG,
+		    ORDER_ID
+		  )
+		  VALUES
+		  (
+		    #creditDetailId#,
+		    #creditId#,
+		    #partnerId#,
+		    #partnerName#,
+		    #tradeOrderId#,
+		    #partnerSettlementOrderId#,
+		    #orderAmount#,
+		    #creditAmount#,
+		    #charge#,
+		    #accountAmount#,
+		    #applyDate#,
+		    #settlementDate:TIMESTAMP#,
+		    #status#,
+		    #settlementFlg#,
+		    #orderId#
+		  )
+		  
+	</insert>
+	
+	<!-- 融资订单查询 -->
+	<select id="findByCriteria_orderCredit" parameterClass="hMap" resultMap="orderCredit_resultMap">
+		SELECT CREDIT_ID,
+		  PARTNER_ID,
+		  PARTNER_NAME,
+		  decode(CREDIT_TYPE, 'A','订单授信') as CREDIT_TYPE,
+		  to_char(APPLY_DATE, 'yyyy-mm-dd hh24:mi:ss') as APPLY_DATE,
+		  ACCOUNT_DATE,
+		  CREDIT_COUNT,
+		  CURRENCY_CODE,
+		  DAY_RATE,
+		  ACCOUNT_AMOUNT,
+		  CREDIT_AMOUNT,
+		  CHARGE,
+		  STATUS,
+		  PARTNER_REGISTER_NAME,
+		  ORDER_AMOUNT
+		FROM ORDER_CREDIT where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty property="creditId" prepend="and">
+				CREDIT_ID=#creditId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerName" prepend="and">
+				PARTNER_NAME=#partnerName#
+			</isNotEmpty>
+			<isNotEmpty property="creditType" prepend="and">
+				CREDIT_TYPE=#creditType#
+			</isNotEmpty>
+			<isNotEmpty property="accountDate" prepend="and">
+				ACCOUNT_DATE=#accountDate#
+			</isNotEmpty>
+			<isNotEmpty property="creditCount" prepend="and">
+				CREDIT_COUNT=#creditCount#
+			</isNotEmpty>
+			<isNotEmpty property="currencyCode" prepend="and">
+				CURRENCY_CODE=#currencyCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="startTime">
+				APPLY_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+	           	APPLY_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+			</isNotEmpty>
+		</dynamic>
+		order by APPLY_DATE desc
+	</select>
+	<select id="findByCriteria_orderCredit_COUNT" parameterClass="hMap" resultClass="java.lang.Integer">
+		SELECT count(1)
+		FROM ORDER_CREDIT where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty property="creditId" prepend="and">
+				CREDIT_ID=#creditId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerName" prepend="and">
+				PARTNER_NAME=#partnerName#
+			</isNotEmpty>
+			<isNotEmpty property="creditType" prepend="and">
+				CREDIT_TYPE=#creditType#
+			</isNotEmpty>
+			<isNotEmpty property="accountDate" prepend="and">
+				ACCOUNT_DATE=#accountDate#
+			</isNotEmpty>
+			<isNotEmpty property="creditCount" prepend="and">
+				CREDIT_COUNT=#creditCount#
+			</isNotEmpty>
+			<isNotEmpty property="currencyCode" prepend="and">
+				CURRENCY_CODE=#currencyCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="startTime">
+				APPLY_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+	           	APPLY_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<!-- 融资订单详情查询 -->
+	<select id="findByCriteria_orderDetail" parameterClass="hMap" resultMap="orderCreditDetail_resultMap">
+		SELECT CREDIT_DETAIL_ID,
+		  pso.CURRENCY_CODE AS TRAN_CURRENCY_CODE,
+		 <!--  pso.SETTLEMENT_DATE as SETTLEMENT_DATE, -->
+		  oc.CURRENCY_CODE  AS CREDIT_CURRENCY_CODE,
+		  oc.DAY_RATE, 
+		  ocd.CREDIT_ID,
+		  ocd.PARTNER_ID,
+		  ocd.PARTNER_NAME,
+		  ocd.TRADE_ORDER_ID,
+		  ocd.PARTNER_SETTLEMENT_ORDER_ID,
+		  ocd.ORDER_AMOUNT,
+		  ocd.CREDIT_AMOUNT,
+		  ocd.CHARGE,
+		  ocd.ACCOUNT_AMOUNT,
+		  ocd.ACCOUNT_DATE,
+		  ocd.APPLY_DATE,
+		  ocd.SETTLEMENT_DATE, 
+		  ocd.STATUS,
+		  ocd.SETTLEMENT_FLG,
+		  ocd.ORDER_ID
+		FROM ORDER_CREDIT_DETAIL ocd,
+		  PARTNER_SETTLEMENT_ORDER pso,
+		  ORDER_CREDIT oc
+		WHERE 1                             =1
+		AND ocd.PARTNER_SETTLEMENT_ORDER_ID = pso.id
+		AND ocd.CREDIT_ID                   = oc.CREDIT_ID
+		<dynamic prepend="and">
+			<isNotEmpty property="creditDetailId" prepend="and">
+				ocd.CREDIT_DETAIL_ID=#creditDetailId#
+			</isNotEmpty>
+			<isNotEmpty property="creditId" prepend="and">
+				ocd.CREDIT_ID=#creditId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				ocd.PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerName" prepend="and">
+				ocd.PARTNER_NAME=#partnerName#
+			</isNotEmpty>
+			<isNotEmpty property="tradeOrderId" prepend="and">
+				ocd.TRADE_ORDER_ID=#tradeOrderId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerSettlementOrderId" prepend="and">
+				ocd.PARTNER_SETTLEMENT_ORDER_ID=#partnerSettlementOrderId#
+			</isNotEmpty>
+		</dynamic>
+		order by ocd.APPLY_DATE desc
+	</select>
+	<select id="findByCriteria_orderDetail_COUNT" parameterClass="hMap" resultClass="java.lang.Integer">
+		SELECT count(1)
+		FROM ORDER_CREDIT_DETAIL where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty property="creditDetailId" prepend="and">
+				CREDIT_DETAIL_ID=#creditDetailId#
+			</isNotEmpty>
+			<isNotEmpty property="creditId" prepend="and">
+				CREDIT_ID=#creditId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerName" prepend="and">
+				PARTNER_NAME=#partnerName#
+			</isNotEmpty>
+			<isNotEmpty property="tradeOrderId" prepend="and">
+				TRADE_ORDER_ID=#tradeOrderId#
+			</isNotEmpty>
+			<isNotEmpty property="" prepend="and">
+				PARTNER_SETTLEMENT_ORDER_ID=#partnerSettlementOrderId#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<update id="updateDetail" parameterClass="orderCreditDetailDTO">
+        UPDATE ORDER_CREDIT_DETAIL
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="creditId">
+            CREDIT_ID = #creditId#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+            PARTNER_ID = #partnerId#
+        </isNotNull>
+        <isNotEmpty prepend="," property="partnerName">
+            PARTNER_NAME = #partnerName#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="tradeOrderId">
+            TRADE_ORDER_ID = #tradeOrderId#
+        </isNotEmpty>
+        <isNotNull prepend="," property="orderAmount">
+            ORDER_AMOUNT = #orderAmount#
+        </isNotNull>
+        <isNotEmpty prepend="," property="creditAmount">
+            CREDIT_AMOUNT = #creditAmount#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="charge">
+            CHARGE = #charge#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="accountAmount">
+            ACCOUNT_AMOUNT = #accountAmount#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="applyDate">
+            APPLY_DATE = #applyDate#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="accountDate">
+            ACCOUNT_DATE = #accountDate#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="settlementDate">
+            SETTLEMENT_DATE = #settlementDate#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotNull prepend="," property="settlementFlg">
+            SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+            ORDER_ID = #orderId#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+          <isNotEmpty property="creditDetailId" prepend="and" >
+				CREDIT_DETAIL_ID=#creditDetailId#
+		  </isNotEmpty>
+		  <isNotEmpty property="partnerSettlementOrderId" prepend="and" >
+            PARTNER_SETTLEMENT_ORDER_ID = #partnerSettlementOrderId#
+        	</isNotEmpty>
+        </dynamic>
+    </update>
+</sqlMap>

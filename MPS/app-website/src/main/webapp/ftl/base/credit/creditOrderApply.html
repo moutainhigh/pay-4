@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+	<!-- data picker controller -->
+	<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script> 
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script> 
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.imgbox.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<title>订单授信申请</title>
+	<style type="text/css">
+	span{
+	font-weight: bold;
+	}
+	</style>
+	<script type="text/javascript">
+		$(function(){
+			<#if message?has_content>
+				alert('${message}') ;
+			</#if>
+		}) ;
+		$(function(){
+			<#if successMessage?has_content>
+				alert('${successMessage}') ;
+			</#if>
+		}) ;
+	</script>
+	<script type="text/javascript">
+		//授信币种选择
+		function creditOrderApply(){
+			var _applyDataAttr = generateApplyData() ;
+			if(_applyDataAttr.length ==0){
+				$.pay.alert("申请授信数据不能为空！") ;
+				return false ;
+			}
+			_applyDataAttr = window.JSON.stringify(_applyDataAttr) ;
+			var dayRate=$("#dayRate").val();
+			if(dayRate=="0" || dayRate=="" || dayRate==undefined)
+			{
+				$.pay.alert("日利率不能为空！") ;
+				return false ;
+			}
+			$("#f_applyDataAttr").val(encodeURIComponent(encodeURIComponent(_applyDataAttr))) ;
+			$("#creditOrderManageForm").attr('action', '${rc.contextPath}/corp/creditOrder.htm?method=toApplyView') ;
+			$("#creditOrderManageForm").submit() ;
+			//$("#creditOrderManageForm").attr('action', '${rc.contextPath}/corp/creditOrder.htm?method=queryCreditOrder') ;
+		}
+		//从申请中剔除-总比数
+		function del(tableID, obj) {
+			var rowIndex = obj.parentElement.parentElement.rowIndex;
+		    obj.parentElement.parentElement.parentElement.deleteRow(rowIndex); 
+		  $("#totalnum").html(parseInt($("#totalnum").html())-1);
+		}
+		function changeColor(){
+			document.all['totalnum'].style.color="#ff0000";
+		}
+		//id的全选或全部取消
+		//id的全选或全部取消
+		function selectAll() {
+			if($("#checkAll").attr("checked")){
+				$("input[name='wkKey']").each(function(){
+					this.checked = true;
+				});
+			} else {
+				$("input[name='wkKey']").each(function() {
+					this.checked = false;
+				});
+			}
+		}
+		//取消一个选择单位，去掉全选框的勾
+		function selectAllcheckBoxunchecked(obj){
+		  if(!obj.checked){
+			  $("#checkAll").attr("checked",false);
+			  }
+		}
+	</script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			<#if CREDTIDATA_NOT_BE_NULL ? has_content>
+				$.pay.alert('${CREDTIDATA_NOT_BE_NULL}') ;			
+			</#if>
+			<#if errorMsg ? has_content>
+				$.pay.alert('${errorMsg}') ;
+			</#if>
+		}) ;
+	</script>
+	<script type="text/javascript">
+		function generateApplyData(){
+			var flag = false ;
+			var $boxes = $("tbody").find("input[type='checkbox']:checked") ;
+			var $trs = $boxes.parent("td").parent("tr") ;
+			//获得网关订单号
+			var applyDataAttr = new Array() ;
+			$trs.each(function(n, o){
+				var applyData = {} ;
+				var id = $(o).find("td:last").find("input[name='wkKey']").val() ;
+				applyData['id'] = id ;
+				var currencyCode = $(o).find("td:last").find("input[name='currencyCode']").val() ;
+				applyData['currencyCode'] = currencyCode ;
+				var tradeOrderNo = $(o).find("td:last").find("input[name='tradeOrderNo']").val() ;
+				applyData['tradeOrderNo'] = tradeOrderNo ;
+				var partnerId = $(o).find("td:last").find("input[name='partnerId']").val() ;
+				applyData['partnerId'] = partnerId ;
+				var amount = $(o).find("td:last").find("input[name='amount']").val() ;
+				applyData['amount'] = amount ;
+				var settlementRate = $(o).find("td:last").find("input[name='settlementRate']").val() ;
+				applyData['settlementRate'] = settlementRate ;
+				var orderAmount = $(o).find("td:last").find("input[name='orderAmount']").val() ;
+				applyData['orderAmount'] = orderAmount ;
+				var assureAmount = $(o).find("td:last").find("input[name='assureAmount']").val() ;
+				applyData['assureAmount'] = assureAmount ;
+				var orderId = $(o).find("td:last").find("input[name='orderId']").val() ;
+				applyData['orderId'] = orderId ;
+				var settlementCurrencyCode = $(o).find("td:last").find("input[name='settlementCurrencyCode']").val() ;
+				applyData['settlementCurrencyCode'] = settlementCurrencyCode ;
+				var settlementFlg = $(o).find("td:last").find("input[name='settlementFlg']").val() ;
+				applyData['settlementFlg'] = settlementFlg ;
+				var paymentOrderNo = $(o).find("td:last").find("input[name='paymentOrderNo']").val() ;
+				applyData['paymentOrderNo'] = paymentOrderNo ;
+				var createDate = $(o).find("td:last").find("input[name='createDate']").val() ;
+				applyData['createDate'] = createDate ;
+				applyData['screateDate'] = createDate ;
+				var feeRate = $(o).find("td:last").find("input[name='feeRate']").val() ;
+				applyData['feeRate'] = feeRate ;
+				var perFee = $(o).find("td:last").find("input[name='perFee']").val() ;
+				applyData['perFee'] = perFee ;
+				var settlementAmount = $(o).find("td:last").find("input[name='settlementAmount']").val() ;
+				applyData['settlementAmount'] = settlementAmount ;
+				var fixedFeeSettlementAmount = $(o).find("td:last").find("input[name='fixedFeeSettlementAmount']").val() ;
+				applyData['fixedFeeSettlementAmount'] = fixedFeeSettlementAmount ;
+				var applyDate = $(o).find("td:last").find("input[name='applyDate']").val() ;
+				applyData['applyDate'] = applyDate ;
+				applyData['sapplyDate'] = applyDate ;
+				var settlementDate = $(o).find("td:last").find("input[name='settlementDate']").val() ;
+				applyData['settlementDate'] = settlementDate ;
+				var ssettlementDate = $(o).find("td:last").find("input[name='ssettlementDate']").val() ;
+				applyData['ssettlementDate'] = ssettlementDate ;
+				var recordedAmount = $(o).find("td:last").find("input[name='recordedAmount']").val() ;
+				applyData['recordedAmount'] = recordedAmount ;
+				var charge = $(o).find("td:last").find("input[name='charge']").val() ;
+				applyData['charge'] = charge ;
+				var rate = $(o).find("td:last").find("input[name='rate']").val() ;
+				applyData['rate'] = rate ;
+				var cardholderCardno = $(o).find("td:last").find("input[name='cardholderCardno']").val() ;
+				applyData['cardholderCardno'] = cardholderCardno ;
+				var email = $(o).find("td:last").find("input[name='email']").val() ;
+				applyData['email'] = email ;
+				var cardCountryCode = $(o).find("td:last").find("input[name='cardCountryCode']").val() ;
+				applyData['cardCountryCode'] = cardCountryCode ;
+				var shippingCountryCode = $(o).find("td:last").find("input[name='shippingCountryCode']").val() ;
+				applyData['shippingCountryCode'] = shippingCountryCode ;
+				var bouncedRate = $(o).find("td:last").find("input[name='bouncedRate']").val() ;
+				applyData['bouncedRate'] = bouncedRate ;
+				var creditCurrencyCode = $(o).find("td:last").find("input[name='creditCurrencyCode']").val() ;
+				applyData['creditCurrencyCode'] = creditCurrencyCode ;
+				var orderCode = $(o).find("td:last").find("input[name='orderCode']").val() ;
+				applyData['orderCode'] = orderCode ;
+				var fee = $(o).find("td:last").find("input[name='fee']").val() ;
+				applyData['fee'] = fee ;
+				var fixedFee = $(o).find("td:last").find("input[name='fixedFee']").val() ;
+				applyData['fixedFee'] = fixedFee ;
+				var fixedFeeCurrency = $(o).find("td:last").find("input[name='fixedFeeCurrency']").val() ;
+				applyData['fixedFeeCurrency'] = fixedFeeCurrency ;
+				var riskFee = $(o).find("td:last").find("input[name='riskFee']").val() ;
+				applyData['riskFee'] = riskFee ;
+				var assureSettlementFlg = $(o).find("td:last").find("input[name='assureSettlementFlg']").val() ;
+				applyData['assureSettlementFlg'] = assureSettlementFlg ;
+				var settleStart = $(o).find("td:last").find("input[name='settleStart']").val() ;
+				applyData['settleStart'] = settleStart ;
+				var settleEnd = $(o).find("td:last").find("input[name='settleEnd']").val() ;
+				applyData['settleEnd'] = settleEnd ;
+				var creditFlag = $(o).find("td:last").find("input[name='creditFlag']").val() ;
+				applyData['creditFlag'] = creditFlag  ;
+				var advanceFlag = $(o).find("td:last").find("input[name='advanceFlag']").val() ;
+				applyData['advanceFlag'] = advanceFlag ;
+			
+				
+				applyDataAttr.push(applyData) ;
+			}) ;
+			
+			//console.debug(applyDataAttr) ;
+			return applyDataAttr ;
+		}
+	</script>
+</head>
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="credit_order_manager"/>
+		<div class="mainbox">
+			<div class = "wrap">
+			<div class="section01">
+			<div class="tit">
+				<span class="current"><a href="#">订单授信申请</a></span>
+			</div>
+			<div style="padding-left: 20px; line-height: 26px;">
+				<p><span>Tips:何为订单授信？</span></p>
+				<p>订单授信是iPayLinks为诚信经营，信用良好的商户提供的金融服务。商户提交的订单授信通过审核后，<br/>iPayLinks将于审核当日清算商户所申请的交易款项，并根据提前清算的天数，按日收取一定的服务费。</p>
+				<p><span>服务费说明：</span>日利率仅   ${dayRate?default('')}%          ，当天14:00后申请的授信订单次日开始计服务费。</p>
+				<p><span>授信金额说明：</span> 授信金额不包含保证金和交易费用，原订单保证金将清算到您的保证金账户！</p>
+				 <form action="${rc.contextPath}/corp/creditOrder.htm?method=queryCreditOrder" method="post" name="creditOrderManageForm" id="creditOrderManageForm">
+				 	<input type="hidden" name="dayRate" id="dayRate" value="${dayRate?default('')}"/>
+				 	<input type="hidden" name="applyDataAttr" id="f_applyDataAttr" />
+					<div class="briefInfoCell" style="width:60%">
+						<span>请选择需要申请授信的订单：</span>
+							<input class="Wdate" type="text" name="beginDate" readonly="readonly" id="beginDate"  
+						    	onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:ss'})"     
+						    	value="${beginDate!''}"> 				
+							至
+							<input class="Wdate" type="text"   name="endDate" readonly="readonly" id="endDate" 
+								onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:ss'})"    
+								value="${endDate!''}">				
+					</div>
+					<div class="briefInfoCell" style="width:40%">
+						<input type="submit" id="credit_querybtn" value="查询" class="btn_blue2">&nbsp;&nbsp;		<!-- onclick="javascript:return checkNeed();" -->
+					</div><br><br>
+				 </form>				
+				</div>
+				<br/><br/>
+	   	   		<table border="1" class="tab03">
+	   	   			<thead>
+	            		<tr>							
+							<th>商户订单号</th>							
+							<th>订单金额</th>
+							<th>授信金额</th><!--（未扣除利息）  -->
+							<th>交易时间</th>
+							<th>原清算时间</th>
+							<th>
+								<input type="checkbox" name="checkAll" id="checkAll" onclick="selectAll();" />全选/反选
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<#if infoList?exists>
+							<#list infoList as ls>
+								<tr>
+									
+									<td>${ls.orderId}</td>					<!-- 商户订单号 -->
+									<td>
+										<label>${(ls.orderAmount?default(0)/1000)?string(",##0.00")}${ls.currencyCode?default("")}</label>
+									</td>	
+									<td>
+										<label>${(ls.recordedAmount?default(0)/1000)?string(",##0.000")}${creditCurrencyCode?default("CNY")}</label>
+									</td>
+									<td>${ls.createDate?date?string('yyyy-MM-dd HH:mm:ss')}</td>			<!-- 网关完成时间 -->
+									<td>${ls.settlementDate?string('yyyy-MM-dd HH:mm:ss')}</td>
+									<td >
+										<input type="checkbox" name="wkKey" value="${ls.id?default('')}" onclick="selectAllcheckBoxunchecked(this);" />
+										<!-- <input type="hidden" name="id" value="" />  -->
+										<input type="hidden" name="currencyCode" value="${ls.currencyCode?default('')}" /> 
+										<input type="hidden" name="tradeOrderNo" value="${ls.tradeOrderNo?default('')}" /> 
+										<input type="hidden" name="partnerId" value="${ls.partnerId}" /> 
+										<input type="hidden" name="amount" value="${ls.amount?default('')}" /> 
+										<input type="hidden" name="settlementRate" value="${ls.settlementRate?default('')}" /> 
+										<input type="hidden" name="orderAmount" value="${ls.orderAmount?default('')}" /> 
+										<input type="hidden" name="assureAmount" value="${ls.assureAmount?default('')}" /> 
+										<input type="hidden" name="orderId" value="${ls.orderId?default('')}" /> 
+										<input type="hidden" name="settlementCurrencyCode" value="${ls.settlementCurrencyCode?default('')}" /> 
+										<input type="hidden" name="settlementFlg" value="${ls.settlementFlg?default('')}" /> 
+										<input type="hidden" name="paymentOrderNo" value="${ls.paymentOrderNo?default('')}" /> 
+										<input type="hidden" name="createDate" value="${ls.createDate?date}" /> 
+										<input type="hidden" name="feeRate" value="${ls.feeRate?default('')}" /> 
+										<input type="hidden" name="perFee" value="${ls.perFee?default('')}" /> 
+										<input type="hidden" name="settlementAmount" value="${ls.settlementAmount?default('')}" /> 
+										<input type="hidden" name="fixedFeeSettlementAmount" value="${ls.fixedFeeSettlementAmount?default('')}" /> 
+										<!-- <input type="hidden" name="applyDate" value="${ls.applyDate?date}" /> -->
+										<input type="hidden" name="settlementDate" value="${ls.settlementDate?string('yyyy-MM-dd HH:mm:ss')}" /> 
+										<input type="hidden" name="ssettlementDate" value="${ls.settlementDate?string('yyyy-MM-dd HH:mm:ss')}" /> 
+										<input type="hidden" name="recordedAmount" value="${ls.recordedAmount?default('')}" /> 
+										<input type="hidden" name="charge" value="${ls.charge?default('')}" /> 
+										<input type="hidden" name="rate" value="${ls.rate?default('')}" /> 
+										<input type="hidden" name="cardholderCardno" value="${ls.cardholderCardno?default('')}" /> 
+										<input type="hidden" name="email" value="${ls.email?default('')}" /> 
+										<input type="hidden" name="cardCountryCode" value="${ls.cardCountryCode?default('')}" /> 
+										<input type="hidden" name="shippingCountryCode" value="${ls.shippingCountryCode?default('')}" /> 
+										<input type="hidden" name="bouncedRate" value="${ls.bouncedRate?default('')}" /> 
+										<input type="hidden" name="creditCurrencyCode" value="${ls.creditCurrencyCode?default('')}" /> 
+										<input type="hidden" name="orderCode" value="${ls.orderCode?default('')}" /> 
+										<input type="hidden" name="fee" value="${ls.fee?default('')}" /> 
+										<input type="hidden" name="fixedFee" value="${ls.fixedFee?default('')}" /> 
+										<input type="hidden" name="fixedFeeCurrency" value="${ls.fixedFeeCurrency?default('')}" /> 
+										<input type="hidden" name="riskFee" value="${ls.riskFee?default('')}" /> 
+										<input type="hidden" name="assureSettlementFlg" value="${ls.assureSettlementFlg?default('')}" /> 
+										<input type="hidden" name="settleStart" value="${ls.settleStart?default('')}" /> 
+										<input type="hidden" name="settleEnd" value="${ls.settleEnd?default('')}" /> 
+										<input type="hidden" name="creditFlag" value="${ls.creditFlag?default('')}" /> 
+										<input type="hidden" name="advanceFlag" value="${ls.advanceFlag?default('')}" /> 
+										
+										<!-- <input type="hidden" name="tradeOrderNo" value="${ls.tradeOrderNo?default('')}" /> -->
+									</td>
+								</tr>
+							</#list>
+						</#if>
+					</tbody>
+				</table>
+				<#if pu?exists>
+					<div style="text-align: right">
+						<@sp.pagination pu=pu/>
+			  		</div>
+			  	</#if>
+			  	
+			  	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 总笔数：
+				<span id="totalnum">${COUNTDATA?default('0')}</span>
+					&nbsp;笔 &nbsp;&nbsp;&nbsp;&nbsp;
+					最大授信金额：<font id="orderAmount">${AMOUNT?default('0')}</font>&nbsp;元&nbsp;&nbsp;&nbsp;&nbsp;
+					授信币种:${creditCurrencyCode?default("CNY")}
+				<br/><br/>
+				<div style="text-align: center; margin-bottom: 20px;" >
+				 <input type="button" id="credit_applybtn" value="立即申请" class="btn_blue2" onclick="javascript:creditOrderApply();">
+				</div>
+			</div>
+		</div>
+		</div>
+<#include "/include/myfoot.html">
+</body>
+
+</html>

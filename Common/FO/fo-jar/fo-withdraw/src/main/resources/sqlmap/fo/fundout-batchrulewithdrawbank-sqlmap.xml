@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchrulewithdrawbank">
+	<typeAlias alias="batchRuleWithdrawBank" type="com.pay.fundout.withdraw.model.rulewithdrawbank.BatchRuleWithdrawBank"/>
+	<typeAlias alias="batchRuleWithdrawBankDTO" type="com.pay.fundout.withdraw.dto.rulewithdrawbank.BatchRuleWithdrawBankDTO"/>
+    <resultMap id="batchRuleWithdrawBank" class="com.pay.fundout.withdraw.model.rulewithdrawbank.BatchRuleWithdrawBank">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="MAX_COUNTS" property="maxCounts" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="BATCH_RULE_ID" property="batchRuleId" jdbcType="DECIMAL"/>
+        <result column="WITHDRAW_BANK_ID" property="withdrawBankId" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CREATION_DATE,MAX_COUNTS,STATUS,SEQUENCE_ID,BATCH_RULE_ID,
+		WITHDRAW_BANK_ID,UPDATE_DATE
+    </sql>
+    <insert id="create" parameterClass="batchRuleWithdrawBank">
+        INSERT INTO BATCH_RULE_WITHDRAW_BANK(
+			CREATION_DATE,MAX_COUNTS,STATUS,SEQUENCE_ID,BATCH_RULE_ID,
+			WITHDRAW_BANK_ID,UPDATE_DATE
+        )
+        VALUES(
+            #creationDate#,#maxCounts#,#status#,SEQ_BATCH_RULE_BANK.nextval,#batchRuleId#,
+			#withdrawBankId#,#updateDate#
+		)
+    </insert>
+
+    <update id="update" parameterClass="batchRuleWithdrawBank">
+        UPDATE BATCH_RULE_WITHDRAW_BANK
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="creationDate">
+            CREATION_DATE = #creationDate#
+        </isNotNull>
+        <isNotNull prepend="," property="maxCounts">
+            MAX_COUNTS = #maxCounts#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId#
+        </isNotNull>
+        <isNotNull prepend="," property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM BATCH_RULE_WITHDRAW_BANK        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="batchRuleWithdrawBank">
+        DELETE FROM BATCH_RULE_WITHDRAW_BANK        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="maxCounts">
+            MAX_COUNTS = #maxCounts# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="batchRuleWithdrawBank"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATION_DATE,MAX_COUNTS,STATUS,SEQUENCE_ID,BATCH_RULE_ID,
+			WITHDRAW_BANK_ID,UPDATE_DATE
+        FROM BATCH_RULE_WITHDRAW_BANK
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="batchRuleWithdrawBank">
+        SELECT 
+			CREATION_DATE,MAX_COUNTS,STATUS,SEQUENCE_ID,BATCH_RULE_ID,
+			WITHDRAW_BANK_ID,UPDATE_DATE
+        FROM BATCH_RULE_WITHDRAW_BANK
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="maxCounts">
+            MAX_COUNTS = #maxCounts# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM BATCH_RULE_WITHDRAW_BANK
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="maxCounts">
+            MAX_COUNTS = #maxCounts# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleId">
+            BATCH_RULE_ID = #batchRuleId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="getBankByBatchId" parameterClass="long" resultClass="batchRuleWithdrawBankDTO">
+    	SELECT A.BATCH_RULE_ID 		batchRuleId,
+    		   A.WITHDRAW_BANK_ID	withdrawBankId,
+    		   A.MAX_COUNTS			maxCounts,
+    		   B.BANK_NAME 			bankName
+    	FROM BATCH_RULE_WITHDRAW_BANK A, WITHDRAW_BANK_CONFIG B
+		WHERE A.WITHDRAW_BANK_ID=B.SEQUENCE_ID AND A.BATCH_RULE_ID=#value#
+    </select>
+    
+    <delete id="deleteBankByBatchId" parameterClass="long">
+    	DELETE FROM BATCH_RULE_WITHDRAW_BANK
+    	WHERE BATCH_RULE_ID=#value#
+    </delete>
+    
+    <select id="getChannelInfoByRuleKy" resultClass="com.pay.fundout.channel.model.channel.FundoutChannel" parameterClass="long">
+    	SELECT F.BANK_ID 		bankId			,
+    		   F.MODE_CODE		modeCode		,
+    		   F.BUSINESS_CODE	businessCode	,
+    		   F.CHANNEL_NAME 	channelName		
+    	FROM BATCH_RULE_CHANNEL_RES B INNER JOIN FUNDOUT_CHANNEL F ON B.CHANNEL_KY = F.CODE
+				AND B.RULE_KY = #value#
+				AND B.STATE = '1'
+   				AND F.STATUS = '1'
+    
+    </select>
+    
+    
+</sqlMap>

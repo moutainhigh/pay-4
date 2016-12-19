@@ -1,0 +1,64 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	
+       
+           <!-- DataSource -->
+		<!-- poss端直接操作原ma组的表 -->
+	<bean id="sqlMapClientPoss-Ma" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmap/ma/sqlmap-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<value>classpath*:sqlmap/ma/mapping/**/*.xml</value>
+		</property>
+		<property name="dataSource">
+			<ref bean="accDs"/>
+		</property>
+		
+		
+	</bean>
+	
+	<!-- 分页用的 基础dao-->
+	<bean id="ma-pageGenerator" class="com.pay.inf.dao.impl.OraclePager"/>
+	<bean id="ma-parentDao" abstract="true">
+		<property name="dataSource">
+			<ref bean="accDs" />
+		</property>
+		<property name="pageGenerator">
+			<ref bean="ma-pageGenerator" />
+		</property>
+	</bean>
+	
+	
+
+	<bean id="ma-commonDao" parent="ma-parentDao"
+		class="com.pay.inf.dao.impl.BaseDAOImpl" init-method="initialize">
+		<property name="sqlMapClient">
+			<ref bean="sqlMapClientPoss-Ma" />
+		</property>
+		<property name="sqlExecutor">
+			<ref bean="ma-sqlExecutor" />
+		</property>
+	</bean>
+	
+	<bean id="ma-sqlExecutor"
+		class="com.pay.inf.dao.impl.OraclePageExecutor">
+		<property name="dialect">
+			<bean class="com.pay.inf.dao.impl.OraclePager" />
+		</property>
+	</bean>		
+	
+	<bean id="maBase-transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager" >
+		<property name="dataSource">
+			<ref bean="accDs" />
+		</property>
+	</bean>
+	
+</beans> 

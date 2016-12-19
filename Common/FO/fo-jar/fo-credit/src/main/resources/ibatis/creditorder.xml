@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="creditOrder">
+	<typeAlias alias="creditOrder" type="com.pay.credit.model.creditorder.CreditOrder" />
+	<typeAlias alias="creditOrderDetailed" type="com.pay.credit.model.creditorder.CreditOrderDetailed" />
+	<resultMap id="BaseResultMap" class="creditOrder" >
+	    <result column="CREDIT_ORDER_ID" property="creditOrderId" jdbcType="VARCHAR" />
+	    <result column="MERCHANT_CODE" property="merchantCode" jdbcType="VARCHAR" />
+	    <result column="MERCHANT_NAME" property="merchantName" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	    <result column="CREDIT_PRODUCT" property="creditProduct" jdbcType="VARCHAR" />
+	    <result column="PURPOSE" property="purpose" jdbcType="VARCHAR" />
+	    <result column="INTEREST_TYPE" property="interestType" jdbcType="VARCHAR" />
+	    <result column="CYCLE" property="cycle" jdbcType="NUMBER" />
+	    <result column="REMAINING_CYCLE" property="remainingCycle" jdbcType="NUMBER" />
+	    <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="NUMBER" />
+	    <result column="REPAY_WAY" property="repayWay" jdbcType="VARCHAR" />
+	    <result column="INTEREST_RATE" property="interestRate" jdbcType="NUMBER" />
+	    <result column="WITHDRAW_WAY" property="withdrawWay" jdbcType="VARCHAR" />
+	    <result column="GRACE_DAYS" property="graceDays" jdbcType="NUMBER" />
+	    <result column="DEFAULT_INTEREST_RATE" property="defaultInterestRate" jdbcType="NUMBER" />
+	    <result column="FEE" property="fee" jdbcType="NUMBER" />
+	    <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+	    <result column="SUPPOSED_TOTAL_AMOUNT" property="supposedTotalAmount" jdbcType="NUMBER" />
+	    <result column="REPAY_AMOUNT" property="repayAmount" jdbcType="NUMBER" />
+	    <result column="SUPPOSED_REPAY_PRINCIPAL" property="supposedRepayPrincipal" jdbcType="NUMBER" />
+	    <result column="SUPPOSED_REPAY_INTEREST" property="supposedRepayInterest" jdbcType="NUMBER" />
+	    <result column="SUPPOSED_DEFAULT_INTEREST" property="supposedDefaultInterest" jdbcType="NUMBER" />
+	    <result column="SUPPOSED_REPAY_TOTAL" property="supposedRepayTotal" jdbcType="NUMBER" />
+	    <result column="MEMO" property="memo" jdbcType="VARCHAR" />
+	    <result column="FORMULA_COMMENT" property="formulaComment" jdbcType="VARCHAR" />
+	    <result column="APPLY_TIME" property="applyTime" jdbcType="TIMESTAMP" />
+	    <result column="APPROVE_TIME" property="approveTime" jdbcType="TIMESTAMP" />  
+	    <result column="REPAY_DATE" property="repayDate" jdbcType="DATE" />
+	    <result column="LOAN_DATE" property="loanDate" jdbcType="DATE" />
+	    <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+	    <result column="ACCOUNT_NO" property="accountNo" jdbcType="VARCHAR" />
+	    <result column="ACCOUNT_NAME" property="accountName" jdbcType="VARCHAR" />
+	    <result column="ACCOUNT_BANK" property="accountBank" jdbcType="VARCHAR" />
+	    <result column="RISK_AMOUNT" property="riskAmount" jdbcType="NUMBER" />
+	    <result column="RISK_RATE" property="riskRate" jdbcType="NUMBER" />
+	    <result column="AGREEMENT_START_DATE" property="agreementStartDate" jdbcType="DATE" />
+	    <result column="AGREEMENT_END_DATE" property="agreementEndDate" jdbcType="DATE" />
+	    <result column="CYCLE_TYPE" property="cycleType" jdbcType="VARCHAR" />
+	    <result column="CREDIT_RATING" property="creditRating" jdbcType="VARCHAR" />
+	    <result column="APPLY_COUNT" property="applyCount" jdbcType="NUMBER" />
+	</resultMap>	
+	<resultMap class="creditOrderDetailed" id="creditDetailed">
+		<result column="CREDITBYORDER_DETAIL_ID" property="creditByOrderDetailId" jdbcType="VARCHAR" />
+		<result column="CREDIT_ORDER_ID" property="creditOrderId" jdbcType="VARCHAR" />
+		<result column="MERCHANT_CODE" property="merchantCode" jdbcType="VARCHAR" />
+		<result column="MERCHANT_NAME" property="merchantName" jdbcType="VARCHAR" />
+		<result column="STATUS" property="status" jdbcType="VARCHAR" />
+		<result column="RISK_STATUS" property="riskStatus" jdbcType="VARCHAR" />
+		<result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="NUMBER" />
+		<result column="GMT_AMOUNT" property="gmtAmount" jdbcType="NUMBER" />
+		<result column="LOAN_AMOUNT" property="loanAmount" jdbcType="NUMBER" />
+		<result column="INTEREST" property="interest" jdbcType="NUMBER" />
+		<result column="SETTLEMENT_DATA" property="settlementData" jdbcType="DATE" />
+		<result column="GMT_LOAN" property="gmtLoan" jdbcType="DATE" />
+		<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+		<result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+		<result column="SINGLE_ORDER_AMOUNT" property="singleOrderAmount" jdbcType="VARCHAR" />
+		<result column="TRADE_CURRENCY_CODE" property="tradeCurrencyCode" jdbcType="VARCHAR" />
+		<result column="RISK_ASSESSMENT" property="score" jdbcType="VARCHAR" />
+		<result column="RISK_ASSESSMENT_DETAIL" property="riskAssessmentDetail" jdbcType="VARCHAR" />
+	</resultMap>	
+	<!-- 查询融资订单详情 -->
+	<select id="queryCreditOrderDetailById" parameterClass="java.lang.String" resultMap="creditDetailed">
+		SELECT 
+		A.STATUS,
+		A.RISK_STATUS,
+		A.TRADE_ORDER_NO,
+		A.GMT_AMOUNT,
+		A.LOAN_AMOUNT,
+		A.INTEREST,
+		A.SETTLEMENT_DATA,
+		A.GMT_LOAN,
+		A.ORDER_ID,
+		A.CREDITBYORDER_DETAIL_ID,
+		A.MERCHANT_NAME,
+		A.MERCHANT_CODE,
+		A.CREDIT_ORDER_ID,
+		B.CURRENCY_CODE,
+		A.TRADE_CURRENCY_CODE,
+		A.SINGLE_ORDER_AMOUNT,
+		A.RISK_ASSESSMENT_DETAIL,
+		A.RISK_ASSESSMENT
+		 FROM 
+		CREDITBYORDER_DETAIL A LEFT JOIN CREDIT_ORDER B
+		ON
+		A.CREDIT_ORDER_ID=B.CREDIT_ORDER_ID
+		WHERE 
+		B.CREDIT_ORDER_ID = #creditOrderId#
+	</select>
+	<!-- 条件查询融资信息 -->
+	<select id="queryCreditOrderByConditon" parameterClass="com.pay.credit.conditon.creditorder.CreditOrderQueryConditon" resultMap="BaseResultMap">
+		SELECT 
+		CREDIT_ORDER_ID, 
+		MERCHANT_CODE,
+		MERCHANT_NAME,
+		STATUS,
+		CREDIT_PRODUCT,
+		PURPOSE,
+		INTEREST_TYPE,
+		CYCLE,
+		REMAINING_CYCLE,
+		ORDER_AMOUNT,
+		REPAY_WAY,
+		INTEREST_RATE,
+		WITHDRAW_WAY,
+		GRACE_DAYS,
+		DEFAULT_INTEREST_RATE,
+		FEE,
+		CURRENCY_CODE,
+		SUPPOSED_TOTAL_AMOUNT,
+		REPAY_AMOUNT,
+		SUPPOSED_REPAY_PRINCIPAL,
+		SUPPOSED_REPAY_INTEREST,
+		SUPPOSED_DEFAULT_INTEREST,
+		SUPPOSED_REPAY_TOTAL,
+		MEMO,
+		FORMULA_COMMENT,
+		APPLY_TIME,
+		APPROVE_TIME,
+		REPAY_DATE,
+		LOAN_DATE,
+		UPDATE_TIME,
+		ACCOUNT_NO,
+		ACCOUNT_NAME,
+		ACCOUNT_BANK,
+		RISK_AMOUNT,
+		RISK_RATE,
+		AGREEMENT_START_DATE,
+		AGREEMENT_END_DATE,
+		CYCLE_TYPE,
+		CREDIT_RATING,
+		APPLY_COUNT
+		FROM CREDIT_ORDER 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="applyStartTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &gt;= #applyStartTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="applyEndTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &lt;= #applyEndTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="partnerId">
+				MERCHANT_CODE = #partnerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantName">
+				MERCHANT_NAME = #merchantName#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="interestType">
+				INTEREST_TYPE = #interestType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				STATUS = #status#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY CREDIT_ORDER_ID DESC
+	</select>
+	<!-- 条件查询融资信息 -->
+	<select id="findByCriteria" parameterClass="com.pay.credit.conditon.creditorder.CreditOrderQueryConditon" resultMap="BaseResultMap">
+		SELECT 
+		CREDIT_ORDER_ID, 
+		MERCHANT_CODE,
+		MERCHANT_NAME,
+		STATUS,
+		CREDIT_PRODUCT,
+		PURPOSE,
+		INTEREST_TYPE,
+		CYCLE,
+		REMAINING_CYCLE,
+		ORDER_AMOUNT,
+		REPAY_WAY,
+		INTEREST_RATE,
+		WITHDRAW_WAY,
+		GRACE_DAYS,
+		DEFAULT_INTEREST_RATE,
+		FEE,
+		CURRENCY_CODE,
+		SUPPOSED_TOTAL_AMOUNT,
+		REPAY_AMOUNT,
+		SUPPOSED_REPAY_PRINCIPAL,
+		SUPPOSED_REPAY_INTEREST,
+		SUPPOSED_DEFAULT_INTEREST,
+		SUPPOSED_REPAY_TOTAL,
+		MEMO,
+		FORMULA_COMMENT,
+		APPLY_TIME,
+		APPROVE_TIME,
+		REPAY_DATE,
+		LOAN_DATE,
+		UPDATE_TIME,
+		ACCOUNT_NO,
+		ACCOUNT_NAME,
+		ACCOUNT_BANK,
+		RISK_AMOUNT,
+		RISK_RATE,
+		AGREEMENT_START_DATE,
+		AGREEMENT_END_DATE,
+		CYCLE_TYPE,
+		CREDIT_RATING,
+		APPLY_COUNT
+		FROM CREDIT_ORDER 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="creditOrderId">
+				CREDIT_ORDER_ID=#creditOrderId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="applyStartTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &gt;= #applyStartTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="applyEndTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &lt;= #applyEndTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="partnerId">
+				MERCHANT_CODE = #partnerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantName">
+				MERCHANT_NAME = #merchantName#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="interestType">
+				INTEREST_TYPE = #interestType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				STATUS = #status#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY CREDIT_ORDER_ID DESC
+	</select>
+	<!-- 条件查询融资信息 -->
+	<select id="findByCriteria_COUNT" parameterClass="com.pay.credit.conditon.creditorder.CreditOrderQueryConditon"  resultClass="java.lang.Integer">
+		SELECT 
+			COUNT(1)
+		FROM CREDIT_ORDER 
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="applyStartTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &gt;= #applyStartTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="applyEndTime">
+				TO_CHAR(APPLY_TIME,'yyyy-MM-dd') &lt;= #applyEndTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="partnerId">
+				MERCHANT_CODE = #partnerId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="merchantName">
+				MERCHANT_NAME = #merchantName#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="interestType">
+				INTEREST_TYPE = #interestType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				STATUS = #status#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY CREDIT_ORDER_ID DESC
+	</select>
+	<!-- 根据id查询融资订单 -->
+	<select id="queryCreditOrderById" resultMap="BaseResultMap" parameterClass="java.lang.String">
+		SELECT 
+			*
+		FROM CREDIT_ORDER
+		WHERE
+				CREDIT_ORDER_ID=#creditOrderId#
+	</select>
+	<!--  -->
+	<update id="updateCreditOrder" parameterClass="creditOrderDetailed">
+		UPDATE CREDIT_ORDER
+		SET 
+		STATUS = #status# ,
+		APPROVE_TIME = #approveTime#,
+		UPDATE_TIME = #updateTime#
+		WHERE CREDIT_ORDER_ID= #creditOrderId#
+	</update>
+	<update id="updateCreditOrderDetailed" parameterClass="creditOrderDetailed">
+		UPDATE CREDITBYORDER_DETAIL
+		SET 
+		STATUS = #status#
+		WHERE 	CREDIT_ORDER_ID = #creditOrderId#
+	</update>
+	<update id="updateCreditOrderDetail" parameterClass="creditOrderDetailed">
+		UPDATE CREDITBYORDER_DETAIL
+		SET
+		STATUS = #status#
+		WHERE CREDIT_ORDER_ID = #creditOrderId#
+		AND   TRADE_ORDER_NO = #tradeOrderNo#
+	</update>
+	<update id="updateCreditOrders" parameterClass="creditOrder">
+		UPDATE CREDIT_ORDER
+		SET 
+		STATUS = #status# ,
+		APPROVE_TIME = #approveTime#,
+		UPDATE_TIME = #updateTime#
+		WHERE CREDIT_ORDER_ID= #creditOrderId#
+	</update>
+	<!-- 融资订单保存 -->
+	<insert id="create" parameterClass="creditOrder">
+		<selectKey resultClass="java.lang.String" keyProperty="creditOrderId">
+			SELECT 920 || TO_CHAR(SYSDATE, 'yyyymmdd') || LPAD(SQL_CREDITORDER_ID.nextval, 8, 0) FROM DUAL
+		</selectKey>
+		INSERT INTO CREDIT_ORDER(
+			CREDIT_ORDER_ID,
+			MERCHANT_CODE,
+			MERCHANT_NAME,
+			CREDIT_PRODUCT,
+			PURPOSE,
+			INTEREST_TYPE,
+			CYCLE,
+			STATUS,
+			APPLY_TIME,
+			CURRENCY_CODE,
+			APPLY_COUNT,
+			APPLY_ORDER_AMOUNT,
+			GMT_COUNT,
+			ORDER_AMOUNT,
+			REPAY_WAY,
+			INTEREST_RATE,
+			SUPPOSED_REPAY_INTEREST,
+			AMOUNT_CREDITED,
+			WITHDRAW_WAY
+		)
+		VALUES(
+			#creditOrderId#,
+			#merchantCode#,
+			#merchantName#,
+			#creditProduct#,
+			#purpose#,
+			#interestType#,
+			#cycle#,
+			#status#,
+			#applyTime#,
+			#currencyCode#,
+			#applyCount#,
+			#applyOrderAmount#,
+			#gmtCount#,
+			#orderAmount#,
+			#repayWay#,
+			#interestRate#,
+			#supposedRepayInterest#,
+			#amountCredited#,
+			#withdrawWay#
+		)
+	</insert>
+	<!-- 融资订单详情保存，iterate,传参map -->
+	<insert id="saveCreditOrderDetail2" parameterClass="java.util.HashMap">
+		<selectKey resultClass="java.lang.String" keyProperty="creditByOrderDetailId" >
+			select 919 || TO_CHAR(SYSDATE, 'yyyymmdd') || LPAD(seq_creditorder_detail.nextVal, 8, 0) from dual 
+		</selectKey>
+		insert all
+		<iterate conjunction=" " property="creditOrderDetails" >
+			
+			into CREDITBYORDER_DETAIL(
+				CREDITBYORDER_DETAIL_ID,
+				CREDIT_ORDER_ID,
+				MERCHANT_CODE,
+				MERCHANT_NAME,
+				STATUS,
+				TRADE_ORDER_NO,
+				INTEREST,
+				SETTLEMENT_DATA,
+				ORDER_ID,
+				TRADE_CURRENCY_CODE,
+				SINGLE_ORDER_AMOUNT,
+				SETTLEMENT_CURRENCY_CODE
+			)
+			values(
+				#creditByOrderDetailId#,
+				#creditOrderDetails[].detailCommon.creditOrderId#,
+				#creditOrderDetails[].detailCommon.merchantCode#,
+				#creditOrderDetails[].detailCommon.merchantName#,
+				#creditOrderDetails[].detailCommon.status#,
+				#creditOrderDetails[].tradeOrderNo#,
+				#creditOrderDetails[].interest#,
+				#creditOrderDetails[].settlementDate#,
+				#creditOrderDetails[].orderId#,
+				#creditOrderDetails[].tradeCurrencyCode#,
+				#creditOrderDetails[].singleOrderAmount#,
+				#creditOrderDetails[].settlementCurrencyCode#
+			)
+		</iterate>
+		select * from dual
+	</insert>
+	<!-- 融资订单详情保存,executeBatch方式，传参list -->
+	<insert id="saveCreditOrderDetail" parameterClass="com.pay.credit.model.creditorder.CreditOrderDetailParam">
+		<selectKey resultClass="java.lang.String" keyProperty="creditByOrderDetailId" >
+			select 919 || TO_CHAR(SYSDATE, 'yyyymmdd') || LPAD(seq_creditorder_detail.nextVal, 8, 0) from dual 
+		</selectKey>
+		insert into CREDITBYORDER_DETAIL(
+				CREDITBYORDER_DETAIL_ID,
+				CREDIT_ORDER_ID,
+				MERCHANT_CODE,
+				MERCHANT_NAME,
+				STATUS,
+				GMT_AMOUNT,
+				LOAN_AMOUNT,
+				INTEREST,
+				TRADE_ORDER_NO,
+				SETTLEMENT_DATA,
+				ORDER_ID,
+				TRADE_CURRENCY_CODE,
+				SINGLE_ORDER_AMOUNT,
+				SETTLEMENT_CURRENCY_CODE
+			)
+			values(
+				#creditByOrderDetailId#,
+				#detailCommon.creditOrderId#,
+				#detailCommon.merchantCode#,
+				#detailCommon.merchantName#,
+				#detailCommon.status#,
+				#detailCommon.gmtAmount#,
+				#detailCommon.loanAmount#,
+				#detailCommon.interest#,
+				#tradeOrderNo#,
+				#settlementDate#,
+				#orderId#,
+				#tradeCurrencyCode#,
+				#singleOrderAmount#,
+				#settlementCurrencyCode#
+			)
+	</insert>
+	<!-- 查询商户的授信币种 -->
+	<select id="queryPartnerCreditCurrency" parameterClass="java.lang.Long" resultClass="com.pay.credit.model.creditcurrency.PartnerCreditCurrencyCode">
+		select 
+			ID as id,
+			CREDIT_CURRENCY as creditCurrency,
+			PARTNERID as partnerId,
+			CREATEDATE as createDate,
+			UPDATEDATE as updateDate,
+			STATUS as status,
+			OPERATOR as operator
+		FROM
+			PARTNER_CREDIT_CURRENCY where 1=1
+		and PARTNERID=#memberCode#
+	</select>
+	
+	<update id="updateCreditOrderPassCount" parameterClass="creditOrder" >
+		UPDATE
+		CREDIT_ORDER	
+		SET
+		PASS_COUNT	= #passCount#
+		WHERE
+	   CREDIT_ORDER_ID = #creditOrderId#
+	</update>
+
+
+</sqlMap>

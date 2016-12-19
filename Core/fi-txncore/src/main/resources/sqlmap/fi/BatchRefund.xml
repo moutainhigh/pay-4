@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchRefund">
+
+	<typeAlias alias="batchRefund" type="com.pay.txncore.model.BatchRefund"/>
+    <resultMap id="batchRefundResult" class="batchRefund">
+        <result column="TOTAL" property="total" jdbcType="DECIMAL"/>
+        <result column="AUDIT_STATUS" property="auditStatus" jdbcType="DECIMAL"/>
+        <result column="AUDIT_DATE" property="auditDate" jdbcType="TIMESTAMP"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+        <result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="FILE_NO" property="fileNo" jdbcType="DECIMAL"/>
+        <result column="BATCH_REFUND_NO" property="batchRefundNo" jdbcType="DECIMAL"/>
+        <result column="ACTION_STATUS" property="actionStatus" jdbcType="DECIMAL"/>
+        <result column="APPLY_OPERATOR" property="applyOperator" jdbcType="VARCHAR"/>
+        <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP"/>
+        <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+     <resultMap id="batchRefundQueryResult" class="batchRefund">
+        <result column="TOTAL" property="total" jdbcType="DECIMAL"/>
+        <result column="AUDIT_DATE" property="auditDate" jdbcType="TIMESTAMP"/>
+        <result column="AUDIT_STATUS" property="auditStatus" jdbcType="DECIMAL"/>
+        <result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="FILE_NO" property="fileNo" jdbcType="DECIMAL"/>
+        <result column="BATCH_REFUND_NO" property="batchRefundNo" jdbcType="DECIMAL"/>
+        <result column="APPLY_OPERATOR" property="applyOperator" jdbcType="VARCHAR"/>
+        <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP"/>
+        <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+        <result column="FILE_NAME" property="fileName" jdbcType="VARCHAR" nullValue=""/>
+    </resultMap>
+    
+    <resultMap id="batchRefundOrderResult" class="com.pay.txncore.model.BatchRefundResult">
+         <result column="BATCH_REFUND_NO" property="batchRefundNo" jdbcType="DECIMAL"/>
+	     <result column="AUDIT_STATUS" property="status" jdbcType="DECIMAL"/>
+	     <result column="AUDIT_DATE" property="auditDate" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+	     <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP"/>
+	     <result column="TOTAL" property="refundCount" jdbcType="DECIMAL"/>
+	     <result column="TOTAL_AMOUNT" property="refundAmount" jdbcType="VARCHAR"/>   
+	     <result column="SUCCESS_COUNT" property="successCount" jdbcType="DECIMAL"/>   
+	     <result column="SUCCESS_AMOUNT" property="successAmount" jdbcType="VARCHAR"/>   
+	     <result column="FAIL_COUNT" property="failCount" jdbcType="DECIMAL"/>   
+	     <result column="FAIL_AMOUNT" property="failAmount" jdbcType="VARCHAR"/>   
+	     <result column="PROCE_COUNT" property="proceCount" jdbcType="DECIMAL"/>   
+	     <result column="PROCE_AMOUNT" property="proceAmount" jdbcType="VARCHAR"/>
+	     <result column="PAYEE_FEE_COUNT" property="payeeFeeAcount" jdbcType="VARCHAR"/>   
+    </resultMap>
+
+    <select id="queryBatchRefundOrderResult" resultMap="batchRefundOrderResult" parameterClass="java.util.HashMap">
+		 select 
+		    batch_refund.BATCH_REFUND_NO, 
+		    batch_refund.AUDIT_STATUS,
+		    batch_refund.AUDIT_DATE,
+		    batch_refund.APPLY_DATE,
+		    batch_refund.TOTAL,
+		    batch_refund.TOTAL_AMOUNT,
+		    nvl(SUCCESS.SUCCESS_COUNT,0) as SUCCESS_COUNT,
+		    nvl(SUCCESS.SUCCESS_AMOUNT,0) as SUCCESS_AMOUNT,
+		    nvl(SUCCESS.PAYEE_FEE_COUNT,0) as PAYEE_FEE_COUNT,
+		    nvl(FAIL.FAIL_COUNT,0) as FAIL_COUNT,
+		    nvl(FAIL.FAIL_AMOUNT,0) as FAIL_AMOUNT,
+		    nvl(PROCE.PROCE_COUNT,0) as PROCE_COUNT,
+		    nvl(PROCE.PROCE_AMOUNT,0) as PROCE_AMOUNT
+		  from BATCH_REFUND
+		  left join (select count(REFUND_AMOUNT)as SUCCESS_COUNT ,
+		                    sum(REFUND_AMOUNT) as SUCCESS_AMOUNT,
+		                    sum(PAYEE_FEE)AS PAYEE_FEE_COUNT,
+		                    BATCH_REFUND_NO
+		               from VIEW_BASE_BATCH_REFUND
+		              where STATUS in(2,4,5,6)
+		              group by BATCH_REFUND_NO) SUCCESS
+		  on batch_refund.batch_refund_no = SUCCESS.BATCH_REFUND_NO
+		  left join (select count(APPLY_AMOUNT) as FAIL_COUNT,
+		                    nvl(sum(APPLY_AMOUNT), 0) as FAIL_AMOUNT,
+		                    BATCH_REFUND_NO
+		               from VIEW_BASE_BATCH_REFUND
+		              where STATUS = 3
+		              group by BATCH_REFUND_NO) FAIL
+		    on batch_refund.batch_refund_no = FAIL.BATCH_REFUND_NO
+		
+		  left join (select count(APPLY_AMOUNT) as PROCE_COUNT,
+		                    nvl(sum(APPLY_AMOUNT), 0) as PROCE_AMOUNT,
+		                    BATCH_REFUND_NO
+		               from VIEW_BASE_BATCH_REFUND
+		              where STATUS = 1
+		              group by BATCH_REFUND_NO) PROCE
+		    on batch_refund.batch_refund_no = PROCE.BATCH_REFUND_NO
+		  where  PARTNER_ID = #partnerID#
+		  	and batch_refund.AUDIT_STATUS != 0
+		    <isNotEmpty prepend="AND" property="startTime">
+				batch_refund.APPLY_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="toTime">
+				batch_refund.APPLY_DATE <![CDATA[<=]]> to_date(#toTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<dynamic>
+				<isEqual prepend="and" property="status" compareValue="1">
+					batch_refund.AUDIT_STATUS = 1
+				</isEqual>
+				<isEqual prepend="and" property="status" compareValue="2">
+					batch_refund.AUDIT_STATUS = 2
+				</isEqual>
+				<isEqual prepend="and" property="status" compareValue="3">
+					batch_refund.AUDIT_STATUS = 3
+				</isEqual>
+				<isEqual prepend="and" property="status" compareValue="4">
+					batch_refund.AUDIT_STATUS = 4
+				</isEqual>
+			</dynamic>	
+			<isNotEmpty prepend="AND" property="batchRefundNo">
+				batch_refund.BATCH_REFUND_NO in($batchRefundNo$)
+			</isNotEmpty>
+		order by batch_refund.APPLY_DATE desc   
+    </select>
+    										  
+     <select id="countBatchRefundOrderResult" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+		 select 
+		    count(batch_refund.BATCH_REFUND_NO) as BATCH_REFUND_NO,
+		    nvl(sum(batch_refund.TOTAL_AMOUNT),0) AS TOTAL_AMOUNT
+		  from BATCH_REFUND
+		  left join (select count(REFUND_AMOUNT)as SUCCESS_COUNT ,
+		                    sum(REFUND_AMOUNT) as SUCCESS_AMOUNT,
+		                    BATCH_REFUND_NO
+		               from VIEW_BASE_BATCH_REFUND
+		              where STATUS = 2
+		              group by BATCH_REFUND_NO) SUCCESS
+		  on batch_refund.batch_refund_no = SUCCESS.BATCH_REFUND_NO
+		  left join (select count(APPLY_AMOUNT) as FAIL_COUNT,
+		                    nvl(sum(APPLY_AMOUNT), 0) as FAIL_AMOUNT,
+		                    BATCH_REFUND_NO
+		               from VIEW_BASE_BATCH_REFUND
+		              where STATUS = 3 
+		              group by BATCH_REFUND_NO) FAIL
+		    on batch_refund.batch_refund_no = FAIL.BATCH_REFUND_NO
+		
+		  left join (select count(APPLY_AMOUNT) as PROCE_COUNT,
+		                    nvl(sum(APPLY_AMOUNT), 0) as PROCE_AMOUNT,
+		                    BATCH_REFUND_NO
+		               from VIEW_BASE_BATCH_REFUND
+		              where STATUS = 1
+		              group by BATCH_REFUND_NO) PROCE
+		    on batch_refund.batch_refund_no = PROCE.BATCH_REFUND_NO
+		   where  PARTNER_ID = #partnerID#
+		     and batch_refund.AUDIT_STATUS !=  0
+		    <isNotEmpty prepend="AND" property="startTime">
+				batch_refund.APPLY_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="toTime">
+				batch_refund.APPLY_DATE <![CDATA[<=]]> to_date(#toTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<dynamic>
+				<isEqual prepend="and" property="status" compareValue="1">
+					batch_refund.AUDIT_STATUS = 1
+				</isEqual>
+				<isEqual prepend="and" property="status" compareValue="2">
+					batch_refund.AUDIT_STATUS = 2
+				</isEqual>
+				<isEqual prepend="and" property="status" compareValue="3">
+					batch_refund.AUDIT_STATUS = 3
+				</isEqual>
+				<isEqual prepend="and" property="status" compareValue="4">
+					batch_refund.AUDIT_STATUS = 4
+				</isEqual>
+			</dynamic>
+			<isNotEmpty prepend="AND" property="batchRefundNo">
+				batch_refund.BATCH_REFUND_NO in($batchRefundNo$)
+			</isNotEmpty>
+		order by batch_refund.APPLY_DATE desc   
+    </select>
+    
+      <select id="queryBatchOrderList" resultMap="batchRefundQueryResult" parameterClass="java.util.HashMap">
+		select  b_refund.BATCH_REFUND_NO,
+		       b_refund.APPLY_DATE,
+		       b_refund.AUDIT_DATE,
+		       b_refund.TOTAL,
+		       b_refund.TOTAL_AMOUNT,
+		       b_refund.APPLY_OPERATOR,
+		       b_refund.AUDIT_OPERATOR,
+		       b_refund.AUDIT_STATUS,
+		       b_refund.FILE_NO,
+		       c_file.FILE_NAME
+		  from BATCH_REFUND b_refund,COMMON_UPLOAD_FILE c_file
+		where b_refund.file_no = c_file.file_no
+		and b_refund.partner_id = #partnerID#
+		 and b_refund.AUDIT_STATUS !=  0
+		<isNotEmpty prepend="AND" property="startTime">
+			b_refund.APPLY_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toTime">
+			b_refund.APPLY_DATE <![CDATA[<=]]> to_date(#toTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<dynamic>
+			<isEqual prepend="and" property="status" compareValue="1">
+				b_refund.AUDIT_STATUS = 1
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="2">
+				b_refund.AUDIT_STATUS = 2
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="3">
+				b_refund.AUDIT_STATUS = 3
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="4">
+				b_refund.AUDIT_STATUS = 4
+			</isEqual>
+		</dynamic>
+		<isNotEmpty prepend="AND" property="batchRefundNo">
+			b_refund.BATCH_REFUND_NO = #batchRefundNo#
+		</isNotEmpty>
+			order by b_refund.APPLY_DATE desc
+    </select>
+    
+      <select id="countBatchRefund" resultClass="java.lang.Integer" parameterClass="java.util.HashMap">
+		select  count(b_refund.BATCH_REFUND_NO)
+		  from BATCH_REFUND b_refund,COMMON_UPLOAD_FILE c_file
+		where b_refund.file_no = c_file.file_no
+		and b_refund.partner_id = #partnerID#
+		 and b_refund.AUDIT_STATUS != 0
+		<isNotEmpty prepend="AND" property="startTime">
+			b_refund.APPLY_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="toTime">
+			b_refund.APPLY_DATE <![CDATA[<=]]> to_date(#toTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<dynamic>
+			<isEqual prepend="and" property="status" compareValue="1">
+				b_refund.AUDIT_STATUS = 1
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="2">
+				b_refund.AUDIT_STATUS = 2
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="3">
+				b_refund.AUDIT_STATUS = 3
+			</isEqual>
+		</dynamic>
+		<isNotEmpty prepend="AND" property="batchRefundNo">
+			b_refund.BATCH_REFUND_NO = #batchRefundNo#
+		</isNotEmpty>
+			order by b_refund.APPLY_DATE desc
+    </select>
+    
+    <insert id="create" parameterClass="batchRefund">
+       <selectKey resultClass="java.lang.Long" keyProperty="batchRefundNo">
+    	  SELECT 182 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_BATCH_REFUND_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO BATCH_REFUND(
+			TOTAL,AUDIT_STATUS,AUDIT_DATE,REMARK,PARTNER_ID,
+			TOTAL_AMOUNT,FILE_NO,BATCH_REFUND_NO,ACTION_STATUS,APPLY_OPERATOR,
+			APPLY_DATE,AUDIT_OPERATOR
+        )
+        VALUES(
+            #total#,#auditStatus#,#auditDate#,#remark#,#partnerId#,
+			#totalAmount#,#fileNo#,#batchRefundNo#,#actionStatus#,#applyOperator#,
+			#applyDate#,#auditOperator#
+		)
+    </insert>
+
+    <update id="update" parameterClass="batchRefund">
+        UPDATE BATCH_REFUND
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="total">
+            TOTAL = #total#
+        </isNotNull>
+        <isNotNull prepend="," property="auditStatus">
+            AUDIT_STATUS = #auditStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="auditDate">
+            AUDIT_DATE = #auditDate#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+            PARTNER_ID = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="," property="totalAmount">
+            TOTAL_AMOUNT = #totalAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="fileNo">
+            FILE_NO = #fileNo#
+        </isNotNull>
+        <isNotNull prepend="," property="batchRefundNo">
+            BATCH_REFUND_NO = #batchRefundNo#
+        </isNotNull>
+        <isNotNull prepend="," property="actionStatus">
+            ACTION_STATUS = #actionStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="applyOperator">
+            APPLY_OPERATOR = #applyOperator#
+        </isNotNull>
+        <isNotNull prepend="," property="applyDate">
+            APPLY_DATE = #applyDate#
+        </isNotNull>
+        <isNotNull prepend="," property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+       	 BATCH_REFUND_NO = #batchRefundNo#
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="batchRefundResult"
+        parameterClass="java.lang.Long">
+        SELECT 
+			TOTAL,AUDIT_STATUS,AUDIT_DATE,REMARK,PARTNER_ID,
+			TOTAL_AMOUNT,FILE_NO,BATCH_REFUND_NO,ACTION_STATUS,APPLY_OPERATOR,
+			APPLY_DATE,AUDIT_OPERATOR
+        FROM BATCH_REFUND
+        WHERE 
+    </select>
+    
+    <select id="findBySelective" resultMap="batchRefundResult">
+        SELECT 
+			TOTAL,AUDIT_STATUS,AUDIT_DATE,REMARK,PARTNER_ID,
+			TOTAL_AMOUNT,FILE_NO,BATCH_REFUND_NO,ACTION_STATUS,APPLY_OPERATOR,
+			APPLY_DATE,AUDIT_OPERATOR
+        FROM BATCH_REFUND
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="total">
+            TOTAL = #total# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditStatus">
+            AUDIT_STATUS = #auditStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="totalAmount">
+            TOTAL_AMOUNT = #totalAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileNo">
+            FILE_NO = #fileNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRefundNo">
+            BATCH_REFUND_NO = #batchRefundNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="actionStatus">
+            ACTION_STATUS = #actionStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyOperator">
+            APPLY_OPERATOR = #applyOperator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyDate">
+            APPLY_DATE = #applyDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM BATCH_REFUND
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="total">
+            TOTAL = #total# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditStatus">
+            AUDIT_STATUS = #auditStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="totalAmount">
+            TOTAL_AMOUNT = #totalAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileNo">
+            FILE_NO = #fileNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRefundNo">
+            BATCH_REFUND_NO = #batchRefundNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="actionStatus">
+            ACTION_STATUS = #actionStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyOperator">
+            APPLY_OPERATOR = #applyOperator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyDate">
+            APPLY_DATE = #applyDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

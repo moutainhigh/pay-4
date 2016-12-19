@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#if Session["userSession"].scaleType==2>
+<#include "/common/macro/seoCorp.ftl">
+<#else>
+<#include "/common/macro/seoPerson.ftl">
+</#if>
+<title>${add_linker}${title}</title>
+<meta name="Keywords" content="${add_linker_Keywords}" />
+<meta name="Description" content="${add_linker_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+var payWin;
+$(function(){
+$("#linkerall").click(function(){
+	if(this.checked==true)
+	{
+		$("input[name='linker']").each(function(){
+	        $(this).attr("checked",true);
+	    });
+	}else
+	{
+		$("input[name='linker']").each(function(){
+	        $(this).attr("checked",false);
+	    });
+	}
+    
+});
+$("#deletebatch").click(function(){
+	var n =  $(":checkbox[name=linker]:checked").length; 
+	if(n==0){
+		payWin =$.pay.confirm("请选择您要删除的联系人 ",{h:200,t:'3',confirm:function(){ return false; },cancel:function(){return false; }});
+	}else{
+	 $.pay.confirm("确认删除吗? ",{h:200,t:'3',confirm:function(){
+		document.linkerlistconfirm.action="${rc.contextPath}/app/deletelinkerbatch.htm";
+		document.linkerlistconfirm.submit();
+		},cancel:function(){}});
+	}
+});
+
+$("#addlinker").click(function(){
+	payWin=$.pay.window("${rc.contextPath}/app/toaddlinkerpage.htm",{title:"添加联系人",w:600,h:400,url:true,iframe:true,close:function(){
+		}});
+});
+});
+
+	function deleteone(id){
+			$.pay.confirm("确认删除吗? ",{h:200,t:'3',confirm:function(){
+				var url ="${rc.contextPath}/app/deletelinker.htm?id=did";
+				url = url.replace("did",id);
+				document.linkerlistconfirm.action=url;
+				document.linkerlistconfirm.submit();
+			 },cancel:function(){}});
+			
+	}
+	function pay(stra){
+		var url ="${rc.contextPath}/app/pay2account.htm?payeeIdentity=sta";
+		url = url.replace("sta",stra);
+		document.linkerlistconfirm.action=url;
+		document.linkerlistconfirm.submit();
+	}
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=2 />
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container share_wrap">
+
+<div class="refund_list">
+<div class="refund_title"><!--tab str -->
+<div class="mode_tit">
+<h2 class="sel">我的联系人</h2>
+</div>
+<p><span class="fr"><#if pu.totalCount==0> <#else> ${pu.startIndex+1}-<#if (pu.startIndex+pu.pageSize > pu.totalCount)>${pu.totalCount}<#else>${pu.startIndex+pu.pageSize}</#if>条，</#if>共${pu.totalCount}条</span></p>
+<!--tab str --> </div>
+<div class="contact_list">
+<form action="" id="linkerlistform" method="post"
+	name="linkerlistconfirm">
+<div class="barg_table">
+<table>
+	<colgroup>
+		<col class="col_w1">
+		<col class="col_w2">
+		<col class="col_w3">
+	</colgroup>
+	<thead>
+		<tr>
+			<td colspan="2"><span class="mr10 all-select">
+			<#if linkerinfolist?size gt 0> 
+			 <input
+        type="checkbox" id="linkerall"><label for="">全选/取消</label></span>
+       <span></span>
+			  <span>批量功能：<a href="javascript:void(0)" class="font-prompt" id="deletebatch">[删除]</a></span>
+			</#if>	
+			</td>
+			<td align="right"><a href="javascript:void(0)" class="font-prompt" id="addlinker">添加联系人</a></td>
+		</tr>
+	</thead>
+		<#if linkerinfolist?has_content> <#list linkerinfolist as ls>
+		<tr>
+			<td><input type="checkbox" name="linker" value="${ls.id}"></td>
+			<td>
+			<div class="pic-text"><em>${ls.description?default('')}
+			</em>
+			<p>${ls.linkerName?default('')}</p>
+			</div>
+			</td>
+			<td><span class="btn"><a href="javascript:void(0)" class="del_contact"
+				onclick="deleteone('${ls.id?default('')}');">删除联系人</a><a
+				class="red-btn-smal" href="javascript:pay('${ls.linkerName?default('')}');"
+				onclick="pay('${ls.linkerName?default('')}');">向TA付款</a></span></td>
+		</tr>
+		</#list> 
+		<#else>
+		          <td colspan="3"><div class="no_data">
+                  <div class="ico"></div>
+                  <h2>暂无任何记录</h2>
+                  <p>您可以：<em>
+                  <#if Session["userSession"].scaleType==3>
+                  <a href="${rc.contextPath}/app/myAccount.htm">查看账户首页</a> <a href="${rc.contextPath}/app/acctCharge.htm">充值到gcpayment支付</a>
+                  <#else><a href="${rc.contextPath}/corp/myAccount.htm">查看账户首页</a> <a href="${rc.contextPath}/corp/acctCharge.htm">充值到gcpayment支付</a>
+				 
+				 </#if></em></p>
+                </div></td>
+		
+		</#if>
+    <#if linkerinfolist?has_content>
+		<tr class="action_bar">
+			<td colspan="2"><span class="all-select"></span></td> 
+			<td colspan="3"><span class="fr"><#if pu.totalCount==0> <#else> ${pu.startIndex+1}-<#if (pu.startIndex+pu.pageSize > pu.totalCount)>${pu.totalCount}<#else>${pu.startIndex+pu.pageSize}</#if>条，</#if>共${pu.totalCount}条</span></td>
+		</tr>
+		 </#if>
+</table>
+</div>
+</form>
+
+      <@sp.pagination pu=pu/>   
+   
+</div>
+
+</div>
+<!--主内容 end --></div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</html>

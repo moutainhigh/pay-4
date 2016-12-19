@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>${corp_service_greeting}${title}</title>
+<meta name="Keywords" content="${corp_service_greeting_Keywords}" />
+<meta name="Description" content="${corp_service_greeting_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script src="<@sp.static/>/js/pay/static.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript">
+$(function() {
+	if(!hasSecurityCtrl()){
+		$("#loginpwd").focus();
+		}
+	
+	$("#loginpwd").val("");
+
+	$.formValidator.initConfig( {
+		formid : "greetingConfirmform",
+		onerror : function(msg) {
+		}
+	});
+	
+	if(hasSecurityCtrl()){
+		
+	}
+	$.formValidator.initConfig( {
+		formid : "greetingConfirmform",
+		onerror : function(msg) {
+		}
+	});
+	$("#btnOK").click(function() {
+		if(hasSecurityCtrl()){
+			if(getPwdCtrlStrLength("password0")==0){
+				$("#loginpwdTip").show();
+				$("#loginpwdTip").html("<font color=red> 请输入登录密码 </font> ");
+				return false;
+			}
+			$("#loginpwd").val(getPwdCtrlVal("password0"));
+		}
+		var greeting = $("#newgreeeting").val();
+		var loginpwd = $("#loginpwd").val();
+		var reg = /^[^<>]+$/;
+		var num = 0;
+		var limit = 50;
+		if(loginpwd == ''){
+			$("#loginpwdTip").show();
+			$("#loginpwdTip").html("<font color=red> 请输入登录密码 </font> ");
+			return false;
+		}
+		if(greeting == ''){
+			$("#newgreetingTip").show();
+			$("#newgreetingTip").html("<font color=red>请输入您的登录问候语</font> ");
+			return false;
+		}
+		if (greeting != '') {
+			for ( var i = 0; i < greeting.length; i++) {
+				if (num >= limit) {
+					$("#newgreetingTip").show();
+					$("#newgreetingTip").html("<font color=red>您输入的内容超长</font> ");
+					return false;
+				}
+				if (greeting.charCodeAt(i) > 127
+						|| greeting.charCodeAt(i) < 0)
+					num += 2;
+				else
+					num++;
+			}
+			if (!reg.test(greeting)) {
+				$("#newgreetingTip").show();
+				$("#newgreetingTip").html("<font color=red>您输入的内容存在非法字符</font> ");
+				return false;
+			}
+		}
+			$("#greetingConfirmform").submit();
+		});
+	
+	$("#newgreeeting").formValidator( {
+		tipid : "newgreetingTip",
+		onshow : "请输入您的登录问候语",
+		onfocus : "最多输入25个汉字",
+		oncorrect : " "
+	});
+	
+	$("#cancel").click(function() {
+		 var url ="${rc.contextPath}/corp/accountActive.htm?method=accountSafe";
+		location.href = url;
+	});
+
+});
+
+</script>
+</head>
+<body>
+<!--导航 str-->
+<#assign child=0>
+<#if (Session["userSession"].operatorId >0) >
+<#assign child=0>
+<#else>
+<#assign child=1>
+</#if>
+<@sp.head mCode="corp_account_safe,bsp_account_safe"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<form action="${rc.contextPath}/corp/updategreeting.htm" method="post"
+	name="greetingform" id="greetingConfirmform">
+<!--自适应box str -->
+<div class="mod_box_a">
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg secure_box">
+			<div class="tit_box">
+					<h3 class="title font14"><span class="ico_dot2"></span><strong>修改问候语</strong></h3>
+			</div>
+<div class="pay_login pay_greeting">
+<ul>
+	<li><font color=red id=returninfo>${returninfo?default('')}</font></li>
+	<li><label for=""><span class="red">*</span> 登录密码：</label>
+	<@sp.password cid="password0" id="loginpwd" tabindex="1" nextTabid="newgreeeting" name="loginpwd" width="206px" height="20px" style="margin-bottom: 5px;" class="txtType1"/>
+		<span
+		id="loginpwdTip"></span></li>
+	<li><label for=""><span class="red">*</span> 问候语：</label><textarea
+		cols="28" rows="5" name="greeting" tabindex="2" id="newgreeeting">${greeting?default('')}</textarea><span
+		id="newgreetingTip"></span></li>
+	<li class="login_area"><span class="btn_yel botton_yel">
+	<button id="btnOK" type="button" tabindex="3">保 存</button>
+	</span><span class="btn_grey_b botton_grey">
+	<button type="button" id="cancel" tabindex="4">返回</button>
+	</span></li>
+</ul>
+</div>
+</div>
+<p class="bot"><i></i></p>
+<!--自适应box end --></div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

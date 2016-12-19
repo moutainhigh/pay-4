@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="vouchdetail">
+	<typeAlias alias="vouchDetail" type="com.pay.pe.manualbooking.model.VouchDetailData"/>
+    <resultMap id="vouchDetail" class="com.pay.pe.manualbooking.model.VouchDetailData">
+        <result column="VOUCH_DATA_ID" property="vouchDataId" jdbcType="DECIMAL"/>
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="ACCOUNT_CODE" property="accountCode" jdbcType="DECIMAL"/>
+        <result column="ACCOUNT_NAME" property="accountName" jdbcType="VARCHAR"/>
+        <result column="VOUCH_DETAIL_ID" property="vouchDetailId" jdbcType="DECIMAL"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="CRDR" property="crdr" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		VOUCH_DATA_ID,AMOUNT,ACCOUNT_CODE,ACCOUNT_NAME,VOUCH_DETAIL_ID,
+		REMARK,CRDR
+    </sql>
+    <insert id="create" parameterClass="vouchDetail">
+		<selectKey resultClass="java.lang.Long" keyProperty="vouchDetailId">
+			select  SEQ_VOUCH_DETAIL_DATA_ID.NEXTVAL as id from DUAL 
+		</selectKey>
+        INSERT INTO VOUCH_DETAIL(
+			VOUCH_DATA_ID,AMOUNT,ACCOUNT_CODE,ACCOUNT_NAME,VOUCH_DETAIL_ID,
+			REMARK,CRDR
+        )
+        VALUES(
+            #vouchDataId#,#amount#,#accountCode#,#accountName#,#vouchDetailId#,
+			#remark:VARCHAR#,#crdr#
+		)
+    </insert>
+
+    <update id="update" parameterClass="vouchDetail">
+        UPDATE VOUCH_DETAIL
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId#
+        </isNotNull>
+        <isNotNull prepend="," property="amount">
+            AMOUNT = #amount#
+        </isNotNull>
+        <isNotNull prepend="," property="accountCode">
+            ACCOUNT_CODE = #accountCode#
+        </isNotNull>
+        <isNotNull prepend="," property="accountName">
+            ACCOUNT_NAME = #accountName#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="crdr">
+            CRDR = #crdr#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="vouchDetailId">
+            VOUCH_DETAIL_ID = #vouchDetailId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM VOUCH_DETAIL        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="vouchDetailId">
+            VOUCH_DETAIL_ID = #vouchDetailId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="vouchDetail">
+        DELETE FROM VOUCH_DETAIL        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="amount">
+            AMOUNT = #amount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountCode">
+            ACCOUNT_CODE = #accountCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountName">
+            ACCOUNT_NAME = #accountName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchDetailId">
+            VOUCH_DETAIL_ID = #vouchDetailId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="crdr">
+            CRDR = #crdr# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="vouchDetail"
+        parameterClass="java.lang.Long">
+        SELECT 
+			VOUCH_DATA_ID,AMOUNT,ACCOUNT_CODE,ACCOUNT_NAME,VOUCH_DETAIL_ID,
+			REMARK,CRDR
+        FROM VOUCH_DETAIL
+        WHERE 
+            VOUCH_DETAIL_ID = #vouchDetailId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="vouchDetail">
+        SELECT 
+			VOUCH_DATA_ID,AMOUNT,ACCOUNT_CODE,ACCOUNT_NAME,VOUCH_DETAIL_ID,
+			REMARK,CRDR
+        FROM VOUCH_DETAIL
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="amount">
+            AMOUNT = #amount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountCode">
+            ACCOUNT_CODE = #accountCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountName">
+            ACCOUNT_NAME = #accountName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchDetailId">
+            VOUCH_DETAIL_ID = #vouchDetailId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="crdr">
+            CRDR = #crdr# 
+        </isNotNull>
+        </dynamic>
+		<!-- add sort by mack on 0825 -->
+         order by  amount , length(account_code) desc,vouch_detail_id asc 
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM VOUCH_DETAIL
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="amount">
+            AMOUNT = #amount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountCode">
+            ACCOUNT_CODE = #accountCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountName">
+            ACCOUNT_NAME = #accountName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchDetailId">
+            VOUCH_DETAIL_ID = #vouchDetailId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="crdr">
+            CRDR = #crdr# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

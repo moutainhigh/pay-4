@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentservice">
+	<typeAlias alias="paymentService" type="com.pay.pe.model.PaymentService"/>
+    <resultMap id="paymentService" class="com.pay.pe.model.PaymentService">
+        <result column="PAYMENT_SERVICE_NAME" property="paymentServiceName" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_SERVICE_CODE" property="paymentServiceCode" jdbcType="DECIMAL"/>
+        <result column="PAYER_TYPE" property="payerType" jdbcType="DECIMAL"/>
+        <result column="GET_METHOD" property="getMethod" jdbcType="DECIMAL"/>
+        <result column="FIXED_PAYER" property="fixedPayer" jdbcType="DECIMAL"/>
+        <result column="RESERVED_CODE_TYPE" property="reservedCodeType" jdbcType="DECIMAL"/>
+        <result column="PAYER_ACCT_TYPE_CODE" property="payerAcctTypeCode" jdbcType="DECIMAL"/>
+        <result column="PAYEE_ACCT_TYPE_CODE" property="payeeAcctTypeCode" jdbcType="DECIMAL"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="FIXED_PAYEE" property="fixedPayee" jdbcType="DECIMAL"/>
+        <result column="TAKE_ON" property="takeOn" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_SERVICE_TYPE" property="paymentServiceType" jdbcType="DECIMAL"/>
+        <result column="PAYEE_TYPE" property="payeeType" jdbcType="DECIMAL"/>
+        <result column="PAY_METHOD" property="payMethod" jdbcType="DECIMAL"/>
+        <result column="DEPEND_ON" property="dependOn" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		PAYMENT_SERVICE_NAME,PAYMENT_SERVICE_CODE,PAYER_TYPE,GET_METHOD,FIXED_PAYER,
+		RESERVED_CODE_TYPE,PAYER_ACCT_TYPE_CODE,PAYEE_ACCT_TYPE_CODE,DESCRIPTION,FIXED_PAYEE,
+		TAKE_ON,PAYMENT_SERVICE_TYPE,PAYEE_TYPE,PAY_METHOD,DEPEND_ON
+    </sql>
+    <insert id="create" parameterClass="paymentService">
+        INSERT INTO PAYMENT_SERVICE(
+			PAYMENT_SERVICE_NAME,PAYMENT_SERVICE_CODE,PAYER_TYPE,GET_METHOD,FIXED_PAYER,
+			RESERVED_CODE_TYPE,PAYER_ACCT_TYPE_CODE,PAYEE_ACCT_TYPE_CODE,DESCRIPTION,FIXED_PAYEE,
+			TAKE_ON,PAYMENT_SERVICE_TYPE,PAYEE_TYPE,PAY_METHOD,DEPEND_ON
+        )
+        VALUES(
+            #paymentServiceName#,#paymentServiceCode#,#payerType#,#getMethod#,#fixedPayer#,
+			#reservedCodeType#,#payerAcctTypeCode#,#payeeAcctTypeCode#,#description#,#fixedPayee#,
+			#takeOn#,#paymentServiceType#,#payeeType#,#payMethod#,#dependOn#
+		)
+    </insert>
+
+    <update id="update" parameterClass="paymentService">
+        UPDATE PAYMENT_SERVICE
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="paymentServiceName">
+            PAYMENT_SERVICE_NAME = #paymentServiceName#
+        </isNotNull>
+        <isNotNull prepend="," property="payerType">
+            PAYER_TYPE = #payerType#
+        </isNotNull>
+        <isNotNull prepend="," property="getMethod">
+            GET_METHOD = #getMethod#
+        </isNotNull>
+        <isNotNull prepend="," property="fixedPayer">
+            FIXED_PAYER = #fixedPayer#
+        </isNotNull>
+        <isNotNull prepend="," property="reservedCodeType">
+            RESERVED_CODE_TYPE = #reservedCodeType#
+        </isNotNull>
+        <isNotNull prepend="," property="payerAcctTypeCode">
+            PAYER_ACCT_TYPE_CODE = #payerAcctTypeCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeAcctTypeCode">
+            PAYEE_ACCT_TYPE_CODE = #payeeAcctTypeCode#
+        </isNotNull>
+        <isNotNull prepend="," property="description">
+            DESCRIPTION = #description#
+        </isNotNull>
+        <isNotNull prepend="," property="fixedPayee">
+            FIXED_PAYEE = #fixedPayee#
+        </isNotNull>
+        <isNotNull prepend="," property="takeOn">
+            TAKE_ON = #takeOn#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentServiceType">
+            PAYMENT_SERVICE_TYPE = #paymentServiceType#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeType">
+            PAYEE_TYPE = #payeeType#
+        </isNotNull>
+        <isNotNull prepend="," property="payMethod">
+            PAY_METHOD = #payMethod#
+        </isNotNull>
+        <isNotNull prepend="," property="dependOn">
+            DEPEND_ON = #dependOn#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM PAYMENT_SERVICE        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="paymentService">
+        DELETE FROM PAYMENT_SERVICE        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="paymentServiceName">
+            PAYMENT_SERVICE_NAME = #paymentServiceName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerType">
+            PAYER_TYPE = #payerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="getMethod">
+            GET_METHOD = #getMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fixedPayer">
+            FIXED_PAYER = #fixedPayer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="reservedCodeType">
+            RESERVED_CODE_TYPE = #reservedCodeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctTypeCode">
+            PAYER_ACCT_TYPE_CODE = #payerAcctTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctTypeCode">
+            PAYEE_ACCT_TYPE_CODE = #payeeAcctTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fixedPayee">
+            FIXED_PAYEE = #fixedPayee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="takeOn">
+            TAKE_ON = #takeOn# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceType">
+            PAYMENT_SERVICE_TYPE = #paymentServiceType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeType">
+            PAYEE_TYPE = #payeeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payMethod">
+            PAY_METHOD = #payMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dependOn">
+            DEPEND_ON = #dependOn# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="paymentService"
+        parameterClass="java.lang.Integer">
+        SELECT 
+			PAYMENT_SERVICE_NAME,PAYMENT_SERVICE_CODE,PAYER_TYPE,GET_METHOD,FIXED_PAYER,
+			RESERVED_CODE_TYPE,PAYER_ACCT_TYPE_CODE,PAYEE_ACCT_TYPE_CODE,DESCRIPTION,FIXED_PAYEE,
+			TAKE_ON,PAYMENT_SERVICE_TYPE,PAYEE_TYPE,PAY_METHOD,DEPEND_ON
+        FROM PAYMENT_SERVICE
+        WHERE 
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+    </select>
+    
+    <select id="findBySelective" resultMap="paymentService">
+        SELECT 
+			PAYMENT_SERVICE_NAME,PAYMENT_SERVICE_CODE,PAYER_TYPE,GET_METHOD,FIXED_PAYER,
+			RESERVED_CODE_TYPE,PAYER_ACCT_TYPE_CODE,PAYEE_ACCT_TYPE_CODE,DESCRIPTION,FIXED_PAYEE,
+			TAKE_ON,PAYMENT_SERVICE_TYPE,PAYEE_TYPE,PAY_METHOD,DEPEND_ON
+        FROM PAYMENT_SERVICE
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="paymentServiceName">
+            <!-- PAYMENT_SERVICE_NAME = #paymentServiceName# -->
+            PAYMENT_SERVICE_NAME like  '%'|| #paymentServiceName#  ||'%' 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            <!-- PAYMENT_SERVICE_CODE = #paymentServiceCode#-->
+            PAYMENT_SERVICE_CODE like  ''|| #paymentServiceCode#  ||'%' 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerType">
+            PAYER_TYPE = #payerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="getMethod">
+            GET_METHOD = #getMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fixedPayer">
+            FIXED_PAYER = #fixedPayer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="reservedCodeType">
+            RESERVED_CODE_TYPE = #reservedCodeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctTypeCode">
+            PAYER_ACCT_TYPE_CODE = #payerAcctTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctTypeCode">
+            PAYEE_ACCT_TYPE_CODE = #payeeAcctTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fixedPayee">
+            FIXED_PAYEE = #fixedPayee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="takeOn">
+            TAKE_ON = #takeOn# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceType">
+            PAYMENT_SERVICE_TYPE = #paymentServiceType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeType">
+            PAYEE_TYPE = #payeeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payMethod">
+            PAY_METHOD = #payMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dependOn">
+            DEPEND_ON = #dependOn# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PAYMENT_SERVICE
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="paymentServiceName">
+            PAYMENT_SERVICE_NAME = #paymentServiceName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            PAYMENT_SERVICE_CODE = #paymentServiceCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerType">
+            PAYER_TYPE = #payerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="getMethod">
+            GET_METHOD = #getMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fixedPayer">
+            FIXED_PAYER = #fixedPayer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="reservedCodeType">
+            RESERVED_CODE_TYPE = #reservedCodeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctTypeCode">
+            PAYER_ACCT_TYPE_CODE = #payerAcctTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctTypeCode">
+            PAYEE_ACCT_TYPE_CODE = #payeeAcctTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fixedPayee">
+            FIXED_PAYEE = #fixedPayee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="takeOn">
+            TAKE_ON = #takeOn# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceType">
+            PAYMENT_SERVICE_TYPE = #paymentServiceType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeType">
+            PAYEE_TYPE = #payeeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payMethod">
+            PAY_METHOD = #payMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dependOn">
+            DEPEND_ON = #dependOn# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

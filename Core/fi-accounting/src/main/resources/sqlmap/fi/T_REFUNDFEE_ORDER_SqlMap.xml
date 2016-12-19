@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="REFUND_FEE_ORDER">
+	<typeAlias alias="refundFeeOrder" type="com.pay.txncore.model.RefundFeeOrder"/>
+	<resultMap id="BaseResultMap" class="refundFeeOrder" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL" />	    
+	    <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL" />
+	    <result column="FEE_CURRENCY_CODE" property="feeCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="SETTLEMENT_CURRENCY_CODE" property="settlementCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="EXCHANGE_RATE" property="exchangeRate" jdbcType="VARCHAR" />
+	    <result column="FEE_AMOUNT" property="feeAmount" jdbcType="VARCHAR" />
+	    <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	    <result column="FEE_FLG" property="feeFlg" jdbcType="DECIMAL" />
+	    <result column="MERCHANT_REFUND_ORDER_ID" property="merchantRefundOrderId" jdbcType="VARCHAR"/>
+	    <result column="SETTLEMENT_AMOUNT" property="settlementAmount" jdbcType="DECIMAL" />
+		<result column="MERCHANT_ORDER_ID" property="merchantOrderId" jdbcType="VARCHAR"/>
+	</resultMap>
+  
+              
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="refundFeeOrder" >
+    select * from T_REFUNDFEE_ORDER where 1=1
+	  <isNotNull prepend="and" property="refundOrderNo" >
+        REFUND_ORDER_NO = #refundOrderNo:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="partnerId" >
+        PARTNER_ID = #partnerId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="merchantRefundOrderId" >
+        MERCHANT_REFUND_ORDER_ID = #merchantRefundOrderId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="feeFlg" >
+        FEE_FLG = #feeFlg:DECIMAL#
+      </isNotNull>
+  </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select * from T_REFUNDFEE_ORDER
+    where ID = #id:DECIMAL#
+  </select>
+    <insert id="create" parameterClass="refundFeeOrder">  	
+        <selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT seq_refundfee_order_id.nextval as id FROM dual 
+		</selectKey>  
+	
+        INSERT INTO T_REFUNDFEE_ORDER(
+			ID,REFUND_ORDER_NO,TRADE_ORDER_NO,FEE_CURRENCY_CODE,FEE_AMOUNT,
+			PARTNER_ID,CREATE_DATE,FEE_FLG,SETTLEMENT_CURRENCY_CODE,
+			EXCHANGE_RATE,SETTLEMENT_AMOUNT,MERCHANT_REFUND_ORDER_ID,MERCHANT_ORDER_ID
+        )
+        VALUES(
+            #id#,#refundOrderNo#,#tradeOrderNo#,#feeCurrencyCode#,#feeAmount#,
+            #partnerId#,sysdate,#feeFlg#,#settlementCurrencyCode#,
+            #exchangeRate#,#settlementAmount#,#merchantRefundOrderId#,#merchantOrderId#
+		)
+    </insert>
+    
+  
+  <update id="update" parameterClass="refundFeeOrder" >
+    update T_REFUNDFEE_ORDER
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="feeCurrencyCode" >
+        FEE_CURRENCY_CODE = #feeCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="feeAmount" >
+        FEE_AMOUNT = #feeAmount:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="partnerId" >
+        PARTNER_ID = #partnerId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="feeFlg" >
+        FEE_FLG = #feeFlg:DECIMAL#
+      </isNotNull>
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+  
+</sqlMap>

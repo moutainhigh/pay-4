@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+    
+    <!--实物预授权申请API-->
+	<bean id="preauthVoidExtendValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="preauth-void-extend-acquireRule" />
+	</bean>
+
+	<bean id="preauth-void-extend-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="preauth-void-extend-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="preauth-void-extend-versionCheckRule" class="com.pay.gateway.validate.preauth.voids.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+	
+	<bean id="preauth-void-extend-partnerIdCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-requestIdCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+	
+
+	<bean id="preauth-void-extend-requestIdCheckRule" class="com.pay.gateway.validate.preauth.voids.RequestIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-origOrderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid request ID:请求号不合法" />
+	</bean>
+	
+	<bean id="preauth-void-extend-origOrderIdCheckRule" class="com.pay.gateway.validate.preauth.voids.OrigOrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid original order number:原订单号不合法" />
+	</bean>
+
+	<bean id="preauth-void-extend-submitTimeCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Order submission time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="preauth-void-extend-noticeUrlCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="preauth-void-extend-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="preauth-void-extend-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+	
+	<bean id="preauth-void-extend-remarkCheckRule"	class="com.pay.gateway.validate.preauth.voids.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="Invalid remark:备注内容不正确" />
+	</bean>
+
+	<bean id="preauth-void-extend-charsetCheckRule" class="com.pay.gateway.validate.preauth.voids.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="preauth-void-extend-signTypeCheckRule" class="com.pay.gateway.validate.preauth.voids.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-preauthAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+	
+
+	<bean id="preauth-void-extend-preauthAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="preauth-void-extend-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-MerchantChannelCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="preauth-void-extend-MerchantChannelCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.MerchantChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-MerchantSettlementCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="messageId" value="0050" />
+		<property name="message" value="No avalible channel for the merchant:商户无可用渠道" />
+	</bean>
+	
+	<bean id="preauth-void-extend-MerchantSettlementCheckRule"
+		class="com.pay.gateway.validate.preauth.voids.MerchantSettlementCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-void-extend-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-void-extend-gatewayRequestSaveAction" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="0051" />
+		<property name="message" value="No merchant settlement info:商户未配置结算信息" />
+	</bean>
+	
+	<bean id="preauth-void-extend-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.preauth.voids.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="preauth-void-extend-exceptionAction" class="com.pay.gateway.validate.preauth.voids.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

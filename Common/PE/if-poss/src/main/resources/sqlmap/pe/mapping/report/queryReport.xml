@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="queryReport">
+	<typeAlias alias="queryResponseDTO" type="com.pay.pe.report.dto.QueryResponseDTO"/>
+	<typeAlias alias="queryRequstParameter" type="com.pay.pe.report.dto.QueryRequstParameter"/>
+	<typeAlias alias="queryBankKeyDTO" type="com.pay.pe.report.dto.QueryBankKeyDTO"/>
+	<typeAlias alias="sumaryRepDTO" type="com.pay.pe.report.dto.SumaryRepDTO"/>
+	<typeAlias alias="PerformanceReportDTO" type="com.pay.pe.report.dto.PerformanceReportDTO"/>
+	
+	<select id="getfundInReport" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+	   SELECT A.*, B.PAYEE AS partnerId, B.PAYEE_NAME AS partnerName FROM (
+	   		SELECT P.DESCRIPTION AS gatewayName,
+		       D.DEPOSIT_PROTOCOL_NO  AS serialNo,
+		       DEP.DEPOSIT_AMOUNT AS orderAmount,
+		       DEP.FEE            AS fee,
+		       DEP.CREATE_DATE 	  AS createDate,
+		       DEP.UPDATE_DATE    AS updateDate,
+		       DECODE(DEP.STATUS,0,'处理中',1,'成功',
+		              2,'失败','异常状态') AS statusDes,
+		       DEP.PAYMENT_ORDER_NO,
+		       DECODE(DEP.DEBIT_FLAG, 00, '--', 01, '借记卡', 02, '贷记卡', 99, '--', '--') DEBITFLAG
+			  FROM FI.PAYMENT_CHANNEL_ITEM P,
+			       FI.DEPOSIT_PROTOCOL     D,
+			       FI.DEPOSIT_ORDER        DEP
+			 WHERE DEP.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+		     AND D.CHANNEL_NO = P.ID 
+			   <![CDATA[ 
+			   and DEP.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+			   and DEP.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		       ]]>
+		     <isNotNull prepend="AND" property="orderStatus">
+		       	DEP.STATUS=  #orderStatus# 
+		     </isNotNull>
+		     <isNotNull prepend="AND" property="channel">
+		       	P.ORGCODE = #channel# 
+		     </isNotNull>
+		     order by DEP.UPDATE_DATE desc
+     )A LEFT JOIN fi.payment_order B ON A.PAYMENT_ORDER_NO = B.Payment_Order_No
+	</select>
+ 
+  <select id="getfundInReport_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	  select count(1)
+	  FROM FI.PAYMENT_CHANNEL_ITEM P,
+	       FI.DEPOSIT_PROTOCOL     D,
+	       FI.DEPOSIT_ORDER        DEP
+	 WHERE DEP.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+     AND D.CHANNEL_NO = P.ID
+	  <![CDATA[ 
+	  and DEP.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	  and DEP.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+      ]]>
+     <isNotNull prepend="AND" property="orderStatus">
+         DEP.STATUS = #orderStatus# 
+     </isNotNull>
+     <isNotNull prepend="AND" property="channel">
+       	 P.ORGCODE = #channel# 
+     </isNotNull>
+   </select>
+  
+  <select id="getRefundInReport" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+		SELECT R.REFUND_ORDER_NO AS sequenceId,
+	       P.ITEM_NAME       AS gatewayName,
+	       T.PARTNER_ID      AS partnerId,
+	       D.SERIAL_NO       AS serialNo,
+	       T.ORDER_ID        AS orderId,
+	       T.ORDER_AMOUNT    AS orderAmount,
+	       R.REFUND_AMOUNT   AS refundAmount,
+	       R.PAYEE_FEE       AS fee,
+	       T.create_date AS createDate,
+	       R.UPDATE_DATE AS updateDate
+		  FROM FI.TRADE_ORDER          T,
+		       FI.REFUND_ORDER         R,
+		       FI.PAYMENT_CHANNEL_ITEM P,
+		       FI.DEPOSIT_PROTOCOL     D,
+		       FI.DEPOSIT_BACK_ORDER   DBO
+		 WHERE T.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+		   AND R.REFUND_ORDER_NO = DBO.REFUND_ORDER_NO
+		   AND DBO.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+		   AND D.CHANNEL_NO = P.ID
+	   <![CDATA[ 
+	   and R.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	   and R.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+       ]]>
+     <isNotNull prepend="AND" property="orderStatus">
+       R.STATUS=  #orderStatus# 
+     </isNotNull>
+     <isNotNull prepend="AND" property="channel">
+       	P.ORGCODE = #channel# 
+     </isNotNull>
+     order by R.UPDATE_DATE desc
+	</select>
+ 
+  <select id="getRefundInReport_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	 SELECT COUNT(1)
+		  FROM FI.TRADE_ORDER          T,
+		       FI.REFUND_ORDER         R,
+		       FI.PAYMENT_CHANNEL_ITEM P,
+		       FI.DEPOSIT_PROTOCOL     D,
+		       FI.DEPOSIT_BACK_ORDER   DBO
+		 WHERE T.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+		   AND R.REFUND_ORDER_NO = DBO.REFUND_ORDER_NO
+		   AND DBO.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+		   AND D.CHANNEL_NO = P.ID
+	   <![CDATA[
+	   and R.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	   and R.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+       ]]>
+     <isNotNull prepend="AND" property="orderStatus">
+       R.STATUS=  #orderStatus# 
+     </isNotNull>
+     <isNotNull prepend="AND" property="channel">
+       P.ORGCODE = #channel# 
+     </isNotNull>
+   </select>
+   
+   <select id="getPerformanceReport" resultClass="PerformanceReportDTO" parameterClass="java.lang.String">
+      select member_code memberCode,member_name memberName      
+       ,NVL(acc_Pay_Amt,0)/1000 accPayAmt, NVL(acc_Pay_Fee,0)/1000 accPayFee
+       ,NVL(LCC_AMT,0)/1000 lccAmt, NVL(lcc_Fee,0)/1000 lccFee
+       ,b2b_amt/1000 b2bAmt,b2b_fee/1000 b2bFee
+       ,b2c_amt/1000 b2cAmt,b2c_fee/1000 b2cFee
+       ,p2b_amt/1000 p2bAmt,p2b_fee/1000 p2bFee
+       ,p2a_amt/1000 p2aAmt,p2a_fee/1000 p2aFee 
+       ,cec_amt/1000 cecAmt,cec_fee/1000 cecFee
+       ,cqp_amt/1000 cqpAmt,cqp_fee/1000 cqpFee
+       ,dqp_amt/1000 dqpAmt,dqp_fee/1000 dqpFee 
+       ,(b2b_amt+b2c_amt+p2b_amt+p2a_amt+cqp_amt+dqp_amt+nvl(cec_amt,0)+ nvl(acc_Pay_Amt,0)+ nvl(LCC_AMT,0))/1000 allAmt
+       ,(b2b_fee+b2c_fee+p2b_fee+p2a_fee+cqp_fee+dqp_fee+nvl(cec_fee,0)+ nvl(acc_Pay_Fee,0)+ nvl(lcc_Fee,0))/1000 allFee
+	  from performance_rep
+	  where acc_time = #accTime#
+   </select>
+   
+   <select id="getfundOutReport" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+	SELECT A.SEQUENCE_ID AS sequenceId,
+       A.BATCH_NUM   AS batchNo,
+       MEMBER_CODE   AS payerName,
+       (SELECT P.ORG_NAME
+          FROM INF.P_ORGANIZATION P
+         WHERE P.ORG_CODE = A.BANK_KY)  AS  bankName,
+       BANK_ACCT     AS bankAcct,
+       ACCOUNT_NAME  AS payeeName,
+       AMOUNT        AS orderAmount,
+       UPDATE_TIME   AS orderDate
+  FROM (SELECT order_id SEQUENCE_ID,
+               WW.BATCH_NUM,
+               WO.Order_STATUS status,
+               payer_membercode MEMBER_CODE,
+               payee_bankcode BANK_KY,
+               payee_bankacctcode BANK_ACCT,
+               payee_name ACCOUNT_NAME,
+               realout_AMOUNT amount,
+               WO.FEE,
+               WO.CREATE_DATE CREATE_TIME,
+               WO.UPDATE_DATE UPDATE_TIME,
+               FUNDOUT_BANKCODE BANK
+          FROM FO.FUNDOUT_ORDER WO, FO.WITHDRAW_WORKORDER WW
+         WHERE  WO.Order_ID = WW.ORDER_SEQ
+         <![CDATA[ 
+		   and  WO.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+		   and  WO.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+	     ]]>
+	     <isNotNull prepend="AND" property="orderStatus">
+	       WO.Order_STATUS=  #orderStatus# 
+	     </isNotNull>
+	     <isNotNull prepend="AND" property="channel">
+       		WO.FUNDOUT_BANKCODE = #channel# 
+    	 </isNotNull>
+    	 order by WO.UPDATE_DATE desc
+     ) A
+	</select>
+ 
+  <select id="getfundOutReport_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	 SELECT COUNT(1)
+  FROM (SELECT order_id SEQUENCE_ID,
+               WW.BATCH_NUM,
+               WO.Order_STATUS status,
+               payer_membercode MEMBER_CODE,
+               payee_bankcode BANK_KY,
+               payee_bankacctcode BANK_ACCT,
+               payee_name ACCOUNT_NAME,
+               realout_AMOUNT amount,
+               WO.FEE,
+               WO.CREATE_DATE CREATE_TIME,
+               WO.UPDATE_DATE UPDATE_TIME,
+               FUNDOUT_BANKCODE BANK
+          FROM FO.FUNDOUT_ORDER WO, FO.WITHDRAW_WORKORDER WW
+         WHERE  WO.Order_ID = WW.ORDER_SEQ
+	     <![CDATA[ 
+		   and  WO.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+		   and  WO.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+	     ]]>
+	     <isNotNull prepend="AND" property="orderStatus">
+	       WO.Order_STATUS=  #orderStatus# 
+	     </isNotNull>
+	     <isNotNull prepend="AND" property="channel">
+       		WO.FUNDOUT_BANKCODE = #channel# 
+    	 </isNotNull>
+     ) A
+   </select>
+   
+   
+   <select id="getRefundOutReport" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+   SELECT B.ORDER_ID  as sequenceId,
+       O.ORDER_ID  as orderSeqId,
+       O.PAYER_MEMBERCODE     as payerName,
+       (SELECT P.ORG_NAME
+          FROM INF.P_ORGANIZATION P
+         WHERE P.ORG_CODE = O.PAYEE_BANKCODE) as bankName,
+       O.PAYEE_BANKACCTCODE    as bankAcct,
+       O.PAYEE_NAME   as payeeName,
+       O.REALOUT_AMOUNT      as orderAmount,
+       O.FEE      as fee,
+       O.UPDATE_DATE  as updateDate,
+       B.UPDATE_DATE  as orderDate
+    FROM FO.FUNDOUT_REFUNDORDER B, FO.FUNDOUT_ORDER O
+   WHERE B.SRC_ORDERID = O.ORDER_ID
+	<![CDATA[ 
+	   and  B.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	   and  B.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+	]]>
+    <isNotNull prepend="AND" property="orderStatus">
+       B.order_STATUS=  #orderStatus# 
+    </isNotNull>
+     <isNotNull prepend="AND" property="channel">
+       O.FUNDOUT_BANKCODE = #channel# 
+     </isNotNull>
+     order by B.UPDATE_DATE desc
+	</select>
+ 
+  <select id="getRefundOutReport_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	 SELECT COUNT(1)
+   FROM FO.FUNDOUT_REFUNDORDER B, FO.FUNDOUT_ORDER O
+   WHERE B.SRC_ORDERID = O.ORDER_ID
+	  <![CDATA[ 
+	   and  B.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	   and  B.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+	]]>
+    <isNotNull prepend="AND" property="orderStatus">
+       B.order_STATUS=  #orderStatus# 
+    </isNotNull>
+     <isNotNull prepend="AND" property="channel">
+       O.FUNDOUT_BANKCODE = #channel# 
+     </isNotNull>
+   </select>
+
+ 	<select id="getfundOutChannel" resultClass="queryBankKeyDTO" >
+	    SELECT P.ORG_CODE as bankCode, P.ORG_NAME as bankName
+	  	FROM INF.P_ORGANIZATION P
+	 	WHERE P.ORG_CODE IN
+	       (SELECT BANK_ID FROM FO.FUNDOUT_CHANNEL GROUP BY BANK_ID)
+	</select>
+	
+	<select id="getfundInChannel" resultClass="queryBankKeyDTO" >
+	    SELECT I.DESCRIPTION AS bankName, I.ORGCODE AS bankCode
+		  FROM FI.PAYMENT_CHANNEL_ITEM I
+	</select>
+	
+	<!-- 统计查询 -->
+	<select id="getSumaryPayReport" resultClass="sumaryRepDTO" >
+     	SELECT SUM(T.Payment_Amount) AS AMOUNT,
+                   COUNT(1) AS COUNT,
+               TO_CHAR(T.UPDATE_DATE, 'yyyy-MM-dd') AS CREATEDATE
+          FROM FI.Payment_Order T
+         WHERE T.STATUS = 2
+    <isNotNull prepend="AND" property="startDate">
+      <![CDATA[ 
+	   	 T.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	  ]]>
+    </isNotNull>
+    <isNotNull prepend="AND" property="endDate">
+       <![CDATA[ 
+	  	  T.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		]]>
+     </isNotNull>
+      GROUP BY TO_CHAR(T.UPDATE_DATE, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	<select id="getCreditQuickPayReport" resultClass="sumaryRepDTO" >
+     	SELECT SUM(T.Payment_Amount) AS AMOUNT,
+                   COUNT(1) AS COUNT,
+               TO_CHAR(T.UPDATE_DATE, 'yyyy-MM-dd') AS CREATEDATE
+         FROM FI.Payment_Order T,FI.Deposit_Order D,FI.Payment_Channel_Item P
+         WHERE T.PAYMENT_ORDER_NO = D.PAYMENT_ORDER_NO AND D.ORG_CODE = P.ORGCODE 
+         AND T.STATUS = 2 AND P.PAYMENT_CATAGORY = 12
+    <isNotNull prepend="AND" property="startDate">
+      <![CDATA[ 
+	   	 T.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	  ]]>
+    </isNotNull>
+    <isNotNull prepend="AND" property="endDate">
+       <![CDATA[ 
+	  	  T.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		]]>
+     </isNotNull>
+      GROUP BY TO_CHAR(T.UPDATE_DATE, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	<select id="getDebitQuickPayReport" resultClass="sumaryRepDTO" >
+     	SELECT SUM(T.Payment_Amount) AS AMOUNT,
+                   COUNT(1) AS COUNT,
+               TO_CHAR(T.UPDATE_DATE, 'yyyy-MM-dd') AS CREATEDATE
+         FROM FI.Payment_Order T,FI.Deposit_Order D,FI.Payment_Channel_Item P
+         WHERE T.PAYMENT_ORDER_NO = D.PAYMENT_ORDER_NO AND D.ORG_CODE = P.ORGCODE 
+         AND T.STATUS = 2 AND P.PAYMENT_CATAGORY = 13
+    <isNotNull prepend="AND" property="startDate">
+      <![CDATA[ 
+	   	 T.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	  ]]>
+    </isNotNull>
+    <isNotNull prepend="AND" property="endDate">
+       <![CDATA[ 
+	  	  T.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		]]>
+     </isNotNull>
+      GROUP BY TO_CHAR(T.UPDATE_DATE, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	<select id="getSumaryDepositReport" resultClass="sumaryRepDTO" >
+    	SELECT SUM(D.DEPOSIT_AMOUNT) AS AMOUNT,
+                COUNT(1) AS COUNT,
+                TO_CHAR(D.UPDATE_DATE, 'yyyy-MM-dd') AS CREATEDATE
+           FROM FI.DEPOSIT_ORDER  D
+          WHERE D.PAYMENT_ORDER_NO = 0
+            AND D.STATUS = 1
+    <isNotNull prepend="AND" property="startDate">
+      <![CDATA[ 
+	   	 D.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	  ]]>
+    </isNotNull>
+    <isNotNull prepend="AND" property="endDate">
+       <![CDATA[ 
+	  	 D.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		]]>
+     </isNotNull>
+      GROUP BY TO_CHAR(D.UPDATE_DATE, 'yyyy-MM-dd') 
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	<select id="getSumaryPayToAccReport" resultClass="sumaryRepDTO" >
+   		SELECT COUNT(1) AS COUNT,
+         SUM(M.Order_Amount) AS AMOUNT,
+         TO_CHAR(M.Update_Date, 'yyyy-MM-dd') AS CREATEDATE
+      FROM FO.Pay_Toacctorder M
+     WHERE M.order_STATUS = 111
+    <isNotNull prepend="AND" property="startDate">
+      <![CDATA[
+	   	 M.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+	  ]]>
+    </isNotNull>
+    <isNotNull prepend="AND" property="endDate">
+       <![CDATA[ 
+	  	 M.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		]]>
+     </isNotNull>
+      GROUP BY TO_CHAR(M.UPDATE_DATE, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	
+	<!-- 付款到银行 单笔+批量 -->
+	<select id="getSumaryPayToBankReport" resultClass="sumaryRepDTO" >
+   		SELECT COUNT(1) AS COUNT,
+           SUM(realout_AMOUNT) AS AMOUNT,
+           TO_CHAR(WO.UPDATE_date, 'yyyy-MM-dd') AS CREATEDATE
+      FROM FO.fundout_ORDER WO
+     WHERE WO.order_STATUS = 111
+       AND WO.order_type IN (3, 4)
+	    <isNotNull prepend="AND" property="startDate">
+	      <![CDATA[
+		   	 WO.UPDATE_date >= to_date(#startDate#, 'yyyy-MM-dd')
+		  ]]>
+	    </isNotNull>
+	    <isNotNull prepend="AND" property="endDate">
+	       <![CDATA[ 
+		  	 WO.UPDATE_date < to_date(#endDate#, 'yyyy-MM-dd') + 1
+			]]>
+	    </isNotNull>
+      GROUP BY TO_CHAR(WO.UPDATE_date, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	<!-- 提现   -->
+	<select id="getSumaryWithDrowReport" resultClass="sumaryRepDTO" >
+   		SELECT COUNT(1) AS COUNT,
+           SUM(realout_AMOUNT) AS AMOUNT,
+           TO_CHAR(WO.UPDATE_date, 'yyyy-MM-dd') AS CREATEDATE
+      FROM FO.fundout_ORDER WO
+     WHERE WO.order_STATUS = 111
+       AND WO.order_type = 0
+	   <isNotNull prepend="AND" property="startDate">
+	      <![CDATA[
+		   	 WO.UPDATE_date >= to_date(#startDate#, 'yyyy-MM-dd')
+		  ]]>
+	    </isNotNull>
+	    <isNotNull prepend="AND" property="endDate">
+	       <![CDATA[ 
+		  	 WO.UPDATE_date < to_date(#endDate#, 'yyyy-MM-dd') + 1
+			]]>
+	    </isNotNull>
+      GROUP BY TO_CHAR(WO.UPDATE_date, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+	
+	<!-- 充退 -->
+	<select id="getSumaryRefundReport" resultClass="sumaryRepDTO" >
+   		SELECT COUNT(1) AS COUNT,
+       		SUM(D.APPLY_AMOUNT) AS AMOUNT,
+		       TO_CHAR(D.FINISH_TIME, 'yyyy-MM-dd') AS CREATEDATE
+		  FROM FO.REFUND_ORDER_D D
+		 WHERE D.STATUS = 111
+	    <isNotNull prepend="AND" property="startDate">
+	      <![CDATA[
+		   	 D.FINISH_TIME >= to_date(#startDate#, 'yyyy-MM-dd')
+		  ]]>
+	    </isNotNull>
+	    <isNotNull prepend="AND" property="endDate">
+	       <![CDATA[ 
+		  	 D.FINISH_TIME < to_date(#endDate#, 'yyyy-MM-dd') + 1
+			]]>
+	    </isNotNull>
+      GROUP BY TO_CHAR(D.FINISH_TIME, 'yyyy-MM-dd')
+ 		ORDER BY CREATEDATE DESC
+	</select>
+</sqlMap>

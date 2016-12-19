@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+	<bean id="AjaxHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="ajaxInterceptor"/>
+            </list>
+     </property>
+		<property name="mappings">
+			<props>
+				<prop key="/appdemo.htm">appajaxController</prop>
+				<!-- <prop key="/featuremenu.htm">featureMenuController</prop> -->
+			</props>
+		</property>
+	</bean>
+
+	
+	<bean id="appajaxController"
+		class="com.pay.app.controller.base.ajax.AjaxController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="toView">
+			<value>/base/ajax/index</value>
+		</property>
+		
+		<property name="loadAjaxView">
+			<value>/base/ajax/loadajax</value>
+		</property>
+		
+		
+		<property name="dialogView">
+			<value>/base/ajax/dialogView</value>
+		</property>
+		
+	
+	</bean>
+	<!-- 
+	<bean id="featureMenuController"
+    class="com.pay.app.controller.base.ajax.FeatureMenuController">
+    <property name="methodNameResolver">
+      <ref bean="paramResolver" />
+    </property>
+    
+    <property name="toView">
+      <value>/base/ajax/fmenu</value>
+    </property>
+    
+    <property name="menuView">
+      <value>/base/ajax/menu_index</value>
+    </property>
+    
+    
+    <property name="featureView">
+      <value>/base/ajax/feature_index</value>
+    </property>
+    
+   
+    <property name="authorizeView">
+      <value>/base/ajax/author</value>
+    </property>
+  
+  <property name="addMenuView">
+      <value>/base/ajax/editMenu</value>
+    </property>
+    <property name="addFeatureView">
+      <value>/base/ajax/editFeature</value>
+    </property>
+  
+   <property name="sortingView">
+      <value>/base/ajax/sorting</value>
+    </property>
+  
+	<property name="index">
+			<value>/index</value>
+	</property>
+    <property name="featureMenuService">
+        <ref bean="base-featureMenuService"/>
+    </property>
+    
+
+    <property name="featureService">
+      <ref bean="base-featureService"/>
+    </property>
+  
+     <property name="memberFeatureService">
+        <ref bean="base-memberFeatureService"/>
+    </property>
+    <property name="iMessageDigest" ref="iMessageDigest" />
+  </bean>
+-->
+</beans>

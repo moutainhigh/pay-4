@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="memberIdentity">
+    <typeAlias alias="memberIdentity" type="com.pay.acc.member.dao.model.MemberIdentity"/>
+    
+  <resultMap id="memberIdentityMap" class="memberIdentity" >
+    <result column="STATUS" property="status" jdbcType="INT"/>
+    <result column="ID_TYPE" property="idType" jdbcType="INT"/>
+    <result column="IS_PRIMARY_ID" property="isPrimaryId" jdbcType="INT"/>
+    <result column="MEMBER_CODE" property="memberCode" jdbcType="INT"/>
+    <result column="ID_CONTENT" property="idContent" jdbcType="CHAR"/>
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATETIME"/>
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME"/>
+    <result column="VALIDATION_DATE" property="validationDate" jdbcType="DATETIME"/>
+  </resultMap>
+    
+    <insert id="create" parameterClass="memberIdentity">
+        insert into T_MEMBER_IDENTITY 
+        	(
+        		ID_CONTENT, 	
+        		MEMBER_CODE,
+        		ID_TYPE,
+        		STATUS,
+        		IS_PRIMARY_ID,
+        		create_date
+            )
+        values 
+        	(
+        		#idContent#,
+        		#memberCode#,
+        		#idType#,
+        		#status#,
+        		#isPrimaryId#,
+        		#createDate#
+        	)
+    </insert>
+    
+	<update id="update" parameterClass="memberIdentity">
+        update T_MEMBER_IDENTITY
+        set 
+        	update_date = sysdate,
+        	id_content = #idContent#,
+        	id_type = #idType#,
+        	is_primary_id = #isPrimaryId#,
+        	VALIDATION_DATE = #validationDate#,
+        	status = #status#
+        where 1=1
+        and member_code = #memberCode#
+        and id_content = #idContent#
+    </update>
+    
+    <select id="findObjectByCriteria" resultMap="memberIdentityMap">
+    	select * from T_MEMBER_IDENTITY
+    	where 1=1
+    	<isNotNull property="memberCode" prepend="and">
+    		member_code = #memberCode#
+    	</isNotNull>
+    	<isNotEmpty property="idContent" prepend="and">
+    		id_content = #idContent#
+    	</isNotEmpty>
+    	<isNotNull property="isPrimaryId" prepend="and">
+    		is_primary_id = #isPrimaryId#
+    	</isNotNull>
+    	<isNotNull property="status" prepend="and">
+    		status = #status#
+    	</isNotNull>
+    	<isNotNull property="idType" prepend="and">
+    		id_type = #idType#
+    	</isNotNull>
+    </select>  
+     
+    <select id="findByCriteria" resultMap="memberIdentityMap">
+    	select * from T_MEMBER_IDENTITY
+    	where 1=1
+    	<isNotNull property="memberCode" prepend="and">
+    		member_code = #memberCode#
+    	</isNotNull>
+    	<isNotEmpty property="idContent" prepend="and">
+    		id_content = #idContent#
+    	</isNotEmpty>
+    	<isNotNull property="isPrimaryId" prepend="and">
+    		is_primary_id = #isPrimaryId#
+    	</isNotNull>
+    	<isNotNull property="status" prepend="and">
+    		status = #status#
+    	</isNotNull>
+    	<isNotNull property="idType" prepend="and">
+    		id_type = #idType#
+    	</isNotNull>
+    </select>
+    
+    <delete id="delete" parameterClass="memberIdentity">
+    	delete from T_MEMBER_IDENTITY where 1=1
+    	<isNotNull property="memberCode" prepend="and">
+    		member_code = #memberCode#
+    	</isNotNull>
+    	<isNotEmpty property="idContent" prepend="and">
+    		id_content = #idContent#
+    	</isNotEmpty>
+    	<isNotNull property="isPrimaryId" prepend="and">
+    		is_primary_id = #isPrimaryId#
+    	</isNotNull>
+    	<isNotNull property="status" prepend="and">
+    		status = #status#
+    	</isNotNull>
+    	<isNotNull property="idType" prepend="and">
+    		id_type = #idType#
+    	</isNotNull>
+    </delete>
+         
+</sqlMap>

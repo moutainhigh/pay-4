@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+            
+	<bean id="withdrawOrderDao"
+		class="com.pay.fundout.withdraw.dao.order.impl.WithdrawOrderDaoImpl"
+		parent="PLATFORM.DEFAULT.DAOSERVICE">
+		<property name="namespace" value="withdrawOrder" />
+		<property name="pageSize" value="5" />
+	</bean>
+	
+	<bean id="withdrawOrderService"
+		class="com.pay.fundout.withdraw.service.order.impl.WithdrawOrderServiceImpl">
+		<property name="withdrawOrderDao" ref="withdrawOrderDao" />
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+		<property name="withdrawMemberService" ref="withdrawMemberFacadeService" />
+	</bean>
+	
+	<!-- 存储订单 -->
+	<bean id="fundout-withdraw-processsavewithdraworderservice"
+		class="com.pay.fundout.withdraw.service.paytobank.impl.ProcessSaveWithDrawOrderServiceImpl">
+		<property name="withdrawOrderService" ref="withdrawOrderService"/>
+	</bean>
+	
+	<!-- 更新余额并更新订单状态 -->
+	<bean id="fundout-withdraw-updateoveragewithdraworderservice"
+		class="com.pay.fundout.withdraw.service.paytobank.impl.UpdateOverageWithDrawOrderServiceImpl">
+		<property name="orderAfterProcService" ref="fundout-orderchandler-orderAfterProcService"/>
+		<property name="orderCallBackService" ref="fundout-withdraw-withDrawReqCallBack"/>
+		<property name="accountingService" ref="fundout-withdrawFirstAccounting"/>
+		<property name="orderAfterFailProcAlertHandler" ref="fundout-orderchandler-failProcHandler"/>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="queueName" value="fundout.withdraw.request.active" />
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+	</bean>
+	
+</beans>

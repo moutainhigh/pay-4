@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<link href="<@sp.static/>/mps/css/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/tool/formJson.js" type="text/javascript"></script>
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+<title>账户详情</title>
+<script type="text/javascript">
+	function accountChange(currency){
+		var _currency = currency ;
+		$.ajax({
+			type:'POST',
+			url:'${rc.contextPath}/corp/myAccount.htm?method=acct&currency='+_currency,
+			dataType:'json',
+			success:function(data){
+				var basicPseudoAcct = data.basic ;
+				var guaranteePseudoAcct = data.guarantee ;
+				$("#basicBalance").text(basicPseudoAcct['balanceStr']) ;
+				$("#guaranteeBalance").text(guaranteePseudoAcct['balanceStr']) ;
+				$("#frozenAmount").text(basicPseudoAcct['totalFrozenAmountStr']) ;
+				var currencyCode = basicPseudoAcct['currencyCode'] ;
+				if(null == currencyCode || "" == currencyCode)
+					currencyCode = guaranteePseudoAcct['currencyCode'] ;
+				$(".currency").text(currencyCode) ;
+				var status = basicPseudoAcct['statusStr'] ;
+				if(null == status || "" == status)
+					status = guaranteePseudoAcct['statusStr'] ;
+				if(status == 1){
+					$("#status").text("正常") ;
+				}else if(status == 0){
+					$("#status").text("无效") ;
+				}
+				$("#sumAmount").text(data.sumAmount) ;
+			},
+			erro:function(){
+				
+			}
+		});
+	} ;
+</script>
+</head>
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="corp_my_account"/>
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="#">账户详情</a></span> 
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="account_detail_wrap">
+							<div class="f_div">
+								<div class="f_div1">
+									<label>会员名称:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+									<font>${enterpriseBase.zhName?default("")}</font>
+								</div>
+								<div class="f_div2">
+									<label>会员号:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+									<font>${memberCode?default("")}</font>	
+								</div>
+								<div class="clear"></div>
+							</div>
+							<div class="f_div">
+								<div class="f_div1">
+									<label>选择账户:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+									<select name="" id="account" style="padding:2px;" onchange="accountChange(this.value);">
+										<!-- <option value="">人民币账户</option>
+										<option value="">美元账户</option>
+										<option value="">日元账户</option>
+										<option value="">欧元账户</option> -->
+										<#if pseudoAccts?has_content>
+											<#list pseudoAccts as acct>
+												<option value="${acct.currency?default('')}" <#if currency?exists><#if acct.currency == currency>selected="selected"</#if></#if> >${acct.acctName?default('')}</option>
+											</#list>
+										</#if>
+									</select>	
+									<input type="button"  style="width: 120px;margin-left: 10px" class="btn_blue" value="账户开通申请" onclick="uploadeApplyOpen();"/>	
+								</div>
+								<!--申请开通弹出框  -->
+								<div id="dialog-applyOpen" title="" style="display: none;">
+								  	<div id="div_applyOpen" style="text-align: center;">
+										<form action="#" id="applyOpen_from" enctype="multipart/form-data" method="post" target="hidden_frame" >
+										  	<div  style="margin-top: 30px">
+												<label>账户名称:</label>
+											  	<select name="accountName" id="select_accountName" style="width: 180px">
+											  		<option value="-1">请选择：</option>
+											  		
+											  	</select>
+											  	<br>
+											  	<span id="select_accountName_tip" style="color: red;" hidden="hidden">请选择账户名称！</span>				  	
+										  	</div>
+										  	<div style="margin-top: 10px">
+										  		<label>账户用途:</label>
+											  	<select name="accountUse" id="select_accountUse" style="width: 180px">
+											  		<option value="-1">请选择：</option>
+											  		<option value="购结汇账户开通">购结汇账户开通</option>
+											  		<option value="收单结算账户开通">收单结算账户开通</option>
+											  	</select>
+											  	<br>
+											  	<span id="select_accountUse_tip" style="color: red;"  hidden="hidden">请选择账户用途！</span>	
+										  	</div>
+											<div style="margin-top: 20px">
+											  		<input id="submit-applyOpen" type="button" class="btn_blue" value="提交"/>
+											  		<span id="submit-applyOpen_tip" style="color: red;"  hidden="hidden"></span>	
+											  		<input type="hidden" name="memberCode" value="${memberCode}">
+											  		<input type="hidden" name="partnerName" value="${enterpriseBase.zhName}">
+											</div>
+									  	</div>
+								 	 </form>
+								</div>
+								<div class="clear"></div>
+							</div>
+							<div class="account_detail_tip">
+								<font>账户详情:</font>
+							</div>
+							<div class="dpjb">
+								<table id="dpjb_table">
+									<tr>
+										<td width="236px;">会员号</td>
+										<td colspan="2">${memberCode?default("")}</td>
+									</tr>
+									<tr>
+										<td>账户币种</td>
+										<td colspan="2"><em class="currency">${currency?default("")}</em></td>
+									</tr>
+									<tr>
+										<td>状态</td>
+										<td colspan="2">
+											<!-- 正常 -->
+											<em id="status">
+												<#if basicPseudoAcct.status?has_content>
+													<#if basicPseudoAcct.status == 0>无效</#if>
+													<#if basicPseudoAcct.status == 1>正常</#if>
+												<#else>
+													<#if guaranteePseudoAcct.status?has_content>
+														<#if guaranteePseudoAcct.status == 0>无效</#if>
+														<#if guaranteePseudoAcct.status == 1>正常</#if>
+													</#if>
+												</#if>
+											</em>
+										</td>
+									</tr>
+									<!-- <tr>
+										<td>待清算金额</td>
+										<td colspan="2">
+											<em id="sumAmount">
+												<#if sumAmount?has_content>
+													${(sumAmount?number/1000)?string(",##0.000")}
+													<#else>
+														0.000
+												</#if>
+											</em>
+											<label>&nbsp;&nbsp;
+												<em class="currency">${currency?default("")}</em>
+											</label>
+										</td>
+									</tr> -->
+									<tr>
+										<td>其他入款</td>
+										<td colspan="2">
+											0.000
+											<label>&nbsp;&nbsp;<em class="currency">${currency?default("")}</em></label>
+										</td>
+									</tr>
+									<tr>
+										<td rowspan="4">账户资产</td>
+										<td width="199px">可用余额</td>
+										<td>
+											<em id="basicBalance">${(basicPseudoAcct.balance?default(0)/1000)?string(",##0.000")}</em>
+											<label>&nbsp;&nbsp;<em class="currency">${currency?default("")}</em></label>
+										</td>
+									</tr>
+									<tr>
+										<td>保证金</td>
+										<td>
+											<em id="guaranteeBalance">${(guaranteePseudoAcct.balance?default(0)/1000)?string(",##0.000")}</em>
+											<label>&nbsp;&nbsp;<em class="currency">${currency?default("")}</em></label>
+										</td>
+									</tr>
+									<tr>
+										<td>冻结基本户</td>
+										<td>
+											<em id="frozenAmount">${((basicPseudoAcct.frozenAmount?default(0)/1000))?string(",##0.000")}</em>
+											<label>&nbsp;&nbsp;<em class="currency">${currency?default("")}</em></label>
+										</td>
+									</tr>
+									<tr>
+										<td>冻结保证金</td>
+										<td>
+											<em id="frozenAmount">${((guaranteePseudoAcct.frozenAmount?default(0)/1000))?string(",##0.000")}</em>
+											<label>&nbsp;&nbsp;<em class="currency">${currency?default("")}</em></label>
+										</td>
+									</tr>
+								</table>
+								<!-- <div class="clear"></div> -->
+							</div>
+							<div class="d_btn">				
+							<!-- 修改返回时信息显示不一致问题 by tom.wang 2016年4月22日16:25:21 -->			
+								<input type="button" class="btn_blue2" value="返回" onclick="javascript:window.location.href= '${rc.contextPath}/corp/myAccount.htm';" />
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+<script type="text/javascript">
+
+	$("#submit-applyOpen").click(function(){
+		var flag=true;
+		var accountName=$("#select_accountName").val();
+		var accountUse=$("#select_accountUse").val();
+		if(accountName=="-1"){
+			$("#select_accountName_tip").show();
+			flag=false;
+		}else{
+			$("#select_accountName_tip").hide();
+		}
+		if(accountUse=="-1"){
+			$("#select_accountUse_tip").show();
+			flag=false;
+		}else{
+			$("#select_accountUse_tip").hide();
+		}
+		if(flag){
+			applyOpenSubmit(accountName,accountUse);
+		}
+	})
+	function applyOpenSubmit(accountName,accountUse){
+		var data=$("#applyOpen_from").form2json();
+		$("#submit-applyOpen_tip").hide();
+		$.ajax({
+			url : '${rc.contextPath}/BuySettleAccountController/checkBuySettleAccount.do',
+			type : 'POST',
+			dataType : 'json',
+			data : {
+				data:data
+			},
+			success: function(data){
+				if(data.repCode==0){
+					var div_title="<div style='text-align: center;width:380px;'>申请提交成功</div>"
+						$("#dialog-applyOpen" ).dialog("option","title",div_title);
+						$("#applyOpen_from").hide();
+						var text="<div id='div_repeatSubmit_top'>"+
+								  "<div style='margin-top: 40px'><span >账户开通申请成功，我们会尽快为您处理！</span></div>"+
+							     "<div style='margin-top: 30px'><input onclick='closeApplyMenu();' type='button' class='btn_blue' value='确定'/></div>"+
+							     "</div>";
+					$("#div_applyOpen").append(text);
+				}else if(data.repCode==1){
+					$("#submit-applyOpen_tip").text(data.message);
+					$("#submit-applyOpen_tip").show();
+				}else if(data.repCode==2){
+					var div_title="<div style='text-align: center;width:380px;'>重复提交</div>"
+					$("#dialog-applyOpen" ).dialog("option","title",div_title);
+					$("#applyOpen_from").hide();
+					var text="<div id='div_repeatSubmit_top'>"+
+							  "<div style='margin-top: 40px'><span >申请已提交，不能重复提交!</span></div>"+
+						     "<div style='margin-top: 30px'><input onclick='returnApplyMenu();' type='button' class='btn_blue' value='返回'/></div>"+
+						     "</div>";
+					$("#div_applyOpen").append(text);
+				}
+			},
+			error:function(XMLHttpRequest, textStatus, errorThrown){
+				console.log(errorThrown);
+			}
+		})
+	}
+	$(function(){
+		applyOpenDialog=$("#dialog-applyOpen" ).dialog({
+		      autoOpen: false,
+		      height: 210,
+		      width: 400,
+		      modal: true
+		    }); 
+		initSelect_accountName();
+	})
+	function initSelect_accountName(){
+		$.ajax({
+			url : '${rc.contextPath}/BuySettleParitiesController/getCuuryCode.do',
+			type : 'POST',
+			dataType : 'json',
+			data : {
+			},
+			success: function(data){
+				$.each(data,function(index,val){
+					$.each(val,function(index,val){
+						var optionText="";
+						if(val.currencyCode!='CNY'){
+							if(val.currencyCode=='USD'){
+								optionText="美元账户";
+							}
+							if(val.currencyCode=='EUR'){
+								optionText="欧元账户";
+							}
+							if(val.currencyCode=='GBP'){
+								optionText="英镑账户";
+							}
+							if(val.currencyCode=='HKD'){
+								optionText="港元账户";
+							}
+							if(val.currencyCode=='AUD'){
+								optionText="澳元账户";
+							}
+							if(val.currencyCode=='CAD'){
+								optionText="加元账户";
+							}
+							if(val.currencyCode=='JPY'){
+								optionText="日元账户";
+							}
+							if(val.currencyCode=='SGD'){
+								optionText="新加坡元账户";
+							}
+							var text="<option value="+val.currencyCode+">"+optionText+"</option>"
+													
+						}
+						$("#select_accountName").append(text);
+					})
+				})
+			},
+			error:function(XMLHttpRequest, textStatus, errorThrown){
+				console.log(errorThrown);
+			}
+		})
+	}
+	function returnApplyMenu(){
+		$("#div_repeatSubmit_top").remove();
+		var div_title="<div style='text-align: center;width:380px;'>账户开通申请</div>"
+		$("#dialog-applyOpen" ).dialog("option","title",div_title);
+		$("#applyOpen_from").show();
+		
+	}
+	function closeApplyMenu(){
+		$("#div_repeatSubmit_top").remove();
+		$("#applyOpen_from").show();
+		$("#dialog-applyOpen" ).dialog( "close" );
+		
+	}
+	
+	function uploadeApplyOpen() {
+		  var div_title="<div style='text-align: center;width:380px;'>账户开通申请</div>"
+		  $("#dialog-applyOpen" ).dialog("option","title",div_title);
+		  $("#dialog-applyOpen" ).dialog( "open" );
+	}
+</script>
+</body>
+</html>

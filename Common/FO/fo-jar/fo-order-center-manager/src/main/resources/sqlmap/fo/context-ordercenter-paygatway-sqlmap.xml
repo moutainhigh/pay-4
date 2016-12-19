@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ORDERCENTERPAYGATWAY">
+
+	<!-- 订单查询条件 -->
+	<typeAlias alias="fo_ordercenterquerydto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<typeAlias alias="fo_ordercenterresultdto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	<typeAlias alias="fo_ordercenterdetaildto" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+	<typeAlias alias="fo_ordercenterrelationdto" type="com.pay.poss.service.ordercenter.dto.relationorder.OrderRelationDTO" />
+		
+	<resultMap id="paymentExpandInfo" class="java.util.HashMap">
+	<result property="cardNo" column="card_no" jdbcType="VARCHAR"/>
+	<result property="cardType" column="card_type" jdbcType="VARCHAR"/>
+	<result property="amountType" column="amount_type" jdbcType="VARCHAR"/>
+	<result property="surplusAmount" column="surplus_amount" jdbcType="VARCHAR"/>
+	<result property="convertFee" column="convert_fee" jdbcType="DECIMAL"/>
+	<result property="otherNo" column="other_no" jdbcType="DECIMAL"/>
+	</resultMap>
+	
+	<!-- 网关付款 -->
+	<select id="paygateway_ordercenter_query" resultClass="fo_ordercenterresultdto">	
+		SELECT 
+               PO.PAYMENT_ORDER_NO AS ORDERKY,
+               DP.DEPOSIT_PROTOCOL_NO BANKORDERKY,
+               1002 ORDERTYPE,
+               TRO.ORDER_AMOUNT ORDERAMOUNT,
+               TRO.ORDER_AMOUNT + NVL(PO.PAYER_FEE, 0) ORDERREALAMOUNT,
+               DECODE(PO.STATUS, 1, 101,  2, 111, 3, 101, 4, 101,5, 101,6, 101, 7, 112, 8,111, 112) ORDERSTATUS,
+               PO.PAYER PAYERACCOUNTNO,
+               DO.ORG_CODE PAYERBANKNO,
+               PCI.ITEM_NAME PAYERBANKNAME,
+               PCI.PAYMENT_CATAGORY PAYMENTCATAGORY,
+               TRO.PARTNER_ID PAYEEACCOUNTNO,
+               '' PAYEEBANKNO,
+               '' PAYEEBANKNNAME,
+               TRO.update_date ORDERDATE,
+               TO_CHAR(PO.PAYER) PAYERMEMBERCODE,
+               TO_CHAR(PO.PAYER_TYPE) PAYERACCTYPE,
+               PO.PAYEE PAYEEMEMBERCODE,
+               TO_CHAR(PO.PAYEE_TYPE) PAYEEACCTYPE,
+				DECODE(PO.DEBIT_FLG, 00, '--', 01, '借记卡', 02, '贷记卡', 99, '--', '--') DEBITFLAG
+          FROM FI.TRADE_BASE     TB,
+               FI.TRADE_ORDER           TRO,
+               FI.PAYMENT_ORDER PO,
+               FI.DEPOSIT_ORDER DO,
+               FI.PAYMENT_CHANNEL_ITEM PCI,
+               FI.DEPOSIT_PROTOCOL DP
+               
+         WHERE PO.TRADE_ORDER_NO = TRO.TRADE_ORDER_NO(+)
+           AND TRO.TRADE_BASE_NO = TB.TRADE_BASE_NO(+)
+           AND PO.DEPOSIT_ORDER_NO = DO.DEPOSIT_ORDER_NO(+)
+           AND DO.DEPOSIT_ORDER_NO = DP.DEPOSIT_ORDER_NO(+)
+           AND DO.ORG_CODE = PCI.ORGCODE(+)
+		<dynamic>
+		    <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PO.PAYER) = #memberCode#  
+	              or  to_char(TRO.PARTNER_ID) = #memberCode#)	 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		PO.STATUS in (1,3,4,5,6)
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		PO.STATUS = 2
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		PO.STATUS = 7
+	        	</isEqual>
+	        	<!-- 网关付款 113 银行退票信息  状态11不存在 -->
+	        	<isEqual property="orderStatus" compareValue="113">
+	        		PO.STATUS = 11
+	        	</isEqual>	
+	        	<!-- 网关付款114 重复支付 -->
+	        	<isEqual property="orderStatus" compareValue="114">
+                    (po.status=8 and do.deposit_back_amount=0 and do.deposit_order_no=po.deposit_order_no)
+	        	</isEqual>			
+		    </isNotEmpty>
+		    <isEmpty property="orderStatus" prepend="AND">
+		       <![CDATA[ (po.status<>8 or (po.status=8 and do.deposit_back_amount=0 and do.deposit_order_no=po.deposit_order_no))]]>
+		    </isEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            PO.PAYMENT_ORDER_NO = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            TRO.ORDER_ID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ TRO.update_date >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ TRO.update_date <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="bankOrderKy" prepend="AND">
+	            DP.DEPOSIT_PROTOCOL_NO = #bankOrderKy#
+	        </isNotEmpty>
+		</dynamic>
+	ORDER BY TRO.update_date DESC		
+    </select>    
+    
+    <select id="paygateway_ordercenter_query_COUNT" resultClass="java.lang.Integer">
+    SELECT COUNT(1)
+          FROM FI.TRADE_BASE     TB,
+               FI.TRADE_ORDER           TRO,
+               FI.PAYMENT_ORDER PO,
+               FI.DEPOSIT_ORDER DO,
+               FI.PAYMENT_CHANNEL_ITEM PCI,
+               FI.DEPOSIT_PROTOCOL DP
+         WHERE PO.TRADE_ORDER_NO = TRO.TRADE_ORDER_NO(+)
+           AND TRO.TRADE_BASE_NO = TB.TRADE_BASE_NO(+)
+           AND PO.DEPOSIT_ORDER_NO = DO.DEPOSIT_ORDER_NO(+)
+           AND DO.DEPOSIT_ORDER_NO = DP.DEPOSIT_ORDER_NO(+)
+           AND DO.ORG_CODE = PCI.ORGCODE(+)
+		<dynamic>
+		    <isNotEmpty  property="memberCode" prepend="AND">
+	            (to_char(PO.PAYER) = #memberCode#  
+	              or  to_char(TRO.PARTNER_ID) = #memberCode#)	 
+	        </isNotEmpty>
+	         <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		PO.STATUS in (1,3,4,5,6)
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		PO.STATUS = 2
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		PO.STATUS = 7
+	        	</isEqual>	
+	        	<!-- 网关付款 113 银行退票信息  状态11不存在 -->
+	        	<isEqual property="orderStatus" compareValue="113">
+	        		PO.STATUS = 11
+	        	</isEqual>	
+	        	<!-- 网关付款114 重复支付 -->
+	        	<isEqual property="orderStatus" compareValue="114">
+                    (po.status=8 and do.deposit_back_amount=0 and do.deposit_order_no=po.deposit_order_no)
+	        	</isEqual>		
+		    </isNotEmpty>
+		    <isEmpty property="orderStatus" prepend="AND">
+		        <![CDATA[ (po.status<>8 or (po.status=8 and do.deposit_back_amount=0 and do.deposit_order_no=po.deposit_order_no))]]>
+		    </isEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            PO.PAYMENT_ORDER_NO = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            TRO.ORDER_ID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ TRO.update_date >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ TRO.update_date <= #endTime#]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="bankOrderKy" prepend="AND">
+	            DP.DEPOSIT_PROTOCOL_NO = #bankOrderKy#
+	        </isNotEmpty>
+		</dynamic>      
+    </select>
+
+	<!-- 网关付款订单详情 -->
+	<select id="detail_paygateway_ordercenter_query" resultClass="fo_ordercenterdetaildto" parameterClass="java.lang.Long">
+        SELECT PO.PAYER PAYERKY,
+		       TOI.PARTNER_ID PAYEEKY,
+		       10 PAYEEACCTTYPE,
+		       TOI.ORDER_ID ORDERID,
+		       1002 ORDERTYPE,
+		       TOI.CREATE_DATE ORDERCREATETIME,
+		       TOI.UPDATE_DATE orderEndTime,
+		       '' PAYMENT,
+		       DECODE(PO.STATUS, 1, 101,  2, 111, 3, 101, 4, 101,5, 101,6, 101, 7, 112, 8,111, 112) ORDERSTATUS,
+		       TOI.ORDER_AMOUNT ORDERACCOUNT,
+		       NVL(PO.PAYER_FEE,0) PAYERFEE,
+		       NVL(PO.PAYEE_FEE,0) PAYEEFEE,
+		       TOI.GOODS_NAME GOODSNAME,
+		       '' ORDERWEBSITE,
+		       '' PAYERIP
+		  FROM FI.TRADE_ORDER TOI, FI.PAYMENT_ORDER PO
+		 WHERE PO.TRADE_ORDER_NO = TOI.TRADE_ORDER_NO(+)
+		   AND PO.PAYMENT_ORDER_NO = #orderKey#
+	</select>
+	
+	<select id="detail_consume_order_expand_info" resultMap="paymentExpandInfo" parameterClass="java.lang.Long" >
+	select poe.card_no, poe.other_no, poe.card_type, poe.amount_type, poe.surplus_amount, convert_fee
+	from fi.payment_order_expand poe
+	where poe.payment_order_no = #paymentOrderNo#
+	</select>   
+
+    <!-- 网关付款关联订单查询 关联的是网关退款、充值、以及分账  -->
+	<select id="paygateway_ordercenter_relation_query" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+        SELECT DISTINCT ROI.REFUND_AMOUNT ORDERAMOUNT,
+                      ROI.CREATE_DATE ORDERDATE,
+                      ROI.TRADE_ORDER_NO ORDERKY,
+                      DECODE(TOI.STATUS, 0, 101, 1, 112, 2, 101, 3, 112, 4, 111, 112) ORDERSTATUS,
+                      1003 ORDERTYPE
+        FROM FI.TRADE_ORDER TOI,FI.REFUND_ORDER ROI
+       WHERE TOI.TRADE_ORDER_NO = ROI.TRADE_ORDER_NO
+         AND TOI.TRADE_ORDER_NO = #orderKy#
+       ORDER BY ROI.CREATE_DATE DESC
+    </select>
+    
+    
+</sqlMap>

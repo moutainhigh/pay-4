@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 取消循环扣款的参数校验    -->
+	<bean id="cancelRecurringAcquireValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="recurring-api-cancel-acquireRule" />
+	</bean>
+
+	<bean id="recurring-api-cancel-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="recurring-api-cancel-cancelOrderIdCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="recurring-api-cancel-cancelOrderIdCheckRule" class="com.pay.gateway.validate.crosspay.api.CancelOrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="recurring-api-cancel-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid cancel order number:取消订单号不合法" />
+	</bean>
+	
+	<bean id="recurring-api-cancel-orderIdCheckRule" class="com.pay.gateway.validate.crosspay.api.RecOrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="recurring-api-cancel-cancelTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid original order number:原订单号不合法" />
+	</bean>
+	
+	<bean id="recurring-api-cancel-cancelTypeCheckRule" class="com.pay.gateway.validate.crosspay.api.CancelTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="recurring-api-cancel-noticeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="cancel type are not legitimate:取消类型不合法" />
+	</bean>
+
+	<bean id="recurring-api-cancel-noticeCheckRule" class="com.pay.gateway.validate.crosspay.api.RecNoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="recurring-api-cancel-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+	
+	<bean id="recurring-api-cancel-partnerIdCheckRule" class="com.pay.gateway.validate.crosspay.api.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="recurring-api-cancel-recSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0066" />
+		<property name="message" value="Public IP of customer is empty or wrong:客户下单IP为空或不正确" />
+	</bean>
+
+	<bean id="recurring-api-cancel-recSignMsgCheckRule"
+		class="com.pay.gateway.validate.crosspay.api.RecSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="recurring-api-rec-siteIdCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+	
+	<bean id="recurring-api-rec-siteIdCheckRule" class="com.pay.gateway.validate.crosspay.api.RecSiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+			<property name="positiveOutcomeStep">
+			<ref local="recurring-api-rec-versionCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="Unauthorized domain names:未授权的域名" />
+	</bean>
+	
+	<bean id="recurring-api-rec-versionCheckRule" class="com.pay.gateway.validate.crosspay.api.RecVersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="recurring-api-recExceptionAction" />
+		</property>
+			<property name="positiveOutcomeStep">
+			<ref local="recurring-api-rec-gatewayRequestRecSaveAction" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+	
+	
+	<bean id="recurring-api-rec-gatewayRequestRecSaveAction"
+		class="com.pay.gateway.validate.crosspay.cashier.GatewayRequestRecSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+			<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+	
+	<bean id="recurring-api-recExceptionAction" class="com.pay.gateway.validate.crosspay.api.RecExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<!-- Dao 配置 -->		
+ 	<bean id="fundout-withraw-withdrawOrderDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawAuditOrderDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE"/>
+	<bean id="fundout-withraw-withdrawAuditDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawAuditDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	<bean id="fundout-withraw-withdrawWorkDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawAuditWorkOrderDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	<bean id="fundout-withraw-resProcManualDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawResProcManualDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	<bean id="fundout-withraw-exportDao" class="com.pay.fundout.withdraw.dao.export.impl.ExportWithdrawAuditDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	
+	<!-- Service 配置 -->
+	<bean id="wdOrdAuditService" class="com.pay.fundout.withdraw.service.flowprocess.impl.WithdrawOrderAuditServiceImpl" >
+		<property name="withdrawAuditDao" ref="fundout-withraw-withdrawAuditDao" />
+ 		<property name="withdrawOrderDao" ref="fundout-withraw-withdrawOrderDao" /> 
+		<property name="withdrawWorkDao" ref="fundout-withraw-withdrawWorkDao" />
+		<property name="resProcManualDao" ref="fundout-withraw-resProcManualDao" />
+		<property name="exportWitndrawDao" ref="fundout-withraw-exportDao" />
+		
+		<property name="bankInfoService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<!-- property name="userService" ref="userService" /-->
+		<property name="memberService" ref="withdrawMemberFacadeService" />
+		<property name="withdrawService" ref="fundout-withdraw-service" />
+		<property name="wfLogService" ref="fundout_withdraw_withdrawWfLogServicee" />
+		<property name="bookkeepingService" ref="acc-bookkeepingService"/>
+		<property name="orderAfterFailProcAlertService" ref="fundout-withdraw-OrderAfterFailProcAlertService" />
+		
+		<property name="bankcorporateService" ref="fundout-bankcorporateService" />
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"/>
+		<property name="channelService" ref="fo_channel_channelservice" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+		<property name="riskMap">
+			<map>
+				<entry key="1">
+					<ref bean="fundout_withdraw_personalAutoRiskService" />
+				</entry>
+				<entry key="2">
+					<ref bean="fundout_withdraw_merchantAutoRiskService" />
+				</entry>
+			</map>
+		</property>
+		<property name="accountingServiceMap">
+			<map>
+				<entry key="0">
+					<ref bean="fundout-withdrawFirstAccounting" />
+				</entry>
+				<entry key="3">
+					<ref bean="fundout-pay2bankFirstAccounting" />
+				</entry>
+				<entry key="4">
+					<ref bean="fundout-batchPay2bankFirstAccounting" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+</beans>

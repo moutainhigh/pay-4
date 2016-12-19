@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-enterpriseBase">
+	<typeAlias alias="enterpriseBase" type="com.pay.acc.member.model.EnterpriseBase" />
+	<typeAlias alias="enterpriseContract" type="com.pay.acc.member.model.EnterpriseContract" />
+	<typeAlias alias="enterpriseContact" type="com.pay.acc.member.model.EnterpriseContact" />
+	<typeAlias alias="operator"	type="com.pay.acc.member.model.Operator" />
+	<typeAlias alias="withdrawUnionBatchpayFee" type="com.pay.acc.member.model.WithdrawUnionBatchpayFee"/>
+	<typeAlias alias="refundFeeConf" type="com.pay.acc.member.model.RefundFeeConf"/>
+	
+	<insert id="insertEnterpriseBase" parameterClass="enterpriseBase">
+		<selectKey resultClass="java.lang.Long" keyProperty="enterpriseId">
+			SELECT SEQ_ENTERP_BASE_ENTERP_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_ENTERPRISE_BASE (
+        	ENTERPRISE_ID, MEMBER_CODE, MERCHANT_CODE, 
+        	<isNotEmpty property="enterpriseType">
+        		ENTERPRISE_TYPE,
+        	</isNotEmpty>
+            AUDI_STATUS, ZH_NAME, EN_NAME, WEBSITE, NATION, REGION, CITY, INDUSTRY_KIND,
+            INDUSTRY_TYPE, IN_INDUSTRY, BIZ_LICENCE_CODE, EXPIRE, GOV_CODE, TAX_CODE,
+               RISK_LEVE_CODE, CREATE_DATE, UPDATE_DATE, SETTLEMENT_CYCLE,PERCENTAGE,SECOND_SETTLEMENT_CYCLE,
+              <isNotEmpty property="identity">
+        		IDENTITY,
+        	</isNotEmpty>
+               SEARCH_KEY,WITHDRAW_FEE,SIGN_PROCESS_FEE,RISK_FEE,CHARGEBACK_FEE
+            <isNotEmpty property="feeCurrencyCode"> 
+          		, FEE_CURRENCY_CODE
+            </isNotEmpty>
+            <!-- add by davis.guo 2016-08-10 -->
+            <isNotEmpty property="riskFeeCurrency"> 
+          		, RISK_FEE_CURRENCY
+            </isNotEmpty>
+               )
+        values (#enterpriseId#, #memberCode#, #merchantCode#,
+        <isNotEmpty property="enterpriseType">
+        		 #enterpriseType#,
+        </isNotEmpty>
+         #audiStatus#,
+            #zhName#, #enName#, #website#, #nation#, #region#, #city#, #industryKind#,
+            #industryType#, #industry#, #bizLicenceCode#, #expire#, #govCode#, #taxCode#,
+            #riskLeveCode#, #createDate#, #updateDate#,#settlementCycle#,#percentage#,#secondSettlementCycle#,
+             <isNotEmpty property="identity">
+        		#identity#,
+        	</isNotEmpty>
+             #searchKey#,#withdrawFee#,#signProcessFee#,#riskFee#,#chargebackFee#
+            <isNotEmpty property="feeCurrencyCode"> 
+          	, #feeCurrencyCode#
+            </isNotEmpty>
+            <!-- add by davis.guo 2016-08-10 -->
+            <isNotEmpty property="riskFeeCurrency"> 
+          	, #riskFeeCurrency#
+            </isNotEmpty>
+             )
+    </insert>
+    
+    <insert id="insertContact" parameterClass="enterpriseContact">
+		<selectKey resultClass="java.lang.Long" keyProperty="contactId">
+			SELECT SEQ_ENTERP_CONTACT_CONT_ID.nextval FROM DUAL
+		</selectKey>
+         insert into T_ENTERPRISE_CONTACT (CONTACT_ID, MEMBER_CODE, ADDRESS, FAX, TEL, ZIP,
+            LEGAL_NAME, LEGAL_LINK, EMAIL, FINANCE_NAME, FINANCE_LINK, TECH_NAME, TECH_LINK,
+            WEB_NAME1, WEB_ADDR1, WEB_NAME2, WEB_ADDR2, WEB_NAME3, WEB_ADDR3, CREATE_DATE,
+            UPDATE_DATE, COMPAY_LINKER_NAME, COMPAY_LINKER_TEL)
+        values (#contactId#, #memberCode#, #address#, #fax#, #tel#, #zip#, #legalName#, #legalLink#,
+            lower(#email#), #financeName#, #financeLink#, #techName#, #techLink#, #webName1#, #webAddr1#,
+            #webName2#, #webAddr2#, #webName3#, #webAddr3#, #createDate#, #updateDate#,
+            #compayLinkerName#, #compayLinkerTel#)
+    </insert>
+    
+ 	<insert id="insertContract" parameterClass="enterpriseContract">
+   		<selectKey resultClass="java.lang.Long" keyProperty="contractId">
+			SELECT SEQ_ENTERP_CONTRACT_CONTR_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_ENTERPRISE_CONTRACT (CONTRACT_ID, MEMBER_CODE, CONTRACT_CODE, SIGN_NAME,
+            SIGN_DEPART, CONTINUE_SIGN, CONTRACT_STATUS, MARKET_NAME, MARKET_LINK, START_DATE,
+            END_DATE, OPEN_FEE, YEAR_FEE, FACT_OPEN_FEE, FACT_YEAR_FEE, FACT_START_DATE,
+            FACT_END_DATE, ASSURE_FEE, FACT_ASSURE_FEE, ASSURE_DESC, CREATE_DATE, UPDATE_DATE,SIGN_LOGINID)
+        values (#contractId#, #memberCode#, #contractCode#, #signName#, #signDepart#,
+            #continueSign#, #contractStatus#, #marketName#, #marketLink#, #startDate#, #endDate#,
+            #openFee#, #yearFee#, #factOpenFee#, #factYearFee#, #factStartDate#, #factEndDate#,
+            #assureFee#, #factAssureFee#, #assureDesc#, #createDate#, #updateDate#,#signLoginId#)
+    </insert> 
+    
+    <insert id="insertOperator" parameterClass="operator">
+		<selectKey resultClass="java.lang.Long" keyProperty="operatorId">
+			SELECT SEQ_OPERATOR_OPERATOR_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_OPERATOR (OPERATOR_ID, IDENTITY, MEMBER_CODE, NAME, STATUS, EMAIL, PHONE,
+            MOBILE, LOGIN_PWD, CERT_CODE, CREATE_DATE, UPDATE_DATE, DEPART, NOTE, CERT_TYPE)
+        values (#operatorId#, #identity#, #memberCode#, #name#, #status#, lower(#email#), #phone#,
+            #mobile#, #loginPwd#, #certCode#, #createDate#, #updateDate#, #depart#, #note#,
+            #certType#)
+    </insert>   
+
+	<select id="queryEnterpriseBaseByMemberCode" parameterClass="java.util.Map"
+		resultClass="enterpriseBase">
+		select
+		ENTERPRISE_ID as enterpriseId,
+		MEMBER_CODE as
+		memberCode,
+		MERCHANT_CODE as merchantCode,
+		ENTERPRISE_TYPE as
+		enterpriseType,
+		AUDI_STATUS as audiStatus,
+		ZH_NAME as zhName,
+		EN_NAME as
+		enName,
+		WEBSITE as website,
+		NATION as nation,
+		risk_leve_code as
+		riskLeveCode,
+		ASSURE_PERCENTAGE assurePercentage,
+        PERCENTAGE,
+        SETTLEMENT_CYCLE settlementCycle,
+        SECOND_SETTLEMENT_CYCLE secondSettlementCycle,
+        WITHDRAW_FEE withdrawFee,
+        RISK_FEE riskFee,
+        CHARGEBACK_FEE chargebackFee,
+        FEE_CURRENCY_CODE feeCurrencyCode,
+        RISK_FEE_CURRENCY riskFeeCurrency<!-- add by davis.guo 2016-08-10 -->
+		from T_ENTERPRISE_BASE
+		where
+		MEMBER_CODE = #memberCode#
+	</select>
+
+	<select id="queryEnterpriseRiskLeveCodeByMemberCode"
+		parameterClass="java.lang.Long" resultClass="java.lang.Integer">
+		select b.risk_leve_code
+		from t_enterprise_base b
+		where b.member_code=#memberCode#
+	</select>
+	
+	<select id="queryEnterpriseMccCodeByMemberCode"
+		parameterClass="java.lang.Long" resultClass="java.lang.Integer">
+		select b.in_industry
+		from t_enterprise_base b
+		where b.member_code=#memberCode#
+	</select>
+
+	<select id="queryCurrMaxMerchantCode" resultClass="enterpriseBase"
+		parameterClass="java.lang.String">
+		select MERCHANT_CODE as merchantCode
+		from
+		T_ENTERPRISE_BASE
+		where MERCHANT_CODE like #merchantCodeTemp#||'%'
+	</select>
+	
+	 <!-- 查询结算及费率配置中，提现与批量出款手续费 -->
+    <select id="queryWithdrawUnionBatchByCode" parameterClass="java.lang.Long" resultClass="withdrawUnionBatchpayFee">
+    	select 
+    		base.WITHDRAW_FEE as withdrawFee, 
+    		base.WITHDRAW_FEE_CURRENCY as withdrawFeeCurrency, 
+    		base.BATCHPAY_FEE as batchpayFee, 
+    		base.BATCHPAY_FEE_CURRENCY as batchpayFeeCurrency
+    	from T_ENTERPRISE_BASE base WHERE base.MEMBER_CODE = #memberCode#
+    </select>
+    
+    <!-- 查询退款手续费配置 -->
+    <select id="queryRefundFeeConfByCode" parameterClass="java.lang.Long" resultClass="refundFeeConf">
+    	select 
+    		base.MEMBER_CODE as memberCode,
+    		base.REFUND_FEE as refundFee, 
+    		base.REFUND_FEE_CURRENCY as refundFeeCurrency, 
+    		base.REFUND_FIXEDFEE_CONF as refundFixedFeeConf, 
+    		base.REFUND_PERFEE_CONF as refundPerFeeConf
+    	from T_ENTERPRISE_BASE base WHERE base.MEMBER_CODE = #memberCode#
+    </select>
+</sqlMap>

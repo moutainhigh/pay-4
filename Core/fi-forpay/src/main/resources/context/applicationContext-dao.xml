@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+ "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="gatewayBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="gatewaySqlMapClient" />
+	</bean>
+	<bean id="taskRecurringDao" class="com.pay.recurring.dao.impl.TaskRecurringDAOImpl"
+		parent="gatewayBaseDAO">
+		<property name="namespace" value="taskRecurring" />
+	</bean>
+	<bean id="recurringDao" class="com.pay.recurring.dao.impl.RecurringDAOImpl"
+		parent="gatewayBaseDAO">
+		<property name="namespace" value="recurring" />
+	</bean>
+	
+	<bean id="channelMidAmtDao" class="com.pay.channel.dao.impl.ChannelMidAmtDaoImpl"
+		parent="gatewayBaseDAO">
+		<property name="namespace" value="channelMidAmtDao" />
+	</bean>
+	<bean id="merchantWebsiteCheckDao" class="com.pay.order.dao.impl.MerchantWebsiteCheckDaoImpl"
+		parent="gatewayBaseDAO">
+		<property name="namespace" value="merchantWebsite" />
+	</bean>
+	
+	<bean id="orderMonitorDao" class="com.pay.monitor.dao.impl.OrderMonitorDaoImpl"
+		parent="gatewayBaseDAO">
+		<property name="namespace" value="orderMonitor" />
+	</bean>
+	<!-- 邮件模板 add by davis.guo at 2016-09-08 -->
+	<bean id="notifyTemplateDAO" class="com.pay.notify.dao.impl.NotifyTemplateDAOImpl" >
+		<property name="sqlMapClient">
+			<ref bean="notificationSqlMapClient" />
+		</property>
+	</bean>
+	<!--  add end -->
+</beans> 

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+  
+   	<bean name="/withdrawException.htm"
+	class="com.pay.fo.controller.fundout.flowprocess.WithdrawExceptionController"
+	parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		
+		<property name="withdrawExceptionService" ref="fundout_withdraw_exception_service"></property>
+		<property name="withdrawOrderAuditService" ref="wdOrdAuditService"></property>
+		<property name="bankService" ref="bankService" />
+		
+		<property name="urlMap">
+			<map>
+				<entry key="init" value="/withdraw/withdrawexception/withdrawExceptionInfoInit" />
+				<entry key="list" value="/withdraw/withdrawexception/withdrawExceptionInfoList" />
+				<entry key="toInit" value="/withdrawException.htm?method=init" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/withdrawreport.htm">withdrawReportController</prop>
+				<prop key="/withdrawreportDownload.htm">withdrawReportController</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- add Jason_wang -->
+	<!-- 出款报表查询 -->
+	<bean id="withdrawReportController" class="com.pay.fo.controller.fundout.flowprocess.WithdrawReportController"
+		parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="service" ref="fundout_withdraw_report_service"/>
+		<property name="bankInfoService" ref="fundout-withdraw-bankInfoFacadeService"/>
+		<property name="wdOrdAuditService">
+			<ref bean="wdOrdAuditService" />
+		</property>
+		<property name="urlMap">
+			<map>
+				<entry key="noDisposeInit" value="/withdraw/withdrawreport/nodisposedata/queryWDNoDisposeDataInit"/>
+				<entry key="noDisposeList" value="/withdraw/withdrawreport/nodisposedata/queryWDNoDisposeDataList"/>
+				<entry key="noDisposeDetailInfo" value="/withdraw/withdrawreport/nodisposedata/showDetailInfo"/>
+				<entry key="disposedInit" value="/withdraw/withdrawreport/disposedata/queryWDDisposedDataInit"/>
+				<entry key="disposedList" value="/withdraw/withdrawreport/disposedata/queryWDDisposedDataList"/>
+				<entry key="disposedDetailInfo" value="/withdraw/withdrawreport/disposedata/showDetailInfo"/>
+			</map>
+		</property>	
+	</bean>
+	
+	<!-- end Jason_wang --> 
+</beans>
+
+

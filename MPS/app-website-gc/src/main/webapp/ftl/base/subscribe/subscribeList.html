@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${notice_subscribe}${title}</title>
+<meta name="Keywords" content="${notice_subscribe_Keywords}" />
+<meta name="Description" content="${notice_subscribe_Description}" />
+	<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"type="text/css">
+	<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"type="text/css">
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+	
+	
+	<script type="text/javascript">	
+		function chkselect(obj,id){
+			$(obj).each(function(){
+				if($("#"+id).attr("checked")==true){
+					if($(this).attr("id")==id){
+						$(this).attr("checked",true);		
+					}else{
+						$(this).attr("checked",false);
+					}
+				}
+			});				
+		  }	
+		$(function() {
+		      $("#btnSubmit").click(function(){		    	 
+					var notifyIds = [];
+					$("input:hidden[name='notifyId']").each(function(i){
+					   notifyIds[i] =$(this).val();
+					});
+					var noticeModes = [];
+					$("input:hidden[name='noticeMode']").each(function(i){
+						noticeModes[i] =$(this).val();
+					});
+					var contexts = [];
+					$("input:hidden[name='context']").each(function(i){
+						contexts[i] =$(this).val();
+					});
+					var url="${rc.contextPath}/app/subscribe.htm?method=saveSubscribeView";
+					$.post(url, 
+						{ notifyId: notifyIds, noticeMode: noticeModes,context:contexts },
+						function(data){
+							$.pay.alert(data,{t:'1'});
+					}); 
+											
+					return false;
+			  });
+
+			  $("#defaultSubmit").click(function(){
+				 $("input:checked[name^='email_']").removeAttr('checked');				 
+				 $("input:hidden[name^='noticeMode']").val('0');				 
+				return false;
+			  });
+			  
+		});	
+				  
+
+		  	
+	</script>
+</head>
+<body>
+
+<@sp.head channel=2 />
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container"><@sp.banner toptit="信息管理" toptit2="通知订阅"glide=true/>
+ <!--侧导航企业版 str -->
+ <@sp.menu channel="2_2"/>
+  <!--侧导航企业版 end -->
+
+<div class="box_w800 fr"><!--自适应box str -->
+	<form class="mod_form" id="subscribeForm" method="post" action="${rc.contextPath}/app/subscribe.htm?method=saveSubscribeView"  >
+
+<div class="mod_box">
+<div class="tb_tit_box">
+
+<table>
+	<tr>
+		<th width="20%">通知类型</th>
+		<th width="26%">详细说明</th>
+		<#if isEmail>
+			<th width="18%">电子邮件通知</th>
+		</#if>
+		<#if isMobile>
+			<th width="18%">手机短信通知</th>
+		</#if>		
+		<th width="18%">站内信通知</th>
+	</tr>
+</table>
+</div>
+<div class="td_wrap">
+<div class="tb_box">
+<table>
+	<tbody>
+	<#if subscribeList?has_content>
+		<#list subscribeList as ls>
+			<script>
+			$(function(){
+				var chks=$(":checkbox[name=email_"+${ls_index}+"]");
+				$(chks).click(function(){
+					var id=$(this).attr("id");	
+					var value=$('#'+id).val();
+					if($("#"+id).attr("checked")==true){
+						$('#noticeMode_'+${ls_index}).val(value);
+					} else{
+						$('#noticeMode_'+${ls_index}).val(0);
+					}						
+					chkselect($(chks),id);
+					});	
+				});
+			</script>
+			<tr>
+				<th width="20%">${ls.name?default('')}
+				    <input id="notifyId_${ls_index}"   name="notifyId"   type="hidden" value="${ls.notifyId}">
+					<input id="noticeMode_${ls_index}" name="noticeMode" type="hidden" value="${ls.noticeMode}">
+					<input id="context_${ls_index}"    name="context"    type="hidden" value="${ls.name}">					
+				</th>				
+				<td width="26%">${ls.description?default('')}</td>
+				<#if isEmail>
+					<td width="18%"><input id="email_${ls_index}" name="email_${ls_index}" type="checkbox" value="3" <#if  ls.noticeMode==3> checked </#if> ></td>
+				</#if>
+				<#if isMobile>
+					<td width="18%"><input id="note_${ls_index}" name="email_${ls_index}" type="checkbox"  value="2"  <#if  ls.noticeMode==2> checked </#if>></td>
+				</#if>
+				<td width="18%"><input id="websitemsg_${ls_index}" name="email_${ls_index}" type="checkbox" value="1"  <#if  ls.noticeMode==1> checked </#if>></td>
+			</tr>
+		</#list>
+	  <#else>
+		<tr align="center">
+			<td colspan="7">
+				<h2>暂无任何记录</h2>
+			</td>
+		</tr>	
+	</#if>	
+	</tbody>	 
+</table>
+</div>
+<div class="btn_area"><span class="btn_yel botton_yel">
+<button  id="btnSubmit" align="center">保存设置</button>
+</span> <span class="btn_grey_b botton_grey">
+<button id="defaultSubmit" align="center" >恢复默认设置</button>
+</span></div>
+</div>
+</form>
+<p class="bot"><i></i></p>
+</div>
+<!--自适应box end --></div>
+
+</div>
+<!--主内容 end -->
+</div>
+	<#include "/common/include/footer.html">
+<!--footer -->
+</body>
+</html>

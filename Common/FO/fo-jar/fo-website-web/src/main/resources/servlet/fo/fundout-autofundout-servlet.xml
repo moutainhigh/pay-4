@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="autoFoudoutMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/autoFundout.htm">autoFoudoutController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="autoFoudoutController"
+		class="com.pay.app.controller.fo.autofundout.AutoFundoutController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<!-- property name="massPayService" ref="massPayService"></property-->
+		<property name="bankCardBindService" ref="acc-bankCardBindService"/>
+		<property name="paymentPasswordValidateService" ref="fundout_payment_PaymentPasswordValidateService"/>
+		<property name="autoWithdrawService" ref="fundout_autofundout_Service"/>
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+		<property name="urlMap">
+			<map>
+				<entry key="summary" value="/fo/autofundout/summary" />
+				<entry key="add" value="/fo/autofundout/addAutoFundout" />
+				<entry key="modify" value="/fo/autofundout/modifyAutoFundout" />
+				<entry key="view" value="/fo/autofundout/viewAutoFundout" />
+				<entry key="cancel" value="/fo/autofundout/cancelAutoFundout" />
+				<entry key="result" value="/fo/autofundout/operResult" />
+				<entry key="toAdd" value="/corp/autoFundout.htm?method=addPage" />
+				<entry key="toModify" value="/corp/autoFundout.htm?method=modifyPage" />
+				<entry key="toCancel" value="/corp/autoFundout.htm?method=cancelPage" />
+				<entry key="autofundoutnotexist" value="/fo/autofundout/autofundoutnotexist" />
+			</map>
+		</property>
+	</bean>
+</beans>
+
+

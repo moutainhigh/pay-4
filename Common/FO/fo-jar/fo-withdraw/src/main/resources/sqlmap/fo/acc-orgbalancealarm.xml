@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orgBalanceAlarm">
+	<typeAlias alias="orgBalanceAlarmInfo" type="com.pay.fundout.withdraw.dto.balancewarning.OrgBalanceAlarmInfo"/>
+	<typeAlias alias="orgBalanceAlarmTask" type="com.pay.fundout.withdraw.dto.balancewarning.OrgBalanceAlarmTask"/>
+	
+	<select id="findBySelective" resultClass="orgBalanceAlarmInfo">
+        SELECT 
+			MEMBER_CODE 	memberCode,
+			MEMBER_NAME 	memberName,
+			BEGIN_DATE 		beginDate,
+			MIN_BALANCE 	minBalance,
+			CYCLE_TYPE 		cycleType,
+			CYCLE_VALUE 	cycleValue,
+			MOBILE 			mobile,
+			EMAIL 			email,
+			DEADLINE 		deadline,
+			STATUS 			status,
+			SMS_TEMPLATE 	smsTemplate,
+			EMAIL_TEMPLATE 	emailTemplate,
+			CREATE_DATE 	createDate,
+			UPDATE_DATE 	updateDate
+        FROM acc.ORG_BALANCE_ALARM_INFO 
+        WHERE STATUS = 1
+   </select>
+	
+	<insert id="createOrgBalanceAlarmTask" parameterClass="orgBalanceAlarmTask">
+	    <selectKey resultClass="java.lang.Long" keyProperty="recordNo">
+			SELECT acc.SEQ_ORG_BALANCE_ALARM_TASK.nextval AS RECORD_NO FROM DUAL
+		</selectKey>
+        INSERT INTO acc.ORG_BALANCE_ALARM_TASK(
+			RECORD_NO,
+			MEMBER_CODE,
+			MEMBER_NAME,
+			BALANCE,
+			MSG_CONTENT,
+			CONTACT_INFO,
+			CREATE_DATE,
+			UPDATE_DATE
+        )
+        VALUES(
+            #recordNo#,
+            #memberCode#,
+            #memberName#,
+            #balance#,
+            #msgContent#,
+			#contactInfo#,
+			#createDate#,
+			#updateDate#
+		)
+    </insert>
+	
+
+    <update id="updateOrgBalanceAlarmInfo" parameterClass="orgBalanceAlarmInfo">
+        UPDATE acc.ORG_BALANCE_ALARM_INFO 
+        SET UPDATE_DATE = sysdate
+        <isNotNull prepend="," property="beginDate">
+            BEGIN_DATE = #beginDate#
+        </isNotNull>
+        WHERE 
+            MEMBER_CODE = #memberCode# 
+    </update>
+    
+</sqlMap>

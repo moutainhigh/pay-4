@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelCurrency">
+	<typeAlias alias="channelCurrencyDTO" type="com.pay.txncore.dto.ChannelCurrencyDTO"/>
+    <resultMap id="channelCurrency" class="channelCurrencyDTO">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="PRDT_CODE" property="prdtCode" jdbcType="VARCHAR"/>
+        <result column="PAY_TYPE" property="payType" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="CARD_CURRENCY_CODE" property="cardCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="CHANNEL_CURRENCY_CODE" property="channelCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+   <insert id="create" parameterClass="channelCurrencyDTO">
+	<selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT	SEQ_CHANNEL_CURRENCY_ID.nextval FROM DUAL
+	</selectKey>
+	 	INSERT INTO CHANNEL_CURRENCY(ID,ORG_CODE,PRDT_CODE,CURRENCY_CODE,CARD_CURRENCY_CODE,CHANNEL_CURRENCY_CODE,OPERATOR,CREATE_DATE,PAY_TYPE
+        )
+        VALUES(
+            #id#,#orgCode#,#prdtCode#,#currencyCode#,#cardCurrencyCode#,#channelCurrencyCode#,#operator#,#createDate#,#payType#
+		)
+	</insert>
+
+    <update id="update" parameterClass="channelCurrencyDTO">
+        UPDATE CHANNEL_CURRENCY
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="prdtCode">
+            PRDT_CODE = #prdtCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payType">
+            PAY_TYPE = #payType#
+        </isNotNull>
+        <isNotEmpty prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="cardCurrencyCode">
+            CARD_CURRENCY_CODE = #cardCurrencyCode#
+        </isNotEmpty>
+        <isNotNull prepend="," property="channelCurrencyCode">
+            CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+       <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>               
+        </dynamic>
+        <dynamic prepend="WHERE">
+           <isNotNull prepend="and" property="id">
+            ID = #id#
+        	</isNotNull>
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="channelCurrency" parameterClass="java.lang.Long">
+         select ID,ORG_CODE,PRDT_CODE,CURRENCY_CODE,CARD_CURRENCY_CODE,CHANNEL_CURRENCY_CODE,PAY_TYPE
+         OPERATOR,CREATE_DATE,UPDATE_DATE where id=#id#
+    </select>
+    <select id="findMatchList" resultMap="channelCurrency">
+    SELECT
+      *
+    FROM(SELECT
+      *
+      FROM
+        CHANNEL_CURRENCY
+      WHERE 1 = 1
+      AND
+        PARTNER_ID = #partnerId#
+      AND
+        ORG_CODE = #orgCode#
+      AND
+        PAY_TYPE = #payType#
+        <isEqual property="payType" compareValue="EDC">
+            AND
+            currency_Code = #currencyCode#
+        </isEqual>
+        <isEqual property="payType" compareValue="DCC">
+            AND
+            CARD_CURRENCY_CODE = #cardCurrencyCode#
+        </isEqual>
+        ORDER BY ID DESC )
+      UNION ALL
+        SELECT
+        *
+        FROM(SELECT
+        *
+        FROM
+        CHANNEL_CURRENCY
+        WHERE 1 = 1
+        AND
+        PARTNER_ID = #partnerId#
+        AND
+        ORG_CODE = #orgCode#
+        AND
+        PAY_TYPE = #payType#
+        <isEqual property="payType" compareValue="EDC">
+            AND
+            currency_Code = '*'
+        </isEqual>
+        <isEqual property="payType" compareValue="DCC">
+            AND
+            CARD_CURRENCY_CODE = '*'
+        </isEqual>
+        ORDER BY ID DESC )
+      UNION ALL
+        SELECT
+        *
+        FROM(SELECT
+        *
+        FROM
+        CHANNEL_CURRENCY
+        WHERE 1 = 1
+        AND
+        PARTNER_ID = 0
+        AND
+        ORG_CODE = #orgCode#
+        AND
+        PAY_TYPE = #payType#
+        <isEqual property="payType" compareValue="EDC">
+            AND
+            currency_Code = #currencyCode#
+        </isEqual>
+        <isEqual property="payType" compareValue="DCC">
+            AND
+            CARD_CURRENCY_CODE = #cardCurrencyCode#
+        </isEqual>
+        ORDER BY ID DESC )
+      UNION ALL
+        SELECT
+        *
+        FROM(SELECT
+        *
+        FROM
+        CHANNEL_CURRENCY
+        WHERE 1 = 1
+        AND
+        PARTNER_ID = '0'
+        AND
+        ORG_CODE = #orgCode#
+        AND
+        PAY_TYPE = #payType#
+        <isEqual property="payType" compareValue="EDC">
+            AND
+            currency_Code = '*'
+        </isEqual>
+        <isEqual property="payType" compareValue="DCC">
+            AND
+            CARD_CURRENCY_CODE = '*'
+        </isEqual>
+        ORDER BY ID DESC )
+        <isEqual property="payType" compareValue="DCC">
+            UNION ALL
+            SELECT
+            *
+            FROM(SELECT
+            *
+            FROM
+            CHANNEL_CURRENCY
+            WHERE 1 = 1
+            AND
+            PARTNER_ID = #partnerId#
+            AND
+            ORG_CODE = #orgCode#
+            AND
+            PAY_TYPE = 'EDC'
+            AND
+            currency_Code = #currencyCode#
+            ORDER BY ID DESC )
+            UNION ALL
+            SELECT
+            *
+            FROM(SELECT
+            *
+            FROM
+            CHANNEL_CURRENCY
+            WHERE 1 = 1
+            AND
+            PARTNER_ID = #partnerId#
+            AND
+            ORG_CODE = #orgCode#
+            AND
+            PAY_TYPE = 'EDC'
+            AND
+            currency_Code = '*'
+            ORDER BY ID DESC )
+            UNION ALL
+            SELECT
+            *
+            FROM(SELECT
+            *
+            FROM
+            CHANNEL_CURRENCY
+            WHERE 1 = 1
+            AND
+            PARTNER_ID = 0
+            AND
+            ORG_CODE = #orgCode#
+            AND
+            PAY_TYPE = 'EDC'
+            AND
+            currency_Code = #currencyCode#
+            ORDER BY ID DESC )
+            UNION ALL
+            SELECT
+            *
+            FROM(SELECT
+            *
+            FROM
+            CHANNEL_CURRENCY
+            WHERE 1 = 1
+            AND
+            PARTNER_ID = '0'
+            AND
+            ORG_CODE = #orgCode#
+            AND
+            PAY_TYPE = 'EDC'
+            AND
+            currency_Code = '*'
+            ORDER BY ID DESC )
+        </isEqual>
+    </select>
+    <select id="findByCriteria" resultMap="channelCurrency">
+        select ID,ORG_CODE,PRDT_CODE,CURRENCY_CODE,CARD_CURRENCY_CODE,CHANNEL_CURRENCY_CODE,
+         OPERATOR,CREATE_DATE,UPDATE_DATE,PAY_TYPE from CHANNEL_CURRENCY where 1=1
+        <isNotNull prepend="and" property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+            PRDT_CODE like '%$prdtCode$%'
+        </isNotNull>
+        <isNotNull prepend="and" property="payType">
+            PAY_TYPE = #payType#
+        </isNotNull>
+        <isNotNull prepend="and" property="currencyCode">
+            <isEqual property="payType" compareValue="EDC">
+                 (CURRENCY_CODE = #currencyCode# 
+                 or CURRENCY_CODE='*')
+            </isEqual>
+        </isNotNull>
+        <isNotNull prepend="and" property="cardCurrencyCode">
+            <isEqual property="payType" compareValue="DCC">
+                (CARD_CURRENCY_CODE = #cardCurrencyCode#
+                or CARD_CURRENCY_CODE='*')
+            </isEqual>    
+        </isNotNull>
+        <isNotNull prepend="and" property="channelCurrencyCode">
+            CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+       <isNotNull prepend="and" property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="and" property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>         
+    </select>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+               select count(*) from CHANNEL_CURRENCY where 1=1
+        <isNotNull prepend="and" property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+             PRDT_CODE like '%$prdtCode$%'
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+            PAY_TYPE = #payType#
+        </isNotNull>
+        <isNotEmpty prepend="and" property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="cardCurrencyCode">
+            CARD_CURRENCY_CODE = #cardCurrencyCode#
+        </isNotEmpty>
+        <isNotNull prepend="and" property="channelCurrencyCode">
+            CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+       <isNotNull prepend="and" property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="and" property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>      
+    </select>
+    
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM CHANNEL_CURRENCY
+        <dynamic prepend="WHERE">
+         <isNotNull prepend="and" property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+             PRDT_CODE like '%$prdtCode$%'
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+            PAY_TYPE = #payType#
+        </isNotNull>
+        <isNotEmpty prepend="and" property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="cardCurrencyCode">
+            CARD_CURRENCY_CODE = #cardCurrencyCode#
+        </isNotEmpty>
+        <isNotNull prepend="and" property="channelCurrencyCode">
+            CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+       <isNotNull prepend="and" property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="and" property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>           
+        </dynamic>
+    </select>
+</sqlMap>

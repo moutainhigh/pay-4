@@ -1,0 +1,184 @@
+<html>
+<head>
+<meta content="text/html" charset="utf-8" />
+</head>
+<body>
+<script type="text/javascript" src="https://www.pay.comom/static/js/md5.js"></script>
+<p align="center">模拟商城付款</p>
+<form id="testForm" name="testForm" action="https://www.pay.com.com:80/website/app/shoppingcityRedirect.htm" method="post">
+  <p>买家iPayLinks账户(必需到iPayLinks社区注册且登录)：
+    <input type="text" name="buyer" value="989082"/>
+    <br>
+    <br/>
+  （注册地址：http://regist.payay.com:8080/regist-user/app/user-account/goRegist.htm）<br/>
+  （登录地址：https://sspayapay.com:8443/sso-server/login）<br/>
+  因SSO是测试环境，请参考下载hosts文件信息：<a href="httpwww.pay.comay.com/website/hosts">下载</a><br/>
+ https://paypay.com:8443/sso-server/user?usernames={username:[%22james%22]}<br/>
+ 将如上james替换成自己的sso用户名！在IE中查询得到usrId，替换上面第一个字段值！<br/>
+
+  <br>
+  <br/>
+  商城流水号：
+  <input type="text" name="serialNo"/>
+  <br/>
+  应 用 类 型 ：
+  <input type="text" name="type" value="0001"/>
+  <br/>
+  总 金 额：
+  <input type="text" name="totalAmount" value="10000"/>
+  <br/>
+  商城显示支付结果地址
+  <input type="text" name="returnUrl" value="http://www.pay.comom"/>
+  <br/>
+  合作伙伴ID（商城ID）:
+  <input type="text" name="partner" value="10000000011"/>
+  <br/>
+  备注字段：
+  <input type="text" name="remark"/>
+  <br/>
+  编码方式：
+  <input type="text" name="charset" value="1"/>
+  <br/>
+  </p>
+  <p>
+1.点击"生成商城流水号"。
+2.修改订单信息，再点击"生成订单明细"。
+3.确认提交。
+</p>
+<input type="button" value="生成商城流水号" onclick="setOrderId(this.form);"/>
+<input type="button" value="生成订单明细" onclick="buildOrderList(this.form);"/>
+<input type="submit" value="确认提交"/>
+
+<p><font color="red">订单明细开始</font></p>
+订单详细信息：<input type="text" name="orderList" size="150" value="" readonly="readonly"/><br/>
+
+商城订单号：<input name="orderId" id="orderId" value="3445256"/><br/>
+商城订单金额：<input name="orderAmount" id="orderAmount" value="5000"/><br/>
+商城订单时间：<input name="orderTime" id="orderTime" value="20100720121212"/><br/>
+卖家iPayLinks账户：<input name="seller" id="seller" value="988775"/><br/>
+卖家姓名（账户别名）：<input name="sellerName" id="sellerName" value="Fire"/><br/>
+商品名称：<input name="goodsName" id="goodsName" value="锦江乐园一日游，优惠大放送"/><br/>
+商品数量：<input name="goodsCount" id="goodsCount" value="1"/><br/>
+收货地址：<input name="receiveAddr" id="receiveAddr" value="上海市张东路1388号"/><br/>
+物流方式：<input name="shippingType" id="shippingType" value="1"/><br/>
+物流费用：<input name="shippingFee" id="shippingFee" value="15"/><br/>
+
+<br/>
+
+商城订单号：<input name="orderId1" id="orderId1" value="3445256"/><br/>
+商城订单金额：<input name="orderAmount1" id="orderAmount1" value="5000"/><br/>
+商城订单时间：<input name="orderTime1" id="orderTime1" value="20100720121212"/><br/>
+卖家iPayLinks账户：<input name="seller1" id="seller1" value="988775"/><br/>
+卖家姓名（账户别名）：<input name="sellerName1" id="sellerName1" value="Fire"/><br/>
+商品名称：<input name="goodsName1" id="goodsName1" value="锦江乐园一日游，优惠大放送"/><br/>
+商品数量：<input name="goodsCount1" id="goodsCount1" value="1"/><br/>
+收货地址：<input name="receiveAddr1" id="receiveAddr1" value="testadd"/><br/>
+物流方式：<input name="shippingType1" id="shippingType1" value="1"/><br/>
+物流费用：<input name="shippingFee1" id="shippingFee1" value="15"/><br/>
+
+<p><font color="red">订单明细结束</font></p>
+
+
+</form>
+<script type="text/javascript">
+
+/*根据元素ID取得元素*/
+function $E(elemid) {
+	return document.getElementById(elemid);
+}
+/*根据元素ID取得元素的value*/
+function $Vo(elemid) {
+	return document.getElementById(elemid).value;
+}
+/*检查字符串是否为Null*/
+function isNull(s){
+    if (s == null || s.length <= 0 || s.trim() == ""){
+            return true;
+    }
+    return false;
+}
+
+
+var fieldArr = new Array("orderId",
+		"orderAmount","orderTime",
+		"seller","sellerName",
+		"goodsName","goodsCount",
+		"receiveAddr","shippingType"
+		);
+
+
+function buildOrderList(d){
+
+	var str = '';
+	var key1 = '';
+	var key2 = '';
+	
+	for(var i = 0;i<fieldArr.length;i++) {
+		key1 += $Vo(fieldArr[i]) + ',' ;
+	}
+	key1 += $Vo('shippingFee')
+
+	for(var i = 0;i<fieldArr.length;i++) {
+		key2 += $Vo(fieldArr[i]+'1') + ',' ;
+	}
+	key2 += $Vo('shippingFee1')
+	
+
+	str = key1+"|"+key2;
+
+	d.orderList.value=str;
+}
+
+
+function setOrderId(f){
+	
+	var myDate = new Date();
+	f.serialNo.value=myDate.getTime();
+}
+
+
+function makeMd5(f,id,initStr)
+{
+
+	var md5Field = f.sign;
+	var parField, parValue;
+	
+	oldMessage='';
+	do
+	{
+		strLength=initStr.length;
+		prePlace=initStr.indexOf('[',0);
+		postPlace=initStr.indexOf(']',0);
+		preStr=initStr.substring(0,prePlace);
+		postStr=initStr.substring(postPlace+1,strLength);
+		middleStr=initStr.substring(prePlace+1,postPlace);
+		initStr=postStr;
+		
+		parField=document.getElementById(middleStr);
+		
+		if(parField!=null)
+		{
+			parValue = parField.value;
+			if (parValue!=null && parValue!='') {
+				if (oldMessage!='') {
+					oldMessage=oldMessage+'';
+				}
+				oldMessage=oldMessage+preStr;
+				oldMessage=oldMessage+parField.value;
+			}
+		}
+		if(initStr.indexOf('[',0)==-1 || initStr.indexOf(']',0)==-1)
+		{
+			oldMessage=oldMessage+postStr;
+		}
+	}while(initStr.indexOf('[',0)!=-1 && initStr.indexOf(']',0)!=-1)
+	
+	
+	hash = hex_md5(oldMessage);
+	md5Field.value=hash.toUpperCase();
+	
+	f.mac.value=oldMessage;
+}
+</script>
+</body>
+</html>

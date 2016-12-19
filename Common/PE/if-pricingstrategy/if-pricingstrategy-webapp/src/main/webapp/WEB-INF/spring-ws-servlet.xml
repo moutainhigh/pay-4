@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xmlns:sws="http://www.springframework.org/schema/web-services"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm-1.5.xsd
+       http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services-1.5.xsd">
+
+
+
+    <bean id="pricingStrategyXsd" class="org.springframework.xml.xsd.SimpleXsdSchema">
+        <property name="xsd" value="/WEB-INF/xsd/pricingstrategy.xsd" />
+    </bean>
+
+
+    <!-- ===================== WSDL DEFINITION    ============================== -->
+    <bean id="pricingStrategy" class="org.springframework.ws.wsdl.wsdl11.DefaultWsdl11Definition">
+        <description>
+            Builds a WSDL from the airline.xsd.This bean definition represents the airline.wsdl file found
+            in the root of the web application.
+        </description>
+        <property name="schema" ref="pricingStrategyXsd"/>
+        <property name="requestSuffix" value="-request"/>
+        <property name="responseSuffix" value="-response"/>
+        <property name="portTypeName" value="PricingStrategy"/>
+        <property name="locationUri" value="http://localhost:8080/pricingstrategy/services"/>
+        <property name="targetNamespace"
+                value="http://pay.com/schema/inf/pricingstrategy/"/>
+    </bean>
+</beans>

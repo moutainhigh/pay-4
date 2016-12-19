@@ -1,0 +1,154 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	<!-- DataSource -->
+
+	<bean id="memberBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="sqlMapClientAcc" />
+	</bean>
+
+	<!-- acc dao -->
+	<bean id="acc-memberBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="sqlMapClientAcc"/>
+	</bean>
+
+	<bean id="acc-memberDAO" class="com.pay.acc.member.dao.impl.MemberDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-member" />
+	</bean>
+
+	<bean id="acc-idcVerifyBaseDAO" class="com.pay.acc.member.dao.impl.IdcVerifyBaseDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-idcVerifyBase" />
+	</bean>
+
+	<bean id="acc-idcVerifyGovDAO" class="com.pay.acc.member.dao.impl.IdcVerifyGovDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-idcVerifyGov" />
+	</bean>
+
+	<bean id="acc-memberBankAcctDAO" class="com.pay.acc.member.dao.impl.MemberBankAcctDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-memberBankAcct" />
+	</bean>
+
+	<bean id="acc-individualInfoDAO" class="com.pay.acc.member.dao.impl.IndividualInfoDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-individualInfo" />
+	</bean>
+	<bean id="acc-enterpriseBaseDAO" class="com.pay.acc.member.dao.impl.EnterpriseBaseDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-enterpriseBase" />
+	</bean>
+	<!-- 联系人 -->
+	<bean id="acc-linkerDAO" class="com.pay.acc.member.dao.impl.LinkerDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-linker" />
+	</bean>
+
+	<!-- 商户银行卡绑定 -->
+	<bean id="acc-liquidateInfoDAO" class="com.pay.acc.member.dao.impl.LiquidateInfoDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-liquidateInfo" />
+	</bean>
+
+	<!-- 创建零时用户DAO -->
+	<bean id="acc-memberCreateTempDAO" class="com.pay.acc.member.dao.impl.MemberCreateTempDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-createtempMember" />
+	</bean>
+
+	<bean id="acc-whiteOrBlackDAO" class="com.pay.acc.member.dao.impl.WhiteOrBlackDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-whiteOrBlack" />
+	</bean>
+
+	<!-- 创建零时用户SERVICE -->
+	<bean id="acc-memberCreateTempService"
+		class="com.pay.acc.member.service.impl.MemberCreateTempServiceImpl">
+		<property name="memberCreateTempDAO" ref="acc-memberCreateTempDAO" />
+		<property name="memberDAO" ref="acc-memberDAO" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+	</bean>
+
+	<bean id="acc-memberService" class="com.pay.acc.member.service.impl.MemberServiceImpl">
+		<property name="memberDAO" ref="acc-memberDAO" />
+		<property name="individualInfoService" ref="acc-individualInfoService"/>
+		<property name="memberAcctTemplateService" ref="acc-memberAcctTemplateService"/>
+		<property name="acctAttribService" ref="acc-acctAttribService"/>
+		<property name="acctService" ref="acc-acctService"/>
+		<property name="iMessageDigest" ref="iMessageDigest"/>
+		<property name="memberIdentityService" ref="memberIdentityService"/>
+	</bean>
+
+	<bean id="acc-idcVerifyBaseService"
+		class="com.pay.acc.member.service.impl.IdcVerifyBaseServiceImpl">
+		<property name="idcVerifyBaseDAO" ref="acc-idcVerifyBaseDAO" />
+	</bean>
+
+	<bean id="acc-memberBankAcctService"
+		class="com.pay.acc.member.service.impl.MemberBankAcctServiceImpl">
+		<property name="memberBankAcctDAO" ref="acc-memberBankAcctDAO" />
+	</bean>
+
+	<bean id="acc-individualInfoService"
+		class="com.pay.acc.member.service.impl.IndividualInfoServiceImpl">
+		<property name="individualInfoDAO" ref="acc-individualInfoDAO" />
+	</bean>
+	<bean id="acc-enterpriseBaseService"
+		class="com.pay.acc.member.service.impl.EnterpriseBaseServiceImpl">
+		<property name="enterpriseBaseDAO" ref="acc-enterpriseBaseDAO" />
+	</bean>
+	<!-- 联系人 -->
+	<bean id="acc-linkerService" class="com.pay.acc.member.service.impl.LinkerServiceImpl">
+		<property name="linkerDAO" ref="acc-linkerDAO" />
+	</bean>
+	<!-- 商户银行卡绑定 -->
+	<bean id="acc-liquidateInfoService"
+		class="com.pay.acc.member.service.impl.LiquidateInfoServiceImpl">
+		<property name="liquidateInfoDAO" ref="acc-liquidateInfoDAO" />
+	</bean>
+
+	<!-- 会员账户操作记录 -->
+	<bean id="acc-memberOperateDAO" class="com.pay.acc.member.dao.impl.MemberOperateDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-memberoperate" />
+	</bean>
+
+	<bean id="acc-memberOperateService"
+		class="com.pay.acc.member.service.impl.MemberOperateServiceImpl">
+		<property name="memberOperateDAO" ref="acc-memberOperateDAO" />
+	</bean>
+
+	<bean id="acc-memberProductDAO" class="com.pay.acc.member.dao.impl.MemberProductDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-memberProduct" />
+	</bean>
+
+	<bean id="acc-memberBaseProductService"
+		class="com.pay.acc.member.service.impl.MemberBaseProductServiceImpl">
+		<property name="memberProductDAO" ref="acc-memberProductDAO" />
+	</bean>
+
+	<bean id="acc-memberRelactionDAO" class="com.pay.acc.member.dao.impl.MemberRelactionDAOImpl"
+		parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-memberrelaction" />
+	</bean>
+
+	<bean id="acc-memberRelactionService"
+		class="com.pay.acc.member.service.impl.MemberRelactionServiceImpl">
+		<property name="memberRelactionDAO" ref="acc-memberRelactionDAO" />
+	</bean>
+	
+	<bean id="acc-memberQuickBankAcctDAO" class="com.pay.inf.dao.impl.BaseDAOImpl" parent="acc-memberBaseDAO">
+		<property name="namespace" value="acc-memberQuickBankAcct" />
+	</bean>
+
+</beans> 

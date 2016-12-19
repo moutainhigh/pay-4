@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-subscribenotify">
+    <typeAlias alias="subscribenotify" type="com.pay.app.model.SubscribeNotify"/>
+
+
+  <insert id="create" parameterClass="subscribenotify">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_SUBSCRIBE_NOTIFY_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	t_subscribe_notify(
+	        	id, 
+	        	member_code,
+	        	type,
+	            context, 
+	            notice_mode, 
+	            status, 
+	            creation_date)
+        values(#id#, 
+        		#memberCode#, 
+        		#type#, 
+        		#context#, 
+        		#noticeMode#, 
+        		#status#, 
+        		sysdate)
+    </insert>
+
+   <sql id="COMMON_CONDITION_ACC_SUBSCRIBE_NOTIFY_DETAIL">
+    	<isNotEmpty property="id" prepend="and">
+			t.ID = #id#
+		</isNotEmpty>
+		<isNotEmpty property="memberCode" prepend="and">
+				t.member_code = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="type" prepend="and">
+			t.type = #type#
+		</isNotEmpty>
+		<isNotEmpty property="context" prepend="and">
+			t.context = #context#
+		</isNotEmpty>
+		<isNotEmpty property="noticeMode" prepend="and">
+			t.notice_mode = #noticeMode#
+		</isNotEmpty>
+		<isNotEmpty property="status" prepend="and">
+			t.status = #status#
+		</isNotEmpty>		
+    </sql>  
+
+	<sql id="DETAIL_SELECT_ACC_SUBSCRIBE_NOTIFY">
+		<![CDATA[
+		    select t.id,
+		           t.member_code memberCode,
+		           t.type,
+		           t.context,
+		           t.notice_mode noticeMode,
+		           t.status,
+		           t.creation_date creationDate,
+		           t.updation_date updationDate 
+		     from t_subscribe_notify t
+		     where 1=1
+		  ]]>
+	</sql>
+
+    <select id="findById" resultClass="subscribenotify" parameterClass="long">
+		<include refid="DETAIL_SELECT_ACC_SUBSCRIBE_NOTIFY"/>
+		  <![CDATA[
+              and  t.id = #id#
+          ]]>
+    </select>
+   
+	<sql id="COUNT_SUBSCRIBE_NOTIFY">
+			<![CDATA[
+		    select count(1)
+		     from t_subscribe_notify t
+		     where 1=1
+		  ]]>
+	</sql>
+
+	<sql id="ORDER_SUBSCRIBE_NOTIFY">
+			<![CDATA[
+		 	 order by t.creation_date desc
+		  ]]>
+	</sql>
+	
+    <select id="queryAccSubscribeNotifyByMap" resultClass="subscribenotify" parameterClass="map">
+		<include refid="DETAIL_SELECT_ACC_SUBSCRIBE_NOTIFY"/>
+		<include refid="COMMON_CONDITION_ACC_SUBSCRIBE_NOTIFY_DETAIL"/>
+		<include refid="ORDER_SUBSCRIBE_NOTIFY"/>
+    </select>
+    
+    
+    <select id="countAccSubscribeNotifyByMap" resultClass="int" parameterClass="map">
+		<include refid="COUNT_SUBSCRIBE_NOTIFY"/>
+		<include refid="COMMON_CONDITION_ACC_SUBSCRIBE_NOTIFY_DETAIL"/>	
+    </select>
+    
+     	<!-- 更新订阅信息表sql -->
+	<sql id="ACC_SUBSCRIBE_NOTIFY_UPDATE">
+		UPDATE t_subscribe_notify t SET  t.updation_date= sysdate
+
+		<isNotEmpty property="memberCode" prepend=",">
+				t.member_code = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="type" prepend=",">
+			t.type = #type#
+		</isNotEmpty>
+		<isNotEmpty property="context" prepend=",">
+			t.context = #context#
+		</isNotEmpty>
+		<isNotEmpty property="noticeMode" prepend=",">
+			t.notice_mode = #noticeMode#
+		</isNotEmpty>
+		<isNotEmpty property="status" prepend=",">
+			t.status = #status#
+		</isNotEmpty>
+	        where t.ID = #id#
+	</sql>     
+ 
+	 <update id="update" parameterClass="subscribenotify">
+	 	<include refid="ACC_SUBSCRIBE_NOTIFY_UPDATE"/>
+	 </update>
+    
+</sqlMap>

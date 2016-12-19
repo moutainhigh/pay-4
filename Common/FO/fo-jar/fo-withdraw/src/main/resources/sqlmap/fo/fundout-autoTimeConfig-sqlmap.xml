@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="autotimeconfig">
+	<typeAlias alias="autoTimeConfig" type="com.pay.fundout.autofundout.custom.model.AutoTimeConfig"/>
+    <resultMap id="autoTimeConfig" class="com.pay.fundout.autofundout.custom.model.AutoTimeConfig">
+        <result column="SEQUENCEID" property="sequenceid" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="TIME_TYPE" property="timeType" jdbcType="DECIMAL"/>
+        <result column="TIME_SOURCE" property="timeSource" jdbcType="VARCHAR"/>
+        <result column="CONFIG_ID" property="configId" jdbcType="DECIMAL"/>
+        <result column="SETTLE_FLAG" property="settleFlag" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		SEQUENCEID,CREATE_DATE,TIME_TYPE,TIME_SOURCE,CONFIG_ID
+		
+    </sql>
+    <insert id="create" parameterClass="autoTimeConfig">
+       <selectKey resultClass="java.lang.Long" keyProperty="sequenceid">
+			SELECT SEQ_AUTO_TIME_CONFIG.nextval AS SEQUENCE_ID FROM DUAL
+		</selectKey>
+        INSERT INTO AUTO_TIME_CONFIG(
+			SEQUENCEID,CREATE_DATE,TIME_TYPE,TIME_SOURCE,CONFIG_ID,SETTLE_FLAG
+			
+        )
+        VALUES(
+            #sequenceid#,sysdate,#timeType#,#timeSource#,#configId#,#settleFlag#
+			
+		)
+    </insert>
+    <update id="update" parameterClass="autoTimeConfig">
+        UPDATE AUTO_TIME_CONFIG
+        <dynamic prepend="SET"> 
+	        <isNotNull prepend="," property="timeType">
+	            TIME_TYPE = #timeType#
+	        </isNotNull>
+	          <isNotNull prepend="," property="timeSource">
+	            TIME_SOURCE = #timeSource#
+	        </isNotNull>
+	        <isNotNull prepend="," property="settleFlag">
+	            SETTLE_FLAG = #settleFlag#
+	        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    <select id="findId" parameterClass="java.util.Map"
+        resultClass="java.lang.Long">
+        SELECT  SEQUENCEID FROM AUTO_TIME_CONFIG
+        WHERE CONFIG_ID=#configId#
+    </select>
+    <select id="findByConfigId" parameterClass="java.lang.Long"  resultMap="autoTimeConfig">
+        SELECT *  FROM AUTO_TIME_CONFIG
+        WHERE CONFIG_ID=#configId#
+    </select>
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM AUTO_TIME_CONFIG        
+        WHERE CONFIG_ID=#configId#
+     </delete>
+</sqlMap>

@@ -1,0 +1,590 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付AA收款</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link rel="Bookmark" type="image/x-icon" href="<@sp.static/>/img/favicon.ico">
+<link href="<@sp.static/>/img/favicon.ico" type="image/x-icon" rel="SHORTCUT ICON"> 
+<style type="text/css">
+/* tooltip */
+.linkerBook{
+	position:absolute;
+	display:none;
+	width: 500px;
+	background: #ccc;
+}
+.input_drop{
+	float: left;
+	width: 98%;
+}
+#pepNum,#totalAmountSpan {
+	color:red;
+	font-weight: bold;
+}
+.tabc li{
+	overflow:hidden; 
+}
+
+</style>
+
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript">
+	var myLinkers = []; 
+	$(document).ready(function() {
+			<#if remOrder?has_content>
+				$("#topic").val('${command.topic}');
+				<#if command.containMe=1 >
+					$("#containMe").attr("checked",true);
+					$('#selfAmount').css({display:"block"});
+					$("#selfAmount").val('${command.selfAmount?default(0)}');
+				</#if>
+				
+			<#else>
+			
+			</#if>
+			culPerson();
+			culSum();
+			$("#topic").blur(function(){if($.trim($(this).val()).length >= 1) $(".topicError").text("")})
+			.focus(function(){
+				if($.trim($(this).val()).length==0)
+					$(".topicError").text("请输入理由，如“K歌”、“聚餐”等");
+			})
+			$(":input[type=text]").addClass("input_txt2");
+//			$(":input[name=aaAcount]").addClass("input_w1");
+//			$(":input[name=amount]").addClass("w80");
+			
+			
+			
+			$("#addAcc").click(function(){
+				var $jq1 = null;
+				$jq1 = $(".input_meber:last").clone(true).appendTo("#meberList");	
+				$jq1.find(":input[name=aaAccount]").attr("readonly",false).val("");
+				$jq1.find(":input[name=aaName]").val("");
+				$jq1.find(".aaNameSpan").text("");
+				culPerson();
+				culSum();
+			})
+			$("#containMe").click(function(){
+				//------------
+				$('.selfAmountSpan').text('');
+				if($(this).attr('checked')){
+					$('#selfAmount').css({display:"block"});
+			    }else{
+			    	$('#selfAmount').val('');
+					$('#selfAmount').css({display:"none"});
+				}
+			    //-------------
+					culPerson();
+					culSum();
+			});
+			
+			$(".aaDelBt").click(function(){
+				if($('.aaDelBt').size()> 1 ){
+					var aaAccount = $(this).parent().parent().find(":input[name=aaAccount]").val();
+					var $linkerChecks = $(":checkbox[name=linker][value='"+aaAccount+"']").attr("checked",false);
+					$(this).parent().parent().remove();
+				}
+				culPerson();
+				culSum();
+				
+			});
+			$(":text[name*=mount]").blur(function(){
+				this.value = $.trim(this.value);
+				var fee_amount = this.value ;
+				if(fee_amount.length==0){
+					var containMe = $("#containMe").attr("checked");
+					$(this).next().text("");
+					if(!containMe && $(this).attr("id")=='selfAmount'){
+						return ;
+					}
+					$(this).next().text("不能为空");
+					return false;
+				}
+				if(isNaN(fee_amount*1)){
+					$(this).next().text("非法数字");
+					return false;
+			    }	
+			    if(fee_amount.indexOf('.') == -1){
+			    	if(isNaN(fee_amount*1))
+			    		$(this).val(fee_amount*1);
+				}else{			
+					$(this).val(parseFloat(fee_amount).toFixed(2)*1);
+			    }
+			    $(this).next().text("")	;	 
+				if('totalAmount' != $(this).attr("id") ){
+					culSum();
+				}
+				
+			});
+
+			$("#linkerABT").click(function(){
+				$("#linkeksDiv").toggle(); 
+			});
+
+			$(":text[name=aaAccount]").blur(function(){
+				
+				  
+				   
+					var $jqMe = $(this);
+					$(this).val($.trim($(this).val()));
+					var aaAccount = $.trim($jqMe.val());
+					//------------
+					if($.trim(this.value).length==0){
+						$(this).next().text("填gcpayment支付支付账号");
+					}
+				//	$jqMe.next().text("");
+					//------------
+					if($(this).val().length == 0) return;
+					//判断是否与本人相同
+					if(aaAccount == $("#loginName").val()){
+						$jqMe.next().text("不支持添加本人");
+						return;
+					}
+					//判断是否添加过了
+					var $aacs =  $(":text[name=aaAccount]");
+					for(ind in $aacs){
+						if(this != $aacs[ind] && $aacs[ind].value == $jqMe.val()){
+							$jqMe.next().text("(此人已重复添加)");
+							return ;
+						}
+					}
+					
+					
+					if(aaAccount.length==0) return;
+					$.post("${rc.contextPath}/memberExists.htm",{method:'getMemberName',loginName:aaAccount},function (msg){
+						var $jqTr =  $jqMe.parent().parent();
+						if(!msg || msg.length==0){
+							$jqTr.find(".aaNameSpan").text("(未找到的用户)");
+							return;
+						}
+						///设置用户名
+						$jqTr.find(".aaNameSpan").text(msg);
+						$jqTr.find(":input[name=aaName]").val(msg);
+						
+						if($.inArray($jqMe.val(),myLinkers)==-1){
+							var lik = $jqMe.val();
+							var str = ("<input type='button' value='保存联系人' onclick=addLinker('"+lik+"',this) />");
+							$jqTr.find(".aaNameSpan").append(str);
+						}
+						
+					});
+			
+			}).focus(function(){
+				//如果为空则显示默认信息
+				if($.trim(this.value).length==0)
+					$(this).next().text("gcpayment支付生支付账号");
+			})
+			//初始化联系人 联系人 
+			initLinkers();
+			
+
+		/*	$("#agreeBox").click(function(){
+				$("#btnSumbit")[0].disabled  = !($("#agreeBox")[0].checked ) ;
+				if($.browser.mozilla && !($("#agreeBox")[0].checked) ){
+					$("#btnSumbit").css("color",'gray');
+				}else{
+					$("#btnSumbit").css("color",'');
+				}
+			});*/
+			$("#avgLink").click(function(){
+				var totalAmountStr = $("#totalAmount").val();
+				if(! InputValid.isUnsignDouble(totalAmountStr)){
+					alert("只能输入数字并且不能小于0");
+					return ;
+				}
+				InputValid.formatScale($("#totalAmount")[0],2);
+				
+				var totalAm = parseInt($.trim(totalAmountStr)*100);
+				var $amounts = $(":input[name=amount]");
+				var containMe = $("#containMe").attr("checked");
+				var perSum = $amounts.size() + (containMe ? 1 : 0);
+				var avg = 0;
+				var modValue = totalAm%perSum;
+				if(modValue != 0){
+					modValue = (totalAm%perSum) ;
+				}
+				avg = (totalAm-modValue)/perSum;
+				var lastValue = (avg+modValue)/100;
+				avg = avg/100;
+				$amounts.val(avg);
+				if(containMe){
+					$("#selfAmount").val(lastValue);
+				}else{
+					$(":text[name=amount]:last").val(lastValue);
+				}
+			});
+
+	});
+	function culSum(){
+		var amounts = $(":text[name=amount]");
+		var sum = 0;
+		for(var i = 0;i<amounts.length;i++){
+			var v = amounts[i].value;
+			if(InputValid.isUnsignDouble(v)){
+				sum += v*100;
+			}
+		}	
+		if($("#containMe").attr("checked")){
+			var v = $("#selfAmount").val();
+			if(InputValid.isUnsignDouble(v)){
+				sum += v*100;
+			}
+		}		
+		sum = sum/100;
+		$("#totalAmount").val(sum);
+	}
+	
+	function submitForm(){
+		if(! validate()){
+			return;
+		}
+		if(culPerson()==0){
+			alert("没有付款人！");
+			return;
+		} 
+		var queryString = $(":input[name=aaAccount]").serialize();
+		queryString += "&method=accountValid&paramName=aaAccount";
+		var url = "${rc.contextPath}/memberExists.htm?"+queryString;
+		
+
+		$.getJSON(
+				 url,
+				  function(json){
+					 	var notExists = json;
+					  	if(notExists.length == 0){
+					  		$("#aaCollectForm").submit();
+						  }
+					  	else{
+						  	var notEstr = ""; 
+						  	for(i in notExists){
+						  		notEstr+=notExists[i]+"\n";
+							}
+						  	alert(notEstr+"不是gcpayment支付gcpayment支付账户，请核对！");
+						 }  
+				  }
+				); 
+
+		
+		return false;
+	}
+	function validate(){
+		var topic = $.trim($("#topic").val());
+		if(topic.length==0){
+			$(".topicError").text("收款理由必须填写,参考如“KTV”、“一起吃饭”等");
+			$("#topic").focus();
+			return false;
+		}
+		if(topic.indexOf("\"")>=0 || topic.indexOf("\'")>=0){
+			$(".topicError").text("不能有特殊字符引号，双引号等");
+			$("#topic").focus();
+			return false;
+		}
+		var loginName = $("#loginName").val();	
+		var aacs = $(":input[name=aaAccount]");
+		var arrAaac = [];
+		for(var i = 0;i<aacs.length;i++){
+			var v = $.trim($(aacs[i]).val());
+			if(v.length==0){
+				$(aacs[i]).next().text("账号必须填写");
+				$(aacs[i]).focus();
+				return false;
+			}else if(loginName == v ) {
+				$(aacs[i]).next().text("不支持添加本人");
+				$(aacs[i]).focus();
+				return false;
+			}else if($.inArray(v,arrAaac)!=-1){
+				$(aacs[i]).next().text("不能重复添加");
+				$(aacs[i]).focus();
+				return false;
+			}
+			arrAaac.push(v);
+		}	
+		var amounts = $(":input[name=amount]");
+		for(var i = 0;i<amounts.length;i++){
+			if($.trim(amounts[i].value).length==0){
+				$(amounts[i]).next().text("不能为空");
+				amounts[i].focus();
+				return false;
+			}
+			if(! InputValid.isUnsignDouble(amounts[i].value)){
+				$(amounts[i]).next().text("非法数字");
+				amounts[i].focus();
+				return false;
+			}else if(amounts[i].value*1 == 0 ){
+				$(amounts[i]).next().text("不能为0");
+				amounts[i].focus();
+				return false;
+			}
+			InputValid.formatScale(amounts[i],2);
+		}
+		if($("#containMe").is(":checked") ){
+			var v = $("#selfAmount").val();
+			if($.trim(v).length==0){
+				$(".selfAmountSpan").text("不能为空");
+				$("#selfAmount").focus();
+				return false;
+			}
+			if(! InputValid.isUnsignDouble(v)){
+				$(".selfAmountSpan").text("非法数字");
+				$("#selfAmount").focus();
+				return false;
+			}else if(v * 1 == 0 ){
+				$(".selfAmountSpan").text("不能为0");
+				$("#selfAmount").focus();
+				return false;
+			}
+			
+			InputValid.formatScale($("#selfAmount")[0],2);
+		}else{
+			$("#selfAmount").val("0");
+		}		
+		culSum();
+		if($("#totalAmount").val()*1 > 20000){
+			alert("总额不能超过20000");
+			return false;
+		}
+		
+		culPerson();	
+		
+		return true;		
+	}
+	function culPerson(){
+		var c = $(":input[name=aaAccount][value!='']").size();
+		if($("#containMe").is(":checked")){
+			c +=1; 
+		}
+		$("#pepNum").text(c);
+		return c;
+	}
+	
+	function selectLinkers(){
+		//看是否有选择中联系人
+		var $linkerChecks = $(":checkbox[name=linker]");
+		$linkerChecks.each(function(){
+			 if($(":input[name=aaAccount][value='"+this.value+"']").size()==1){
+				$(this).attr("checked",true);
+				}
+		});
+	}
+	function removeEmptyAA(){
+		var $accs = $(":input[name=aaAccount]");
+		if($accs.size()>1){
+			$accs.each(function(){
+				if($.trim($(this).val()).length == 0){
+					$(this).parent().parent().remove();
+				}
+			});
+		}
+	}
+	function addLinker(linker,btn){
+						$.ajax( {type : "POST",
+									url : "${rc.contextPath}/commonLinker.htm?method=saveLinker&idContent=" + linker,
+									dataType : "html",
+									success : function(msg) {
+										if (msg == "Y") {
+											alert("保存联系人成功 ");
+											$(btn).remove();
+											initLinkers();
+										}
+										else if (msg == "E") {
+											alert("联系人已存在");
+											$(btn).remove();
+											initLinkers();
+										}
+										else if (msg == "N") {
+											alert("服务器正忙,请稍候再试");
+										}
+									}
+								});
+	}
+	
+	
+	function initLinkers(){
+	
+		$.getJSON(
+					  "${rc.contextPath}/commonLinker.htm",
+					  {method:'queryLinkers',rand:Math.random()} ,
+					  function(json){
+							var str = "";
+							for(var i = 0;i<json.length;i++){
+								var obj = json[i];
+								myLinkers.push(obj.idContent);
+								str += "<li><input type=checkbox name='linker' value='"+obj.idContent+"' /><em>"+obj.name+"</em><span>("+obj.idContent+")</span>"+"</li>";
+							}
+						//	str +="<li> <button type='button' onclick=\"$('#linkeksDiv').hide()\"  >确定</button></li>"
+							
+							$("#linkeksDiv .tabc").html(str);
+							$(":checkbox[name=linker]").click(function(){
+								if($(this).is(":checked")){
+									$("#addAcc").click();
+									var name = $(this).parent().find("em").text();
+									$(":input[name=aaName]:last").val(name);
+									$(".aaNameSpan:last").text(name);
+									$(":input[name=aaAccount]:last").attr("readonly",true).val($(this).val());
+								}
+								else{
+									if($('.aaDelBt').size() == 1){
+										$(":input[name=aaName]:last").val("");
+										$(".aaNameSpan:last").text("");
+										$(":input[name=amount]:last").val("");
+										$(":input[name=aaAccount]:last").attr("readonly",false).val("");
+									}
+									$(".input_meber").find(":input[name=aaAccount][value='"+$(this).val()+"']").parent().parent().remove();
+								}
+								removeEmptyAA();
+								culSum();
+								culPerson();
+							
+							});
+						
+							selectLinkers();
+						 }
+					); 
+	}
+	
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="AA收款"/>
+<!--导航 end--> 
+
+<!--主内容 str -->
+<div class="container"> 
+	<!--侧导航 str -->
+	<@sp.ebillmenu channel="1_9"/>
+	<!--侧导航 end -->
+	<div class="box_main">
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="content">
+					<!--表单str -->
+					<form id="aaCollectForm" class="mod_form" method="post" >
+						<ul class="form_list mt20">
+							<li class="border_b">
+								<label class="form_side">AA收款到您的账户：</label>
+								<strong class="c_000">${Session.verifyName}（${Session.loginName}）</strong>
+							</li>
+							<li>
+								<label class="form_side2">收款理由：</label>
+								<input type="text" id="topic" name="topic" class="w270" maxlength="20" title="如：一起KTV，一起吃饭" /><span class="ml10 topicError"></span>
+								<input type="hidden" id="loginName" name="loginName" value="${Session.loginName}"   />									
+								<input type="hidden" id="memberCode" name="memberCode" value="${Session.memberCode}"  />
+								<input type="hidden" id="verifyName" name="verifyName" value="${Session.verifyName}"  />
+							</li>
+							
+								
+						
+							<li class="user">
+								<label class="form_side">添加AA成员：</label>
+								<span class="payTo_position"><a id="linkerABT" class="red" href="javascript:void(0)">从我的联系人中选取</a>
+								<div id="linkeksDiv" class="contList" style="display: none"><a class="close" onclick="$(this).parent().hide()">关闭</a>
+									<!-- <div class="search">
+													<input type="text" class="txt" value="在我的联系人中搜索"
+														onfocus="if(this.value=='在我的联系人中搜索')this.value=''"
+														onblur="if(this.value=='')this.value='在我的联系人中搜索'" />
+													<a href="#" class="go">搜索</a>
+												</div> -->
+												<ul class="tab clearfix mt10">
+													<!-- <li>
+														<i>最近交易的</i>
+													</li> -->
+													<li class="on">
+														<i id="linkernum">我的联系人</i>
+													</li>
+												</ul>
+												<div id="linkerlist"><ul class="tabc"></ul></div>
+								
+								</div>
+								
+								
+								</span> </li>
+							
+							<li class="aa_pay_info">
+								<div class="aa_pay">
+									<table class="txtC">
+										<thead>
+											<tr>
+												<th width="45%">账户</th>
+												<th width="30%">金额（元）</th>
+												<!--<th width="20%"><input name="msgNotice" type="checkbox" value=""> 免费短信通知</th>-->
+												<th>操作</th>
+											</tr>
+										</thead>	
+											<tbody id="meberList">
+												<tr>
+													<td class="hack" colspan="4"></td>
+												</tr>
+												<#if remOrder?has_content  && command.aaChildRequestDtos?exists>
+													<#list command.aaChildRequestDtos as person>
+												<tr class="input_meber">
+													<td class="txtL">
+													<input type="hidden"  name="aaName"  value="${person.aaName?if_exists}"/>
+													<input type="text"  name="aaAccount" class="input_w1"  value="${person.aaAccount}"  readonly="readonly" size="25"  maxlength="40" /> 
+													<span class="red m15 aaNameSpan">${person.aaName?if_exists}</span>
+													</td>
+													<td align="left"><input type="text"  name="amount"  maxlength="10" size="6" value="${person.amount?if_exists}"/><span class="red amountSpan"></span></td>
+													<!--<td><input  type="text" size="15"/></td>-->
+													<td><a class="del aaDelBt" href="javascript:void(0)"><i class="close_ico"></i>删除</a></td>
+												</tr>
+													</div>
+													</#list>
+													<#else>
+												<tr class="input_meber">
+													<td class="txtL"><input type="hidden"  name="aaName" value=""   /> 
+													<input type="text"  name="aaAccount" class="input_w1"  size="25"  maxlength="40" title="gcpayment的账号" /><span class="red m15 aaNameSpan"></span></td>
+													<td align="left"><input type="text"  name="amount" class="w80"  maxlength="10" size="6" title="可以有两位小数" /><span class="red m15 amountSpan"></span></td>
+													<td><a class="del aaDelBt" href="javascript:void(0)"><i class="close_ico"></i>删除</a></td>
+												</tr>
+												</#if>
+											</tbody>
+											<tr>
+													<td class="txtL" colspan="3"><a id="addAcc" class="red" href="javascript:void(0)">+ 添加账户</a></td>
+												</tr>
+												<tr class="s_mySelf">
+													<td class="txtL"><input id="containMe" name="containMe" type="checkbox" value="1"> 包括自己</td>
+													<td align="left"><input id="selfAmount" name="selfAmount" type="text" size="6" maxlength="10" class="w80" style="display: none" /><span class="red selfAmountSpan"></span></td>
+													<td>&nbsp;</td>
+												</tr>
+									</table>	
+								</div>
+							</li>
+							<li>
+								 总人数：<span id="pepNum"></span> 人 ， 共 <input type="text" id="totalAmount" name="totalAmount"  size="6"  maxlength="8"   > 元
+								<span class="red totalAmountSpan" style="height:20px"></span><a id="avgLink" class="red" href="javascript:void(0)"  >平均分配</a>
+								</span>
+							</li>
+						</ul>
+						<div class="btn_box_bd">
+						<!--<p><input type="checkbox" value="1" id="agreeBox" name="argeeBox"  checked="checked" /> 我已阅读并同意<a class="c_000" href="javascript:void(gcpayment支付《gcpayment支付缴费协议》</a></p>-->
+						<span class="btn_yel botton_yel">
+							<button type="button"  id="btnSumbit" onclick="submitForm()" >下一步</button>
+							</span>
+						</div>
+					</form>
+					<!--表单end --> 
+					<!--问答 str-->
+					<#include "aa_help.html">
+					<!--问答 str--> 
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+	</div>
+</div>
+
+<!--主内容 end -->
+
+
+
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>
+ 

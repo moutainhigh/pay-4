@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="api-refund-ValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="api-refund-rule" />
+	</bean>
+
+	<bean id="api-refund-rule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="api-refund-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="api-refund-versionCheckRule" class="com.pay.gateway.validate.refund.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundOrderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="api-refund-refundOrderIdCheckRule" class="com.pay.gateway.validate.refund.RefundOrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid refund order number:退款订单号不合法" />
+	</bean>
+
+	<bean id="api-refund-orderIdCheckRule" class="com.pay.gateway.validate.refund.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-destTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="api-refund-destTypeCheckRule" class="com.pay.gateway.validate.refund.DestTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-RefundTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0342" />
+		<property name="message" value="Invalid refund destination type:退款目的地类型不正确" />
+	</bean>
+
+	<bean id="api-refund-RefundTypeCheckRule" class="com.pay.gateway.validate.refund.RefundTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundAmountCheckRule" />
+		</property>
+		<property name="messageId" value="0343" />
+		<property name="message" value="Invalid refund type:退款类型不正确" />
+	</bean>
+
+	<bean id="api-refund-refundAmountCheckRule" class="com.pay.gateway.validate.refund.RefundAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundRateCheckRule" />
+		</property>
+		<property name="messageId" value="0344" />
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="message" value="Invalid refund amount:退款金额不正确" />
+	</bean>
+
+	<bean id="api-refund-refundRateCheckRule" class="com.pay.gateway.validate.refund.RefundRateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0344" />
+		<property name="message" value="Refund proportion is incorrect:退款比例不正确" />
+	</bean>
+
+	<bean id="api-refund-refundTimeCheckRule" class="com.pay.gateway.validate.refund.RefundTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0346" />
+		<property name="message" value="Invalid refund time:退款订单时间不正确" />
+	</bean>
+
+	<bean id="api-refund-noticeUrlCheckRule" class="com.pay.gateway.validate.refund.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="api-refund-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.refund.MerchantConfigureCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-charsetCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="api-refund-charsetCheckRule" class="com.pay.gateway.validate.refund.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="api-refund-signTypeCheckRule" class="com.pay.gateway.validate.refund.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+
+	<bean id="api-refund-refundSignMsgCheckRule"
+		class="com.pay.gateway.validate.refund.RefundApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-repeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="api-refund-repeatCheckRule" class="com.pay.gateway.validate.refund.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-gatewayRequestSaveAction" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="api-refund-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.refund.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="api-refund-exceptionAction" class="com.pay.gateway.validate.refund.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+	
+	
+	<!-- 退款1.1接口字段校验 -->
+	<bean id="api-refund-ValidateService11" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="api-refund-rule11" />
+	</bean>
+
+	<bean id="api-refund-rule11" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="api-refund-versionCheckRule11" />
+		</property>
+	</bean>
+
+	<bean id="api-refund-versionCheckRule11" class="com.pay.gateway.validate.refund.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundOrderIdCheckRule11" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="api-refund-refundOrderIdCheckRule11" class="com.pay.gateway.validate.refund.RefundOrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-orderIdCheckRule11" />
+		</property>
+		<property name="messageId" value="0341" />
+		<property name="message" value="Invalid refund order:退款订单不合法" />
+	</bean>
+
+	<bean id="api-refund-orderIdCheckRule11" class="com.pay.gateway.validate.refund.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-destTypeCheckRule11" />
+		</property>
+		<property name="messageId" value="0341" />
+		<property name="message" value="Invalid refund order:退款订单不合法" />
+	</bean>
+
+	<bean id="api-refund-destTypeCheckRule11" class="com.pay.gateway.validate.refund.DestTypeCheckRule11">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-RefundTypeCheckRule11" />
+		</property>
+		<property name="messageId" value="0342" />
+		<property name="message" value="Refund purpose type is wrong:退款目的地类型不正确" />
+	</bean>
+
+	<bean id="api-refund-RefundTypeCheckRule11" class="com.pay.gateway.validate.refund.RefundTypeCheckRule11">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundAmountCheckRule11" />
+		</property>
+		<property name="messageId" value="0343" />
+		<property name="message" value="Refund type is wrong:退款类型不正确" />
+	</bean>
+
+	<bean id="api-refund-refundAmountCheckRule11" class="com.pay.gateway.validate.refund.RefundAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundRateCheckRule11" />
+		</property>
+		<property name="messageId" value="0344" />
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="message" value="Invalid refund amount:退款金额不正确" />
+	</bean>
+	
+	
+
+	<bean id="api-refund-refundRateCheckRule11" class="com.pay.gateway.validate.refund.RefundRateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-refundTimeCheckRule11" />
+		</property>
+		<property name="messageId" value="0345" />
+		<property name="message" value="Invalid refund proportion:退款比例不正确" />
+	</bean>
+
+	<bean id="api-refund-refundTimeCheckRule11" class="com.pay.gateway.validate.refund.RefundTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-noticeUrlCheckRule11" />
+		</property>
+		<property name="messageId" value="0346" />
+		<property name="message" value="Invalid refund time:退款订单时间不正确" />
+	</bean>
+
+	<bean id="api-refund-noticeUrlCheckRule11" class="com.pay.gateway.validate.refund.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-merchantConfigureCheckRule11" />
+		</property>
+		<property name="messageId" value="0347" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="api-refund-merchantConfigureCheckRule11"
+		class="com.pay.gateway.validate.refund.MerchantConfigureCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-refund-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-refund-charsetCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="messageId" value="0348" />
+		<property name="message" value="Invalid merchant:无效商户" />
+	</bean>
+
+	
+
+</beans>

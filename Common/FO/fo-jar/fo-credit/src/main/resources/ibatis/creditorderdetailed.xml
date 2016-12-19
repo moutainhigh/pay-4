@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="creditorderdetailed">
+	<typeAlias alias="creditOrderDetailed" type="com.pay.credit.model.creditorder.CreditOrderDetailed" />
+	<resultMap id="BaseResultMap" class="creditOrderDetailed" >
+	    <result column="CREDIT_ORDER_ID" property="creditOrderId" jdbcType="VARCHAR" />
+	    <result column="MERCHANT_CODE" property="merchantCode" jdbcType="VARCHAR" />
+	    <result column="MERCHANT_NAME" property="merchantName" jdbcType="VARCHAR" />
+	    <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	    <result column="RISK_STATUS" property="riskStatus" jdbcType="VARCHAR" />
+	    <result column="GMT_AMOUNT" property="gmtAmount" jdbcType="VARCHAR" />
+	    <result column="INTEREST" property="interest" jdbcType="VARCHAR" />
+	    <result column="LOAN_AMOUNT" property="loanAmount" jdbcType="VARCHAR" />
+	    <result column="SETTLEMENT_DATA" property="settlementData" jdbcType="DATE" />
+	    <result column="GMT_LOAN" property="gmtLoan" jdbcType="DATE" />
+	    <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+	    <result column="TRADE_CURRENCY_CODE" property="tradeCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="SINGLE_ORDER_AMOUNT" property="singleOrderAmount" jdbcType="VARCHAR" />
+	</resultMap>	
+	
+	<!-- 条件查询融资信息 -->
+	<select id="findByCriteria" parameterClass="creditOrderDetailed" resultMap="BaseResultMap">
+	SELECT 
+	B.MERCHANT_CODE,
+	B.MERCHANT_NAME,
+	B.CREDIT_ORDER_ID,
+	B.RISK_STATUS,
+	B.TRADE_ORDER_NO,
+	B.GMT_AMOUNT,
+	B.LOAN_AMOUNT,
+	B.INTEREST,
+	B.SETTLEMENT_DATA,
+	B.GMT_LOAN,
+	B.STATUS,
+	A.CURRENCY_CODE,
+	B.SINGLE_ORDER_AMOUNT,
+	B.TRADE_CURRENCY_CODE 
+	FROM 
+	CREDIT_ORDER A INNER join CREDITBYORDER_DETAIL B ON A.CREDIT_ORDER_ID = B.CREDIT_ORDER_ID 
+	where 
+		A.INTEREST_TYPE='2'
+	<isNotEmpty prepend="and" property="merchantCode">
+		B.MERCHANT_CODE=#merchantCode#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="merchantName">
+		B.MERCHANT_NAME=#merchantName#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="creditOrderId">
+		B.CREDIT_ORDER_ID=#creditOrderId#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="orderId">
+		B.ORDER_ID=#orderId#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="tradeOrderNo">
+		B.TRADE_ORDER_NO=#tradeOrderNo#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="status">
+		B.STATUS=#status#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="riskStatus">
+		B.RISK_STATUS=#riskStatus#
+	</isNotEmpty>
+	</select>
+	
+	<select id="findCreditOrderDetailedAll" parameterClass="creditOrderDetailed" resultClass="creditOrderDetailed">
+						SELECT
+						A.CREDITBYORDER_DETAIL_ID creditByOrderDetailId,
+						A.CREDIT_ORDER_ID creditOrderId,
+						A.MERCHANT_CODE  merchantCode,
+						A.MERCHANT_NAME  merchantName,
+						A.STATUS    status,
+						A.RISK_STATUS  riskStatus,
+						A.TRADE_ORDER_NO  tradeOrderNo,
+						A.GMT_AMOUNT  gmtAmount,
+						A.LOAN_AMOUNT  loanAmount,
+						A.INTEREST  interest,
+						A.SETTLEMENT_DATA  settlementData,
+						A.GMT_LOAN  gmtLoan,
+						A.ORDER_ID  orderId,
+						A.TRADE_CURRENCY_CODE tradeCurrencyCode,
+						A.SINGLE_ORDER_AMOUNT  singleOrderAmount
+						FROM
+							CREDITBYORDER_DETAIL A
+						WHERE 
+							 A.STATUS = 'W'
+		<isNotEmpty prepend="and" property="creditOrderId">
+		  A.CREDIT_ORDER_ID = #creditOrderId#
+		</isNotEmpty>
+	</select>
+
+	<select id="findByCriteria_COUNT" parameterClass="creditOrderDetailed" resultClass="java.lang.Integer">
+	SELECT 
+	count(1)
+	FROM 
+	CREDIT_ORDER A INNER join CREDITBYORDER_DETAIL B ON A.CREDIT_ORDER_ID = B.CREDIT_ORDER_ID 
+	where 
+		A.INTEREST_TYPE='2'
+	<isNotEmpty prepend="and" property="merchantCode">
+		B.MERCHANT_CODE=#merchantCode#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="merchantName">
+		B.MERCHANT_NAME=#merchantName#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="creditOrderId">
+		B.CREDIT_ORDER_ID=#creditOrderId#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="orderId">
+		B.ORDER_ID=#orderId#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="tradeOrderNo">
+		B.TRADE_ORDER_NO=#tradeOrderNo#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="status">
+		B.STATUS=#status#
+	</isNotEmpty>
+	<isNotEmpty prepend="and" property="riskStatus">
+		B.RISK_STATUS=#riskStatus#
+	</isNotEmpty>
+	</select>
+	
+	<update id="updateCreditDetail" parameterClass="java.util.Map">
+	UPDATE
+	CREDITBYORDER_DETAIL
+	SET
+	RISK_STATUS = #riskStatus#,
+	RISK_ASSESSMENT = #score#,
+	RISK_ASSESSMENT_DETAIL = #riskAssessmentDetail#
+	WHERE 
+	CREDITBYORDER_DETAIL_ID	= #creditByOrderDetailId#
+	</update>
+	
+</sqlMap>

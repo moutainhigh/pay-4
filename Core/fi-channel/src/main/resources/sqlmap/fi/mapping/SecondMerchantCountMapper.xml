@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.channel.dao.SecondMerchantCountMapper">
+
+  <resultMap id="BaseResultMap" class="com.pay.channel.model.SecondMerchantCount">
+    <result column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="PAYMENT_CHANNEL_ITEM_ID" jdbcType="DECIMAL" property="paymentChannelItemId" />
+    <result column="CHANNEL_CONFIG_ID" jdbcType="DECIMAL" property="channelConfigId" />
+    <result column="CARD_ORG" jdbcType="VARCHAR" property="cardOrg" />
+    <result column="SUCCESS_TIMES" jdbcType="DECIMAL" property="successTimes" />
+    <result column="FAILURE_TIMES" jdbcType="DECIMAL" property="failureTimes" />
+    <result column="REJECT_TIMES" jdbcType="DECIMAL" property="rejectTimes" />
+    <result column="AMOUNT" jdbcType="DECIMAL" property="amount" />
+    <result column="MONTH_STAMP" jdbcType="VARCHAR" property="monthStamp" />
+  </resultMap>
+
+  <resultMap id="dtoResultMap" class="com.pay.channel.dto.SecondMerchantCountDTO" extends="BaseResultMap">
+    <result column="NAME" property="paymentChannelName" jdbcType="VARCHAR"/>
+    <result column="ORG_MERCHANT_CODE" property="orgMerchantCode" jdbcType="VARCHAR"/>
+    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ID, PAYMENT_CHANNEL_ITEM_ID, CHANNEL_CONFIG_ID, CARD_ORG, SUCCESS_TIMES, FAILURE_TIMES, 
+    REJECT_TIMES, AMOUNT, MONTH_STAMP
+  </sql>
+  <select id="findById" parameterClass="java.math.BigDecimal" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from SECOND_MERCHANT_COUNT
+    where ID = #id#
+  </select>
+
+  <delete id="delete" parameterClass="java.math.BigDecimal">
+    delete from SECOND_MERCHANT_COUNT
+    where ID = #id#
+  </delete>
+
+  <insert id="create" parameterClass="com.pay.channel.model.SecondMerchantCount">
+    <selectKey resultClass="java.math.BigDecimal" keyProperty="id">
+      SELECT SEQ_SECOND_MERCHANT_COUNT.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into SECOND_MERCHANT_COUNT (ID, PAYMENT_CHANNEL_ITEM_ID, CHANNEL_CONFIG_ID, 
+      CARD_ORG, SUCCESS_TIMES, FAILURE_TIMES, 
+      REJECT_TIMES, AMOUNT, MONTH_STAMP
+      )
+    values (#id#, #paymentChannelItemId#, #channelConfigId#,
+    #cardOrg#, #successTimes#, #failureTimes#,
+    #rejectTimes#, #amount#, TO_CHAR(SYSDATE,'yyyymm')
+      )
+  </insert>
+
+  <update id="updateModelByModel" parameterClass="com.pay.channel.model.SecondMerchantCount">
+    update
+      SECOND_MERCHANT_COUNT
+    SET
+      SUCCESS_TIMES = #successTimes#,
+      FAILURE_TIMES = #failureTimes#,
+      REJECT_TIMES = #rejectTimes#,
+      AMOUNT = #amount#
+    where ID = #id#
+  </update>
+
+  <select id="findByCriteria" parameterClass="com.pay.channel.dto.SecondMerchantCountDTO" resultMap="dtoResultMap">
+    SELECT
+      smc.ID, smc.PAYMENT_CHANNEL_ITEM_ID, smc.CHANNEL_CONFIG_ID,
+      smc.CARD_ORG, smc.SUCCESS_TIMES, smc.FAILURE_TIMES,
+      smc.REJECT_TIMES, smc.AMOUNT, smc.MONTH_STAMP,
+      pci.NAME,pci.ORG_CODE, chc.ORG_MERCHANT_CODE
+    FROM SECOND_MERCHANT_COUNT smc,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+    WHERE 1=1 AND smc.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  smc.CHANNEL_CONFIG_ID = chc.ID(+)
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      smc.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="channelConfigId">
+      smc.CHANNEL_CONFIG_ID = #channelConfigId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgMerchantCode">
+      chc.ORG_MERCHANT_CODE = #orgMerchantCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="monthStamp">
+      smc.MONTH_STAMP = #monthStamp#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="startMonth">
+      smc.MONTH_STAMP >= #startMonth#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="endMonth">
+      smc.MONTH_STAMP >= #endMonth#
+    </isNotEmpty>
+    order by ID asc
+  </select>
+
+  <select id="countByCriteria" parameterClass="com.pay.channel.dto.SecondMerchantCountDTO" resultClass="java.lang.Integer">
+    SELECT
+    count(1)
+    FROM SECOND_MERCHANT_COUNT smc,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+    WHERE 1=1 AND smc.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  smc.CHANNEL_CONFIG_ID = chc.ID(+)
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      smc.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="channelConfigId">
+      smc.CHANNEL_CONFIG_ID = #channelConfigId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgMerchantCode">
+      chc.ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="monthStamp">
+      smc.MONTH_STAMP = #monthStamp#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="startMonth">
+      smc.MONTH_STAMP >= #startMonth#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="endMonth">
+      smc.MONTH_STAMP >= #endMonth#
+    </isNotEmpty>
+  </select>
+
+</sqlMap>

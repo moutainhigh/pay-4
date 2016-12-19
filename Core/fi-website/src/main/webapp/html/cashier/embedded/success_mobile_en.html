@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>iPayLinks</title>
+
+<!-- main css -->
+<link href="style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="js/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="js/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+
+
+</head>
+
+<body>
+	<div id="pagewrap">
+    	<div id="content" style="text-align:left;">
+        	<!-- 头部提示 -->
+            <div class="title_box">
+            	<div>
+                	<font style="color:#FFF;">iPayLinks</font>
+                </div>
+            </div>
+            <!-- Start -->
+            <form action="#" method="post" name="memberForm" id="memberForm" >
+                <div id="li_0" class="reg_nav_li_common cc_center">
+                    <div class="result_box">
+                    	<div class="result_img">
+                        	<img src="images/H5/u175.png" style="vertical-align:middle;" />
+                        </div> 
+                        <div class="result_text">
+                        	<font style="color:#999999;">Successful payment</font>
+                        </div>
+                    </div>
+                    <div class="row_split" style="border:0px;"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <label style="color:#000;font-weight:bold;">Notice：</label>
+                            <font style="color:#999999;">due to the exchange rate differential in international credit card transaction, there may be some difference between actual pay and transaction amount.</font>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <label>Transaction Date:${dealDate!''}</label>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <label>Order number: ${orderId!''}</label>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <label>Payment Serial Number:${tradeOrderNo!''}</label>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <label>Thransaction amount: ${orderAmount!''} ${currencyCode!''}</label>
+                        </div>
+                    </div>
+                </div>
+            	<div>
+                     <div class="footer_img">
+                        <img src="images/H5/06.png" style="vertical-align:middle;"/>
+                    </div>
+                    <div class="footer_img">
+                        <img src="images/H5/05.png" style="vertical-align:middle;"/>
+                    </div>
+                    <div class="footer_img">
+                        <img src="images/H5/04.png" style="vertical-align:middle;"/>
+                    </div>
+                    <div class="footer_img">
+                        <img src="images/H5/07.png" style="vertical-align:middle;"/>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+                
+                <div class="auto_back_box">
+                    <p style="text-indent:2em;">The page will skip to the mercharnt page in <font style="color:#F00;" id="timeInte">5</font> seconds automatically.</p>
+                </div>
+                <div class="clear"></div>
+                <div style="width:95%;margin:20px auto 0px;" id="bankToMerchant">
+                	<div class="common_button" style="padding:1px;text-align:center;margin-top:20px;" id="enterprise_reg_next">
+                     Back to mercharnt
+                   </div>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+	<form id="bankForm" action="${returnUrl?default('')}" method="${action?default('post')}">
+	<input type="hidden" name="orderId" value="${orderId?default('')}"/>
+	<input type="hidden" name="resultCode" value="${resultCode?default('')}"/>
+		<input type="hidden" name="resultMsg" value="${resultMsg?default('')}"/>
+		<input type="hidden" name="orderAmount" value="${orderAmount?default('')}"/>
+		<input type="hidden" name="payAmount" value="${payAmount?default('')}"/>
+		<input type="hidden" name="rates" value="${rates?default('')}"/>
+		<input type="hidden" name="settlementRates" value="${settlementRates?default('')}"/>
+		<input type="hidden" name="currencyCode" value="${currencyCode?default('')}"/>
+		<input type="hidden" name="settlementCurrencyCode" value="${settlementCurrencyCode?default('')}"/>
+		<input type="hidden" name="acquiringTime" value="${acquiringTime?default('')}"/>
+		<input type="hidden" name="completeTime" value="${completeTime?default('')}"/>
+		<input type="hidden" name="dealId" value="${dealId?default('')}"/>
+		<input type="hidden" name="partnerId" value="${partnerId?default('')}"/>
+		<input type="hidden" name="language" value="${language?default('')}"/>
+		<!-- <input type="hidden" name="remark" value="${remark?default('')}"/> -->
+		<input type="hidden" name="charset" value="${charset?default('')}"/>
+		<input type="hidden" name="signType" value="${signType?default('')}"/>
+		<input type="hidden" name="signMsg" value="${signMsg?default('')}"/>
+		<input type="hidden" name="remark" value="${remark?default('')}"/>
+		<input type="hidden" name="merchantBillName" value="${merchantBillName?default('')}" />
+	</form>
+    <script type="text/javascript">
+		$(function(){
+			
+			var num = 5; // 倒计时时间 
+			$("#timeInte").html(num); 
+			
+			function changeTime()
+			{
+			    if (num ==0 )
+			    { 
+			    	$("#bankForm").submit();   // 到时间后的操作
+			    }
+			    
+			    if(num > 0) {
+			       num = num - 1;
+			       curnum = num;
+			      $("#timeInte").html(curnum);
+			   } 
+			    
+			}
+			window.setInterval(changeTime,1000);
+			
+			$('#bankToMerchant').click(function() {
+				$("#bankForm").submit();
+			});
+			
+		});
+
+		function timeout(){
+			$("#bankForm").submit();
+		}
+		
+	</script>
+</body>
+</html>
+

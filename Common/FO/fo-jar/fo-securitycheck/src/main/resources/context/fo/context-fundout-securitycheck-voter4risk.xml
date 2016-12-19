@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="fundout-securitycheck-baseRiskVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.risk.BaseRiskControlVoter"
+		abstract="true" parent="fundout-securitycheck-abstractVoter">
+		<property name="rcType">
+			<map>
+				<!-- key:业务类型(WithdrawBusinessType中定义)加付收方 (1:个人,2:商户) value:对应的风控类型 -->
+
+				<entry key="2221" value="5" />   <!-- 批付到账户请求  B to C -->
+				<entry key="2321" value="5" />   <!-- 批付到账户成功  B to C -->
+				<entry key="2421" value="5" />   <!-- 批付到账户失败  B to C -->
+
+				<entry key="2011" value="6" />   <!-- 付款到账户内部  C to C -->
+				<entry key="2022" value="7" />   <!-- 付款到账户内部  B to B -->
+				<entry key="2012" value="6" />   <!-- 付款到账户内部  C to B -->
+
+				<entry key="2111" value="6" />   <!-- 付款到账户外部  C to C -->
+				<entry key="2121" value="7" />   <!-- 付款到账户外部  B to B -->
+				<entry key="2122" value="7" />   <!-- 付款到账户外部  B to B -->
+				<entry key="2112" value="6" />   <!-- 付款到账户外部  C to B -->
+			</map>
+		</property>
+
+		<property name="bwList">
+			<map>
+				<entry key="2011" value="5" />
+				<entry key="2012" value="4" />
+				<entry key="2022" value="4" />
+				<entry key="2111" value="5" />
+				<entry key="2112" value="4" />
+				<entry key="2122" value="4" />
+				<entry key="2221" value="5" />
+				<entry key="2321" value="5" />
+				<entry key="2421" value="5" />
+			</map>
+		</property>
+		<property name="riskDataStatService"
+			ref="fundout-securitycheck-riskDataStatistDispatcher"></property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		
+		<property name="massPayService" ref="massPayService"></property>
+		<property name="rcNameListService" ref="rm_facade_name_list_service"></property>
+		<property name="cacheRiskRule" value="true"></property>
+	</bean>
+
+	<bean id="fundout-securitycheck-riskDataStatistDispatcher"
+		class="com.pay.fundout.securitycheck.riskdata.RiskDataStatistDispatcher">
+		<property name="providers">
+			<map>
+				<entry key="20,21,22,23,24">
+					<ref bean="fundout-securitycheck-pay2acctRiskDataStatist" />
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-baseRiskDataStatist"
+		class="com.pay.fundout.securitycheck.riskdata.AbstractRiskDataStatist"
+		abstract="true">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE" />
+	</bean>
+
+	<bean id="fundout-securitycheck-pay2acctRiskDataStatist"
+		class="com.pay.fundout.securitycheck.riskdata.spi.Pay2AcctRiskDataStatist"
+		parent="fundout-securitycheck-baseRiskDataStatist">
+	</bean>
+
+	<bean id="fundout-securitycheck-DayLimitVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.risk.impl.DayLimitVoter"
+		parent="fundout-securitycheck-baseRiskVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-MonthLimitVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.risk.impl.MonthLimitVoter"
+		parent="fundout-securitycheck-baseRiskVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-SingleAmountLimitVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.risk.impl.SingleAmountLimitVoter"
+		parent="fundout-securitycheck-baseRiskVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-BlackListVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.risk.impl.BlackListVoter"
+		parent="fundout-securitycheck-baseRiskVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境API收单 -->
+	<bean id="api-query-validateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="api-query-rule" />
+	</bean>
+
+	<bean id="api-query-rule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="api-query-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="api-query-versionCheckRule" class="com.pay.gateway.validate.query.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-modeCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="api-query-modeCheckRule" class="com.pay.gateway.validate.query.ModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0400" />
+		<property name="message" value="Query mode is wrong:查询模式不正确" />
+	</bean>
+
+	<bean id="api-query-typeCheckRule" class="com.pay.gateway.validate.query.TypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0401" />
+		<property name="message" value="Invalid query type:查询类型不正确" />
+	</bean>
+
+	<bean id="api-query-orderIdCheckRule" class="com.pay.gateway.validate.query.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="gatewayRequestDAO" ref="gatewayRequestDAO"></property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="api-query-partnerIdCheckRule"
+		  class="com.pay.gateway.validate.query.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-queryTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+
+	<bean id="api-query-queryTimeCheckRule" class="com.pay.gateway.validate.query.QueryTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0403" />
+		<property name="message" value="Invalid query begin time:查询开始时间不正确" />
+	</bean>
+
+	<bean id="api-query-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.query.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+	<bean id="api-query-charsetCheckRule" class="com.pay.gateway.validate.query.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="api-query-signTypeCheckRule" class="com.pay.gateway.validate.query.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-signMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+
+	<bean id="api-query-signMsgCheckRule" class="com.pay.gateway.validate.query.SignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-gatewayRequestSaveAction" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="api-query-gatewayRequestSaveAction" class="com.pay.gateway.validate.query.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="api-query-exceptionAction" class="com.pay.gateway.validate.query.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+	
+	
+	
+	<!-- 跨境查询接口1.1 -->
+	<bean id="api-query-validateService11" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="api-query-rule11" />
+	</bean>
+
+	<bean id="api-query-rule11" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="api-query-versionCheckRule11" />
+		</property>
+	</bean>
+
+	<bean id="api-query-versionCheckRule11" class="com.pay.gateway.validate.query.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-partnerIdCheckRule11" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="api-query-partnerIdCheckRule11"
+		  class="com.pay.gateway.validate.query.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-modeCheckRule11" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+
+	<bean id="api-query-modeCheckRule11" class="com.pay.gateway.validate.query.ModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-typeCheckRule11" />
+		</property>
+		<property name="messageId" value="0400" />
+		<property name="message" value="Invalid query mode:查询模式不正确" />
+	</bean>
+
+	<bean id="api-query-typeCheckRule11" class="com.pay.gateway.validate.query.TypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-orderIdCheckRule11" />
+		</property>
+		<property name="messageId" value="0401" />
+		<property name="message" value="Invalid query type:查询类型不正确" />
+	</bean>
+
+	<bean id="api-query-orderIdCheckRule11" class="com.pay.gateway.validate.query.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="gatewayRequestDAO" ref="gatewayRequestDAO"></property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-registerUserIdCheckRule11" />
+		</property>
+		<property name="messageId" value="0402" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+	
+	<bean id="api-query-registerUserIdCheckRule11"
+		class="com.pay.gateway.validate.query.RegisterUserIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0086" />
+		<property name="message" value="Invalid registerUserId:用户注册ID不正确" />
+	</bean>
+	<bean id="api-query-remarkCheckRule"
+		  class="com.pay.gateway.validate.query.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-queryTimeCheckRule11" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="Invalid remark:备注信息不正确" />
+	</bean>
+
+	<bean id="api-query-queryTimeCheckRule11" class="com.pay.gateway.validate.query.QueryTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0403" />
+		<property name="message" value="Invalid query begin time:查询开始时间不正确" />
+	</bean>
+
+	
+</beans>

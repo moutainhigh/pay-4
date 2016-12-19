@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fi-kfPayResource">
+    <typeAlias alias="kfPayResource" type="com.pay.txncore.model.KfPayResource"/>
+    <typeAlias alias="hashMap" type="java.util.HashMap"/>
+    <sql id="kfPayResourceFeild">
+    	RESOURCE_NO resourceNo,
+    	BATCH_NO batchNo,
+    	URL url,
+    	FILE_NAME fileName,
+    	FILE_TYPE fileType,
+    	FILE_PATH filePath,
+    	CREATE_DATA createData
+    </sql>
+   	<sql id="kfPayResourceFeildByInsert">
+		RESOURCE_NO ,
+    	BATCH_NO ,
+    	URL ,
+    	FILE_NAME ,
+    	FILE_TYPE ,
+    	FILE_PATH ,
+    	CREATE_DATA 
+    </sql>
+   	<sql id="kfPayResourceSelect">
+		SELECT
+		<include refid="kfPayResourceFeild" />
+		FROM KF_PAY_RESOURCE kfPayResource
+	</sql>
+	
+	<sql id="kfPayResourceConditions">
+	    <dynamic prepend="where">
+		    <isNotEqual compareValue="0"  property="resourceNo" prepend="and" >
+		      	kfPayResource.RESOURCE_NO = #resourceNo#
+		    </isNotEqual>
+		    <isNotEmpty   property="batchNo" prepend="and" >
+		      	kfPayResource.BATCH_NO = #batchNo#
+		    </isNotEmpty>
+		    <isNotEmpty property="url" prepend="and" >
+		      	kfPayResource.URL = #url#
+		    </isNotEmpty>
+		    <isNotEmpty property="fileName" prepend="and" >
+		      	kfPayResource.FILE_NAME = #fileName#
+		    </isNotEmpty>
+		    <isNotEqual compareValue="0"  property="fileType" prepend="and" >
+		      	kfPayResource.FILE_TYPE = #fileType#
+		    </isNotEqual>
+		    <isNotEmpty  property="filePath" prepend="and" >
+		      	kfPayResource.FILE_PATH = #filePath#
+		    </isNotEmpty>
+ 			<isNotEmpty  property="createData" prepend="and" >
+		      	kfPayResource.CREATE_DATA = #createData# 
+		    </isNotEmpty>		    
+		    <isNotEmpty  property="batchNos" prepend="and" >
+		      	kfPayResource.BATCH_NO in ($batchNos$)
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	<select id="queryConditions" resultClass="kfPayResource" parameterClass="kfPayResource">
+   		<include refid="kfPayResourceSelect"/>
+   		<include refid="kfPayResourceConditions"/>
+   	</select>
+   	<select id="queryConditions_COUNT" resultClass="java.lang.Integer" parameterClass="kfPayResource">
+		select count(1) from KF_PAY_RESOURCE kfPayResource
+   		<include refid="kfPayResourceConditions"/>
+   	</select>
+   	
+	<select id="queryConditionsMap" resultClass="kfPayResource" parameterClass="hashMap">
+   		<include refid="kfPayResourceSelect"/>
+   		<include refid="kfPayResourceConditions"/>
+   	</select>
+   	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer" parameterClass="hashMap">
+		select count(1) from KF_PAY_RESOURCE kfPayResource
+   		<include refid="kfPayResourceConditions"/>
+   	</select>
+   	<insert id="create" parameterClass="kfPayResource">
+			 <selectKey resultClass="java.lang.Long" keyProperty="resourceNo">
+			      	select  to_char(sysdate,'yymmddHH24MISS') ||SEQ_KF_PAY_RESOURCE.nextval as resourceNo from dual
+			</selectKey>
+			insert into KF_PAY_RESOURCE(
+				<include refid="kfPayResourceFeildByInsert"/>			
+				)
+		<![CDATA[
+			values(
+				#resourceNo#,
+				#batchNo#,
+				#url#,
+				#fileName#,
+				#fileType#,
+				#filePath#,
+				#createData#
+			)
+		  ]]>
+	</insert>
+</sqlMap>

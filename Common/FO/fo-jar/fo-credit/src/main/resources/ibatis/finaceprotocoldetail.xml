@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finaceprotocoldetail">
+	
+	<typeAlias alias="finaceProtocolDetail" type="com.pay.credit.model.finace.FinaceProtocoDetail" />
+	
+	<resultMap class="finaceProtocolDetail" id="BaseResultMap">
+		  <result column="MERCHANT_CODE" property="merchantCode" jdbcType="VARCHAR" />
+	    <result column="MERCHANT_NAME" property="merchantName" jdbcType="VARCHAR" />
+	    <result column="CREDIT_ORDER_ID" property="creditOrderId" jdbcType="VARCHAR" />
+	    <result column="GMT_AMOUNT" property="gmtAmount" jdbcType="NUMBER" />
+	    <result column="RISK_STATUS" property="riskStatus" jdbcType="VARCHAR" />
+	    <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="NUMBER" />
+	    <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="NUMBER" />
+	    <result column="INTEREST" property="interst" jdbcType="NUMBER" />
+	    <result column="LOAN_AMOUNT" property="loanAmount" jdbcType="NUMBER" />
+	    <result column="SETTLEMENT_DATA" property="setTlement" jdbcType="DATE" />
+	    <result column="GMT_LOAN" property="gmtLoan" jdbcType="DATE" />
+	    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	    <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+	    <result column="TRADE_CURRENCY_CODE" property="tradeCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="SINGLE_ORDER_AMOUNT" property="singleOrderAmount" jdbcType="VARCHAR" />
+	    <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="findByCriteria" parameterClass="java.lang.String" resultMap="BaseResultMap">
+	SELECT 
+	B.MERCHANT_CODE,
+	B.MERCHANT_NAME,
+	B.CREDIT_ORDER_ID,
+	B.GMT_AMOUNT,
+	B.RISK_STATUS,
+	B.TRADE_ORDER_NO,
+	A.ORDER_AMOUNT,
+	B.INTEREST,
+	B.LOAN_AMOUNT,	
+	B.SETTLEMENT_DATA,
+	B.GMT_LOAN,
+	B.STATUS,
+	A.CURRENCY_CODE,
+	B.TRADE_CURRENCY_CODE,
+	B.SINGLE_ORDER_AMOUNT,
+	B.ORDER_ID
+	FROM 
+	CREDIT_ORDER A INNER join CREDITBYORDER_DETAIL B ON A.CREDIT_ORDER_ID = B.CREDIT_ORDER_ID  
+	WHERE 
+	A.CREDIT_ORDER_ID=#creditOrderId#
+	</select>
+</sqlMap>

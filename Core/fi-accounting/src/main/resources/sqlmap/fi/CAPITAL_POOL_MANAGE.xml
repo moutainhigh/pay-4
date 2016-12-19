@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="CapitalPoolManage">
+
+	<typeAlias alias="capitalPoolManage"  type="com.pay.txncore.model.CapitalPoolManage"/>
+	
+	<typeAlias alias="positionAllocaAudit"  type="com.pay.txncore.model.PositionAllocaAudit"/>
+		
+		<select id="findByCriteria" resultClass="capitalPoolManage" parameterClass="java.util.Map">
+    	  	select
+			ID id,
+			c.CURRENCY_CODE                currencyCode,
+			g.balance                       		 buyAmount,
+			PRECAUTIOUS_LINE_AMOUNT 				precautiousLineAmount,
+			UPDATE_DATE updateDate, 	
+			OPERATOR  operator,
+			STATUS     status
+			from CAPITAL_POOL_MANAGE  c
+			left join  
+			acc.vw_gjh_balance g 
+			on c.currency_code = g.currency_code
+			where   1 = 1
+			<isNotEmpty property="currencyCode" prepend="and">
+				c.CURRENCY_CODE   = #currencyCode#
+			</isNotEmpty>
+		</select>
+		<select id="queryBystatus" resultClass="capitalPoolManage">
+			select
+			ID id,
+			CURRENCY_CODE                currencyCode,
+			PRECAUTIOUS_LINE_AMOUNT 				precautiousLineAmount,
+			UPDATE_DATE updateDate, 	
+			OPERATOR  operator,
+			STATUS     status
+			from CAPITAL_POOL_MANAGE
+			where status='1'
+		</select>
+		
+			<update id="update"  parameterClass="java.util.Map">
+				update 	CAPITAL_POOL_MANAGE	
+				set PRECAUTIOUS_LINE_AMOUNT = #precautiousLineAmount#*1000,
+					STATUS = #status#
+				where id = #id#
+			</update>
+			
+			<select id="count"   resultClass="java.lang.Integer">
+		            select count(1)  from fi.CAPITAL_POOL_MANAGE  c
+						left join  
+						acc.vw_gjh_balance g 
+						on c.currency_code = g.currency_code
+						where 
+						 nvl(c.PRECAUTIOUS_LINE_AMOUNT,0)>g.balance *1000
+			</select>
+			
+			<insert id="create" parameterClass="java.util.Map">
+				<selectKey resultClass="java.lang.Long" keyProperty="id">
+					select  230|| to_char(sysdate,'yymmddHH24MISS') ||SEQ_POSITION_ALLOCA_AUDIT.nextval as ID from dual 
+				</selectKey>
+				insert into
+						POSITION_ALLOCA_AUDIT(
+						ALLOT_SEQUENCE,
+						CREATE_DATE,
+						CALLOUT_ACCOUNT,
+						CALLOUT_CURRENCY_CODE,
+						CALLOUT_BUY_AMOUNT,
+						CALLOUT_AMOUNT,
+						CALLIN_ACCOUNT,
+						CALLIN_CURRENCY_CODE,
+						CALLIN_BUY_AMOUNT,
+						CALLIN_AMOUNT,
+						STATUS,
+						UPDATE_DATE,
+						OPERATOR
+						)
+				VALUES(
+					#id#,
+					sysdate,
+					#callOutAccount#,
+					#callOutCurrencyCode#,
+					#calloutBuyAmount#,
+					#callOutAmount#,
+					#callInAccount#,
+					#callInCurrencyCode#,
+					#callinBuyAmount#,
+					#callInAmount#,
+					#status#,
+					sysdate,
+					#operator#
+				)
+			</insert>
+			
+			<select id="queryPositionAllocaAudit"  parameterClass="positionAllocaAudit"  resultClass="positionAllocaAudit">
+				select 
+				ALLOT_SEQUENCE     allotSequence, 
+				CREATE_DATE             createDate,
+				CALLOUT_ACCOUNT  calloutAccount,
+				CALLOUT_CURRENCY_CODE calloutCurrencyCode,
+				CALLOUT_BUY_AMOUNT  calloutBuyAmount,
+				CALLOUT_AMOUNT    		calloutAmount,
+				CALLIN_ACCOUNT            callinAccount,
+				CALLIN_CURRENCY_CODE  callinCurrencyCode,
+				CALLIN_BUY_AMOUNT      callinBuyAmount,
+				CALLIN_AMOUNT              callinAmount,
+				STATUS,
+				UPDATE_DATE updateDate,
+				OPERATOR
+				from 
+					POSITION_ALLOCA_AUDIT
+				where  1=1
+					   <isNotEqual compareValue="0"  property="allotSequence" prepend="and" >
+				      			            ALLOT_SEQUENCE = #allotSequence#
+				    </isNotEqual>
+					   <isNotEmpty prepend="and" property="beginCreateDate">
+				            CREATE_DATE  &lt; to_date(#beginCreateDate#,'yyyy-MM-dd')
+				        </isNotEmpty>
+					   <isNotEmpty prepend="and" property="endCreateDate">
+				            CREATE_DATE &gt;= to_date(#endCreateDate#,'yyyy-MM-dd')
+				        </isNotEmpty>
+					   <isNotEmpty prepend="and" property="status">
+				            STATUS = #status#
+				        </isNotEmpty>
+				        order by CREATE_DATE desc
+			</select>	
+			
+			<select id="queryPositionAllocaAudit_COUNT"  parameterClass="positionAllocaAudit"  resultClass="java.lang.Integer">
+				select 
+					count(1)
+				from 
+					POSITION_ALLOCA_AUDIT
+				where  1=1
+						   <isNotEqual compareValue="0"  property="allotSequence" prepend="and" >
+					      	  ALLOT_SEQUENCE = #allotSequence#
+					    </isNotEqual>
+					  	   <isNotEmpty prepend="and" property="beginCreateDate">
+				            CREATE_DATE  &lt; to_date(#beginCreateDate#,'yyyy-MM-dd')
+				        </isNotEmpty>
+					   <isNotEmpty prepend="and" property="endCreateDate">
+				            CREATE_DATE &gt;= to_date(#endCreateDate#,'yyyy-MM-dd')
+				        </isNotEmpty>
+					   <isNotEmpty prepend="and" property="status">
+				            STATUS = #status#
+				        </isNotEmpty>
+			</select>	
+
+			<update id="updateStatus" parameterClass="positionAllocaAudit">
+							update  
+							POSITION_ALLOCA_AUDIT
+							set  status = #status#
+							where  ALLOT_SEQUENCE = #allotSequence#
+			</update>
+			
+			<select id="findById" parameterClass="positionAllocaAudit" resultClass="positionAllocaAudit">
+					SELECT 
+						ALLOT_SEQUENCE   allotSequence,
+						CREATE_DATE			createDate,
+						CALLOUT_ACCOUNT calloutAccount,
+						CALLOUT_CURRENCY_CODE calloutCurrencyCode,
+						CALLOUT_BUY_AMOUNT  calloutBuyAmount,
+						CALLOUT_AMOUNT   calloutAmount,
+						CALLIN_ACCOUNT  callinAccount,
+						CALLIN_CURRENCY_CODE callinCurrencyCode,
+						CALLIN_BUY_AMOUNT  calloutBuyAmount,
+						CALLIN_AMOUNT  callinAmount,
+						STATUS  status,
+						UPDATE_DATE updateDate,
+						OPERATOR  operator
+					FROM 
+						POSITION_ALLOCA_AUDIT
+							where  ALLOT_SEQUENCE = #allotSequence#
+			</select>
+</sqlMap>

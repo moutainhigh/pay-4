@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="external">
+	
+	
+	<select id="isMemberActive"  resultClass="java.lang.Long"  parameterClass="java.util.Map">
+		select a.member_code 
+		from t_member a inner join t_individual_info b 
+		on a.member_code = b.member_code
+		where   a.login_name = #loginName# and b.name = #memberName# and a.type=1 and a.status=1 
+    </select>
+    
+	<select id="isMemberAccountActive"  resultClass="java.lang.Integer"  parameterClass="java.util.Map">
+		 select count(1) from t_acct a inner join t_acct_attrib b on a.acct_code=b.acct_code
+         where  a.member_code=#memberCode# and  a.acct_type_id=#accountType# and a.status=1 and b.allow_in=1 and b.frozen=1
+    </select>
+    
+	 <select id="queryMemberByEmailAndOrgCode"  resultClass="java.lang.Long"  parameterClass="java.util.Map">		
+		select a.member_code from t_member a inner join t_enterprise_base b on a.member_code=b.member_code
+		where   a.login_name=#email# and a.status=1 
+		          
+    </select>
+	<select id="queryAccountByMemberCode"  resultClass="java.lang.Integer"  parameterClass="java.lang.Long">
+		 select count(1) from t_acct a inner join t_acct_attrib b on a.acct_code=b.acct_code
+         where  a.member_code=#memberCode# and a.status=1   and  b.frozen=1  
+    </select>
+	           
+</sqlMap>

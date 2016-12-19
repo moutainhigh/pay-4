@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<link href="<@sp.static/>/gcpayment/css/bootstrap.min.css" rel="stylesheet">
+	<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+	<!-- data picker controller -->
+	<script type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script>
+
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+	<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+	<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+	<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css" />
+	<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon" />
+	<title>账户基本信息</title>
+</head>
+
+<body>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+				alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a>
+				</li>
+			</ul>
+		</div>
+		<div class="menu">
+			<div class="wrap">
+				<ul class="mainmenu clearfix">
+					<li id="topmenu_5"><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a>
+					</li>
+					<li id="topmenu_3"><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a>
+					</li>
+					<li id="topmenu_1"><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a>
+					</li>
+					<li id="topmenu_2"><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+					<li id="topmenu_6"><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a>
+					</li>
+				</ul>
+
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+
+					<li id="secmenu_5_51" class="current">
+						<a href="${rc.contextPath}/corp/myAccount.htm">基本信息</a>
+					</li>
+					<li id="secmenu_5_52" class="other">
+						<a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">账户余额明细</a>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+
+	</div>
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section">
+				<div class="tit">
+					<div target="dealAll" class="tabT">
+						<span class="commonCellLabel">基本信息</span>
+					</div>
+					<div target="dealToday" class="tabT tabTDisabled">
+						<span class="commonCellLabel">账户信息</span>
+					</div>
+				</div>
+				<div id="dealBody" class="tabPanelBodyDiv">
+					<!--第一页-->
+					<div id="dealAll">
+						<div class="tabbox">
+							<div class="wrap">
+							<div>
+
+								<div class="seccon">
+									<div class="transparentbox">
+										<!-- page content -->
+										<div>
+											<div id="briefInfoDiv">
+												<div class="briefInfoCell" style="width:33%">
+													<span>商户名称：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${enterpriseBase.zhName}</span>
+												</div>
+												<div class="briefInfoCell" style="width:33%">
+													<span>商户号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${enterpriseBase.merchantCode?default('')}</span>
+												</div>
+												<div class="briefInfoCell" style="width:33%">
+													<span>会员号：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${memberCode?default('')}</span>
+												</div>
+											</div>
+											<div id="dealInfoDiv">
+												<div id="dealInfoHeader">
+													<span>交易情况：</span>
+												</div>
+												<div style="overflow: hidden;">
+													<div class="tabPanelHeaderDiv">
+														<div target="dealSummaryAll" class="tabTag">
+															<span class="commonCellLabel">总交易情况</span>
+														</div>
+														<div target="dealSummaryToday" class="tabTag tabTagDisabled">
+															<span class="commonCellLabel">今日交易</span>
+														</div>
+													</div>
+													<div id="dealDetailBody" class="tabPanelBodyDiv" style="height:230px">
+														<div id="dealSummaryAll" style="overflow-y: auto;">
+														   <#if atiList?exists>
+															<table id="dealSummaryAllTable" style="width:1480px;" cellspacing="2" cellpadding="2">
+																<tr class="dealSummaryAllTableRow1">
+																	<td class="dealSummaryAllTableColumn1" >&nbsp;</td>
+																	<td rowspan="3" class="totalAmountNavigateTd" onselectstart="return false;"><img src="<@sp.static/>/gcpayment/images/left.png" class="totalAmountNavigate"  style="display: none;"/></td>
+                                                                   <#list atiList as ats>
+																	<td class="" width="150"><span class="commonCellLabel">${ats.acctName?default("")}</span></td>
+                                                                   </#list>
+																	<td rowspan="3" class="totalAmountNavigateTd" onselectstart="return false;"><img src="<@sp.static/>/gcpayment/images/right.png" class="totalAmountNavigate" style="display:none;" /></td>
+																	<td><span class="commonCellLabel">&nbsp;</span></td>
+																</tr>
+																<tr class="dealSummaryAllTableRow2">
+																	<td class="dealSummaryAllTableColumn1"><span class="commonCellLabel">总交易金额</span></td>
+                                                                    <#list atiList as ats1>
+																	<td class="dealSummaryAllTableCurrencyColumn" ><a href="#" class="commonLink blueHighlight">${(ats1.totalTradeAmount?default(0)?string(",##0.00"))}</a></td>
+                                                                    </#list>
+																	<td><span class="commonCellLabel">&nbsp;</span></td>
+																</tr>
+																<tr class="dealSummaryAllTableRow3">
+																	<td class="dealSummaryAllTableColumn1"><span class="commonCellLabel">待清算交易金额</span></td>
+                                                                    <#list atiList as ats2>
+																	<td class="dealSummaryAllTableCurrencyColumn" ><a href="#" class="commonLink blueHighlight">${(ats2.noSettBalance?default(0)?string(",##0.00"))}</a></td>
+                                                                    </#list>
+																	<td><span class="commonCellLabel">&nbsp;</span></td>
+																</tr>
+															</table>
+															</#if>
+														</div>
+														<div id="dealSummaryToday">
+															<div id="dealSummaryTodayHeader">
+																<div id="viewAllDealStatus">
+																	<a href="${rc.contextPath}/corp/fiIncomedetail.htm" class="commonLink blueHighlight">查看全部</a>
+																</div>
+																<div>
+																	<span>今日总交易笔数：</span>
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	<span class="blueHighlight">${listSize?default(0)}笔</span>
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	<span>成功交易笔数：</span>
+																	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+																	<span class="blueHighlight">${listSize1?default(0)}笔</span>
+																</div>
+															</div>
+															<div id="dealSummaryTodayBody">
+																<table id="dealSummaryTodayTable" cellspacing="2" cellpadding="2">
+																	<tr>
+																		<td>网关收单时间</td>
+																		<td>支付完成时间</td>
+																		<td>网关订单流水号</td>
+																		<td>商户订单号</td>
+																		<td>订单状态</td>
+																		<td>订单金额(元)</td>
+																	</tr>
+                                                                    
+                                                                    <#if incList?exists>
+		   				                                            <#list incList as is>
+                                                                         <tr>
+								<td>${is.createDate?default("")}</td>
+								<td>
+									<!--支付状态为“支付成功”，订单状态为“交易成功”与“交易已退款”显示完成时间-->
+									<#if is.payStatus?has_content && is.orderStatus?has_content>
+										<#if (is.payStatus == "2" && is.orderStatus =="3") || (is.payStatus == "2"  &&is.orderStatus =="4") >
+											${is.payDate?default("")}
+										</#if>
+									</#if>
+								</td>
+								<td align="center">${is.tradeOrderNo?default("")}</td>
+								<td align="center">${is.orderId?default("")}</td>
+								<td align="center">
+									<#if is.orderStatus?has_content>
+										<#if is.orderStatus =="0">
+											未付款
+										<#elseif is.orderStatus =="1">
+											交易关闭
+										<#elseif is.orderStatus =="2">
+											已付款
+										<#elseif is.orderStatus =="3">
+											交易已退款
+										<#elseif is.orderStatus =="4">
+											交易成功
+										</#if>
+									</#if>
+								</td>
+								<td align="center">${(is.orderAmount*0.001)?string(",##0.00")}</td>
+							</tr>
+																	</#list>
+																	</#if>
+																</table>
+															</div>
+
+														</div>
+													</div>
+
+												</div>
+											</div>
+
+										</div>
+										<br />
+										<div id="capitalInfoDiv">
+											<div id="dealInfoHeader">
+												<span>资金情况：</span>
+											</div>
+
+											<div>
+
+												<div class="tabPanelHeaderDiv">
+
+
+													<div target="Account0" class="tabTag">
+														<span class="commonCellLabel">人民币账户</span>
+													</div>
+                                                    <#if usd?exists>
+													<div target="Account1" class="tabTag tabTagDisabled">
+														<span class="commonCellLabel">美元账户</span>
+													</div>
+                                                    </#if>
+												</div>
+												<div id="capitalInfoBody" class="tabPanelBodyDiv">
+
+
+
+<div id="Account0">
+<div class="col-md-12">
+	<div>
+		<table width="100%" class="table" contenteditable="true" text-align:center="">
+			<thead>
+				<tr>
+					<th colspan="3">综述</th>
+					<th colspan="3">详情</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td rowspan="3" colspan="3">&nbsp;</td>
+					<td width="106" rowspan="2"><p>&nbsp;</p>
+						<p>账户余额</p></td>
+						<td width="136">账户可用余额</td>
+						<td width="239">${(cny.balance?default(0)?string(",##0.00"))} 元</td>
+					</tr>
+
+					<tr>
+						<td>账户冻结金额</td>
+						<td width="239">${(cny.frozenAmount?default(0)?string(",##0.00"))} 元</td>
+					</tr>
+					<tr>
+						<td rowspan="2"><p>&nbsp;</p>
+							<p>保证金余额</p></td>
+							<td>保证金可用余额</td>
+							<td>${(cny.depBalance?default(0)?string(",##0.00"))} 元</td>
+						</tr>
+						<tr>
+							<td width="108">交易清算金额</td>
+							<td width="109">结汇转入金额</td>
+							<td width="104">其他入款金额</td>
+                            <td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>${(cny.settBalance?default(0)?string(",##0.00"))} 元</td>
+							<td>0.00</td>
+							<td>0.00</td>
+							<td></td>
+							<td></td>
+							<td rowspan="4"></td>
+						</tr>
+						<tr>
+							<td rowspan="3" colspan="3">&nbsp;</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table></div>
+			</div>
+		</div>
+		<#if usd?exists>
+	<div id="Account1">
+    <div class="col-md-12">
+	<div>
+		<table width="100%" class="table" contenteditable="true" text-align:center="">
+			<thead>
+				<tr>
+					<th colspan="3">综述</th>
+					<th colspan="3">详情</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td rowspan="3" colspan="3">&nbsp;</td>
+					<td width="106" rowspan="2"><p>&nbsp;</p>
+						<p>账户余额</p></td>
+						<td width="136">账户可用余额</td>
+						<td width="239">${(usd.balance?default(0)?string(",##0.00"))} 元</td>
+					</tr>
+					<tr>
+						<td>账户冻结金额</td>
+						<td width="239">${(usd.frozenAmount?default(0)?string(",##0.00"))} 元</td>
+					</tr>
+					<tr>
+						<td rowspan="2"><p>&nbsp;</p>
+							<p>保证金余额</p></td>
+							<td>保证金可用余额</td>
+							<td>${(usd.depBalance?default(0)?string(",##0.00"))} 元</td>
+						</tr>
+						<tr>
+							<td width="108">交易清算金额</td>
+							<td width="109">结汇转入金额</td>
+							<td width="104">其他入款金额</td>
+						</tr>
+						<tr>
+							<td>${(usd.settBalance?default(0)?string(",##0.00"))}元</td>
+							<td>0.00</td>
+							<td>0.00</td>
+							<td></td>
+							<td></td>
+							<td rowspan="4"></td>
+						</tr>
+						<tr>
+							<td rowspan="3" colspan="3">&nbsp;</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table></div>
+			</div>
+		</div>
+		</#if>
+	</div>
+</div>
+</div>
+</div>
+</div>
+</div>	
+</div>
+</div>
+</div>
+<!--第一页-->
+<!--第二页-->
+<div id="dealToday">
+	<div class="section">
+
+		<div class="seccon">
+			<div class="transparentbox">
+				<table>
+					<tbody><tr>
+						<td>商户名称：</td>
+						<td style="width: 200px;">${enterpriseBase.zhName}</td>
+					</tr>
+					<tr>
+						<td>商户号：</td>
+						<td>${enterpriseBase.merchantCode?default('')}</td>
+					</tr>
+				</tbody></table>
+			</div>
+			<div class="transparentbox">
+				<table class="tab03" summary="Account Information List">
+					<thead>
+						<tr style="background-color: #eee">
+							<th>序号</th>
+							<th>账户名称</th>
+							<th>账户类型</th>
+							<th>币种</th>
+							<th>可用余额</th>
+							<th>冻结金额</th>
+							<th>账户状态</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+                   <#if acctList?exists>
+		   				<#list acctList as ts>
+						<tr>
+							<td>${ts_index+1}</td>
+							<td>${ts.acctName?default("")}</td>
+						    <td>
+						       <#if ts.isBasicAcct==1>
+						                                     基本账户
+						       <#else>
+						                                    保证金账户
+						       </#if>
+						    </td>
+						    <td>${ts.curName?default("")}</td>
+							<td>${(ts.balance?default(0)?string(",##0.00"))}</td>
+							<td>${(ts.freezeAmount?default(0)?string(",##0.00"))}</td>
+							<td>
+										<#if ts.status==0>
+											异常
+										<#elseif ts.status ==1>
+											正常
+										</#if>
+							</td>
+							<td>
+							   <a href="${rc.contextPath}/corp/myAccount.htm?method=acctDetail&acctCode=${ts.acctCode?default("")}">查看详情</a>
+							   <#if ts.isFrozenAcct==0>
+									<a href="${rc.contextPath}/corp/withdraw.htm">申请提现</a>
+								</#if>
+							</td>
+						</tr>
+						</#list>
+		 			</#if>
+					</tbody>
+				</table>
+			</div>
+
+			<input id="realWithdrawAmount" type="hidden">
+			<input id="realExchangeAmount" type="hidden">
+
+			<div id="exchangePurchaseDialog" style="display: none;">
+				<p class="tc fb" id="exchangMsg"></p>
+				<table style="widht: 100%;">
+					<tbody><tr><td style="width: 140px; text-align: right;">账户余额：</td><td><span id="exchangeBalance" style="margin-left: 10px;"></span><span style="margin-left: 120px;"><img title="可购汇金额为扣除手续费后可购汇的最大人民币金额，购汇手续费显示的为按照可购汇金额计算出来的最大手续费值。实际购汇手续费会根据填写的申请购汇金额，自动计算。实际购汇汇率以购汇当日银行汇率为准。" src="../resources/images/question-b128.png"></span></td></tr>
+						<tr>
+							<td style="width: 140px; text-align: right;">申请购汇币种：</td><td>
+							<div style="margin-left: 10px;">
+								<select id="targetCurrency">
+									<option value="USD">USD</option>
+								</select>
+							</div>
+						</td>
+					</tr>
+					<tr><td style="width: 140px; text-align: right;">购汇手续费：</td><td><span id="exchangeFeeAmount" style="margin-left: 10px;"></span></td></tr>
+					<tr><td style="width: 140px; text-align: right;">可购汇金额：</td><td><span id="exchangeAvailableAmount" style="margin-left: 10px;"></span></td></tr>
+					<tr><td style="width: 140px; text-align: right;">申请购汇金额：</td><td><input class="base-input2" id="exchangeAmount" style="width: 80px; margin-left: 10px;" type="text"> CNY&nbsp;&nbsp;<span style="color: red;">申请金额不能大于可购汇金额</span></td></tr>
+					<tr><td style="width: 140px; text-align: right;">实际购汇手续费：</td><td><span id="actualExchangeFee" style="margin-left: 10px;"></span></td></tr>
+				</tbody></table>
+				<div id="error_msg_exchange" style="color: red; margin-top: 2px; margin-left: 90px; display: none;"></div>
+				<div class="submit" style="margin-top: 14px;">
+					<input class="btn_blue" id="applyExchangeBtn" type="button" alt="提交申请" value="提交申请">
+					<input class="btn_blue" id="cancelExchangeBtn" type="button" alt="取消" value="取消">
+				</div>
+			</div>
+
+
+			<div id="exchangeSaleDialog" style="display: none;">
+				<p class="tc fb" id="exchangMsg"></p>
+				<table style="widht: 100%;" class="table">
+					<tbody><tr><td style="width: 140px; text-align: right;">账户余额：</td><td><span id="exchangeBalance" style="margin-left: 10px;"></span><span style="margin-left: 120px;"><img title="可结汇金额为扣除手续费后可结汇的最大外币金额，结汇手续费显示的为按照可结汇金额计算出来的最大手续费值。实际结汇手续费会根据填写的申请结汇金额，自动计算。实际结汇汇率以结汇当日银行汇率为准。" src="../resources/images/question-b128.png"></span></td></tr>
+						<tr>
+							<td style="width: 140px; text-align: right;">申请结汇币种：</td><td><span style="margin-left: 10px;">CNY</span></td>
+						</tr>
+						<tr><td style="width: 140px; text-align: right;">结汇手续费：</td><td><span id="exchangeFeeAmount" style="margin-left: 10px;"></span></td></tr>
+						<tr><td style="width: 140px; text-align: right;">可结汇金额：</td><td><span id="exchangeAvailableAmount" style="margin-left: 10px;"></span></td></tr>
+						<tr><td style="width: 140px; text-align: right;">申请结汇金额：</td><td><input class="base-input2" id="exchangeAmount" style="width: 80px; margin-left: 10px;" type="text"><span id="applicationCurrency"></span>&nbsp;&nbsp;<span style="color: red;">申请金额不能大于可结汇金额</span></td></tr>
+						<tr><td style="width: 140px; text-align: right;">实际结汇手续费：</td><td><span id="actualExchangeFee" style="margin-left: 10px;"></span></td></tr>
+					</tbody></table>
+					<div id="error_msg_exchange" style="color: red; margin-top: 2px; margin-left: 90px; display: none;"></div>
+					<div class="submit" style="margin-top: 14px;">
+						<input class="btn_blue" id="applyExchangeBtn" type="button" alt="提交申请" value="提交申请">
+						<input class="btn_blue" id="cancelExchangeBtn" type="button" alt="取消" value="取消">
+					</div>
+				</div>
+				<div id="withdrawDialog" style="display: none;">
+					<p class="tc fb" id="withdrawMsg"></p>
+					<table style="widht: 100%;">
+						<tbody><tr><td style="width: 150px; text-align: right;"><div id="currDesc">可提现金额：</div></td><td><span id="balance" style="margin-left: 10px;"></span><span style="margin-left: 80px;"><img title="可提现金额为扣除手续费后可提现的最大金额，提现手续费显示的为按照可提现金额计算出来的最大手续费值。实际提现手续费会根据填写的申请提现金额，自动计算。" src="../resources/images/question-b128.png"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">提现手续费：</td><td><span id="feeAmount" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">银行：</td><td><span id="bankname" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">开户行</td><td><span id="branch" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">账户名称：</td><td><span id="bankAccountName" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">账号：</td><td><span id="accountNo" style="margin-left: 10px;"></span></td></tr>
+							<tr><td valign="top" style="text-align: right;">申请提现金额：</td><td><input class="base-input2" id="withdrawAmount" style="width: 80px; margin-left: 10px;" onChange="onWithdrawAmountKeyup();" type="text"></td></tr>
+							<tr><td id="actualFeeRow" valign="top" style="text-align: right; visibility: hidden;">实际提现手续费：</td><td><span id="actualFee" style="margin-left: 10px;"></span></td></tr>
+						</tbody></table>
+						<div id="error_msg_withdraw" style="color: red; margin-top: 2px; margin-left: 90px; display: none;"></div>
+						<div class="submit" style="margin-top: 14px;">
+							<input class="btn_blue" id="applyWithdrawBtn" type="button" alt="提交申请" value="提交申请">
+							<input class="btn_blue" id="cancelWithdrawBtn" type="button" alt="取消" value="取消">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--第二页-->
+	</div>
+</div>
+</div>
+</div>
+
+<#include "/include/myfoot.html">
+</body>
+
+</html>

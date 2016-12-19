@@ -1,0 +1,561 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付还房贷</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link rel="Bookmark" type="image/x-icon" href="
+<@sp.static/>/img/favicon.ico">
+<link href="
+<@sp.static/>/img/favicon.ico" type="image/x-icon" rel="SHORTCUT ICON">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+		})
+		
+		$("#refush")
+				.click(
+						function() {
+							var d = new Date();
+							var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+									+ d.getTime();
+							$("#code").attr("src", src);
+						});
+		$("#prvinceClose").click(function(){
+			$("#add_provinces").hide();
+		});
+
+		$("#acctcity").click(function(){
+			$("#add_provinces").show(3);
+		});
+        $('#payeeAccountNoOnc').bind('copy paste', function(e){
+            e.preventDefault();
+         });
+        $('#payeeAcctKaiHu').bind('copy paste', function(e){
+            e.preventDefault();
+         });        
+        $("#payeeAcctKaiHu").blur(function(){ 
+            var billOrgCodetext=$('#billOrgCode option:selected').text();
+            var payeeAcctKaiHuvalue=$("#payeeAcctKaiHu").val();
+            if(payeeAcctKaiHuvalue.indexOf(billOrgCodetext)==-1)
+            {
+            	
+            	$("#payeeAcctKaiHuerrmessage").show().html("<span style='color:red'>请填写正确的开户行名称</span>");    
+            	return false;
+            }
+            else
+            {
+            	$("#payeeAcctKaiHuerrmessage").text(""); 
+            }
+        }); 
+        
+    	$("#payeeAccountNo").blur(function(){
+    		InputValid.digitOnly($("#payeeAccountNo")[0]);
+    		this.value = this.value.replace(/\s/g,'');
+    		var payeeAccountNo = $("#payeeAccountNo").val();
+    		var billOrgCode = $("#billOrgCode").val();
+    		if(payeeAccountNo!=''){
+    		$.ajax( {
+				type : "post",
+				url : "${rc.contextPath}/validate.htm?payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode,
+				datatype : "json",
+				success : function(data) {
+					if (null != data && data != "") {
+						//$("#payeeAccountNo").val("");
+				        $("#payeeAccountNoerrmessage").show().html("<span style='color:red'>请输入正确的银行卡号！</span>");
+					} 
+		 			else
+					{
+						 $("#payeeAccountNoerrmessage").text("");	
+					}
+		     }
+			});   }  
+    	});	
+		$("#payeeAccountNo").keyup(function(){fmtNoTips(this);})
+		.focus(function(){fmtNoTips(this);});
+		$("#payeeAccountNoOnc").keyup(function(){fmtNoTips(this);})
+		.focus(function(){fmtNoTips(this);}).blur(function(){
+			this.value = this.value.replace(/\s/g,'');
+			var payeeAccountNo = $("#payeeAccountNo").val();
+			if(payeeAccountNo!=this.value)
+			{
+				$("#payeeAccountNoOncerrmessage").show().html("<font color=red>两次输入的卡号不一致</font>");
+			}
+			else
+			{
+				$("#payeeAccountNoOncerrmessage").text("");
+			}			
+		});	  	
+    	$("#billOrgCode").blur(function(){
+    		var payeeAccountNo = $("#payeeAccountNo").val();
+    		var billOrgCode = $("#billOrgCode").val();
+    		if(payeeAccountNo!='' && billOrgCode!=''){
+    		$.ajax( {
+				type : "post",
+				url : "${rc.contextPath}/validate.htm?payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode,
+				datatype : "json",
+				success : function(data) {
+					if (null != data && data != "") {
+						// $("#payeeAccountNo").val("");
+				        $("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号！</font>");
+					} 
+					else
+					{
+						 $("#payeeAccountNoerrmessage").text("");	
+					}
+		     }
+			});   }  
+    	});	
+    	
+	});
+	function feeamount() {
+		var fee = $("#billAmount").val();
+		if(fee<0.01)
+		{
+			$("#checkboxMobile").removeAttr('checked');
+			$("#checkboxMobile").attr('disabled', 'true');
+			$("#mid").hide();
+			$("#middate").hide();
+			$("#mobile").val("");
+			$("#mobile").attr('readonly', 'true');	
+			$("#billNotifyDay").val("");
+		}
+		else
+		{
+			$("#checkboxMobile").removeAttr('disabled');
+			$("#billNotifyDay").removeAttr('disabled');
+		}
+		$("#billAmountString").val($("#billAmount").val());
+		$.ajax( {
+					type : "post",
+					url : "${rc.contextPath}/ca/toMortgagerpayment.htm?method=Transferfee&textfee="
+							+ fee,
+					datatype : "json",
+					success : function(data) {
+						if (null != data && data != "") {
+							$("#billFeeAmountString").val(data.toString);
+							$("#chargeDiv").show();
+							$("#transferfee").show().html("<label class='form_side'>手 续 费：</label>"+data+"元");
+							$("#billAmounterrmessage").text("");
+							return true;
+						} else {
+							$("#chargeDiv").hide();
+							$("#transferfee").text("");
+							$("#billAmount").val("");
+							return false;
+				}
+			}
+		});		
+	}
+
+	function verify()
+	{
+		var fee = $("#billAmount").val();
+		if (!fee.indexOf(".") == 0) {
+			if (parseFloat(fee)) {
+				if (!isNaN(fee)) {
+					$('#billAmount').val(parseFloat(fee).toFixed(2));
+				}
+			}
+		}
+		if(parseFloat(fee).toFixed(2)==0)
+		{
+			$("#billAmount").val("");
+		}		
+		$.ajax( {
+			type : "post",
+			url : "${rc.contextPath}/realnameverify.htm",
+			datatype : "json",
+			success : function(data) {
+				if (data == "YES" && fee>20000) {
+					$("#billAmounterrmessage").show().html("实名认证用户单笔金额不能大于20000");
+					$("#chargeDiv").hide();
+				    $("#transferfee").text("");
+				    return false;
+				} else if(data == "NO" && fee>2000){
+					$("#billAmounterrmessage").show().html("非实名认证用户单笔金额不能大于2000");
+					$("#chargeDiv").hide();
+				    $("#transferfee").text("");
+				    return false;
+				}
+				else
+				{
+					feeamount();
+			     return false;
+		        }
+	}
+		});		
+	}
+	
+
+	function checkSubmit() {
+		if(null!=$("#payeeAcctKaiHuerrmessage").text() && $("#payeeAcctKaiHuerrmessage").text()!="")
+		{
+			$("#payeeAcctKaiHuerrmessage").show().html("<span style='color:red'>请填写正确的开户行名称</span>");  
+			return false;
+		}
+		if(null!=$("#payeeAccountNoerrmessage").text() && $("#payeeAccountNoerrmessage").text()!="")
+		{
+			 //$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号！</font>");
+			var payeeAccountNo = $("#payeeAccountNo").val();
+    		if(payeeAccountNo==null||payeeAccountNo==""||payeeAccountNo.length<15||payeeAccountNo.length>23){
+				$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号！</font>");
+				return false;
+            }
+			//return false;
+		}		
+		if (null == $("#payeeName").val() || $("#payeeName").val() == "") { 
+			$("#payeeNameerrmessage").show().html("<font color=red>开户人姓名不能为空</font>");
+			return false;
+		} else {
+			$("#payeeNameerrmessage").show().html("");
+		}
+		if (null == $("#billOrgCode").val() || $("#billOrgCode").val() == "") {
+			$("#bankerrmessage").show().html("开户银行不能为空");
+			return false;
+		} else {
+			$("#bankName").val($("#billOrgCode").find("option:selected").text());
+			$("#bankerrmessage").show().html("");
+		}
+	//	if (null == $("#province").val() || $("#province").val() == "") {
+	//		$("#PvandCyerrmessage").show().html("请选择开户行所在省份");
+	//		return false;
+	//	} else {
+		//	$("#billProvinceCode").val($("#province").val());
+			$("#PvandCyerrmessage").show().html("");
+	//	}
+		if (null == $("#acctcity").val() || $("#acctcity").val() == "") {
+			$("#PvandCyerrmessage").show().html("<span style='color:red'>请选择开户行所在城市</span>");
+			return false;
+		} else {
+		//	$("#billCity").val($("#city").find("option:selected").text());
+		//	$("#billProvince").val(
+		//			$("#province").find("option:selected").text());
+		//	$("#billCityCode").val($("#city").val());
+			$("#PvandCyerrmessage").show().html("");
+		}
+		if (null == $("#payeeAcctKaiHu").val()
+				|| $("#payeeAcctKaiHu").val() == "") {
+			$("#payeeAcctKaiHuerrmessage").show().html("<span style='color:red'>请填写开户行名称</span>");
+			return false;
+		} else {
+			$("#payeeAcctKaiHuerrmessage").show().html("");
+		}
+		if (null == $("#payeeAccountNo").val()
+				|| $("#payeeAccountNo").val() == "") {
+			$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写银行卡号</font>");
+			return false;
+		} else {
+			if (!isNumber($("#payeeAccountNo").val())) {
+				$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号</font>");
+				return false;
+			} else {
+				$("#payeeAccountNoerrmessage").show().html("");
+			}
+		}
+		if ($("#payeeAccountNo").val() != $("#payeeAccountNoOnc").val()) {
+			$("#payeeAccountNoOncerrmessage").show().html("<font color=red>两次输入的卡号不一致</font>");
+			return false;
+		} else {
+			$("#payeeAccountNoOncerrmessage").show().html("");
+		}
+		if(null==$("#isSue").val() || $("#isSue").val()=="")
+		{
+			$("#isSueerrmessage").show().html("请输入还贷期数");
+			return false;			
+		}
+		else
+		{
+			var isSueValue=$("#isSue").val();
+			if(!isNumber(isSueValue*1))
+			{
+				$("#isSueerrmessage").show().html("请正确输入还贷期数"); 
+				return false;
+			}
+			else
+			{
+				$("#isSueerrmessage").show().html(""); 	
+			}
+		
+		}
+		if (null == $("#billAmount").val() || $("#billAmount").val() == "" || $("#billAmount").val()<0.01) {
+			$("#billAmounterrmessage").show().html("请输入金额");
+			return false;
+		} else {
+			if($("#billAmount").val()>20000)
+			{
+				$("#billAmounterrmessage").show().html("输入金额上限不能大于20000元");
+				return false;
+			}
+			$("#billAmounterrmessage").show().html("");
+		}
+		if ($("#checkboxMobile").attr("checked") == true) {
+			if (null == $("#mobile").val() || $("#mobile").val() == "") {
+				$("#payerMobileerrmessage").show().html("你选择了短信通知就要填写手机号码");
+				return false;
+			} else {
+				if (!isNumber($("#mobile").val()) || ($("#mobile").val()).length != 11) {
+					$("#payerMobileerrmessage").show().html("请输入正确的手机号码");
+					return false;
+				} else {
+					$("#payerMobileerrmessage").show().html("");
+				}
+			}
+			var billNotifyDay = $("#billNotifyDay").val();
+			if (billNotifyDay == ''||null ==billNotifyDay) {
+				$("#billNotifyDayTip").show().html("请选择题日期");
+				$("#billNotifyDay").focus();
+				return false;
+			}
+		}//
+		if (null == $("#ranCode").val() || $("#ranCode").val() == "") {
+			$("#ranCodeerrmessage").show().html("<font color=red>请输入验证码</font>");
+			return false;
+		} else {
+			$("#ranCodeerrmessage").show().html("");
+		}
+	}
+	function sendMobile()
+	{
+		if ($("#checkboxMobile").attr("checked") == true)
+		{
+			$("#mid").show();
+			$("#middate").show();
+			$("#mobile").removeAttr('readonly');
+		} 
+		else
+		{
+			$("#mid").hide();
+			$("#middate").hide(); 
+			$("#mobile").val("");
+			$("#mobile").attr('readonly','true');
+		}
+	}
+
+	$(document).ready(function(){
+		$('#checkboxMobile').attr("disabled","");
+        if($('#mobile').val() == "" || $('#mobile').val() == null)
+        {
+         $('#checkboxMobile').attr('checked','');
+   //      $('#checkboxMobile').attr("disabled","disabled");
+       	 $('#mid').hide();
+       	 $('#middate').hide();
+        } else
+        {   
+         $('#checkboxMobile').attr("disabled","");
+       	 $('#checkboxMobile').attr('checked','checked');
+       	 $('#middate').show();
+       	 $('#mid').show();
+        }		
+	});
+</script>
+<#if errorMessage?has_content>
+	<script type="text/javascript">
+$(function(){	
+$.pay.alert('${errorMessage?default('')}',{h:160,t:'3'});
+});
+</script>
+</#if>
+<#if cmmand.billFeeAmountString?has_content>
+<script>
+	$(function() {
+		$("#chargeDiv").show();
+		$("#transferfee").show().html("<label class='form_side'>手 续 费：</label>"+${cmmand.billFeeAmountString}+"元");
+	});
+</script>
+</#if>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="还房贷" />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+<!--侧导航 str -->
+<@sp.ebillmenu channel="1_5"/>
+<!--侧导航 end -->
+
+<div class="box_main">
+	<div class="form_box">
+		<div class="form_tit">
+			<h3><i>还房贷</i></h3>
+			<em class="step_cur_1"></em> </div>
+		<div class="content"> 
+			<!--表单str -->
+			<form class="mod_form2" id="form" name="form" method="post"
+				action="${rc.contextPath}/ca/toMortgagerpayment.htm?method=saveRequest">
+				<!--左str -->
+				<div class="form_list_l">
+					<ul class="form_list">
+						<li class="sort_tit">房贷账户银行卡信息</li>
+						<span id="errtips"></span>
+						<li>
+							<label class="form_side2">开户人姓名：</label>
+							<input
+					type="text" name="payeeName" id="payeeName" class="input_txt2 w170" value="${cmmand.payeeName?default('')}"
+					size="20" onkeyup="value=value.replace(/[^\a-zA-Z\u4E00-\u9FA5]/g,'')"
+					onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\a-zA-Z\u4E00-\u9FA5]/g,''))" maxlength="25" tabindex="1">
+							<p class="onShow" id="payeeNameerrmessage">为确保付款成功，请正确填写持卡人姓名</p>
+							<a class="red" href=""></a></li>
+						<li>
+							<label class="form_side2">开户行：</label>
+							<select	name="billOrgCode" id="billOrgCode" class="select2 w170" tabindex="2">
+								<option value="">--请选择开户行--</option>
+								<#if cabankList?exists> <#list cabankList as bank> <#if cmmand.billOrgCode?default('')==bank.bankCode>
+								<option value="${bank.bankCode}" selected>${bank.bankName}</option>
+								<#else>
+								<option value="${bank.bankCode}">${bank.bankName}</option>
+								</#if> </#list> </#if>
+							</select>
+							<p class="onShow" id="bankerrmessage" style='color:red'></p>
+						</li>
+						<li id="get_add">
+							<label class="form_side2">开户行所在地：</label>
+							<input type="text" class="input_txt2 w170" size="35" id="acctcity" value="${cmmand.billCity?default('')}"
+					name="city" readonly="true">
+							<p class="onShow"> <span id="PvandCyerrmessage"></span> </p>
+							<!--弹出层 str--> <!--自动完成地址--> 
+							<#include "/common/include/province.html"> 
+							<!--弹出层 end--> 
+						</li>
+						<li>
+							<label class="form_side2">开户行名称：</label>
+							<input
+					type="text" name="payeeAcctKaiHu" id="payeeAcctKaiHu" value="${cmmand.payeeAcctKaiHu?default('')}"
+					class="input_txt2 w170" size="35" maxlength="50" tabindex="3">
+							<p class="onShow"> <span id="payeeAcctKaiHuerrmessage"></span> </p>
+						</li>
+						<li>
+							<label class="form_side2">银行卡号：</label>
+							<input
+					type="text" name="payeeAccountNo" id="payeeAccountNo" tabindex="4" maxlength="23"
+					class="input_txt2 w170" size="35" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')">
+							<p class="onShow" id="payeeAccountNoerrmessage"></p>
+						</li>
+						<li>
+							<label class="form_side2">重复银行卡号：</label>
+							<input
+					type="text" name="payeeAccountNoOnc" id="payeeAccountNoOnc" maxlength="23"
+					class="input_txt2 w170" size="35" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" tabindex="5">
+							<p class="onShow" id="payeeAccountNoOncerrmessage"></p>
+						</li>
+					</ul>
+				</div>
+				<!--左end --> 
+				<!--右str -->
+				<div class="form_list_r">
+					<ul class="form_list">
+						<li class="sort_tit">房贷信息</li>
+						<li>
+							<label class="form_side2">本期房贷期数：</label>
+							<input class="input_txt2 w170" type="text" name="isSue" value="${cmmand.isSue?default('')}" id="isSue" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" tabindex="6"/>
+							期
+							<p class="onShow" id="isSueerrmessage" style='color:red'></p>
+						</li>
+						<li>
+							<label class="form_side2">本期房贷：</label>
+							<input type="text" name="billAmount" value="${cmmand.billAmount?default('')}" id="billAmount" class="input_txt2 w120" size="20" onblur="return verify();" tabindex="7"/>元
+							</label>
+							<p class="onShow" id="billAmounterrmessage" style='color:red'></p>
+						</li>
+						<li id="chargeDiv" class="commission" style="display: none;"><strong class="red"><span
+					id="transferfee">${cmmand.billFeeAmountString?default('')}</span></strong></li>
+						<li class="send_msg">
+							<input type="checkbox" name="checkboxMobile"
+					value="" id="checkboxMobile" onclick="return sendMobile();" />
+							免费短信提醒</li>
+						<li id="middate" style="display: none;" >
+									<label class="form_side2">提醒日期：</label>
+									每月<select name="billNotifyDay" id="billNotifyDay" class="select2" tabindex="8">
+										<#list 1..28 as x> 
+											<option value="${x}" <#if cmmand.billNotifyDay?default(0)==x> selected</#if>>${x}</option>
+										</#list> 
+									</select>日自动短信提醒缴纳房贷
+									<p id="billNotifyDayTip" style='color:red'></p>
+						</li>							
+						<li id="mid" style="display: none;">
+							<label class="form_side2">手机号码：</label>
+							<input type="text" name="payerMobile" value="${cmmand.payerMobile?default('')}"  id="mobile" class="input_txt2 w170"
+								size="35" maxlength="11" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" tabindex="9"/>
+							<p id="payerMobileerrmessage" style='color:red'></p>
+						</li>
+						<li>
+							<label class="form_side2">验证码：</label>
+							<input id="ranCode" name="ranCode" type="text" class="input_txt2" maxlength="4" size="8" tabindex="10">
+							<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张">
+							<p class="onShow" id="ranCodeerrmessage"></p>
+						</li>
+						<li class="l_btn"> <span class="btn_yel botton_yel">
+							<button type="submit" onclick="return checkSubmit();" tabindex="11">下一步</button>
+							</span> </li>
+					</ul>
+				</div>
+				<!--右end -->
+				
+				<input type="hidden" name="billName" id="billName" value="还房贷">
+				<input type="hidden" name="billCatalogId" id="billCatalogId" value="1">
+				<input type="hidden" name="payeeAccountNoSummit" id="payeeAccountNoSummit" value="">
+				<input type="hidden" name="billAmountString" id="billAmountString" value="${cmmand.billAmountString?default('')}">
+				<input type="hidden" name="billfeeAmountString" id="billfeeAmountString" value="${cmmand.billfeeAmountString?default('')}">
+				<input type="hidden" name="bankName" id="bankName" value="${cmmand.bankName?default('')}">
+				<input type="hidden" name="billProvince" id="billProvince" value="${cmmand.billProvince?default('')}">
+				<input type="hidden" name="billCity" id="billCity" value="${cmmand.billCity?default('0')}">
+				<input type="hidden" name="billFeeAmount" id="billFeeAmount" value="${cmmand.billFeeAmount?default('')}">
+				<input type="hidden" id="billProvinceCode" value="${cmmand.billProvinceCode?default('')}" name="billProvinceCode">
+				<input type="hidden" id="billCityCode" value="${cmmand.billCityCode?default('')}" name="billCityCode">
+			</form>
+			<div class="bottom_border"><p></p><p></p></div>
+			<!--表单end --> 
+			<!--步骤str
+			<div class="step_mod">
+				<dl>
+					<dt>流程说明:</dt>
+					<dd class="cur"><i>1</i>填写信息</dd>
+					<dd><i>2</i>确认信息</dd>
+					<dd><i>3</i>付 款</dd>
+					<dd><i>4</i>成 功</dd>
+				</dl>
+			</div>-->
+			<!--步骤end--> 
+		</div>
+	</div>
+	<!--问答 str-->
+	<div class="mod_box_a q_a">
+		<div class="con_box">
+			<div class="mod_tit">
+				<h3 class="title font14"><strong>有问题 我帮您</strong></h3>
+				<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+			<dl class="ico_txtBox">
+				<dt><i class="q_ico"></i>我能不能用信用卡还房贷?</dt>
+				<dd><i class="a_ico"></i>不可以。缴纳房贷必须是使用借记卡中的资金偿还房贷，否则将涉嫌利用信用卡套现，这是违法的。</dd>
+			</dl>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	<!--问答 end--> 
+</div>
+</div>
+<!--主内容 end --> 
+<!--footer --> 
+<#include "/common/include/footer.html">
+</body>
+</html>

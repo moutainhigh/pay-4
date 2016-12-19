@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>block</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript">
+var initValue = 60;
+var intervalSend = initValue;
+var timer1 = null;
+$(function() {
+	startInterval();
+	$("#login_div").mouseover(function(){
+		$(this).removeClass("login_other");
+		$(this).addClass("login_current");
+	}).mouseout(function(){
+		$(this).addClass("login_other");
+		$(this).removeClass("login_current");
+	});
+});
+	function startInterval(){
+		intervalSend = initValue;
+		$("#app").empty();
+		timer1 = window.setInterval(function() {
+			--intervalSend;
+			$("#send_p").text(intervalSend + "秒后可点击重新发送校验码");
+			if (intervalSend == 0) {
+				$("#app").html(" <a href='javascript:void(0)' class='red bk_pf' onclick='startInterval();sendMsg();'>点击重新发送</a>");
+				$("#send_p").html("");
+				clearInterval(timer1);
+				intervalSend = initValue;
+			}
+		}, 1000);
+	}
+	function sendMsg(){
+		$("#error").html("");
+		if(intervalSend==60){
+			$.post("${rc.contextPath}/ebpp/tpReSendMsg.htm", {
+				"mobileNo" : "${mobileNo?default('')}"
+			}, function(msg) {
+				//alert("验证码已经重新发送，请您查收！");
+			});
+		}
+	}
+	function createTempAcct(){
+		$.post("${rc.contextPath}/ebpp/tpCreateAcc.htm", {
+			"mobileNo" : "${mobileNo?default('')}",
+			"msgCode" : $("#msgCode").val()
+		}, function(str) {
+			if(str.length == 0){
+				if(window.parent){
+					window.parent.document.forms[0].submit();
+				}
+			}else{
+				if(str=="randCode"){
+					$("#error").html("短信校验码错误,请重新输入");
+					return false;
+				}
+				if(str=="msgCodeExpired"){
+					$("#error").html("短信校验码已失效,请点击重新发送");
+					return false;
+				}
+				if(str=="serviceBusy"){
+					$("#error").html("系统正忙,请稍候再试");
+					return false;
+				}
+			}
+		});
+	}
+	function goback(){
+		var backurl=window.parent.document.getElementById("back").value;
+		window.parent.document.forms[0].action=backurl;
+		window.parent.document.forms[0].submit();
+	}
+</script>
+</head>
+<body>
+<div class="login_other" id="login_div">
+<div class="login_live">
+<div class="bd" id="login_form_panel">
+<div class="login_form_cont">
+<div class="bt"><span class="blod font14 c_000">支付方式二：非iPayLinks支付员支付</span><em
+	class="reg_a"><a href="${rc.contextPath}/register.htm" target="_bank">注册账号</a></em></div>
+<div class="ht5"><!--  <i class="warn_ico"></i>iPayLinks支付支付会员支付单笔和日累计限额都是2000元-->
+</div>
+<div class="h120">
+<div class="ht5"></div>
+<div class="field"><label><span class="c_000 font13">已将校验码发送到您的手机${mobileNo?default('')}<a
+	href="${rc.contextPath}/ebpp/tpAccount.htm" class="red bk_pf">(修改)</a></span></label>
+<div class="ht5"></div>
+</div>
+<div class="field"><label><span class="font14 c_000">请输入短信校验码：</span></label>
+<input style="width: 110px" type="text" name="msgCode" id="msgCode"
+	class="input_txt2" maxlength="6" /> <!--鼠标点击到输入框会高亮显示，input_cur为高亮，input_nor为普通 --> <span
+	id="app"></span>
+<p class="from_txt2" id="error" style="color: red"></p>
+<p class="from_txt2" id="send_p">60秒后可点击重新发送校验码</p>
+</div>
+</div>
+<div class="field"><label><span class="width_l"> </span></label><span
+	class="btn_yel botton_yel">
+<button type="button" onclick="createTempAcct();">确认支付</button>
+</span><a href="javascript:void(0);" class="red bk_pf" onclick="goback();">返回修改</a></div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

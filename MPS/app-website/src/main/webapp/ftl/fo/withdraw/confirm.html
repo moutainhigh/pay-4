@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=7">
+<title>iPayLinks支付-提现</title> <#include "/common/macro/seoPerson.ftl">
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css"
+	rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet"
+	type="text/css">
+<link href="
+<@sp.static/>/css/dialog/person/jquery-ui.custom.css"
+	rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css"
+	rel="stylesheet" type="text/css">
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" charset="utf-8">
+
+	function checkSubmit(){
+		  if(hasSecurityCtrl()){
+				  if(getPwdCtrlStrLength("paySafeEdit")<=0){
+						$('#pwdError').html('请输入支付密码');
+						return false;
+					}
+		        $("#payPwd").val(getPwdCtrlVal("paySafeEdit"));
+		    }
+		if($("#payPwd").val() == ''){
+			$('#pwdError').html('请输入支付密码');
+			return false;
+		}else {
+			$("#applyWithdrawBtn").attr("disabled", true);   
+			$("#applySpan").attr("class","btn_yel v_b b_off");
+			$("#confirmWithdrawForm").submit();
+		}
+	}
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3'
+	      });
+	}
+	$(function(){
+		$("#findselect").click(function() {
+			payWin = $.pay.window("${rc.contextPath}/app/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+		});
+		$("#payPwd").keyup(function(event) {
+			if(event.keyCode == 13) {
+				$("#confirmWithdrawForm").submit();
+			}
+		});
+	});
+	function backConfirm(){
+		var form = document.getElementById("confirmWithdrawForm");
+		$("#method").val("confirm");
+		$("#back").val("true");
+		form.action="${rc.contextPath}/app/withdraw.htm?date="+ new Date();
+		form.submit();
+	}
+</script>
+</head>
+<body>
+	<!--导航 str-->
+	<@sp.head mCode="app_withdraw"/> 
+	
+	<!--导航 end-->
+	<!--主内容 str -->
+	<div class="container">
+		<div class="mod_box_a">
+			<p class="top">
+				<i></i>
+			</p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14">
+						<strong>申请提现</strong>
+					</h3>
+				</div>
+				<div class="content">
+					<div class="pay_info">
+						<div class="step">
+							<ol class="step-2">
+								<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+								<li class="li-1 last"><span><i>1</i>申请提现</span></li>
+								<li class="li-2 last"><i>2</i>提现确认</li>
+								<li class="li-3 last"><span><i>3</i>申请提交</span>
+								</li>
+							</ol>
+						</div>
+						<div class="ico_txtBox mt5">
+							<i class="warn_ico"></i>
+							<p>
+								银行账户的开户人姓名必须为“<strong class="red">${command.payeeName?default('')}</strong>”，否则将导致提现失败！
+							</p>
+							<p>审核通过后到账日期在2-3个工作日。</p>
+						</div>
+						<form class="pad_center" action="${rc.contextPath}/app/withdraw.htm" method="post"	name="confirmWithdrawForm" id="confirmWithdrawForm">
+							<input type="hidden" id="method" name="method" value='pay'> 
+							<input type="hidden" id="back" name="back"> 
+							<input type="hidden" id="token" name="token" value="${token?default('')}">
+
+							<ul class="form_list">
+								<li>
+									<label class="form_side">真实姓名：</label> 
+									<strong class="red">${command.payeeName?default('')}</strong>
+								</li>
+								<li>
+									<#assign startIndex = (command.payeeBankAcctCode?length)-4>
+									<#assign endIndex = command.payeeBankAcctCode?length>
+									<label class="form_side2"> 提现银行账户： </label>${command.payeeBankName?default('')}（尾号<strong class="red">${command.payeeBankAcctCode?substring(startIndex,endIndex)}</strong>）
+								</li>
+								<li>
+									<label class="form_side">提现金额：</label> 
+									<strongclass="red">${command.realoutAmountStr?default('0.00')}</strong> 元
+								</li>
+								<li>
+									<label class="form_side">手续费：</label> 
+									<strongclass="red">${command.requestFee?default('0.00')}</strong> 元
+								</li>
+								<!--<li><label class="form_side">备注：</label>${command.paymentReason?default('')}</li>-->
+								<li>
+									<label class="form_side"><span>*</span>支付密码：</label>
+									<@sp.password cid="paySafeEdit" id="payPwd" name="payPwd" width="150px" height="26px" class="inp_normal"/> <span class="c_999 ml10">支付密码如果连续输错3次，账户将被锁定</span>
+									<p class="red" id="pwdError"></p></li>
+								<li>
+									<span class="btn_yel v_b"><button  onclick="return checkSubmit();" id="applyWithdrawBtn" name="applyWithdrawBtn">确认付款</button></span> <i class="ml10"><a class="red" href="#" onclick="backConfirm()">返回修改</a>  | <a id="findselect" href="javascript:void(0)"  class="red">忘记支付密码？</a></i>
+								</li>
+							</ul>
+						</form>
+					</div>
+
+				</div>
+			</div>
+			<p class="bot">
+				<i></i>
+			</p>
+		</div>
+		<!--主内容 end -->
+	</div>
+	<!--footer -->
+	<script type="text/javascript">
+	<#if validateMsg?exists>
+	var validateMsg = '${validateMsg}';
+	if(''!=validateMsg&&null!=validateMsg){
+		$('#pwdError').html(validateMsg);
+		$("#applyWithdrawBtn").attr("disabled", false);
+	}
+	</#if>
+	<#if message?exists>
+		var message = '${message}';
+		if(''!=message&&null!=message){
+			$.pay.alert(message, {
+				h : 160,
+				w : 450,
+				t : '3',
+				close:function(){
+				$("#applyWithdrawBtn").focus();
+				$("#applyWithdrawBtn").attr("disabled", false);
+			}});
+		}
+	</#if>
+    </script>
+ <#include "/common/include/footer.html">
+</html>

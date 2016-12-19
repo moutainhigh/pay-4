@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="partnerconfig">
+	
+	<typeAlias alias="partnerConfig" type="com.pay.base.fi.model.PartnerConfig"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<select id="findObjectByCriteria" parameterClass="hMap" resultClass="partnerConfig">
+		SELECT PARTNER_CONFIG_NO as partnerConfigNo,
+	  	MEMBER_CODE as memberCode,
+	  	PARAM_CODE as paramCode,
+	  	DESCRIPTION as description,
+	 	VALUE as value,
+	  	REMARK as remark
+		FROM PARTNER_CONFIG
+		<dynamic prepend="where">
+			<isNotEmpty property="partnerId" prepend="and">
+				MEMBER_CODE=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="paramCode" prepend="and">
+				PARAM_CODE=#paramCode#
+			</isNotEmpty>
+		</dynamic> 
+	</select>	
+   
+</sqlMap>

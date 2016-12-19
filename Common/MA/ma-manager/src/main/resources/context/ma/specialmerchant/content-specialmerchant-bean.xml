@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id ="specialMerchantDao"
+		class="com.pay.poss.specialmerchant.dao.impl.SpecialMerchantDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>	
+		<property name="namespace" value="specialmerchant"></property>
+	</bean>
+	<bean id="specialMerchantService"
+		class="com.pay.poss.specialmerchant.service.impl.SpecialMerchantServiceImpl">
+		<property name="specialMerchantDao" ref="specialMerchantDao" />
+		<property name="spCardInfoDao" ref="spCardInfoDao" />	
+		<property name="sp_pic_path" value="/data/upload/specialmerchant"></property>
+		<property name="sp_show_path" value="/specialmerchant"></property>
+		<property name="sp_pic_type" value=".jpg"></property>
+	</bean>
+
+	<bean id ="spCardInfoDao"
+		class="com.pay.poss.specialmerchant.dao.impl.SpCardInfoDaoImpl">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>	
+		<property name="namespace" value="spcardinfo"></property>
+	</bean>
+	<bean id="spCardInfoService"
+		class="com.pay.poss.specialmerchant.service.impl.SpCardInfoServiceImpl">
+		<property name="spCardInfoDao" ref="spCardInfoDao" />	
+	</bean>
+</beans>

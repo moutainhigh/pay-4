@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付信用卡还款确认页</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<!-- <link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css"> -->
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript">
+$(function() {
+	$("#goback").click(
+		function() {
+			var url="${rc.contextPath}/ebpp/creditCardPaymentController.htm?method=backCreditCardInput";
+			var isFirst = $("#isFirst").val();
+			if(isFirst!=""){
+				url= url+"&isFirst="+isFirst;
+			}
+			$("#creditCardform").attr("action",url);
+			$("#creditCardform").submit();
+		});
+	$("#submitdata").click(
+		function() {
+			var url="${rc.contextPath}/ebpp/creditCardPayConfirm.htm";
+			$("#creditCardform").attr("action",url);
+			$("#creditCardform").submit();
+			//window.open(url,"payment","toolbar=no,scrollbars=no,menubar=no,resizable=yes"); 
+		});
+
+});
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="信用卡还款"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+		<div class="form_box mt10">
+			<div class="form_tit">
+				<h3><i>信用卡信息</i></h3>
+				<em class="step_cur_2"></em> </div>
+				<div class="content verify_page">
+					<!--表单str -->
+					<form class="mod_form" id="creditCardform" method="post" action="${rc.contextPath}/ebpp/creditCardConfirm.htm">
+					<input type="hidden" name="isFirst" id="isFirst" value="${isFirst?default('')}">
+					<input type="hidden" name="islogin" id="islogin" value="${islogin?default('')}">
+					<table class="verify_table">
+						<tbody>
+						<tr>
+							<td class="thead" colspan="2">信用卡还款</td>
+						</tr>
+						<tr>
+							<td class="type">信用卡发卡行：</td>
+							<td>${EbillItemRequestCommand.payeeAcctKaiHu?default('')}</td>
+						</tr>
+						<tr>
+							<td class="type">信用卡开户名：</td>
+							<td>${EbillItemRequestCommand.payeeName?default('')}</td>
+						</tr>
+						<tr>
+							<td class="type">信用卡卡号：</td>
+							<td><strong class="c_000">${EbillItemRequestCommand.payeeAccountNo?default('')} </strong></td>
+						</tr>
+						<tr>
+							<td class="type">还款银行：</td>
+							<td>${EbillItemRequestCommand.payerBankName?default('')}</td>
+						</tr>
+						<tr>
+							<td class="type">还款金额：</td>
+							<td><strong class="red">${EbillItemRequestCommand.billAmountString?default('')}</strong> 元</td>
+						</tr>
+						<!-- 
+						<tr>
+							<td class="type">手续费：</td>
+							<td><strong class="red">${EbillItemRequestCommand.billFeeAmountString?default('0')}</strong> 元</td>
+						</tr>
+						 -->
+						<#if EbillItemRequestCommand.billNotifyDay?exists>
+							<tr>
+								<td class="type">付款人手机号码：</td>
+								<td>${EbillItemRequestCommand.payerMobile?default('')}
+							</tr>
+							<tr>
+								<td class="type">提醒日期：</td>
+								<td>每月${EbillItemRequestCommand.billNotifyDay?default('')}日</td>
+							</tr>
+						</#if>
+					</tbody>
+					</table>
+					<#if Session["userSession"]?exists>
+					<p class="btn_box txtC sppf"><span class="btn_yel botton_yel">
+					<button type="button" id="submitdata" onclick="this.disabled=true;">确定付款</button>
+					</span><a href="#" id="goback" class="red bk_pf">返回修改</a></p>
+					</#if>
+					<input type="hidden" value="${rc.contextPath}/ebpp/creditCardPaymentController.htm?method=backCreditCardInput&isFirst=1" id="back" ></input>
+					
+				</form>
+				<!--表单end -->
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<#if Session["userSession"]?exists>
+		<#else>
+		<div class="login_bo" id="payDiv">
+		<div class="login_l">
+		<!-- 当前状态DIV，非当前为<div class="login_other"> -->
+			<iframe name="iframe_l" frameborder="0" width="438px" height="256px" scrolling="no" src="${rc.contextPath}/individualLogin.htm?returnUrl=/ebpp/creditCardPayConfirm.htm" ></iframe>
+		</div>
+		<div class="login_r">
+			<iframe name="iframe_r" frameborder="0" scrolling="no" src="${rc.contextPath}/ebpp/tpAccount.htm" width="438px" height="256px"></iframe>
+		</div>
+		</div>
+		</#if>
+		<!--问答 str
+		<div class="mod_box_a q_a">
+			<div class="con_box">
+				<div class="mod_tit">
+					<h3 class="title font14"> <strong>有问题 我帮您</strong> </h3>
+					<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+						<dl class="ico_txtBox">
+								<dt><i class="q_ico"></i>使用信用卡还款服务，要收手续费吗？</dt>
+								<dd><i class="a_ico"></i>答：目前该服务在推广期间，暂时免费。如需收费，时间和收费方式将以网站公告的方式另行通知。</dd>
+								<dt><i class="q_ico"></i>问信用卡还款一天可以使用多次吗？</dt>
+								<dd><i class="a_ico"></i>答：信用卡还款服务允许单日多次使用，其中招行同一个信用卡号每月还款金额不得超过25000元，每月还款笔数不得超过5笔。当天所有渠道累计最大还款额度不能超过40000元。 其中借记卡支付渠道：支付金额最高为人民币40000元；卡通、可提现余额支付渠道：认证用户一天内累计5000元；证书用户一天内累计10000元，（可提现余额无法为他人进行还款）。</dd>
+								<dt><i class="q_ico"></i>可以购汇还款吗？</dt>
+								<dd><i class="a_ico"></i>答：如需购汇还款，请在还款前致电银行信用卡中心客服电话确认。</dd>
+							</dl>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		问答 end-->
+</div>
+			<!--主内容 end -->
+			</div>
+			<!--footer -->
+			<#include "/common/include/footer.html">
+			</body>
+</html>

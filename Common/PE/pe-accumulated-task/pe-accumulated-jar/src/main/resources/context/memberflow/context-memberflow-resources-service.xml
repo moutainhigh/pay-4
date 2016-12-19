@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="memberFlowDao" class="com.pay.pe.accumulated.memberpackagemonitor.dao.impl.MemberFlowDaoImpl" parent="memberFlowBaseDAO">
+		<property name="namespace" value="MemberFlow"></property>
+	</bean>
+	<bean id="memberFlowPackageCfgDao" class="com.pay.pe.accumulated.memberpackagemonitor.dao.impl.MemberFlowPackageCfgDaoImpl" parent="memberFlowBaseDAO">
+		<property name="namespace" value="MemberFlowCfg"></property>
+	</bean>
+	<bean id="memberFlowPackageMonitorDao" class="com.pay.pe.accumulated.memberpackagemonitor.dao.impl.MemberFlowPackageMonitorDaoImpl" parent="memberFlowBaseDAO">
+		<property name="namespace" value="MemberFlowMonitor"></property>
+	</bean>
+
+	<bean id="memberFlowPackageCfgService" class="com.pay.pe.accumulated.memberpackagemonitor.service.impl.MemberFlowPackageCfgServiceImpl">
+		<property name="memberFlowPackageCfgDao" ref="memberFlowPackageCfgDao"></property>
+	</bean>
+	
+	<bean id="memberFlowPackageMonitorService" class="com.pay.pe.accumulated.memberpackagemonitor.service.impl.MemberFlowPackageMonitorServiceImpl">
+		<property name="memberFlowDao" ref="memberFlowDao"></property>
+		<property name="memberFlowPackageMonitorDao" ref="memberFlowPackageMonitorDao"></property>
+		<property name="memberFlowPackageCfgService" ref="memberFlowPackageCfgService"></property>
+		<property name="peJmsSender" ref="peJmsSender"></property>
+		<property name="fromEmail"><value>${notify_tmp.fromemail}</value></property>  
+		<property name="warnEmailTmpId"><value>${notify_tmp.warnEmailTmpId}</value></property>  
+		<property name="warnMobilTmpId"><value>${notify_tmp.warnMobilTmpId}</value></property>  
+		<property name="shutDownEmailTmpId"><value>${notify_tmp.shutDownEmailTmpId}</value></property>  
+		<property name="shutDownMobilTmpId"><value>${notify_tmp.shutDownMobilTmpId}</value></property>  
+	</bean>
+	
+	<bean id="peJmsSender" class="com.pay.pe.accumulated.jms.service.impl.PeJmsSenderImpl">
+		<property name="jmsSender" ref="jmsSender"></property>
+	</bean>
+</beans>

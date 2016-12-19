@@ -1,0 +1,168 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>帐号激活_iPayLinks支付</title>
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/login-check.js"></script>
+<script type="text/javascript">
+$(function(){
+	var t="请输入电子邮箱或手机号";
+	$("#app_loginName").focus(function(){
+		if($(this).val()==t){
+			$(this).val("");
+			$(this).removeClass("gray");
+		}
+		}).blur(function(){
+			if($(this).val()!=t && $(this).val()==""){
+				$(this).val(t);
+				$(this).addClass("gray");
+			}
+	});
+	
+	 $("#app_loginbtn").click(function(){
+			$("#app_loginForm").submit();
+		});
+
+	$("#app_loginForm").submit(function(){
+		var pwd = "";
+		if($("#app_HnSafeEdit").length>0){
+			var v = getPwdCtrlVal("app_HnSafeEdit");
+			if(v=='error'){
+				return false;
+			}
+			pwd = $("#app_passWord");
+			pwd.val(v);
+		}else{
+			pwd = $("#app_passWord").val();
+		}
+		var ln=$("#app_loginName");
+		if(ln.val()==t || ln.val()=="" ){
+			$("#app_errtips").html("用户名不能为空");
+			$("#app_errtipDiv").show();
+			return false;
+		}
+		if($("#app_HnSafeEdit").length>0){
+			if(getPwdCtrlStrLength("app_HnSafeEdit")<=0){
+				$("#app_errtips").html("密码不能为空");
+				$("#app_errtipDiv").show();
+				return false;
+			}
+		}else{
+			if(pwd==""){
+				$("#app_errtips").html("密码不能为空");
+				$("#app_errtipDiv").show();
+				return false;
+			}
+		}
+		$("#app_randCode").val($("#app_rand_Code").val());
+	});
+	
+	$("#app_refush").click(function(){
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+		$("#app_code").attr("src",src);
+		return false;
+	});
+	
+	$("#app_passWord").val("");
+	
+	if($("#app_rand_Code").length>0){	
+		$("#app_rand_Code").keypress(function(e){
+			if(e.which==13){
+				$("#app_loginForm").submit();
+			}
+		});
+	}
+	
+    $("#app_passWord").keypress(function(e){
+    	if(e.which==13){
+    		$("#app_loginForm").submit();
+    	}
+    });
+    
+    $("#app_loginForm input").click(function(){
+		$("#app_errtipDiv").fadeOut();
+	});
+    
+    $(".ico_close").click(function(){
+		$(".error").fadeOut();
+	});
+});
+</script>
+
+<#if msgStr?has_content>
+<script>
+$(function(){
+	$("#app_errtips").html("${msgStr}");
+	$("#app_errtipDiv").show();
+});
+</script>
+</#if>
+</head>
+<body>
+<!--header-->
+<@sp.headCommonV2 title="用户注册" class="ver_reg"/>
+<!--/header--> 
+<!--主内容-->
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-1">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1 s3">第一步：填写注册信息<i></i></li>
+				<li class="li-2 s3">第二步：激活帐号<i></i></li>
+				<li class="li-3 s3">第三步：注册成功<i></i></li>
+			</ol>
+		</div>
+		<div class="activate_login">
+			<img class="activate_ico" src="<@sp.static/>/img/v2/pay/reg/activate_ico.png" />
+			<p class="f14">亲爱的用户 <span class="blue">${ln?default('')}</span>，你好！ <span class="f16b c_f60">您的账号已注册但未激活,请登录后激活</span></p>
+			<p class="c_999 nowrap">激活账户即可享受：支持多种支付渠道，给您最方便的支付体验；N+安全保护，永远给您多一重的支付安全保障。</p>
+			<div class="login_box">
+				<!--个人登录 -->
+				<div class="login_con login_per">
+					<form id="app_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+						<div id="app_errtipDiv" class="error" style="display: none">
+							<table class="err_span">
+								<tr>
+									<td><p id="app_errtips">您已输错3次，请24小时后再试!</p><i class="ico_close">x</i></td>
+								</tr>
+							</table>
+						</div>
+						<div class="con_box">
+						<label>账 户 名:</label>
+						<input type="text" tabindex=1 disableautocomplete autocomplete="off" id="app_loginName" name="loginName" value="<#if ln?has_content>${ln?default('请输入电子邮箱或手机号')}<#else>请输入电子邮箱或手机号</#if>"/><a href="#" class="del">X</a>
+						<label>登录密码:</label>
+						<@sp.password cid="app_HnSafeEdit" id="app_passWord" tabindex="3" nextTabid="app_rand_Code" from="login" form="app_loginForm" name="passWord" width="148px" height="24px"  />
+						<label>验 证 码:</label>
+						<input type="text" class="code_inp" disableautocomplete autocomplete="off" tabindex=4 name="rand_Code" id="app_rand_Code" type="text"  maxlength="4">
+						<span class="code_img" style="cursor:pointer" id="app_refush" title="换一张">
+						<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68" height="23" id="app_code" style="vertical-align: top"></span>
+						<p class="btn">
+							<span class="btnD">
+							<button id="app_loginbtn" type="button" tabindex=5>登录激活</button>
+							</span>
+							<a href="${rc.contextPath}/register.htm" class="reg_new">注册新帐号</a>
+						</p>
+						<input type="hidden" name="memberType" value="1"/>
+						<input id="app_randCode" name="randCode" type="hidden">
+						<input type="hidden" id="app_relationlogin" name="relationlogin" value="publiclogin"/>
+						<input type="hidden" name="hascode" value="1"/>
+						</div>
+					</form>
+					<p class="operate"><a href="${rc.contextPath}/loginpwd.htm">忘记登录密码?</a> | <a href="${rc.contextPath}/help/p/reglogin.htm#qa3">无法输入密码?</a></p>
+				</div>
+				<!--/个人登录 --> 
+			</div>
+		</div>
+	</div>
+</div>
+<!--/主内容--> 
+<!--footer -->
+<#include "/common/include/footerV2.html">
+</body>
+</html>

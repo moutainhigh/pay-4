@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>iPayLinks支付商旅卡交易明细导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="6" style="text-align: middle;">#==============iPayLinks支付商旅卡交易明细==============</td>
+		   </tr>
+			<tr>
+				<th width="15%">网关收单时间</th>
+				<th width="15%">网关订单流水号</th>
+				<th width="12%">商户订单号</th>
+				<th width="8%">订单状态</th>
+				<th width="8%">订单金额(元)</th>
+				<th width="12%">支付方式</th>
+				<th width="9%">支付状态</th>
+				<th width="8%">PNR编码</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists>
+   				<#list incomeDetailList as ts>
+				<tr>
+					<td class="excel_txt">${ts.createDate?default("")}</td>
+					<td class="excel_txt" align="center">${ts.tradeOrderNo?default("")}</td>
+					<td class="excel_txt">${ts.orderId?default("")}</td>
+					<td align="excel_txt">
+						<#if ts.orderStatus?has_content>
+							<#if ts.orderStatus =="0">
+								未付款
+							<#elseif ts.orderStatus =="1">
+								交易关闭
+							<#elseif ts.orderStatus =="2">
+								已付款
+							<#elseif ts.orderStatus =="3">
+								交易已退款
+							<#elseif ts.orderStatus =="4">
+								交易成功
+							</#if>
+						</#if>
+					</td>
+					<td align="excel_txt">${(ts.orderAmount*0.001)?string(",##0.00")}</td>
+					<td align="excel_txt">
+						大新华商旅卡
+					</td>
+					<td align="excel_txt">
+						<#if ts.payStatus??>
+							<#if ts.payStatus?has_content>
+								<#if ts.payStatus =="1">
+									支付中
+								<#elseif ts.payStatus =="2">
+									支付成功
+								<#elseif ts.payStatus =="3">
+									支付中
+								<#elseif ts.payStatus =="4">
+									支付中
+								<#elseif ts.payStatus =="5">
+									支付中
+								<#elseif ts.payStatus =="6">
+									支付中
+								<#elseif ts.payStatus =="7">
+									支付失败
+								</#if>
+							</#if>
+						</#if>
+						</td>
+					<td class="excel_txt" align="center">${ts.pnrCode?default("")}</td>
+				</tr>
+			</#list>
+		  </#if>
+		</tbody>
+	</table>
+</body>
+</html>

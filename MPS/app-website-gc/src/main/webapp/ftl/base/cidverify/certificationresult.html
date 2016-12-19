@@ -1,0 +1,182 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${realName_cert_tips}${title}</title>
+<meta name="Keywords" content="${realName_cert_tips_Keywords}" />
+<meta name="Description" content="${realName_cert_tips_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css"> 
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+
+
+
+$(function(){
+	$("#payPwd").focus();
+	//pwd = $("#payPwd");
+	  $("#findselect").click(function() {
+    payWin = $.pay.window("${rc.contextPath}/app/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+  });
+
+	
+});
+
+function onSubmit()
+{
+	if(hasSecurityCtrl()){
+		pwd = $("#payPwd");
+		if($("#pay_pwd110").length>0){
+			if(getPwdCtrlStrLength("pay_pwd110" ) <= 0){
+				$("#errtips").show().html("密码不能为空");
+				return false;
+			}
+		}else{
+			if(pwd == "" ){
+				$("#errtips").show().html("密码不能为空");
+				return false;
+			}
+		}
+		$("#payPwd").val(getPwdCtrlVal("pay_pwd110" ));
+	}else{
+		var payPwd = $("#payPwd").val();
+		if(payPwd.length <= 0){
+			$("#errtips").show().html("密码不能为空");
+			return false;
+		}
+	}
+	$("#loginbtn").attr("disabled", true);
+    $("#cashbankform").submit();
+}
+
+
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=1 type=1 />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+
+    <!--box str -->
+    <div class="mod_box_a">
+      <p class="top"><i></i></p>
+      <div class="con_box has_bg ">
+        <div class="tit_box ">
+          <h3 class="title font14"><strong>实名认证</strong></h3>
+          <!-- <span class="more"><a class="red" href="">选择其他认证方式</a></span> -->
+        </div>
+        <#if vf?default('')=="bank">
+      <form action="${rc.contextPath}/app/cid2gov.htm?method=cid2Bank" method="post" id="cashbankform" name="cashbankform">
+    <#else>
+      <form action="${rc.contextPath}/app/cid2gov.htm?method=cid2Gov" method="post" id="cashbankform" name="cashbankform">
+    </#if>
+      <input type="hidden" name="vname" id="vname" value="${inname?default('')}"/>
+      <input type="hidden" name="vidc" id="vidc" value="${idcno?default('')}"/>
+      <input type="hidden" name="ln" id="ln" value="${ln?default('')}"/>
+      
+      <input type="hidden" name="accountName" id="accountName" value="${ln?default('')}"/>
+      <input type="hidden" name="idCard" id="idCard" value="${idcno?default('')}"/>
+      <input type="hidden" name="bankId" id="bankId" value="${bankId?default('')}"/>
+      <input type="hidden" name="inname" id="inname" value="${inname?default('')}"/>
+      <input type="hidden" name="bankName" id="bankName" value="${bankName?default('')}"/>      
+      <input type="hidden" name="bankCode" id="bankCode" value="${bankCode?default('')}"/>
+      <input type="hidden" name="provinceCode" id="provinceCode" value="${provinceCode?default('')}"/>
+      <input type="hidden" name="cityCode" id="cityCode" value="${cityCode?default('')}"/>
+      <input type="hidden" name="validateMethod" id="validateMethod" value="${vf?default('')}"/>
+      <input type="hidden" name="bankArea" id="bankArea" value="${province?default('')}"/>
+      <input type="hidden" name="bankOrgName" id="bankOrgName" value="${bankOrgName?default('')}"/>
+        <div class="step">
+          
+          <ol <#if vf?default('')=="gov">class="step-2"<#else>class="step-3"</#if> >
+                              <li class="li-1 <#if vf?default('')!="bank">last</#if>"><span><i>1</i>填写个人信息</span></li>
+                            	<#if vf?default('')=="bank">
+                            		<li class="li-2"><i>2</i>填写银行卡信息</li>
+									<li class="li-3"><i>3</i>确认信息</li>
+									<li class="li-4"><span><i>4</i>认证结果</span></li>
+                            	<#else>
+									<li class="li-2 last"><i>2</i>确认信息</li>
+									<li class="li-3 last"><span><i>3</i>认证结果</span></li>
+								</#if>
+             </ol>
+        </div>
+        <div class="verify_box">
+        <div class="ico_txtBox"><i class="warn_ico"></i><strong class="red font14">请确认您提交的信息</strong></div>
+          <table class="verify_table">
+            <tbody>
+              <tr>
+                <td class="type">iPayLinks支付户名：</td>
+                <td>${ln?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">真实姓名：</td>
+                <td>${inname?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">身份证号码：</td>
+                <td>${idcno?default('')}</td>
+              </tr>
+             <#if vf?default('')=="bank">
+              <tr>
+                <td class="thead" colspan="2">请确认银行信息</td>
+              </tr>
+              <tr>
+                <td class="type">开户人姓名：</td>
+                <td>${inname?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">开户银行：</td>
+                <td>${bankOrgName?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">开户行所在地区：</td>
+                <td>${province?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">开户行名称：</td>
+                <td>${bankName?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">银行卡号：</td>
+                <td>${bankId?default('')}</td>
+              </tr>
+                </#if> 
+                
+            
+            </tbody>
+          </table>
+      </div>
+     <div style="padding:0 0 20px 80px">
+          
+          <ul class="form_list">
+          	<li><label class="form_side">支付密码：</label>
+          	<@sp.password form="cashbankform" nextTabid="loginbtn" id="payPwd" name="payPwd" cid="pay_pwd110" width="180px" height="26px" class="inp_normal w150"/>
+            <span  class="c_999 ml10">支付密码如果连续输错3次，账户将被锁定</span>  
+            <p class="g_tips red" id="errtips"><#if pwdResult?default('')== '0'>${message?default('')}</#if></p>
+          	</li>
+          	<li>
+          		 <span class="btn_yel v_b">
+            <button id="loginbtn" type="button" onClick="onSubmit();">确认<#if vf?default('')=="gov">并提交<#else>提交</#if></button></span>
+             <i class="ml20"><a class="reds" href="javascript:history.go(-1);">返回修改</a> | <a class="reds" href="javascript:void(0);" id="findselect">忘记支付密码？</a></i>
+          
+          	</li>
+          </ul>
+         </div>
+           </form>
+      </div>
+      <p class="bot"><i></i></p>
+    </div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

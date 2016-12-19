@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/json.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/paychain/numberPro.js"></script>
+
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>支付链克隆</title>
+<style type="text/css">
+	.tab03 input[type='text']{width:100px;}
+	.tab03 input[type='button']{width:40px;}
+	.border0{border:0px;}
+</style>
+<script type="text/javascript">
+	
+	$(document).ready(function(){
+		$("#addTr").click(function(){
+			var $selected = $("#trTitle").next("tr").find("td:eq(4)").find("select").find("option:selected") ;
+			var selectVal = $selected.val() ;
+			var selectTex = $selected.text().trim();
+			var trEle ;
+			//-----------校验开始
+			var toFlag = dyTrDataCheck() ;
+			if(!toFlag) return ;
+			//----------校验结束
+			var _pro
+			if(undefined == selectVal && "" == selectTex){
+				var _optionEle = "<option value=\"\">--请选择--</option>"
+								 +  "		<#if currencyCodes ? has_content>"
+								 +  "			<#list currencyCodes as cc>"
+								 +	"			<option value=\"${cc.code}\">${cc.desc}</option>"
+								 +  "			</#list>"
+								 +	"	</#if>"
+				trEle = constructorTrTitle(_optionEle) ;
+			}else{
+				var _optionEle = "<option value="+ selectVal +">"+ selectTex +"</option>"
+				trEle = constructorTrTitle(_optionEle) ;
+			}
+			var subTrSize = $(".subTr").size() ;
+			if(subTrSize == 0){
+				$(trEle).insertAfter($("#trTitle"));
+			}
+			else{
+				$(trEle).insertAfter($(".subTr:last").parent("td").parent("tr")) ;	
+			}
+		}) ;
+	}) ;
+	//动态行数据校验
+	function dyTrDataCheck(){
+		var $dyTr = $(".dyTr:last") ;
+		var _productName = $dyTr.find("td:eq(0)").find("input").val() ;
+		var _productSpec = $dyTr.find("td:eq(1)").find("input").val() ;
+		var _productNum = $dyTr.find("td:eq(2)").find("input").val() ;
+		var _price = $dyTr.find("td:eq(3)").find("input").val() ;
+		var _currencyCode = $dyTr.find("td:eq(4)").find("select").find("option:selected").val() ;
+		if($dyTr.size()>0){
+			if(null == _productName || "" == _productName){
+				alert("商品名不能为空！") ;
+				return false ;
+			}else{
+				if(_productName.length>25){
+					alert("商品名超出长度限制!") ;
+					return false ;
+				}
+			}
+			if(null != _productSpec && "" != _productSpec){
+				if(_productSpec.length>5){
+					alert("商品规格超出长度限制！") ;
+					return false ;
+				}
+			}
+			if(null == _productNum || "" == _productNum || 0 == _productNum){
+				alert("数量不能为空或0！") ;
+				return false ;
+			}
+			if(null == _price || "" == _price){
+				alert("商品价格不能为空！")
+				return false ;
+			}
+			if(null == _currencyCode || "" == _currencyCode){
+				alert("交易币种不能为空！")
+				return false ;
+			}
+		}
+		return true ;
+	}
+	//新增添行构造
+	function constructorTrTitle(optionEle){
+		var trEle = "<tr class=\"dyTr\">"
+			 +	"<td><input type=\"text\" name=\"productName\"/></td>"
+			 +	"<td><input type=\"text\" name=\"productSpec\"/></td>"	
+			 +  "<td><input type=\"text\" name=\"productNum\" onkeyup='checkNum(this);numOnly(this);' onblur='calcProductAmount(this, 2);'/></td>"	
+			 + 	"<td><input type=\"text\" name=\"price\" onkeyup='javascript:checkNum(this);clearNoNum(this);' onblur='calcProductAmount(this, 3);'/></td>"	
+			 +  "<td><select name=\"currencyCode\" style=\"width:104px;\" class=\"currencyCode\">"
+			 +		optionEle
+			 +	"</select>"
+			 +  "</td>"	
+			 +  "<td><input type=\"text\" name=\"site\"/></td>"	
+			 +  "<td><input type=\"button\" value=\"-\" class=\"subTr\" onclick=\"javascript:thisTrRemove(this);\"/></td>"	
+			 +  "</tr>" ;
+		return trEle ;
+	}
+	//删除当前行
+	function thisTrRemove(subTrEle){
+		var reg=new RegExp(",","g");
+		var $subTrEle = $(subTrEle).parent("td").parent("tr") ;
+		var thisTrProductNum = $subTrEle.find("td:eq(2)").find("input").val().trim() ;
+		var thisTrPrice = $subTrEle.find("td:eq(3)").find("input").val().trim() ;
+		if(thisTrPrice.indexOf(",")>0){
+			thisTrPrice = thisTrPrice.replace(reg, "") ;
+		}
+		var $delTr = $(subTrEle).parent("td").parent("tr") ;
+		//删除行
+		$delTr[0].remove() ;
+		//删除行后， 商品金额相应减少
+		var $f_productAmount = $("#f_productAmount").find("label") ;
+		//var productAmount = Number($f_productAmount.text().trim()) - Number(thisTrProductNum) * Number(thisTrPrice) ;
+		//避免减法出错
+		var $f_productAmountVal = $f_productAmount.text().trim() ;
+		if($f_productAmountVal.indexOf(",")>0){
+			$f_productAmountVal = $f_productAmountVal.replace(reg,"") ;
+		}
+		
+		var bjs = Number($f_productAmountVal).mul(100) ;
+		var js = Number(thisTrProductNum).mul(Number(thisTrPrice)).mul(100) ;
+		var c = (bjs - js).div(100) ;
+		var cc = bjs - js ;
+		var productAmount = c ; //Number($f_productAmount.text().trim()) - Number(thisTrProductNum) * Number(thisTrPrice) ;
+		//显示
+		$f_productAmount.text(productAmount) ;
+		//step4中商品总金额 
+		$("#step4_pAmount").text(productAmount) ;
+		//总计金额
+		var fee = $("#f_fee").val().trim() ;
+		if(fee.indexOf(",")>0){
+			fee = fee.replace(reg, "") ;
+		}
+		var totalAmount = Number(fee).add(Number(productAmount)) ;
+		$("#f_totalAmount").find("label").text(totalAmount) ;
+	}
+	
+	function rFlase(){
+		return false ;
+	}
+	//赋
+	function assignment(){
+		var thanMax = maxAmount() ;
+		if(thanMax){
+			alert("总金额不能超上限值!") ; //92233720368547758
+			return false ;
+		}
+		var currencyCodeFlag = currencyCodeAsSame() ;
+		if(!currencyCodeFlag) return false;
+		var _productNameDesc = getProductNameDesc();
+		$("#productNameDesc").val(_productNameDesc) ;
+		var productAmount = $("#f_productAmount").find("label").text().trim() ;
+		$("#productAmount").val(productAmount) ;
+		var totalAmount = $("#f_totalAmount").find("label").text().trim() ;
+		
+		var fee = $("#f_fee").val() ;
+		//return false ;
+		$("#fee").val(fee) ;
+		//return false ;
+		var reg=new RegExp(",","g");
+		$("#totalAmount").val(totalAmount) ;
+		var attribArr = [] ;
+		//动态行里数据 
+		$(".dyTr").each(function(n, o){
+			
+			var attrib = {} ;
+		  	var _productName = $(o).find("td:eq(0)").find("input").val().trim() ;
+		  	attrib['productName'] = _productName ;
+		  	var _productSpec = $(o).find("td:eq(1)").find("input").val().trim() ;
+			attrib['productSpec'] = _productSpec ;
+			var _productNum = $(o).find("td:eq(2)").find("input").val().trim() ;
+			attrib['productNum'] = _productNum ;
+			var _price = $(o).find("td:eq(3)").find("input").val().trim() ;
+			if(_price.indexOf(",")>0){
+				_price = _price.replace(reg,"") ;
+			}
+		  	_price = Number(_price).mul(100) ;
+		  	/* if(_price.indexOf(",")>0){
+		  		_price.replace(reg,"") ;
+		  	} */
+		  	attrib['price'] = _price ;
+		  	var _currencyCode = $(o).find("td:eq(4)").find("select").find("option:selected").val().trim() ;
+		  	attrib['currencyCode'] = _currencyCode ;
+		  	var _site = $(o).find("td:eq(5)").find("input").val().trim() ;
+		  	attrib['site'] = _site ;
+		  	attribArr.push(attrib) ;
+	    });
+		attribArr = encodeURIComponent(encodeURIComponent(JSON.stringify(attribArr))) ;
+		$("#jsonStr").val(attribArr) ;
+		var subFlag = subDataCheck() ;
+		return subFlag ;
+		//return true; 
+	}
+	//获取productNameDesc
+	function getProductNameDesc(){
+		var productNameDesc = "" ;
+		$(".dyTr").each(function(n, o){
+			var _productName = $(o).find("td:eq(0)").find("input").val().trim() ;
+			productNameDesc = productNameDesc + _productName + "," ;
+		}) ;
+		productNameDesc = productNameDesc.substring(0, productNameDesc.lastIndexOf(",")) ;
+		return productNameDesc ;
+	} ;
+	//交易币种要求一致
+	function currencyCodeAsSame(){
+		var $currencyCodes = $(".currencyCode") ;
+		var $currencyCodeFirst = $(".currencyCode:first") ;
+		var flag = true;
+		var firstCurrencyCode = $currencyCodeFirst.find("option:selected").val();
+		$currencyCodes.each(function(n, o){
+			var oVal = $(o).val() ;
+			if(oVal != firstCurrencyCode){
+				alert("交易币种要求一致！") ;
+				flag = false ;
+				//跳出each
+				return flag ;
+			}
+		}) ;
+		return flag ;
+	}
+	$(document).ready(function(){
+		$("select#currencyCode").change(function(){
+			$(this).find("option#se").prev("option").remove() ;
+		}) ;
+	}) ;
+	//数字粗略验证
+	function checkNum(obj) {
+		//检查是否是非数字值
+		if (isNaN(obj.value)) {
+			obj.value = "";
+		}
+	}
+	//失效时间大小校验
+	function sizeCheck(obj){
+		var value = obj.value ;
+		if(isNaN(value)){
+			alert("失效时间只能输入数字") ;
+			$(this).val("") ;
+			return false ;
+		}
+		if(parseInt(value) > 96){
+			alert("失效时间不能超过96小时！") ;
+			$(obj).val("") ;
+			return false;
+		}
+	}
+	//表单数据提交校验
+	function subDataCheck(){
+		var flag = dyTrDataCheck() ;
+		if(!flag) return false;
+		var logoPath = $("input[type='radio']:checked").val() ;
+		if(null == logoPath || "" == logoPath){
+			alert("logo不能为空!") ;
+			return false ;
+		}
+		var shopterm = $("#shopterm").val() ;
+		if(null == shopterm || "" == shopterm){
+			alert("购物条款不能为空") ;
+			return false ;
+		}
+		
+		var _invalidTimeLong = $("#invalidTimeLong").val().trim() ;
+		if(null == _invalidTimeLong || "" == _invalidTimeLong){
+			alert("失效时间不能为空！") ;
+			return false ;
+		}
+		return true ;
+	}
+	//最大金额限
+	function maxAmount(){
+		var thanMax = false ;
+		var maxAmount = 92233720368547758 ; //省略.07
+		var totalAmount = Number($("#f_totalAmount").find("label").text().trim()) ;
+		if(totalAmount >= maxAmount){
+			thanMax = true ;
+		}
+		return thanMax ;
+	}
+</script>
+<script type="text/javascript">
+	//计算商品价格
+	function calcProductAmount(ele, index){
+		var reg=new RegExp(",","g");
+		$this = $(ele) ;
+		var $inputs = "" ;
+		var $f_productAmount = $("#f_productAmount").find("label") ;
+		var f_productAmount = 0.00 ;
+		//单价失焦
+		if(index == 3){
+			$inputs =$(".dyTr").find("td:eq(3)").find("input") ;
+			$inputs.each(function(n, o){
+				//商品数量
+				var $productNum = $(o).parent("td").prev("td").find("input") ;
+				var _priceVal = $(o).val() ;
+				if(_priceVal.indexOf(",")>0){
+					_priceVal = _priceVal.replace(reg, "") ; 
+				}
+				f_productAmount = Number(f_productAmount).add(Number(_priceVal).mul(Number($productNum.val().trim()))) ;
+			}) ;
+		}
+		//商品数量失去焦点
+		if(index == 2){
+			$inputs = $(".dyTr").find("td:eq(2)").find("input") ;
+			$inputs.each(function(n, o){
+				//商品单价
+				var $price = $(o).parent("td").next("td").find("input") ;
+				_priceVal = $price.val().trim() ;
+				if(_priceVal.indexOf(",")>0){
+					_priceVal = _priceVal.replace(reg, "") ; 
+				}
+				f_productAmount = Number(f_productAmount).add(Number($(o).val()).mul(Number(_priceVal))) ;
+			}) ;
+		}
+		$f_productAmount.text(f_productAmount) ;
+		//step4中显示商品金额
+		$("#step4_pAmount").text(f_productAmount) ;
+		//总计金额
+		var fee = $("#f_fee").val().trim() ;
+		
+		if(fee.indexOf(",")>0){
+			fee = fee.replace(reg, "") ;
+		}
+		var totalAmount = Number(fee).add(Number(f_productAmount)) ;
+		$("#f_totalAmount").find("label").text(totalAmount) ;
+	}
+	
+	$(function(){
+		//其他费用变更时,重新计算总金额
+		$("#f_fee").blur(function(){
+			var productAmount = $("#step4_pAmount").text().trim() ;
+			var fee = $(this).val().trim() ;
+			var reg=new RegExp(",","g");
+			if(fee.indexOf(",")>0){
+				fee = fee.replace(reg, "") ;
+			}
+			if(productAmount.indexOf(",")>0){
+				productAmount = productAmount.replace(reg, "") ;
+			}
+			var totalAmount = Number(productAmount).add(Number(fee)) ;
+			$("#f_totalAmount").find("label").text(totalAmount) ;
+		}) ;
+	}) ;
+</script>
+<script type="text/javascript">
+	//克隆页面默认logo图与被克隆支付链一致
+	$(function(){
+		var oldLogoPath = $("#oldLogoPath").val().trim() ;
+		$(".clone").each(function(n, o){
+			var thisVal = $(o).attr('src').trim() ;
+			if(oldLogoPath == thisVal){
+				$(o).parent("div").prev("input[type='radio']").attr('checked', 'checked') ;
+				return false ;
+			}
+		}) ;
+	}) ;
+</script>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+<@sp.head  mCode="corp_paylink_query"/>
+	<!-- <div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/mps/images/logo.png"
+				alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a>
+				</li>
+			</ul>
+		</div>
+		
+		<div class="menu">
+			<div class="wrap">
+				<ul class="mainmenu clearfix">
+					<li id="topmenu_3"><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a>
+					</li>
+					<li id="topmenu_3"><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a>
+					</li>
+					<li id="topmenu_1"><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a>
+					</li>
+					<li id="topmenu_2"><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a>
+					</li>
+					<li id="topmenu_6"><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a>
+					</li>
+					<li id="topmenu_5"><a href="${rc.contextPath}/corp/paylink.htm">支付链收单</a>
+					</li>
+				</ul>
+					
+				 <ul class="submenu" style="display: none" id="secmenuul_5">
+					<li id="secmenu_3_32"  class="other">
+						<a href="${rc.contextPath}/corp/paylink.htm">支付链生成</a>
+					</li>
+					<li id="secmenu_5_51" secmenu_5_51 class="current">
+						<a href="${rc.contextPath}/corp/paylink.htm?method=payLinkQuery">支付链查询</a>
+					</li>
+					<li id="secmenu_3_39" class="other">
+						<a href="${rc.contextPath}/corp/paylink.htm?method=payLinkBasicInfoMaintain">支付链基本信息维护</a>
+					</li>人聚人散，相聚是一种缘。缘来缘了缘未了， 加油吧！
+					<li id="secmenu_3_39" class="other">
+						<a href="${rc.contextPath}/corp/paylinkTransaction.htm">支付链交易查询</a>
+					</li>
+					<li id="secmenu_3_39" class="other">
+						<a href="${rc.contextPath}/corp/orderCompletion.htm">定制化参数</a>
+					</li>
+				</ul> 
+			</div>
+		</div>
+	</div>	 -->		
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="#">支付链克隆</a></span>
+				</div>
+				<form class="form" action="javascript:void(0);" name="productForm" id="productForm">
+					
+					<table class="tab03">
+						<tbody>
+							<br/>
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step1:商户信息
+								</td>
+							</tr>
+							<br/>
+							<tr id="trTitle">
+								<td><span style="color:red;">*</span>商品名称</td>
+								<td>商品规格</td>
+								<td><span style="color:red;">*</span>数量</td>
+								<td><span style="color:red;">*</span>商品价格</td>
+								<td><span style="color:red;">*</span>交易币种</td>
+								<td>商品展示网址</td>
+								<td><input type="button" value="+" id="addTr"/></td>
+							</tr>
+							<#if payLinkAttribs ? has_content>
+								<#list payLinkAttribs as attribs>
+									<tr class="dyTr">
+										<td><input type="text" name="productName" value="${attribs.productName!('')}" /></td>
+										<td><input type="text" name="productSpec" value="${attribs.productSpec?default('')}" /></td>
+										<td><input type="text" name="productNum" value="${attribs.productNum?default(0)}" onkeyup='checkNum(this);numOnly(this);' onblur='calcProductAmount(this, 2);'/></td>
+										<td><input type="text" name="price" value="${(attribs.price?default(0)?number/100)?string('#,##0.00')}" onkeyup='javascript:checkNum(this);clearNoNum(this);' onblur='calcProductAmount(this, 3);'/></td>
+										<td>
+											<select id="currencyCode" name="currencyCode" style="width:104px;" class="currencyCode" onchange="changeCurrencyCode(this) ;">
+												<option value="${attribs.currencyCode!('')}" selected="selected">${attribs.currencyCodeDes!('')}</option>
+												<option value="" id="se">--请选择--</option>
+												<#if currencyCodes ? has_content>
+													<#list currencyCodes as cc>
+														<option value="${cc.code}">${cc.desc}</option>
+													</#list>
+												</#if>
+											</select>
+										</td>
+										<td><input type="text" name="site" value="${attribs.site?default('')}" /></td>
+										<td><input type="button" value="-" class="subTr" <#if attribs_index != 0>onclick="javascript:thisTrRemove(this);"</#if> /></td>
+									</tr>
+								</#list>
+							</#if>
+							<tr>
+								<td colspan="7" style="border:0px;">&nbsp;</td>
+							</tr>
+							<tr>
+								<td colspan="5" style="border:0px;" >&nbsp;</td>
+								<td style="text-align:left;border:0px;">
+									商品总金额：&nbsp;<font id="f_productAmount"><label>${(payLink.productAmount?default(0)?number/100)?string("#,##0.00")}</label>&nbsp;&nbsp;</font>
+								</td>
+								<td style="border:0px;"></td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+		</div>
+		<div class="wrap">
+			<div class="section01">
+				<form class="form" action="${rc.contextPath}/corp/paylink.htm?
+				method=payLinkGenerate" method="post" name="" id="">		<!-- ${rc.contextPath}/corp/paylink.htm?method=payLinkGenerate -->
+					<input type="hidden" name="isClone" value="1"/>
+					<input type="hidden" name="productAmount" id="productAmount" />
+					<input type="hidden" name="totalAmount" id="totalAmount" />
+					<input type="hidden" name="fee" id="fee" />
+					<input type="hidden" name="productNameDesc" id="productNameDesc"/>
+					<input type="hidden" name="jsonStr" id="jsonStr" />
+					<input type="hidden" name="merchantSite" id="merchantSite" value="${payLink.merchantSite?default('')}" />
+					<input type="hidden" id="oldLogoPath" value="/file${payLink.logoPath?default('')}"/>
+					<table class="tab03">
+						<tbody>		
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step2:商户logo
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;font-weight:bold;">
+									请选择商户的logo图片。
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;">
+									该图片将显示在支付链接打开后页面的顶部。
+								</td>
+							</tr>
+							<!-- <tr>
+								<td colspan="2" style="border:0px;padding-left:50px;">
+									<div style="height:80px;width:120px;">
+										<img src="/file${payLink.logoPath?default('')}" style="width:120px;height:80px;"/>
+									</div>
+								</td>
+								<td colspan="3" style="border:0px;"></td>
+							</tr> -->
+							<tr>
+								<#if logoPictures ? has_content>
+									<#assign logoSize=logoPictures?size>
+									<#list logoPictures as logo>
+										<td style="border:0px;width:200px;text-align:left;">
+											<input type="radio" name="logoPath" id="" value="${logo.picturePath}" />
+											<div style="height:80px;width:120px;">
+												<img src="/file${logo.picturePath?default('')}" style="width:120px;height:80px;" class="clone"/>
+											</div>
+										</td>
+									</#list>
+									<#if logoSize=1>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#if logoSize=2>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#if logoSize=1>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#else>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;text-align: 
+												center;vertical-align: middle;padding-top:30px;box-sizing:border-box;color:red;">
+												还未上传logo
+											</div>
+										</td>
+								</#if>
+							</tr>
+							<!-- <tr>
+								<td colspan="7" style="border:0px;text-align:left;">
+									<input type="checkbox"/>显示启赟支付图片。&nbsp;&nbsp;&nbsp;&nbsp; 勾选后，启赟支付的logo同样将显示在支付链接打开后的页面顶部。
+								</td>
+							</tr> -->
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step3:购物条款文件
+								</td>
+							</tr>
+							<tr>
+								<td style="border:0px;text-align:left;color:#0000FF;">
+									<input type="hidden" name="shopterm" id="shopterm" value="${shoptermsName?default('')}" />
+									<a href="/file/${pathTail?default('')}" target="_blank" style="color:#2B55FF;">${shoptermsName?default('')}</a>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step4:费用总计
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;padding-left:20px;">
+									商品金额:&nbsp;&nbsp;<font><label id="step4_pAmount">${(payLink.productAmount?default(0)?number/100)?string("#,##0.00")}</label>&nbsp;&nbsp;</font>
+								</td>
+							</tr>
+							<tr>
+								<td style="border:0px;padding-left:20px;">
+									<div align="left">其他费用：</div>
+								</td>
+								<td colspan="6" style="border:0px;text-align:left;">
+									<select name="otherFeeName">
+										<#if fees?has_content>
+											<#list fees as fee>
+												<option value="${fee.code?default('')}">${fee.desc?default('')}</option>
+											</#list>
+										</#if>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="" style="border:0px;text-align:left;padding-left:20px;">
+									其他费用金额:&nbsp;&nbsp;
+								</td>
+								<td style="border:0px;text-align:left;">
+									<input type="text" name="f_fee" id="f_fee" value="${(payLink.fee?default(0)?number/100)?string('#,##0.00')}" onkeyup='checkNum(this);clearNoNum(this);'/>
+								</td>
+								<#-- <td colspan="5" style="text-align:left;border:0px;">
+									币种：&nbsp;&nbsp;
+									<select name="feeCurrencyCode">
+										<option value="">--请选择--</option>
+										<#if currencyCodes ? has_content>
+											<#list currencyCodes as cc>
+												<option value="${cc.code}">${cc.desc}</option>
+											</#list>
+										</#if>
+									</select>
+								</td> -->
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;padding-left:20px;">
+									总计:&nbsp;&nbsp;<font name="f_totalAmount" id="f_totalAmount"><label>${(payLink.totalAmount?default(0)?number/100)?string("#,##0.00")}</label>&nbsp;&nbsp;</font>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="" style="border:0px;text-align:left;padding-left:20px;">
+									<span style="color:red;">*</span>失效时间:&nbsp;&nbsp;
+								</td>
+								<td style="border:0px;text-align:left;">
+									<input type="text" name="invalidTimeLong" id="invalidTimeLong"
+										value="${payLink.invalidTimeLong?default(0)}" onkeyup='checkNum(this);numOnly(this);'/>&nbsp;&nbsp;小时&nbsp;&nbsp;&nbsp;&nbsp;(不超过96小时)
+								</td>
+							</tr>
+							<tr style="" rowspan="2">
+								<td style="border:0px;text-align:left;padding-left:20px;">
+									<input type="submit" onclick="javascript:return assignment();" value="支付链生成" style="width:134px;" class="btn_blue"/>
+								</td>
+								<td colspan="6" style="border:0px;text-align:left;">
+									<#if payChainLink ? has_content>
+										<p>生成的支付链如下：</p>
+										<p>${payChainLink}</p>
+									</#if>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+	
+</body>
+</html>

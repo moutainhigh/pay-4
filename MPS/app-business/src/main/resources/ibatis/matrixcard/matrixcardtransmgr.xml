@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="transmgr">
+    <typeAlias alias="matrixcardtransmgr" type="com.pay.base.model.matrixcard.MatrixCardTransMgr"/>
+    
+      <insert id="create" parameterClass="matrixcardtransmgr">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_MATRIXCARD_TRANSMGR_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	T_MATRIXCARD_TRANSMGR 
+        	(
+        		ID, 	
+        		TRANS_TYPE, 
+        		MEMBER_CODE, 
+        		U_ID, 
+        		CREATION_DATE,
+        		IP,
+        		SESSION_ID,
+        		STATUS
+            )
+        values 
+        	(
+        		#id#,	
+        		#transType#, 
+        		#memberCode#, 
+        		#u_id#, 
+        		sysdate,
+        		#ip#,
+        		#sessionId#,
+        		#status#
+        	)
+    </insert>
+    
+   <update id="update" parameterClass="matrixcardtransmgr">
+        update 
+        	T_MATRIXCARD_TRANSMGR
+        set 
+        		TRANS_TYPE 		= #transType#, 
+        		MEMBER_CODE 	= #memberCode#, 
+        		U_ID 			= #u_id#, 
+        		ip 				= #ip#,
+        		SESSION_ID	 	= #sessionId#,
+        		STATUS 			= #status#
+        where 
+        		id 	= #id#
+    </update>
+    
+    <sql id="COMMON_CONDITION_DETAIL">
+        <isNotEmpty property="id" prepend="and">
+            t.ID = #id#
+        </isNotEmpty>           
+            <isNotEmpty property="transType" prepend="and">
+            t.trans_type = #transType#
+        </isNotEmpty>
+            <isNotEmpty property="memberCode" prepend="and">
+            t.member_code = #memberCode#
+        </isNotEmpty>
+            <isNotEmpty property="u_id" prepend="and">
+            t.u_id = #u_id#
+        </isNotEmpty>
+            <isNotEmpty property="ip" prepend="and">
+            t.ip = #ip#
+        </isNotEmpty>
+            <isNotEmpty property="sessionId" prepend="and">
+            t.session_id = #sessionId#
+        </isNotEmpty>
+            <isNotEmpty property="status" prepend="and">
+            t.status = #status#
+        </isNotEmpty>
+        <isNotEmpty property="creationDateBegin" prepend="and">
+			t.creation_date
+			<![CDATA[>=]]>
+			#creationDateBegin#
+			<!-- to_date(#creationDateBegin#,'yyyy-mm-dd HH24:MI:SS') --> 
+		</isNotEmpty>
+		<isNotEmpty property="creationDateEnd" prepend="and">
+			t.creation_date
+			<![CDATA[<=]]>
+			#creationDateEnd#
+			<!--  to_date(#creationDateEnd#,'yyyy-mm-dd HH24:MI:SS') -->
+		</isNotEmpty>         
+    </sql>  
+    
+      <sql id="DETAIL_SELECT">
+    	<![CDATA[
+	        select 
+	          t.id,
+	          t.trans_type as transType,
+	          t.member_code as memberCode,
+	          t.u_id as u_id,
+	          t.creation_date as creationDate,
+	          t.ip,
+	          t.session_id as sessionId,
+	          t.status
+	        from 
+	          T_MATRIXCARD_TRANSMGR t
+	        where 1=1
+        ]]>
+    </sql>
+    
+   	<select id="findById" resultClass="matrixcardtransmgr" parameterClass="java.lang.Long">
+        select 
+          t.id,
+          t.trans_type as transType,
+          t.member_code as memberCode,
+          t.u_id as u_id,
+          t.creation_date as creationDate,
+          t.ip,
+          t.session_id as sessionId,
+          t.status
+        from 
+          T_MATRIXCARD_TRANSMGR t
+        where 
+          t.ID 			= #id#
+    </select>
+    
+    <sql id="ORDER_CONDITION">
+    	ORDER BY t.creation_date desc
+    </sql>
+    
+    <!-- 根据参数查询-->
+    <select id="selectMatrixCardTransMgrByMap" resultClass="matrixcardtransmgr" parameterClass="map">
+			<include refid="DETAIL_SELECT"/>
+			<include refid="COMMON_CONDITION_DETAIL"/>
+			<include refid="ORDER_CONDITION"/>			
+    </select>
+          
+    <select id="count" resultClass="java.lang.Integer" parameterClass="map">
+    	<![CDATA[	select 
+    					count(1) 
+    				from 
+    				T_MATRIXCARD_TRANSMGR t
+    				where 1=1
+    	]]>	
+    	<include refid="COMMON_CONDITION_DETAIL"/>
+    </select>
+    
+    
+ 
+</sqlMap>

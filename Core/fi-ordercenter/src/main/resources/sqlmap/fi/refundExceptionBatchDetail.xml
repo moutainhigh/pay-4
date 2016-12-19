@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundExceptionBatchDetail">
+	<typeAlias alias="refundExceptionBatchDetailDTO" type="com.pay.txncore.dto.RefundExceptionBatchDetailDTO"/>
+	<typeAlias alias="long" type="java.lang.Long"/>
+	<typeAlias alias="int" type="java.lang.Integer"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<resultMap class="refundExceptionBatchDetailDTO" id="refundExceptionBatchDetailMap">
+		<result column="BATCH_NO" property="batchNo" jdbcType="VARCHAR2"/>
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+		<result column="CHANNEL_CREATE_TIME" property="channelCreateTime" jdbcType="TIMESTAMP"/>
+		<result column="CHANNEL_ORDER_NO" property="channelOrderNo" jdbcType="NUMBER"/>
+		<result column="REFUND_RESULT" property="refundResult" jdbcType="VARCHAR2"/>
+		<result column="UPDATE_RESULT" property="updateResult" jdbcType="VARCHAR2"/>
+		<result column="REMARK" property="remark" jdbcType="VARCHAR2"/>
+		<result column="BATCH_DETAI_NO" property="batchDetailNo" jdbcType="NUMBER"/>
+	</resultMap>
+	
+	<!-- 退款批量状态更新批次详情插入 -->
+	<insert id="refundExceptionBatchDetail" parameterClass="refundExceptionBatchDetailDTO">
+		<selectKey resultClass="long" keyProperty="batchDetailNo">
+			select 920 || to_char(sysdate, 'yymmddhh24mm') || lpad(seq_refund_exception_batch_no.nextVal, 6, 0) from dual 
+		</selectKey>
+		insert into REFUND_EXCEPTION_BATCH_DETAIL(
+			BATCH_NO,
+			CREATE_TIME,
+			UPDATE_TIME,
+			CHANNEL_CREATE_TIME,
+			CHANNEL_ORDER_NO,
+			REFUND_RESULT,
+			UPDATE_RESULT,
+			REMARK,
+			BATCH_DETAI_NO
+		)
+		values(
+			#batchNo#,
+			#createTime#,
+			#updateTime#,
+			#channelCreateTime#,
+			#channelOrderNo#,
+			#refundResult#,
+			#updateResult#,
+			#remark#,
+			#batchDetailNo#
+		)
+	</insert>
+	
+	<!-- 退款批量状态更新批次详情更新 -->
+	<update id="update" parameterClass="hMap">
+		update REFUND_EXCEPTION_BATCH_DETAIL set UPDATE_TIME=#updateTime#, UPDATE_RESULT=#updateResult#, REMARK=#remark#
+		where BATCH_DETAI_NO=#batchDetailNo#
+	</update>
+	
+	<!-- 状态批量更新详情查询 -->
+	<select id="findByCriteria" parameterClass="hMap" resultMap="refundExceptionBatchDetailMap">
+		select
+			BATCH_NO,
+			CREATE_TIME,
+			UPDATE_TIME,
+			CHANNEL_CREATE_TIME,
+			CHANNEL_ORDER_NO,
+			REFUND_RESULT,
+			UPDATE_RESULT,
+			REMARK,
+			BATCH_DETAI_NO
+		from REFUND_EXCEPTION_BATCH_DETAIL where 1=1
+		<isNotEmpty property="batchNo" prepend="and">
+			BATCH_NO=#batchNo#
+		</isNotEmpty>
+		<isNotEmpty property="channelOrderNo" prepend="and">
+			CHANNEL_ORDER_NO=#channelOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="refundResult" prepend="and">
+			REFUND_RESULT=#refundResult#
+		</isNotEmpty>
+		<isNotEmpty property="updateResult" prepend="and">
+			UPDATE_RESULT=#updateResult#
+		</isNotEmpty>
+		<isNotEmpty property="remark" prepend="and">
+			REMARK=#remark#
+		</isNotEmpty>
+		<isNotEmpty property="batchDetailNo" prepend="and">
+			BATCH_DETAI_NO=#batchDetailNo#
+		</isNotEmpty>
+		order by BATCH_DETAI_NO asc
+	</select>
+	<select id="countByCriteria" parameterClass="hMap" resultClass="int">
+		select count(1)
+		from REFUND_EXCEPTION_BATCH_DETAIL where 1=1
+		<isNotEmpty property="batchNo" prepend="and">
+			BATCH_NO=#batchNo#
+		</isNotEmpty>
+		<isNotEmpty property="channelOrderNo" prepend="and">
+			CHANNEL_ORDER_NO=#channelOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="refundResult" prepend="and">
+			REFUND_RESULT=#refundResult#
+		</isNotEmpty>
+		<isNotEmpty property="updateResult" prepend="and">
+			UPDATE_RESULT=#updateResult#
+		</isNotEmpty>
+		<isNotEmpty property="remark" prepend="and">
+			REMARK=#remark#
+		</isNotEmpty>
+		<isNotEmpty property="batchDetailNo" prepend="and">
+			BATCH_DETAI_NO=#batchDetailNo#
+		</isNotEmpty>
+	</select>
+</sqlMap>

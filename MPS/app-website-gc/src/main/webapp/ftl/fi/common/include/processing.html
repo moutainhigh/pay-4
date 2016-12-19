@@ -1,0 +1,28 @@
+<!--侧导航企业版 end -->
+<#if Session["userSession"].scaleType==2>
+<#assign urlPath = 'corp' />
+<#else>
+<#assign urlPath = 'app' />
+</#if>
+
+<script type="text/javascript">
+	$(function(){
+		getCayPayStatus();
+	});
+	
+	window.setInterval("getCayPayStatus()", 10*1000);
+	
+	function getCayPayStatus(){
+		var settleDepositId = $('#settleDepositId').val();
+		var name = $('#name').val();
+		var greeting =  $('#greeting').val();
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/${urlPath}/cardChannel.htm?method=cardChannelProcess",
+			data: "settleDepositId="+settleDepositId+"&name="+name+"&greeting="+greeting,
+			success: function(msg){
+				$("#caypaySucessProcess").html(msg);
+			}
+		});
+	}
+</script>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="operatorLog">
+	<typeAlias alias="operatorLog" type="com.pay.fundout.withdraw.model.operatorlog.OperatorLog"/>
+    <resultMap id="operatorLog" class="com.pay.fundout.withdraw.model.operatorlog.OperatorLog">
+        <result column="SEQUENCEID" property="sequenceid" jdbcType="DECIMAL"/>
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="LOG_TYPE_DESC" property="logTypeDesc" jdbcType="VARCHAR"/>
+        <result column="MARK" property="mark" jdbcType="VARCHAR"/>
+        <result column="LOG_TYPE" property="logType" jdbcType="DECIMAL"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="BUSI_ORDER_ID" property="busiOrderId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		SEQUENCEID,CREATION_DATE,LOG_TYPE_DESC,MARK,LOG_TYPE,
+		OPERATOR,BUSI_ORDER_ID
+    </sql>
+    <insert id="create" parameterClass="operatorLog">
+   	 <selectKey resultClass="java.lang.Long" keyProperty="sequenceid">
+			select  SEQ_OPERATOR_LOG_ID.nextval as id from DUAL 
+		</selectKey>
+        INSERT INTO OPERATOR_LOG(
+			SEQUENCEID,CREATION_DATE,LOG_TYPE_DESC,MARK,LOG_TYPE,
+			OPERATOR,BUSI_ORDER_ID
+        )
+        VALUES(
+            #sequenceid#,#creationDate#,#logTypeDesc#,#mark#,#logType#,
+			#operator#,#busiOrderId#
+		)
+    </insert>
+
+    <update id="update" parameterClass="operatorLog">
+        UPDATE OPERATOR_LOG
+        SET 
+        <isNotNull prepend="," property="creationDate">
+            CREATION_DATE = #creationDate#
+        </isNotNull>
+        <isNotNull prepend="," property="logTypeDesc">
+            LOG_TYPE_DESC = #logTypeDesc#
+        </isNotNull>
+        <isNotNull prepend="," property="mark">
+            MARK = #mark#
+        </isNotNull>
+        <isNotNull prepend="," property="logType">
+            LOG_TYPE = #logType#
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+        <isNotNull prepend="," property="busiOrderId">
+            BUSI_ORDER_ID = #busiOrderId#
+        </isNotNull>
+        WHERE 
+            <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+            </isNotNull>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM OPERATOR_LOG        
+        WHERE 
+            <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+            </isNotNull>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="operatorLog">
+        DELETE FROM OPERATOR_LOG        
+        WHERE 
+        <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="logTypeDesc">
+            LOG_TYPE_DESC = #logTypeDesc# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="mark">
+            MARK = #mark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="logType">
+            LOG_TYPE = #logType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiOrderId">
+            BUSI_ORDER_ID = #busiOrderId# 
+        </isNotNull>
+    </delete>
+
+    <select id="findById" resultMap="operatorLog"
+        parameterClass="java.lang.Long">
+        SELECT 
+			SEQUENCEID,CREATION_DATE,LOG_TYPE_DESC,MARK,LOG_TYPE,
+			OPERATOR,BUSI_ORDER_ID
+        FROM OPERATOR_LOG
+        WHERE 
+            SEQUENCEID = #sequenceid# 
+    </select>
+    
+    <select id="findBySelective" resultMap="operatorLog">
+        SELECT 
+			SEQUENCEID,CREATION_DATE,LOG_TYPE_DESC,MARK,LOG_TYPE,
+			OPERATOR,BUSI_ORDER_ID
+        FROM OPERATOR_LOG
+        WHERE 
+        <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="logTypeDesc">
+            LOG_TYPE_DESC = #logTypeDesc# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="mark">
+            MARK = #mark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="logType">
+            LOG_TYPE = #logType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiOrderId">
+            BUSI_ORDER_ID = #busiOrderId# 
+        </isNotNull>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM OPERATOR_LOG
+        WHERE 
+        <isNotNull prepend="AND" property="sequenceid">
+            SEQUENCEID = #sequenceid# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="logTypeDesc">
+            LOG_TYPE_DESC = #logTypeDesc# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="mark">
+            MARK = #mark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="logType">
+            LOG_TYPE = #logType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiOrderId">
+            BUSI_ORDER_ID = #busiOrderId# 
+        </isNotNull>
+    </select>
+</sqlMap>

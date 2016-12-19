@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="POSS.CONTEXT_SERVICE"
+		class="com.pay.poss.base.env.context.ContextService">
+	</bean>
+
+	<bean id="POSS.TASKMANAGER" class="com.pay.poss.base.schedule.task.TaskManager">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+	</bean>
+
+	<bean id="POSS.DATAMANAGER"
+		class="com.pay.poss.base.env.data.impl.DefaultDataManagerImpl">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+		<property name="dataRepositoryContainer">
+			<list>
+				<ref bean="POSS.DEFAULT_DATAREPOSITORY" />
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="POSS.DATASERVICE"
+		class="com.pay.poss.base.env.data.impl.DefaultDataServiceImpl">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE"></property>
+		<property name="dataRepositoryContainer">
+			<list>
+				<ref bean="POSS.DEFAULT_DATAREPOSITORY" />
+			</list>
+		</property>		
+	</bean>
+
+	<bean id="POSS.DEFAULT_DATAREPOSITORY"
+		class="com.pay.poss.base.env.data.impl.DefaultDataRepositoryImpl">
+	</bean>
+</beans>

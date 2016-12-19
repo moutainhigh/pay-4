@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+
+<sqlMap namespace="accmulatedResources">
+<typeAlias alias="accmulatedResourcesDTO" type="com.pay.pe.account.dto.AccumulatedResourcesDTO"/>
+
+   <resultMap id="accmulatedResources" class="com.pay.pe.account.dto.AccumulatedResourcesDTO">
+        <result column="ID"											property="id" 								jdbcType="NUMBER"/>
+        <result column="ORDER_TYPE"						property="orderType" 					jdbcType="NUMBER"/>
+        <result column="DEAL_CODE"							property="dealCode" 					jdbcType="NUMBER"/>
+        <result column="DEAL_TYPE"							property="dealType" 					jdbcType="NUMBER"/>
+        <result column="PAYMENT_SERVICE_CODE"	property="paymentServiceCode" 	jdbcType="NUMBER"/>
+        <result column="TAKE_ON"								property="takeOn" 						jdbcType="NUMBER"/>
+        <result column="CREATE_DATE"						property="createDate" 					jdbcType="DATETIME"/>
+        <result column="UPDATE_DATE"						property="updateDate" 				jdbcType="DATETIME"/>
+        <result column="CREATED_BY"						property="createdBy" 					jdbcType="VARCHAR"/>
+        <result column="MODIFIED_BY"						property="modifiedBy" 				jdbcType="VARCHAR"/>
+
+   </resultMap>
+	
+	<select id="findById" resultMap="accmulatedResources" parameterClass="long">
+		select * from accumulated_resources t where t.id = #id#
+	</select>
+	
+	<sql id="findBySelective_params">
+		<isNotEmpty property="orderType">
+			and t.ORDER_TYPE = #orderType#
+		</isNotEmpty>
+		<isNotEmpty property="dealCode">
+			and t.DEAL_CODE = #dealCode#
+		</isNotEmpty>
+		<isNotEmpty property="dealType">
+			and t.DEAL_TYPE = #dealType#
+		</isNotEmpty>
+		<isNotEmpty property="paymentServiceCode">
+			and t.PAYMENT_SERVICE_CODE = #paymentServiceCode#
+		</isNotEmpty>
+		<isNotEmpty property="takeOn">
+			and t.TAKE_ON = #takeOn#
+		</isNotEmpty>
+	</sql>
+	
+	
+	<select id="findBySelective"  resultMap="accmulatedResources" parameterClass="accmulatedResourcesDTO">
+		select * from accumulated_resources t 
+		where 1=1
+		<include refid="findBySelective_params"/>
+		ORDER BY  UPDATE_DATE DESC,id DESC
+	</select>
+	
+	<select id="findBySelective_COUNT"  resultClass="int" parameterClass="accmulatedResourcesDTO">
+		select count(1) from accumulated_resources t 
+		where 1=1
+		<include refid="findBySelective_params"/>
+	</select>
+	
+	
+	
+	
+	<select id="repeat_COUNT" parameterClass="accmulatedResourcesDTO" resultClass="int">
+		select count(1) from accumulated_resources t 
+		where  t.ORDER_TYPE = #orderType#
+			and t.DEAL_CODE = #dealCode#
+			and t.DEAL_TYPE = #dealType#
+			and t.PAYMENT_SERVICE_CODE = #paymentServiceCode#
+			and t.TAKE_ON = #takeOn#
+			<isNotEmpty property="id">
+				and (id &gt; #id# or id &lt; #id#)
+			</isNotEmpty>
+	</select>
+	
+	<insert id="create" parameterClass="accmulatedResourcesDTO" >
+		<selectKey keyProperty="id" resultClass="long">
+			select SEQ_ACCUMULATED_RESOURCES_ID.Nextval  AS ID  from dual
+		</selectKey>
+		insert into accumulated_resources
+				 (id,
+				  order_type,
+				  deal_code,
+				   deal_type,
+				   payment_service_code,
+				   take_on,
+				   create_date,
+				   update_date,
+				   created_by,
+				   modified_by)
+				   values(
+				  #id#,
+				#orderType#,
+				#dealCode#,
+				#dealType#,
+				#paymentServiceCode#,
+				#takeOn#,
+				SYSDATE,
+				SYSDATE,
+				#createdBy#,
+				#modifiedBy#
+				   )
+	</insert>
+	
+	<update id="update" parameterClass="accmulatedResourcesDTO" >
+		UPDATE  accumulated_resources SET 
+        
+		      	<isNotEmpty property="orderType">
+		      	    ORDER_TYPE=#orderType#,
+		      	</isNotEmpty>	
+		      	<isNotEmpty property="dealCode">
+		      	   DEAL_CODE=#dealCode# 	,
+		      	</isNotEmpty>		
+		      	 	<isNotEmpty property="dealType">
+		      	     DEAL_TYPE=#dealType# ,		
+		      	</isNotEmpty>		
+		      		<isNotEmpty property="paymentServiceCode">
+		      	      PAYMENT_SERVICE_CODE=#paymentServiceCode#,
+		      	</isNotEmpty>		
+		      	<isNotEmpty property="takeOn">
+		      	     TAKE_ON=#takeOn#	,
+		      	</isNotEmpty>	
+		      	<isNotEmpty property="modifiedBy">
+		      	    MODIFIED_BY=#modifiedBy# ,
+		      	</isNotEmpty>			
+		      	UPDATE_DATE= SYSDATE
+        where      	ID=#id# 					
+		
+	</update>
+	<delete id="delete" parameterClass="long">
+		delete from accumulated_resources where id = #id#
+	</delete>
+	
+	
+	
+    
+</sqlMap>

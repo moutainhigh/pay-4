@@ -1,0 +1,520 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>送礼金到账户</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/gift.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="送礼金"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container"><!--侧导航 str --> <@sp.ebillmenu
+channel="1_6"/> <!--侧导航 end -->
+<div class="box_w815">
+<div class="content">
+<div class="gift_tit">
+<h3 class="cur">送礼金到他的账户</h3>
+</div>
+<div class="gift_box"><!--表单str -->
+<form name="presentMomeyForm" method="post" id="presentMomeyForm"
+	class="mod_form2" action="${rc.contextPath}/app/presentAccount.htm?method=confirmAccount">
+<ul class="form_list mar_1">
+	<li class="rel z8" id="t1"><label class="form_side2">收礼人账号：</label>
+	<input type="text" class="inp_normal f_id" name="accountName"
+		tabindex="1" id="accountName"
+		value="${recInfoCommand.accountName?default('')}" /> <!--  <a class="red ml10" href="#" style="display: none;" id="linker">常用联系人</a>-->
+	<div class="my_list" style="left: 365px; display: " id="contDiv">
+	<dl>
+		<!--  dt><i class="g_ico"></i>最近交易人</dt>
+									<dd style="display:" id="linkerlist"><a href="#">dafenqi@payay.com(达芬奇)</a> <a href="#">dafeddnqpayapay.com(达奇)</a> <a href="#">dpaypay.com(达奇)</a> <a href="#">dafepayi@pay.com(达芬奇)</a> <a href="#">dafpayfqi@pay.com(达芬芬奇)</a>  <a href="#payfenqi@pay.com(达芬奇)</a> <a href="#payfeddnqi@pay.com(达奇)</a> <a pay="#">dnwi@pay.com(达奇)</a> <a hrepay">dafenweqi@pay.com(达芬奇)</a> <a hrpay#">dafensdfqi@pay.com(达芬芬奇)</a> </dd>-->
+		<dt><i class="g_ico"></i>我的好友</dt>
+		<dd style="display: " id="linkerlist"></dd>
+	</dl>
+	</div>
+	<p id="accountNameTip"></p>
+	</li>
+	<li style="display: none" id="t2"><label class="form_side">收礼人账号：</label>
+	<strong class="c_000" id="accountNameSpan"></strong> <span><a
+		class="red ml10" href="javascript:void(0)" id="changeacct">[修改]</a></span> <!--  <span class="ml10"><a class="red" href="" style="display: none">选择其他联系人</a></span>-->
+	<p class="save_tips"><a class="btn_yel21" href="javascript:void(0)"
+		id="addlinker"><span>保存联系人</span></a> <span style="display: none;"
+		id="addOk"><i class="ico_ok_s"></i>保存联系人成功！</span></p>
+	</li>
+	<li><label class="form_side2">对方姓名/昵称：</label> <input type="text"
+		class="inp_normal f_name" size="25" id="payeeName" name="payeeName"
+		value="${recInfoCommand.payeeName?default('')}" tabindex="2">
+	<p id="payeeNameTip"></p>	 
+	</li>
+	<li><label class="form_side2">礼金金额：</label> <input type="text" 
+		class="inp_normal w120" name="amount" maxlength="10"
+		value="${recInfoCommand.amount?default('')}" id="rented" tabindex="3"> 元
+	<p id="rentedTip"></p>	
+		</li>
+	<li><label class="form_side2">红包类型：</label>
+	<!--  <p class="gift_sort_select"><select class="inp_normal"
+		id="hongBaoType">
+		<option>--请选择--</option>
+		<option>生日礼物</option>
+	</select></p>-->
+	<ul class="gift_sort" id="sort">
+		<li><a class="select" id="gift_a1" href="javascript:selectCard('gift_a1');"><img
+			src="<@sp.static/>/img/pay/gift/t01_small.jpg" title="生日快乐" /></a></li>
+		<li><a id="gift_a2" href="javascript:selectCard('gift_a2');"><img src="<@sp.static/>/img/pay/gift/t02_small.jpg"
+			title="新年快乐" /></a></li>
+		<li><a id="gift_a3" href="javascript:selectCard('gift_a3');"><img src="<@sp.static/>/img/pay/gift/t03_small.jpg"
+			title="新婚快乐" /></a></li>
+		<li><a id="gift_a4" href="javascript:selectCard('gift_a4');"><img src="<@sp.static/>/img/pay/gift/t04_small.jpg"
+			title="搞怪" /></a></li>
+	</ul>
+	</li>
+	<li class="rel z9"><label class="form_side2">我的寄语：</label>
+	<div class="words" style="display: none;" id="SendWordList"
+		onmousemove="$(this).show();$('#hongBaoType').hide();"
+		onmouseout="$(this).hide();$('#hongBaoType').show();"></div>
+	<div class="my_words">
+	<div class="tit"><a href="javascript:void(0)" id="deafSendWord"><i></i>祝福语精选</a></div>
+	<textarea class="textarea" id="remark" name="remark" tabindex="4">${recInfoCommand.remark?default('')}</textarea>
+	</div>
+	<!--  <p class="txt_no">您已经输入<strong>138</strong>个字，还可以输入<strong
+		class="red">5</strong>个字</p>-->
+	</li>
+	<li><label class="form_side2">我的签名：</label> <input type="text"
+		class="inp_normal w120" id="payerSign" name="payerSign"
+		value="${recInfoCommand.payerSign?default('')}" tabindex="5">
+	<p id="payerSignTip"></p>
+	</li>
+	<li><label class="form_side2">对方手机号码：</label> <input type="text"
+		class="inp_normal w120" id="mobile" name="mobile" maxlength="11"
+		value="${recInfoCommand.mobile?default('')}" tabindex="6">
+	<p id="mobileTip"></p>
+	</li>
+	<li><label class="form_side2">验证码：</label> <input name="randCode"
+		type="text" class="inp_normal w100" maxlength="4" id="randCode"
+		size="8" tabindex="7"> <img
+		src="${rc.contextPath}/validatecode/validatecode.htm" height="23"
+		class="security_code" alt="换一张">
+	<p id="randCodeTip"></p>
+	</li>
+	<li><span class="btn_yel botton_yel">
+	<button type="submit" tabindex="8">下一步</button>
+	</span></li>
+</ul>
+<div class="show_gift_big" id="show_big"><img src="<@sp.static/>/img/pay/gift/t01_big.jpg"></div>
+<input type="hidden" id="selCardStyle" name="selCardStyle" value="${recInfoCommand.selCardStyle?default('<@sp.static/>/img/pay/gift/t01_')}"/>
+</form>
+<!--表单end --></div>
+<i class="corner_b"></i></div>
+<p class="bot"></p>
+</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+<#if errorMsg?exists>
+<script type="text/javascript">	
+		$(function(){	
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+		});
+	</script>
+</#if>
+<script type="text/javascript"><!--<!--
+	var payWin;
+	var win;
+	var mon = new Array();
+	var errorTag = false;
+	var contextPath="${rc.contextPath}";
+
+	var isRealname = 0;
+	var rentedErrorMsg = "";
+	var accountNameErrorMsg = "";
+	
+	$(document).ready(function() {	
+		initLinkers();
+			
+			$("#sort img").each(function(i){
+				var selCardStyle =$("#selCardStyle").val();
+				if($(this).attr("src")==selCardStyle+"small.jpg"){
+					$("#sort li a").removeClass("select");
+					$(this).parent("a").addClass("select");
+					$("#show_big img").attr("src",selCardStyle+"big.jpg");
+				}
+			});
+		
+	});
+
+	
+	function refushCode() {
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+		document.getElementById("code").src = src;
+	}
+	function initLinkers(){
+		$.getJSON( 
+				  "${rc.contextPath}/commonLinker.htm",
+				  {method:'queryLinkers',rand:Math.random()},
+				  function(json){
+					var str="";
+					if(json.length>0){
+						for(var i=0;i<json.length;i++){
+							var obj= json[i] ;
+							str += "<a href='javascript:void(0)' title='"+obj.name+"' onclick='selectLinker(\""+obj.idContent+"\");'>"+obj.idContent+"("+obj.name+")</a>";
+							$("#linkerlist").html(str);
+							$("#contDiv").show();
+					}
+				}else{
+					$("#contDiv").hide();
+				}
+		});
+	}
+	
+	$(function() {
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+		})
+			
+		$.formValidator.initConfig( {
+			formid : "presentMomeyForm",
+			onerror : function(msg, obj) {
+				$.pay.alert(msg);
+			}
+		});
+		$("#refush").click(
+				function() {
+					var d = new Date();
+					var src = contextPath + "/validatecode/validatecode.htm?date="
+							+ d.getTime();
+					$("#code").attr("src", src);
+				
+				});
+		
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : " ",
+			onfocus : " ",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "验证码不能为空"
+		});
+	
+		$("#rented").formValidator( {
+			tipid : "rentedTip",
+			onshow : " ",
+			onfocus : " ",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "礼金金额不能为空"
+		}).ajaxValidator( {
+			type : "POST",
+			url : contextPath
+					+ "/charge.htm?billType=4&acctType=0&catalogType=1",
+			dataType : "json",
+			success : function(msg) {
+				if (parseFloat(eval("(" + msg + ")").amount) >= 0) {
+					$("#chargeDiv").show();
+					$("#rentedTip").show();
+					$("#chargeSpan").html(
+							eval("(" + msg + ")").amount + "元");
+					$("#charge").val(eval("(" + msg + ")").amount);
+					if ($("#rented").val() * 1 > 0 ) {
+						$("#sms").attr("disabled", "");
+					} else {
+						$("#sms").attr("checked", "");
+						$("#mid").hide();
+						$("#mobile").val("");
+						$("#sms").attr("disabled", "disabled");
+					}
+					return true;
+				} else {
+					rentedErrorMsg = eval("(" + msg + ")").errMsg;
+					$("#chargeDiv").hide();
+					$("#rentedTip").show();
+					$("#charge").val("");
+					$("#sms").attr("checked", "");
+					$("#mid").hide();
+					$("#mobile").val("");
+					$("#sms").attr("disabled", "disabled");
+					return false;
+				}
+			},
+			error : function() {
+				alert("服务器没有返回数据，可能服务器忙，请重试");
+			},
+			onerror : "礼金金额不正确",
+			onerrorResult : function() {
+				return rentedErrorMsg;
+			},
+			onwait : "正在验证金额合法性，请稍候..."
+		});
+
+		$("#remark").formValidator({
+			tipid : "remarkTip",
+			onshow : "",
+			onfocus : "",
+			oncorrect : ""			
+			}).inputValidator( {		
+			min : 1,
+			max : 400,
+			empty : false,
+			onerror : "寄语不能为空,不能超过200个汉字"
+		});
+			
+		$("#payerSign").formValidator({
+			tipid : "payerSignTip",
+			onshow : " ",
+			onfocus : " ",
+			oncorrect : ""				
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "署名不能为空"	
+		});
+		$("#payeeName").formValidator({
+			tipid : "payeeNameTip",
+			onshow : " ",
+			onfocus : " ",
+			oncorrect : " "				
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "姓名/昵称不能为空"	
+		});
+		
+		$("#mobile").formValidator({
+			tipid : "mobileTip",
+			onshow : "免费短信通知对方",
+			onfocus : "免费短信通知对方",
+			oncorrect : "<font class='onShow'>免费短信通知对方</font>"				
+		}).inputValidator( {
+			max : 11,
+			empty : false,
+			onerror : "请输入正确的手机号码"	
+		}).regexValidator( {
+			regexp : "mobile",
+			datatype : "enum",
+			onerror : "请输入正确的手机号码"
+		});
+		
+		$("#accountName").formValidator( {
+			tipid : "accountNameTip",
+			onshow : "请填写收款人的iPayLinks支付号",
+			onfocus : "请填写收款人iPayLinks支付支付账号",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "收款iPayLinks支付生支付账号不能为空"
+		}).ajaxValidator({
+				type : "POST",
+				url : "${rc.contextPath}/commonLinker.htm?method=verityAccountName&acctType=0&ebillType=4",
+				data : "accountName=" + $("#accountName").val(),
+				dataType : "html",
+				success : function(msg) {
+			if (msg == "N") {
+				accountNameErrorMsg = "请填写正确的收款人账号";
+				$("#accountNameTip").show();
+				return false;
+			}
+			if (msg == "N1") {
+				accountNameErrorMsg = "收款账户与付款账户不能属于同一人";
+				$("#accountNameTip").show();
+				return false;
+			}
+			if (msg == "Y,exists") {
+				$("#accountNameSpan").html($("#accountName").val());
+				$("#t1").hide();
+				$("#t2").show();
+				$("#addlinker").hide();
+				$("#error").html("");
+				return true;
+			}
+			if (msg == "Y,noexists") {
+				$("#accountNameSpan").html($("#accountName").val());
+				$("#t1").hide();
+				$("#t2").show();
+				$("#addlinker").show();
+				$("#error").html("");
+				return true;
+			}
+		},
+		error : function() {
+			$.pay.alert("服务器没有返回数据，可能服务器忙，请重试");
+		},
+		onerror : "请填写正确的收款人账号(手机号码或E-mail地址)",
+		onerrorResult : function() {
+			return accountNameErrorMsg;
+		},
+		onwait : "正在对账户进行合法性校验，请稍候..."
+	});
+
+		$("#rented").blur(function() {
+			if (!this.value.indexOf(".") == 0) {
+				if (parseFloat(this.value)) {
+					if (!isNaN(this.value)) {
+						this.value = parseFloat(this.value).toFixed(2);
+					}
+				}
+			}
+		});
+	
+		$("#recent").click(function() {
+			$("#deafSendWord").removeClass("on");
+			$("#recent").addClass("on");
+			$.ajax({
+				type : "POST",
+				url : "${rc.contextPath}/sendword.htm?method=getRecentSendWord",
+				dataType : "html",
+				success : function(msg) {
+					//alert(msg);
+					if (msg != '') {
+						$("#SendWordList").html(msg.substring(0, msg.indexOf(",")));
+						$("#send_words").show();
+					} else {
+						$("#SendWordList").html("---目前没有使用过寄语---");
+						$("#send_words").show();
+					}
+				}
+			});
+		});
+	
+		$("#commSendWord").click(function() {
+				$("#deafSendWord").removeClass("on");
+				$("#recent").addClass("on");
+				$.ajax( {
+					type : "POST",
+					url : "${rc.contextPath}/sendword.htm?method=getRecentSendWord",
+					dataType : "html",
+					success : function(msg) {
+						alert(msg);
+						if (msg != '') {
+							$("#SendWordList").html(msg.substring(0, msg.indexOf(",")));
+							$("#send_words").show();
+						} else {
+							$("#SendWordList").html("<li>---目前没有使用过寄语---</li>");
+							$("#send_words").show();
+						}
+					}
+				});
+			});
+		
+		$("#deafSendWord").click(function() {
+			$.ajax( {
+				type : "POST",
+				url : "${rc.contextPath}/sendword.htm?method=getCommonSendWord",
+				dataType : "html",
+				success : function(msg) {
+					if (msg != '') {
+						$("#SendWordList").html("<span class=\"arrow_b\"></span><span class=\"arrow_b_inner\"></span>"+msg.substring(0, msg.indexOf(","))).show();
+						$("#hongBaoType").hide();
+					} else {
+						$("#SendWordList").html("<li>---目前没有可使用的寄语---</li>");
+						$("#send_words").show();
+					}
+				}
+			});
+		});
+	
+		$("#sendWordClose").click(function() {
+			$("#send_words").hide();
+		});
+			
+		$("#accountName").blur();
+		$("#rented").blur();
+		
+		$("#contclose").click(function() {
+			$("#contDiv").hide();
+			$("#accountName").focus();
+		});
+	
+		$("#changeacct").click(function() {
+			initLinkers();
+			var acct = $("#accountNameSpan").html();
+			$("#accountName").val(acct);
+			$("#accountName").focus();
+			$("#t1").show();
+			$("#contDiv").show();
+			$("#t2").hide();
+		});
+		$("#addlinker").click(function() {
+			var linker = $("#accountNameSpan").html();
+			$.ajax( {
+				type : "POST",
+				url : "${rc.contextPath}/commonLinker.htm?method=saveLinker&Type=0&ebillType=4&idContent="+ linker,
+				dataType : "html",
+				success : function(msg) {
+					if (msg == "Y") {
+						$("#addOk").show();
+					}
+					if (msg == "N") {
+						$.pay.alert("服务器正忙,请稍候再试 ", {
+							h : 160,
+							t : '3',
+							close : function() {
+							}
+						});
+					}
+				}
+			});
+		});
+
+
+		
+	});
+	
+	function selectLinker(linker) {
+		document.getElementById("accountName").value = linker;
+		$("#accountName").blur();
+		$("#accountNameTip").hide();
+		$("#accountNameSpan").html(linker);
+	}
+	
+	function selectCard(obj){
+
+		var $alink = ($("#"+obj));
+		$("#sort li").find("a").removeClass("select");
+		$alink.addClass("select");
+				
+		var src= $alink.find("img").attr("src");
+		
+		$("#selCardStyle").val(src.substring(0,src.indexOf("_")+1));
+		src=src.substring(0,src.indexOf("_")+1)+"big.jpg";
+		$("#show_big img").attr("src",src);
+	}
+	function selectSendWord(mySendword) {
+		var mySendwordB = mySendword;
+		while (mySendwordB.indexOf("<br>") != -1) {
+			mySendwordB = mySendwordB.replace("<br>", "\r\n");
+		}
+		while (mySendwordB.indexOf("apos;") != -1){
+			mySendwordB = mySendwordB.replace("apos;", "'");
+			}
+		$("#remark").val(mySendwordB);
+		$("#SendWordList").hide();
+		$("#hongBaoType").show();
+	}
+
+	
+
+--></script>
+</html>

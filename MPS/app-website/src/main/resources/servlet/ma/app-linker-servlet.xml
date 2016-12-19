@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 联系人定义映射-->
+	<bean id="LinkerInfoHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="featureInterceptor"/>
+                <ref bean="userLogInterceptor"/>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     </property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/linkerinfo.htm">linkerInfoController</prop>
+				<prop key="/app/linkerinfo.htm">linkerInfoController</prop>
+				<prop key="/app/insertlinker.htm">insertLinkerController</prop>
+				<prop key="/app/addlinkerlist.htm">insertLinkerController</prop>
+				<!-- 批量删除联系人 -->
+				<prop key="/app/deletelinkerbatch.htm">linkerInfoController</prop>
+				<!-- 单个删除联系人 -->
+				<prop key="/app/deletelinker.htm">linkerInfoController</prop>
+				<!-- 删除联系人列表的联系人 -->
+				<prop key="/app/dellikerlist.htm">insertLinkerController</prop>
+				<!-- 跳转至添加联系人页面 -->
+				<prop key="/app/toaddlinkerpage.htm">linkerInfoController</prop>
+				<!-- 单个联系人添加 -->
+				<prop key="/app/addlinker.htm">insertLinkerController</prop>
+				<!-- 添加联系人验证 -->
+				<prop key="/app/verifylinker.htm">insertLinkerController</prop>
+				<prop key="/app/querylist.htm">queryLinkerController</prop>
+				<!-- 查询联系人个数 -->
+				<prop key="/app/linkerCounts.htm">accountLinkerController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="linkerInfoController"
+		class="com.pay.app.controller.base.linker.LinkerInfoController">
+		
+		<property name="success">
+			<value>/base/linker/linkerindex</value>
+		</property>
+		<property name="error">
+			<value>/base/linker/linkerindex</value>
+		</property>
+		<property name="addlinkerpage">
+			<value>/base/linker/addlinker</value>
+		</property>
+		<property name="linkerService">
+			<ref bean="base-linkerService" />
+		</property>
+	</bean>
+	
+	<bean id="accountLinkerController"
+		class="com.pay.app.controller.base.linker.AccountLinkerController">
+		<property name="linkerService">
+			<ref bean="base-linkerService" />
+		</property>
+	</bean>
+
+	<bean id="insertLinkerController"
+		class="com.pay.app.controller.base.linker.InsertLinkerController">
+		<property name="success">
+			<value>/common/redirect</value>
+		</property>
+		<property name="linkerService">
+			<ref bean="base-linkerService" />
+		</property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+	
+	<bean id="queryLinkerController"
+		class="com.pay.app.controller.base.linker.QueryLinkerListController">
+		<property name="linkerService">
+			<ref bean="base-linkerService" />
+		</property>
+		<property name="queryLinkerList">
+			<value>/base/linker/queryLinkerList</value>
+		</property>
+	</bean>
+</beans>

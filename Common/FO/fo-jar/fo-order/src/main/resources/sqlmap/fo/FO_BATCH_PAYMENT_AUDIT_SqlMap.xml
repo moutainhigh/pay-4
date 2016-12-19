@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchPaymentAudit">
+
+	<typeAlias alias="batchPaymentReqBaseQueryInfo" type="com.pay.fo.order.model.batchpayment.BatchPaymentReqBaseQueryInfo"/>
+	
+    <resultMap id="BatchPaymentReqBaseQueryInfoResult" class="com.pay.fo.order.model.batchpayment.BatchPaymentReqBaseQueryInfo" >
+    <result column="REQUEST_SEQ" property="requestSeq" jdbcType="DECIMAL" />
+    <result column="REQUEST_TYPE" property="requestType" jdbcType="DECIMAL" />
+    <result column="BUSINESS_BATCHNO" property="businessBatchNo" jdbcType="VARCHAR" />
+    <result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR" />
+    <result column="PAYER_LOGINNAME" property="payerLoginName" jdbcType="VARCHAR" />
+    <result column="PAYER_MEMBERCODE" property="payerMemberCode" jdbcType="DECIMAL" />
+    <result column="PAYER_MEMBERTYPE" property="payerMemberType" jdbcType="DECIMAL" />
+    <result column="PAYER_ACCTCODE" property="payerAcctCode" jdbcType="VARCHAR" />
+    <result column="PAYER_ACCTTYPE" property="payerAcctType" jdbcType="DECIMAL" />
+    <result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="AUDITOR" property="auditor" jdbcType="VARCHAR" />
+    <result column="REQUEST_AMOUNT" property="requestAmount" jdbcType="DECIMAL" />
+    <result column="REQUEST_COUNT" property="requestCount" jdbcType="DECIMAL" />
+    <result column="VALID_AMOUNT" property="validAmount" jdbcType="DECIMAL" />
+    <result column="VALID_COUNT" property="validCount" jdbcType="DECIMAL" />
+    <result column="IS_PAYERPAYFEE" property="isPayerPayFee" jdbcType="DECIMAL" />
+    <result column="FEE" property="fee" jdbcType="DECIMAL" />
+    <result column="REALPAY_AMOUNT" property="realpayAmount" jdbcType="DECIMAL" />
+    <result column="REALOUT_AMOUNT" property="realoutAmount" jdbcType="DECIMAL" />
+    <result column="REQUEST_SRC" property="requestSrc" jdbcType="VARCHAR" />
+    <result column="AUDIT_REMARK" property="auditRemark" jdbcType="VARCHAR" />
+  </resultMap>
+
+    <select id="queryBatchPaymentAuditList" resultMap="BatchPaymentReqBaseQueryInfoResult"
+        parameterClass="batchPaymentReqBaseQueryInfo">
+        SELECT 
+        	BPQ.REQUEST_SEQ, 
+        	BPQ.REQUEST_TYPE, 
+        	BPQ.BUSINESS_BATCHNO, 
+        	BPQ.PAYER_NAME, 
+        	BPQ.PAYER_LOGINNAME,
+      		BPQ.PAYER_MEMBERCODE, 
+      		BPQ.PAYER_MEMBERTYPE, 
+      		BPQ.PAYER_ACCTCODE, 
+      		BPQ.PAYER_ACCTTYPE, 
+      		BPQ.CREATOR, 
+      		BPQ.CREATE_DATE,
+      		BPQ.UPDATE_DATE, 
+      		BPQ.STATUS, 
+      		BPQ.AUDITOR, 
+      		BPQ.REQUEST_AMOUNT, 
+      		BPQ.REQUEST_COUNT, 
+      		BPQ.VALID_AMOUNT, 
+      		BPQ.VALID_COUNT,
+      		BPQ.IS_PAYERPAYFEE, 
+      		BPQ.FEE, 
+      		BPQ.REALPAY_AMOUNT, 
+      		BPQ.REALOUT_AMOUNT, 
+      		BPQ.REQUEST_SRC, 
+      		BPQ.AUDIT_REMARK
+    	FROM FO.BATCH_PAYMENTREQBASEINFO BPQ
+        WHERE 
+        	BPQ.PAYER_MEMBERCODE = #payerMemberCode# AND  
+        	BPQ.REQUEST_TYPE = #requestType# AND
+        	BPQ.STATUS != 0
+        	<dynamic>
+        		<isNotNull prepend="AND" property="status">
+        			BPQ.STATUS = #status#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="businessBatchNo">
+        			BPQ.BUSINESS_BATCHNO = #businessBatchNo#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="beginDate">
+        			BPQ.CREATE_DATE &gt;= #beginDate#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="endDate">
+        			BPQ.CREATE_DATE &lt;= #endDate#
+        		</isNotNull>
+        	</dynamic>
+        ORDER BY
+        	BPQ.CREATE_DATE DESC
+    </select>
+    
+    <select id="queryBatchPaymentAuditList_COUNT" resultClass="java.lang.Integer"
+        parameterClass="batchPaymentReqBaseQueryInfo">
+        SELECT count(1)
+        FROM FO.BATCH_PAYMENTREQBASEINFO BPQ
+        WHERE 
+        	BPQ.PAYER_MEMBERCODE = #payerMemberCode# AND  
+        	BPQ.REQUEST_TYPE = #requestType# AND
+        	BPQ.STATUS != 0
+        	<dynamic>
+        		<isNotNull prepend="AND" property="status">
+        			BPQ.STATUS = #status#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="businessBatchNo">
+        			BPQ.BUSINESS_BATCHNO = #businessBatchNo#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="beginDate">
+        			BPQ.CREATE_DATE &gt;= #beginDate#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="endDate">
+        			BPQ.CREATE_DATE &lt;= #endDate#
+        		</isNotNull>
+        	</dynamic>
+    </select>    
+    
+    <select id="queryBatchPaymentAuditInfo" resultMap="BatchPaymentReqBaseQueryInfoResult"
+        parameterClass="batchPaymentReqBaseQueryInfo">
+        SELECT 
+        	BPQ.REQUEST_SEQ, 
+        	BPQ.REQUEST_TYPE, 
+        	BPQ.BUSINESS_BATCHNO, 
+        	BPQ.PAYER_NAME, 
+        	BPQ.PAYER_LOGINNAME,
+      		BPQ.PAYER_MEMBERCODE, 
+      		BPQ.PAYER_MEMBERTYPE, 
+      		BPQ.PAYER_ACCTCODE, 
+      		BPQ.PAYER_ACCTTYPE, 
+      		BPQ.CREATOR, 
+      		BPQ.CREATE_DATE,
+      		BPQ.UPDATE_DATE, 
+      		BPQ.STATUS, 
+      		BPQ.AUDITOR, 
+      		BPQ.REQUEST_AMOUNT, 
+      		BPQ.REQUEST_COUNT, 
+      		BPQ.VALID_AMOUNT, 
+      		BPQ.VALID_COUNT,
+      		BPQ.IS_PAYERPAYFEE, 
+      		BPQ.FEE, 
+      		BPQ.REALPAY_AMOUNT, 
+      		BPQ.REALOUT_AMOUNT, 
+      		BPQ.REQUEST_SRC, 
+      		BPQ.AUDIT_REMARK
+    	FROM FO.BATCH_PAYMENTREQBASEINFO BPQ
+        WHERE 
+        	BPQ.PAYER_MEMBERCODE = #payerMemberCode# AND  
+        	BPQ.REQUEST_SEQ = #requestSeq#
+    </select>
+ 
+</sqlMap>

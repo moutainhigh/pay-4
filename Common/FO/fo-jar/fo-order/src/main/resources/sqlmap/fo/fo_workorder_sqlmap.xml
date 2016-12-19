@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="work_order">
+
+	<typeAlias alias="workorder" type="com.pay.fo.order.model.audit.WorkOrder"/>
+	
+    <resultMap id="workorderMap" class="com.pay.fo.order.model.audit.WorkOrder">
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="ORDER_SEQ" property="orderSeq" jdbcType="DECIMAL"/>
+        <result column="ORDER_TYPE" property="orderType" jdbcType="DECIMAL"/>
+        <result column="ORDER_SMALLTYPE" property="orderSmallType" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="CREATE_MEMBER_CODE" property="createMembercode" jdbcType="DECIMAL"/>
+        <result column="CREATE_OPERATOR" property="createOperator" jdbcType="VARCHAR"/>
+        <result column="AUDIT_MEMBER_CODE" property="auditMembercode" jdbcType="DECIMAL"/>
+        <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+        <result column="AUDIT_REMARK" property="auditRemark" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="EXTERNAL_INFO" property="externalInfo" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="workorder">
+   	 	<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			select 290 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_WORKORDER_SEQ.NEXTVAL, 6, 0) AS SEQUENCE_ID from DUAL 
+		</selectKey>
+        INSERT INTO WORK_ORDER(SEQUENCE_ID,ORDER_SEQ,ORDER_TYPE,ORDER_SMALLTYPE,STATUS,CREATE_MEMBER_CODE,CREATE_OPERATOR,AUDIT_MEMBER_CODE,
+        AUDIT_OPERATOR,AUDIT_REMARK,CREATE_DATE,UPDATE_DATE,EXTERNAL_INFO)
+        VALUES(#sequenceId#,#orderSeq#,#orderType#,#orderSmallType#,#status#,#createMembercode#,#createOperator#,#auditMembercode#,#auditOperator#,
+        #auditRemark#,#createDate#,#updateDate#,#externalInfo#)
+    </insert>
+	<!-- 更新bsp工单状态 -->
+	<update id="updateWorkOrderWithOldStatus" parameterClass="java.util.HashMap">
+		UPDATE WORK_ORDER 
+			SET STATUS = #status#,
+			AUDIT_OPERATOR = #auditOperator#,
+			AUDIT_REMARK = #remark#,
+			update_date = SYSDATE
+		WHERE ORDER_SEQ = #orderSeq#
+		<isNotEmpty prepend="AND" property="oldStatus">
+	 		STATUS = #oldStatus#
+		</isNotEmpty>
+    </update>
+    <update id="update" parameterClass="workorder">
+        UPDATE WORK_ORDER
+        <dynamic prepend="SET">
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="orderSeq">
+            ORDER_SEQ = #orderSeq#
+        </isNotNull>
+        <isNotNull prepend="," property="orderType">
+            ORDER_TYPE = #orderType#
+        </isNotNull>
+         <isNotNull prepend="," property="orderSmallType">
+            ORDER_SMALLTYPE = #orderSmallType#
+        </isNotNull>
+        <isNotNull prepend="," property="createMembercode">
+            CREATE_MEMBER_CODE = #createMembercode#
+        </isNotNull>
+        <isNotNull prepend="," property="createOperator">
+            CREATE_OPERATOR = #createOperator#
+        </isNotNull>                   
+        <isNotNull prepend="," property="auditMembercode">
+            AUDIT_MEMBER_CODE = #auditMembercode#
+        </isNotNull>
+        <isNotNull prepend="," property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator#
+        </isNotNull>
+        <isNotNull prepend="," property="auditRemark">
+            AUDIT_REMARK = #auditRemark#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        <isNotNull prepend="," property="externalInfo">
+            EXTERNAL_INFO = #externalInfo#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        SEQUENCE_ID = #sequenceId# 
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM WORK_ORDER        
+        WHERE 
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCEID = #sequenceId# 
+            </isNotNull>
+    </delete>
+
+
+    <select id="findById" resultMap="workorderMap"
+        parameterClass="java.lang.Long">
+        SELECT SEQUENCE_ID,ORDER_SEQ,ORDER_TYPE,ORDER_SMALLTYPE,STATUS,CREATE_MEMBER_CODE,CREATE_OPERATOR,AUDIT_MEMBER_CODE,
+        AUDIT_OPERATOR,AUDIT_REMARK,CREATE_DATE,UPDATE_DATE,EXTERNAL_INFO
+        FROM WORK_ORDER WHERE SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findByOrderSeq" resultMap="workorderMap"
+        parameterClass="java.lang.Long">
+        SELECT SEQUENCE_ID,ORDER_SEQ,ORDER_TYPE,ORDER_SMALLTYPE,STATUS,CREATE_MEMBER_CODE,CREATE_OPERATOR,AUDIT_MEMBER_CODE,
+        AUDIT_OPERATOR,AUDIT_REMARK,CREATE_DATE,UPDATE_DATE,EXTERNAL_INFO
+        FROM WORK_ORDER WHERE ORDER_SEQ = #orderSeq# 
+    </select>
+    
+    <select id="findByAuditMemberCode" resultMap="workorderMap"
+        parameterClass="java.util.Map">
+        SELECT SEQUENCE_ID,ORDER_SEQ,ORDER_TYPE,ORDER_SMALLTYPE,STATUS,CREATE_MEMBER_CODE,CREATE_OPERATOR,AUDIT_MEMBER_CODE,
+        AUDIT_OPERATOR,AUDIT_REMARK,CREATE_DATE,UPDATE_DATE,EXTERNAL_INFO
+        FROM WORK_ORDER WHERE AUDIT_MEMBER_CODE = #auditMembercode# and order_type = #orderType# and order_smalltype = #orderSmallType#
+    </select>
+    
+    <select id="findByAuditMemberCode_COUNT" resultClass="java.lang.Integer"
+        parameterClass="java.util.Map">
+        SELECT count(1)
+        FROM WORK_ORDER WHERE AUDIT_MEMBER_CODE = #auditMembercode# and order_type = #orderType# and order_smalltype = #orderSmallType#
+    </select> 
+</sqlMap>

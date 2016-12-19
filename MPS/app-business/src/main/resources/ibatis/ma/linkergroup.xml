@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="linkergroup">
+    <typeAlias alias="linkergroup" type="com.pay.base.model.LinkerGroup"/>
+    
+    <insert id="create" parameterClass="linkergroup">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_linkergroup_ID.nextval as ID from dual 
+		</selectKey>     
+        insert into 
+        	t_linkergroup 
+        	(
+        		id, 	
+        		groupName
+            )
+        values 
+        	(
+        		#id#,	
+        		#groupName#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		t_linkergroup
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		t_linkergroup
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="linkergroup">
+        update 
+        	t_linkergroup
+        set 
+        		groupName = #groupName#
+        where 
+        	ID 				= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		t_linkergroup
+    </select>
+    
+    
+    <select id="findById" resultClass="linkergroup" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		groupName
+        from 
+        	t_linkergroup
+        where 
+        	ID 			= #id#
+    </select>
+    <select id="read" resultClass="linkergroup" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	t_linkergroup
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="linkergroup" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		groupName
+        from 
+        	t_linkergroup
+    </select>    
+    
+</sqlMap>

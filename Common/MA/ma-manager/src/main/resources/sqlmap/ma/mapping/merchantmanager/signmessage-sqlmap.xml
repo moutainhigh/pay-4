@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="possma_signmessag">
+	<typeAlias alias="signMessage" type="com.pay.poss.merchantmanager.model.SignMessage" />
+	<typeAlias alias="signMessageDto" type="com.pay.poss.merchantmanager.dto.SignMessageDto" />
+	<sql id="possma_signmessag.paging_start">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="possma_signmessag.paging_end">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 where (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	<sql id="signMessageCommon">
+       	<isNotEmpty property="departmentName">
+    		<![CDATA[   and tsm.department_name like #departmentName#||'%']]>
+    	</isNotEmpty>
+    	<isNotEmpty property="departmentPrincipal">
+    		<![CDATA[   and tsm.department_principal = #departmentPrincipal#]]>
+    	</isNotEmpty>
+    	 <isNotEmpty property="endDate">
+			    	<![CDATA[
+			    	and tsm.gmt_create >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+	        		and tsm.gmt_create <=TO_DATE(#endDate# , 'yyyy-mm-dd')+ 1
+			    	]]>
+  		</isNotEmpty>
+	  	<isNotEmpty property="startDate">
+	  	    <isEmpty property="endDate">
+		    	<![CDATA[
+		    	and tsm.gmt_create >= TO_DATE(#startDate# , 'yyyy-mm-dd ') 
+		    	and tsm.gmt_create <= TO_DATE(#startDate# , 'yyyy-mm-dd ')+1 
+		    	]]>
+	     	</isEmpty>
+	    </isNotEmpty>
+	</sql>
+	<insert id="createSignMessage" parameterClass="signMessage">
+		<selectKey resultClass="java.lang.Long" keyProperty="signMessageId">
+			select SEQ_SIGN_MESSAGE.nextval as signMessageId from dual 
+    	</selectKey>
+		insert into
+		t_sign_message
+		(
+			sign_message_id ,department_name ,search_key ,department_principal,email,
+			principal_mobile,gmt_create ,gmt_modified,creator ,modifier
+		)
+		values
+		(
+			#signMessageId#,#departmentName#,#searchKey#,#departmentPrincipal#,#email#,
+			#principalMobile#,sysdate,sysdate,#creator#,#modifier#
+		)
+	</insert>
+	<select id="querySignMessageList" resultClass="signMessageDto" parameterClass="signMessageDto">
+		<include refid="possma_signmessag.paging_start" />
+			select tsm.sign_message_id signMessageId,
+			       tsm.department_name departmentName,
+			       tsm.search_key searchKey,
+			       tsm.department_principal departmentPrincipal,
+			       tsm.email email,
+			       tsm.principal_mobile principalMobile,
+			       tsm.value1 value1,
+			       tsm.value2 value2,
+			       tsm.gmt_create gmtCreate,
+			       tsm.gmt_modified gmtModified,
+			       to_char(tsm.gmt_create,'yyyy-mm-dd hh24:mi:ss')   strGmtCreate,
+			       to_char(tsm.gmt_modified,'yyyy-mm-dd hh24:mi:ss')  strgmtModified,
+			       tsm.creator creator,
+			       tsm.modifier modifier,
+			       tsm.is_deleted isDeleted
+			from t_sign_message tsm 
+			    where 1=1
+			  <include refid="signMessageCommon" />
+			  order by tsm.gmt_create desc
+		 <include refid="possma_signmessag.paging_end" />
+	</select>
+	<select id="countSignMessage" resultClass="java.lang.Integer" parameterClass="signMessageDto">
+		select count(tsm.sign_message_id)
+		  from  t_sign_message tsm
+		  where 1=1
+		<include refid="signMessageCommon" />
+	</select>
+	<update id="updateSignMessage" parameterClass="signMessageDto">
+       update t_sign_message tsm  set
+       		tsm.gmt_modified = sysdate,
+       		<isNotEmpty property="departmentName">
+    			<![CDATA[    tsm.department_name = #departmentName#, ]]>
+    		</isNotEmpty>
+	    	<isNotEmpty property="departmentPrincipal">
+	    		<![CDATA[    tsm.department_principal = #departmentPrincipal#,]]>
+	    	</isNotEmpty>
+	    	<isNotEmpty property="departmentPrincipal">
+	    		<![CDATA[    tsm.email = #email#,]]>
+	    	</isNotEmpty>
+	    	<isNotEmpty property="departmentPrincipal">
+	    		<![CDATA[    tsm.principal_mobile = #principalMobile#,]]>
+	    	</isNotEmpty>
+       		tsm.modifier = #modifier#
+       	 where tsm.sign_message_id = #signMessageId#
+    </update>
+    <delete id="deleteSignMessage" parameterClass="signMessageDto">
+       delete t_sign_message tsm  
+       	 where tsm.sign_message_id = #signMessageId#
+    </delete>
+    <select id="querySignMessageById" resultClass="signMessageDto" parameterClass="signMessageDto">
+			select tsm.sign_message_id signMessageId,
+			       tsm.department_name departmentName,
+			       tsm.search_key searchKey,
+			       tsm.department_principal departmentPrincipal,
+			       tsm.email email,
+			       tsm.principal_mobile principalMobile,
+			       tsm.value1 value1,
+			       tsm.value2 value2,
+			       tsm.gmt_create gmtCreate,
+			       tsm.gmt_modified gmtModified,
+			       to_char(tsm.gmt_create,'yyyy-mm-dd hh24:mi:ss')   strGmtCreate,
+			       to_char(tsm.gmt_modified,'yyyy-mm-dd hh24:mi:ss')  strgmtModified,
+			       tsm.creator creator,
+			       tsm.modifier modifier,
+			       tsm.is_deleted isDeleted
+			from  t_sign_message tsm 
+			      where tsm.sign_message_id = #signMessageId#
+	</select>
+	<select id="querySignMessageByCondition" resultClass="signMessageDto" parameterClass="signMessageDto">
+			select tsm.sign_message_id signMessageId,
+			       tsm.department_name departmentName,
+			       tsm.search_key searchKey,
+			       tsm.department_principal departmentPrincipal,
+			       tsm.email email,
+			       tsm.principal_mobile principalMobile,
+			       tsm.value1 value1,
+			       tsm.value2 value2,
+			       tsm.gmt_create gmtCreate,
+			       tsm.gmt_modified gmtModified,
+			       to_char(tsm.gmt_create,'yyyy-mm-dd hh24:mi:ss')   strGmtCreate,
+			       to_char(tsm.gmt_modified,'yyyy-mm-dd hh24:mi:ss')  strgmtModified,
+			       tsm.creator creator,
+			       tsm.modifier modifier,
+			       tsm.is_deleted isDeleted
+			from t_sign_message tsm 
+			    where 1=1
+			 <isNotEmpty property="departmentName">
+    			<![CDATA[ and   tsm.department_name like #departmentName#||'%' ]]>
+    		</isNotEmpty>
+    		<isNotEmpty property="searchKey">
+    			<![CDATA[ and   tsm.search_key like #searchKey#||'%' ]]>
+    		</isNotEmpty>
+			  order by tsm.gmt_create desc
+	</select>
+	<select id="countSignMessageByCondition" resultClass="java.lang.Integer" parameterClass="signMessageDto">
+			select count(tsm.sign_message_id)
+				from t_sign_message tsm 
+			   where tsm.department_name = #departmentName#
+	</select>
+	<select id="validateDepName" resultClass="signMessageDto" parameterClass="signMessageDto">
+			select tsm.department_name departmentName,
+				   tsm.sign_message_id signMessageId
+				from t_sign_message tsm 
+			   where tsm.department_name = #departmentName#
+			   <isNotEmpty property="updateFlag">
+    			<![CDATA[ 	and tsm.sign_message_id = #signMessageId# ]]>
+    		</isNotEmpty>
+	</select>
+</sqlMap>

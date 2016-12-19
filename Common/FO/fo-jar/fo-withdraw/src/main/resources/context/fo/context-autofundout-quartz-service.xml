@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+       
+     <!-- ************************quarzt配置 begin********************* -->       
+     	<!-- 抽象quarzt配置 - -->
+	    <bean id="fundout_auto_autofundoutabstractservice"
+	    	class="com.pay.fundout.autofundout.quartz.service.impl.AutofundoutAbstractService" abstract="true" >
+			<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+			<property name="autoWithdrawService" ref="fundout_autofundout_Service" />
+			<property name="queueName" value="fundout.autofundout.withdraw.request" />
+			<property name="bankCardBindService" ref="acc-bankCardBindService"/>
+			<property name="memberProductService" ref="acc-memberProductService" />	
+		</bean>
+	            
+		<!-- 定期自动出款quarzt配置 -->
+		<bean id="fundout_auto_time_service"
+			class="com.pay.fundout.autofundout.quartz.service.impl.TimeQuartzServiceImpl" parent="fundout_auto_autofundoutabstractservice">
+		</bean>
+		
+		<!-- 定期按时间点自动出款quarzt配置 -->
+		<bean id="fundout_auto_more_time_service"
+			class="com.pay.fundout.autofundout.quartz.service.impl.MoreTimeQuartzServiceImpl" parent="fundout_auto_autofundoutabstractservice">
+		</bean>
+		
+		<!-- 定额自动出款quarzt配置 - -->
+		<bean id="fundout_auto_quota_service"
+			class="com.pay.fundout.autofundout.quartz.service.impl.QuotaQuartzServiceImpl" parent="fundout_auto_autofundoutabstractservice">
+		</bean>
+	<!-- *********************quarzt配置 end********************* -->
+
+	
+	<bean id="fundout_abstractautofundoutservice" class="com.pay.fundout.autofundout.processor.service.AbstractAutoFundoutService" abstract="true">
+		<property name="messageService" ref="fundout_autofundout_messageService" />
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="withdrawMemberFacadeService" ref="withdrawMemberFacadeService"/>
+		<property name="bankCardBindService" ref="acc-bankCardBindService"/>
+		<property name="accountingFeeService" ref="fundout-withdrawFirstAccounting"/>
+		<property name="autoFundoutOrderService" ref="fo-order-autofundoutorderservice" />
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="bankService" ref="bankService" />
+		<property name="provinceCityFacadeService" ref="fundout-withdraw-provinceCityFacadeService" />
+	</bean>
+		    
+	<bean id="fundout_autoQuotaFundoutService" class="com.pay.fundout.autofundout.processor.service.impl.AutoQuotaFundoutServiceImpl" parent="fundout_abstractautofundoutservice" />
+	
+	<bean id="fundout_autoTimeFundoutService" class="com.pay.fundout.autofundout.processor.service.impl.AutoTimeFundoutServiceImpl" parent="fundout_abstractautofundoutservice" />
+	
+	
+	<!-- 提供给MDP用 -->
+	<bean id="fundout_atuoFundoutMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="1">
+					<ref bean="fundout_autoTimeFundoutService" />
+				</entry>
+				<entry key="2">
+					<ref bean="fundout_autoQuotaFundoutService" />
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+</beans>

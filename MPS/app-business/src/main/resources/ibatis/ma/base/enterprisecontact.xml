@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="enterpriseContact" >
+  <typeAlias alias="enterpriseContact" type="com.pay.base.model.EnterpriseContact"/>
+  <resultMap id="enterpriseContactMap" class="enterpriseContact" >
+	  <result column="CONTACT_ID"  property="contactId" jdbcType="INT" nullValue="0" />
+	  <result column="MEMBER_CODE" property="memberCode" jdbcType="INT"/>  
+	  <result column="ADDRESS" property="address" jdbcType="VARCHAR"/>
+	  <result column="FAX" property="fax" jdbcType="VARCHAR"/>      
+	  <result column="TEL" property="tel" jdbcType="VARCHAR"/>    
+	  <result column="ZIP" property="zip" jdbcType="VARCHAR"/>     
+	  <result column="LEGAL_NAME" property="legalName" jdbcType="VARCHAR"/>     
+	  <result column="LEGAL_LINK" property="legalLink" jdbcType="VARCHAR"/>    
+	  <result column="EMAIL" property="email" jdbcType="VARCHAR"/> 
+	  <result column="FINANCE_NAME" property="financeName" jdbcType="VARCHAR"/> 
+	  <result column="FINANCE_LINK" property="financeLink" jdbcType="VARCHAR"/>
+	  <result column="TECH_NAME" property="techName" jdbcType="VARCHAR"/>
+	  <result column="TECH_LINK" property="techLink" jdbcType="VARCHAR"/>    
+	  <result column="WEB_NAME1" property="webName1" jdbcType="VARCHAR"/>      
+	  <result column="WEB_ADDR1" property="webAddr1" jdbcType="VARCHAR"/>
+	  <result column="WEB_NAME2" property="webName2" jdbcType="DATETIME"/>
+	  <result column="WEB_ADDR2" property="webAddr2" jdbcType="VARCHAR"/>
+	  <result column="WEB_NAME3" property="webName3" jdbcType="VARCHAR"/>
+	  <result column="WEB_ADDR3" property="webAddr3" jdbcType="VARCHAR"/>
+	  <result column="CREATE_DATE" property="createDate" jdbcType="DATETIME"/>
+	  <result column="UPDATE_DATE" property="updateDate" jdbcType="DATETIME"/>
+	  <result column="COMPAY_LINKER_NAME" property="compayLinkerName" jdbcType="VARCHAR"/>
+	  <result column="COMPAY_LINKER_TEL" property="compayLinkerTel" jdbcType="VARCHAR"/>
+  </resultMap>  
+ 	<insert id="create" parameterClass="com.pay.base.model.EnterpriseContact">
+    	<selectKey resultClass="java.lang.Long" keyProperty="contactId">
+			SELECT seq_enterp_contact_cont_id.nextval as contactId FROM dual 
+		</selectKey>     
+        insert into t_enterprise_contact
+  			  (contact_id,
+		       member_code,
+		       address,
+		       fax,
+		       tel,
+		       zip,
+		       legal_name,
+		       legal_link,
+		       email,
+		       finance_name,
+		       finance_link,
+		       tech_name,
+		       tech_link,
+		       web_name1,
+		       web_addr1,
+		       web_name2,
+		       web_addr2,
+		       web_name3,
+           	   web_addr3,
+		       create_date,
+		       update_date,
+		       compay_linker_name,
+		       compay_linker_tel)
+			values
+			  (#contactId#,
+			   #memberCode#,
+			   #address#,
+			   #fax#,
+			   #tel#,
+			   #zip#,
+			   #legalName#,
+			   #legalLink#,
+			   #email#,
+			   #financeName#,
+			   #financeLink#,
+			   #techName#,
+			   #techLink#,
+			   #webName1#,
+			   #webAddr1#,
+			   #webName2#,
+			   #webAddr2#,
+			   #webName3#,
+			   #webAddr3#,
+			   sysdate,
+			   sysdate,
+			   #compayLinkerName#,
+			   #compayLinkerTel#)
+    </insert>
+    <update id="updateEnterpriseContact"  parameterClass="enterpriseContact">
+    	
+		update t_enterprise_contact
+		   set
+		    <isNotEmpty property="address"> 
+            	address  = #address#,
+            </isNotEmpty> 
+		    <isNotEmpty property="fax"> 
+            	fax = #fax#,
+            </isNotEmpty>
+		    <isNotEmpty property="tel"> 
+            	tel = #tel#,
+            </isNotEmpty>    
+		    <isNotEmpty property="legalName"> 
+            	legal_name = #legalName#,
+            </isNotEmpty>    
+		    <isNotEmpty property="legalLink"> 
+            	legal_link  = #legalLink#,
+            </isNotEmpty>    
+		    <isNotEmpty property="email"> 
+            	email  = #email#,
+            </isNotEmpty>   
+		    <isNotEmpty property="financeName">   
+		       finance_name  = #financeName#,
+		    </isNotEmpty>
+		    <isNotEmpty property="financeLink"> 
+		       finance_link = #financeLink#,
+		    </isNotEmpty>
+		    <isNotEmpty property="techName">
+		       tech_name = #techName#,
+		    </isNotEmpty>
+		    <isNotEmpty property="techLink">
+		       tech_link = #techLink#,
+		    </isNotEmpty>
+		    <isNotEmpty property="webName1">
+		       web_name1 = #webName1#,
+		    </isNotEmpty>
+		    <isNotEmpty property="webAddr1">
+		       web_addr1 = #webAddr1#,
+		    </isNotEmpty>
+		    <isNotEmpty property="webName2">
+		       web_name2 = #webName2#,
+		    </isNotEmpty>
+		    <isNotEmpty property="webAddr2">
+		       web_addr2 = #webAddr2#,
+		    </isNotEmpty>
+		    <isNotEmpty property="webName3">
+		       web_name3 = #webName3#,
+		    </isNotEmpty>
+		    <isNotEmpty property="webAddr3">
+		       web_addr3 = #webAddr3#,
+		    </isNotEmpty>
+		    <isNotEmpty property="compayLinkerName">
+		       compay_linker_name = #compayLinkerName#,
+		    </isNotEmpty>
+		    <isNotEmpty property="compayLinkerTel">
+		       compay_linker_tel = #compayLinkerTel#,
+		    </isNotEmpty>
+		    	zip = #zip#, 
+		       update_date = SYSDATE
+		 where contact_id = #contactId#
+
+    </update>
+   
+    <select id="findContactByMemberCode" resultMap="enterpriseContactMap" parameterClass="java.lang.Long">
+    	SELECT contact_id,
+		       member_code,
+		       address,
+		       fax,
+		       tel,
+		       zip,
+		       legal_name,
+		       legal_link,
+		       email,
+		       finance_name,
+		       finance_link,
+		       tech_name,
+		       tech_link,
+		       web_name1,
+		       web_addr1,
+		       web_name2,
+		       web_addr2,
+		       web_name3,
+		       web_addr3,
+		       create_date,
+		       update_date,
+		       compay_linker_name,
+		       compay_linker_tel
+		  from t_enterprise_contact
+		 WHERE member_code = #memberCode#
+    </select>
+    
+   
+    <select id="findByContactId" resultMap="enterpriseContactMap" parameterClass="java.lang.Long">
+    	SELECT contact_id,
+		       member_code,
+		       address,
+		       fax,
+		       tel,
+		       zip,
+		       legal_name,
+		       legal_link,
+		       email,
+		       finance_name,
+		       finance_link,
+		       tech_name,
+		       tech_link,
+		       web_name1,
+		       web_addr1,
+		       web_name2,
+		       web_addr2,
+		       web_name3,
+		       web_addr3,
+		       create_date,
+		       update_date,
+		       compay_linker_name,
+		       compay_linker_tel
+		  from t_enterprise_contact WHERE contact_id = #contactId#
+    </select>	
+    
+    <update id="updateEnterpriseLinker"  parameterClass="enterpriseContact">
+    	
+		update t_enterprise_contact
+		   set
+		    <isNotEmpty property="compayLinkerName">
+		       compay_linker_name = #compayLinkerName#,
+		    </isNotEmpty>
+		    <isNotEmpty property="compayLinkerTel">
+		       compay_linker_tel = #compayLinkerTel#,
+		    </isNotEmpty>
+		       update_date = SYSDATE
+		 where member_code = #memberCode#
+
+    </update>
+    
+    
+    
+    
+ </sqlMap>

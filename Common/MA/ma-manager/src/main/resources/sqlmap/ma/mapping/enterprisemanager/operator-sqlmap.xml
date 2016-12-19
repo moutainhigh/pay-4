@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="operator">
+	<typeAlias alias="operatorSearchDto"	type="com.pay.poss.enterprisemanager.dto.OperatorSearchDto" />
+	<typeAlias alias="operatorSearchListDto"	type="com.pay.poss.enterprisemanager.dto.OperatorSearchListDto" />
+
+	<select id="queryOperator" resultClass="operatorSearchListDto" parameterClass="operatorSearchDto">
+	select b.*
+	  from (select a.*, rownum as linenum
+	          from (select a.member_code   as memberCode,
+	                       b.merchant_code as merchantCode,
+	                       b.zh_name       as merchantName,
+	                       a.login_name    as loginName,
+	                       c.operator_id   as operatorId,
+	                       c.identity      as identity,
+	                       c.name          as name,
+	                       c.status        as status,
+	                       c.email         as email,
+	                       c.phone         as phone,
+	                       c.mobile        as mobile,
+	                       c.cert_code     as certCode,
+	                       c.create_date   as createDate,
+	                       c.update_date   as updateDate,
+	                       c.depart        as depart,
+	                       c.note          as note,
+	                       c.cert_type     as certType
+	                  from t_member a, t_enterprise_base b, t_operator c
+	                 where a.member_code = b.member_code
+	                   and a.member_code = c.member_code
+						<isNotEmpty prepend="and" property="memberCode">  
+							a.member_code = #memberCode#
+						</isNotEmpty> 				
+						<isNotEmpty prepend="and" property="merchantCode">  
+							b.merchant_code = #merchantCode#
+						</isNotEmpty>
+						<isNotEmpty prepend="and" property="loginName">  
+							a.login_name = #loginName#
+						</isNotEmpty>
+	                 order by c.create_date desc) a
+	         where rownum &lt;= #pageEndRow#) b
+	 where linenum &gt; #pageStartRow#
+	</select>
+	
+	<select id="queryOperatorCount" resultClass="int" parameterClass="operatorSearchDto">
+		select count(1)
+        from t_member a, t_enterprise_base b, t_operator c
+        where a.member_code = b.member_code
+          and a.member_code = c.member_code
+		<isNotEmpty prepend="and" property="memberCode">  
+			a.member_code = #memberCode#
+		</isNotEmpty> 				
+		<isNotEmpty prepend="and" property="merchantCode">  
+			b.merchant_code = #merchantCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="loginName">  
+			a.login_name = #loginName#
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryOperatorById" resultClass="operatorSearchListDto" parameterClass="string">
+		select a.member_code   as memberCode,
+		       b.merchant_code as merchantCode,
+		       b.zh_name       as merchantName,
+		       a.login_name    as loginName,
+		       c.operator_id   as operatorId,
+		       c.identity      as identity,
+		       c.name          as name,
+		       c.status        as status,
+		       c.email         as email,
+		       c.phone         as phone,
+		       c.mobile        as mobile,
+		       c.cert_code     as certCode,
+		       c.create_date   as createDate,
+		       c.update_date   as updateDate,
+		       c.depart        as depart,
+		       c.note          as note,
+		       c.cert_type     as certType
+		  from t_member a, t_enterprise_base b, t_operator c
+		 where a.member_code = b.member_code
+		   and a.member_code = c.member_code
+		   and c.operator_id = #operatorId#
+	</select>
+	
+</sqlMap>

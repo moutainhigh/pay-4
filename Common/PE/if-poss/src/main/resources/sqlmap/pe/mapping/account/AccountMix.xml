@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acctountMix">
+	<typeAlias alias="queryBalanceDTO" type="com.pay.pe.account.dto.QueryBalanceDTO"/>
+	<typeAlias alias="queryEntryDTO" type="com.pay.pe.account.dto.QueryEntryDTO"/>
+	<typeAlias alias="subjectBalanceDTO" type="com.pay.pe.account.dto.SubjectBalanceDTO"/>
+	<typeAlias alias="subjectBalanceQuery" type="com.pay.pe.account.dto.SubjectBalanceQueryDto"/>
+	
+	
+	<select id="getSubjectBalance" resultClass="subjectBalanceDTO"  parameterClass="java.util.HashMap">
+	select a.acct_code acctCode,
+       a.acct_name acctName,
+       a.balance_by balanceBy,
+       (a.opening_bal + nvl(b.balance, 0)) beginningBalance,
+       (a.opening_dr_bal + nvl(b.debit_balance, 0)) beginningDrBalance,
+       (a.opening_cr_bal + nvl(b.credit_balance, 0)) beginningCrBalance,
+       (a.opening_bal + nvl(c.balance, 0)) endingBalance,
+       (a.opening_dr_bal + nvl(c.debit_balance, 0)) endingDrBalance,
+       (a.opening_cr_bal + nvl(c.credit_balance, 0)) endingCrBalance,
+       (nvl(c.balance, 0) - nvl(b.balance, 0)) amount,
+       (nvl(c.debit_balance, 0) - nvl(b.debit_balance, 0)) drAmount,
+       (nvl(c.credit_balance, 0) - nvl(b.credit_balance, 0)) crAmount       
+  from (select s.acct_code,
+               s.acct_name,
+               s.balance_by,
+               nvl(adh.opening_bal, 0) opening_bal,
+               nvl(adh.opening_dr_bal, 0) opening_dr_bal,
+               nvl(adh.opening_cr_bal, 0) opening_cr_bal
+          from pe.Subject s, pe.acct_diary_history adh
+         where s.Acct_code = adh.Acct_code(+)
+           AND s.Acct_code =   #acctCode# 
+           and s.acct_level = 4) a,
+       (select ad.acct_code,
+               sum(ad.balance) balance,
+               sum(ad.debit_balance) debit_balance,
+               sum(ad.credit_balance) credit_balance
+          from pe.acct_diary ad, pe.Subject s
+         where ad.Acct_code = s.Acct_code
+           AND s.Acct_code  =   #acctCode# 
+           and s.acct_level = 4
+            <![CDATA[ 
+           and ad.acct_period_date < to_date(#beginDate#, 'yyyyMMdd')
+            ]]>
+         group by ad.acct_code) b,
+       (select ad.acct_code,
+               sum(ad.balance) balance,
+               sum(ad.debit_balance) debit_balance,
+               sum(ad.credit_balance) credit_balance
+          from pe.acct_diary ad, pe.Subject s
+         where ad.Acct_code = s.Acct_code
+           AND s.Acct_code  =   #acctCode# 
+           and s.acct_level = 4
+            <![CDATA[
+           and ad.acct_period_date < to_date(#endDate#, 'yyyyMMdd')
+            ]]>
+         group by ad.acct_code) c
+ where a.acct_code = b.acct_code(+)
+   and a.acct_code = c.acct_code(+)
+		</select>
+	
+	 
+ 
+  <select id="getAllEntries_COUNT"   resultClass="java.lang.Integer"  parameterClass="java.util.HashMap">
+        select count(1)
+  from pe.entry e, pe.deal d, pe.payment_order p
+ where e.acct_code = #acctCode#
+   <![CDATA[ 
+   and e.CREATION_DATE >= to_date(#beginDate#, 'yyyyMMdd')
+   and e.CREATION_DATE < to_date(#endDate#, 'yyyyMMdd')
+     ]]>
+   and e.status = 1
+   and e.deal_id = d.deal_id
+   and d.order_seq_id = p.sequence_id
+   </select>
+  
+  
+    <select id="getAllEntries" resultClass="queryEntryDTO"  parameterClass="java.util.HashMap">
+		select e.acct_code acctCode,
+       p.order_id relatedOrderId,
+       d.deal_id orderId,
+       e.crdr,
+       e.value / 1000 value,
+       e.CREATION_DATE createdate,
+       e.POST_DATE  postDate
+  from pe.entry e, pe.deal d, pe.payment_order p
+ where e.acct_code = #acctCode#
+    <![CDATA[ 
+   and e.CREATION_DATE >= to_date(#beginDate#, 'yyyyMMdd')
+   and e.CREATION_DATE < to_date(#endDate#, 'yyyyMMdd')
+     ]]>
+   and e.status = 1
+   and e.deal_id = d.deal_id
+   and d.order_seq_id = p.sequence_id
+ order by p.order_id, d.deal_id, e.crdr
+	</select>
+	
+	
+	
+	<select id="getEntrieListByOrderId" resultClass="queryEntryDTO"  parameterClass="java.util.HashMap">
+ select e.acct_code acctCode,
+       p.order_id relatedOrderId,
+       d.deal_id orderId,
+       e.crdr,
+       e.value / 1000 value,
+       e.CREATION_DATE createdate,
+       e.POST_DATE  postDate,
+       E.CURRENCY_CODE currencyCode,
+       E.PAYMENT_SERVICE_CODE psCode
+  from pe.entry e, pe.deal d, pe.payment_order p
+ where 
+   e.status = 1
+   and e.deal_id = d.deal_id
+   and d.order_seq_id = p.sequence_id
+   and p.order_id = #orderId#
+	order by p.order_id, d.deal_id,E.ENTRY_CODE,e.crdr,E.CREATION_DATE
+	</select>
+	
+ <select id="getSubjectBalanceList" resultClass="subjectBalanceDTO"  parameterClass="java.util.HashMap">
+   select a.acct_code acctCode,
+       a.acct_name acctName,
+       a.balance_by balanceBy,
+       (a.opening_bal + nvl(b.balance, 0)) beginningBalance,
+       (a.opening_dr_bal + nvl(b.debit_balance, 0)) beginningDrBalance,
+       (a.opening_cr_bal + nvl(b.credit_balance, 0)) beginningCrBalance,
+       (a.opening_bal + nvl(c.balance, 0)) endingBalance,
+       (a.opening_dr_bal + nvl(c.debit_balance, 0)) endingDrBalance,
+       (a.opening_cr_bal + nvl(c.credit_balance, 0)) endingCrBalance,
+       (nvl(c.balance, 0) - nvl(b.balance, 0)) amount,
+       (nvl(c.debit_balance, 0) - nvl(b.debit_balance, 0)) drAmount,
+       (nvl(c.credit_balance, 0) - nvl(b.credit_balance, 0)) crAmount
+  from (select s.acct_code,
+               s.acct_name,
+               s.balance_by,
+               nvl(adh.opening_bal, 0) opening_bal,
+               nvl(adh.opening_dr_bal, 0) opening_dr_bal,
+               nvl(adh.opening_cr_bal, 0) opening_cr_bal
+          from pe.Subject s, pe.acct_diary_history adh
+         where s.Acct_code = adh.Acct_code(+)
+         <dynamic>
+         <isNotNull prepend="AND" property="acctCode">            
+             s.Acct_code like  ''|| #acctCode#  ||'%' 
+         </isNotNull>
+         </dynamic>
+           and s.acct_level = 4) a,
+       (select ad.acct_code,
+               sum(ad.balance) balance,
+               sum(ad.debit_balance) debit_balance,
+               sum(ad.credit_balance) credit_balance
+          from pe.acct_diary ad, pe.Subject s
+         where ad.Acct_code = s.Acct_code
+          <dynamic>
+            <isNotNull prepend="AND" property="acctCode">            
+             s.Acct_code like  ''|| #acctCode#  ||'%' 
+         </isNotNull>
+          </dynamic>
+           and s.acct_level = 4
+            <![CDATA[ 
+           and ad.acct_period_date < to_date(#beginDate#, 'yyyyMMdd')
+            ]]>
+         group by ad.acct_code) b,
+       (select ad.acct_code,
+               sum(ad.balance) balance,
+               sum(ad.debit_balance) debit_balance,
+               sum(ad.credit_balance) credit_balance
+          from pe.acct_diary ad, pe.Subject s
+         where ad.Acct_code = s.Acct_code
+          <dynamic>
+            <isNotNull prepend="AND" property="acctCode">            
+             s.Acct_code like  ''|| #acctCode#  ||'%' 
+         </isNotNull>
+          </dynamic>
+           and s.acct_level = 4
+            <![CDATA[
+           and ad.acct_period_date < to_date(#endDate#, 'yyyyMMdd')
+            ]]>
+         group by ad.acct_code) c
+ where a.acct_code = b.acct_code(+)
+   and a.acct_code = c.acct_code(+)
+   order by a.acct_code
+   </select>
+	
+	
+	
+	<!-- 按级别截取账号 -->
+	<sql id="SUBJECT_LEVEL_CONDITION">
+		<isEqual property="subjectLevel" compareValue="1">
+				substr(ad.acct_code,1,4)
+		</isEqual>
+		<isEqual property="subjectLevel" compareValue="2">
+				substr(ad.acct_code,1,6)
+		</isEqual>
+		<isEqual property="subjectLevel" compareValue="3">
+				substr(ad.acct_code,1,8)
+		</isEqual>
+			<isEqual property="subjectLevel" compareValue="4">
+				substr(ad.acct_code,1,13)
+		</isEqual>	
+	</sql>
+
+	<sql id="RESULT_LEVEL_CONDITION">
+		<isEqual  property="subjectLevel" compareValue="1" >
+				4
+		</isEqual>
+		<isEqual property="subjectLevel" compareValue="2">
+				6
+		</isEqual>
+		<isEqual property="subjectLevel" compareValue="3">
+				8
+		</isEqual>
+			<isEqual property="subjectLevel" compareValue="4">
+				10
+		</isEqual>
+		<isEqual property="subjectLevel" compareValue="5">
+				25
+		</isEqual>		
+	</sql>
+
+	<sql id="ACCT_CODE_CODITION">
+	<dynamic>
+	  <isNotEmpty prepend="AND" property="acctCode">   
+             s.Acct_code like  CONCAT(substr(#acctCode#,1,<include refid="RESULT_LEVEL_CONDITION"/>),'%')
+       </isNotEmpty>
+    </dynamic>
+	</sql>
+
+	
+	 <sql id="SUBJECT_BALANCE.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="SUBJECT_BALANCE.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 WHERE (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	<!-- 			select a.acct_code acctCode,
+       a.acct_name acctName,
+       a.balance_by balanceBy,
+       (a.opening_bal + nvl(b.balance, 0)) beginningBalance,
+       (a.opening_dr_bal + nvl(b.debit_balance, 0)) beginningDrBalance,
+       (a.opening_cr_bal + nvl(b.credit_balance, 0)) beginningCrBalance,
+       (a.opening_bal + nvl(c.balance, 0)) endingBalance,
+       (a.opening_dr_bal + nvl(c.debit_balance, 0)) endingDrBalance,
+       (a.opening_cr_bal + nvl(c.credit_balance, 0)) endingCrBalance,
+       (nvl(c.balance, 0) - nvl(b.balance, 0)) amount,
+       (nvl(c.debit_balance, 0) - nvl(b.debit_balance, 0)) drAmount,
+       (nvl(c.credit_balance, 0) - nvl(b.credit_balance, 0)) crAmount -->
+       
+	<sql id="SUBJECT_BALANCE_LIST_LEVEL_HEAD">
+	   select a.acct_code acctCode,
+			a.acct_name acctName,
+      		a.balance_by balanceBy,
+       (nvl(a.opening_bal, 0) + nvl(b.balance, 0)) beginningBalance,       
+       (nvl(a.opening_dr_bal, 0) + nvl(b.debit_balance, 0))-  
+       (nvl(a.opening_cr_bal, 0) + nvl(b.credit_balance, 0)) beginningDrBalance,       
+       (nvl(a.opening_bal, 0) + nvl(c.balance, 0)) endingBalance,
+       
+       (nvl(a.opening_dr_bal, 0) + nvl(c.debit_balance, 0)) -
+       (nvl(a.opening_cr_bal, 0) + nvl(c.credit_balance, 0)) endingDrBalance,       
+       (nvl(c.balance, 0) - nvl(b.balance, 0)) amount,
+       (nvl(c.debit_balance, 0) - nvl(b.debit_balance, 0)) drAmount,
+       (nvl(c.credit_balance, 0) - nvl(b.credit_balance, 0)) crAmount
+  from 
+	</sql>
+	
+	
+	
+	<sql id="SUBJECT_BALANCE_LIST_LEVEL_CONTENE">
+		(select s.acct_code,               
+                 s.acct_name,
+                 s.balance_by,
+               nvl(ad.opening_bal,0) opening_bal,
+               nvl(ad.opening_dr_bal,0) opening_dr_bal,
+               nvl(ad.opening_cr_bal,0) opening_cr_bal
+               from
+                 (select  <include refid="SUBJECT_LEVEL_CONDITION"/> acct_code,
+                          sum(nvl(opening_bal, 0)) opening_bal,
+                          sum(nvl(opening_dr_bal, 0)) opening_dr_bal,
+                          sum(nvl(opening_cr_bal, 0)) opening_cr_bal
+                  from pe.acct_diary_history ad
+          group by <include refid="SUBJECT_LEVEL_CONDITION"/>)  ad,
+                  (select  <include refid="SUBJECT_LEVEL_CONDITION"/> acct_code,acct_name,
+                           balance_by from pe.Subject ad where length(acct_code)=<include refid="RESULT_LEVEL_CONDITION"/>) s
+                           where s.Acct_code = ad.Acct_code(+)
+                          <include refid="ACCT_CODE_CODITION"/>
+	          ) a,
+	       (select <include refid="SUBJECT_LEVEL_CONDITION"/> acct_code,
+		    		   sum(ad.balance) balance,
+		               sum(ad.debit_balance) debit_balance,
+		               sum(ad.credit_balance) credit_balance
+		               from pe.acct_diary ad where 
+		               <![CDATA[ 
+			           	ad.acct_period_date < to_date(#beginDate#, 'yyyyMMdd')
+			            ]]>
+		               group by <include refid="SUBJECT_LEVEL_CONDITION"/>
+		) b,
+	       (select <include refid="SUBJECT_LEVEL_CONDITION"/>  acct_code,
+	    		   sum(ad.balance) balance,
+	               sum(ad.debit_balance) debit_balance,
+	               sum(ad.credit_balance) credit_balance
+	               from pe.acct_diary ad where 
+	           <![CDATA[
+	            ad.acct_period_date < to_date(#endDate#, 'yyyyMMdd')
+	          ]]>  
+	          group by <include refid="SUBJECT_LEVEL_CONDITION"/>
+	        ) c
+	 where a.acct_code = b.acct_code(+)
+	   and a.acct_code = c.acct_code(+)
+	   
+	</sql>
+	<!-- 查询科目余额总计的前四级科目 -->
+	<select id="getSubjectBalanceListLevel" resultClass="subjectBalanceDTO"  parameterClass="subjectBalanceQuery">
+		<include refid="SUBJECT_BALANCE.PAGING_START"/>
+		<include refid="SUBJECT_BALANCE_LIST_LEVEL_HEAD"/>
+	  	<include refid="SUBJECT_BALANCE_LIST_LEVEL_CONTENE"/>
+	  	order by a.acct_code
+		<include refid="SUBJECT_BALANCE.PAGING_END"/>	
+   </select>
+	
+   <select id="countSubjectBalanceListLevel" resultClass="java.lang.Integer"  parameterClass="subjectBalanceQuery" >
+   		 select count(1) from
+   	  	<include refid="SUBJECT_BALANCE_LIST_LEVEL_CONTENE"/>
+   </select>	
+   
+   
+   <sql id="SUBJECT_BALANCE_LIST_FIVE_LEVEL_CONTENE">
+   (select his.acct_code,'' acct_name,'' balance_by,nvl(opening_bal,0) opening_bal,nvl(opening_dr_bal,0) opening_dr_bal,nvl(opening_cr_bal,0) opening_cr_bal from 
+               (select  acct_code,
+               sum(nvl(opening_bal, 0)) opening_bal,
+               sum(nvl(opening_dr_bal, 0)) opening_dr_bal,
+               sum(nvl(opening_cr_bal, 0)) opening_cr_bal
+          from  pe.acct_diary_history
+          where length(acct_code)=<include refid="RESULT_LEVEL_CONDITION"/>
+          group by acct_code)          
+           ad,
+           (select acct_code from pe.acct_diary_history where length(acct_code)= <include refid="RESULT_LEVEL_CONDITION"/>
+		union
+		select acct_code from pe.acct_diary where length(acct_code)=<include refid="RESULT_LEVEL_CONDITION"/>
+		 <![CDATA[
+           and acct_period_date < to_date(#endDate#, 'yyyyMMdd')
+          ]]>  
+			) his
+         where his.acct_code=ad.acct_code(+)
+        <isNotEmpty prepend="AND" property="acctCode">            
+             his.Acct_code like  CONCAT(substr(#acctCode#,1,<include refid="RESULT_LEVEL_CONDITION"/>),'%')             
+       </isNotEmpty>
+       ) a,
+       (       select ad.acct_code,
+               sum(ad.balance) balance,
+               sum(ad.debit_balance) debit_balance,
+               sum(ad.credit_balance) credit_balance
+          from pe.acct_diary ad
+         where 1=1
+       <isNotEmpty prepend="AND" property="acctCode">            
+            ad.Acct_code like  CONCAT(substr(#acctCode#,1,<include refid="RESULT_LEVEL_CONDITION"/>),'%')             
+       </isNotEmpty>
+               and length(ad.acct_code)=<include refid="RESULT_LEVEL_CONDITION"/>
+       <![CDATA[ 
+           and ad.acct_period_date < to_date(#beginDate#, 'yyyyMMdd')
+       ]]>
+        group by ad.acct_code
+        ) b,
+       (      select ad.acct_code,
+               sum(ad.balance) balance,
+               sum(ad.debit_balance) debit_balance,
+               sum(ad.credit_balance) credit_balance
+          from pe.acct_diary ad
+         where 1=1
+        <isNotEmpty prepend="AND" property="acctCode">            
+             ad.Acct_code like  CONCAT(substr(#acctCode#,1,<include refid="RESULT_LEVEL_CONDITION"/>),'%')             
+       </isNotEmpty>
+               and length(ad.acct_code)=<include refid="RESULT_LEVEL_CONDITION"/>
+         <![CDATA[
+           and ad.acct_period_date < to_date(#endDate#, 'yyyyMMdd')
+          ]]>  
+        group by ad.acct_code) c
+	 where a.acct_code = b.acct_code(+)
+	   and a.acct_code = c.acct_code(+)
+   </sql>
+	
+		<!-- 查询科目余额总计的五级科目 -->
+	<select id="getSubjectBalanceListFiveLevel" resultClass="subjectBalanceDTO"  parameterClass="subjectBalanceQuery">	
+		<include refid="SUBJECT_BALANCE.PAGING_START"/>	
+		<include refid="SUBJECT_BALANCE_LIST_LEVEL_HEAD"/>
+  		<include refid="SUBJECT_BALANCE_LIST_FIVE_LEVEL_CONTENE"/>
+   		order by a.acct_code	
+   		<include refid="SUBJECT_BALANCE.PAGING_END"/>	   
+	</select>
+	
+	
+	<select id="countSubjectBalanceListFiveLevel" resultClass="java.lang.Integer"  parameterClass="subjectBalanceQuery">
+		select count(1) from
+   	  	<include refid="SUBJECT_BALANCE_LIST_FIVE_LEVEL_CONTENE"/>
+	</select>
+</sqlMap>

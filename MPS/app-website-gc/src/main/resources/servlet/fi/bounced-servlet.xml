@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="3" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/app/commonconfigure.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 定义映射 -->
+	<bean id="bouncedQueryMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bounced.htm">bouncedQueryController</prop>
+				<prop key="/corp/bouncedFine.htm">bouncedQueryController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="bouncedQueryController" class="com.pay.app.controller.bounced.BouncedQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<!-- 拒付罚款查询-->
+		<property name="bouncedFine">
+			<value>/bounced/bouncedFine</value>
+		</property>
+		<!-- 拒付查询 -->
+		<property name="index">
+			<value>/bounced/bounced</value>
+		</property>
+		<!-- 拒付查询 -->
+		<property name="bounced">
+			<value>/bounced/refusePayment</value>
+		</property>
+		<property name="downloadBounced">
+			<value>/bounced/refusePaymentExcel</value>
+		</property>
+		<property name="chargeBackSavePath" value="${app.chargeBack.path}" />
+		<property name="downBounced">
+			<value>/bounced/refusePaymentExcel2</value>
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="chargeBackOrderService" ref="chargeBackOrderService"/>
+	</bean>
+
+</beans>

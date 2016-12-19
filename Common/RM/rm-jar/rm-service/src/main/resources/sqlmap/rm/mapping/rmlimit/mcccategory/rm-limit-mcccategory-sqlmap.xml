@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcmcccategory">
+	<typeAlias alias="rcMccCategory" type="com.pay.rm.service.model.rmlimit.mcccategory.RcMccCategory"/>
+    <resultMap id="rcMccCategory" class="com.pay.rm.service.model.rmlimit.mcccategory.RcMccCategory">
+        <result column="CATEGORY_NAME" property="categoryName" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="CATEGORY_ID" property="categoryId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CATEGORY_NAME,STATUS,CATEGORY_ID
+    </sql>
+    <insert id="create" parameterClass="rcMccCategory">
+        INSERT INTO RC_MCC_CATEGORY(
+			CATEGORY_NAME,STATUS,CATEGORY_ID
+        )
+        VALUES(
+            #categoryName#,#status#,#categoryId#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcMccCategory">
+        UPDATE RC_MCC_CATEGORY
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="categoryName">
+            CATEGORY_NAME = #categoryName#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        </dynamic>
+		WHERE
+        CATEGORY_ID = #categoryId# 
+
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.String">
+        DELETE FROM RC_MCC_CATEGORY        
+		where 
+            CATEGORY_ID = #categoryId# 
+
+    </delete>
+    
+    <select id="findById" resultMap="rcMccCategory"
+        parameterClass="java.lang.String">
+        SELECT 
+			CATEGORY_NAME,STATUS,CATEGORY_ID
+        FROM RC_MCC_CATEGORY
+        WHERE 
+            CATEGORY_ID = #categoryId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcMccCategory">
+        SELECT 
+			CATEGORY_NAME,STATUS,CATEGORY_ID
+        FROM RC_MCC_CATEGORY
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="categoryName">
+            CATEGORY_NAME = #categoryName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="categoryId">
+            CATEGORY_ID = #categoryId# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM RC_MCC_CATEGORY
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="categoryName">
+            CATEGORY_NAME = #categoryName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="categoryId">
+            CATEGORY_ID = #categoryId# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

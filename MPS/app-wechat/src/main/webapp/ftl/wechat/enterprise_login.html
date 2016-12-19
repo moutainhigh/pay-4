@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>账号绑定</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/weixin.js"></script>
+
+<script type="text/javascript">
+	//刷新验证码
+	$(function () {
+	    $("#refush").click(function () {
+	        var d = new Date();
+	        var src = "/wechat/validatecode/validatecode.htm?date=" + d.getTime();
+	        $("#code").attr("src", src);
+	        return false;
+	    });
+	});
+	//校验验证码
+	$(function(){
+		
+	});
+</script>
+<script type="text/javascript">
+	$(function(){
+		$("#clickGoBack").click(function(){
+			WeixinJSBridge.call('closeWindow');
+		}) ;
+	});
+</script>
+</head>
+
+<body>
+	<div id="pagewrap" style="">
+    	<div id="content" style="">
+        	<!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:52px;float:left;" id="clickGoBack">
+                    	<div class="go_back" style="float:left;padding-top:3px;">
+                            <!-- <img src="images/jt.png"/> -->
+                        </div>
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">账号绑定</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+        	<!-- 企业会员登录表单 -->
+            <div >
+            	<!-- ${rc.contextPath}/login.htm -->
+            	<form action="${rc.contextPath}/login.htm" method="post" id="corp_loginForm">
+            		<input type="hidden" name="memberType" value="2" />
+                    <input id="corp_randCode" name="randCode" type="hidden"/>
+                    <input type="hidden" id="corop_relationlogin" name="relationlogin" value="publiclogin" />
+                    <input type="hidden" name="hascode" value="1" />
+                    <!-- 微信OAuth2.0网页认证，拉取用户信息access_token,此access_token与基础支持的access_token不同 -->
+                    <input type="hidden" name="access_token" id="access_token" value="${access_token?default('')}">
+                    
+                	<div class="cc_center">
+                    	<div class="row">
+                            <div class="row_r">
+                                <span >用户名</span>
+                                <input type="text" name="loginName" id="corp_loginName" class="inp_txt inp_placeholder" value="">
+                            </div>
+                        </div>
+                      	<div class="row_split"></div>
+                        <div class="row">
+                            <div class="row_r">
+                                <span >操作员</span>
+                                <input type="text" name="operatorName" id="corp_operatorName" class="inp_txt inp_placeholder" value="">
+                            </div>
+                        </div>
+                        <div class="row_split"></div>
+                        <div class="row">
+                            <div class="row_r">
+                                <span >密&nbsp;&nbsp;&nbsp;&nbsp;码</span>
+                                <input type="password" name="passWord" id="passWord" value="" />
+                            </div>
+                        </div>
+                        <div class="row_split"></div>
+                        <div class="row">
+                            <div class="row_r">
+                                <span >验证码</span>
+                                <input type="text" name="randCodeee" id="randCodeee" value="" style="width:32.5%;" />
+                                <a href="javascript:void(0);" title="换一张" id="refush">
+                                    <img src="/wechat/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68px;" height="28px" id="code" style="vertical-align:middle;" align="absmiddle"/>
+                                </a>
+                            </div>
+                        </div>                 
+                    </div>
+					
+                   <!-- 下一步按钮 -->
+                   <div class="common_button" style="padding:1px;" id="corp_loginForm_submit" >
+                     <div style="width:42%;float:left;">&nbsp;</div>
+                     <div style="width:16%;float:left;">下一步</div>
+                     <div style="width:42%;float:left;">&nbsp;</div>
+                   </div>
+                    
+           		</form>
+                
+            </div>
+            
+       	</div>
+    </div>
+    
+    <input type="hidden" name="msgStr" id="msgStr" value="${msgStr?default('')}"/> 	<!-- value="${openID?default('')} -->
+	<script type="text/javascript">
+		//登录错误提示信息
+		$(function(){
+			
+			<#if msgStr?has_content>
+				var msgStr = $("#msgStr").val() ;
+				if('' == msgStr){
+					
+				}else{
+					if(msgStr+"" == "操作员登录密码不能空"){
+						alert("密码不能为空！") ;
+					}else{
+						alert(msgStr) ;
+					}
+					$("#msgStr").val("") ;
+				}
+			</#if>
+			<#if bindFailed?has_content>
+				alert("${bindFailed}") ;
+			</#if>
+		})
+		//表单提交
+    	$(document).ready(function(){
+    		$("#corp_loginForm_submit").click(function(){
+    			$("#corp_loginForm").submit() ;
+    		});
+    	}) ;
+    	
+    </script>
+</body>
+</html>

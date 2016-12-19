@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>支付链查询</title>
+<style type="text/css">
+	a{text-decoration:underline;}
+	.tab03 input[type='text']{width:100px;}
+	.tab03 input[type='button']{width:40px;}
+	.border0{border:0px;}
+</style>
+<script type="text/javascript">
+	function assignment(){
+		$("#toPage").val("toPage") ;
+	}
+	//下载
+	function downwExcel(){
+		$("#toPage").val("toExcel") ;
+		$("#excel").val("1") ;
+		$("#payLinkQueryForm").submit() ;
+		$("#excel").val("") ;
+	}
+</script>
+<script type="text/javascript">
+	<#if payLinkNull ? has_content>
+		alert('${payLinkNull}') ;
+	</#if>
+	<#if updateFail ? has_content>
+		alert('${updateFail}') ;
+	</#if>
+</script>
+<script type="text/javascript">
+	//复制到剪贴板
+	function jsCopy222(obj){
+		var e = $(obj).parent("td").parent("tr").find("td:eq(0)").find("input") ;
+		e[0].select() ;
+		document.execCommand("Copy") ;
+		alert("复制成功！") ;
+	}
+	//数字粗略验证
+	function checkNum(obj) {
+		//检查是否是非数字值
+		if (isNaN(obj.value)) {
+			obj.value = "";
+		}
+	}
+</script>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+<@sp.head  mCode="corp_paylink_query"/>
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="#">支付链查询</a></span>
+				</div>
+			<form class="form" action="${rc.contextPath}/corp/paylink.htm?method=payLinkQuery" method="post" name="" id="payLinkQueryForm">
+				<input type="hidden" name="toPage" id="toPage"/>
+				<input type="hidden" name="excel" id="excel"/>
+				<div class="seccon">
+					<div class="bgbox">
+						<table class="tab01">
+							<tbody>
+								<tr>
+									<!-- <td><div align="right">支付链接：</div></td>
+									<td><input type="text" name="payLinkName" id="payLinkName" value="${payLinkName!('')}" class="base-input"/></td> -->
+									<td><div align="right">支付链ID：</div></td>
+									<td><input type="text" name="payLinkNo" id="payLinkNo" value="${payLinkNo!('')}" class="base-input" onkeyup="checkNum(this);"/></td>
+									<td><div align="right">商品名称：</div></td>
+									<td><input type="text" name="productName" id="productName" value="${productName!('')}" class="base-input"/></td>
+								</tr>
+								<tr>
+									<td><div align="right">创建时间：</div></td>
+									<td>
+										<input  type="text" class="Wdate inp_normal w380" name="createTimeStart"  readonly="readonly" id="createTimeStart" 
+												gtbfieldid="109" value="${createTimeStart!('')}" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+										<span>至</span>
+										<input  type="text" class="Wdate inp_normal w380" name="createTimeEnd"  readonly="readonly" id="createTimeEnd" 
+												gtbfieldid="109" value="${createTimeEnd!('')}" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+									</td>
+									<td><div align="right">失效时间：</div></td>
+									<td>
+										<input  type="text" class="Wdate inp_normal w380" name="invalidTimeStart"  readonly="readonly" id="invalidTimeStart" 
+												gtbfieldid="109" value="${invalidTimeStart!('')}" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+										<span>至</span>
+										<input  type="text" class="Wdate inp_normal w380" name="invalidTimeEnd"  readonly="readonly" id="invalidTimeEnd" 
+												gtbfieldid="109" value="${invalidTimeEnd!('')}" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+									</td>
+								</tr>
+								<tr>
+									<td><div align="right">状态：</div></td>
+									<td>
+										<select name="status" id="status">
+											<option value="">--请选择--</option>
+											<option value="999999" <#if (((status)!'') == '999999')>selected="selected"</#if> >全部</option>
+											<option value="0" <#if (((status)!'') == '0')>selected="selected"</#if> >生效</option>
+											<option value="1" <#if (((status)!'') == '1')>selected="selected"</#if> >失效</option>
+										</select>
+									</td>
+								</tr>
+								<tr >
+									<td colspan="4" style="">
+										<div class="divquery">
+											<input type="submit" id="submitId" class="btn_blue2" value="查  询" alt="查  询" onclick="javascript:assignment();" />
+										</div>
+										<div class="divdown">
+											<input type="button" id="exportExcel" class="btn_blue2" value="下  载" alt="下  载" onclick="javascript:downwExcel() ;"/>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						
+					</div>	
+					<div id="resultListDiv" class="listFence" ></div>	
+				</div>
+			</form>
+			
+				<div class="seccon">
+					<table id="incomeTable" class="tab03" border="1">
+						<tr>
+							<th width="17%">支付链ID</th>						
+							<th width="15%">商品名称</th>
+							<th width="10%">交易币种</th>
+							<th width="14%">交易金额</th>
+							<th width="10%">创建时间</th>
+							<th width="10%">失效时间</th>
+							<th width="10%">支付链接状态</th>
+							<th width="21%">操作</th>
+						</tr>
+						<#if payLinks ? has_content>
+							<#list payLinks as payLink>
+								<tr>
+									<td style="text-align:left;">
+										<input type="text" value="${basePath}${payLink.payLinkName}" style="height:auto;width:0.1px;border:0px;background-color:#fff;">
+										${payLink.paylinkNo!('')}
+									</td>
+									<td>${payLink.productName?default('')}</td>
+									<td>${payLink.currencyCode?default('')}</td>
+									<td>${(payLink.totalAmount?default(0)?number/100)?string("#,##0.00")}</td>
+									<td>${payLink.createTime?default('')?string('yyyy-MM-dd')}</td>
+									<td>${payLink.invalidTime!('')}</td>
+									<td>
+										<#if payLink.status ? has_content>
+											<#if payLink.status == 0 >	<!-- this.status = status; -->
+												生效
+											</#if>
+											<#if payLink.status == 1 ><!-- && payLink.statusMsg == "1" -->
+												失效
+											</#if>
+										</#if>
+									</td>
+									<td align="center">
+										<#if payLink.status ? has_content>
+											<#if payLink.status == 0 >	<!-- this.status = status; -->
+												<a href="${rc.contextPath}/corp/paylink.htm?method=payLinkInvalid&payLinkNo=${payLink.paylinkNo!('')}" style="color:#0000FF;">失效</a>&nbsp;&nbsp;
+												<a href="javascript:void(0);" style="color:#0000FF;" onclick="jsCopy222(this);">复制到剪贴板</a>&nbsp;&nbsp;
+												<a
+													href="${rc.contextPath}/corp/paylink.htm?method=querySingleDetail&payLinkNo=${payLink.paylinkNo!('')}"
+													style="color: #0000FF;">详情</a>&nbsp;&nbsp; 
+												<a
+													href="${rc.contextPath}/corp/paylink.htm?method=payLinkClone&payLinkNo=${payLink.paylinkNo!('')}"
+													style="color: #0000FF;">克隆</a>
+											</#if>
+											<#if payLink.status == 1 ><!-- && payLink.statusMsg == "1" -->
+												<a
+													href="${rc.contextPath}/corp/paylink.htm?method=querySingleDetail&payLinkNo=${payLink.paylinkNo!('')}"
+													style="color: #0000FF;">详情</a>&nbsp;&nbsp; 
+												<a
+													href="${rc.contextPath}/corp/paylink.htm?method=payLinkClone&payLinkNo=${payLink.paylinkNo!('')}"
+													style="color: #0000FF;">克隆</a>
+											</#if>
+										</#if>
+										
+									</td>
+								</tr>
+							</#list>
+						</#if>
+					</table>
+				</div>
+				</div>
+				<div align="right">
+					<#if payLinks?has_content>
+						<@sp.pagination pu=pu/>
+					</#if>
+				</div>
+			</div>
+		</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

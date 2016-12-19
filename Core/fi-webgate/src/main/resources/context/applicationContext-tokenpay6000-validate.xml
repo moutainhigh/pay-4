@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+    
+    <!-- 虚拟产品类校验规则 -->
+	<bean id="tokenpay6VirValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="tokenpay6-vir-acquireRule" />
+	</bean>
+
+	<bean id="tokenpay6-vir-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="tokenpay6-vir-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="tokenpay6-vir-versionCheckRule" class="com.pay.gateway.validate.crosspay.rule.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+	
+	   <bean id="tokenpay6-vir-partnerIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-mccCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-mccCheckRule" class="com.pay.gateway.validate.crosspay.rule.MccCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0055" />
+		<property name="message" value="Invalid MCC:MCC不合法" />
+	</bean>
+
+	<bean id="tokenpay6-vir-orderIdCheckRule" class="com.pay.gateway.validate.crosspay.rule.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-goodsNameCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="tokenpay6-vir-goodsNameCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.GoodsNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-goodsDescCheckRule" />
+		</property>
+		<property name="messageId" value="0004" />
+		<property name="message" value="Goods name is empty or too long:商品名称为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-goodsDescCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.GoodsDescCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="message" value="Goods description is empty or too long:商品描述为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-submitTimeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-siteIdCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Order submission time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-siteIdCheckRule" class="com.pay.gateway.validate.crosspay.rule.SiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-orderAmountCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="Unauthorized domain names:未授权的域名" />
+	</bean>
+
+	<bean id="tokenpay6-vir-orderAmountCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="Invalid Order Amount:订单金额不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-typeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="Unauthorized trade type:未授权交易类型" />
+	</bean>
+
+	<bean id="tokenpay6-vir-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-customerIPCheckRule" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-customerIPCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CustomerIPCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-payTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0066" />
+		<property name="message" value="Public IP of customer is empty or wrong:客户下单IP为空或不正确" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-payTypeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.PayTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-dccProductCheckRule" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="message" value="Invalid payment type:支付方式不正确" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-dccProductCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DCCProductCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-settlementCurrencyCodeCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-settlementCurrencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.SettlementCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-borrowingMarkedCheckRule" />
+		</property>
+		<property name="messageId" value="0012" />
+		<property name="message" value="Invalid settlement currency:结算币种不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-borrowingMarkedCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BorrowingMarkedCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0013" />
+		<property name="message" value="Invalid value for paramter borrowingMarked:资金来源借贷标识不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-noticeUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="tokenpay6-vir-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-merchantAcctCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+	<bean id="tokenpay6-vir-merchantAcctCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-PayModeCheckRule" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="message" value="Abnormal merchant account status:商户账户状态异常" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-PayModeCheckRule" class="com.pay.gateway.validate.crosspay.rule.PayModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-billFirstNameCheckRule" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="message" value="Invalid payment type:支付方式不正确" />
+	</bean>
+	
+	   	<bean id="tokenpay6-vir-billFirstNameCheckRule" class="com.pay.gateway.validate.crosspay.rule.BillFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-billLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="Billing first name is empty or too long:账单名为空或过长" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-billLastNameCheckRule" class="com.pay.gateway.validate.crosspay.rule.BillLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="Billing last name is empty or too long:账单姓为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillAddressCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="message" value="Billing address is empty or too long:账单地址为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillEmailCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0020" />
+		<property name="message" value="Billing email is empty or too long:账单邮箱为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0021" />
+		<property name="message" value="Billing telephone is empty or too long:账单电话为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillPostalCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillCityCheckRule" />
+		</property>
+		<property name="messageId" value="0022" />
+		<property name="message" value="Billing postcode is empty or too long:账单邮编为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillCityCheckRule" class="com.pay.gateway.validate.crosspay.rule.BillCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillStateCheckRule" />
+		</property>
+		<property name="messageId" value="0024" />
+		<property name="message" value="Billing city is empty or too long:账单城市为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillStateCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-BillCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0025" />
+		<property name="message" value="Billing state is empty or too long:账单州为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-BillCountryCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0026" />
+		<property name="message" value="Invalid BillCountryCode:账单国家码不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-remarkCheckRule"	class="com.pay.gateway.validate.crosspay.rule.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="Invalid remark:备注信息不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-charsetCheckRule" class="com.pay.gateway.validate.crosspay.rule.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="tokenpay6-vir-signTypeCheckRule" class="com.pay.gateway.validate.crosspay.rule.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-returnUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-returnUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.ReturnUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0069" />
+		<property name="message" value="Merchant return URL is empty or too long:商户回调地址为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-vir-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="tokenpay6-vir-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-MerchantChannelCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="tokenpay6-vir-MerchantChannelCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-MerchantSettlementCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="messageId" value="0050" />
+		<property name="message" value="No avalible channel for the merchant:商户无可用渠道" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-MerchantSettlementCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantSettlementCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-deviceFingerPrintIdCheckRule" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="0051" />
+		<property name="message" value="No merchant settlement info:商户未配置结算信息" />
+	</bean>
+	
+	
+	
+	<bean id="tokenpay6-vir-deviceFingerPrintIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DeviceFingerPrintIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-directFlagCheckRule" />
+		</property>
+		<property name="messageId" value="0068" />
+		<property name="message" value="DeviceFingerprintId is empty or too long:设备指纹ID为空或过长" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-directFlagCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DirectFlagCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-languageCheckRule" />
+		</property>
+		<property name="messageId" value="0054" />
+		<property name="message" value="Parameter directFlag is empty:是否直连为空" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-languageCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.LanguageCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-cardLimitCheckRule" />
+		</property>
+		<property name="messageId" value="0058" />
+		<property name="message" value="Wrong display Language:显示语言不正确" />
+	</bean>
+
+
+	<bean id="tokenpay6-vir-cardLimitCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardLimitCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-ShippingPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0059" />
+		<property name="message" value="Wrong card limit type:支付卡种限制不正确" />
+	</bean>
+	
+	<bean id="tokenpay6-vir-ShippingPostalCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.ShippingPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-orderTerminalCheckRule" />
+		</property>
+		<property name="messageId" value="0031" />
+		<property name="message" value="Shipping postcode is empty or too long:收货人邮编为空或过长" />
+	</bean>
+	
+	
+	<bean id="tokenpay6-vir-orderTerminalCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderTerminalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-tokenValidationCheckRule" />
+		</property>
+		<property name="messageId" value="0045" />
+		<property name="message" value="Paramter orderTerminal is empty or too long:终端设备标识为空或过长" />
+	</bean>
+
+	<bean id="tokenpay6-tokenValidationCheckRule"
+		  class="com.pay.gateway.validate.crosspay.token.TokenValidationCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="tokenpay6-vir-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="tokenpay6-vir-gatewayRequestSaveAction" />
+		</property>
+		<property name="messageId" value="0000" />
+		<property name="message" value="check" />
+	</bean>
+
+	<bean id="tokenpay6-vir-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.crosspay.rule.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="tokenpay6-vir-exceptionAction" class="com.pay.gateway.validate.crosspay.rule.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

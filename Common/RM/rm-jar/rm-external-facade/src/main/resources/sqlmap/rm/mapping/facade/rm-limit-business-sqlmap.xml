@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rmexternalfacade">
+	
+	<typeAlias alias="rcLimitParam" type="com.pay.rm.facade.model.RCLimitParam"/>
+	<typeAlias alias="rcLimitResult" type="com.pay.rm.facade.model.RCLimitResult"/>
+	
+	<select id="queryCustomBusinessRcRule" resultClass="rcLimitResult" parameterClass="rcLimitParam">
+        SELECT 
+			DAY_LIMIT			dayLimit	,
+			MONTH_LIMIT			monthLimit	,
+			MONTH_TIMES			monthTimes	,
+			SINGLE_LIMIT		singleLimit	,
+			DAY_TIMES			dayTimes	,
+			BATCH_ACCOUNTS		batchAccounts
+        FROM RC_BUSINESS_LIMIT_CUSTOM
+        WHERE STATUS = 1
+	        <isNotEmpty prepend="AND" property="memberCode">
+	            BUSINESS_ID = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="busiType">
+	            BUSINESS_TYPE = #busiType#
+	        </isNotEmpty>
+    </select>
+    
+    <select id="queryCustomUserRcRule" resultClass="rcLimitResult" parameterClass="rcLimitParam">
+        SELECT 
+			DAY_LIMIT			dayLimit	,
+			MONTH_LIMIT			monthLimit	,
+			MONTH_TIMES			monthTimes	,
+			SINGLE_LIMIT		singleLimit	,
+			DAY_TIMES			dayTimes	
+        FROM RC_USER_LIMIT_CUSTOM
+        WHERE STATUS = 1
+	        <isNotEmpty prepend="AND" property="memberCode">
+	            member_code = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="busiType">
+	            BUSINESS_TYPE = #busiType#
+	        </isNotEmpty>
+    </select>
+
+	<select id="queryBusinessRcRule"  resultClass="rcLimitResult" parameterClass="rcLimitParam">
+       SELECT 
+			DAY_LIMIT			dayLimit	,
+			MONTH_LIMIT			monthLimit	,
+			MONTH_TIMES			monthTimes	,
+			SINGLE_LIMIT		singleLimit	,
+			DAY_TIMES			dayTimes	,
+			BATCH_ACCOUNTS		batchAccounts
+        FROM RC_BUSINESS_LIMIT
+       	WHERE STATUS = 1 
+        <isNotEmpty prepend="AND" property="level">
+            RISK_LEVEL = #level# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mccCode">
+            MCC = #mccCode# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="busiType">
+            BUSINESS_TYPE = #busiType# 
+        </isNotEmpty>
+    </select>
+
+	<select id="queryUserRcRule"  resultClass="rcLimitResult" parameterClass="rcLimitParam">
+       SELECT 
+			DAY_LIMIT			dayLimit	,
+			MONTH_LIMIT			monthLimit	,
+			MONTH_TIMES			monthTimes	,
+			SINGLE_LIMIT		singleLimit	,
+			DAY_TIMES			dayTimes	
+        FROM RC_USER_LIMIT
+        WHERE STATUS = 1
+        <isNotEmpty prepend="AND" property="level">
+            USER_LEVEL = #level# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="busiType">
+            BUSINESS_TYPE = #busiType# 
+        </isNotEmpty>
+    </select>
+</sqlMap>

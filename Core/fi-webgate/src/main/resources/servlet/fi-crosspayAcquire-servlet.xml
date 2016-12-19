@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="webgateHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/gcpay.htm">crosspayCashierAcquireController</prop>
+				<prop key="/gcpayapi.htm">crosspayApiAcquireController</prop>
+				<prop key="/gcCrosspay.htm">crosspayController</prop>
+				<prop key="/ipay.htm">crosspayCashierAcquireController</prop>
+				<prop key="/cashier.htm">computopAcquireController</prop>
+				<prop key="/ipayapi.htm">crosspayApiAcquireController</prop>
+				<prop key="/crosspay.htm">crosspayController</prop>
+				<prop key="/ipaylocal.htm">crosspayLocaleAcquireController</prop>
+				<prop key="/ipayboleto.htm">crosspayBoletoAcquireController</prop>
+				<prop key="/orderRefund.htm">orderRefundController</prop>
+				<prop key="/orderQuery.htm">orderQueryController</prop>
+				<prop key="/traApiPay.htm">crosspayApiTravelController</prop>
+				<prop key="/vccApiPay.htm">crosspayApiVccController</prop>
+				<prop key="/queryCurrencyRate.htm">queryCurrencyRateController</prop>
+				<prop key="/systemTest.htm">systemDetectionController</prop>
+				<prop key="/gcpayapicb.htm">crosspayApiCallBackController</prop>
+				<prop key="/bindCard.htm">tokenpayBindCardController</prop>
+				<prop key="/gcBindCard.htm">tokenpayBindCardController</prop>
+				<prop key="/tokenpay.htm">tokenpayController</prop>
+				<prop key="/gcTokenpay.htm">tokenpayController</prop>
+				<prop key="/dccRateQuery.htm">queryDccRateController</prop>
+				<prop key="/capture.htm">preauthCompletedController</prop>
+				<prop key="/authvoid.htm">preauthVoidController</prop>
+				<prop key="/clocalpay.htm">chinaLocalPayController</prop>
+				<prop key="/wftpay.htm">wechatAlipayController</prop>
+				</props>
+		</property>
+	</bean>
+	<bean id="chinaLocalPayController" class="com.pay.gateway.controller.ChinaLocalPayController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService" ref="chinaLocalPayValidateService"></property>
+		<property name="txncoreClientService" ref="txncoreClientService"></property>
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"></property>
+		<property name="jmsSender" ref="jmsSender"></property>
+		<property name="gateway3DRequestService" ref="gateway3DRequestService"></property>
+		<property name="gatewayResponseService" ref="gatewayResponseService"></property>
+		<property name="failRedirectUrl" value="${gateway.cashierFailUrl}"></property>
+	</bean>
+	<!--computop收单control  -->
+	<bean id="computopAcquireController"
+		class="com.pay.gateway.controller.ComputopAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayAcquireValidateService" />
+		</property>
+		<property name="channelClientService" ref="channelClientService"></property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="failRedirectUrl" value="${gateway.cashierFailUrl_new}" />
+		<property name="successRedirectUrl" value="${gateway.cashierUrl_new}" />
+	</bean>
+	
+	<bean id="crosspayCashierAcquireController"
+		class="com.pay.gateway.controller.CrosspayCashierAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="failRedirectUrl" value="${gateway.cashierFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.cashierUrl}" />
+		<property name="redisClient" ref="redisClient"></property>
+	</bean>
+
+
+	<bean id="crosspayBoletoAcquireController"
+		class="com.pay.gateway.controller.CrosspayBoletoCashierAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="successRedirectUrl" value="${gateway.boletoUrl}" />
+	</bean>
+	
+	<bean id="systemDetectionController"
+		class="com.pay.gateway.controller.SystemDetectionController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+	</bean>
+
+	<bean id="crosspayApiAcquireController" class="com.pay.gateway.controller.CrosspayApiAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="gateway3DRequestService" ref="gateway3DRequestService"/>
+		<property name="redisClient" ref="redisClient"></property>
+	</bean>
+	
+	<!-- 跨境收单接口版 -->
+	<bean id="crosspayController" class="com.pay.gateway.controller.CrosspayController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="gateway3DRequestService" ref="gateway3DRequestService"/>
+		<property name="failRedirectUrl" value="${gateway.cashierFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.cashierUrl}" />
+		<property name="failTokenRedirectUrl" value="${gateway.bindCardCashierFailUrl}" />
+		<property name="successTokenRedirectUrl" value="${gateway.bindCardCashierUrl}" />
+		<property name="validateMap" ref="validateMap"/>
+		<property name="redisClient" ref="redisClient"></property>
+	</bean>
+	
+	<!-- Token绑/解绑卡版 -->
+	<bean id="tokenpayBindCardController" class="com.pay.gateway.controller.CrosspayCardBindController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="failRedirectUrl" value="${gateway.bindCardCashierFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.bindCardCashierUrl}" />
+		<property name="validateService" ref="cardBindValidateService"/>
+	</bean>
+	
+	<!-- Token支付-->
+	<bean id="tokenpayController" class="com.pay.gateway.controller.CrossTokenPayController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="gateway3DRequestService" ref="gateway3DRequestService"/>
+		<property name="failRedirectUrl" value="${gateway.cashierFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.cashierUrl}" />
+		<property name="validateService" ref="tokenpayValidateService"/>
+	</bean>
+	
+	
+	
+	<bean id="validateMap" class="java.util.HashMap">
+	    <constructor-arg>
+			<map>
+				<entry key="4000_1001" value-ref="crosspayValidateService" /><!--实物API-->
+				<entry key="5000_1001" value-ref="crosspayAirHotValidateService"/><!--航旅API-->
+				<entry key="6000_1001" value-ref="crosspayVirValidateService" /><!--虚拟API-->
+				<entry key="4000_1002" value-ref="crosspayCashierValidateService1.1" /><!--实物收银台-->
+				<entry key="5000_1002" value-ref="crosspayCashierValidateService1.1"/><!--航旅收银台-->
+				<entry key="6000_1002" value-ref="crosspayCashierValidateService1.1" /><!--虚拟收银台-->
+				<entry key="6000_6000" value-ref="crosspayVccApiAcquireValidateService"/><!--VCC交易-->
+				<entry key="4000_5000" value-ref="crosspayValidateService" /><!--循环扣款API-->
+				<entry key="4000_3000" value-ref="crosspayValidateService" /><!--实物3D交易-->
+				<entry key="5000_3000" value-ref="crosspayAirHotValidateService" /><!--航旅3D交易-->
+				<entry key="6000_3000" value-ref="crosspayVirValidateService" /><!--虚拟3D交易-->
+				<entry key="4000_2000" value-ref="crosspayValidateService" /><!--预授权申请实物API-->
+				<entry key="5000_2000" value-ref="crosspayAirHotValidateService"/><!--预授权申请航旅API-->
+				<entry key="6000_2000" value-ref="crosspayVirValidateService" /><!--预授权申请虚拟API-->
+				<entry key="4000_2001" value-ref="preauthCashierValidateService" /><!--预授权申请实物收银台-->
+				<entry key="5000_2001" value-ref="preauthAirHotCashierValidateService"/><!--预授权申请航旅收银台-->
+				<entry key="6000_2001" value-ref="preauthVirCashierValidateService" /><!--预授权申请虚拟收银台-->
+				<entry key="2100" value-ref="preauthCompletedValidateService" /><!--预授权申请实物收银台-->
+				<entry key="2200" value-ref="preauthVoidValidateService"/><!--预授权申请航旅收银台-->
+				<!-- add by zhaoyang at 20160920 token绑卡及时支付  start-->
+				<entry key="4000_7004" value-ref="createTpApiValidateService" /><!-- 创建Token并支付 实物API-->
+				<entry key="5000_7004" value-ref="createTpAhApiValidateService" /><!-- 创建Token并支付  航旅API-->
+				<entry key="6000_7004" value-ref="createTpVirApiValidateService" /><!-- 创建Token并支付  虚拟API-->
+				<entry key="4000_7005" value-ref="createTpCashierValidateService" /><!-- 创建Token并支付  实物收银台-->
+				<entry key="5000_7005" value-ref="createTpAhCashierValidateService" /><!-- 创建Token并支付  航旅收银台-->
+				<entry key="6000_7005" value-ref="createTpVirCashierValidateService" /><!-- 创建Token并支付 虚拟收银台-->
+				<!-- add by zhaoyang at 20160920 token绑卡及时支付  start-->
+
+				<entry key="7003" value-ref="createTokenAPIValidateService"/><!--token API创建-->
+				<entry key="7001" value-ref="createTokenCheckoutValidateService"/><!--token 收银台创建-->
+				<entry key="5000_7204" value-ref="createTokenPreauthApiValidateService"></entry><!-- token API创建token及预授权 -->
+				<entry key="5000_7205" value-ref="createTokenPreauthCashierValidateService"></entry><!-- token 收银台创建token及预授权 -->
+				<entry key="4000_7000" value-ref="tokenpay4ValidateService" /><!--实物API-->
+				<entry key="5000_7000" value-ref="tokenpay5AirHotValidateService"/><!--航旅API-->
+				<entry key="6000_7000" value-ref="tokenpay6VirValidateService" /><!--虚拟API-->
+				<entry key="4000_7200" value-ref="tokenPreAuth4ValidateService" /><!--实物API-->
+				<entry key="5000_7200" value-ref="tokenPreAuth5AirHotValidateService"/><!--航旅API-->
+				<entry key="6000_7200" value-ref="tokenPreAuth6VirValidateService" /><!--虚拟API-->
+				<entry key="7002" value-ref="unbindnewValidateService"/>
+				
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="queryCurrencyRateController" class="com.pay.gateway.controller.CurrencyRateQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="currencyRateQueryValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+	</bean>
+	
+	<bean id="queryDccRateController" class="com.pay.gateway.controller.DCCRateQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="dccRateValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+	</bean>
+	
+	<bean id="crosspayApiTravelController" class="com.pay.gateway.controller.CrosspayApiAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayTravelApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="gateway3DRequestService" ref="gateway3DRequestService"/>
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="redisClient" ref="redisClient"></property>
+		
+	</bean>
+	
+	<!-- vcc虚拟信用卡下单 -->
+	<bean id="crosspayApiVccController" class="com.pay.gateway.controller.CrosspayApiAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayVccApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="gateway3DRequestService" ref="gateway3DRequestService"/>
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="redisClient" ref="redisClient"></property>
+		
+	</bean>
+
+	<bean id="orderRefundController" class="com.pay.gateway.controller.OrderRefundController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="api-refund-ValidateService" />
+		</property>
+		<property name="validateService11">
+			<ref bean="api-refund-ValidateService11" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+	<bean id="preauthCompletedController" class="com.pay.gateway.controller.PreauthCompletedController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="preauthCompletedExtendValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+	<bean id="preauthVoidController" class="com.pay.gateway.controller.PreauthVoidController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="preauthVoidExtendValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+
+	<bean id="orderQueryController" class="com.pay.gateway.controller.OrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="api-query-validateService" />
+		</property>
+		<property name="validateService11">
+			<ref bean="api-query-validateService11" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+	</bean>
+	
+	<bean id="crosspayApiCallBackController"
+		class="com.pay.gateway.controller.CrosspayApiCallBackController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+	</bean>
+
+	<bean id="crosspayLocaleAcquireController"
+		class="com.pay.gateway.controller.CrosspayLocaleAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayLocaleValidateService" />
+		</property>
+	
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="failRedirectUrl" value="${gateway.localeFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.boletoSuccessUrl}" />		
+	</bean>
+	
+	<bean id="wechatAlipayController"
+		class="com.pay.gateway.controller.WechatAlipayController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="wechatAlipayAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="failRedirectUrl" value="${gateway.wechatAlipay_cashierFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.wechatAlipay_cashierUrl}" />
+		<property name="redisClient" ref="redisClient"></property>
+	</bean>
+</beans>

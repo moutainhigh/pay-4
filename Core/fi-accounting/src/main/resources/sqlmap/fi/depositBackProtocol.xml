@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="depositBackProtocol">
+	 <typeAlias alias="depositBackProtocol" type="com.pay.txncore.model.DepositBackProtocol"/>
+    <resultMap id="depositBackProtocol" class="com.pay.txncore.model.DepositBackProtocol">
+        <result column="DEPOSIT_BACK_NO" property="depositBackNo" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_PROTOCOL_NO" property="depositProtocolNo" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="DEPOSIT_BACK_PROTOCOL_NO" property="depositBackProtocolNo" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="DEPOSIT_BACK_AMOUNT" property="depositBackAmount" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="depositBackProtocol">
+	<selectKey resultClass="java.lang.Long" keyProperty="depositBackProtocolNo">
+		SELECT
+			112 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+			||LPAD(SEQ_DEPOSIT_BACK_PROTOCOL_NO.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	 	 INSERT INTO DEPOSIT_BACK_PROTOCOL(
+			DEPOSIT_BACK_PROTOCOL_NO,DEPOSIT_BACK_NO,STATUS,DEPOSIT_PROTOCOL_NO,CREATE_DATE,
+			UPDATE_DATE,DEPOSIT_BACK_AMOUNT
+        )
+        VALUES(
+            #depositBackProtocolNo#,#depositBackNo#,#status#,#depositProtocolNo#,sysDate,
+			sysDate,#depositBackAmount#
+		)
+	</insert>
+
+    <update id="update" parameterClass="depositBackProtocol">
+        UPDATE DEPOSIT_BACK_PROTOCOL
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="depositProtocolNo">
+            DEPOSIT_PROTOCOL_NO = #depositProtocolNo#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = sysDate
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysDate
+        </isNotNull>
+        <isNotNull prepend="," property="depositBackAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="and" property="depositBackProtocolNo">
+            DEPOSIT_BACK_PROTOCOL_NO = #depositBackProtocolNo#
+        </isNotNull>
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="depositBackProtocol"
+        parameterClass="java.lang.Long">
+        SELECT 
+			DEPOSIT_BACK_NO,STATUS,DEPOSIT_PROTOCOL_NO,CREATE_DATE,DEPOSIT_BACK_PROTOCOL_NO,
+			UPDATE_DATE,DEPOSIT_BACK_AMOUNT
+        FROM DEPOSIT_BACK_PROTOCOL
+        WHERE DEPOSIT_BACK_PROTOCOL_NO=#depositBackProtocolNo#
+    </select>
+    
+    <select id="queryBydepositBackNo" resultMap="depositBackProtocol"
+        parameterClass="java.lang.Long">
+        SELECT 
+			STATUS,DEPOSIT_PROTOCOL_NO,CREATE_DATE,DEPOSIT_BACK_PROTOCOL_NO,
+			DEPOSIT_BACK_NO,UPDATE_DATE,DEPOSIT_BACK_AMOUNT
+        FROM DEPOSIT_BACK_PROTOCOL
+        WHERE DEPOSIT_BACK_NO=#depositBackNo#
+    </select>
+    
+    <select id="findBySelective" resultMap="depositBackProtocol">
+        SELECT 
+			DEPOSIT_BACK_NO,STATUS,DEPOSIT_PROTOCOL_NO,CREATE_DATE,DEPOSIT_BACK_PROTOCOL_NO,
+			UPDATE_DATE,DEPOSIT_BACK_AMOUNT
+        FROM DEPOSIT_BACK_PROTOCOL
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositProtocolNo">
+            DEPOSIT_PROTOCOL_NO = #depositProtocolNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = sysDate 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackProtocolNo">
+            DEPOSIT_BACK_PROTOCOL_NO = #depositBackProtocolNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = sysDate 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM DEPOSIT_BACK_PROTOCOL
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositProtocolNo">
+            DEPOSIT_PROTOCOL_NO = #depositProtocolNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = sysdate 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackProtocolNo">
+            DEPOSIT_BACK_PROTOCOL_NO = #depositBackProtocolNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = sysDate 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

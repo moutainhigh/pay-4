@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store"/>
+	<meta http-equiv="Cache-Control" content="no-cache"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Expires" content="0"/>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+	<!-- data picker controller -->
+	<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+	<!-- <script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script> -->
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+	<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+	<!-- data picker controller -->
+	<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+	<!-- jquery validate -->
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+	<title>交易查询</title>
+	<style type="text/css">
+		#exportExcel:hover{cursor:pointer;}
+	</style>
+	<script type="text/javascript">
+
+		$(function(){
+			$('[data-amount]').keypress(function(e){
+				if(e.which == 8 ||e.which == 0 )return true;
+				if(((e.which >= 45 && e.which <= 57) && e.ctrlKey == false && e.shiftKey == false) || e.which == 0 || e.which == 8) {
+					if(e.which == 45){
+						return false;
+					} else if(e.which == 46){
+						if($(this).val().indexOf(".") == -1 && $(this).val().length !=0) {
+							return true;
+						} else {
+							return false;
+						}
+					}
+					return true;
+				}
+				return false;
+			}).bind("paste",function(){return false;}).css({'imeMode':"disabled",'-moz-user-select':"none"});
+			$("#incomeTable tr:odd").addClass("gray");
+			$("#advancedSearch").hide();
+			$("#more").click(function(){
+				if($("#advancedSearch").is(":hidden")) {
+					$("#more").html("普通查询");
+					$("#isAdvance").val("1");
+					$(".down_ico").attr("class","up_ico");
+				}else {
+					$("#more").html("高级查询");
+					$("#isAdvance").val("");
+					$(".up_ico").attr("class","down_ico");
+					$("#payStartTime").val("");
+					$("#payEndTime").val("");
+					setTime("","");
+				}
+				$("#advancedSearch").toggle("fast");
+			});
+			$("#exportExcel").click(function(){
+				$("#export").val("1");
+				$("#incomeDetailForm").submit();
+
+			});
+			$("[data-resend]").click(function(e) {
+				var seq = $(this).attr("data-seq");
+				$.pay.confirm('确定要补发这笔订单吗?',
+						{h:200,
+							t:'3',
+							confirm:function(){
+								$.ajax({
+									type:"GET",
+									url:"${rc.contextPath}/corp/sendnotify.htm?tradeOrderNo=" + seq,
+									success:function(data){
+										if(data == "return_code=1") {
+											$.pay.alert('补发成功');
+										}else if(data == "return_code=5") {
+											$.pay.alert('没有权限');
+										}else {
+											$.pay.alert('补单失败');
+										}
+									}
+								});
+							},cancel:function(){
+						}});
+			});
+			$("[data-close]").click(function(e) {
+				var seq = $(this).attr("data-seq");
+				$.pay.confirm('确定要关闭这笔订单吗?',
+						{h:200,
+							t:'3',
+							confirm:function(){
+								$.ajax({
+									type:"GET",
+									url:"${rc.contextPath}/corp/closeorder.htm?tradeOrderNo=" + seq,
+									success:function(data){
+										if(data == "return_code=1") {
+											$.pay.alert('订单已经关闭');
+										}else if(data == "return_code=5") {
+											$.pay.alert('没有权限');
+										}else {
+											$.pay.alert('操作失败');
+										}
+									}
+								});
+							},cancel:function(){
+						}});
+			});
+			<#if payStatus?has_content>
+			<#if (payStatus?size > 0)>
+			$("#payStatus").val("1,3,4,5,6");
+			<#else>
+			<#list payStatus as d>
+			<#if d='2'>
+					$("#payStatus").val("2");
+			<#elseif d='7'>
+					$("#payStatus").val("7");
+			</#if>
+			</#list>
+			</#if>
+			</#if>
+			<#if payChannel?has_content>
+			$("#payChannel").val("${payChannel}");
+			</#if>
+			<#if orderSeq?has_content>
+			$("#orderSeq").val("${orderSeq}");
+			</#if>
+			//adv
+			<#if serialNo?has_content>
+			$("#serialNo").val("${serialNo}");
+			</#if>
+			<#if notifyStatus?has_content>
+			$("#notifyStatus").val("${notifyStatus}");
+			</#if>
+			<#if sOrderAmount?has_content>
+			$("#sOrderAmount").val("${sOrderAmount * 0.001}");
+			</#if>
+			<#if eOrderAmount?has_content>
+			$("#eOrderAmount").val("${eOrderAmount * 0.001}");
+			</#if>
+			<#if isAdvance?has_content>
+			$("#advancedSearch").show();
+			$("#isAdvance").val("1");
+			$("#more").html("普通查询");
+			$(".down_ico").attr("class","up_ico");
+			</#if>
+			$("#submitId").click(function(){
+				$("#export").val("");
+			});
+			<#if orderStatus?has_content>
+			$("#orderStatus").val(${orderStatus});
+			</#if>
+
+		});
+
+		function setTime(time,time2){
+			if(time != "" || time2 != ""){
+				$("#startTime").attr("disabled","disabled")
+				$("#endTime").attr("disabled","disabled")
+			}
+			else if(time == "" || time== null){
+				$('#startTime').removeAttr("disabled");
+				$('#endTime').removeAttr("disabled");
+			}
+		}
+
+		$(function(){
+			$("#merOrderNo").focus(function(){
+				$("#startTime").val("") ;
+				$("#EndTime").val("") ;
+			}) ;
+		}) ;
+
+		function uploadeSiteFunc(){
+			$("#file_tip").css('display', 'none') ;
+			$("#dialog-uploade" ).dialog( "open" );
+		}
+		function downloadTemplates(){
+			window.location.href="${rc.contextPath}/corp/orderRefund.htm?method=downRefundTemplate&fileName=批量退款操作表.xls"
+		}
+
+		$(function(){
+			var uploadeDialog;
+			uploadeDialog=$("#dialog-uploade" ).dialog({
+				autoOpen: false,
+				height: 300,
+				width: 450,
+				modal: true,
+				buttons: {
+					"取消": function() {
+						$("#file_tip").css('display', 'none') ;
+						$("#dialog-uploade" ).dialog( "close" );
+					},
+					"确定":function() {
+						batchUpload();
+					}
+				},
+				close: function() {
+					document.getElementById("uploadeSite").reset();
+				}
+			});
+			function batchUpload(){
+				var fileName = $("#file_batchRefund").val() ;
+				if(null == fileName || "" == fileName){
+					$("#file_tip").css('display', 'block') ;
+					return false ;
+				}
+				$('#uploadeSite').submit();
+				$("#dialog-uploade" ).dialog( "close" );
+			}
+
+		})
+	</script>
+
+</head>
+
+<body>
+<#include "/include/topbar.html">
+	<@sp.head  mCode="corp_income_detail"/>
+	<!-- <div class="header"> -->
+
+	<div id="incomedetail_div" hclass="mainbox" >
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="#">交易查询</a></span>
+				</div>
+				<form class="form" action="${rc.contextPath}/corp/fiIncomedetail.htm?method=queryIncomeDetail" method="post" name="incomeDetailForm" id="incomeDetailForm">
+					<input type="hidden" name="export" id="export" value="" />
+					<input type="hidden" name="act" value="1" />
+					<input type="hidden" id="isAdvance" name="isAdvance" >
+					<div class="section">
+						<div class="seccon">
+							<div class="bgbox">
+								<table class="tab01 formtable">
+									<colgroup>
+										<col width="100px;"/>
+										<col/>
+										<col width="100px;"/>
+										<col/>
+									</colgroup>
+									<tr>
+										<td><div align="right">商户订单号：</div></td>
+										<td><input type="text" 	id="merOrderNo" name="orderSeq" class="base-input"  value="${orderSeq!''}"/></td>
+										<td><div align="right">订单状态：</div></td>
+										<td>
+											<select name="orderStatus" id="orderStatus" class="" style="padding:3px;" >
+												<option value="" >全部</option>
+												<!-- 	<option value="0" <#if (((orderStatus)!'') == '0')>selected="selected"</#if> >未付款</option>-->
+												<!-- <option value="1" <#if (((orderStatus)!'') == '1')>selected="selected"</#if> >支付中</option>  -->
+												<option value="3" <#if (((orderStatus)!'') == '3')>selected="selected"</#if> >支付成功</option>
+												<option value="5" <#if (((orderStatus)!'') == '5')>selected="selected"</#if> >支付失败</option>
+												<option value="21" <#if (((orderStatus)!'') == '21')>selected="selected"</#if> >交易成功</option>
+												<option value="22" <#if (((orderStatus)!'') == '22')>selected="selected"</#if> >已撤销</option>
+												<option value="23" <#if (((orderStatus)!'') == '23')>selected="selected"</#if> >交易完成</option>
+												<option value="24" <#if (((orderStatus)!'') == '24')>selected="selected"</#if> >交易失败</option>
+											</select>
+										</td>
+
+									</tr>
+									<tr>
+										<td><div align="right">网关时间：</div></td>
+										<td>
+											<input  type="text" class="Wdate inp_normal w380" name="startTime"  readonly="readonly" id="startTime"
+													gtbfieldid="109" value="<#if startTime?has_content>${startTime?date}</#if>"
+													onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+											~
+											<input  type="text" class="Wdate inp_normal w380" name="endTime"  readonly="readonly" id="EndTime"
+													gtbfieldid="109" value="<#if endTime?has_content>${endTime?date}</#if>"
+													onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+										</td>
+										<td><div align="right">交易类型：</div></td>
+										<td>
+											<select name="tradeType" id="tradeType" class="" style="padding:3px;" >
+												<option value="" <#if (((tradeType)!'') == '0')>selected="selected"</#if> >全部</option>
+											<option value="1000,1001,1002,7000,7004,7005"<#if (((tradeType)!'') == '1000,1001,1002,7000,7004,7005')>selected="selected"</#if> >即时交易</option>
+												<option value="3000" <#if (((tradeType)!'') == '3000')>selected="selected"</#if>>3D交易</option>
+												<option value="6000" <#if (((tradeType)!'') == '6000')>selected="selected"</#if>>企业虚拟卡</option>
+												<option value="5000" <#if (((tradeType)!'') == '5000')>selected="selected"</#if>>循环代扣</option>
+												<option value="400" <#if (((tradeType)!'') == '400')>selected="selected"</#if>>本地化交易</option>
+											<option value="2000,2001,7200,7204,7205" <#if (((tradeType)!'') == '2000,2001,7200,7204,7205')>selected="selected"</#if>>预授权</option>
+												<option value="2100" <#if (((tradeType)!'') == '2100')>selected="selected"</#if>>预授权完成</option>
+											</select>
+										</td>
+									</tr>
+									<tr >
+										<td colspan="5" style="">
+											<div class="divquery">
+												<input type="submit" id="submitId" class="btn_blue2" value="查  询" alt="查  询" onclick="javascript:return retB() ;"/>
+												<a  id="exportExcel" onclick="downwExcel() ;" style="text-decoration:underline;">查询结果下载</a>
+											</div>
+											<div class="divdown">
+												<input type="button" id="" class="btn_blue2" value="批量退款" alt="批量退款" onclick="javascript:return uploadeSiteFunc(); ;"/>
+											</div>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div id="resultListDiv" class="listFence" ></div>
+					</div>
+				</form>
+				<div class="seccon">
+					<table id="incomeTable" class="tab03" border="1">
+						<tr>
+							<th width="12%">商户订单号</th>
+							<th width="15%">交易流水号</th>
+							<th width="8%">交易类型</th>
+							<th width="8%">订单状态</th>
+							<th width="8%">渠道类型</th>
+							<#if (((tradeType)!'') == '2000,2001,7200,7204,7205') || (((tradeType)!'') == '2100')>
+								<th width="8%">预授权金额</th>
+								<#else>
+									<th width="8%">交易金额</th>
+							</#if>
+							<th width="10%">网关完成时间</th>
+							<th width="10%">操作</th>
+							<th width="10%">是否已退款</th>
+							<th width="10%">支付失败原因</th>
+						</tr>
+						<#if incomeDetailList?exists>
+							<#list incomeDetailList as ts>
+								<!-- <#if ts.orderStatus=="0"||ts.orderStatus=="1"></#if> -->
+								<tr>
+									<td align="center">${ts.orderId?default("")}</td>
+									<td align="center">${ts.tradeOrderNo?default("")}</td>
+									<!-- 交易类型 -->
+									<td>
+										<#if ts.tradeType?has_content>
+											<#if ts.tradeType =="5000">
+												循环代扣
+												<#elseif ts.tradeType =="1000">
+													即时交易
+													<#elseif ts.tradeType =="1001">
+														即时交易
+														<#elseif ts.tradeType =="1002">
+															即时交易
+															<#elseif ts.tradeType =="4001">
+																本地化交易
+																<#elseif ts.tradeType =="4002">
+																	本地化交易
+																	<#elseif ts.tradeType =="3000">
+																		3D交易
+																		<#elseif ts.tradeType =="6000">
+																			企业虚拟卡
+																			<#elseif ts.tradeType =="2000">
+																				预授权
+																				<#elseif ts.tradeType =="2001">
+																					预授权
+																					<#elseif ts.tradeType =="2100">
+																						预授权完成
+																						<#elseif ts.tradeType =="7000">
+											即时交易
+																							<#elseif ts.tradeType =="7200">
+											预授权
+																						<#elseif ts.tradeType =="7004">
+											即时交易
+																						<#elseif ts.tradeType =="7005">
+											即时交易
+																						<#elseif ts.tradeType =="7204">
+											预授权
+																						<#elseif ts.tradeType =="7205">
+											预授权
+																								<#else>
+																									本地化交易
+											</#if>
+
+										</#if>
+									</td>
+									<td align="center">
+										<#if ts.orderStatus?has_content>
+											<#if ts.orderStatus =="3">
+												支付成功
+												<#elseif ts.orderStatus =="4">
+													<#if ts.tradeType =="2000" || ts.tradeType =="2001" || ts.tradeType =="7200" || ts.tradeType =="7204" || ts.tradeType =="7205">
+														交易成功
+														<#else>
+															支付成功
+													</#if>
+													<#elseif ts.orderStatus =="21">
+														交易成功
+														<#elseif ts.orderStatus =="22">
+															已撤销
+															<#elseif ts.orderStatus =="23">
+																交易完成
+																<#elseif ts.orderStatus =="24">
+																	交易失败
+																	<#elseif ts.orderStatus =="5" >
+																		<#if ts.tradeType =="2000" || ts.tradeType =="2001" || ts.tradeType =="7200" || ts.tradeType =="7204" || ts.tradeType =="7205">
+																			交易失败
+																			<#else>
+																				支付失败
+																		</#if>
+											</#if>
+										</#if>
+
+									</td>
+									<td>${ts.tradeTypeDisplay?default("")}</td>
+									<td align="center">${(ts.orderAmount*0.001)?string(",##0.000")}&nbsp;&nbsp;${ts.currencyCode?default("")}</td>
+									<!-- <td align="center">${ts.currencyCode?default("")}</td> -->
+									<!-- 网关完成时间 -->
+									<td>
+										${ts.completeDate?default("")}
+									</td>
+									<!-- 操作 -->
+									<td align="center"><!-- exists -->
+										<#if ts.orderStatus?has_content>
+											<#if ts.orderStatus =="0">
+												<a class="blues" data-close="1" data-seq="${ts.tradeOrderNo?default("")}" href="javascript:void(0)"></a>
+												<#elseif ts.orderStatus =="4">
+													<#if ts.tradeType =="2001" || ts.tradeType=="2000" || ts.tradeType=="7200" >
+														<a class="blues"  href="#" onclick="return show_authTradeRepeal('24','${ts.orderId?default('')}','${ts.tradeOrderNo?default('')}','${(ts.orderAmount*0.001)?string(',##0.000')}','${ts.currencyCode?default('')}');">撤销</a>
+													</#if>
+													<#if ts.refundAmount?default("0")?number gt 0>
+														<#if ts.orgCode != "10081009" && ts.orgCode != "10081013" && ts.orgCode != "10081014" && ts.tradeType!="2000" && ts.tradeType!="2001">
+															<a class="blues"  href="${rc.contextPath}/corp/orderRefund.htm?method=applyRefund&serialNo=${ts.tradeOrderNo!('')}&partnerId=${ts.partnerId!('')}">退款</a>
+														</#if>
+														<#elseif ts.refundAmount?default("0")?number lte 0>
+															<a class="blues" data-resend="1" data-seq="${ts.tradeOrderNo?default("")}" href="javascript:void(0)"></a>
+															<#elseif ts.refundAmount?default("0")?number == ts.orderAmount?default("0")?number>
+																<a class="blues" data-resend="1" data-seq="${ts.tradeOrderNo?default("")}" href="javascript:void(0)"></a>
+													</#if>
+													<#elseif ts.orderStatus =="21">
+														<a class="blues"  href="#" onclick="return show_authTradeRepeal('20','${ts.orderId?default('')}','${ts.tradeOrderNo?default('')}','${(ts.orderAmount*0.001)?string(',##0.000')}','${ts.currencyCode?default('')}');">撤销</a>
+														<#elseif ts.orderStatus =="3">
+															<#if (ts.refundAmount?default("0")?number gt 0)>
+																<#if ts.orgCode != "10081009" && ts.orgCode != "10081013" && ts.orgCode != "10081014"  && ts.tradeType!="2000" && ts.tradeType!="2001">
+																	<a class="blues"  href="${rc.contextPath}/corp/orderRefund.htm?method=applyRefund&serialNo=${ts.tradeOrderNo!('')}&partnerId=${ts.partnerId!('')}">退款</a>
+																</#if>
+															</#if>
+															<#elseif ts.orderStatus =="23">
+																<#if ts.tradeType =="2001" || ts.tradeType=="2000" || ts.tradeType=="7200">
+																	<a class="blues"  href="#" onclick="return show_authTradeRepeal('23','${ts.orderId?default('')}','${ts.tradeOrderNo?default('')}','${(ts.orderAmount*0.001)?string(',##0.000')}','${ts.currencyCode?default('')}');">撤销</a>
+																</#if>
+																<#elseif ts.orderStatus =="0" || ts.orderStatus =="5">
+																	<#if (ts.refundAmount?default("0")?number gt 0)>
+																		<#if ts.orgCode != "10081009" && ts.orgCode != "10081013" && ts.orgCode != "10081014" && ts.tradeType!="2000" && ts.tradeType!="2001">
+																			<a class="blues"  href="${rc.contextPath}/corp/orderRefund.htm?method=applyRefund&serialNo=${ts.tradeOrderNo!('')}&partnerId=${ts.partnerId!('')}">退款</a>
+																		</#if>
+																	</#if>
+
+											</#if>
+
+
+										</#if>
+										<#if ts.orderStatus?exists && ts.orderStatus != "">
+											<a target="_blank" class="blues" href="${rc.contextPath}/corp/fiIncomedetail.htm?method=querySingleIncomeDetail&serialNo=${ts.tradeOrderNo!('')}&partnerId=${ts.partnerId!('')}&currencyCode=${ts.currencyCode!('')}&orderStatus=${ts.orderStatus!('')}">查看</a>
+										</#if>
+									</td>
+									<!-- 是否退款 -->
+									<td align="center">
+										<#if ts.orderStatus?has_content>
+											<#if ts.orderStatus =="3">
+												<#if (ts.refundAmount?default("0")?number gt 0)>
+													已部分退款
+													<#elseif ts.refundAmount?default("0")?number lte 0>
+														全额退款
+														<#else>
+															否
+												</#if>
+											</#if>
+										</#if>
+
+										<#if ts.orderStatus?has_content>
+											<#if ts.orderStatus =="4">
+												<#if (ts.refundAmount?default("0")?number lte 0) && ts.tradeType!="2000" && ts.tradeType!="2001">
+													全额退款
+													<#elseif ts.refundAmount?default("0")?number lt ts.orderAmount?default("0")?number && ts.tradeType!="2000" && ts.tradeType!="2001">
+														已部分退款
+														<#else>
+															否
+												</#if>
+											</#if>
+										</#if>
+										<#if ts.orderStatus?has_content>
+											<#if ts.orderStatus =="21" >
+												否
+											</#if>
+										</#if>
+										<#if ts.orderStatus?has_content>
+											<#if ts.orderStatus =="0" || ts.orderStatus =="1" || ts.orderStatus =="5">
+												否
+											</#if>
+										</#if>
+									</td>
+									<td>
+										<#if ts.orderStatus =="5">
+											${ts.respMsg!('')}
+										</#if>
+										<#if ts.orderStatus =="24">
+											${ts.respMsg!('')}
+										</#if>
+									</td>
+								</tr>
+
+							</#list>
+						</#if>
+					</table>
+				</div>
+			</div>
+			<#if incomeDetailList?has_content>
+				<hr style="border-style:dotted; " />
+			</#if>
+			<div align="center">
+				<#if incomeDetailList?has_content>
+					<@sp.pagination pu=pu/>
+				</#if>
+			</div>
+		</div>
+	</div>
+	<#include "/fi/tradequery/corp/authTradeRepeal.html">
+		<#include "/include/myfoot.html">
+			<script type="text/javascript">
+				function retB(){
+					$("#export").val("");
+					return true ;
+				}
+				//下载excel
+				function downwExcel(){
+					$("#export").val("1");
+					$("#incomeDetailForm").submit();
+				}
+			</script>
+
+			<!-- 批量退款  -->
+			<div id="dialog-uploade" title="批量退款" style="display: none;">
+				<form action="${rc.contextPath}/corp/orderRefund.htm?method=batchRefund" id="uploadeSite" enctype="multipart/form-data" name="uploadeSite" method="post" target="hidden_frame" >
+					<!--change 修改样式 by tom.wang 2016年4月23日19:22:06  -->
+					<div style="margin-top: 50px;">
+						<div style="margin-left: 70px; ">
+							<div>需按照规定模板填写退款信息，否则无法通过审核</div>
+							<div style="margin: 30px 0px;"><input type="button" value="下载模版" onclick="downloadTemplates();"></div>
+							<label for="lbl_sitefile" class="side">上传文件</label>
+							<input type="file"  name="file_batchRefund" id="file_batchRefund" accept=".xls"  value="点击上传">
+							<label id="file_tip" style="color:red;display:none;">请上传批量退款操作表文件!</label>
+						</div>
+						<input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+					</div>
+					<iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+				</form>
+			</div>
+
+			<script type="text/javascript">
+				$(function(){
+					initDilog();
+				})
+				function initDilog(){
+					applyOpenDialog=$("#atr_dialog-payTip" ).dialog({
+						autoOpen: false,
+						height: 150,
+						width: 300,
+						modal: true
+					});
+					$('div .ui-dialog-titlebar-close').hide();
+				}
+
+				$("#atr_dialog_confirm").click(function(){
+					$("#atr_dialog-payTip" ).dialog("close");
+				})
+				function show_authTradeRepeal(status,orderId,tradeOrderNo,tradeTypeDisplay,currencyCode){
+					initAuthTrade(status,orderId,tradeOrderNo,tradeTypeDisplay,currencyCode);
+					if(status=='23'){
+						$("#atr_dialog-payTip" ).dialog("open");
+						return false;
+					}
+					$("#incomedetail_div").hide();
+					$("#authTradeRepeal_div").show();
+					return false;
+				}
+				$("#return_button").click(function(){
+					$("#incomedetail_div").show();
+					$("#authTradeRepeal_div").hide();
+				})
+				function initAuthTrade(status,orderId,tradeOrderNo,tradeTypeDisplay,currencyCode){
+					$("#tradeOrderNo").text(tradeOrderNo);
+					$("#orderId").text(orderId);
+					$("#orderAmount").text(tradeTypeDisplay);
+					$("#currency").text(currencyCode);
+					$("#orderId_hidden").val(orderId);
+					$("#tradeOrderNo_hidden").val(tradeOrderNo);
+					$("#status_hidden").val(status);
+				}
+				function callback(result){
+					var opt={};
+					var statue=result.split("|")[0];
+					var msg=result.split("|")[1];
+					var success = result.split("|")[2] ;
+					if(statue=="Y"){
+						$.pay.alert(msg);
+						$("#dialog-uploade" ).dialog( "close" );
+						/* setTimeout(function(){
+						 window.location.reload() ;
+						 }, 2000) ; */
+
+					}else if(statue=="N"){
+						$.pay.alert(msg);
+					}else if(statue =="D"){
+						$("#batchErrorDetail").val(encodeURIComponent(encodeURIComponent(msg))) ;
+						$("#success").val(success) ;
+						document.getElementById("detail").submit() ;
+					}
+				}
+			</script>
+			<form action="${rc.contextPath}/corp/orderRefund.htm?method=toBatchErrorDetail" method="post" id="detail">
+				<input id="batchErrorDetail" type="hidden" name="batchErrorDetail" value=""/>
+				<input id="success" type="hidden" name="success" value=""/>
+			</form>
+</body>
+</html>

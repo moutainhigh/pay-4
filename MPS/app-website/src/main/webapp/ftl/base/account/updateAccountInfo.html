@@ -1,0 +1,165 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${my_message}${title}</title>
+<meta name="Keywords" content="${my_message_Keywords}" />
+<meta name="Description" content="${my_message_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/per_account.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/accountInfo/account-info.js"></script>
+
+<script type="text/javascript">
+	 function editBankAcct(id){
+ 		window.location.href="${rc.contextPath}/app/checkBankCard.htm?method=checkBankCard&qt="+(Math.random()*0.1234875)+"&id="+id
+ 	}
+	 function removeBankAcct(id){
+		 $.pay.confirm("确定删除吗? ",{title:"删除确认",h:200,t:'3',
+			 confirm:function(){
+			 $.post("${rc.contextPath}/app/removeBankCard.htm?method=removeBankCard&qt="+(Math.random()*0.1234875)+"&id="+id,{},function cbk(result){
+				 if("S" == result){
+						window.location.reload();
+					}
+				 else{
+					 $.pay.alert(result);
+				}
+			 	});
+			}});
+	 }
+	  function setDefaBankAcct(id,cardNo){
+		 $.pay.confirm("确定设置账号 "+cardNo+"为默认账号吗?",{title:"设置默认账户确认",h:200,t:'1',
+			 confirm:function(){
+			 $.post("${rc.contextPath}/app/bankAcct.htm?method=setDefaultBankCard&qt="+(Math.random()*0.1234875)+"&id="+id,{},function cbk(result){
+				 if("S" == result){
+						window.location.reload();
+					}
+				 else{
+					 $.pay.alert("设置账号 "+cardNo+"为默认账号不成功");
+				}
+			 	});
+			}});
+	 }
+	 function setNotDefaBankAcct(id,cardNo){
+		 $.pay.confirm("取消账号 "+cardNo+"为默认账号吗?",{title:"取消默认账户确认",h:200,t:'1',
+			 confirm:function(){
+			 $.post("${rc.contextPath}/app/bankAcct.htm?method=setNotDefaultBankCard&qt="+(Math.random()*0.1234875)+"&id="+id,{},function cbk(result){
+				 if("S" == result){
+						window.location.reload();
+					}
+				 else{
+					 $.pay.alert("取消账号 "+cardNo+"为默认账号不成功");
+				}
+			 	});
+			}});
+	 }
+ 
+</script>
+</head>
+
+<body>
+<!--导航 str-->
+	<@sp.head mCode="app_accountInfo" type=1 />
+<!--导航 end--> 
+<!--主内容 str -->
+<form action="#" method="post" name="messageForm" id="messageForm" onsubmit="return false;">
+<div class="container o_hidden">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<h3 class="title"><strong>用户信息</strong></h3>
+			</div>
+			<ul class="form_list">
+				<li><span class="form_side">姓名：</span><strong><#if memberCriteria.verifyName?has_content> ${memberCriteria.verifyName?default('')} </#if> </strong></li>
+				<li><span class="form_side">
+				<#if memberCriteria.regType=='1'>手机账号：<#elseif  memberCriteria.regType=='2'>邮箱账号：</#if>
+				</span><strong>${memberCriteria.loginName?default('')}</strong>
+				 </li>
+				 <#if qdbool?default('')=="true">
+						<li><span class="form_side">实名状态：</span>已认证</li>
+					<#else>
+					<li><span class="form_side">实名状态：</span><a class="reds" href="${rc.contextPath}/app/cidverifyUserInfo.htm?method=cidverifyUserInfo">申请实名认证</a></li>
+					</#if>
+				<li><span class="form_side">开户日期：</span>${memberCriteria.createDate?string("yyyy-MM-dd HH:mm:ss")}</li>
+			</ul>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg o_hidden">
+			<div class="tit_box">
+				<h3 class="title"><strong>账户信息</strong></h3>
+			</div>
+			<ul class="form_list">
+				<li><span class="form_side">可用余额：</span><strong class="red">${(acct_balance?default(0)?string(",##0.00"))}</strong> 元<a href="${rc.contextPath}/app/acctCharge.htm" class="blues ml20">充值</a><a href="${rc.contextPath}/app/queryBalanceList.htm?method=queryBalance" class="blues ml20">查看明细</a></li>
+				<li><span class="form_side">冻结余额：</span>${(acct_frozenAmount?default(0)?string(",##0.00"))} 元</li>
+				<li><span class="form_side">账户状态：</span>
+				<#if attribDto.frozen==0 || attribDto.allowIn==0 || attribDto.allowOut==0>
+					<#if attribDto.frozen==0>已冻结&nbsp;</#if><#if attribDto.allowIn==0>止入&nbsp;</#if><#if attribDto.allowOut==0>止出&nbsp;</#if>
+				<#else>正常&nbsp;</#if></li>
+				<li><span class="form_side">提现银行卡：</span>已绑定 <span class="red">${bankNum?default(0)}</span> 张银行卡</li>
+		</ul>
+		
+		<table class="table account_bank">
+			<tbody>
+				<tr>
+					<th>开户行名称</th>
+					<th>银行账号</th>
+					<th width="20%">操作</th>
+				</tr>
+				<#if bankList?exists && bankList?has_content>
+						<#list bankList as item>
+				<tr>
+					<td>${item.branchBankName}</td>
+					<td>
+					 <#if item.bankAcctId?has_content && item.bankAcctId?length gt 4> 
+							    <#assign  len=item.bankAcctId?length>
+							    <#assign  minlen=len-4>
+							    <#assign  str=item.bankAcctId[minlen..len-1]>
+							    
+							    <#assign  sstr=item.bankAcctId[0..len-1]>  
+								<#list 0..minlen as m>*</#list>${str}
+							</#if>
+					</td>
+					<td><a href="javascript:void(0)" onclick="editBankAcct('${item.id?default('')}');return false;">编辑</a>
+					<a href="javascript:void(0)" onclick="removeBankAcct('${item.id?default('')}');return false;">删除</a>
+					<#if item.isPrimaryBankacct?default(0) == 0 >
+						<a href="javascript:void(0)" 	onclick="setDefaBankAcct(${item.id},'${str}')" class="red">设为默认</a>
+						</#if>
+						<#if item.isPrimaryBankacct?default(0) == 1 >
+						<a href="javascript:void(0)" 	onclick="setNotDefaBankAcct(${item.id},'${str}')" class="red" >取消默认</a>
+						</#if>
+					
+					</td>
+				</tr>
+				</#list>
+				<#if bankList?size lt 10 >
+				<tr>
+					<td colspan="3"><a class="btnB"  href="${rc.contextPath}/app/checkBankCard.htm?method=checkBankCard"><span>添加银行</span></a><span class="c_999">(您还可以添加${10-bankList?size}个银行账号)</span></td>
+				</tr>
+				</#if>
+				<#else>
+					<tr>
+					<td colspan="3"><a class="btnB"  href="${rc.contextPath}/app/checkBankCard.htm?method=checkBankCard"><span>添加银行</span></a><span class="c_999">(您还可以添加10个银行账号)</span></td>
+				</tr>
+				</#if>
+			</tbody>
+		</table>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+</form>
+<!--主内容 end --> 
+	<#include "/common/include/footer.html">
+</body>
+</html>

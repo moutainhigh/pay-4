@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- abc b2c大额 渠道 job配置 -->
+	<bean id="conn.wrapper.abc.jumbo"
+		class="com.hnapay.fi.order.repair.conn.base.TwoWaySSLHttpClientWrapper">
+		<property name="jksPassword" value="changeit" />
+		<property name="jksUrl"
+			value="/opt/hnapay/config/gateway/orderrepair/abc/abc.truststore" />
+	</bean>
+	<bean id="conn.request.builder.abc.b2c.jumbo"
+		class="com.hnapay.fi.order.repair.conn.base.StringRequestBuilder">
+		<property name="encoding" value="UTF-8" />
+		<property name="url"
+			value="https://www.95599.cn/b2c/trustpay/ReceiveMerchantTrxReqServlet" />
+		<property name="map2StringTransform">
+			<bean class="com.hnapay.fi.order.repair.abc.conn.requestbuilder.ABCJUMBOMap2StringTransform" />
+		</property>
+	</bean>
+	<bean id="conn.response.handler.abc.jumbo"
+		class="com.hnapay.fi.order.repair.abc.conn.responsehandler.ABCResponseHandler">
+		<property name="bankName" value="abc003"/>
+	</bean>
+	<bean id="transform.abc.b2c.jumbo"
+		class="com.hnapay.fi.order.repair.abc.engine.loader.ABCLocalOrderTransform">
+		<property name="queryDeail" value="false" />
+		<property name="merchantId" value="231000001885A03" />
+		<property name="merchantType" value="B2C" />
+	</bean>
+	<bean id="loader.abc.b2c.jumbo"
+		class="com.hnapay.fi.order.repair.engine.loader.LocalOrderBasedBankOrderLoader">
+		<property name="channel" value="10002003" />
+		<property name="httpClientWrapper" ref="conn.wrapper.abc.jumbo" />
+		<property name="httpRequestBuilder" ref="conn.request.builder.abc.b2c.jumbo" />
+		<property name="httpResponseHandler" ref="conn.response.handler.abc.jumbo" />
+		<property name="localOrderQueryService" ref="fiLocalOrderQueryService" />
+		<property name="bankConnLogPersist" ref="aurorepair.banklog.persist" />
+		<property name="maxThreadSize" value="10" />
+		<property name="paramTransform" ref="transform.abc.b2c.jumbo" />
+		<property name="timePassed" value="1800000" />
+	</bean>
+
+	<bean id="engine.abc.b2c.jumbo" class="com.hnapay.fi.order.repair.engine.BaseOrderRepairEngine">
+		<property name="bankDataLoader" ref="loader.abc.b2c.jumbo" />
+		<!-- 依赖于实现包 -->
+		<property name="loadService" ref="fiBankDocAnalyseService"/> 
+		<property name="repairService" ref="fiBatchSupplementCompareService"/>
+	</bean>
+
+	<!-- apply job -->
+	<bean id="job.abc.b2c.jumbo.apply" class="com.hnapay.fi.order.repair.job.impl.BatchApplyJob">
+		<property name="jobName" value="job.abc.b2c.jumbo.apply" />
+		<property name="description" value="农行B2C大额 自动补单申请生成任务" />
+		<property name="orderRepairEngine" ref="engine.abc.b2c.jumbo" />
+		<!--<property name="repairFlag" value="1"/> 补单标示 1.可以自动补单审核 -->
+	</bean>
+	
+	<bean id="task.abc.b2c.jumbo.apply" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="job.abc.b2c.jumbo.apply" />
+		<property name="targetMethod" value="work" />
+	</bean>
+	<bean id="trigger.abc.b2c.jumbo.apply"  class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="task.abc.b2c.jumbo.apply" />
+		<property name="cronExpression" value="1 0/5 * * * ? *" />
+	</bean>
+	
+</beans>

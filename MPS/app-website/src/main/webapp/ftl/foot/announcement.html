@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<link href="<@sp.static/>/mps/css/bootstrap.min.css" rel="stylesheet">
+	<!-- <script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script> -->
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/highcharts/highcharts.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/highcharts/exporting.js"></script>
+	<!-- data picker controller -->
+	<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+	<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+	<title>系统公告</title>
+	
+</head>
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="corp_my_account" />
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01" style="padding-bottom:50px;">
+			
+				<div class="announce_header">
+					<span>系统公告</span>
+				</div>
+				
+				<#if list?exists>
+					<#list list as ls>
+						<div class="announce_item">
+							<div class="announce_title">
+								<a href="${rc.contextPath}/corp/infomation.htm?method=infoAnnouncement&id=${ls.id?default(0)}">
+									${ls.subject?default('')}&nbsp;&nbsp;
+									<!-- 这里注释的为一开始的需求，首页前三条标志为new -->
+									<#-- <#if pu?has_content>
+										<#if ls_index&lt;3 && pu.curPageNo&lt;2>
+											<span class="new_tip"></span>
+										</#if>
+										<#else>
+											<#if ls_index&lt;3>
+												<span class="new_tip"></span>
+											</#if>
+									</#if> -->
+									<!-- 新需求现在更改为商户未读公告为new -->
+									<#if ls.memberCode?has_content >
+										
+										<#-- <#if ls.memberCode == memberCode>
+												memberCode存在并且等于当前用户， 则说明该条公告是已读公告
+											<#else>
+												<span class="new_tip"></span>
+										</#if> -->
+										<#else>
+										<!-- memberCode不存在，则一定是未读公告 -->
+										<span class="new_tip"></span>
+									</#if>
+								</a>
+							</div>
+							<div class="announce_date">
+								<font><#if ls.startTime?has_content> ${ls.startTime?string('yyyy-MM-dd')} </#if></font>	
+							</div>
+							<div class="clear"></div>
+						</div>
+					</#list>
+					<#else>
+						<div class="announce_item">
+							<div class="announce_title">
+								<font>暂无任何系统公告</font>
+							</div>
+							<div class="announce_date">
+								<font>&nbsp;</font>	
+							</div>
+							<div class="clear"></div>
+						</div>	
+				</#if>
+				<!-- <div class="announce_item">
+					<div class="announce_title">
+						<a>Payment平台春节期间服务关于用户账户结算延迟通知</a>
+					</div>
+					<div class="announce_date">
+						<font>2016-02-01</font>	
+					</div>
+					<div class="clear"></div>
+				</div> -->
+				<div class="clear"></div>
+				<div class="announce_back">
+					<input type="submit" id="submitId" class="btn_blue2" value="返  回" alt="返  回" onclick="javascript:window.location.href='${rc.contextPath}/corp/myAccount.htm';"/>
+				</div>
+				
+			</div>
+			<#if incomeDetailList?has_content>
+				<hr style="border-style:dotted;"/>
+			</#if> 
+			<div align="right">
+				<@sp.pagination pu=pu/> 
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+	
+</body>
+</html>

@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+ 
+ 	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:properties/task.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+ <!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序  -->
+	<bean id="if-task-quartz" lazy-init="false" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="autoTradeTrigger3"/>
+				<ref bean="autoTradeTrigger4"/> 
+				<ref bean="autoTradeTrigger5"/>
+				<ref bean="autoTradeTrigger6"/>
+				<ref bean="autoTradeTrigger7"/>
+				<ref bean="autoTradeTrigger8"/>
+				
+			</list>
+		</property>
+	</bean>
+</beans>

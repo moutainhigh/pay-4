@@ -1,0 +1,7 @@
+#==============安捷支付账户支付明细==============
+网关收单时间,网关订单流水号,商户订单号,收款方,支付状态,付款金额(元)
+			<#if listPayDetail?exists>
+				<#list listPayDetail as ts>
+${ts.createDate+"\t"},${ts.tradeOrderNo+"\t"?default('')},${ts.orderId+"\t"?default('')},${ts.payeeName+"\t"?default('')},<#if ts.status?has_content><#if ts.status="0">未付款<#elseif ts.status="1">交易关闭<#elseif ts.status="2">支付成功<#elseif ts.status="3">交易完成<#elseif ts.status="4">交易成功<#else></#if></#if>,${ts.amount!('')}
+				</#list>
+		  </#if>

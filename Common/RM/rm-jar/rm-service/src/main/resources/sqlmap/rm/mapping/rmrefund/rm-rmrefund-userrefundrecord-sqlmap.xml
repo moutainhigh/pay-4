@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="userrefundrecord">
+
+  <typeAlias alias="userRefundRecord" type="com.pay.rm.service.model.rmrefund.UserRefundRecord"/>
+  <typeAlias alias="userRefundRecordDTO" type="com.pay.rm.service.dto.rmrefund.UserRefundRecordDTO"/>
+  
+  <select id="selectAllUserCBs" resultClass="userRefundRecordDTO">
+    SELECT 	
+    	USER_ID            userId      ,         
+		RECORD_DATE        recordDate  ,    
+		CHARGE_BACK_TIMES  chargeBackTimes 
+	FROM RC_USER_CHARGE_BACK 
+	ORDER BY RECORD_DATE
+  </select>
+  
+  <select id="selectAllUserCBs_COUNT" resultClass="Integer">
+    SELECT COUNT(*) FROM RC_USER_CHARGE_BACK
+  </select>
+  
+  <select id="findById" parameterClass="long" resultClass="userRefundRecord">
+    SELECT
+		USER_ID            userId      ,         
+		RECORD_DATE        recordDate  ,    
+		CHARGE_BACK_TIMES  chargeBackTimes 
+    FROM RC_USER_CHARGE_BACK
+    WHERE USER_ID = #userId#
+  </select>
+   
+  <insert id="create" parameterClass="userRefundRecord">
+    INSERT INTO RC_USER_CHARGE_BACK (
+		USER_ID,         
+		RECORD_DATE ,    
+		CHARGE_BACK_TIMES
+	)VALUES (
+	    #userId#, 
+	    #recordDate#, 
+	    #chargeBackTimes#
+    )
+  </insert>
+
+  <update id="update" parameterClass="userRefundRecord">
+    UPDATE RC_USER_CHARGE_BACK SET
+		RECORD_DATE = sysdate,
+		CHARGE_BACK_TIMES = #chargeBackTimes#
+    WHERE
+      USER_ID = #userId# 
+  </update>
+  
+  <delete id="delete" parameterClass="int">
+    DELETE FROM RC_USER_CHARGE_BACK WHERE USER_ID = #userId#
+  </delete>
+</sqlMap>

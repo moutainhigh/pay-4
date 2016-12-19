@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="settlementorder">
+	
+	<typeAlias alias="long" type="java.lang.Long"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<select id="queryAmountByMemberCodeAndCurrency" parameterClass="hMap" resultClass="long">
+		select 
+			sum(amount) as sumAmount 
+		from 
+			PARTNER_SETTLEMENT_ORDER pso 
+		where 
+			pso.PARTNER_ID = #memberCode# and pso.CURRENCY_CODE = #currency# and pso.SETTLEMENT_FLG = 0 
+	</select>	
+   
+</sqlMap>

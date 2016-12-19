@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="userlog">
+    <typeAlias alias="userlog" type="com.pay.base.model.UserLog"/>
+    
+    <insert id="create" parameterClass="userlog">
+    	<selectKey resultClass="java.lang.Long" keyProperty="logId">
+			select seq_user_user_id.nextval as logId from dual 
+		</selectKey>    
+        insert into t_user_log
+		  (log_id,
+		   operator_id,
+		   login_name,
+		   login_date,
+		   login_ip,
+		   browser_ver,
+		   action_url,
+		   member_code,
+		   name,
+		   create_date,
+		   update_date,
+		   log_type)
+		values
+		  (#logId#,
+		   #operatorId#,
+		   #loginName#,
+		   #loginDate#,
+		   #loginIp#,
+		   #browserVer#,
+		   #actionUrl#,
+		   #memberCode#,
+		   #name#,
+		   SYSDATE,
+		   SYSDATE,
+		   #logType#)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		t_user_log
+        where 
+        	log_id = #logId#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		t_user_log
+        where 
+        	log_id 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #logIds[]#
+            </iterate>
+    </delete>
+    <select id="getOperatorEndLogInfo" resultClass="userlog" parameterClass="java.util.List">
+    	select ul.log_id      as logId,
+		       ul.operator_id as operatorId,
+		       ul.login_name  as loginName,
+		       ul.login_date  as loginDate,
+		       ul.login_ip    as loginIp
+		  from t_user_log ul
+		  where log_id in (select max(log_id)
+		                     from t_user_log
+		                    where operator_id in
+		                          <iterate open="(" close=")" conjunction=",">
+						            #operatorIds[]#
+						          </iterate>
+		                      and log_type in (1,17,18)  
+		                    group by operator_id) order by ul.log_id
+    </select>
+    <update id="update" parameterClass="userlog">
+        update t_user_log
+		   set operator_id = #operatorId#,
+		       login_name  = #loginName#,
+		       login_date  = #loginDate#,
+		       login_ip    = #loginIp#,
+		       browser_ver = #browserVer#,
+		       action_url  = #actionUrl#,
+		       member_code = #memberCode#,
+		       name        = #name#,
+		       update_date = SYSDATE,
+		       log_type    = #logType#
+		 where logId = #logId#
+
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(logId) 
+    	from 
+    		t_user_log
+    </select>
+    
+    
+    <select id="findById" resultClass="userlog" parameterClass="java.lang.Long">
+       select log_id      as logId,
+	          operator_id as operatorId,
+	          login_name  as loginName,
+	          login_date  as loginDate,
+	          login_ip    as loginIp,
+	          browser_ver as browserVer,
+	          action_url  as actionUrl,
+	          member_code as memberCode,
+	          name        as name,
+	          create_date as createDate,
+	          update_date as updateDate,
+	          log_type    as logType
+	     from t_user_log
+	    where log_id = #logId#
+    </select>
+    <select id="read" resultClass="userlog" parameterClass="java.lang.Long">
+       select log_id      as logId,
+	          operator_id as operatorId,
+	          login_name  as loginName,
+	          login_date  as loginDate,
+	          login_ip    as loginIp,
+	          browser_ver as browserVer,
+	          action_url  as actionUrl,
+	          member_code as memberCode,
+	          name        as name,
+	          create_date as createDate,
+	          update_date as updateDate,
+	          log_type    as logType
+	     from t_user_log
+	    where log_id = #logId#
+    </select>
+    
+    <!-- 查询会员上次登录时间(log_type:1普通登录,17安全登录,18口令卡登录) -->
+     <select id="findDatelineByMC" resultClass="java.lang.String" parameterClass="java.lang.Long">
+       select to_char(login_date, 'yyyy-MM-dd HH24:MI:SS') loginDate
+           from (select b.*, rownum as rn
+                   from (select /*+ first_rows */  log_id, login_date
+                           from t_user_log
+                          Where log_type in (1,17,18) and member_code = #memberCode# 
+                          order by login_date desc) b)
+          where rn = 2
+    </select>
+    <select id="getLastLog" resultClass="userlog" parameterClass="java.lang.String">
+    	SELECT log_id      as logId,
+            operator_id as operatorId,
+            login_name  as loginName,
+            login_date  as loginDate,
+            login_ip    as loginIp,
+            browser_ver as browserVer,
+            action_url  as actionUrl,
+            member_code as memberCode,
+            name        as name,
+            create_date as createDate,
+            update_date as updateDate,
+            log_type    as logType
+  FROM (SELECT ROWNUM N, A.*
+          FROM (SELECT T.*
+                  FROM T_USER_LOG T
+                 WHERE T.LOGIN_NAME = #operatorId#
+                 ORDER BY T.CREATE_DATE DESC) A) B
+ WHERE B.N = 2
+    </select>
+    <select id="findUserLogInfoList" resultClass="userlog" parameterClass="java.util.HashMap">
+       select log_id      as logId,
+	          operator_id as operatorId,
+	          login_name  as loginName,
+	          login_date  as loginDate,
+	          login_ip    as loginIp,
+	          browser_ver as browserVer,
+	          action_url  as actionUrl,
+	          member_code as memberCode,
+	          name        as name,
+	          create_date as createDate,
+	          update_date as updateDate,
+	          log_type    as logType
+         from t_user_log
+        <dynamic prepend="WHERE">  
+        	<isNotNull prepend="and" property="beginTime">
+   				login_date &gt;= #beginTime#		
+        	</isNotNull>
+        	<isNotNull prepend="and" property="endTime">
+        		login_date &lt;= #endTime#	
+        	</isNotNull>
+        	<isNotNull prepend="and" property="logType">
+        		log_type = #logType#
+        	</isNotNull>
+        	<isNotNull prepend="and" property="memberCode">
+        		member_code = #memberCode#
+        	</isNotNull>		
+		</dynamic>
+		  order by log_id desc        
+    </select>
+    
+    <select id="findPossOperateObject" resultClass="java.lang.String" parameterClass="java.util.Map">
+       select object_code from t_poss_operate where status = #status# and type = #type# and object_code = #objectCode#
+    </select>
+    <!-- 添加后台操作日志（主要是记录会员登录密码输错五次后锁会员状态） -->
+    <insert id="createPossOperate" parameterClass="java.util.Map">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			SEQ_POSS_OPERATE_ID.nextval from DUAL 
+	</selectKey>
+   	insert into t_poss_operate(
+                            operate_id,
+                            object_code,
+                            login_name,
+                            login_date,
+                            login_ip,
+                            action_url,
+                            type,
+                            status,
+                            create_date,
+                            update_date)
+                            values(#id#,
+                            	   #objectCode#,
+                            	   #loginName#,                            	   
+                	   				sysdate,
+                             	   #loginIp#, 
+                            	   #actionUrl#,
+                            	   #type#,  
+                            	   #status#,                            	   
+                            	   sysdate,                            	   
+                         	       sysdate      	   
+                            )
+	</insert>
+</sqlMap>

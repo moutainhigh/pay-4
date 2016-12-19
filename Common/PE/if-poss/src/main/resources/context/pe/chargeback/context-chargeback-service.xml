@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	
+	
+	
+	<bean id="chargeBackEntryDao"
+		class="com.pay.pe.accumulated.chargebackentry.dao.impl.ChargeBackEntryDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="chargeback-entry" />
+	</bean>
+	
+	<bean id="possDealDao"
+		class="com.pay.pe.accumulated.deal.dao.impl.PossDealDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="poss-deal" />
+	</bean>
+	
+	<bean id="chargeBackService"
+		class="com.pay.pe.accumulated.chargebackentry.service.impl.ChargeBackServiceImpl">
+		<property name="possDealDao" ref="possDealDao" />
+		<property name="entryDao" ref="chargeBackEntryDao" />		
+		<property name="accountUpdateService" ref="acc-accountBalanceHandlerService" />	
+		<property name="accountQueryService" ref="acc-accountQueryService" />	
+		
+		
+	</bean>
+	
+<!-- 
+	<bean id="entryQueryService"
+		class="com.pay.pe.account.service.impl.EntryQueryServiceImpl">
+		<property name="entryQueryDao" ref="entryQueryDao" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />		
+		
+	</bean>
+
+	<bean id="subjectService"
+		class="com.pay.pe.account.service.impl.SubjectServiceImpl">
+		<property name="subjectDao" ref="subjectDao" />
+	</bean>
+
+
+	<bean id="entryQueryDao"
+		class="com.pay.pe.account.dao.impl.EntryQueryDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="acctountMix" />
+	</bean>
+	
+	<bean id="subjectDao"
+		class="com.pay.pe.account.dao.impl.SubjectDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="subject-poss" />
+	</bean>
+		
+		
+	<bean id="accumulatedResourcesDao"
+		class="com.pay.pe.account.dao.impl.AccumulatedResourcesDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="accmulatedResources" />
+		<property name="entryQueryDao" ref="entryQueryDao"></property>
+	</bean>
+	
+<bean id="accumulatedResourcesService"
+		class="com.pay.pe.account.service.impl.AccumulatedResourcesServiceImpl">
+		<property name="accumulatedResourcesDao" ref="accumulatedResourcesDao" />
+	</bean>
+		
+ -->
+                       
+	
+
+</beans>

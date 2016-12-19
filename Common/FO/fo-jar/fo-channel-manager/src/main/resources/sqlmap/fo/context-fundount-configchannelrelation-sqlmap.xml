@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutconfigchannelrelation">
+		<typeAlias alias="fundoutConfigChannelRelation" type="com.pay.fundout.channel.model.configchannelrelation.FundoutConfigChannelRelation"/>
+    <resultMap id="fundoutConfigChannelRelation" class="com.pay.fundout.channel.model.configchannelrelation.FundoutConfigChannelRelation">
+        <result column="CONFIG_NAME" property="configName" jdbcType="VARCHAR"/>
+        <result column="CHANNEL_ID" property="channelId" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="MARK" property="mark" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="PRODUCT_CODE" property="productCode" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="CONFIG_ID" property="configId" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="fundoutConfigChannelRelation">
+    <selectKey resultClass="java.lang.Long" keyProperty="configId">
+			SELECT  SEQ_FO_CHANNEL_RELATION_ID.NEXTVAL as id from DUAL 
+	</selectKey>
+        INSERT INTO FUNDOUT_CHANNEL_RELATION(
+			CONFIG_NAME,CHANNEL_ID,STATUS,MARK,
+			PRODUCT_CODE,OPERATOR,CONFIG_ID
+        )
+        VALUES(
+            #configName#,#channelId#,#status#,#mark#,
+			#productCode#,#operator#,#configId#
+		)
+    </insert>
+
+    <update id="update" parameterClass="fundoutConfigChannelRelation">
+        UPDATE FUNDOUT_CHANNEL_RELATION
+         <dynamic prepend=" SET ">  
+	        <isNotEmpty prepend="," property="configName">
+	            CONFIG_NAME = #configName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="channelId">
+	            CHANNEL_ID = #channelId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="status">
+	            STATUS = #status#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="mark">
+	            MARK = #mark#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="createDate">
+	            CREATE_DATE = #createDate#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="productCode">
+	            PRODUCT_CODE = #productCode#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="operator">
+	            OPERATOR = #operator#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="updateDate">
+	            UPDATE_DATE = #updateDate#
+	        </isNotEmpty>
+	      </dynamic>
+        WHERE 
+            CONFIG_ID = #configId# 
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM FUNDOUT_CHANNEL_RELATION        
+        WHERE 
+            <isNotEmpty prepend="AND" property="configId">
+            CONFIG_ID = #configId# 
+            </isNotEmpty>
+    </delete>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM FUNDOUT_CHANNEL_RELATION        
+        WHERE CONFIG_ID = #configId# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="fundoutConfigChannelRelation">
+        DELETE FROM FUNDOUT_CHANNEL_RELATION        
+        WHERE 
+        <isNotEmpty prepend="AND" property="configName">
+            CONFIG_NAME = #configName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="channelId">
+            CHANNEL_ID = #channelId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mark">
+            MARK = #mark# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="productCode">
+            PRODUCT_CODE = #productCode# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="configId">
+            CONFIG_ID = #configId# 
+        </isNotEmpty>
+    </delete>
+
+    <select id="findById" resultMap="fundoutConfigChannelRelation" parameterClass="java.lang.Long">
+        SELECT 
+			CONFIG_NAME,CHANNEL_ID,STATUS,MARK,CREATE_DATE,
+			PRODUCT_CODE,OPERATOR,UPDATE_DATE,CONFIG_ID
+        FROM FUNDOUT_CHANNEL_RELATION
+        WHERE 
+            CONFIG_ID = #configId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="fundoutConfigChannelRelation">
+        SELECT 
+			CONFIG_NAME,CHANNEL_ID,STATUS,MARK,CREATE_DATE,
+			PRODUCT_CODE,OPERATOR,UPDATE_DATE,CONFIG_ID
+        FROM FUNDOUT_CHANNEL_RELATION
+        <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="configName">
+	            CONFIG_NAME = #configName# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="channelId">
+	            CHANNEL_ID = #channelId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="mark">
+	            MARK = #mark# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="createDate">
+	            CREATE_DATE = #createDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="productCode">
+	            PRODUCT_CODE = #productCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="operator">
+	            OPERATOR = #operator# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="updateDate">
+	            UPDATE_DATE = #updateDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="configId">
+	            CONFIG_ID = #configId# 
+	        </isNotEmpty>
+        </dynamic>
+        ORDER BY CONFIG_NAME
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(1) FROM FUNDOUT_CHANNEL_RELATION
+        <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="configName">
+	            CONFIG_NAME = #configName# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="channelId">
+	            CHANNEL_ID = #channelId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="mark">
+	            MARK = #mark# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="createDate">
+	            CREATE_DATE = #createDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="productCode">
+	            PRODUCT_CODE = #productCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="operator">
+	            OPERATOR = #operator# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="updateDate">
+	            UPDATE_DATE = #updateDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="configId">
+	            CONFIG_ID = #configId# 
+	        </isNotEmpty>
+	       </dynamic>
+    </select>
+</sqlMap>

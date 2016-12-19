@@ -1,0 +1,361 @@
+
+
+
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="../resources/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="../resources/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="../resources/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="../resources/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="../resources/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="../resources/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="../resources/js/customValidate.js" type="text/javascript"></script>
+<script src="../resources/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="../resources/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="../resources/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="../resources/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="../resources/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="../resources/css/main.css"/>
+<link href="../resources/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="../resources/images/favicon.ico" rel="shortcut icon"/>
+
+<title>账户余额</title>
+<style type="text/css">
+    .commonLink {
+		cursor: pointer;
+		text-decoration: none;
+    }
+    
+    .commonLink:hover {
+		cursor: pointer;
+		text-decoration: none;
+    }
+    
+    .blueHighlight {
+    	font-family:微软雅黑;
+		font-size:13px;
+		font-weight:normal;
+		font-style:normal;
+		text-decoration:none;
+		color:#00F;
+    }
+</style>
+<script type="text/javascript">
+
+function batchpayUpload() {
+	if ($('#batchFile').val() == '') {
+		return;
+	}
+	$.ajaxFileUpload({
+		url: '../batchpay/batchpayUpload.htm',
+		data: {"websiteAddr" : 'aa'},
+		secureuri: false,
+		fileElementId: 'batchFile',
+		dataType: 'html',
+		success: function(data) {
+			//alert(data.file_info);
+			var responseCode = eval('data=' + data)['responseCode'];
+			if (responseCode == 'UPLOAD_FAILED') {
+				alert("上传失败，请重试。");
+			} else if (responseCode == 'WRONG_FORMAT') {
+				alert("上传的文件格式不正确，或者填写的内容错误。");
+			} else if (responseCode == 'TOO_BIG_FILE') {
+				alert("文件大小超过10M，无法处理。");
+			} else if (responseCode == 'INVALID_BANK') {
+				alert("不支持如下银行\r\n    " + data['message'].replace(/ /g, '    \r\n'));
+			} else if (responseCode == 'INVALID_BRANCH') {
+				alert("不支持以下开户行\r\n    " + data['message'].replace(/ /g, '    \r\n'));
+			} else if (responseCode == 'BRANCH_MISMATCH') {
+				alert("以下银行名称与开户行不匹配\r\n    " + data['message'].replace(/-/g, '    \r\n'));
+			} else if (responseCode == 'SUCCESS') {
+				alert("上传成功！");
+			}
+		}
+	});
+}
+$(function(){
+	var spans = $('.mainbox .tit span');
+	for (var i = 0; i < spans.length; i++) {
+		if ($.trim($(spans[i]).text()) == '') {
+			$(spans[i]).remove();
+		}
+	}
+});
+</script>
+</head>
+
+<body>
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+	function logout(){
+		window.location.href="../merchantLogout.html";
+	}
+	</script>
+	<div class="topbar">
+		<div class="wrap clearfix">
+			<ul class="topmenu r">
+				<li><label style="color:#D9D9D9 !important">刘琼</label></li>
+				<li><a href="javascript:void(0)" onclick="javascript:logout();" title="mian.header.logout">退出</a></li>
+				<li><a href="javascript:void(0)" title="客户支持">客户支持</a></li>
+				<li><a target="_blank" href="https://www.masapay.com/html/Contact_us.html" title="联系我们">联系我们</a></li>
+				<li><a href="javascript:void(0)" title="中文简体" onclick="changeLanguage('zh_CN')">中文简体</a><a href="javascript:void(0)" title="English" onclick="changeLanguage('en')">English</a></li>
+			</ul>
+		</div>
+	</div>
+
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="../resources/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+			    
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+			    		
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+			    		
+							<li id="topmenu_1" ><a href="javascript:void(0)">操作员列表</a></li>
+			    		
+							<li id="topmenu_2" ><a href="javascript:void(0)">安全中心</a></li>
+                             <li id="topmenu_6" ><a href="javascript:void(0)">添加域名</a></li>
+			    		
+				</ul>
+				
+				
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+						
+								<li id="secmenu_5_51" class="other">
+									<a href="../account/baseInfo.htm">基本信息</a>
+								</li>
+							
+								<script type="text/javascript">
+								if(typeof isHome!="undefined"){
+									if(isHome){
+										$(document).ready(function(){
+											window.location.href="../account/baseInfo.htm";
+										});
+									}
+								}
+								</script>
+								
+								<li id="secmenu_5_52" class="other">
+									<a href="../account/detail.htm">账户余额明细</a>
+								</li>
+							
+								<li id="secmenu_5_53" class="current">
+									<a href="batchpay.htm">批量付款</a>
+								</li>
+							
+				</ul>
+						
+				<ul class="submenu" style="display: none" id="secmenuul_3">
+						
+								<li id="secmenu_3_31" class="other">
+									<a href="../gatewayorder/gatewayOrderQuery.htm">交易查询</a>
+								</li>
+							
+								<li id="secmenu_3_32" class="other">
+									<a href="../merchantbill/merchantBillDownloadlist.htm">对账单下载</a>
+								</li>
+							
+								<li id="secmenu_3_34" class="other">
+									<a href="../refusepayment/query.htm">拒付交易查询</a>
+								</li>
+							
+								<li id="secmenu_3_39" class="other">
+									<a href="../express/list.htm">发货单据</a>
+								</li>
+							
+								<li id="secmenu_3_30" class="other">
+									<a href="../recurringagreement/query.htm">代扣管理</a>
+								</li>
+							
+				</ul>
+						
+				<ul class="submenu" style="display: none" id="secmenuul_1">
+						
+								<li id="secmenu_1_11" class="other">
+									<a href="../role/rolelist.htm">角色管理</a>
+								</li>
+							
+								<li id="secmenu_1_12" class="other">
+									<a href="../operator/operatorlist.htm">操作员管理</a>
+								</li>
+							
+				</ul>
+						
+				<ul class="submenu" style="display: none" id="secmenuul_2">
+						
+								<li id="secmenu_2_23" class="other">
+									<a href="../pwdsetting/merchantPasswordSetting.htm">密码设置</a>
+								</li>
+							
+								<li id="secmenu_2_21" class="other">
+									<a href="../keysetting/merchantKeySetting.htm">密钥设置</a>
+								</li>
+							
+				</ul>
+					  <ul class="submenu" style="display: none" id="secmenuul_6">
+						
+								<li id="secmenu_6_23" class="other">
+									<a href="../domin/domin.htm">批量添加</a>
+								</li>
+							
+								<li id="secmenu_6_21" class="other">
+									<a href="#">单个添加</a>
+								</li>
+							
+				</ul>	
+
+			</div>
+			<script type="text/javascript">
+			    $(function(){
+				    var topmenuid = '#topmenu_null';
+				    var secmenuid = '#secmenu_null_53';
+				    
+				    var initMenu = function(){
+				    	clscurrent();
+						$(topmenuid+','+secmenuid).addClass('current');
+						$((topmenuid.replace('topmenu_','secmenuul_'))).show();
+				    };
+				    
+				    var clscurrent = function(){
+				    	$('li[id^=topmenu_],li[id^=secmenu_]').removeClass('current');
+				    	$('ul[id^=secmenuul_]').hide();
+				    };
+				    
+				    if(topmenuid.split('_')[1]=='null' || topmenuid.split('_')[2]=='null'){
+				    	topmenuid = '#topmenu_5';
+				    	secmenuid = '#secmenu_5_53';
+				    	initMenu();
+				    }
+				    
+				    $('li[id^=topmenu_]').each(function(){
+				    	var topid = this.id.split('_')[1];
+				    	/*
+				    	$('#topmenu_'+topid+',#secmenuul_'+topid).hover(function(){
+							$('#secmenuul_'+topid).show();
+						},function(){
+							initMenu();
+						});
+				    	*/
+				    	
+				    	$('#topmenu_'+topid).click(function(){
+							clscurrent();
+							$('#topmenu_'+topid).addClass('current');
+							$('#secmenuul_'+topid).show();
+							// fix for ie9
+							if($.browser.msie && $.browser.version=="9.0"){
+								$('li[id^=secmenu_'+topid+']>a')[0].click();
+							}else{
+								var url = $('li[id^=secmenu_'+topid+']>a')[0].href;
+								location.href = url;
+							}
+						},function(){
+							initMenu();
+						});
+				    	
+				    });
+				    /*
+				    $('li[id^=secmenu_]').hover(function(){
+				    	$('li[id^=secmenu_]').removeClass('current');
+				    	$(this).addClass('current');
+				    });
+				    */
+				    
+			    });
+			</script>
+		</div>
+
+	</div>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+		    	<div class="tit">
+			    	<span class="current"><a href="javascript:void(0)">批量付款上传</a></span>
+		    		<span><a href="../batchpay/batchpayQuery.htm">批量付款记录查询</a></span>
+		    		<span><a href="../batchpay/batchpayAudit.htm">批量付款审核</a></span>
+		    	</div>
+		    	<div class="bgbox">
+				<div>
+					<br />
+					<a href="../resources/template/批量付款模板.xls" class="commonLink blueHighlight" style="margin-left: 30px;">下载批量付款模板文件</a>
+					<br />
+					<br />
+					<div style="margin-left: 40px;">
+					<form id="batchFileForm" name="batchFileForm" action="/mps-web/batchpay/batchpayUpload.htm" method="post" autocomplete="off" enctype="multipart/form-data">
+						<span>选择付款文件：</span><input id="batchFile" name="batchFile" type="file" style="background-color: white;" />
+					</form>
+						<br />
+						<br />
+						<input id="commitBatchFile" type="button" class="btn_blue" value="提交" onclick="batchpayUpload();" />
+					</div>
+				</div>
+				<br />
+				<br />
+		    </div>
+		    </div>
+		</div>
+    </div>
+	
+
+
+
+
+
+
+
+
+<div class="footer">
+	<ul class="about">
+	<li><a target="_blank" href="https://www.masapay.com/html/About_us.html"> 关于我们 </a>|</li>
+	<li><a target="_blank" href="https://www.masapay.com/html/News.html"> 新闻 </a>|</li>
+	<li><a target="_blank" href="https://www.masapay.com/html/Contact_us.html"> 联系我们 </a>|</li>
+	<li><a target="_blank" href="https://www.masapay.com/html/Careers.html"> 诚聘英才 </a>|</li>
+	<li><a>  Copyright 2012 沪icp备案 13004675号 </a></li>
+	</ul>
+</div>
+</body>
+</html>

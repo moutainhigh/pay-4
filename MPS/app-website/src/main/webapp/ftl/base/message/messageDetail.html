@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${my_message}${title}</title>
+<meta name="Keywords" content="${my_message_Keywords}" />
+<meta name="Description" content="${my_message_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	  $("#up").click(function(){
+               var orn = $("#orn").val();
+               document.messageForm.action="${rc.contextPath}/app/queryOnMsg.htm?method=queryMsgByRn&orn="+orn+"&flag=1";
+      	       document.messageForm.submit(); 
+		  });
+	  
+	  $("#next").click(function(){
+          var nrn =$("#nrn").val();
+          document.messageForm.action="${rc.contextPath}/app/queryNextMsg.htm?method=queryMsgByRn&nrn="+nrn+"&flag=2";
+ 	      document.messageForm.submit(); 
+	  });
+    }
+);
+</script>
+
+<body>
+<!--导航 str-->
+<@sp.head channel=1 />
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+ <@sp.banner toptit="信息管理" toptit2="站内信息详情" glide=true/>
+	<!--侧导航企业版 str -->
+     <@sp.menu channel="2_2"/>
+   <!--侧导航企业版 end -->
+
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg ">
+			<form action="" id="messageForm" name="messageForm" method="post">
+				<div class="tit_box pos_r msg_action">
+					<span class="go_msg_list"><a href="${rc.contextPath}/app/messageList.htm?method=messgeList">返回消息列表</a></span>
+					<#if detail?exists>
+					<span class="go_items">
+						 <#if orn!=0>
+						    <input type="hidden" value="${orn?default(0)}" id="orn" name="orn">
+							<a id="up" href="javascript:void(0);" class="go_prev"><span>上一条</span></a>
+						<#else>
+							<span class="go_prev">上一条</span>
+						</#if>
+						<#if nrn!=0>
+						   <input type="hidden" value="${nrn?default(0)}" id="nrn" name="nrn">
+							<a id="next" href="javascript:void(0);" class="go_next"><span>下一条</span></a>
+						<#else>
+							<span class="go_next" >下一条</span>
+						</#if>
+					</span>
+					</#if>
+				</div>
+				<div class="msg_detail">
+					<div class="detail-con">
+						<h3>标题：${title?default('')}</h3>
+						<input type="hidden" value="${sendName?default('')}" name="sendName" id="sendName">
+						<p class="msg_meta">发信人：<span class="msg_sender">${sendName?default('')}</span>&nbsp;&nbsp;发信时间：<span class="msg_data">${sendtime}</span></p>
+						<div class="msg_content">
+							<p style="font-size:14px;color:#AC0600;font-weight:700">恭喜您！</p>
+							<p>${detail.context}</p>
+						</div>
+					</div>
+				</div>
+			</form>
+				<div class="msg_action pos_r border_t">
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+</html>

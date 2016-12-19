@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="multipartResolver" 
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize">
+			<value>104857600</value>
+		</property>
+		<property name="maxInMemorySize">
+			<value>4096</value>
+		</property>
+	</bean>
+	<bean id="paramResolver" 
+		class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+		<property name="paramName" value="method" />
+		<property name="defaultMethodName">
+			<value>index</value>
+		</property>
+	</bean>
+	<bean name="mutiActionHander" 
+		class="org.springframework.web.servlet.mvc.multiaction.MultiActionController">
+		<property name="methodNameResolver" ref="paramResolver" />
+	</bean>
+	
+	<bean id="websiteSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/websiteMenu.do">websiteMenueController</prop>		
+				<prop key="/websiteFeature.do">websiteFeatureController</prop>	
+				<prop key="/websiteAnnouncement.do">websiteAnnouncementController</prop>
+			</props>       
+		</property>
+	</bean>
+
+	<bean id="websiteMenueController"
+		class="com.pay.poss.featuremenu.controller.WebsiteMenueController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="menuSearchView">		
+			<value>/featuremenu/websiteMenuSearch</value>
+		</property>	
+		<property name="menuSearchListView">		
+			<value>/featuremenu/websiteMenuSearchResult</value>
+		</property>	
+		<property name="menuEditView">		
+			<value>/featuremenu/websiteMenuEdit</value>
+		</property>	
+		<property name="menuCreateView">		
+			<value>/featuremenu/websiteMenuCreate</value>
+		</property>	
+		<property name="sortView">		
+			<value>/featuremenu/websiteMenuSort</value>
+		</property>	
+		<property name="copyMenuToView">		
+			<value>/featuremenu/copyMenuToNew</value>
+		</property>
+		<property name="featureMenuService" ref="featureMenuService" />
+	</bean>
+	
+	<bean id="websiteFeatureController"
+		class="com.pay.poss.featuremenu.controller.WebsiteFeatureController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="featureSearchView">		
+			<value>/featuremenu/websiteFeatureSearchResult</value>
+		</property>	
+		<property name="featureEditView">		
+			<value>/featuremenu/websiteFeatureEdit</value>
+		</property>	
+		<property name="featureCreateView">		
+			<value>/featuremenu/websiteFeatureCreate</value>
+		</property>	
+		<property name="authorizeView">		
+			<value>/featuremenu/websiteFeatureAuthorize</value>
+		</property>	
+    	<property name="featureService" ref="featureService" />
+		<property name="memberFeatureService" ref="memberFeatureService" />
+		<property name="featureMenuService" ref="featureMenuService" /> 
+	</bean>
+	
+	<bean id="websiteAnnouncementController"
+		class="com.pay.poss.featuremenu.controller.WebsiteAnnouncementController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="announcementSearchView">		
+			<value>/featuremenu/websiteAnnouncementSearch</value>
+		</property>	
+		<property name="announcementSearchListView">		
+			<value>/featuremenu/websiteAnnouncementSearchResult</value>
+		</property>	
+		<property name="announcementEditView">		
+			<value>/featuremenu/websiteAnnouncementEdit</value>
+		</property>	
+		<property name="announcementCreateView">		
+			<value>/featuremenu/websiteAnnouncementCreate</value>
+		</property>	
+		<property name="announcementSortView">		
+			<value>/featuremenu/websiteAnnouncementSort</value>
+		</property>	
+    	<property name="announcementService" ref="announcementService" />
+	
+	</bean>
+</beans>
+
+

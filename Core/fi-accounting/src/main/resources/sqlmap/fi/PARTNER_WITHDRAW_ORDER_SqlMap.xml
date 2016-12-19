@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+  <sqlMap namespace="PARTNER_WITHDRAW_ORDER" >
+    <resultMap id="BaseResultMap" class="com.pay.txncore.crosspay.model.PartnerWithdrawOrder" >
+      <result column="ID" property="id" jdbcType="Long" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+      <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+      <result column="PARTNER_DISPLAY_NAME" property="partnerDisplayName" jdbcType="VARCHAR" />
+      <result column="STATUS" property="status" jdbcType="DECIMAL" />
+      <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+      <result column="CLEAR_DATE" property="clearDate" jdbcType="TIMESTAMP" />
+      <result column="AUDIT_DATE" property="auditDate" jdbcType="TIMESTAMP" />
+      <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="PARTNER_WITHDRAW_ORDER.Example_Where_Clause" >
+      <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+        <isEqual property="oredCriteria[].valid" compareValue="true" >
+          (
+          <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithoutValue[]$ ]]>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value# ]]>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithListValue[].condition$ ]]>
+            <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+              <![CDATA[ #oredCriteria[].criteriaWithListValue[].values[]# ]]>
+            </iterate>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+            <![CDATA[
+            $oredCriteria[].criteriaWithBetweenValue[].condition$
+            #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+            #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+            ]]>
+          </iterate>
+          )
+        </isEqual>
+      </iterate>
+    </sql>
+    <sql id="PARTNER_WITHDRAW_ORDER.oracle_Pagination_Head" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ select * from ( select row_.*, rownum rownum_ from ( ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="PARTNER_WITHDRAW_ORDER.oracle_Pagination_Tail" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ ) row_ where rownum <= #oracleEnd# ) where rownum_ > #oracleStart# ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="PARTNER_WITHDRAW_ORDER.Base_Column_List" >
+      ID, PARTNER_ID, AMOUNT, PARTNER_DISPLAY_NAME, STATUS, REMARK, CREATE_DATE, CLEAR_DATE, 
+      AUDIT_DATE, OPERATOR
+    </sql>
+    <select id="selectByCriteria" resultMap="BaseResultMap" parameterClass="com.pay.txncore.crosspay.model.PartnerWithdrawOrderCriteria" >
+      <include refid="PARTNER_WITHDRAW_ORDER.oracle_Pagination_Head" />
+      select
+      <isParameterPresent >
+        <isEqual property="distinct" compareValue="true" >
+          distinct
+        </isEqual>
+      </isParameterPresent>
+      <include refid="PARTNER_WITHDRAW_ORDER.Base_Column_List" />
+      from PARTNER_WITHDRAW_ORDER
+      <isParameterPresent >
+        <include refid="PARTNER_WITHDRAW_ORDER.Example_Where_Clause" />
+        <isNotNull property="orderByClause" >
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="PARTNER_WITHDRAW_ORDER.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterClass="long" >
+      select 
+      <include refid="PARTNER_WITHDRAW_ORDER.Base_Column_List" />
+      <![CDATA[
+      from PARTNER_WITHDRAW_ORDER
+      where ID = #id#
+      ]]>
+    </select>
+    <insert id="PARTNER_WITHDRAW_ORDER.insert" parameterClass="com.pay.txncore.crosspay.model.PartnerWithdrawOrder" >
+      <![CDATA[
+      insert into PARTNER_WITHDRAW_ORDER (ID, PARTNER_ID, AMOUNT, PARTNER_DISPLAY_NAME, 
+        STATUS, REMARK, CREATE_DATE, CLEAR_DATE, 
+        AUDIT_DATE, OPERATOR)
+      values (#id#, #partnerId#, #amount#, #partnerDisplayName#, 
+        #status#, #remark#, #createDate#, #clearDate#, 
+        #auditDate#, #operator#)
+      ]]>
+    </insert>
+    <insert id="create" parameterClass="com.pay.txncore.crosspay.model.PartnerWithdrawOrder" >
+      <selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT
+		153 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+		||LPAD(S_PARTNER_WITHDRAW_ORDER.nextval, 6, 0) FROM DUAL
+	  </selectKey>
+      insert into PARTNER_WITHDRAW_ORDER
+      <dynamic prepend="(" >
+          ID,
+        <isNotNull prepend="," property="partnerId" >
+          PARTNER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="amount" >
+          AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName" >
+          PARTNER_DISPLAY_NAME
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          STATUS
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          REMARK
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          CREATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="clearDate" >
+          CLEAR_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="auditDate" >
+          AUDIT_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          OPERATOR
+        </isNotNull>
+        )
+      </dynamic>
+      values
+      <dynamic prepend="(" >
+          <![CDATA[ #id#,]]>
+        <isNotNull prepend="," property="partnerId" >
+          <![CDATA[ #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="amount" >
+          <![CDATA[ #amount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName" >
+          <![CDATA[ #partnerDisplayName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          <![CDATA[ #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          <![CDATA[ #remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          <![CDATA[ #createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="clearDate" >
+          <![CDATA[ #clearDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="auditDate" >
+          <![CDATA[ #auditDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ #operator# ]]>
+        </isNotNull>
+        )
+      </dynamic>
+    </insert>
+    <select id="countByCriteria" parameterClass="com.pay.txncore.crosspay.model.PartnerWithdrawOrderCriteria" resultClass="java.lang.Integer" >
+      select count(*) from PARTNER_WITHDRAW_ORDER
+      <include refid="PARTNER_WITHDRAW_ORDER.Example_Where_Clause" />
+    </select>
+    <update id="PARTNER_WITHDRAW_ORDER.updateByExampleSelective" >
+      update PARTNER_WITHDRAW_ORDER
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="record.id" >
+          <![CDATA[ ID = #record.id# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerId" >
+          <![CDATA[ PARTNER_ID = #record.partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.amount" >
+          <![CDATA[ AMOUNT = #record.amount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerDisplayName" >
+          <![CDATA[ PARTNER_DISPLAY_NAME = #record.partnerDisplayName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.status" >
+          <![CDATA[ STATUS = #record.status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.remark" >
+          <![CDATA[ REMARK = #record.remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.createDate" >
+          <![CDATA[ CREATE_DATE = #record.createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.clearDate" >
+          <![CDATA[ CLEAR_DATE = #record.clearDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.auditDate" >
+          <![CDATA[ AUDIT_DATE = #record.auditDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.operator" >
+          <![CDATA[ OPERATOR = #record.operator# ]]>
+        </isNotNull>
+      </dynamic>
+      <isParameterPresent >
+        <include refid="PARTNER_WITHDRAW_ORDER.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="PARTNER_WITHDRAW_ORDER.updateByExample" >
+      <![CDATA[
+      update PARTNER_WITHDRAW_ORDER
+      set ID = #record.id#,
+        PARTNER_ID = #record.partnerId#,
+        AMOUNT = #record.amount#,
+        PARTNER_DISPLAY_NAME = #record.partnerDisplayName#,
+        STATUS = #record.status#,
+        REMARK = #record.remark#,
+        CREATE_DATE = #record.createDate#,
+        CLEAR_DATE = #record.clearDate#,
+        AUDIT_DATE = #record.auditDate#,
+        OPERATOR = #record.operator#
+      ]]>
+      <isParameterPresent >
+        <include refid="PARTNER_WITHDRAW_ORDER.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="update" parameterClass="com.pay.txncore.crosspay.model.PartnerWithdrawOrder" >
+      update PARTNER_WITHDRAW_ORDER
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="partnerId" >
+          <![CDATA[ PARTNER_ID = #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="amount" >
+          <![CDATA[ AMOUNT = #amount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName" >
+          <![CDATA[ PARTNER_DISPLAY_NAME = #partnerDisplayName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          <![CDATA[ STATUS = #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          <![CDATA[ REMARK = #remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          <![CDATA[ CREATE_DATE = #createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="clearDate" >
+          <![CDATA[ CLEAR_DATE = #clearDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="auditDate" >
+          <![CDATA[ AUDIT_DATE = #auditDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+      </dynamic>
+      <![CDATA[
+      where ID = #id#
+      ]]>
+    </update>
+    <update id="PARTNER_WITHDRAW_ORDER.updateByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.PartnerWithdrawOrder" >
+      <![CDATA[
+      update PARTNER_WITHDRAW_ORDER
+      set PARTNER_ID = #partnerId#,
+        AMOUNT = #amount#,
+        PARTNER_DISPLAY_NAME = #partnerDisplayName#,
+        STATUS = #status#,
+        REMARK = #remark#,
+        CREATE_DATE = #createDate#,
+        CLEAR_DATE = #clearDate#,
+        AUDIT_DATE = #auditDate#,
+        OPERATOR = #operator#
+      where ID = #id#
+      ]]>
+    </update>
+    
+    <select id="sumWithdrawAmount" resultClass="java.lang.Long">
+    	select nvl(sum(amount),0) amount from PARTNER_WITHDRAW_ORDER 
+		where status in(1,3) 
+		and PARTNER_ID = #partnerId#
+		<isNotEmpty property="startDate">
+			and create_date &gt;= to_date(#startDate#,'yyyy-MM-dd') 
+		</isNotEmpty>
+		<isNotEmpty property="endDate">
+			and create_date &lt;= to_date(#endDate#,'yyyy-MM-dd')
+		</isNotEmpty>
+    </select>
+    
+    <select id="queryWithdrawOrder" resultMap="BaseResultMap" >
+    	select * from PARTNER_WITHDRAW_ORDER where 1=1
+    	<isNotNull property="partnerId">
+			and PARTNER_ID = #partnerId#
+		</isNotNull>
+    	<isNotEmpty property="startDate">
+			and create_date &gt;= to_date(#startDate#,'yyyy-MM-dd') 
+		</isNotEmpty>
+		<isNotEmpty property="endDate">
+			and create_date &lt;= to_date(#endDate#,'yyyy-MM-dd')
+		</isNotEmpty>
+		order by create_date desc
+    </select>
+    
+    <select id="queryWithdrawOrderList" parameterClass="java.util.HashMap" resultMap="BaseResultMap">
+    	 <include refid="PARTNER_WITHDRAW_ORDER.oracle_Pagination_Head" />
+    	 select
+    	 <include refid="PARTNER_WITHDRAW_ORDER.Base_Column_List"/> 
+    	 from PARTNER_WITHDRAW_ORDER where 1=1
+    	 
+    	 <isNotNull property="partnerId">
+			and PARTNER_ID = #partnerId#
+		</isNotNull>
+    	<isNotEmpty property="startDate">
+			and create_date &gt;= to_date(#startDate#,'yyyy-MM-dd') 
+		</isNotEmpty>
+		<isNotEmpty property="endDate">
+			and create_date &lt;= to_date(#endDate#,'yyyy-MM-dd')
+		</isNotEmpty>
+			order by create_date desc   	 
+    	 <include refid="PARTNER_WITHDRAW_ORDER.oracle_Pagination_Tail"/>
+    
+    </select>
+    
+    <select id="count_queryWithdrawOrderList" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+    	
+    	 select count(*)
+    	 
+    	 from PARTNER_WITHDRAW_ORDER where 1=1
+    	 <isNotNull property="partnerId">
+			and PARTNER_ID = #partnerId#
+		</isNotNull>
+    	<isNotEmpty property="startDate">
+			and create_date &gt;= to_date(#startDate#,'yyyy-MM-dd') 
+		</isNotEmpty>
+		<isNotEmpty property="endDate">
+			and create_date &lt;= to_date(#endDate#,'yyyy-MM-dd')
+		</isNotEmpty>
+				 
+    	 
+    
+    </select>
+    
+    
+  </sqlMap>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<#include "/common/macro/seoPerson.ftl">
+<title>${register_active_message}${title}</title>
+<meta name="Keywords" content="${register_active_message_Keywords}" />
+<meta name="Description" content="${register_active_message_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/activeCountDown.js"></script>
+</head>
+<body>
+<!--header-->
+<@sp.headCommonV2 title="用户注册" class="ver_reg"/>
+<!--/header--> 
+<!--主内容-->
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-2">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1 s3">第一步：填写注册信息<i></i></li>
+				<li class="li-2 s3">第二步：激活帐号<i></i></li>
+				<li class="li-3 s3">第三步：注册成功<i></i></li>
+			</ol>
+		</div>
+		<!--表单 -->
+		<div class="reg_info">
+			<form action="" name="message" id="message" method="post">
+				<div class="activate">
+					<p class="tit"><img src="<@sp.static/>/img/v2/pay/reg/reg_moble_err.png" class=""/>${errMsg?default("手机短信发送失败")}</p>
+					<p class="f14">您的手机号码：<span class="blue">${mobile?default("")}</span></p>
+					<p class="f14">请您收到短信后，输入6位数字校验码，激活您的安捷账户</p>
+					<p class="moble_code f14"><i class="red">*</i> 校验码：<input type="text" id="code" name="code" maxlength="6" value="" class="inp_normal w100">
+					<span id="errtips" style="display: none;" class="onError">校验码错误</span></p>
+					<p class="moble_btn"><span class="btnD"><button type="button" id="btnsub">确认激活</button></span></p>
+				</div>
+				<div class="activate_tips">
+					<p>未收到激活短信？</p>
+					<p>1.请确保您的手机号为有效号码且手机信号畅通。</p>
+					<p class="mt5">2.如长时间没有收到校验短信，您可以 <input type="button" id="seconds" value="(60秒之后)免费重新获取" disabled/></p>
+				</div>
+			</form>
+		</div>
+		<!--/表单 --> 
+	</div>
+</div>
+<#if errMsg?has_content>
+<script>
+$(function(){
+	$("#errtips").show().html("${errMsg?default("")}");
+});
+</script>
+</#if>
+<script>
+$(function(){
+	
+	  startRemainTime('免费重新获取',"seconds");
+		 $("#code").keydown(function(e){
+			   if(e.keyCode==13){
+				   if($.trim($("#code").val()) == ''){
+						$("#errtips").show().html("请输入短信验证码");
+						return false;
+					}else{
+						$("#message").attr("action","${rc.contextPath}/memberActive.htm");
+						$("#message").submit();
+					}
+			   }
+		 });
+		
+		$("#btnsub").click(function(){
+			if($.trim($("#code").val()) == ''){
+				$("#errtips").show().html("请输入短信验证码");
+				return false;
+			}else{
+				$("#message").attr("action","${rc.contextPath}/memberActive.htm");
+				$("#message").submit();
+			}
+		});
+
+		$("#seconds").click(function(){
+            if($("#seconds").attr("disabled")!="disabled"){
+               $("#message").attr("action","${rc.contextPath}/reSendMessage.htm");
+               $("#message").submit();
+            }
+            return false;
+	  });
+		  
+});
+</script>
+<!--/主内容--> 
+<#include "/common/include/footerV2.html">
+</body>
+</html>

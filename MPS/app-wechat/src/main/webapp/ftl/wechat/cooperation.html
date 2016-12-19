@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>了解合作</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$("#clickGoBack").click(function(){
+			window.history.go(-1) ;
+		}) ;
+	});
+</script>
+
+<style type="text/css">
+	
+</style>
+</head>
+
+<body>
+	<div id="pagewrap">
+    	<div id="content" style="text-align:left;">
+    		<!-- 半透明遮罩层 -->
+            <div id="a1" style="display:none;background-color:gray;margin:0px 0px;position:absolute; z-index:9999;opacity:0.2;
+                                filter: progid:DXImageTransform.Microsoft.Alpha(opacity=20);text-align:center;color:red;">
+            </div>
+            <div id="animate" style="display:none;position:absolute; z-index:99999;text-align:center;color:red;"> <!-- margin:20px 550px; -->
+		
+                <img src="<@sp.static/>/wechat/images/loadding.gif" style="opacity:1;" id="ld"/>
+                <!-- <div style="margin:30px auto;"></div>-->
+            </div>
+        	<!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:52px;float:left;" id="clickGoBack">
+                    	<div class="go_back" style="float:left;padding-top:3px;">
+                            <!-- <img src="images/jt.png"/> -->
+                        </div>
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">了解合作</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+          	<form name="understantCooperation" id="understantCooperation" action="${rc.contextPath}/understandCooperation.htm" method="POST" ><!-- onsubmit="return validateCooperationForm();" -->
+            	<div class="cc_center">
+            		<div class="row">
+                        <div class="row_r">
+                            <span >姓&nbsp;&nbsp;&nbsp;&nbsp;名</span>
+                            <input type="text" name="memberName" id="memberName" />
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >手机号</span>
+                            <input type="text" name="tel" id="tel" />
+                        </div>
+                    </div>
+                	<div class="row_split"></div>
+                    
+                    <div class="row">
+                        <div class="row_r">
+                            <span >公司名称</span>
+                            <input type="text" name="companyName" id="companyName" />
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div style="padding:20px;" >
+                        <span>经营范围：</span>
+                        <div class="che_collections">
+                            <ul>
+                                <li >
+                                    <input name="operateScope" type="checkbox" value="外贸"/>外贸
+                                    <input name="operateScope" type="checkbox" value="教育"/>教育
+                                    <input name="operateScope" type="checkbox" value="机旅"/>机旅
+                                </li>
+                                <li >
+                                    <input name="operateScope" type="checkbox" value="金融"/>金融
+                                    <input name="operateScope" type="checkbox" value="虚拟"/>虚拟
+                                    <input name="operateScope" type="checkbox" value="物流"/>物流
+                                    <input name="operateScope" type="checkbox" value="其他"/>其他
+                                </li>
+                            </ul>
+                        </div>          
+                    </div>
+            	</div>
+                
+                <!-- 下一步按钮 -->
+               <div class="common_button" style="padding:1px;" id="understantCooperation_s">
+                 <div style="width:42%;float:left;">&nbsp;</div>
+                 <div style="width:16%;float:left;" >下一步</div>
+                 <div style="width:42%;float:left;">&nbsp;</div>
+               </div>
+            </form>
+            <!--<a class="submit button_disable" id="enterprise_reg_next">提交</a>-->
+            
+        </div>
+    </div>
+	
+	<script type="text/javascript">
+		//表单简单校验
+		function validateCooperationForm(){
+			var memberName = $("#memberName").val();
+			if("" == memberName || null == memberName){
+				alert("姓名不能为空！");
+				return false ;
+			}
+			var tel = $("#tel").val() ;
+			if("" == tel || null == tel){
+				alert("手机号码不能为空！");
+				return false ;
+			}
+			var companyName = $("#companyName").val();
+			if("" == companyName || null == companyName){
+				alert("公司名称不能为空！");
+				return false ;
+			}
+			return true ;
+		}
+		
+	</script>
+	
+	<script type="text/javascript">
+		//了解合作表单提交
+		$(function(){
+			$("#understantCooperation_s").click(function(){
+				var flag = validateCooperationForm() ;
+				if(!flag) return ;
+				shade() ;
+				$("#understantCooperation").submit() ;
+			});
+		}) ;
+		
+		function shade(){
+			var contentWidth = $("#content").width() ;
+			var contentHeight = $("#content").height();
+			$("#a1").css('width', contentWidth);
+			$("#a1").css('height', contentHeight);
+			$("#animate").css('width', contentWidth);
+			$("#animate").css('height', contentHeight);
+			$("#ld").css("margin-top", contentHeight/2 - 32);
+			$("#a1").css('display','block');				
+			$("#animate").css('display','block');
+		}
+	</script>
+</body>
+</html>
+

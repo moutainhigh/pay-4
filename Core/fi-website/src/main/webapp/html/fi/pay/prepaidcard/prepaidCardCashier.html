@@ -1,0 +1,126 @@
+<!DOCTYPE HTML> 
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="container"> 
+	 <div class="pay_cashier" id="prepaidCardCashier" >
+			<form method="post" action="" id="prepaidCardCashierForm" name="prepaidCardCashierForm">
+				<ul class="form_list">
+					<li>
+						<label class="form_side">应付总价：</label><strong class="red">${totalAmount?default('')}</strong> 元
+					</li>
+					<li>
+						<label class="form_side">请填写预付卡号：</label>
+						<input type="text" id="cardNo"  name="cardNo" class="inp_normal w200 blod"   value="${cardNo?default('')}" maxlength= "30"  onblur="valiCardNo()"/>
+						<p class="g_tips c_999" id ="noCardInput" style="display:none;"><strong class="red">请填写预付卡号</strong></p>
+					</li>
+					<li>
+						<label class="form_side">请输入联系方式：</label>
+						<input type="text" name="loginName" class="inp_normal w200" id="loginName" maxlength= "50" value="${loginName?default('')}"/>
+						<p class="g_tips c_999">温馨提示：为保证您的资金安全，请填写有效联系方式，此信息将用于发生支付退款等事宜时的联络，我们将确保您所填信息的保密性。</p>
+					</li>
+					
+					<li class="btn"><span class="btn_yel mt10">
+						<button type="button" id="postSubmit" onclick="next()">下一步</button>
+						</span>
+					</li>	
+				</ul>
+				<input type="hidden" name="partner" id="partner" value="${partner?default('')}"/>
+				<input type="hidden" name="totalAmount" id="totalAmount" value="${totalAmount?default('')}"/>
+				<input type="hidden" name="prepaidCardOrders" id="prepaidCardOrders" value="${prepaidCardOrders?default('')}"/>
+				<input type="hidden" name="ordersKey" id="ordersKey" value="${ordersKey?default('')}"/> 
+				<input type="hidden" name="valiFlag" id="valiFlag" value=""/>  
+			</form>
+			<dl class="support_card_list">
+				<dt>目前所支持预付卡类型：</dt>
+					<#if prepaidCardList?exists> 
+						<#list prepaidCardList as prepaidCard> 
+							<dd>
+								<label id="${prepaidCard.alias}"  class="${prepaidCard.labelClass?default('')}" ></label>
+							</dd>
+						</#list>
+				
+					</#if>
+			</dl>
+		</div>
+		<div id="prepaidCardCashier_pay" > </div>
+</div>
+</body>
+<script type="text/javascript">
+	function valiCardNo() {
+		var cardNo = $("#cardNo").val();
+		if("" == cardNo ){
+			//$.pay.alert('请填写预付卡号',{h:160,t:'3'});
+			document.getElementById('noCardInput').style.display = '';
+			return ;
+		}
+		var pars = $("#prepaidCardCashierForm").serialize();
+		$.ajax({
+		type: "POST",
+		url: "${rc.contextPath}/prepaidCardCashier.htm?method=ajaxValiCard",
+		cache: false,
+		data: pars,
+			success: function(result) {
+				if(result==0){
+					$.pay.alert('商户暂未开通此卡种的支付,请您核对后再进行操作',{h:160,t:'3'});
+					document.getElementById("valiFlag").value="NO";
+					document.getElementById('noCardInput').style.display = "none";
+					return ;
+				}else if(result>1){
+					$.pay.alert('匹配出错：由卡号匹配到多个卡种',{h:160,t:'3'});
+					document.getElementById("valiFlag").value="NO";
+					document.getElementById('noCardInput').style.display = "none";
+					return ;
+				}else{
+					document.getElementById("valiFlag").value="";
+				}
+				
+			}
+		});
+	} 
+	function next() {
+		var cardNo = $("#cardNo").val();
+		var loginName = $("#loginName").val();
+		var phoneMatch = "^(13|14|15|18)\\d{9}$" ;
+		var emailMatch = "^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$";
+		if("" == cardNo ){
+			//$.pay.alert('请填写预付卡号',{h:160,t:'3'});
+			document.getElementById('noCardInput').style.display = '';
+			return ;
+		}
+		if("" == loginName ){
+			$.pay.alert('请输入联系方式',{h:160,t:'3'});
+			return ;
+		}
+		if(!loginName.match(phoneMatch) && !loginName.match(emailMatch)){
+			$.pay.alert('联系方式输入不正确',{h:160,t:'3'});
+			return ;
+		}
+		if(document.getElementById("valiFlag").value=="NO"){
+			$.pay.alert('卡号验证错误,请重新输入',{h:160,t:'3'});
+				document.getElementById('noCardInput').style.display = "none";
+			return;
+		}
+		$("#prepaidCardCashier").addClass("hide");
+		$("#prepaidCardCashier").removeClass("show");
+		var totalAmount = '${totalAmount?default('')}';	
+		var partner = '${partner?default('')}';	
+		var pars = $("#prepaidCardCashierForm").serialize();
+		$.ajax({
+		type: "POST",
+		url: "${rc.contextPath}/prepaidCardCashier.htm?method=payCashierView",
+		cache: false,
+		data: pars,
+			success: function(result) {
+				$('#prepaidCardCashier_pay').html(result);
+			}
+		});
+	} 
+
+
+</script>
+</html>

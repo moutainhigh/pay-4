@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+	<bean id="AccountActiveHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="featureInterceptor"/>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     </property>
+		<property name="mappings">
+			<props>	
+				<prop key="/app/accountActive.htm">accountActiveController</prop>
+				<prop key="/corp/accountActive.htm">accountActiveController</prop>
+				<prop key="/app/toActive.htm">toActiveController</prop>
+				<prop key="/reSendEmail.htm">reSendEmailController</prop>
+				<prop key="/reSendMessage.htm">reSendMessageController</prop>
+				<prop key="/app/myAccount.htm">myAccountInfoController</prop>
+				<prop key="/corp/myAccount.htm">myAccountInfoController</prop>
+				<prop key="/myAccount.htm">myAccountInfoController</prop>
+				<prop key="/corp/myAcctDetail.htm">myAccountInfoController</prop>
+				<prop key="/app/accountInfo.htm">accountInfoController</prop>
+			    <prop key="/corp/accountInfo.htm">accountInfoController</prop>
+			    <prop key="/corp/bsp/bspAcc.htm">bspAccountInfoController</prop>
+			    <prop key="/corp/bsp/myBspAcc.htm">bspAccountInfoController</prop>
+				<prop key="/app/updateAccountInfo.htm">updateAccountInfoController</prop>
+				<prop key="/corp/updateAccountInfo.htm">updateAccountInfoController</prop>
+				<prop key="/memberActive.htm">memberActiveController</prop>
+				<prop key="/toSetPaypwd.htm">memberActiveController</prop>
+				<prop key="/toActiveReady.htm">memberActiveController</prop>
+				<prop key="/enterpriseActive.htm">enterpriseActiveController</prop>
+				<prop key="/enterprise.htm">enterpriseController</prop>
+				<prop key="/liquidateInfo.htm">liquidateInfoController</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- 会员激活的Controller-->
+	<bean id="accountActiveController"
+		class="com.pay.app.controller.base.accountactive.AccountActiveController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="activeMessage">
+			<value>/base/login/activeMessage</value>
+		</property>
+		<property name="toCheckCode">
+			<value>/base/login/toCheckCode</value>
+		</property>
+		<property name="accountSafe">
+			<value>/base/accountsafemanage/acccoutsafeindex</value>
+		</property>
+		<property name="corpAccountSafe">
+			<value>/base/accountsafemanage/corp/acccoutsafeindex</value>
+		</property>
+
+		<property name="mailService">
+			<ref bean="app-mailService" />
+		</property>
+		<property name="matrixCardService">
+			<ref bean="matrixCardService" />
+		</property>
+		<property name="cidVerify2GovService">
+			<ref bean="app-cidVerify2GovServiceFacadeImpl" />
+		</property>
+		<property name="memberVerifyService">
+			<ref bean="acc-memberVerifyService" />
+		</property>
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		<property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+	</bean>
+
+	<!-- 会员激活处理 -->
+	<bean id="memberActiveController"
+		class="com.pay.app.controller.base.accountactive.MemberActiveController">
+
+		<property name="setPaypwd">
+			<value>/base/active/setpaypwd</value>
+		</property>
+
+		<property name="activeSuccess">
+			<value>/base/active/activeSuccess</value>
+		</property>
+		
+		<!-- 激活成功并跳转 -->
+		<property name="activeSuccessAndRedirect">
+			<value>/base/active/activeSuccessAndRedirect</value>
+		</property>
+
+		<property name="activeMobileSuccess">
+			<value>/base/active/activeMobileSuccess</value>
+		</property>
+
+		<property name="activeEmailSuccess">
+			<value>/base/active/activeEmailSuccess</value>
+		</property>
+
+		<property name="activeMailFaile">
+			<value>/base/active/activeEmailFaile</value>
+		</property>
+
+		<property name="activeMobileFaile">
+			<value>/base/active/activeMobileFaile</value>
+		</property>
+		<property name="activeReady">
+			<value>/base/active/activeReady</value>
+		</property>
+
+		<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="activeFaile">
+			<value>/base/active/activeError</value>
+		</property>
+
+		<property name="mailService">
+			<ref bean="app-mailService" />
+		</property>
+
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+        
+   		<property name="baseMemberService">
+        	<ref bean="base-memberService"/>
+    	</property>
+		
+		<property name="iMessageDigest" ref="iMessageDigest"></property>
+	
+	</bean>
+
+	<!-- 会员重新发送激活信 -->
+	<bean id="reSendEmailController"
+		class="com.pay.app.controller.base.accountactive.ReSendEmailController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+
+		<property name="toEmail">
+			<value>/base/active/activeEmail</value>
+		</property>
+		<property name="retoEmail">
+			<value>/base/active/reSuccessEmail</value>
+		</property>
+		<property name="retosuccEmail">
+			<value>/base/active/activeReEmailSuccess</value>
+		</property>
+		<property name="toFail">
+			<value>/base/active/activeEmailFaile</value>
+		</property>
+		<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		<property name="activeInvalidEmail">
+			<value>/base/active/activeInvalidEmail</value>
+		</property>
+		<property name="reEmailSuccess">
+			<value>/base/active/reEmailSuccess</value>
+		</property>
+		<property name="mailService">
+			<ref bean="app-mailService" />
+		</property>
+		<property name="checkCodeService">
+			<ref bean="checkCodeService" />
+		</property>
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+		<property name="mailUrlAction" value="${MAIL_URL_ACTIVATION}"/>
+		<property name="emailActionUri" value="${EMAIL_ACTIVATION_URI}" />
+	</bean>
+
+
+	<!-- 会员重新发送激活信 -->
+	<bean id="reSendMessageController"
+		class="com.pay.app.controller.base.accountactive.ReSendMessageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+
+		<property name="retoMobile">
+			<value>/base/active/reactiveMobileSuccess</value>
+		</property>
+
+		<property name="toMobile">
+			<value>/base/active/activeMobile</value>
+		</property>
+
+		<property name="toFail">
+			<value>/base/active/activeMobileFaile</value>
+		</property>
+		<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="smsService">
+			<ref bean="app-smsService" />
+		</property>
+	</bean>
+
+	<!-- 企业会员激活的Controller-->
+	<bean id="enterpriseActiveController"
+		class="com.pay.app.controller.base.accountactive.EnterpriseActiveController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="activeReady">
+			<value>/base/active/activeReady</value>
+		</property>
+		<property name="activeInvalidEmail">
+			<value>/base/active/activeInvalidEmail</value>
+		</property>
+		<property name="activeFaile">
+			<value>/base/active/activeError</value>
+		</property>
+		<property name="completionInfo">
+			<value>/base/active/completionEnterpInfo</value>
+		</property>
+		<property name="checkCodeService">
+			<ref bean="checkCodeService" />
+		</property>
+		<property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+	</bean>
+	
+	<bean id="enterpriseController"
+		class="com.pay.app.controller.base.accountactive.EnterpriseController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="activeSuccess">
+			<value>/base/active/corpActiveResult</value>
+		</property>
+		<property name="activeFail">
+			<value>/base/active/corpActiveResult</value>
+		</property>
+		<property name="completionInfo">
+			<value>/base/active/completionEnterpInfo</value>
+		</property>
+		<property name="codeInvalidView">
+			<value>/base/active/codeInvalid</value>
+		</property>
+		
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+		<property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="checkCodeService">
+			<ref bean="checkCodeService" />
+		</property>
+	</bean>
+	
+	<!-- 去做激活补填信息 -->
+	<bean id="toActiveController"
+		class="com.pay.app.controller.base.accountactive.ToActiveController">
+		<!-- 跳转到激活补填信息的页面上去 -->
+		<property name="activeMessage">
+			<value>/base/login/activeMessage</value>
+		</property>
+
+		<property name="activeReady">
+			<value>/base/active/activeReady</value>
+		</property>
+
+	</bean>
+
+	<!-- 点击我的账户连接跳到我的账户信息首页来 -->
+	<bean id="myAccountInfoController"
+		class="com.pay.app.controller.base.accountactive.MyAccountInfoController">
+		<property name="methodNameResolver">
+      <ref bean="paramResolver" />
+    </property>
+		<!--
+			失败页面 <property name="login"> <value>/login/login</value> </property>
+		-->
+		<!-- 跳转到我的账户首页 -->
+		<property name="accountIndex">
+			<value>/base/account/accountIndex</value>
+		</property>
+		<property name="corpAccountIndex">
+      		<!-- <value>/base/account/corp_accountIndex</value> -->
+      		<value>/wechat/drawPwd</value>
+    	</property>
+    	<property name="corpOperAccountIndex">
+      		<value>/base/account/corp_operator_accountIndex</value>
+    	</property>
+        <property name="corpAccountDetail">
+      		<value>/base/account/corp_accountDetail</value>
+    	</property>
+		
+		<!-- 查询账户信息 
+		<property name="accountInfoService">
+			<ref bean="app-accountInfoServiceFacade" />
+		</property> -->
+<!-- 		<property name="tradeOrderService">
+			<ref bean="acc-fitradeOrderService" />
+		</property>
+ -->		
+        <property name="orderQueryService">
+			<ref bean="fi-orderQueryService" />
+		</property>
+		<property name="verify2GovService">
+			<ref bean="app-cidVerify2GovServiceFacadeImpl"/>
+		</property>	
+			
+		<property name="matrixCardService">
+			<ref bean="matrixCardService"/>
+		</property>	
+		
+		<property name="userCheckService" ref="base-userCheckService"></property>
+		
+		<property name="settlementOrderService" ref="settlementOrderService"/>
+
+		<!-- 操作员服务 -->
+		 <property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="baseMemberService">
+             <ref bean="base-memberService"/>
+    	</property>
+    	<!-- 会员日志 -->
+	    <property name="userLogService">
+	        <ref bean="base-userLogService"/>
+	    </property>
+    	<!-- 企业会员基本信息服务 -->
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		<!-- 账户余额查询 -->
+		<property name="accountQueryService">
+			<ref bean="acc-accountQueryService" />
+		</property>
+		<property name="queryBalanceService">
+		      <ref bean="base-queryBalanceService" />
+		 </property> 
+	<property name="announcementService">
+		    <ref bean="app-announcementService"/>
+		</property>
+		 <property name="enterpriseRegisterService">
+        	<ref bean="enterpriseRegisterService"/>
+    	</property>
+		 
+	</bean>
+
+
+	<!-- 点击账户信息管理跳到修改账户信息页面 -->
+	<bean id="accountInfoController"
+		class="com.pay.app.controller.base.accountactive.AccountInfoController">
+		  <property name="methodNameResolver">
+      <ref bean="paramResolver" />
+    </property>
+		<!-- 跳到修改账户页面 -->
+		<property name="updateAccountInfo">
+			<value>/base/account/updateAccountInfo</value>
+		</property>
+		<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="corpUpdateAccountInfo">
+			<value>/base/account/corp_updateAccountInfo</value>
+		</property>
+		 
+		<!-- 企业会员基本信息服务 -->
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+		<property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<!-- 企业会员联系信息服务 -->
+		<property name="enterpriseContactService">
+			<ref bean="base-enterpriseContactService" />
+		</property>
+		<property name="baseMemberService">
+			<ref bean="base-memberService"/>
+		</property>
+		<property name="bankAcctService">
+			<ref bean="app-bankAcctService" />
+		</property>
+		<!-- 企业会员结算信息服务 -->
+		<property name="liquidateInfoService">
+			<ref bean="base-liquidateInfoService" />
+		</property>
+		<property name="verify2GovService">
+			<ref bean="app-cidVerify2GovServiceFacadeImpl" />
+		</property>
+		<property name="provinceServiceFacade">
+			<ref bean="app-bankAcctServiceFacade" />
+		</property>
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		<property name="enterpriseRegisterService">
+			<ref bean="enterpriseRegisterService"/>
+		</property>
+		
+	</bean>
+
+	<bean id="bspAccountInfoController" class="com.pay.app.controller.bsp.BspAccountInfoController" parent="accountInfoController">
+		<property name="methodNameResolver" ref="bspAccountInfoMethodResolver">
+		</property>
+		<property name="memberRelationService">
+			<ref bean="base-memberRelationService"/>
+		</property>
+		<property name="bspInfoView">
+			<value>base/account/bsp_acc_info</value>
+		</property>
+		<property name="myBspfoView">
+			<value>base/account/bsp_acc_info_me</value>
+		</property>
+	</bean>
+	<bean id="bspAccountInfoMethodResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver" >
+		<property name="mappings">
+			<props>
+			  <prop key="/corp/bsp/bspAcc.htm">index</prop>
+			  <prop key="/corp/bsp/myBspAcc.htm">myBspInfo</prop>
+			</props>   
+		</property>
+	</bean>
+
+	<!-- 点击确定修改跳到修改方法去 -->
+	<bean id="updateAccountInfoController"
+		class="com.pay.app.controller.base.accountactive.UpdateAccountInfoController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<!-- 跳到修改账户页面 -->
+		<property name="updateAccountInfo">
+			<value>/base/account/updateAccountInfo</value>
+		</property>
+		<property name="jumpView">
+			<value>/common/redirectTo</value>
+		</property>
+		<property name="updateAddress">
+			<value>/base/account/updateAddress</value>
+		</property>
+		<property name="updateCorpAddress">
+			<value>/base/account/corp_updateAddress</value>
+		</property>
+		<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		<property name="baseMemberService">
+			<ref bean="base-memberService"/>
+		</property>
+		<!-- 企业会员联系信息服务 -->
+		<property name="enterpriseContactService">
+			<ref bean="base-enterpriseContactService" />
+		</property>
+		
+		<!-- 企业会员基本信息服务 -->
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+	</bean>
+	
+	
+	<!-- 点击确定修改跳到修改方法去 -->
+	<bean id="liquidateInfoController"
+		class="com.pay.app.controller.base.accountactive.LiquidateInfoController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="bankAcctService">
+			<ref bean="app-bankAcctServiceFacade"/>
+		</property>
+		<property name="bankService">
+			<ref bean="bankService"/>
+		</property>
+
+		<property name="enterpriseRegisterService">
+			<ref bean="enterpriseRegisterService"/>
+		</property>
+		
+		<property name="bankAcctServiceBussiness">
+			<ref bean="app-bankAcctService"/>
+		</property>
+		
+		<!-- 跳到修改账户页面 -->
+		<property name="toInputLiquidateInfo">
+			<value>/base/active/inputEnterpriseLiquidateInfo</value>
+		</property>
+		<property name="saveLiquidateInfoSuccess">
+			<value>/base/active/saveLiquidateInfoSuccess</value>
+		</property>
+		<property name="invalidRequest">
+			<value>/base/active/invalidRequest</value>
+		</property>
+		<property name="toRegister">
+			<value>/base/login/enterpriceRegister</value>
+		</property>
+		<property name="bankListFO">
+			<value>/base/bankcard/bankListFO</value>
+		</property>
+	</bean>
+	
+</beans>

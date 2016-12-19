@@ -1,0 +1,92 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title><#if menuId?has_content>菜单修改<#else>菜单新增</#if></title>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+
+</head>
+
+<body>
+<b>
+父级菜单为${pname} &nbsp;<a href="${rc.contextPath}/featuremenu.htm?method=menuView&pid=${pid}&pname=${pname}">返回父级列表</a>
+</b>
+<br><br><br>
+<form action="${rc.contextPath}/featuremenu.htm" method="post">
+<input type="hidden" name="method" value="doMenu"/>
+<input type="hidden" name="parentId" value="${pid}"/>
+<#if menu.menuId?exists>
+<input type="hidden" name="menuId" value="${menu.menuId}"/>
+</#if>
+<table cellpadding="0" cellspacing="0" width="400" border="1">
+<tr>
+<td>菜单名称</td>
+<td><input type="text" name="name" value="${menu.name?default('')}"/></td>
+</tr>
+
+<tr>
+<td>菜单URL</td>
+<td><input type="text" name="url" value="${menu.url?default('')}" style="width: 260px;"/></td>
+</tr>
+
+
+<tr>
+<td>菜单类型</td>
+<td>
+ <#assign type=menu.type?default(1)>
+<select name="type">
+<option value="1" <#if type==1>selected</#if>>公共</option>
+<option value="2" <#if type==2>selected</#if>>企业</option>
+<option value="3" <#if type==3>selected</#if>>个人</option>
+<option value="4" <#if type==4>selected</#if>>后台</option>
+<option value="5" <#if type==5>selected</#if>>业务级</option>
+<option value="6" <#if type==6>selected</#if>>功能级</option>
+<option value="7" <#if type==7>selected</#if>>个人卖家</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>是否有效</td>
+<td>
+ <#assign status=menu.status?default(1)>
+<select name="status">
+<option value="1" <#if status==1>selected</#if>>有效</option>
+<option value="0" <#if status==0>selected</#if>>无效</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>是否显示</td>
+<td>
+ <#assign displayFlag=menu.displayFlag?default(1)>
+<select name="displayFlag">
+<option value="1" <#if displayFlag==1>selected</#if>>显示</option>
+<option value="0" <#if displayFlag==0>selected</#if>>不显示</option>
+</select>
+</td>
+</tr>
+
+
+<tr>
+<td>备注：</td>
+<td>
+<textarea rows="7" cols="30" name="description">
+${menu.description?default('')}
+</textarea>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<input type="submit" name="btnok"/>
+</td>
+</tr>
+
+</table>
+</form>
+</body>
+
+</html>

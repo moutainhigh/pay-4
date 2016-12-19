@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bsp">
+
+	<typeAlias alias="auditQueryOrder" type="com.pay.fo.order.model.bsp.AuditQueryOrder"/>
+	
+    <resultMap id="auditQueryOrderMap" class="com.pay.fo.order.model.bsp.AuditQueryOrder">
+        <result column="SEQUENCE_ID" property="workOrderId" jdbcType="DECIMAL"/>
+        <result column="ORDER_SEQ" property="orderId" jdbcType="DECIMAL"/>
+        <result column="ORDER_TYPE" property="orderType" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="workOrderStatus" jdbcType="DECIMAL"/>
+        <result column="CREATE_MEMBER_CODE" property="createMemberCode" jdbcType="DECIMAL"/>
+        <result column="CREATE_OPERATOR" property="createOperator" jdbcType="VARCHAR"/>
+        <result column="AUDIT_MEMBER_CODE" property="auditMemberCode" jdbcType="DECIMAL"/>
+        <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+        <result column="AUDIT_REMARK" property="auditRemark" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="EXTERNAL_INFO" property="externalInfo" jdbcType="VARCHAR"/>
+        <!-- 付款方名称 -->
+        <result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR"/>
+        <!-- 付款方会员号 -->
+        <result column="PAYER_MEMBERCODE" property="payerMemberCode" jdbcType="DECIMAL"/>
+        <!-- 收款方名称 -->
+        <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR"/>
+        <!-- 收款方会员号 -->
+        <result column="PAYEE_MEMBERCODE" property="payeeMemberCode" jdbcType="DECIMAL"/>
+        <result column="ORDER_STATUS" property="orderStatus" jdbcType="DECIMAL"/>
+        <result column="ORDER_AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_REASON" property="remarks" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryFundAdjustmentAuditList" resultMap="auditQueryOrderMap"
+        parameterClass="auditQueryOrder">
+        SELECT 
+        	WO.SEQUENCE_ID,
+        	WO.ORDER_SEQ,
+        	WO.ORDER_TYPE,
+        	WO.STATUS,
+        	WO.CREATE_MEMBER_CODE,
+        	WO.CREATE_OPERATOR,
+        	WO.AUDIT_MEMBER_CODE,
+        	WO.AUDIT_OPERATOR,
+        	WO.AUDIT_REMARK,
+        	WO.CREATE_DATE,
+        	WO.UPDATE_DATE,
+        	WO.EXTERNAL_INFO,
+        	MO.PAYER_MEMBERCODE,
+        	MO.PAYER_NAME,
+        	MO.PAYEE_MEMBERCODE,
+        	MO.PAYEE_NAME,
+        	MO.ORDER_STATUS,
+        	MO.ORDER_AMOUNT,
+        	MO.PAYMENT_REASON
+        FROM WORK_ORDER WO,PAY_TOACCTORDER MO
+        WHERE 
+        	WO.ORDER_SEQ = MO.ORDER_ID AND  
+        	WO.CREATE_MEMBER_CODE = #createMemberCode# AND  
+        	WO.ORDER_TYPE = 5 AND
+        	WO.ORDER_SMALLTYPE = '501' AND
+        	WO.STATUS = #workOrderStatus# 
+        	<dynamic>
+        		<isNotNull prepend="AND" property="payerName">
+        			MO.PAYER_NAME like '%'||#payerName#||'%'
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="payeeName">
+        			MO.PAYEE_NAME like '%'||#payeeName#||'%'
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="beginDate">
+        			WO.CREATE_DATE &gt;= #beginDate#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="endDate">
+        			WO.CREATE_DATE &lt;= #endDate#
+        		</isNotNull>
+        	</dynamic>
+        ORDER BY
+        	WO.ORDER_SEQ DESC
+    </select>
+    
+    <select id="queryFundAdjustmentAuditOrder" resultMap="auditQueryOrderMap"
+        parameterClass="auditQueryOrder">
+        SELECT 
+        	WO.SEQUENCE_ID,
+        	WO.ORDER_SEQ,
+        	WO.ORDER_TYPE,
+        	WO.STATUS,
+        	WO.CREATE_MEMBER_CODE,
+        	WO.CREATE_OPERATOR,
+        	WO.AUDIT_MEMBER_CODE,
+        	WO.AUDIT_OPERATOR,
+        	WO.AUDIT_REMARK,
+        	WO.CREATE_DATE,
+        	WO.UPDATE_DATE,
+        	WO.EXTERNAL_INFO,
+        	MO.PAYER_MEMBERCODE,
+        	MO.PAYER_NAME,
+        	MO.PAYEE_MEMBERCODE,
+        	MO.PAYEE_NAME,
+        	MO.ORDER_STATUS,
+        	MO.ORDER_AMOUNT,
+        	MO.PAYMENT_REASON
+        FROM WORK_ORDER WO,PAY_TOACCTORDER MO
+        WHERE 
+        	WO.ORDER_SEQ = MO.ORDER_ID AND  
+        	WO.CREATE_MEMBER_CODE = #createMemberCode# AND  
+        	WO.ORDER_TYPE = 5 and
+        	WO.ORDER_SMALLTYPE = '501' AND
+        	WO.ORDER_SEQ = #orderId#
+    </select>
+    
+    
+    
+    <select id="queryFundAdjustmentAuditList_COUNT" resultClass="java.lang.Integer"
+        parameterClass="auditQueryOrder">
+        SELECT count(1)
+        FROM WORK_ORDER WO,PAY_TOACCTORDER MO
+        WHERE 
+        	WO.ORDER_SEQ = MO.ORDER_ID AND  
+        	WO.CREATE_MEMBER_CODE = #createMemberCode# AND  
+        	WO.ORDER_TYPE = 5 AND
+        	WO.ORDER_SMALLTYPE = '501' AND
+        	WO.STATUS = #workOrderStatus# 
+        	<dynamic>
+        		<isNotNull prepend="AND" property="payerName">
+        			MO.PAYER_NAME like '%'||#payerName#||'%'
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="payeeName">
+        			MO.PAYEE_NAME like '%'||#payeeName#||'%'
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="beginDate">
+        			WO.CREATE_DATE &gt;= #beginDate#
+        		</isNotNull>
+        		<isNotNull prepend="AND" property="endDate">
+        			WO.CREATE_DATE &lt;= #endDate#
+        		</isNotNull>
+        	</dynamic> 
+    </select> 
+</sqlMap>

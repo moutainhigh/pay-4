@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="specialmerchant">
+
+	<typeAlias alias="specialMerchantDto"
+		type="com.pay.poss.specialmerchant.dto.SpecialMerchantDto" />
+
+	<insert id="createspecialmerchant" parameterClass="specialMerchantDto">
+    	<selectKey resultClass="java.lang.Long" keyProperty="sp_merchant_id">
+			SELECT SEQ_SP_MERCHANT_ID.nextval FROM DUAL
+		</selectKey>
+        insert into  T_SP_MERCHANT (
+	        SP_MERCHANT_ID, 
+	        SP_MERCHANT_NAME, 
+	        PROVINCE_CODE,
+	        RANGE_ID, 
+	        <!-- CARD_TYPE_CODE, --> 
+	        <!-- DISCOUNT_INFO, --> 
+	        SP_MERCHANT_LOGO,
+	        MERCHANT_INTRO,
+	        ADDR,
+	        TEL,
+	        WEBSITE_URL,
+	        VALUE1,
+	        VALUE2,
+	        CREATE_DATE,
+	        UPDATE_DATE)
+        values (
+	        #sp_merchant_id#, 
+	        #sp_merchant_name#, 
+	        #province_code#, 
+	        #range_id#,
+	       <!--  #card_type_code#,  -->
+	        <!-- #discount_info#, --> 
+	        #sp_merchant_logo#,
+	        #merchant_intro#,
+	        #addr#,
+	        #tel#,
+	        #website_url#,
+	        #value1#,
+	        #value2#,
+	        SYSDATE,
+	        SYSDATE)
+    </insert>
+    <update id="updateSpecialMerchant" parameterClass="specialMerchantDto">
+        update T_SP_MERCHANT set
+        UPDATE_DATE = SYSDATE
+        <isNotEmpty prepend="," property="sp_merchant_name">
+            SP_MERCHANT_NAME = #sp_merchant_name#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="province_code">
+            PROVINCE_CODE = #province_code#
+        </isNotEmpty>
+        <isNotNull prepend="," property="range_id">
+            RANGE_ID = #range_id#
+        </isNotNull>
+        <isNotEmpty prepend="," property="merchant_intro">
+            MERCHANT_INTRO = #merchant_intro#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="addr">
+            ADDR = #addr#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="tel">
+            TEL = #tel#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="website_url">
+            WEBSITE_URL = #website_url#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="sp_merchant_logo">
+            SP_MERCHANT_LOGO = #sp_merchant_logo#
+        </isNotEmpty>
+        
+        where  
+        	SP_MERCHANT_ID = #sp_merchant_id# 
+       <!--  
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="sp_merchant_id">
+            SP_MERCHANT_ID = #sp_merchant_id#
+            </isNotEmpty>
+        </dynamic> -->
+    </update>
+    <delete id="deleteBySpMerchantId" parameterClass="java.lang.Long">
+        DELETE FROM T_SP_MERCHANT
+        where     
+        	SP_MERCHANT_ID = #sp_merchant_id#
+    </delete>
+    <select id="queryspecialmerchant" resultClass="specialMerchantDto" parameterClass="specialMerchantDto">
+				select 
+					SP_MERCHANT_ID sp_merchant_id,
+			        SP_MERCHANT_NAME sp_merchant_name, 
+			        PROVINCE_CODE province_code,
+			        RANGE_ID range_id, 
+			        <!-- CARD_TYPE_CODE card_type_code, --> 
+			       <!--  DISCOUNT_INFO discount_info,  -->
+			        MERCHANT_INTRO merchant_intro,
+			        ADDR addr,
+			        TEL tel,
+			        WEBSITE_URL website_url,
+			        VALUE1 value1,
+			        VALUE2 value2,
+			        SP_MERCHANT_LOGO sp_merchant_logo,
+			        CREATE_DATE create_date,
+			        UPDATE_DATE update_date
+        		from  T_SP_MERCHANT
+				where 1=1
+				<isNotEmpty prepend="and" property="sp_merchant_name">  
+	        	   SP_MERCHANT_NAME = #sp_merchant_name#
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="province_code">  
+	        	   PROVINCE_CODE = #province_code# 
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="range_id">  
+	        	   RANGE_ID = #range_id# 
+				</isNotEmpty>
+				<!-- <isNotEmpty prepend="and" property="card_type_code">  
+	        	   CARD_TYPE_CODE = #card_type_code# 
+				</isNotEmpty> -->
+				order by CREATE_DATE
+    </select>
+    
+    <select id="queryspecialmerchantcount" resultClass="java.lang.Integer" parameterClass="specialMerchantDto">
+		select
+		count(*)
+		 from  T_SP_MERCHANT 
+    	where 1=1
+    	<isNotEmpty prepend="and" property="sp_merchant_name">  
+			SP_MERCHANT_NAME = #sp_merchant_name#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="province_code">  
+			PROVINCE_CODE = #province_code# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="range_id">  
+			RANGE_ID = #range_id# 
+		</isNotEmpty>
+	<!-- 	<isNotEmpty prepend="and" property="card_type_code">  
+			CARD_TYPE_CODE = #card_type_code# 
+		</isNotEmpty> -->
+    </select>
+
+	 <!-- 分页查询 -->
+    <sql id="SPECIALMERCHANT.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="SPECIALMERCHANT.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 where (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	<select id="querySpecialMerchantByPageQuery" resultClass="specialMerchantDto" parameterClass="map">
+		<include refid="SPECIALMERCHANT.PAGING_START" />
+        select 
+			sm.SP_MERCHANT_ID sp_merchant_id,
+			sm.SP_MERCHANT_NAME sp_merchant_name, 
+			sm.PROVINCE_CODE province_code,
+			sm.RANGE_ID range_id, 
+			sm.MERCHANT_INTRO merchant_intro,
+			sm.ADDR addr,
+			sm.TEL tel,
+			sm.WEBSITE_URL website_url,
+			sm.VALUE1 value1,
+			sm.VALUE2 value2,
+			sm.SP_MERCHANT_LOGO sp_merchant_logo,
+			sm.CREATE_DATE create_date,
+			sm.UPDATE_DATE update_date,
+			se.ENUM_NAME enum_name
+		
+		from  T_SP_MERCHANT sm left join T_SP_ENUM_INFO se on
+    sm.RANGE_ID = se.ENUM_CODE
+        where  1=1
+        	
+        <isNotEmpty prepend="and" property="sp_merchant_name">  
+			sm.SP_MERCHANT_NAME like '%$sp_merchant_name$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="province_code">  
+			sm.PROVINCE_CODE = #province_code# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="range_id">  
+			sm.RANGE_ID = #range_id# 
+		</isNotEmpty>
+		<!-- <isNotEmpty prepend="and" property="range">  
+			','||RANGE',' like '%,range,%' '%$range$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="card_type_code">  
+			CARD_TYPE_CODE = #card_type_code# 
+		</isNotEmpty> -->
+		order by sm.CREATE_DATE desc
+        <include refid="SPECIALMERCHANT.PAGING_END" />
+        
+    </select>
+    
+    <select id="querySpecialMerchantCountByPageQuery" resultClass="int" parameterClass="map">
+        select count(1) from  T_SP_MERCHANT
+        where 1=1
+        <isNotEmpty prepend="and" property="sp_merchant_name">  
+			SP_MERCHANT_NAME like '%$sp_merchant_name$%'
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="province_code">  
+			PROVINCE_CODE = #province_code# 
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="range_id">  
+			RANGE_ID = #range_id# 
+		</isNotEmpty>
+		<!-- <isNotEmpty prepend="and" property="range"> 
+			','||RANGE_ID',' like '%,range,%'  '%$range$%'
+		</isNotEmpty> -->
+		<!-- <isNotEmpty prepend="and" property="card_type_code">  
+			CARD_TYPE_CODE = #card_type_code# 
+		</isNotEmpty> -->
+    </select>
+    
+    <select id="querySpecialMerchantById" resultClass="specialMerchantDto" parameterClass="java.lang.Long">
+	    select 
+	       SP_MERCHANT_ID sp_merchant_id,
+			SP_MERCHANT_NAME sp_merchant_name, 
+			PROVINCE_CODE province_code,
+			RANGE_ID range_id, 
+			MERCHANT_INTRO merchant_intro,
+			ADDR addr,
+			TEL tel,
+			WEBSITE_URL website_url,
+			VALUE1 value1,
+			VALUE2 value2,
+			SP_MERCHANT_LOGO sp_merchant_logo,
+			CREATE_DATE create_date,
+			UPDATE_DATE update_date
+		from  T_SP_MERCHANT
+	       WHERE 
+           SP_MERCHANT_ID = #sp_merchant_id# 
+    </select>
+    <select id="querySpecialMerchantCity" resultClass="java.lang.String" parameterClass="java.lang.Long">
+	    select DISTINCT PROVINCE_CODE 
+		from  T_SP_MERCHANT
+    </select>
+</sqlMap>

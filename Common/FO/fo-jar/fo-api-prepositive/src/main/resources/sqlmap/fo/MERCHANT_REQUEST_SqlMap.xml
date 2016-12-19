@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="MERCHANT_REQUEST" >
+  <resultMap id="BaseResultMap" class="com.pay.api.model.MerchantRequest" >
+    <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL" />
+    <result column="MERCHANT_ID" property="merchantId" jdbcType="VARCHAR" />
+    <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="REQUEST_DATE" property="requestDate" jdbcType="TIMESTAMP" />
+    <result column="REQUEST_IP" property="requestIp" jdbcType="VARCHAR" />
+    <result column="VERSION_NO" property="versionNo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Criteria_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$
+            #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <select id="selectByCriteria" resultMap="BaseResultMap" parameterClass="com.pay.api.model.MerchantRequestCriteria" >
+    select SEQUENCE_ID, MERCHANT_ID, ORDER_ID, CONTENT, REQUEST_DATE, REQUEST_IP, VERSION_NO
+    from MERCHANT_REQUEST
+    <isParameterPresent >
+      <include refid="MERCHANT_REQUEST.Criteria_Where_Clause" />
+      <isNotNull property="orderByClause" >
+        order by $orderByClause$
+      </isNotNull>
+    </isParameterPresent>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select SEQUENCE_ID, MERCHANT_ID, ORDER_ID, CONTENT, REQUEST_DATE, REQUEST_IP, VERSION_NO
+    from MERCHANT_REQUEST
+    where SEQUENCE_ID = #sequenceId:DECIMAL#
+  </select>
+  <insert id="insert" parameterClass="com.pay.api.model.MerchantRequest" >
+    <selectKey resultClass="java.lang.Long" keyProperty="sequenceId" >
+      SELECT MERCHANT_REQUEST_SEQ.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into MERCHANT_REQUEST (SEQUENCE_ID, MERCHANT_ID, ORDER_ID, CONTENT, REQUEST_DATE,
+      REQUEST_IP, VERSION_NO)
+    values (#sequenceId:DECIMAL#, #merchantId:VARCHAR#, #orderId:VARCHAR#, #content:VARCHAR#,
+      #requestDate:TIMESTAMP#, #requestIp:VARCHAR#, #versionNo:VARCHAR#)
+  </insert>
+  <insert id="insertSelective" parameterClass="com.pay.api.model.MerchantRequest" >
+    <selectKey resultClass="java.lang.Long" keyProperty="sequenceId" >
+      SELECT MERCHANT_REQUEST_SEQ.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into MERCHANT_REQUEST
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="sequenceId" >
+        SEQUENCE_ID
+      </isNotNull>
+      <isNotNull prepend="," property="merchantId" >
+        MERCHANT_ID
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        ORDER_ID
+      </isNotNull>
+      <isNotNull prepend="," property="content" >
+        CONTENT
+      </isNotNull>
+      <isNotNull prepend="," property="requestDate" >
+        REQUEST_DATE
+      </isNotNull>
+      <isNotNull prepend="," property="requestIp" >
+        REQUEST_IP
+      </isNotNull>
+      <isNotNull prepend="," property="versionNo" >
+        VERSION_NO
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="sequenceId" >
+        #sequenceId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="merchantId" >
+        #merchantId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        #orderId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="content" >
+        #content:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="requestDate" >
+        #requestDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="requestIp" >
+        #requestIp:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="versionNo" >
+        #versionNo:VARCHAR#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  <select id="countByCriteria" parameterClass="com.pay.api.model.MerchantRequestCriteria" resultClass="java.lang.Integer" >
+    select count(*) from MERCHANT_REQUEST
+    <include refid="MERCHANT_REQUEST.Criteria_Where_Clause" />
+  </select>
+  <update id="updateByCriteriaSelective" >
+    update MERCHANT_REQUEST
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="record.sequenceId" >
+        SEQUENCE_ID = #record.sequenceId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.merchantId" >
+        MERCHANT_ID = #record.merchantId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.orderId" >
+        ORDER_ID = #record.orderId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.content" >
+        CONTENT = #record.content:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.requestDate" >
+        REQUEST_DATE = #record.requestDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.requestIp" >
+        REQUEST_IP = #record.requestIp:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.versionNo" >
+        VERSION_NO = #record.versionNo:VARCHAR#
+      </isNotNull>
+    </dynamic>
+    <isParameterPresent >
+      <include refid="MERCHANT_REQUEST.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByCriteria" >
+    update MERCHANT_REQUEST
+    set SEQUENCE_ID = #record.sequenceId:DECIMAL#,
+      MERCHANT_ID = #record.merchantId:VARCHAR#,
+      ORDER_ID = #record.orderId:VARCHAR#,
+      CONTENT = #record.content:VARCHAR#,
+      REQUEST_DATE = #record.requestDate:TIMESTAMP#,
+      REQUEST_IP = #record.requestIp:VARCHAR#,
+      VERSION_NO = #record.versionNo:VARCHAR#
+    <isParameterPresent >
+      <include refid="MERCHANT_REQUEST.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterClass="com.pay.api.model.MerchantRequest" >
+    update MERCHANT_REQUEST
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="merchantId" >
+        MERCHANT_ID = #merchantId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="orderId" >
+        ORDER_ID = #orderId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="content" >
+        CONTENT = #content:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="requestDate" >
+        REQUEST_DATE = #requestDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="requestIp" >
+        REQUEST_IP = #requestIp:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="versionNo" >
+        VERSION_NO = #versionNo:VARCHAR#
+      </isNotNull>
+    </dynamic>
+    where SEQUENCE_ID = #sequenceId:DECIMAL#
+  </update>
+  <update id="updateByPrimaryKey" parameterClass="com.pay.api.model.MerchantRequest" >
+    update MERCHANT_REQUEST
+    set MERCHANT_ID = #merchantId:VARCHAR#,
+      ORDER_ID = #orderId:VARCHAR#,
+      CONTENT = #content:VARCHAR#,
+      REQUEST_DATE = #requestDate:TIMESTAMP#,
+      REQUEST_IP = #requestIp:VARCHAR#,
+      VERSION_NO = #versionNo:VARCHAR#
+    where SEQUENCE_ID = #sequenceId:DECIMAL#
+  </update>
+</sqlMap>

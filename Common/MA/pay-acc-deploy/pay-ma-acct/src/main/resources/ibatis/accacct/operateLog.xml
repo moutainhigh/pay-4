@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-operateLog">
+	<typeAlias alias="operateLog"
+		type="com.pay.acc.operatelog.model.OperateLog" />
+	<insert id="create" parameterClass="operateLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			SEQ_POSS_OPERATE_ID.nextval from DUAL 
+	</selectKey>
+		insert into t_poss_operate(
+                            operate_id,
+                            object_code,
+                            login_name,
+                            login_date,
+                            login_ip,
+                            action_url,
+                            type,
+                            status,
+                            create_date,
+                            update_date)
+                            values(#id#,
+                            	   #objectCode#,
+                            	   #loginName#,                            	   
+                            	   sysdate,
+                             	   #loginIp#, 
+                            	   #actionUrl#,
+                            	   #type#,  
+                            	   #status#,                            	   
+                            	   sysdate,                            	   
+                         	       sysdate      	   
+                            )
+
+	</insert>
+	
+	
+	<update id="updateOperateLog" parameterClass="java.util.Map" >
+   <![CDATA[
+           update t_poss_operate p set p.update_date=sysdate,
+              p.status =#status#
+       where p.object_code=#acctCode#
+             and p.login_name='api'
+             and p.type=5
+             and p.status=5
+    		
+  	 ]]>  
+    </update>  
+
+</sqlMap>

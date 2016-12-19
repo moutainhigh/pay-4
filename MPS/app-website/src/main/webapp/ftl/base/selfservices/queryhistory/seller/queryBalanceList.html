@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${acct_balance_detail}${title}</title>
+<meta name="Keywords" content="${acct_balance_detail_Keywords}" />
+<meta name="Description" content="${acct_balance_detail_Description}" />
+
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css?v=${cssVersion}.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+<script type="text/javascript">
+function submitByOrder(id,index){
+	if($("#"+id).val()=='1'){
+		$("#"+id).val('0');	
+	}else{
+		$("#"+id).val('1');
+	}
+	$("#order").val(index+","+$("#"+id).val());
+	$("#queryPro").val($("#queryProSelect").val());
+	$("#balanceListForm").submit();	
+}
+$(document).ready(function(){
+
+	var orderArray = $("#order").val().split(",");
+	switch(orderArray[0]){
+	case '0':
+		$("#order_date").val(orderArray[1]);
+		break;
+	case '2':
+		$("#order_in").val(orderArray[1]);
+		break;
+	case '1':
+		$("#order_out").val(orderArray[1]);
+		break;
+	}
+	$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+
+	$(":select [name=queryProSelect]").change(function(){
+		$("#queryPro").val($(this).val());
+		$("#balanceListForm").submit();	
+	});
+	
+	$("#orderDate").click(function(){
+		submitByOrder("order_date",0);
+	});
+
+	$("#orderIn").click(function(){
+		submitByOrder("order_in",2);
+	});
+
+	$("#orderOut").click(function(){
+		submitByOrder("order_out",1);
+	});
+});
+function excelBalance(time){
+	var canDownload = ${canDownload?default('true')};
+	if(!canDownload){
+		$.pay.alert("你选择下载的记录已经超过#{maxSize}条，请选择过滤条件,重新查询");
+		return;
+	}
+	var curPage = $("#curPage").val();
+	var q_pro = $("#queryProSelect").val();
+	var s_time = $("#startTime").val();
+	var e_time = $("#endTime").val();
+	var f_trace = $("#fundTrace").val();
+	var url  ="${rc.contextPath}/app/excelSellerBalance.htm?method=excelBalance&pager_offset=curPage&startTime=s_time&endTime=e_time&fundTrace=f_trace&queryPro=q_pro";
+	url = url.replace("curPage",curPage);
+	url = url.replace("q_pro",time?time:q_pro);
+	url = url.replace("s_time",s_time);
+	url = url.replace("e_time",e_time);
+	url = url.replace("f_trace",f_trace);
+	window.location.href = url;
+	return false;
+} 
+</script>
+
+</head>
+<body>
+<!--导航 str-->
+	<@sp.head channel=2 />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container share_wrap">
+	<@sp.banner toptit="账户管理" toptit2="账户余额明细" glide=true/>
+
+	<!--侧导航个人版 str -->
+	 <#if Session["userSession"].scaleType==2>
+	 	<@sp.menu channel="1_3"/>
+	 <#else>
+		<@sp.menu channel="2_1"/>
+	 </#if>
+	<!--侧导航企业版 end -->
+
+	<div class="box_w800 fr"> 
+		<!--search str-->
+		<div class="order_search">
+			<form action="${rc.contextPath}/app/querySellerBalanceList.htm?method=queryBalance" method="post" name="balanceListForm" id="balanceListForm"> 
+			<input type="hidden" name="order" id="order" value="${order}"/>
+			<!-- 资金流向 -->
+			<label style="margin-left:5px">资金流向：</label>
+			<select name="fundTrace" id="fundTrace" class="inp_money">
+				<option value="0" <#if fundTrace?default('0')=='0'>selected</#if>>全部</option>
+				<option value="1" <#if fundTrace?default('0')=='1'>selected</#if>>支出</option>
+				<option value="2" <#if fundTrace?default('0')=='2'>selected</#if>>收入</option>
+			</select>
+
+			<!-- 交易类型 -->
+			<label style="margin-left:5px">交易类型：</label>
+			<select name="dealType" id="dealType" class="inp_money">
+			<#list dealTypeList as dt>
+				<option value="${dt.groupValue}" <#if dealType?default(0)==dt.groupValue>selected</#if>>${dt.displayName}</option>
+			</#list>		
+			</select>
+			 
+			<!-- 账户类型 -->
+			<!-- 
+			<label style="margin-left:5px">账户类型：</label>
+			<select name="accountType" id="accountType" class="inp_money">
+			<option value="0" <#if accountType?default(0)==0>selected</#if>>全部</option>
+			<#list accountTypes as acctType>
+				<option value="${acctType.acctTypeId}" <#if accountType?default(10)==acctType.acctTypeId>selected</#if>>${acctType.name}</option>
+			</#list>
+			</select>
+			 -->
+			<br/>
+			
+			<!-- 时间 -->
+			<label>时间：</label><input type="text" name="startTime"  readonly="readonly" id="startTime" class="Wdate" gtbfieldid="109" value="${stValue?default('')}">
+			<span>&mdash;</span>
+			<input type="text" name="endTime" readonly="readonly" id="endTime" class="Wdate" gtbfieldid="110" value="${eValue?default('')}">
+
+			<input type="hidden" name="queryPro" id="queryPro" value="${qValue}">
+			<i class="btn_yel_b botton_yel_b">
+					<button type="submit">查 询</button>
+			</i>
+			
+			</form>
+		</div>
+		<!--search end--> 
+		<!-- 余额明细 str -->
+		<div class="refund_list">
+			<div class="refund_title"> 
+				<!--tab str -->
+				<div class="mode_tit">
+					<h2 class="sel"><a>收支明细</a></h2>
+					<a href="javascript:excelBalance('currentDay')">日对账单下载</a>
+					<a href="javascript:excelBalance('currentMonth')">月对账单下载</a>
+				</div>
+				<!--tab str --> 
+				<span><a href="javascript:excelBalance()"><#if qbdList?has_content>导出EXCEL</#if></a></span> </div>
+			<div class="refund_box"> 
+				<!--价格开始-->
+				<div class="list_sum">
+					<select id="queryProSelect" name="queryProSelect">
+						<option value="currentDay" <#if qValue?default('')=='currentDay'>selected</#if>>当天</option>
+						<option value="lastestWeek" <#if qValue?default('')=='lastestWeek'>selected</#if>>最近一周</option>
+						<option value="currentMonth" <#if qValue?default('')=='currentMonth'>selected</#if>>当月</option>
+						<option value="lastestMonth" <#if qValue?default('')=='lastestMonth'>selected</#if>>最近一个月</option>
+						<option value="lastestThreeMonth" <#if qValue?default('')=='lastestThreeMonth'>selected</#if>>最近3个月</option>
+						<option value="lastestHalfYear" <#if qValue?default('')=='lastestHalfYear'>selected</#if>>最近半年</option>
+					</select>
+				<div class="price">
+					<span>总收入：<em class="num_price">#{sum.incomeSumNo?default(0);m2}</em>元</span>　
+					<span>总支出：<em class="num_price">#{sum.expensesSumNo?default(0);m2}</em>元</span>　
+					<span>盈余：<em class="num_price">#{sum.balanceSumNo?default(0);m2}</em>元</span></div>
+				</div>
+				<!--价格结束--> 
+				
+				<!--余额明细 str-->
+				<div class="barg_table mb20">
+				<table>
+					<tr>
+						<th width="18%"><a href="javascript:void(0)" id="orderDate">交易创建时间</a><input type="hidden" id="order_date" value="0"/></th>
+						<th >支付流水号</th>
+						<th width="10%">交易类型</th>
+						<th width="10%"><a href="javascript:void(0)" id="orderIn">收入（元）</a><input type="hidden" id="order_in" value="0"/></th>
+						<th width="10%"><a href="javascript:void(0)" id="orderOut">支出(元)</a><input type="hidden" id="order_out" value="0"/></th>
+						<th width="10%">费用(元)</th>
+						<th width="15%">余额(元)</th>
+					</tr>
+					 <#if qbdList?has_content>
+		   				<#list qbdList as qs>
+							<tr>
+							<td>${qs.balanceDate?default("")}</td>
+							<td align="center">${qs.payNo?default("")}</td>
+							<td align="center">${qs.fundTrace?default("")}</td>
+							<td align="center"><span class="green">#{qs.revenue?default(0);m2}</span></td>
+							<td align="center"><span class="red">#{qs.pay?default(0);m2}</span></td>
+							<td align="center">#{qs.fee?default(0);m2}</td>
+							<td align="center">#{qs.balance?default(0);m2}</td>
+						</tr>
+						</#list>
+					  <#else>
+						<tr class="gray">
+							<td colspan="7">
+							<div class="tip">
+							<div class="ico"></div>
+							<h2>暂无任何记录</h2>
+							<p>您可以：<em><a href="${rc.contextPath}/app/myAccount.htm">查看账户首页</a> <a href="${rc.contextPath}/app/acctCharge.htm">充值到iPayLinks支付</a></em></p>
+							</div>
+							</td>
+						</tr>
+		 			</#if>
+				</table>
+				</div>
+				
+				<!--分页 str -->
+					<@sp.pagination pu=pu/>
+
+				<!--分页 end --> 
+				<input type="hidden" value="${pu.curPageNo}" id="curPage">
+			</div>
+		</div>
+		<!-- 余额明细 end --> 
+	</div>
+</div>
+</div>
+
+${script?default('')}
+<!--主内容 end --> 
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+</html>

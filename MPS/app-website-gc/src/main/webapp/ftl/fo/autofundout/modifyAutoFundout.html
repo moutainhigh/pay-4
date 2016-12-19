@@ -1,0 +1,279 @@
+<!DOCTYPE HTML> 
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>iPayLinks支付委托提现</title>
+		<#include "/common/macro/seoPerson.ftl">
+		<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/autofundout/autoFundout.js"></script>
+		<script type="text/javascript">
+			var supportWithdraw = "0";
+			$(document).ready(function(){
+				withdrawChannel();
+				$("#btn").click(function(){
+					if(checkInfo()){
+						if("1" == supportWithdraw){
+							$("#frm").submit();
+						}
+					}
+				});
+
+				$("#findselect").click(function() {
+					payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm", {
+						title : "选择找回方式",
+						w : 600,
+						h : 300,
+						url : true,
+						iframe : true,
+						close : function() {
+						}
+					});
+				});
+
+				$("#bankAccount").change(function() {
+					withdrawChannel();
+				});
+
+				$("#settleFlag").click(function(){
+					if(this.checked == true){
+						$("#retainedAmount").val("0.00");
+						$("#retained").css("display", "none");
+					}else{
+						$("#retained").css("display", "");
+					}
+				});
+			});
+
+
+			function withdrawChannel(){
+				if ($("#bankAccount").val() != "") {
+					$("#fiTime").show();
+					$("#bankAccountTips").html("");
+					var bs = $("#bankAccount").val().split("_|");
+					var targetBankId = bs[0];
+					var bankName = bs[1];
+					$.ajax({
+						type:"GET",
+						url:"${rc.contextPath}/corp/autoFundout.htm?method=getWithdrawChannel&targetBankId=" + targetBankId,
+						dataType:"JSON",
+						success:function(data){
+				           if(data == "1") {
+				        	   	supportWithdraw = "1";
+								$("#tipBank").text("到账日期一般在2-5个工作日");
+				           }else {
+				        	   	supportWithdraw = "0";
+								$("#tipBank").html("<font class='red'>暂不支持提现到" + bankName + "</font>");
+				           }
+						}
+					}); 
+				}else{
+					$("#fiTime").hide();
+					$("#bankAccountTips").html("请选择提现银行账户");
+				}
+			}
+			
+		</script>
+	</head>
+	
+	<body>
+		<!--导航 str-->
+		<@sp.head mCode="corp_withdraw,bsp_corp_withdraw"/>
+		
+		<!--导航 end--> 
+		<!--主内容 str -->
+		<div class="container">
+			<div>
+		<!--自适应box str -->
+        <div class="mod_box_a">
+        <p class="top"><i></i></p>
+		<div class="con_box has_bg">
+				<div class="tit_box">
+					<div class="title sub_nav3">
+					<a href="${rc.contextPath}/corp/withdraw.htm">手工提现</a><span>|</span>
+					<a href="${rc.contextPath}/corp/autoFundout.htm" class="cur">委托提现</a>
+				</div>
+				</div>
+						<div class="ico_txtBox mt10"><i class="warn_ico"></i>
+							<p>提现银行户名必须与您的企业名称相同。您已接受
+							<a class="red" href="https://www.pay.com/website/help.htm?method=helpCorpDetail" target="_blaiPayLinks支付">《iPayLinks支付委托提现协议》</a>，请遵守。</p>
+						</div>
+						<input type="hidden" id="singleLimit" value="${singleLimit/1000}"/>
+						<input type="hidden" id="singleLimit2" value="${(singleLimit/1000)?string('#,##0.00')}"/>
+						<input type="hidden" id="hautoType" value="${common.autoType?default('1')}"/>
+						<input type="hidden" id="hfixDate" value="${common.timeType?default('1')}"/>
+						<form class="mod_form pad_center" id="frm" method="post" action="${rc.contextPath}/corp/autoFundout.htm?method=modifyConfig">
+							<input type="hidden" name="uuid" value="${Session['uuid']?default('')}"/>
+							<input type="hidden" name="configId" value="${common.sequenceid?default(0)}"/>
+							<input type="hidden" name="typeId" value="${common.typeId?default(0)}"/>
+							<input type="text" name="testtxt" style="display: none;"/>
+							<input type="hidden" name="timeSource" id="timeSource" value="${common.timeSource?default('1')}"/>
+							<input type="hidden" name="timeSources" id="timeSources"/>
+							<input type="hidden" name="bankCode" id="bankCode" value="${common.bankCode?default('')}"/>
+							<input type="hidden" name="bankName" id="bankName" value="${common.bankName?default('')}"/>
+							<input type="hidden" name="bankAcctCode" id="bankAcctCode" value="${common.bankAccCode?default('')}"/>
+							<ul class="form_list">
+								<li>
+									<label class="form_side2">提现银行账户：</label>
+									<p><select class="select2" name="bankAccount" id="bankAccount">
+										<option value="">请选择</option>
+										<#list bankList as bank>
+											<option value="${bank.bankId}_|${bank.branchBankName}_|${bank.bankAcctId}">${bank.branchBankName}(****${bank.bankAcctId[bank.bankAcctId?length-4..bank.bankAcctId?length-1]})</option>
+										</#list>
+									</select>
+									<span class="red" id="bankAccountTips"></span>
+									</p>
+									<div id="fiTime" class="bank_tips" style="display: none">
+										<p id="tipBank">到账日期一般在2－5个工作日</p>
+										<span class="arrow_t"></span> <span class="arrow_t_inner"></span>
+									</div>
+									<p class="clear"></p>
+								</li>
+								<li>
+									<label class="form_side">委托提现方式：</label>
+									<input id="autoTime" name="autoType" type="radio" value="1"> <label class="pointer" for="autoTime">定期委托提现</label>
+									<input id="autoQuota" class="ml20" name="autoType" type="radio" value="2"> <label class="pointer" for="autoQuota">定额委托提现</label>
+									<p id="max5" class="gray_tips">每次提现最多${(singleLimit * 0.001)?string('#,##0.00')}元</p>
+								</li>
+								<li id="retained">
+									<label class="form_side2">最低留存金额：</label>
+									<input type="text" name="retainedAmount" id="retainedAmount" value="${common.retainedAmountDesc}" class="inp_normal w80 blod" size="12"/> 元 
+									<span class="c_999 ml20">不填默认为0.00元</span>
+									<p class="red" id="retainedAmountTips"></p>
+								</li>
+								<li id="fixAmount" style="display: none;">
+									<label class="form_side2">基本提现金额：</label>
+									<input type="text" name="baseAmount" id="baseAmount" value="${common.baseAmountDesc}" class="inp_normal w80" size="12"/> 元 
+									<span class="c_999 ml20">基本提现金额至少1,000.00元，单笔最多${(singleLimit/1000)?string('#,##0.00')}元</span>
+									<p class="red" id="baseAmountTips"></p>
+								</li>
+								<li id="fixDate">
+									<label class="form_side2 mb10">委托提现频度：</label>
+									<p><input name="timeType" value="1" id="dayChoice" type="radio"> 每 
+										<select id="dayVal">
+											<#list 1..6 as d>
+												<option value=${d}>${d}</option>
+											</#list>
+									  	</select> 天
+									</p>
+									<p class="mt5"><input name="timeType" value="2" id="weekChoice" type="radio"> 以周为单位</p>
+									<p id="weekList" class="week">
+										<input id="sun" name="weekVal" type="checkbox"><label class="pointer" for="sun">每周日</label>
+										<input id="mon" name="weekVal" type="checkbox"><label class="pointer" for="mon">每周一</label>
+										<input id="tue" name="weekVal" type="checkbox"><label class="pointer" for="tue">每周二</label>
+										<input id="wed" name="weekVal" type="checkbox"><label class="pointer" for="wed">每周三</label>
+										<input id="thurs" name="weekVal" type="checkbox"><label class="pointer" for="thurs">每周四</label>
+										<input id="fri" name="weekVal" type="checkbox"><label class="pointer" for="fri">每周五</label>
+										<input id="sat" name="weekVal" type="checkbox"><label class="pointer" for="sat">每周六</label>
+									</p>
+									<span class="red" id="weekListTips"></span>
+									<p class="mt5"><input name="timeType" value="3" id="monthChoice" type="radio"> 每月 
+									  <select id="monthVal">
+										<#list 1..28 as d>
+											<option value=${d}>${d}</option>
+										</#list>
+									  </select> 号
+									</p>
+									<div class="time_slot_box">
+										<input name="timeType" value="4" id="timePointChoice" type="radio">
+										按时间点提取 <span class="red ml20 pointer" id="getHelp">点此查看说明</span>
+										<div class="time_slot_guide" id="helpInfo" style="display:none;"> <span class="close_guide" id="closeHelp"  title="关闭">X</span>
+											<p>按时间点提取：</p>
+											<p>通过设置提现的时间点对iPayLinks账户余额进行提现，每天最多可设置3个时间点。</p>
+											<p class="mt10">例如：</p>
+											<p>商户A需求1：当前工作日上午10点30分 需到帐 昨天24点之前所有的iPayLinks账户余额</p>
+											<p>可设置为：时间段1 每天 23时59分</p>
+											<p class="mt10">商户A需求2.当前工作日下午15点 需到帐 今天O点-13点之前所有的iPayLinks账户余额</p>
+											<p>可设置为：时间段2 每天 13时00分</p>
+										</div>
+									</div>
+									<div class="time_slot_list" id="timePointArea" style="display:none;">
+										<p data-text="1" id="timePoint1">
+											<span class="c_f60">时间点：</span>
+											<span class="c_666">每天
+												<i id="labelH1"></i><i id="textH1"><input type="text" id="pointH1" name="pointH" data-status="0"  data-seq="1"></i>时<i id="labelM1"></i><i id="textM1"><input type="text" id="pointM1" name="pointM" data-status="0"  data-seq="1"></i>分
+											</span>
+											<span class="mod" data-status="1" data-ok="1" style="display:none;"><i name="editTime" data-seq="1">修改</i> | <i name="cancelAdd" data-seq="1">删除</i></span>
+											<span class="mod" data-status="0" data-pro="1"><i name="confirmAdd" data-seq-add="1">确定</i> | <i name="cancelAdd" data-seq="1">取消</i></span>
+											<span class="red" id="timePointError1" data-error="1" style="display:none;">请输入正确的时间</span>
+										</p>
+										<p data-text="2" id="timePoint2" style="display:none;">
+											<span class="c_f60">时间点：</span>
+											<span class="c_666">每天
+												<i id="labelH2"></i><i id="textH2"><input type="text" id="pointH2" name="pointH" data-status="0"  data-seq="2"></i>时<i id="labelM2"></i><i id="textM2"><input type="text" id="pointM2" name="pointM" data-status="0"  data-seq="2"></i>分
+											</span>
+											<span class="mod" data-status="1" data-ok="2" style="display:none;"><i name="editTime" data-seq="2">修改</i> | <i name="cancelAdd" data-seq="2">删除</i></span>
+											<span class="mod" data-status="0" data-pro="2"><i name="confirmAdd" data-seq-add="2">确定</i> | <i name="cancelAdd" data-seq="2">取消</i></span>
+											<span class="red" id="timePointError2" data-error="2" style="display:none;">请输入正确的时间</span>
+										</p>
+										<p data-text="3" id="timePoint3" style="display:none;">
+											<span class="c_f60">时间点：</span>
+											<span class="c_666">每天
+												<i id="labelH3"></i><i id="textH3"><input type="text" id="pointH3" name="pointH" data-status="0"  data-seq="3"></i>时<i id="labelM3"></i><i id="textM3"><input type="text" id="pointM3" name="pointM" data-status="0"  data-seq="3"></i>分
+											</span>
+											<span class="mod" data-status="1" data-ok="3" style="display:none;"><i name="editTime" data-seq="3">修改</i> | <i name="cancelAdd" data-seq="3">删除</i></span>
+											<span class="mod" data-status="0" data-pro="3"><i name="confirmAdd" data-seq-add="3">确定</i> | <i name="cancelAdd" data-seq="3">取消</i></span>
+											<span class="red" id="timePointError3" data-error="3" style="display:none;">请输入正确的时间</span>
+										</p>
+										<p class="add"><span class="blue" id="addTimePoint">添加时间点</span> <span class="c_999 ml20">最多可添加3个时间点</span></p>
+									</div>
+									<p class="mt5" id="qijie">
+									  <input type="checkbox" name="settleFlag" id="settleFlag" <#if common?exists && common.settleFlag?exists && common.settleFlag == 1>checked="checked"</#if>  value="1"> 期结提现
+									</p>
+								</li>
+								<!--<li class="s_space"><input type="checkbox" name="isRemark" id="isRemark"> 添加备注</li>
+								<li id="showRemarks" style="display: none;">
+									<label class="form_side">备注：</label>
+									<textarea class="inp_normal w250 v_b" name="remarks" id="remarks">${common.remark?default('')}</textarea>
+									<span class="c_999">最多50个汉字/100个字符</span>
+									<p class="red" id="remarksTips"></p>
+								</li>
+								--><li class="pwd">
+									<label class="form_side2"><strong class="c_000">支付密码：</strong></label>
+									<@sp.password cid="paySafeEdit" id="passWord" name="passWord" width="205px" height="24px" style="margin-bottom: 0px;" class="inp_txt"/>
+									<span class="gray_tips">支付密码如果连续输错3次，账户将被锁定</span>
+									<p class="red" id="passWorkTips">${pwdError?default('')}</p>
+								</li>
+								<li class="btn"><span class="btn_yel">
+									<button type="button" id="btn">确定修改</button>
+									</span> <a class="ml20" href="${rc.contextPath}/corp/autoFundout.htm?method=viewPage">取消修改</a> | 
+									<a href="javascript:void(0);" id="findselect">忘记密码？</a>
+								</li>
+							</ul>
+						</form>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				</div>
+				<!--end --> 
+		</div>
+		<!--主内容 end --> 
+		<#if common?exists && common.settleFlag?exists && common.settleFlag == 1>
+			<script type="text/javascript" charset="utf-8">
+				$(function(){
+					$("#retained").css("display", "none");
+					});
+			</script>
+		</#if>
+		<#if common?exists && common.timeType?exists && common.timeType==4>
+			<script type="text/javascript">
+				<#if common.timeSources?exists>
+					<#assign str = ''>   
+					<#list common.timeSources as ts>
+						<#assign str = str + ts+','>
+					</#list>
+					$('#timeSources').val('${str}');
+				</#if>
+				
+			</script>
+		</#if>
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>

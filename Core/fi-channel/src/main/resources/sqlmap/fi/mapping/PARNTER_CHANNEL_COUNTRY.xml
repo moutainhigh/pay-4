@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="parnterChannelCountry">
+
+	<typeAlias alias="pChannelCountry" type="com.pay.channel.model.ParnterChannelCountry" />
+	<resultMap id="pChannelCountryMap" class="pChannelCountry">
+		<result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="MEM_CODE" property="memCode" jdbcType="DECIMAL" />
+		<result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+		<result column="COUNTRY_CODE" property="countryCode" jdbcType="VARCHAR" />
+		<result column="PRIORITY" property="priority" jdbcType="INTEGER" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="TimeStamp" />
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TimeStamp" />
+	</resultMap>
+
+	<insert id="create" parameterClass="pChannelCountry">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT
+			seq_channel_country_id.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO partner_channel_country(
+		id,MEM_CODE,ORG_CODE,COUNTRY_CODE,PRIORITY,OPERATOR,CREATE_DATE,UPDATE_DATE)
+		VALUES(
+		#id#,#memCode#,#orgCode#,#countryCode#,#priority#,#operator#,sysdate,sysdate
+		)
+	</insert>
+
+	<delete id="delete" parameterClass="pChannelCountry">
+		DELETE FROM partner_channel_country where 1=1 AND id = #id#
+	</delete>
+
+
+
+	<update id="update" parameterClass="pChannelCountry">
+		UPDATE partner_channel_country SET ID = #id#,UPDATE_DATE = sysdate
+		<isNotNull property="orgCode" prepend=",">
+			ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="memCode" prepend=",">
+			MEM_CODE = #memCode#
+		</isNotNull>
+		<isNotNull property="countryCode" prepend=",">
+			COUNTRY_CODE = #countryCode#
+		</isNotNull>
+		<isNotNull property="priority" prepend=",">
+			PRIORITY =
+			#priority#
+		</isNotNull>
+		<isNotNull property="operator" prepend=",">
+			operator =
+			#operator#
+		</isNotNull>
+		where 1=1 AND id = #id#
+	</update>
+	<select id="findBeforeUpdate" resultMap="pChannelCountryMap" parameterClass="pChannelCountry">
+		SELECT * FROM partner_channel_country
+		WHERE 1=1 AND ID != #id#
+		<isNotNull property="memCode">
+			AND MEM_CODE = #memCode#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="countryCode">
+		AND COUNTRY_CODE =#countryCode#
+		</isNotNull>
+	</select>
+	<select id="findById" resultMap="pChannelCountryMap" parameterClass="pChannelCountry">
+		SELECT * FROM partner_channel_country WHERE id=#id#
+	</select>
+
+	<!-- 根据条件查询直连渠道 -->
+	<select id="findByCriteria" resultMap="pChannelCountryMap" parameterClass="pChannelCountry">
+		SELECT * FROM partner_channel_country
+		WHERE 1=1
+		<isNotNull property="memCode">
+			AND MEM_CODE = #memCode#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="countryCode">
+			AND COUNTRY_CODE =
+			#countryCode#
+		</isNotNull>
+	</select>
+
+	<select id="countByCriteria" resultClass="java.lang.Integer" parameterClass="pChannelCountry">
+		SELECT count(*) FROM partner_channel_country
+		WHERE 1=1
+		<isNotNull property="memCode">
+			AND MEM_CODE = #memCode#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="countryCode">
+			AND COUNTRY_CODE =
+			#countryCode#
+		</isNotNull>
+	</select>
+
+</sqlMap>

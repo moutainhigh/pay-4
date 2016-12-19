@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="externalSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/isMemberActivation.do">isMemberAndAccountActivController</prop>
+				<prop key="/isMemberLegal.do">isMemberLegalController</prop>
+				<!--测试用  -->
+				<prop key="/testExternal.do">testExternalController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="isMemberAndAccountActivController"
+		class="com.pay.poss.externalmanager.controller.IsMemberAndAccountActivController">
+		<property name="externalService" ref="externalService"/>	
+	</bean>
+	<bean id="isMemberLegalController"
+		class="com.pay.poss.externalmanager.controller.IsMemberLegalController">
+		<property name="externalService" ref="externalService"/>	
+	</bean>
+		
+	<bean id="testExternalController"
+		class="com.pay.poss.externalmanager.controller.TestExternalController">
+		<property name="commandName">
+			<value>externalForm</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.externalmanager.formbean.ExternalForm</value>
+		</property>	
+		<property name="formView">		
+			<value>/external/testExternal</value>
+		</property>	
+		<property name="successView">
+			<value>/external/testExternal</value>
+		</property>				
+	</bean>
+
+	
+</beans>
+
+

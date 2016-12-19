@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${back_loginpwd}${title}</title>
+<meta name="Keywords" content="${back_loginpwd_Keywords}" />
+<meta name="Description" content="${back_loginpwd_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+function resend(){
+	$.ajax( {
+		type : "POST",
+		url : "${rc.contextPath}/resendCheckCodeformobile.htm",
+		data : "signData=${signData?default('')}",
+		success : function(msg) {
+			if (msg == "Y") {
+				$.pay.alert("短信发送成功 ,请及时查收", {
+					h : 160,
+					t : '1',
+					close : function() {
+					}
+				});
+			} else if(msg=="N"){
+				$.pay.alert("短信发送失败 ,请联系客服", {
+					h : 160,
+					t : '2',
+					close : function() {
+					}
+				});
+			} 
+		}
+	});
+}
+</script>
+</head>
+<body>
+<!--导航 str-->	
+<@sp.headCommonV2 title="找回登录密码" class="ver_fPwd"/>
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container">
+	<#if isError?has_content>
+	<div class="border_b">
+		<!--提示 -->
+		<div class="txtC">
+			<div class="result_tips"> 
+				<div class="set_height clearfix"> 
+					<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+					<span class="pop_war"></span>
+					<p class="words f16b c_f60">链接无效！${errorMsg?default('')}</p>
+					<p class="link">您可能需要：<a href="${rc.contextPath}/index.htm">返回首页</a></p>
+				</div>
+			</div>
+		</div>
+		<!--/提示 --> 
+	</div>
+	<#else>
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-2">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1">第一步：填写账号<i></i></li>
+				<li class="li-2">第二步：填写验证信息<i></i></li>
+				<li class="li-3">第三步：设置新登录密码<i></i></li>
+				<li class="li-4">第四步：设置成功<i></i></li>
+			</ol>
+		</div>
+		<div class="reg_info">
+		<form action="${rc.contextPath}/findLoginPwdByMobile.htm" method="post" id="loginpwdByMobile" name="loginpwdByMobile" >
+			<div class="activate">
+          		<input type="hidden" name="loginName" value="${loginName}"/>
+          		<input type="hidden" name="signData" value="${signData}"/>
+          		<p class="tit"><img src="<@sp.static/>/img/v2/pay/reg/reg_moble_ok.png" class="reg_suc_ico"/>已向您的手机发送了校验码短信，请注意查收！</p>
+				<p class="f14">您的登录名：<span class="blue">${loginName}</span></p>
+				<p class="f14">您的手机号码：<span class="blue">${mobile}</span></p>
+				<p class="f14">请您收到短信后，输入6位数字校验码，进入下一步操作</p>
+				<p class="moble_code f14"><i class="red">*</i> 校验码：<input type="text" name="checkCode" id="checkCode"  maxlength="6" value="" class="inp_normal w100">
+				<#if returninfo?has_content  || isEffective?has_content>
+				<span class="err_tips onError"><i class="tips_ico tips_ico_err"></i>${returninfo}<#if isEffective?has_content>验证码已过期</#if></span></#if></p>
+				<p class="moble_btn"><span class="btnD"><button type="submit" id="btnSubmit">下一步</button></span></p>
+			</div>
+			<div class="activate_tips">
+					<p>未收到校验短信？</p>
+					<p>1.请确保您的手机号为有效号码且手机信号畅通。</p>
+					<p class="mt5">2.如长时间没有收到校验短信，您可以 <input type="button" id="seconds" value="(60秒之后)免费重新获取" disabled></p>
+			</div>
+		</form>
+        </div>
+	</div>
+	</#if>
+</div>
+<!--footer -->
+<#include "/include/myfoot.html">
+<#if !isError?has_content>
+<script type="text/javascript">
+if($("#endtime").text() != null)
+{
+    var iTime = 60;
+    var Account;
+    RemainTime();
+}
+function RemainTime(){
+    var iDay,iHour,iMinute,iSecond;
+    var sDay="",sHour="",sMinute="",sSecond="",sTime="";
+    if (iTime > 0){
+        if(iTime==60){
+        	iSecond = parseInt(iTime/1);
+        }else{
+        	iSecond = parseInt(iTime%60);
+        }
+        if (iSecond >= 0){
+            sSecond = iSecond + "秒";
+        }
+        if ((sDay=="")&&(sHour=="")){
+            sTime=sSecond   //"<span style='color:darkorange'>" + sMinute+sSecond + "</font>";
+        }
+        else
+        {
+            sTime=sDay+sHour+sMinute+sSecond;
+        }
+        if(sTime == "1秒"){
+	       	   clearTimeout(Account);
+	           $("#seconds").val("重发校验码短信");
+	           document.getElementById("seconds").disabled='';
+	     }
+	     else{
+	         Account = setTimeout("RemainTime()",1000);
+	         $("#seconds").val("("+sTime+"之后)重新获取短信");
+	         document.getElementById("seconds").disabled='disabled';
+	     }
+         iTime=iTime-1;
+    }
+    $("#endtime").show().html(sTime);
+}
+$(function() {
+	$("#seconds").click(function(){
+	    if($("#seconds").attr("disabled")!="disabled"){
+	 		resend();
+	 		iTime = 60;	 	  	
+	 	   	RemainTime();
+	    }
+	    return false;
+  	});
+	
+	$("#checkCode").blur(function(){
+		$(this).val($(this).val().trim());
+	});
+	
+	$("#loginpwdByMobile").submit(function(){
+		if(!$("#checkCode").val()){
+			$.pay.alert("请填写校验码", {
+				h : 160,
+				t : '2',
+				close : function() {
+				}
+			});
+			return false;
+		}
+		return true;
+	});
+});
+</script>
+</#if>
+</body>
+</html>

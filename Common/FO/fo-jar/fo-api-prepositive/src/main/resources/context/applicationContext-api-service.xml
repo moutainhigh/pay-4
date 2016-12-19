@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="merchantRequestService" class="com.pay.api.service.impl.MerchantRequestServiceImpl">
+		<property name="merchantRequestDao" ref="api-merchantRequestDao" />
+	</bean>
+
+	<bean id="merchantResponseService" class="com.pay.api.service.impl.MerchantResponseServiceImpl">
+		<property name="merchantResponseDao" ref="api-merchantResponseDao" />
+	</bean>
+
+	<bean id="api-batchpaymentAbstract" abstract="true">
+		<property name="securityProvider" ref="api-securityProvider" />
+		<property name="merchantRequestService" ref="merchantRequestService" />
+		<property name="merchantResponseService" ref="merchantResponseService" />
+		<property name="requestTransferMap">
+			<map>
+				<entry key="MERCHANT_CODE" value="merchantCode" />
+				<entry key="BIZ_NO" value="bizNo" />
+				<entry key="CURRENCY_CODE" value="currencyCode" />
+				<entry key="TOTAL_AMOUNT" value="totalAmount" />
+				<entry key="TOTAL_COUNT" value="totalCount" />
+				<entry key="AUDIT_FLAG" value="auditFlag" />
+				<entry key="FEE_TYPE" value="feeType" />
+				<entry key="PAY_TYPE" value="payType" />
+				<entry key="REQUEST_TIME" value="requestTime" />
+				<entry key="VERSION" value="version" />
+				<entry key="TEXT1" value="text1" />
+				<entry key="SIGNVALUE" value="signvalue" />
+				<entry key="ORDER_ID" value="orderId" />
+				<entry key="PAYEE_NAME" value="payeeName" />
+				<entry key="PAYEE_ACCOUNT" value="payeeAccount" />
+				<entry key="AMOUNT" value="amount" />
+				<entry key="PAYEE_MOBILE" value="payeeMobile" />
+				<entry key="NOTE" value="note" />
+				<entry key="REMARK" value="remark" />
+				<entry key="BANK_NAME" value="bankName" />
+				<entry key="PROVINCE" value="province" />
+				<entry key="CITY" value="city" />
+				<entry key="BRANCHE" value="branche" />
+				<entry key="PAYEE_TYPE" value="payeeType" />
+				<entry key="QUERY_TYPE" value="queryType" />
+				<entry key="QUERY_DATE" value="queryDate" />
+				<entry key="START_DATE" value="startDate" />
+				<entry key="END_DATE" value="endDate" />
+			</map>
+		</property>
+		<property name="responseXmlTemplate">
+			<value>
+				<![CDATA[		
+					<?xml version="1.0" encoding="UTF-8"?><PayPlatResponseParameter><RESPONSE_HEADER><MERCHANT_CODE>${MERCHANT_CODE?default('')}</MERCHANT_CODE><BIZ_NO>${BIZ_NO?default('')}</BIZ_NO><TOTAL_AMOUNT>${TOTAL_AMOUNT?default(0)}</TOTAL_AMOUNT><TOTAL_COUNT>${TOTAL_COUNT?default(0)}</TOTAL_COUNT><SUCCESS_AMOUNT>${SUCCESS_AMOUNT?default(0)}</SUCCESS_AMOUNT><SUCCESS_COUNT>${SUCCESS_COUNT?default(0)}</SUCCESS_COUNT><ERROR_CODE>${ERROR_CODE?default('')}</ERROR_CODE><ERROR_MSG>${ERROR_MSG?default('')}</ERROR_MSG><SIGNVALUE>${SIGNVALUE?default('')}</SIGNVALUE></RESPONSE_HEADER><RESPONSE_BODY><#if itemList?exists><#list itemList as ls><PAY_ITEM><pay_SEQ_NO>${ls.paySeqNo!''}</pay_SEQ_NO><STATUS>${ls.status}</STATUS><AMOUNT>${ls.orderAmount?default('0')}</AMOUNT><ERROR_CODE>${ls.errorCode?default('')}</ERROR_CODE><ERROR_MSG>${ls.errorMsg?default('')}</ERROR_MSG><ORDER_ID>${ls.orderId?default('')}</ORDER_ID><SUCCESS_TIME>${ls.successTime?default('')}</SUCCESS_TIME></PAY_ITEM></#list></#if></RESPONSE_BODY></PayPlatResponseParameter>
+				]]>
+			</value>
+		</property>
+	</bean>
+	
+	<bean id="api-batchpaymenttotalAbstract" abstract="true">
+		<property name="securityProvider" ref="api-securityProvider" />
+		<property name="merchantRequestService" ref="merchantRequestService" />
+		<property name="merchantResponseService" ref="merchantResponseService" />
+		<property name="requestTransferMap">
+			<map>
+				<entry key="MERCHANT_CODE" value="merchantCode" />
+				<entry key="START_DATE" value="startDate" />
+				<entry key="END_DATE" value="endDate" />
+				<entry key="PRIVATE_FIELD" value="privateField" />
+				<entry key="SIGNVALUE" value="signvalue" />
+			</map>
+		</property>
+		<property name="responseXmlTemplate">
+			<value>
+				<![CDATA[		
+					<?xml version="1.0" encoding="UTF-8"?>
+					<PayPlatResponseParameter>
+						<RESPONSE_HEADER>
+							<RESPONSE_CODE>${RESPONSE_CODE}</RESPONSE_CODE>
+							<RESPONSE_DESC>${RESPONSE_DESC?default('')}</RESPONSE_DESC>
+							<PRIVATE_FIELD>${PRIVATE_FIELD?default('')}</PRIVATE_FIELD>
+							<TOTAL_MONEY>${TOTAL_MONEY?default(0)}</TOTAL_MONEY>
+							<TOTAL_COUNT>${TOTAL_COUNT?default(0)}</TOTAL_COUNT>
+							<SIGNVALUE>${SIGNVALUE?default('')}</SIGNVALUE>
+						</RESPONSE_HEADER>
+					</PayPlatResponseParameter>
+				]]>
+			</value>
+		</property>
+	</bean>
+
+	<bean id="api-httpMessageHandle" class="com.pay.api.service.impl.PaymentMessageHandle"
+		parent="api-batchpaymentAbstract">
+		<property name="validateService"
+			ref="fo-api-prepositive-batchPaymentValidateService" />
+		<property name="batchPaymentService" ref="api-batchPaymentService" />
+		<property name="merchantConfigureDao" ref="merchantConfigureDao" />
+	</bean>
+
+	<bean id="api-paymentQueryMessageHandle" class="com.pay.api.service.impl.PaymentQueryMessageHandle"
+		parent="api-batchpaymentAbstract">
+		<property name="merchantConfigureDao" ref="merchantConfigureDao" />
+		<property name="batchPaymentOrderDAO" ref="fo-order-batchPaymentOrderDAO" />
+		<property name="payToAcctOrderDAO" ref="fo-order-payToAcctOrderDAO" />
+		<property name="fundoutOrderDAO" ref="fo-order-fundoutOrderDAO" />
+	</bean>
+	
+	<bean id="api-paymentTotalQueryMessageHandle" class="com.pay.api.service.impl.PaymentTotalQueryMessageHandle"
+		parent="api-batchpaymenttotalAbstract">
+		<property name="merchantConfigureDao" ref="merchantConfigureDao" />
+		<property name="batchPaymentOrderDAO" ref="fo-order-batchPaymentOrderDAO" />
+		<property name="payToAcctOrderDAO" ref="fo-order-payToAcctOrderDAO" />
+		<property name="fundoutOrderDAO" ref="fo-order-fundoutOrderDAO" />
+	</bean>
+
+</beans>

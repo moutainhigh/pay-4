@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>topbar</title>
+</head>
+<body>
+	<div class="topbar">
+		<div class="wrap clearfix">
+			<ul class="topmenu r">
+				
+				<li>
+				<select id="sect" style="display:none">
+				</select>
+				</li>
+				<li><div id="platformlink" style="display:none">
+				<a  href="<@sp.contextPath/>/corp/relation.do">关联会员号</a>
+				</div>
+					
+				</li>
+				<li><label style="color:#D9D9D9 !important">
+					<#if Session["userSession"]?exists >
+					<#assign memberInfo = Session["userSession"]/>
+						${memberInfo.verifyName?default('')}
+					</#if>
+					</label>
+				</li>
+			
+				<li><a href="<@sp.contextPath/>/logout.htm?mtype=2" title="mian.header.logout">退出</a></li>
+				
+			</ul>
+		</div>
+	</div>
+</body>
+</html>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	   $.ajax({
+           type: "GET",
+           url: '${rc.contextPath}/corp/getsonmember.do',
+           dataType: "json",
+           success: function(data){
+        	   if(data!=null){
+        	   		if(data.length>0){
+                    	document.getElementById("sect").style.display="";
+                    	document.getElementById("platformlink").style.display="";
+        	   			var select = $("#sect");
+        	   			var trlength = $("#sect").find("option").length;
+        	   			for (var i = trlength; i >= 0; i--) {
+        	   				$("#sect").find("option").eq(i).remove();
+        	   			}
+        	   			
+        	   			for (i = 0; i < data.length; i++) {
+        	   				if(data[i].membercode==data[i].sonmembercode){
+        	   					select.append("<option value=" + data[i].operatorid + " selected='selected' >"
+            	   						+ data[i].sonmembercode + "</option>");
+        	   				}else{
+        	   					select.append("<option value=" + data[i].operatorid + ">"
+            	   						+ data[i].sonmembercode + "</option>");
+        	   				}
+        	   				
+        	   			}
+        	   			
+        	   		}
+                }
+           }
+       });
+  });
+  
+$('#sect').change(function() {
+	refresh();
+})
+
+function refresh(){
+	
+	var myselect=document.getElementById("sect");
+	var index=myselect.selectedIndex;
+	console.log("membercode:"+myselect.options[index].text);
+	console.log("operatorId:"+$("#sect").val());
+	   $.ajax({
+           type: "GET",
+           url: '${rc.contextPath}/corp/refreshdata.do',
+           data: {membercode:myselect.options[index].text,operatorId:$("#sect").val()}, 
+           dataType: "json",
+           success: function(data){
+        	   if(1==data){
+        		   window.location.href='${rc.contextPath}/corp/myAccount.htm';
+        	   }
+           }
+       }); 
+	
+}
+</script>

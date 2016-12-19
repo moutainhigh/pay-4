@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+<!-- 定义映射-->
+	<bean id="IndexHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/withdrawindex.htm">EwithdrawIndexController</prop>
+				<prop key="/corp/payindex.htm">EpayIndexController</prop>
+				<prop key="/corp/auditindex.htm">EauditIndexController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="EwithdrawIndexController" class="com.pay.controller.fo.index.WithdrawIndexController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/withdraw/corp/withdrawindex</value>
+		</property>
+	</bean>
+	
+	<bean id="EpayIndexController" class="com.pay.controller.fo.index.PayIndexController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/pay2acct/corp/pay2acctindex</value>
+		</property>
+	</bean>
+	
+	<bean id="EauditIndexController" class="com.pay.controller.fo.index.AuditIndexController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/fo/batchpay2acct/index</value>
+		</property>
+	</bean>
+</beans>

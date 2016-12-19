@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+    <bean id="creditHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/creditOrder.htm">creditOrderyController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="creditOrderyController" class="com.pay.app.controller.base.credit.CreditOrderyController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="creditOrderView">
+			<value>/base/credit/creditOrderApply</value>
+		</property>
+		<property name="creditOrderQueryInfo">
+			<value>/base/credit/creditOrderQuery</value>
+		</property>
+		<property name="login">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+		<property name="creditOrderQueryDetail">
+			<value>/base/credit/creditOrderQueryDetail</value>
+		</property>
+		<property name="applyConfirmView" value="/base/credit/applyConfirm" />
+		
+		<!-- <property name="accountQueryService" ref="acc-accountQueryService" /> -->
+		<!-- <property name="settlementOrderService" ref="settlementOrderService" /> -->
+		<!-- <property name="dayRateService" ref="credit_dayRateService"/> -->
+		<!-- <property name="creditOrderService" ref="credit_creditOderService"/> -->
+		<property name="settleCoreClientService" ref="settleCoreClientService"/>
+		<!-- <property name="txncoreClientService" ref="txncoreClientService"/> -->
+		<!-- 注入 -->
+		<property name="enterpriseBaseService" ref="base-enterpriseBaseService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		
+		
+	</bean>
+</beans>

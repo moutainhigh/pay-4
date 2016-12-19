@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="feature">
+		<typeAlias alias="feature" type="com.pay.base.model.Feature" />
+
+		<insert id="create" parameterClass="feature">
+				<selectKey resultClass="java.lang.Long" keyProperty="featureId">
+						select SEQ_FEATURE_ID.nextval as featureId from dual 
+        </selectKey>
+				insert into
+				T_FEATURE
+				(
+				FEATURE_ID,
+				NAME,
+				DESCRIPTION,
+				APP_SCALE,
+				SECUR_LEVEL
+				)
+				values
+				(
+				#featureId#,
+				#name#,
+				#description#,
+				#appScale#,
+				#securLevel#
+				)
+		</insert>
+
+		<select id="findAllFeature" resultClass="com.pay.base.model.Feature">
+				select
+				FEATURE_ID as featureId,
+				NAME as name,
+				DESCRIPTION as description,
+				APP_SCALE as appScale,
+				SECUR_LEVEL as securLevel,
+				STATUS as status,
+				CREATE_DATE as createDate,
+				UPDATE_DATE as updateDate
+				from
+				T_FEATURE 
+   
+  </select>
+
+		<select id="getByFeatureId" resultClass="com.pay.base.model.Feature" parameterClass="java.lang.Long">
+		select 
+				FEATURE_ID as featureId,
+				NAME as name,
+				DESCRIPTION as description,
+				APP_SCALE as appScale,
+				SECUR_LEVEL as securLevel,
+				STATUS as status,
+				CREATE_DATE as createDate,
+				UPDATE_DATE as updateDate
+				from
+				T_FEATURE WHERE FEATURE_ID = #featureId#
+  </select>
+
+
+ <select id="getLoginLevel" parameterClass="java.util.Map" resultClass="java.lang.Long">
+       Select FEATURE_ID as featureId from T_FEATURE where APP_SCALE=#appScale# and  SECUR_LEVEL=#securLevel# 
+ </select>
+  
+
+		<update id="update" parameterClass="feature">
+				update
+				T_FEATURE
+				set
+				FEATURE_ID =#featureId#,
+				NAME = #name#,
+				DESCRIPTION = #description#,
+				APP_SCALE =#appScale#,
+				SECUR_LEVEL =#securLevel#,
+				STATUS =#status#,
+				UPDATE_DATE =sysdate
+				where
+				FEATURE_ID = #featureId#
+  </update>
+
+</sqlMap>

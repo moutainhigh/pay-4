@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>gcpayment支付跨行转账确认页</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet"	type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"	type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+</head>
+<script type="text/javascript">
+$(function() {
+});
+</script>
+
+
+	<#if errorMsg?exists>
+	<script type="text/javascript">
+$(function(){	
+$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+});
+</script>
+	</#if>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="跨行转账" />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="form_box">
+		<div class="form_tit">
+			<h3><i>跨行转账</i></h3>
+			<em class="step_cur_2"></em> </div>
+			<div class="content verify_page">
+				<!--表单str -->
+				<!-- 
+				<form class="mod_form" id="form" name="form" method="post" action="${rc.contextPath}/ca/confirmation.htm">
+				 -->
+				<form class="mod_form" id="form" name="form" method="post" action="${rc.contextPath}/ebpp/confirmation.htm">
+				<table class="verify_table">
+					<tbody>
+						<tr>
+								<td class="thead" colspan="2">收款人账户银行卡信息</td>
+						</tr>
+						<tr>
+							<td class="type">开户人姓名：</td>
+							<td><strong class="col333">${EbillItemRequest.payeeName?default('')}</strong> </td>
+						<tr>
+							<td class="type">开户行：</td>
+							<td>${EbillItemRequest.bankName?default('')} </td>
+						</tr>	
+						<tr>
+							<td class="type">开户行所在地：</td>
+							<td>${EbillItemRequest.billProvince?default('')} ${EbillItemRequest.billCity?default('')}  </td>
+						<tr>
+							<td class="type">开户行名称：</td>
+							<td>${EbillItemRequest.payeeAcctKaiHu?default('')} </td>
+						</tr>		
+						<tr>
+							<td class="type">银行卡号：</td>
+							<td>${EbillItemRequest.payeeAccountNo?default('')} </td>
+						</tr>		
+				
+					<tr>
+								<td class="thead" colspan="2">转账信息</td>
+						</tr>		
+						<tr>
+							<td class="type">转账金额：</td>
+							<td><strong class="red">${EbillItemRequest.billAmountString?default('')}</strong> 元 </td>
+						<tr>
+							<td class="type">手续费：</td>
+						
+							<td><strong class="red">${EbillItemRequest.billFeeAmountString}</strong> 元  </td>
+						</tr>			
+						<tr>
+							<td class="type">备注：</td>
+							<td>${EbillItemRequest.billremarks?default('')} </td>
+						 </tr>				
+						 <#if EbillItemRequest.payeeMobile?has_content>	
+						<tr>
+							<td class="type">收款人手机号码：</td>
+							<td>${EbillItemRequest.payeeMobile?default('')} </td>
+						</tr>	
+						 </#if>	
+						
+					</tbody>
+					</table>
+					<#if Session["userSession"]?exists>
+					<p class="btn_box txtC sppf"><span class="btn_yel botton_yel">
+						<button type="submit" onclick="document.form.submit();this.disabled=true;">确定付款</button>
+						</span><a href="${rc.contextPath}/ca/toInterbank.htm?method=backInterbank" class="red bk_pf">返回修改</a></p>
+					</#if>
+						<input type="hidden" value="${rc.contextPath}/ca/toInterbank.htm?method=backInterbank" id="back" ></input>
+				</form>
+				<!--表单end --> 
+			</div>
+	</div>
+	<#if Session["userSession"]?exists>
+	<#else>
+		<div class="login_bo" id="payDiv">
+		<div class="login_l">
+		<!-- 当前状态DIV，非当前为<div class="login_other"> -->
+			<iframe name="iframe_l" frameborder="0" width="438px" height="256px" scrolling="no" src="${rc.contextPath}/individualLogin.htm?returnUrl=/ebpp/confirmation.htm" ></iframe>
+		</div>
+		<div class="login_r">
+			<iframe name="iframe_r" frameborder="0" scrolling="no" src="${rc.contextPath}/ebpp/tpAccount.htm" width="438px" height="256px"></iframe>
+		</div>
+		</div>
+	</#if>
+	<!--问答 str
+	<div class="mod_box_a q_a">
+		<div class="con_box">
+			<div class="mod_tit">
+				<h3 class="title font14"> <strong>有问题 我帮您</strong> </h3>
+				<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+					<dl class="ico_txtBox">
+						<dt><i class="q_ico"></i>信用卡能跨行转账吗?</dt>
+						<dd><i class="a_ico"></i>不可以，这样做会将涉嫌利用信用卡套现，这是违法的。</dd>
+					</dl>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	问答 end-->
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="baseData">
+     <typeAlias alias="baseDataDto"	    type="com.pay.poss.appealmanager.dto.BaseDataDto" />
+     <typeAlias alias="baseDataRelationDto"	    type="com.pay.poss.appealmanager.dto.BaseDataRelationDto" />
+      <typeAlias alias="appealBaseData"	    type="com.pay.poss.appealmanager.model.AppealBaseData" />
+      <typeAlias alias="appealBaseDataRelation"	    type="com.pay.poss.appealmanager.model.AppealBaseDataRelation" />
+      
+     
+    <select id="getBaseDataByType" resultClass="baseDataDto"   parameterClass="java.lang.String">
+       select 
+       		a.data_code as code,
+       		a.data_name as name
+       from 
+       		t_appeal_basedata a 
+       where 
+       		a.data_type=#type#
+    </select>
+     <select id="getAllBaseData" resultClass="baseDataDto" >
+       select 
+       		a.data_code as code,
+       		a.data_name as name
+       from 
+       		t_appeal_basedata a 
+      
+    </select>
+     <select id="getAllBaseDataRelation" resultClass="baseDataRelationDto" >
+       select 
+       		a.father_data_code as fatherDataCode,
+       		a.son_data_code as sonDataCode,
+       		b.data_name as sonName
+       from 
+       		t_appeal_basedata_relation a left join t_appeal_basedata b 
+       on 
+       		b.data_code = a.son_data_code
+      
+    </select>
+    <select id="getAppealStatus" resultClass="baseDataDto">
+       select 
+       		a.appeal_status_code as code,
+       		a.appeal_status_name as name
+       from t_appeal_status a
+    </select>
+    <select id="getDept" resultClass="baseDataDto">
+       select 
+       		a.org_code as code, 
+       		a.org_name as name
+       from intra.org a
+    </select>
+    
+    <select id="queryBaseData" resultClass="baseDataDto"   parameterClass="baseDataDto">
+    	 select b.* from 
+		(select a.*,rownum as linenum from (
+			select
+	       		a.appeal_data_id as id,
+	       		a.data_code as code,
+	       		a.data_name as name,
+	       		a.data_type as type
+       		from 
+       			t_appeal_basedata a 
+       		where 1=1
+	       		<isNotEmpty prepend="and" property="code">  
+		          	a.data_code = #code#
+		        </isNotEmpty> 
+		        <isNotEmpty prepend="and" property="name">  
+		          	a.data_name = #name#
+		        </isNotEmpty>
+		        <isNotEmpty prepend="and" property="type">  
+		          	a.data_type = #type#
+		        </isNotEmpty>
+       		order by a.data_type
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+       
+    </select>
+    <select id="queryBaseDataRelation" resultClass="baseDataRelationDto"   parameterClass="baseDataRelationDto">
+    	 select b.* from 
+		(select a.*,rownum as linenum from (
+			select
+	       		a.APPEAL_RELATION_ID as appealRelationId,
+	       		a.FATHER_DATA_CODE as fatherDataCode,
+	       		a.SON_DATA_CODE as sonDataCode,
+	       		a.RELATION_TYPE as relationType
+       		from 
+       			t_appeal_basedata_relation a 
+       		where 1=1
+	       		<isNotEmpty prepend="and" property="fatherDataCode">  
+		          	a.FATHER_DATA_CODE = #fatherDataCode#
+		        </isNotEmpty> 
+		        <isNotEmpty prepend="and" property="sonDataCode">  
+		          	a.SON_DATA_CODE = #sonDataCode#
+		        </isNotEmpty>
+		        <isNotEmpty prepend="and" property="relationType">  
+		          	a.RELATION_TYPE = #relationType#
+		        </isNotEmpty>
+       		order by a.RELATION_TYPE
+	
+		) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+       
+    </select>
+    <select id="queryBaseDataCount" resultClass="java.lang.Integer"   parameterClass="baseDataDto">
+       		select
+	       		count(1)
+       		from 
+       			t_appeal_basedata a 
+       		where 1=1
+	       		<isNotEmpty prepend="and" property="code">  
+		          	a.data_code = #code#
+		        </isNotEmpty> 
+		        <isNotEmpty prepend="and" property="name">  
+		          	a.data_name = #name#
+		        </isNotEmpty>
+		        <isNotEmpty prepend="and" property="type">  
+		          	a.data_type = #type#
+		        </isNotEmpty>       		
+    </select>
+    <select id="queryBaseDataRelationCount" resultClass="java.lang.Integer"   parameterClass="baseDataRelationDto">
+       		select
+	       		count(1)
+       		from 
+       			t_appeal_basedata_relation a 
+       		where 1=1
+	       		<isNotEmpty prepend="and" property="fatherDataCode">  
+		          	a.FATHER_DATA_CODE = #fatherDataCode#
+		        </isNotEmpty> 
+		        <isNotEmpty prepend="and" property="sonDataCode">  
+		          	a.SON_DATA_CODE = #sonDataCode#
+		        </isNotEmpty>
+		        <isNotEmpty prepend="and" property="relationType">  
+		          	a.RELATION_TYPE = #relationType#
+		        </isNotEmpty>		
+    </select>
+    <select id="isBaseDataCodeExist" resultClass="java.lang.Integer"   parameterClass="java.lang.String">
+       		select
+	       		count(1)
+       		from 
+       			t_appeal_basedata a 
+       		where a.data_code =  #baseDataCode#
+	       		    		
+    </select>
+    <select id="isRelationExist" resultClass="java.lang.Integer"  parameterClass="java.util.Map">
+    		select
+	       		count(1)
+       		from 
+       			t_appeal_basedata_relation a 
+       		where a.FATHER_DATA_CODE = #fatherDataCode# and a.SON_DATA_CODE = #sonDataCode# 
+       		
+	       		    		
+    </select>
+    <insert id="insertAppealBaseData" parameterClass="appealBaseData">
+    	<selectKey  keyProperty="appealDataId">
+			SELECT SEQ_APPEAL_DATA_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_APPEAL_BASEDATA (APPEAL_DATA_ID, DATA_CODE, DATA_NAME, DATA_TYPE)
+        values (#appealDataId#, #dataCode#, #dataName#, #dataType#)
+    </insert>
+    <insert id="insertAppealBaseDataRelation" parameterClass="appealBaseDataRelation">
+    	<selectKey  keyProperty="appealRelationId">
+			SELECT SEQ_APPEAL_DATA_RELATION_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_APPEAL_BASEDATA_RELATION (APPEAL_RELATION_ID, FATHER_DATA_CODE, SON_DATA_CODE,
+            RELATION_TYPE)
+        values (#appealRelationId#, #fatherDataCode#, #sonDataCode#, #relationType#)
+    </insert>
+     <delete id="deleteAppealBaseData" parameterClass="java.lang.String">
+        delete from T_APPEAL_BASEDATA
+        where APPEAL_DATA_ID = #appealBaseDataId#
+    </delete>
+    <delete id="deleteAppealBaseDataRelation" parameterClass="java.lang.String">
+        delete from T_APPEAL_BASEDATA_RELATION
+        where APPEAL_RELATION_ID = #appealBaseDataRelationId#
+    </delete>
+</sqlMap>

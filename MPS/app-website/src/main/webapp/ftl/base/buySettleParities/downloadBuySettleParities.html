@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css">
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style>
+<meta charset="utf-8">
+<title><!-- iPayLinks支付网关订单收款明细 -->购结汇查询下载
+</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+			<tr>
+				<td colspan="14" style="text-align: middle;">#==============购结汇查询明细==============</td>
+			</tr>
+			<tr>
+				<td colspan="14">下载时间 ：<#if
+					nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if></td>
+			</tr>
+			<tr>
+				<th>交易流水号</th>
+				<th>交易时间</th>
+				<th>交易类型</th>
+				<th>卖出金额</th>
+				<th>汇率</th>
+				<th>买入金额</th>
+				<th>手续费</th>
+				<th>交易状态</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists> <#list incomeDetailList as ts>
+			<tr>
+				<td style="text-align: center;" class="excel_txt">${ts.exchangeNo?default("")}</td>
+
+				<td style="text-align: center;" class="excel_txt">
+											${ts.createDate?string('yyyy-MM-dd HH:mm:ss')}
+				</td>
+				<td align="right"><#if ts.type =="0">购汇<#else>结汇</#if>
+				</td>
+				<td align="right">
+					${(ts.orderAmount*0.001)?string(",##0.000")} ${ts.currencyCode?default("")}
+				</td>
+				<td style="text-align: center;" class="excel_txt">
+					${ts.exchangeRate?default("")}</td>
+
+				<td align="right">${(ts.exchAmount*0.001)?string(",##0.000")} ${ts.exchCurrencyCode?default("")}</td>
+				<td align="right">${(ts.tradeFee*0.001)?string(",##0.000")} ${ts.exchCurrencyCode?default("")}</td>
+				<td align="center">
+				<#if ts.status =="0">交易中<#elseif ts.status=="1">交易成功<#else>交易失败</#if>
+			</tr>
+			</#list> </#if>
+			<tr>
+				<td colspan="14">#------------购结汇查询列表--------------</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

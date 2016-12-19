@@ -1,0 +1,82 @@
+<#import "/spring.ftl" as sp />
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付收银台</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+	<div class="outer">
+		<@sp.head channel=2 ismatrix=false/>
+		<!-- header end -->
+		
+		<div class="content clearfix pay-complete">
+			<div class="step mode">
+				<ol class="step-1">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1 last"><i>1</i>确认付款信息</li>
+				<li class="li-2 last"><i>2</i>付款</li>
+				<li class="li-3 last"><i>3</i>付款完成</li>
+				</ol>
+			</div>
+			<div class="mode pay-info">
+				<p><strong>请确认付款信息，并通iPayLinks支付支付付款 </strong><span class="box-top"><strong>订单来自：</strong><a href="javascript:void(0);">${merchantName?default('')}</a></span></p>				<p class="indent">--本交易为“即时到账交易”，付款后您的钱将直接进入对方账户。（此功能不同于iPayLinks支付担保交易）</p>
+			</div>
+			<div class="mode con-gray bg-blue">
+				<dl>
+					<dt>
+						<span class="item20">交易号</span>
+						<span class="item30">商品名称</span>
+						<span class="item10">数  量</span>
+						<span class="item10">邮  费</span>
+						<span class="item10">订单总额</span>
+						<span class="item10"></span>
+					</dt>
+					<#if orderList?exists>
+					<#list orderList as order>
+					<dd>
+						<span class="item20"><em class="icon-info01">${order.orderId?default('')}</em></span>
+						<span class="item30">${order.goodsName?default('')}</span>
+						<span class="item10">${order.goodsCount?default(0)}件 </span>
+						<span class="item10">￥${order.shippingFee?default(0)}</span>
+						<span class="item10"><strong class="obvious">￥${order.orderAmount?default('')}</strong></span>
+						<span class="item10"><a href="javascript:void(0);" class="obvious">详情</a></span>
+					</dd>
+					</#list>
+					</#if>
+				</dl>
+			</div>
+			<!-- bg-blue end -->
+<form action="${rc.contextPath}/shoppingcityAcctPay.htm?method=onSubmit" method="post">
+<input type="hidden" name="transactionNo" value="${transactionNo?default('')}"/>
+<input type="hidden" name="totalAmount" value="${totalAmount?default(0)}"/>
+<input type="hidden" name="merchantName" value="${merchantName?default('')}"/>
+<input type="hidden" name="buyerName" value="${buyerName?default('')}"/>
+<input type="hidden" name="salutatory" value="${salutatory?default('')}"/>
+<input type="hidden" name="productName" value="${cityCmd.productName?default('')}"/>
+			<div class="mode tabs">
+				<ul class="tab-menu">
+					<li class="cur"><strong>iPayLinks账户余额</strong></li>
+					<!-- li><strong>网上银行</strong></li-->
+				</ul>
+				<div class="box-top"><strong>当前的iPayLinks支付账户为：<span class="obvious">${memberInfo.email?default('')}</span></strong></div>
+				<div class="tab-con tab-con-bor">
+					<p class="bor-bottom">使用iPayLinks账户余额付款</p>
+					<p>应付总价：<strong class="obvious">￥${totalAmount?default(0)} </strong></p>
+					<p>iPayLinks账户余额：<strong class="obvious mr10">￥${balance?default(0)}</strong><a href="javascript:window.location.href='${rc.contextPath}/app/acctCharge.htm';" class="obvious">充值到iPayLinks账户</a></p>
+					<p class="btn-box"><button type="submit" class="red-btn" >下一步</button></p>
+				</div>
+			</div>
+			<!-- tabs end -->
+</form>			
+		</div>
+		<!-- content end -->
+		
+	</div>
+	<!-- outer end -->
+	<#include "/common/include/footer.html">
+</body>
+</html>

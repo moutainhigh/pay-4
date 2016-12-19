@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-memberBankAcct">
+	<typeAlias alias="memberBankAcct" type="com.pay.acc.member.model.MemberBankAcct" />
+
+	<insert id="create" parameterClass="memberBankAcct">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select	SEQ_MEMBER_BANK_ACCT_ID.nextval as ID from dual
+		</selectKey>
+		insert into
+		t_member_bank_acct
+		(
+		id,
+		bank_Id,
+		MEMBER_CODE,
+		IS_PRIMARY_BANKACCT,
+		BRANCH_BANK_NAME,
+		BRANCH_BANK_ID,
+		CREATION_DATE,
+		NAME,
+		STATUS,
+		BANK_ACCT_ID,
+		PROVINCE,
+		CITY
+		)
+		values
+		(
+		#id#,
+		#bankId#,
+		#memberCode#,
+		#isPrimaryBankacct#,
+		#branchBankName#,
+		#branchBankId#,
+		#creationDate#,
+		#name#,
+		#status#,
+		#bankAcctId#,
+		#province#,
+		#city#
+		)
+	</insert>
+	
+	<update id="update" parameterClass="memberBankAcct">
+		Update T_Member_Bank_Acct 
+		Set
+			bank_id =#bankId#, 
+			BRANCH_BANK_NAME =#branchBankName#,
+			BANK_ACCT_ID =#bankAcctId#,
+			BRANCH_BANK_ID = #branchBankId#,
+			PROVINCE=#province#,
+			CITY=#city#,
+			name=#name#,
+			status=#status#
+			Where ID=#id#
+	</update>	
+	
+	<update id="updateBankAcct" parameterClass="memberBankAcct">
+		Update T_Member_Bank_Acct 
+		Set
+			bank_id =#bankId#, 
+			BRANCH_BANK_NAME =#branchBankName#,
+			BANK_ACCT_ID =#bankAcctId#,
+			BRANCH_BANK_ID = #branchBankId#,
+			PROVINCE=#province#,
+			CITY=#city#	 
+			Where ID=#id#
+	</update>
+
+	<select id="queryMemberBankAcct" parameterClass="java.lang.Long"
+		resultClass="memberBankAcct">
+		SELECT
+		ID as id,
+		BANK_ID AS bankId,
+		MEMBER_CODE AS
+		memberCode,
+		IS_PRIMARY_BANKACCT AS isPrimaryBankacct,
+		BRANCH_BANK_NAME
+		AS branchBankName,
+		CREATION_DATE AS creationDate,
+		NAME AS name,
+		STATUS AS
+		status,
+		BANK_ACCT_ID AS bankAcctId,
+		PROVINCE AS province,
+		CITY AS city,
+		BRANCH_BANK_ID AS branchBankId
+		FROM
+		T_MEMBER_BANK_ACCT
+		WHERE
+		MEMBER_CODE = #memberCode#
+		AND STATUS=1
+	</select>
+
+	<update id="updatePrimaryBankAcct" parameterClass="map">
+		UPDATE T_Member_Bank_Acct
+		SET is_primary_bankacct = 1
+		WHERE ID = #id#
+	</update>
+	
+	<update id="updateBankAcctUnPrimary" parameterClass="map">
+		UPDATE T_Member_Bank_Acct
+		SET is_primary_bankacct = 0
+		WHERE MEMBER_CODE = #memberCode# and BANK_ACCT_ID != #bankAcctId#
+	</update>
+
+</sqlMap>

@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>gcpayment支付-交易管理-退款明细</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#closeDetail").click(function(){
+		window.close();
+	});
+});
+</script>
+</head>
+<body>
+<@sp.head mCode="corp_refund_order,bsp_refund_order_query"/>
+<div class="container">
+		<div class="mod_box_a">
+				<p class="top"><i></i></p>
+				<div class="con_box has_bg">
+						<div class="tit_box">
+								<h3 class="title font14"><strong>单笔退款交易详情</strong></h3>
+						</div>
+						<table class="verify_table set_width">
+								<tbody>
+									<#if refundId?has_content>
+										<tr>
+											<td colspan="2" class="thead">退款记录</td>
+										</tr>
+										<tr>
+											<td class="type">退款流水号：</td>
+											<td>
+												${refundId!('')}
+											</td>
+										</tr>
+										<tr>
+											<td class="type">创建时间：</td>
+											<td>
+												 	${createTime?string("yyyy-MM-dd HH:mm:ss")}
+											</td>
+										</tr>
+										<tr>
+											<td class="type">结束时间：</td>
+											<td>
+												${finishTime?string("yyyy-MM-dd HH:mm:ss")}
+											</td>
+										</tr>
+										<tr>
+											<td class="type">交易类型：</td>
+											<td>单笔退款</td>
+										</tr>
+										<tr>
+											<td class="type">收/支：</td>
+											<td>支</td>
+										</tr>
+										<tr>
+											<td class="type">退款渠道：</td>
+											<td>
+											<#if depositBackNo !=0  && (status="4" || status="5")>
+												退银行
+											<#else>
+												退帐户
+											</#if>
+										  </td>
+										</tr>
+										<tr>
+											<td class="type">退款金额：</td>
+											<td>${refundAmount}</td>
+										</tr>
+										<tr>
+											<td class="type">退回手续费：</td>
+											<td>${fee}</td>
+										</tr>
+										<tr>
+											<td class="type">退款状态：</td>
+											<td>
+												<#if status = "1">
+													退帐户处理中
+												<#elseif status = "2">
+													退帐户成功
+												<#elseif status = "3">
+													退帐户失败
+												<#elseif status = "4">
+													退帐户成功,充退处理中
+												<#elseif status = "5">
+													退帐户成功,充退成功
+												<#elseif status = "6">
+													退帐户成功,充退失败
+												</#if>
+												</td>
+										</tr>
+										<tr>
+											<td class="type">实际支付金额：</td>
+											<td>
+											<#if status="3" || status="1">
+												0
+											<#else>
+											${realAmount} 
+											</#if>
+											元
+											</td>
+										</tr>
+									<#else>
+										<tr>
+											<td colspan="2" class="thead">无效订单</td>
+										</tr>
+									</#if>
+								</tbody>
+						</table>
+					<p class="btn_box"><span class="btn_yel"><button id="closeDetail">关闭</button></span></p>
+				</div>
+				<p class="bot"><i></i></p>
+		</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

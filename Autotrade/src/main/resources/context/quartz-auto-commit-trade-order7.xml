@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="automaticTradeService7"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="task-automaticTradeService7" />
+		</property>
+		<!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>automaticTrade</value>
+		</property>
+		<property name="concurrent"><!--配置为false不允许任务并发执行--> 
+           <value>false</value> 
+        </property> 
+	</bean>
+
+	<!-- 自动提现定额触发 每1小是执行一次 -->
+	<bean id="autoTradeTrigger7" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="automaticTradeService7" />
+		</property>
+		<!-- cron表达式 -->
+		<property name="cronExpression">
+			<!-- <value>0 0/50 * * * ?</value> -->
+			<value>${task.auto_trade_quartz7}</value>
+		</property>
+	</bean>
+</beans>

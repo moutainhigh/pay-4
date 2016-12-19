@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${set_greeting}${title}</title>
+<meta name="Keywords" content="${set_greeting_Keywords}" />
+<meta name="Description" content="${set_greeting_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript">
+	$(function() {
+		
+		 $("#loginPwd").val("");
+		 
+		$.formValidator.initConfig( {
+			formid : "acccoutsafeform",
+			onerror : function(msg) {
+		}
+		});
+		$("#btnOk").click(
+				function() {
+					var greeting = $("#greeting").val();
+					var paypwd = $("#loginPwd").val();
+					var reg = /^[^<>]+$/;
+					var num = 0;
+					var limit = 49;
+					if('' == paypwd){
+						$.pay.alert("请输入登录密码，密码不能为空. ", {
+							h : 160,
+							t : '2',
+							close : function() {
+							}
+						});
+						return false;
+					}
+					if('' == greeting){
+						$.pay.alert("请输入您的登陆问候语 ", {
+							h : 160,
+							t : '2',
+							close : function() {
+							}
+						});
+						return false;
+					}
+					if (!reg.test(greeting)) {
+						$.pay.alert("您输入的内容存在非法字符 ", {
+							h : 160,
+							t : '2',
+							close : function() {
+							}
+						});
+						return false;
+					}
+					if (greeting != '') {
+						for ( var i = 0; i < greeting.length; i++) {
+							if (num >= limit) {
+								greeting = greeting.substring(0, i);
+							}
+							if (greeting.charCodeAt(i) > 127
+									|| greeting.charCodeAt(i) < 0)
+								num += 2;
+							else
+								num++;
+						}
+					}
+					$("#acccoutsafeform").attr("action",
+							"${rc.contextPath}/app/updategreeting.htm");
+					$("#acccoutsafeform").submit();
+				});
+
+		$("#cancel").click(function(){
+			var url ="${rc.contextPath}/app/accountActive.htm?method=accountSafe";
+			location.href = url;
+		});
+	});
+</script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="app_accountSafe"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box">
+<div class="tit">
+<h3><strong>设置问候语</strong></h3>
+</div>
+<form action="" id="acccoutsafeform" method="post">
+<div class="con_box secure_box">
+<div class="pay_login">
+<ul>
+	<li><font color=red>${returninfo?default('')}</font></li>
+	<li><label for=""><span class="red">*</span> 登录密码：</label><input
+		class="txtType1" type="text" name="loginPwd" id="loginPwd" /> <span
+		id="loginPwdTip"></span></li>
+	<li><label for=""><span class="red">*</span> 新问候语：</label><textarea
+		cols="28" rows="5" name="greeting" id="greeting"></textarea> <span
+		id="greetingTip"></span></li>
+	<li class="login_area"><span class="btn_yel botton_yel">
+	<button type="button" id="btnOk">保 存</button>
+	</span><span class="btn_grey_b botton_grey">
+	<button type="button" id="cancel">取 消</button>
+	</span></li>
+</ul>
+</div>
+</div>
+</form>
+<p class="bot"><i></i></p>
+</div>
+
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

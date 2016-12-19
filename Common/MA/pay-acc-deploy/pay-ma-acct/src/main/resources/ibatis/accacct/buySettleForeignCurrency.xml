@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="buySettleForeignCurrecny">
+
+	<typeAlias alias="buysettlePoundageConfig"
+		type="com.pay.acct.buySettleParities.model.BuysettlePoundageConfig" />
+
+	<select id="findByCriteria" parameterClass="java.util.Map"
+		resultClass="buysettlePoundageConfig">
+		select
+		ID  id,
+		PARTNER_ID          partnerId,
+		MINIMUM_VALUE minimumValue,
+		FIXED_FEE               fixedFee,
+		PERCENTAGE_FEE  percentageFee,
+		CAP_VALUE			capValue,
+		CREATE_DATE        createDate,
+		UPDATE_DATE       updateDate,
+		OPERATOR             operator,
+		CURRENCY_CODE  currencyCode,
+		STATUS         status
+		from
+		buySettle_poundage_config
+		where 1=1
+		<isNotEmpty prepend="and" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginCreateDate">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginCreateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endCreateDate">
+           CREATE_DATE <![CDATA[<=]]> to_date(#endCreateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginUpdateDate">
+			UPDATE_DATE <![CDATA[>=]]> to_date(#beginUpdateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endUpdateDate">
+           UPDATE_DATE <![CDATA[<=]]> to_date(#endUpdateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+           STATUS  = #status#
+		</isNotEmpty>
+		order by update_date desc
+	</select>
+	<select id="countByCriteriaBypartnerId" parameterClass="java.util.Map" resultClass="buysettlePoundageConfig">
+		select 
+		ID  id,
+		PARTNER_ID          partnerId,
+		MINIMUM_VALUE minimumValue,
+		FIXED_FEE               fixedFee,
+		PERCENTAGE_FEE  percentageFee,
+		CAP_VALUE			capValue,
+		CREATE_DATE        createDate,
+		UPDATE_DATE       updateDate,
+		OPERATOR             operator,
+		CURRENCY_CODE  currencyCode,
+		STATUS         status	
+		from buySettle_poundage_config t 
+		where t.status=#status# and t.partner_id=#partnerId# 
+	</select>
+	<select id="countByCriteria" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select
+		count(1)
+		from
+		buySettle_poundage_config
+		where 1=1
+		<isNotEmpty prepend="and" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginCreateDate">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginCreateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endCreateDate">
+           CREATE_DATE <![CDATA[<=]]> to_date(#endCreateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginUpdateDate">
+			UPDATE_DATE <![CDATA[>=]]> to_date(#beginUpdateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endUpdateDate">
+           UPDATE_DATE <![CDATA[<=]]> to_date(#endUpdateDate#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+           STATUS  = #status#
+		</isNotEmpty>
+	</select>
+
+	<insert id="create" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_BUYSETTLEPC_ID.nextval FROM DUAL
+		</selectKey>
+		insert into BUYSETTLE_POUNDAGE_CONFIG(
+		ID,
+		PARTNER_ID,
+		MINIMUM_VALUE,
+		FIXED_FEE,
+		PERCENTAGE_FEE,
+		CAP_VALUE,
+		CREATE_DATE,
+		UPDATE_DATE,
+		OPERATOR,
+		CURRENCY_CODE,
+		STATUS
+		)
+		values(
+				#id#,
+				#partnerId#,
+				#minimum#*1000,
+				#fixedFee#*1000,
+				#percentageFee#*100,
+				#capValue#*1000,
+				sysdate,
+				sysdate,
+				#operator#,
+				#currencyCode#,
+				#status#
+		)
+	</insert>
+	
+		<delete id="delete" parameterClass="java.lang.String">
+			delete  from BUYSETTLE_POUNDAGE_CONFIG
+			where id = #id#
+		</delete>
+
+	<update id="update" parameterClass="java.util.Map">
+		update BUYSETTLE_POUNDAGE_CONFIG
+		set 
+			MINIMUM_VALUE = #minimum#*1000,
+			FIXED_FEE = #fixedFee#*1000,
+			PERCENTAGE_FEE = #percentageFee#*100,
+			CAP_VALUE = #capValue#*1000,
+			OPERATOR = #operator#,
+			UPDATE_DATE = sysdate
+		where id = #id# 
+	</update>
+
+</sqlMap>

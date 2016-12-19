@@ -1,0 +1,194 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title>选择权限</title>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/b_rights.css" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+
+function sum_val(){
+	   var sum = '';
+	   var txt = '';
+	   var m = $(":checkbox[name=chMenuId]").length;
+	   if ( m == 0 ) return;
+	   var j = 0;
+		
+		$(":checkbox[name=chMenuId]").each(function(){
+		
+			if(this.checked){
+				if(sum != null && sum != ''){
+		       		sum = sum + "," + $(this).val();
+		       		j += 1;
+		       		if(j%5==0){
+		       			txt = txt + "<br/>" + $(this).attr("text");
+		       		} else {
+		       			txt = txt + "&nbsp;&nbsp;&nbsp;" + $(this).attr("text");
+		       		}
+			      } else {
+			    	  txt += $(this).attr("text");
+			    	  sum += $(this).val();
+			      }
+			}
+				
+		});
+	   
+	 //  alert(txt);
+	   parent.chechBoxTxt.html(txt+"<br/>");
+	   parent.inputTxt.val(sum);
+	   parent.winPerm.dialog('close');
+	   //document.getElementById('sum').innerHTML = sum;
+	}
+
+
+function reSetPerm(){
+	var t = document.getElementsByName('chMenuId');
+	   if ( t.length == 0 ) return;
+	var m = t.length;   
+	var menu = $("#menuIdList").val();
+	if(menu != null&& menu != ''){
+		var mIds = menu.split(",");
+	   for ( var i=0; i<m; i++ ){
+		   var val = t[i].value;
+	      if (val != null && val != ''){
+	    	  var menuIds = val.split(',');
+	    	  var n = menuIds.length;
+	    	  var sum = 0;
+	    	  var d = mIds.length;
+			  for ( var j=0; j<n; j++ ){
+	    	  	 for ( var k=0; k<d; k++ ){
+					  if(mIds[k] == (menuIds[j])){
+						  sum += 1;
+					  }
+				  }
+	    	  }
+			  if(sum == n){
+	    	  	t[i].checked = true;
+			  }else{
+				  t[i].checked = false;
+			  }
+	   	  }  
+	   }
+	}else {
+	   for ( var i=0; i<m; i++ ){
+	     t[i].checked = false;
+	   }
+	}
+	//parent.win.dialog('close');
+}
+
+function closeWin(){
+	parent.winPerm.dialog('close');
+}
+</script>
+</head>
+<body>
+<!--弹窗 str -->
+<div class="popup">
+	<div class="popup_box">
+		<div class="popup_content" style="padding-left:0;margin:0">
+			<form>
+				<div class="permissions">
+				<input type="hidden" id="menuIdList" name="menuIdList" value="${menuIdList?default('')}"/>
+					<#if menuList?exists>
+						<#list menuList as item>
+						<#--<#if item_index lt menuList?size-1>-->
+						<#if item.menuCode?exists && item.menuCode!='bsp_jurisdiction_manager' && item.menuCode!='corp_jurisdiction_manager'>
+						<fieldset>
+						<legend>${item.menuName}</legend>
+						<div class="permissions_box" style="display:" id="div_${item_index}">
+						    <#if item.parentId == '0'>
+						    <#if item.childlist?exists>
+							<#list item.childlist as cItem>
+							<#if cItem.displayFlag?default(0)==1>
+							<dl>
+								<dt>
+									<input id="ch${item.id}_${cItem.id}"  name="chMenuId" type="checkbox" value="${item.id},${cItem.id}<#if cItem.defaultPermId?has_content>,${cItem.defaultPermId}</#if>" <#if cItem.checked>checked=ture </#if> text="${cItem.menuName}">
+									<label for="">${cItem.menuName}</label>
+								</dt>
+								<!--三级菜单-->
+								<#if cItem.childlist?exists>
+								<#list cItem.childlist as dItem>
+								<#if !cItem.defaultPermId?has_content || ! cItem.defaultPermId?contains(dItem.id)> 
+								<dd>
+									<input id="ch${item.id}_${cItem.id}_${dItem.id}"  name="chMenuId" type="checkbox" value="${item.id},${cItem.id},${dItem.id}<#if dItem.childlist?exists><#list dItem.childlist as fItem>,${fItem.id}</#list></#if>" <#if dItem.checked>checked=ture </#if> text="${dItem.menuName}">
+									<label for="test0001">${dItem.menuName}</label>
+								</dd>
+								</#if>
+								
+								</#list>
+								</#if>
+							</dl>	</#if>
+							</#list>
+							</#if>
+							</#if>
+						</div>
+						</fieldset>
+						</#if>
+						</#list>
+					</#if>
+					
+				</div>
+				<p class="save"> <span class="btn_yel botton_yel ">
+					<button onClick="sum_val();">确 定</button>
+					</span> <a class="red" href="javascript:reSetPerm();">取 消</a>
+					&nbsp;&nbsp;&nbsp;&nbsp; <a class="red" href="javascript:closeWin();">关 闭</a></p>
+			</form>
+		</div>
+	</div>
+</div>
+<!--弹窗 end  -->
+<script>
+$(function(){
+	$(".permissions_box").each(function(){
+		setHeight($(this));
+	});
+
+	$("dt :checkbox").click(function(){
+	    var ck=this.checked;
+	    var dt=$(this).parent();
+	    var childck=$(dt).nextAll().find(":checkbox");
+		 	$(childck).each(function(){
+	            this.checked=ck;
+	    	});
+	 });
+
+	 $("dd :checkbox").click(function(){
+		 	var ck=this.checked;
+		 	var dt=$(this).parent().prevAll("dt");
+		 	var l=getCheckedLen($(dt).nextAll());
+		 	
+		 	if(l>0){
+		 		ck=true;
+			 }
+		 	$(dt).find(":checkbox").attr("checked",ck);
+		 });
+
+		
+});
+
+function  setHeight(obj){
+	var h=0;
+	var div=$(obj);
+	var dl=$(div).find("dl");
+	$(dl).each(function(){
+	    if($(this).height()>h)
+	       h=$(this).height();
+	});
+
+	$(dl).css("height",h+20);
+	
+}
+
+function getCheckedLen(obj){
+	var l=0;
+	$(obj).find(":checkbox").each(function(){
+		if(this.checked)
+			l++;	
+		});
+	return l;
+}
+</script>
+</body>
+</html>

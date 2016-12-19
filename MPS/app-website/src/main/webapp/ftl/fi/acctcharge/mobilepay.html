@@ -1,0 +1,170 @@
+<script>
+    // 手机卡用户费率
+    var r = '';
+	// 参数初始化
+	$(function(){
+		$('#cardNo').focus();
+		$.ajax({
+		   type: "POST",
+		   url: "${rc.contextPath}/app/cardChannel.htm?method=caculateMobileFee",
+		   success: function(rate){
+			    r = rate;
+			   	$('#mobilePayFee').html((rate*100).toFixed(2));
+			  	var price = $('#selectAmount').val();
+				var result = price*rate;
+				$('#realAmount').text((price-result).toFixed(2));
+				$('#orderAmount').val((price-result).toFixed(2));
+				$('#fee').text((result).toFixed(2));
+		   }
+		});		
+	});
+	
+	<#if errorMsg?exists>
+		//如弹出错误提示框,并且支付方式为行业卡支付,则选中行业卡
+		$(function(){
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+		});
+	</#if>
+	
+	function onPriceSelected(){
+		var price = $('#selectAmount').val();
+		var result = price*r;
+		$('#realAmount').text((price-result).toFixed(2));
+		$('#orderAmount').val((price-result).toFixed(2));
+		$('#fee').text((result).toFixed(2));
+	}
+	
+	function cardPayCheck(url) {
+		var cardNo = $("#cardNo").val();
+		var cardPwd = $("#cardPwd").val();
+		var totalAmount = $("#selectAmount").val();
+		var orderAmount = $("#orderAmount").val();
+		var selectAmount = $('#selectAmount').val();
+		if(cardNo == "") {
+			$("#cardNoErrorMsg").removeClass("hide");
+			$("#cardNoErrorMsg").html('<i class="warn_ico" style="vertical-align:text-top; margin-right:3px;"></i>请输入卡号!');
+			$("#cardNo").focus();
+			return false;
+		}else{
+			$("#cardNoErrorMsg").addClass("hide");
+			$("#cardNoErrorMsg").html("");
+		}
+		
+		if(cardPwd == "") {
+			$("#cardPwdErrorMsg").removeClass("hide");
+			$("#cardPwdErrorMsg").html('<i class="warn_ico" style="vertical-align:text-top; margin-right:3px;"></i>请输入卡密!');
+			$("#cardPwd").focus();
+			return false;
+		}else{
+			$("#cardPwdErrorMsg").addClass("hide");
+			$("#cardPwdErrorMsg").html("");
+		}
+		
+		if($("#realAmount").html() * 1000 < totalAmount) {
+			$("#cardMoneyErrorMsg").removeClass("hide");
+			$("#cardMoneyErrorMsg").html('<i class="warn_ico" style="vertical-align:text-top; margin-right:3px;"></i>选择的面值不能够完成支付!');
+			$("#selectAmount").focus();
+			return false;
+		}else{
+			$("#cardMoneyErrorMsg").addClass("hide");
+			$("#cardMoneyErrorMsg").html("");
+		}
+		
+		$.ajax({
+		   type: "POST",
+		   url: "${rc.contextPath}/app/cardChannel.htm?method=validateCardPayCharge",
+		   data: "cardNo="+cardNo+"&cardPwd="+cardPwd+"&totalAmount="+totalAmount+"&orderAmount="+orderAmount+"&selectAmount="+selectAmount,
+		   success: function(msg){
+			   if(0==msg.indexOf("<!DOCTYPE HTML>")){
+					window.location.href = "${rc.contextPath}/index.htm";
+					return false;
+			   }
+			   if(msg!=''){
+				   if(-1==msg.indexOf("<!DOCTYPE HTML>")){
+					   $.pay.alert(msg,{h:160,t:'3'});
+				   }
+			   }else{
+				   if($("#postHeepaySubmit").attr("disabled")) return;
+				   document.forms[url].submit();
+				   $("#postHeepaySubmit").attr("disabled", true);
+			   }
+		   }
+		});
+	}
+	
+	$("#cardNo").keypress(function(e){
+		var keyCode = e.which;
+		if(keyCode == 13){
+	    	cardPayCheck('tradeCardPay');
+	    	return false;
+	    }
+	});
+	
+	$("#cardPwd").keypress(function(e){
+		var keyCode = e.which;
+		if(keyCode == 13){
+	    	cardPayCheck('tradeCardPay');
+	    	return false;
+	    }
+	});
+</script>
+<div>
+	<!-- 手机充值-->
+	<div id="mobileDeposit">
+		<form method="post" action="${rc.contextPath}/app/cardChannel.htm?method=charge" id="tradeCardPay" name="tradeCardPay">
+		<ul class="mt10">
+			<li><span class="mz" style=" display:inline-block; text-align:right; width:95px;">选择面值：</span>
+			 <select class="inp_normal" name="selectAmount" id="selectAmount"
+				onchange="onPriceSelected();" index="0">
+				<option value="30"<#if selectAmount?default('0') == "30">selected</#if>>30元</option>
+				<option value="50"<#if selectAmount?default('0') == "50">selected</#if>>50元</option>
+				<option selected="selected" value="100"<#if selectAmount?default('0') == "100">selected</#if>>100元</option>
+				<option value="300"<#if selectAmount?default('0') == "300">selected</#if>>300元</option>
+				<option value="500"<#if selectAmount?default('0') == "500">selected</#if>>500元</option>
+			</select>
+				<span class="tip_fm hide" id="cardMoneyErrorMsg"><i class="warn_ico"></i></span>
+			</li>
+			<li class="mt10">
+			<label  style=" display:inline-block; text-align:right; width:95px;" class="spa">卡  号：</label> 
+			<input type="text" class="inp_normal" name="cardNo" id="cardNo" size="25" maxlength="25"
+				value="${cardNo?default('')}" tabindex="1"/> 
+				<span id="cardNoErrorMsg" class="tip_fm hide"><i class="warn_ico"></i></span>				
+			</li>
+			<li class="mt10">
+			<label class="spa" style=" display:inline-block; text-align:right; width:95px;">密 码：</label> <input type="text" class="inp_normal" name="cardPwd"
+				id="cardPwd" size="25" maxlength="25" value="${cardPwd?default('')}" tabindex="2"/>
+				<span class="tip_fm hide" id="cardPwdErrorMsg"><i class="warn_ico"></i></span>
+			</li>
+			</li>
+			<br />
+			<li><label  style=" display:inline-block; text-align:right; width:95px;" class="form_side col333">充 值：</label>
+			 <input type="hidden" name="orderAmount" id="orderAmount" /> <strong
+				class="red" id="realAmount"></strong>元&nbsp;|&nbsp;服务费 <strong class="red" id="fee"></strong> 元</li>
+			<br />
+		</ul>
+		<br />
+		<br />
+		<p class="txtC"><span class="btn_yel botton_yel">
+		<button id="postHeepaySubmit" type="button" onclick="cardPayCheck('tradeCardPay');" tabindex="3">确认充值</button>
+		</span></p>
+		<div class="bank_title col333"><strong>手机卡充值</strong></div>
+		<table class="bank_table txtC">
+			<thead>
+				<tr>
+					<th width="30%">使用范围</th>
+					<th>限额及次数</th>
+					<th>服务费</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td><strong>全国神州行,联通一卡充,电信充值卡</strong></td>
+					<td><strong>每日累计可充值5000.00元</strong></td>
+					<td><strong>面值的<span id="mobilePayFee">0</span>%</strong></td>
+				</tr>
+			</tbody>
+		</table>
+		</form>
+	</div>
+	<!-- 手机充值-->
+</div>

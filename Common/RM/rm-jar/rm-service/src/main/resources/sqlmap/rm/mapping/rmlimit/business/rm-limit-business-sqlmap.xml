@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcbusiness">
+	<typeAlias alias="rcBusiness" type="com.pay.rm.service.model.rmlimit.business.RcBusiness"/>
+    <resultMap id="rcBusiness" class="com.pay.rm.service.model.rmlimit.business.RcBusiness">
+        <result column="BUSINESS_NAME" property="businessName" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BUSINESS_ID" property="businessId" jdbcType="DECIMAL"/>
+        <result column="BUSINESS_TYPE" property="businessType" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		BUSINESS_NAME,STATUS,BUSINESS_ID,BUSINESS_TYPE
+    </sql>
+    <insert id="create" parameterClass="rcBusiness">
+        INSERT INTO RC_BUSINESS(
+			BUSINESS_NAME,
+			STATUS,BUSINESS_ID,
+			BUSINESS_TYPE
+        )
+        VALUES(
+            #businessName#,
+            #status#,
+            #businessId#,
+            #businessType#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcBusiness">
+        UPDATE RC_BUSINESS
+           SET  
+           BUSINESS_NAME = #businessName#,
+           BUSINESS_TYPE = #businessType#,
+           STATUS = #status#
+		WHERE 
+            BUSINESS_ID = #businessId# 
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+        DELETE FROM RC_BUSINESS        
+		WHERE
+            BUSINESS_ID = #businessId# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcBusiness">
+        DELETE FROM RC_BUSINESS        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="businessName">
+            BUSINESS_NAME = #businessName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcBusiness"
+        parameterClass="java.lang.Long">
+        SELECT 
+			BUSINESS_NAME,
+			STATUS,BUSINESS_ID,
+			BUSINESS_TYPE
+        FROM RC_BUSINESS
+        WHERE 
+            BUSINESS_ID = #businessId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcBusiness">
+        SELECT 
+			BUSINESS_NAME,
+			STATUS,
+			BUSINESS_ID,
+			BUSINESS_TYPE
+        FROM RC_BUSINESS
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="businessName">
+            BUSINESS_NAME = #businessName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        </dynamic>
+        ORDER BY BUSINESS_ID
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT COUNT(*) FROM RC_BUSINESS
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="businessName">
+            BUSINESS_NAME = #businessName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+    
+    <!-- 查询所有业务类型 -->
+    <select id="queryRcBusiness"  resultClass="rcBusiness">
+         SELECT 
+         	BUSINESS_ID  	businessId		,
+         	BUSINESS_NAME 	businessName
+         FROM RC_BUSINESS
+    </select>
+</sqlMap>

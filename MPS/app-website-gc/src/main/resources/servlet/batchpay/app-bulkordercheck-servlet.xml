@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean id="bulkordercheckHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+     	
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bulkorderCheck.htm">bulkorderCheckController</prop>
+			</props>
+		</property>
+		
+	</bean>
+
+	<bean id="bulkorderCheckController" class="com.pay.app.controller.base.bulkpayment.BulkorderCheckController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="checkDetailView">
+			<value>/gcpayment/bulkpayment/bulkorder_check_detail</value>
+		</property>
+		<property name="checkView">
+			<value>/gcpayment/bulkpayment/bulk_payment_check</value>
+		</property>
+		
+		<property name="bulkpayTemplateService">
+			<ref bean="app-bulkpayTemplateService"/>
+		</property>
+		<property name="bulkpayOrderService">
+			<ref bean="app-bulkpayOrderService"/>
+		</property>
+		
+	</bean>
+
+</beans>

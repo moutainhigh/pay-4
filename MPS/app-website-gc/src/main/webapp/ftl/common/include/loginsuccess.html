@@ -1,0 +1,40 @@
+<#if Session["userSession"].scaleType==3> <#assign urlPath = 'app' />
+<#else> <#assign urlPath = 'corp' /> </#if>
+
+<div class="idx_login_bx">
+	<div class="bg_fff f13">
+		<h3 class="p5 bg_eee">用户信息</h3>
+		<dl class="m5 p10 pt0 f12 lh240 c_666">
+			<dt class="h24">
+				<strong>${memberInfo.verifyName?default('')}</strong> 欢迎您！ <a href="${rc.contextPath}/logout.htm" class="blue">[注销]</a>
+			</dt>
+			<dd>上次登录：<#if Session["epLastLoginTime"]?exists >${Session["epLastLoginTime"]?default('')}</#if></dd>
+			<dd>
+				身&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;份：<em class="c_r_c00">
+				<#if memberInfo.memberType == 2>
+					<#if memberInfo.operatorId == 0>管理员<#else>操作员</#if>
+				<#else>
+					个人
+				</#if>
+				</em>
+				<input type="button" value="进入我的账户" class="button btn_small btn_b05" onclick="window.location.href='${rc.contextPath}/${urlPath}/myAccount.htm'">
+			</dd>
+			<dd>当前账户：${memberInfo.loginName?default('')}</dd>
+			<dd>
+				可用余额：<strong class="c_r_c00">${(balance?default('0')?string(",##0.00"))}</strong> 元
+			</dd>
+
+		</dl>
+
+		<ul class="clearfix btm_link lh300 br_ddd">
+			<li><a href="${rc.contextPath}/${urlPath}/acctCharge.htm">充值</a></li>
+			<li><a href="${rc.contextPath}/${urlPath}/withdraw.htm">提现</a></li>
+			<li><a href="${rc.contextPath}/${urlPath}/pay2account.htm">付款</a></li>
+			<li><a href="${rc.contextPath}/${urlPath}/queryBalanceList.htm?method=queryBalance">收支汇总</a></li>
+			<li><a href="${rc.contextPath}/${urlPath}/accountInfo.htm">账户信息</a></li>
+			<li><a href="${rc.contextPath}/${urlPath}/accountActive.htm?method=accountSafe">安全中心</a></li>
+		</ul>
+
+
+	</div>
+</div>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+    <bean id="certMerberQueryHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/certMebQuery.htm">certMerberQueryController</prop>
+				<prop key="/cert/doCheckLocalInstall.htm">CertLocalInstallQueryController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="certMerberQueryController" class="com.pay.app.controller.base.cert.CertMerberQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="memberCertService" ref="acc-memberCertService" />	
+    </bean>
+    
+    <bean id="certInstalQueryParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/cert/doCheckLocalInstall.htm">doCheckLocalInstall</prop>
+			</props>
+		</property>
+	</bean>
+    
+    <bean id="CertLocalInstallQueryController" class="com.pay.app.controller.base.cert.CertLocalInstallQueryController">
+		<property name="methodNameResolver">
+			<ref bean="certInstalQueryParamResolver" />
+		</property>
+    </bean>
+
+</beans>

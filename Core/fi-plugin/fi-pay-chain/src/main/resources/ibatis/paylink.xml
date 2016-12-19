@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paychain">
+
+	<typeAlias alias="logoPicture" type="com.pay.fi.chain.model.LogoPicture"/>
+	<typeAlias alias="payLinkBaseInfo" type="com.pay.fi.chain.model.PayLinkBaseInfo"/>
+	<typeAlias alias="payLink" type="com.pay.fi.chain.model.PayLink"/>
+	<typeAlias alias="payLinkAttrib" type="com.pay.fi.chain.model.PayLinkAttrib"/>
+	
+	<typeAlias alias="payLinkCondition" type="com.pay.fi.chain.condition.paylink.PayLinkCondition"/>
+	
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	<typeAlias alias="string" type="java.lang.String"/>
+	<typeAlias alias="long" type="java.lang.Long"/>
+	
+	<!-- 支付链，商户logo新增 -->
+	<insert id="insert" parameterClass="logoPicture">
+		<selectKey keyProperty="pictureId" resultClass="java.lang.Long">
+			select seq_payLink_logoPicture_id.nextVal as pictureId from dual
+		</selectKey>
+		insert into PAY_LINK_LOGO_PICTURE(
+			PICTURE_ID,
+			MEMBER_CODE,
+			PICTURE_NAME,
+			PICTURE_PATH,
+			CREATE_TIME,
+			MERCHANT_SITE
+		)
+		values(
+			#pictureId#,
+			#memberCode#,
+			#pictureName#,
+			#picturePath#,
+			#createTime#,
+			#merchantSite#
+		)
+	</insert>
+	<!-- 根据memberCode查找logo -->
+	<select id="findPicByMemberCode" parameterClass="long" resultClass="logoPicture">
+		select PICTURE_ID as pictureId,MEMBER_CODE as memberCode,PICTURE_NAME as pictureName,
+			PICTURE_PATH as picturePath,CREATE_TIME as createTime,MERCHANT_SITE as merchantSite from PAY_LINK_LOGO_PICTURE
+		where MEMBER_CODE=#memberCode# order by PICTURE_ID asc
+	</select>
+	<!-- logo条件查询 -->
+	<select id="selectByCondition" parameterClass="logoPicture" resultClass="logoPicture">
+		select PICTURE_ID as pictureId,MEMBER_CODE as memberCode,PICTURE_NAME as pictureName,
+			PICTURE_PATH as picturePath,CREATE_TIME as createTime,MERCHANT_SITE as merchantSite from PAY_LINK_LOGO_PICTURE
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="pictureId">
+				PICTURE_ID=#pictureId#
+			</isNotEmpty>
+		</dynamic>
+	</select>
+	<!-- logo条件删除 -->
+	<delete id="deleteByCondition" parameterClass="logoPicture">
+		delete from PAY_LINK_LOGO_PICTURE
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="pictureId">
+				PICTURE_ID=#pictureId#
+			</isNotEmpty>
+		</dynamic>
+	</delete>
+	<!-- logo条件更改 -->
+	<update id="updatePicByParam" parameterClass="logoPicture">
+		update 	PAY_LINK_LOGO_PICTURE set MERCHANT_SITE=#merchantSite#
+		<dynamic prepend="where">
+			<isNotEmpty prepend="and" property="pictureId">
+				PICTURE_ID=#pictureId#
+			</isNotEmpty>
+		</dynamic>
+	</update>
+	<!-- 支付链基本信息[购物条款｜联系方式]查询 -->
+	<select id="payLinkBaseInfoQuery" resultClass="payLinkBaseInfo" parameterClass="java.lang.Long">
+		WITH t_info_id as (select info_id from pay_link_base_info where membercode = #memberCode#)
+		select INFO_ID as infoId,MEMBERCODE as memberCode,SHOPTERMS_NAME as shoptermsName,SHOPTERMS_URL as shoptermsUrl,
+			CONTACT as contact from PAY_LINK_BASE_INFO
+		where MEMBERCODE = #memberCode# and INFO_ID = (select MAX(INFO_ID) from t_info_id)
+	</select>
+	<!-- 基本信息插入 -->
+	<insert id="baseInfoSave" parameterClass="payLinkBaseInfo">
+		<selectKey keyProperty="infoId" resultClass="java.lang.Long">
+			select seq_pay_link_base_info_id.nextVal as infoId from dual
+		</selectKey>
+		insert into PAY_LINK_BASE_INFO(
+			INFO_ID,
+			MEMBERCODE,
+			SHOPTERMS_NAME,
+			SHOPTERMS_URL,
+			CONTACT,
+			CREATE_TIME,
+			UPDATE_TIME
+		)
+		values(
+			#infoId#,
+			#memberCode#,
+			#shoptermsName#,
+			#shoptermsUrl#,
+			#contact#,
+			#createTime#,
+			#updateTime#
+		)
+	</insert>
+	<!-- 修改售后联系方式 -->
+	<update id="updateContact" parameterClass="hMap">
+		update PAY_LINK_BASE_INFO set UPDATE_TIME=#updateDate#, CONTACT=#contact#
+		where INFO_ID=#infoId#
+	</update>
+	
+	<!-- 购物条款新增 -->
+	<insert id="shoptermSave" parameterClass="payLinkBaseInfo">
+		<selectKey keyProperty="infoId" resultClass="java.lang.Long">
+			select seq_pay_link_base_info_id.nextVal as infoId from dual 
+		</selectKey>
+		insert into PAY_LINK_BASE_INFO
+		(
+			INFO_ID,
+			MEMBERCODE,
+			SHOPTERMS_NAME,
+			SHOPTERMS_URL,
+			CREATE_TIME
+		)
+		values(
+			#infoId#,
+			#memberCode#,
+			#shoptermsName#,
+			#shoptermsUrl#,
+			#createTime#
+		)
+	</insert>
+	<!-- 支付链基本信息，购物条款部分修改 -->
+	<update id="updateShopTermById" parameterClass="hMap">
+		update PAY_LINK_BASE_INFO set UPDATE_TIME=#updateTime#, SHOPTERMS_NAME=#shoptermName#, SHOPTERMS_URL=#shoptermUrl#
+		where INFO_ID=#infoId#
+	</update>
+	
+	<!-- 支付链生成 -->
+	<insert id="payLinkSave" parameterClass="payLink">
+		<selectKey keyProperty="paylinkNo" resultClass="java.lang.Long">
+			select 921 || to_char(sysdate, 'yymmddhh24mi') || lpad(seq_pay_link_no.nextval, 6, 0) from dual
+		</selectKey>
+		insert into PAY_LINK(
+			PAY_LINK_NO,
+			MEMBER_CODE,
+			INFO_ID,
+			CREATETIME,
+			INVALIDTIME,
+			PAY_LINK_NAME,
+			STATUS,
+			LOGOPATH,
+			PAYMENTLOGOFLG,
+			OTHERFEENAME,
+			FEE,
+			INVALIDTIMELONG,
+			TOTALAMOUNT,
+			FEECURRENCYCODE,
+			PRODUCTAMOUNT,
+			MERCHANTSITE,
+			PRODUCTNAMEDESC
+		)
+		values(
+			#paylinkNo#,
+			#memberCode#,
+			#infoId#,
+			#createTime#,
+			#invalidTime#,
+			#payLinkName#,
+			#status#,
+			#logoPath#,
+			#paymentLogoFlg#,
+			#otherFeeName#,
+			#fee#,
+			#invalidTimeLong#,
+			#totalAmount#,
+			#feeCurrencyCode#,
+			#productAmount#,
+			#merchantSite#,
+			#productNameDesc#
+		)
+	</insert>
+	<!-- 支付链商品属性添加 -->
+	<insert id="payLinkAttribSave" parameterClass="payLinkAttrib">
+		<selectKey keyProperty="attribId" resultClass="java.lang.Long">
+			select seq_pay_link_attrib_id.nextval from dual 
+		</selectKey>
+		insert into PAY_LINK_ATTRIB(
+			ATTRIB_ID,
+			PAY_LINK_NO,
+			PRODUCTNAME,
+			PRODUCTSPEC,
+			PRODUCTNUM,
+			PRICE,
+			CURRENCY_CODE,
+			SITE
+		)
+		values(
+			#attribId#,
+			#payLinkNo#,			
+			#productName#,			
+			#productSpec#,			
+			#productNum#,			
+			#price#,			
+			#currencyCode#,			
+			#site#			
+		)
+	</insert>
+	<!-- 支付链条件查询。计总通用条件 -->
+	<sql id="paylink_findByCriteria">
+		<!-- <dynamic prepend="where"> -->
+			
+			<isNotEmpty property="payLinkName" prepend="and">
+				PAY_LINK_NAME=#payLinkName#
+			</isNotEmpty>
+			<!-- 创建时间 -->
+			<isNotEmpty property="createTimeStart" >
+				<isEmpty property="createTimeEnd" prepend="and">
+					to_char(CREATETIME, 'YYYY-MM-DD')=#createTimeStart#
+				</isEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="createTimeEnd">
+				<isEmpty property="createTimeStart" prepend="and">
+					to_char(CREATETIME, 'YYYY-MM-DD')=#createTimeEnd#
+				</isEmpty>
+			</isNotEmpty>
+			<!-- <isEqual compareProperty="createTimeBetween" compareValue="true" prepend="and">
+				<![CDATA[  to_char(CREATETIME,'YYYY-MM-DD') >= #createTimeStart# and to_char(CREATETIME,'YYYY-MM-DD') <= #createTimeEnd# ]]>
+			</isEqual> -->
+			<isNotEmpty property="createTimeBetween" prepend="and">
+				<![CDATA[  to_char(CREATETIME,'YYYY-MM-DD') >= #createTimeStart# and to_char(CREATETIME,'YYYY-MM-DD') <= #createTimeEnd# ]]>
+			</isNotEmpty>
+			<!-- 失效时间 -->
+			<isNotEmpty property="invalidTimeStart">
+				<isEmpty property="invalidTimeEnd" prepend="and">
+					to_char(INVALIDTIME,'YYYY-MM-DD')=#invalidTimeStart#
+				</isEmpty>
+			</isNotEmpty>
+			<isNotEmpty property="invalidTimeEnd">
+				<isEmpty property="invalidTimeStart" prepend="and">
+					to_char(INVALIDTIME, 'YYYY-MM-DD')=#invalidTimeEnd#
+				</isEmpty>
+			</isNotEmpty>
+			<!-- <isEqual compareProperty="invalidTimeBetween" compareValue="true" prepend="and">
+				<![CDATA[ to_char(INVALIDTIME, 'YYYY-MM-DD') >=#invalidTimeStart# and to_char(INVALIDTIME, 'YYYY-MM-DD') <=#invalidTimeEnd# ]]>
+			</isEqual> -->
+			<isNotEmpty property="invalidTimeBetween" prepend="and">
+				<![CDATA[ to_char(INVALIDTIME, 'YYYY-MM-DD') >=#invalidTimeStart# and to_char(INVALIDTIME, 'YYYY-MM-DD') <=#invalidTimeEnd# ]]>
+			</isNotEmpty>
+			<isNotEmpty property="status">
+				<isEmpty property="invalidTime" prepend="and">
+					STATUS=#status#
+				</isEmpty>
+				<isEqual property="status" compareValue="1">
+					<isNotEmpty property="invalidTime" prepend="and">
+						to_char(INVALIDTIME, 'yyyy-MM-dd hh24:mi:ss') &lt; #invalidTime# or STATUS=#status# 
+					</isNotEmpty>
+				</isEqual>
+				<isEqual property="status" compareValue="0">
+					<isNotEmpty property="invalidTime" prepend="and">
+						to_char(INVALIDTIME, 'yyyy-MM-dd hh24:mi:ss') &gt; #invalidTime# and STATUS=#status# 
+					</isNotEmpty>
+				</isEqual>
+				
+			</isNotEmpty>
+		<!-- </dynamic> -->
+	</sql>
+	<!-- 支付链查询 ,List-->
+	<select id="findByCriteria" parameterClass="payLinkCondition" resultClass="payLink">
+		<!-- select 
+			PAY_LINK_NO as paylinkNo,
+			MEMBER_CODE as memberCode,
+			INFO_ID as infoId,
+			CREATETIME as createTime,
+			INVALIDTIME as invalidTime,
+			PAY_LINK_NAME as payLinkName,
+			INVALIDTIME as statusMsg,
+			STATUS as status,
+			LOGOPATH as logoPath,
+			PAYMENTLOGOFLG as paymentLogoFlg,
+			OTHERFEENAME as otherFeeName,
+			FEE as fee,
+			INVALIDTIMELONG as invalidTimeLong,
+			TOTALAMOUNT as totalAmount,
+			FEECURRENCYCODE as feeCurrencyCode,
+			PRODUCTAMOUNT as productAmount
+		from PAY_LINK -->
+		with pla_temp as (select pla.pay_link_no, pla.PRODUCTNAME, pla.CURRENCY_CODE from pay_link_attrib pla )
+		,pla_temp_temp as(select pay_link_no, WMSYS.WM_CONCAT(productname) as productname, currency_code from pla_temp group by pay_link_no,currency_code)
+		select 
+			pl.PAY_LINK_NO as paylinkNo,
+			pl.MEMBER_CODE as memberCode,
+			pl.INFO_ID as infoId,
+			pl.CREATETIME as createTime,
+			pl.INVALIDTIME as invalidTime,
+			pl.PAY_LINK_NAME as payLinkName,
+			pl.INVALIDTIME as statusMsg,
+			pl.STATUS as status,
+			pl.LOGOPATH as logoPath,
+			pl.PAYMENTLOGOFLG as paymentLogoFlg,
+			pl.OTHERFEENAME as otherFeeName,
+			pl.FEE as fee,
+			pl.INVALIDTIMELONG as invalidTimeLong,
+			pl.TOTALAMOUNT as totalAmount,
+			pl.FEECURRENCYCODE as feeCurrencyCode,
+			pl.PRODUCTAMOUNT as productAmount,
+			pl.PRODUCTNAMEDESC as productName,
+			<!-- plat.productname as productName, --> plat.currency_code as currencyCode
+			<!-- added 2016.2.24 -->
+			<!-- <isNotEmpty property="productName" prepend=",">
+				plattrib.productname 
+			</isNotEmpty> -->
+			<!-- added 2016.2.24 --> 
+			
+		from pay_link pl left join pla_temp_temp plat 
+			on pl.pay_link_no = plat.pay_link_no
+			<!-- added 2016.2.24 -->
+			<!-- <isNotEmpty property="productName">
+				right JOIN PAY_LINK_ATTRIB plattrib on pl.pay_link_no = plattrib.pay_link_no
+			</isNotEmpty> -->
+			<!-- added 2016.2.24 -->
+		where 1 = 1
+		<isNotEmpty property="memberCode" prepend="and">
+			pl.MEMBER_CODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payLinkNo" prepend="and">
+			pl.PAY_LINK_NO=#payLinkNo#
+		</isNotEmpty>
+		<!-- <isNotEmpty property="productName" prepend="and">
+			plattrib.productname in ($productName$)
+		</isNotEmpty> -->
+		<isNotEmpty property="productName" prepend="and">
+			pl.PRODUCTNAMEDESC like  '%' || #productName# || '%'
+		</isNotEmpty>
+		<isParameterPresent>
+			<include refid="paylink_findByCriteria"/>
+		</isParameterPresent>
+		order by pl.CREATETIME desc
+	</select>
+	<select id="findByCriteria_COUNT" parameterClass="payLinkCondition" resultClass="java.lang.Integer">
+		select count(1) from PAY_LINK pl
+		<!-- <isNotEmpty property="productName">
+			right join pay_link_attrib pla ON pl.PAY_LINK_NO = pla.PAY_LINK_NO
+		</isNotEmpty> -->
+		where 1=1
+		<isNotEmpty property="memberCode" prepend="and">
+			pl.MEMBER_CODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payLinkNo" prepend="and">
+			pl.PAY_LINK_NO=#payLinkNo#
+		</isNotEmpty>
+		<!-- <isNotEmpty property="productName" prepend="and">
+			pla.productname in ($productName$)
+		</isNotEmpty>  -->
+		<isNotEmpty property="productName" prepend="and">
+			pl.PRODUCTNAMEDESC like  '%' || #productName# || '%'
+		</isNotEmpty>
+		<isParameterPresent>
+			<include refid="paylink_findByCriteria"/>
+		</isParameterPresent>
+	</select>
+	<!-- 支付链查询，Object -->
+	<select id="findPayLinkByPayLinkNo" parameterClass="java.lang.Long" resultClass="payLink">
+		select 
+			PAY_LINK_NO as paylinkNo,
+			MEMBER_CODE as memberCode,
+			INFO_ID as infoId,
+			CREATETIME as createTime,
+			INVALIDTIME as invalidTime,
+			PAY_LINK_NAME as payLinkName,
+			INVALIDTIME as statusMsg,
+			STATUS as status,
+			LOGOPATH as logoPath,
+			PAYMENTLOGOFLG as paymentLogoFlg,
+			OTHERFEENAME as otherFeeName,
+			FEE as fee,
+			INVALIDTIMELONG as invalidTimeLong,
+			TOTALAMOUNT as totalAmount,
+			FEECURRENCYCODE as feeCurrencyCode,
+			PRODUCTAMOUNT as productAmount,
+			MERCHANTSITE as merchantSite
+		from PAY_LINK
+			where PAY_LINK_NO=#payLinkNo#
+	</select>
+	
+	<!-- 根据支付链ID更新状态 -->
+	<update id="updateStatusByNo" parameterClass="hMap">
+		update PAY_LINK set STATUS=#status#,INVALIDTIME=#invalidTime# where PAY_LINK_NO=#payLinkNo#
+	</update>
+	<!-- 支付链商品属性查询 -->
+	<select id="findPayLinkAttribsByPayLinkNo" parameterClass="java.lang.Long" resultClass="payLinkAttrib">
+		select 
+			PAY_LINK_NO as payLinkNo,
+			PRODUCTNAME as productName,
+			PRODUCTSPEC	as productSpec,
+			PRODUCTNUM as productNum,
+			PRICE	as price,
+			CURRENCY_CODE as currencyCode,
+			SITE as site,
+			ATTRIB_ID as attribId,
+			'' as currencyCodeDes
+		from PAY_LINK_ATTRIB where PAY_LINK_NO=#payLinkNo#
+	</select>
+	<!-- 根据支付链名称查询支付链 -->
+	<select id="findPayLinkByName" parameterClass="string" resultClass="payLink">
+		
+		<!-- select 
+			PAY_LINK_NO as paylinkNo,
+			MEMBER_CODE as memberCode,
+			INFO_ID as infoId,
+			CREATETIME as createTime,
+			INVALIDTIME as invalidTime,
+			PAY_LINK_NAME as payLinkName,
+			STATUS as status,
+			LOGOPATH as logoPath,
+			PAYMENTLOGOFLG as paymentLogoFlg,
+			OTHERFEENAME as otherFeeName,
+			FEE as fee,
+			INVALIDTIMELONG as invalidTimeLong,
+			TOTALAMOUNT as totalAmount,
+			FEECURRENCYCODE as feeCurrencyCode,
+			PRODUCTAMOUNT as productAmount,
+			MERCHANTSITE as merchantSite
+		from PAY_LINK
+			where PAY_LINK_NAME=#payLinkName# -->
+		with pla_temp as (select pla.pay_link_no, pla.PRODUCTNAME, pla.CURRENCY_CODE from pay_link_attrib pla )
+		,pla_temp_temp as(select pay_link_no, WMSYS.WM_CONCAT(productname) as productname, currency_code from pla_temp group by pay_link_no,currency_code)
+		select 
+			pl.PAY_LINK_NO as paylinkNo,
+			pl.MEMBER_CODE as memberCode,
+			pl.INFO_ID as infoId,
+			pl.CREATETIME as createTime,
+			pl.INVALIDTIME as invalidTime,
+			pl.PAY_LINK_NAME as payLinkName,
+			pl.INVALIDTIME as statusMsg,
+			pl.STATUS as status,
+			pl.LOGOPATH as logoPath,
+			pl.PAYMENTLOGOFLG as paymentLogoFlg,
+			pl.OTHERFEENAME as otherFeeName,
+			pl.FEE as fee,
+			pl.INVALIDTIMELONG as invalidTimeLong,
+			pl.TOTALAMOUNT as totalAmount,
+			pl.FEECURRENCYCODE as feeCurrencyCode,
+			pl.PRODUCTAMOUNT as productAmount,
+			pl.MERCHANTSITE as merchantSite,
+			pl.PRODUCTNAMEDESC as productName,
+			<!-- plat.productname as productName, --> plat.currency_code as currencyCode 
+		from pay_link pl left join pla_temp_temp plat 
+			on pl.pay_link_no = plat.pay_link_no
+		where 1 = 1 and pl.PAY_LINK_NAME=#payLinkName# 
+	</select>
+</sqlMap>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcinnerlimit">
+	<typeAlias alias="rcInnerLimit" type="com.pay.rm.service.model.rmlimit.innerlimit.RcInnerLimit" />
+	<resultMap id="rcInnerLimit" class="com.pay.rm.service.model.rmlimit.innerlimit.RcInnerLimit">
+		<result column="DAY_LIMIT" property="dayLimit" jdbcType="DECIMAL" />
+		<result column="MONTH_LIMIT" property="monthLimit" jdbcType="DECIMAL" />
+		<result column="MONTH_TIMES" property="monthTimes" jdbcType="DECIMAL" />
+		<result column="SINGLE_LIMIT" property="singleLimit" jdbcType="DECIMAL" />
+		<result column="STATUS" property="status" jdbcType="DECIMAL" />
+		<result column="USER_LEVEL" property="userLevel" jdbcType="DECIMAL" />
+		<result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL" />
+		<result column="SYS_BUSINESS" property="sysBusiness" jdbcType="DECIMAL" />
+		<result column="DAY_TIMES" property="dayTimes" jdbcType="DECIMAL" />
+	</resultMap>
+
+	<sql id="Column_List">
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,SINGLE_LIMIT,STATUS,
+		USER_LEVEL,SEQUENCE_ID,SYS_BUSINESS,DAY_TIMES
+    </sql>
+	<insert id="create" parameterClass="rcInnerLimit">
+		INSERT INTO RC_PLATFORM_LIMIT(
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,SINGLE_LIMIT,STATUS,
+		USER_LEVEL,SEQUENCE_ID,SYS_BUSINESS,DAY_TIMES
+		)
+		VALUES(
+		#dayLimit#,#monthLimit#,#monthTimes#,#singleLimit#,#status#,
+		#userLevel#,SEQ_RC_PLATFORM_LIMIT_ID.NEXTVAL,#sysBusiness#,#dayTimes#
+		)
+    </insert>
+
+	<update id="update" parameterClass="rcInnerLimit">
+		UPDATE RC_PLATFORM_LIMIT
+		<dynamic prepend="SET">
+			<isNotEmpty prepend="," property="dayLimit">
+				DAY_LIMIT = #dayLimit#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="monthLimit">
+				MONTH_LIMIT = #monthLimit#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="monthTimes">
+				MONTH_TIMES = #monthTimes#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="singleLimit">
+				SINGLE_LIMIT = #singleLimit#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="status">
+				STATUS = #status#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="userLevel">
+				USER_LEVEL = #userLevel#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="sysBusiness">
+				SYS_BUSINESS = #sysBusiness#
+        </isNotEmpty>
+			<isNotEmpty prepend="," property="dayTimes">
+				DAY_TIMES = #dayTimes#
+        </isNotEmpty>
+		</dynamic>
+				WHERE SEQUENCE_ID = #sequenceId# 
+	</update>
+
+	<delete id="delete" parameterClass="long">
+		DELETE FROM RC_PLATFORM_LIMIT
+		where
+		SEQUENCE_ID = #sequenceId# 
+
+    </delete>
+
+	<delete id="deleteBySelective" parameterClass="rcInnerLimit">
+		DELETE FROM RC_PLATFORM_LIMIT
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="dayLimit">
+				DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="monthLimit">
+				MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="monthTimes">
+				MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="singleLimit">
+				SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="status">
+				STATUS = #status# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="userLevel">
+				USER_LEVEL = #userLevel# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="sysBusiness">
+				SYS_BUSINESS = #sysBusiness# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="dayTimes">
+				DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+		</dynamic>
+	</delete>
+
+	<select id="findById" resultMap="rcInnerLimit" parameterClass="java.lang.Long">
+		SELECT
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,SINGLE_LIMIT,STATUS,
+		USER_LEVEL,SEQUENCE_ID,SYS_BUSINESS,DAY_TIMES
+		FROM RC_PLATFORM_LIMIT
+		WHERE
+		SEQUENCE_ID = #sequenceId# 
+    </select>
+
+	<select id="findBySelective" resultMap="rcInnerLimit">
+		SELECT
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,SINGLE_LIMIT,STATUS,
+		USER_LEVEL,SEQUENCE_ID,SYS_BUSINESS,DAY_TIMES
+		FROM RC_PLATFORM_LIMIT
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="dayLimit">
+				DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="monthLimit">
+				MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="monthTimes">
+				MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="singleLimit">
+				SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="status">
+				STATUS = #status# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="userLevel">
+				USER_LEVEL = #userLevel# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="sysBusiness">
+				SYS_BUSINESS = #sysBusiness# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="dayTimes">
+				DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<select id="findBySelective_COUNT" resultClass="java.lang.Integer">
+		SELECT COUNT(*) FROM RC_PLATFORM_LIMIT
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="AND" property="dayLimit">
+				DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="monthLimit">
+				MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="monthTimes">
+				MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="singleLimit">
+				SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="status">
+				STATUS = #status# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="userLevel">
+				USER_LEVEL = #userLevel# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="sysBusiness">
+				SYS_BUSINESS = #sysBusiness# 
+        </isNotEmpty>
+			<isNotEmpty prepend="AND" property="dayTimes">
+				DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+		</dynamic>
+	</select>
+</sqlMap>

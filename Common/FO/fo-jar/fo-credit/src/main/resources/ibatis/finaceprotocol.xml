@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="finaceProtocol">
+	
+	<typeAlias alias="finaceProtocol" type="com.pay.credit.model.finace.FinaceProtocol" />
+	<resultMap id="BaseResultMap" class="finaceProtocol" >
+	    <result column="CREDIT_ORDER_ID" property="creditOrderId" jdbcType="VARCHAR" />
+	    <result column="REPAY_DATE" property="repayDate" jdbcType="VARCHAR" />
+	    <result column="INTEREST_TYPE" property="interestType" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	    <result column="INTEREST_RATE" property="interest" jdbcType="VARCHAR" />
+	    <result column="GMT_AMOUNT" property="gmtAmount" jdbcType="VARCHAR" />
+	    <result column="WITHDRAW_WAY" property="withdrawWay" jdbcType="VARCHAR" />
+	    <result column="REPAY_WAY" property="repayWay" jdbcType="VARCHAR" />
+	    <result column="APPLY_TIME" property="applyTime" jdbcType="VARCHAR" />
+	    <result column="LOAN_DATE" property="gmtLoan" jdbcType="VARCHAR" />
+	</resultMap>	
+<select id="findByCriteria" parameterClass="finaceProtocol" resultMap="BaseResultMap">
+	SELECT 
+	A.CREDIT_ORDER_ID,
+	A.REPAY_DATE,
+	A.INTEREST_TYPE,
+	A.STATUS,
+	A.INTEREST_RATE,
+	A.GMT_AMOUNT,
+	A.WITHDRAW_WAY,
+	A.REPAY_WAY,	
+	A.APPLY_TIME,
+  	A.LOAN_DATE
+	FROM 
+	CREDIT_ORDER A 
+	<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="creditOrderId">
+				A.CREDIT_ORDER_ID=#creditOrderId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="interestType">
+				A.INTEREST_TYPE=#interestType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				A.STATUS=#status#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startDate">
+				A.APPLY_TIME > #startDate#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endDate">
+				A.APPLY_TIME &lt; #endDate#
+			</isNotEmpty>
+		</dynamic>		
+	</select>
+<select id="findByCriteria_COUNT" parameterClass="finaceProtocol" resultClass="java.lang.Integer">
+	SELECT 
+	count(1)
+	FROM 
+	CREDIT_ORDER A 
+	<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="creditOrderId">
+				A.CREDIT_ORDER_ID=#creditOrderId#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="interestType">
+				A.INTEREST_TYPE=#interestType#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				A.STATUS=#status#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="startDate">
+				A.APPLY_TIME > #startDate#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endDate">
+				A.APPLY_TIME &lt; #endDate#
+			</isNotEmpty>
+		</dynamic>		
+	</select>
+</sqlMap>

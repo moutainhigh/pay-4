@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="currency">
+	<typeAlias alias="currency" type="com.pay.pe.model.Currency"/>
+    <resultMap id="currency" class="com.pay.pe.model.Currency">
+        <result column="CURRENCY_NAME" property="currencyName" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="CURRENCY_NUM" property="currencyNum" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="FLAG" property="flag" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CURRENCY_NAME,CURRENCY_CODE,SEQUENCE_ID,CURRENCY_NUM,CREATE_DATE
+		
+    </sql>
+    <insert id="create" parameterClass="currency">
+        <selectKey keyProperty="sequenceId">
+  		   SELECT SEQ_CURRENCY_ID.NEXTVAL FROM DUAL
+  	    </selectKey>
+        INSERT INTO CURRENCY(
+			CURRENCY_NAME,CURRENCY_CODE,SEQUENCE_ID,CURRENCY_NUM,CREATE_DATE,FLAG,STATUS)
+        VALUES(
+            #currencyName#,#currencyCode#,#sequenceId:DECIMAL#,#currencyNum#,#createDate#,#flag#,#status#
+		)
+    </insert>
+
+    <update id="update" parameterClass="currency">
+        UPDATE CURRENCY
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="currencyName">
+            CURRENCY_NAME = #currencyName#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyNum">
+            CURRENCY_NUM = #currencyNum#
+        </isNotNull>
+        <isNotNull prepend="," property="flag">
+            FLAG = #flag#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM CURRENCY        
+        <dynamic prepend="WHERE">
+            SEQUENCE_ID = #sequenceId# 
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="currency">
+        DELETE FROM CURRENCY        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="currencyName">
+            CURRENCY_NAME = #currencyName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyNum">
+            CURRENCY_NUM = #currencyNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="," property="flag">
+            FLAG = #flag#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="currency"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CURRENCY_NAME,CURRENCY_CODE,SEQUENCE_ID,CURRENCY_NUM,CREATE_DATE,STATUS,FLAG
+        FROM CURRENCY
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="currency" parameterClass="currency">
+        SELECT 
+			CURRENCY_NAME,CURRENCY_CODE,SEQUENCE_ID,CURRENCY_NUM,CREATE_DATE,FLAG,STATUS
+        FROM CURRENCY
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="currencyName">
+            CURRENCY_NAME = #currencyName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyNum">
+            CURRENCY_NUM = #currencyNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="flag">
+            FLAG = #flag#
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status#
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="findByCriteria" resultMap="currency">
+        SELECT 
+			CURRENCY_NAME,CURRENCY_CODE,SEQUENCE_ID,CURRENCY_NUM,CREATE_DATE,FLAG,STATUS
+        FROM CURRENCY
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="currencyName">
+            CURRENCY_NAME = #currencyName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyNum">
+            CURRENCY_NUM = #currencyNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="flag">
+            FLAG = #flag#
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status#
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM CURRENCY
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="currencyName">
+            CURRENCY_NAME = #currencyName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyNum">
+            CURRENCY_NUM = #currencyNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="flag">
+            FLAG = #flag#
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status#
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

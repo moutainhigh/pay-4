@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="announcement">
+    <typeAlias alias="announcement" type="com.pay.app.model.Announcement"/>
+    <typeAlias alias="relation" type="com.pay.app.model.AnnouncementMerchantRelation"/>
+    <typeAlias alias="hMap" type="java.util.HashMap"/>
+    
+    <insert id="create" parameterClass="announcement">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_announcement_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	t_announcement 
+        	(
+        		id, 	
+        		author, 
+        		subject, 
+        		displaySort, 
+        		startTime, 
+        		endTime,
+            	message
+            )
+        values 
+        	(
+        		#id#, 
+        		#author#,
+        		#subject#, 
+        		#displaySort#, 
+        		#startTime#, 
+        		#endTime#, 
+        		#message#
+        	)
+    </insert>
+    <insert id="createRealtion" parameterClass="hMap">
+    	insert into T_ANNOUNCEMENT_MERCHANT_REAL(
+    		MEMBERCODE,
+			ANNOUNCEMENT_ID,
+			CREATE_TIME
+    	)
+    	values(
+    		#memberCode#,
+    		#announcementId#,
+    		#createTime#
+    	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		t_announcement
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		t_announcement
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="announcement">
+        update 
+        	t_announcement
+        set 
+        	author      = #author#,
+       		subject		= #subject#, 
+       		displaySort	= #displaySort#,
+       		startTime	= #startTime#, 
+       		endTime		= #endTime#
+        where 
+        	ID 				= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		t_announcement
+    </select>
+    
+    <select id="countByCriteria" resultClass="java.lang.Integer" parameterClass="hMap">
+    	select 
+    		count(id) 
+    	from 
+    		t_announcement t
+    	where t.id not in(
+    		select tr.ANNOUNCEMENT_ID from T_ANNOUNCEMENT_MERCHANT_REAL tr where tr.MEMBERCODE=#memberCode#
+    	)
+    </select>
+    
+    
+    <select id="findRelation" parameterClass="hMap" resultClass="relation">
+    	select 
+	    	MEMBERCODE as memberCode,
+			ANNOUNCEMENT_ID as announcementId,
+			CREATE_TIME as createTime
+		from T_ANNOUNCEMENT_MERCHANT_REAL
+		where 1=1
+		<isNotEmpty prepend="and" property="memberCode">
+			MEMBERCODE=#memberCode#
+		</isNotEmpty>	
+		<isNotEmpty prepend="and" property="announcementId">
+			ANNOUNCEMENT_ID=#announcementId#
+		</isNotEmpty>
+    </select>
+    
+    <select id="findById" resultClass="announcement" parameterClass="java.lang.Long">
+        select 
+        	    id, 	
+        		author, 
+        		subject, 
+        		displaySort, 
+        		startTime, 
+        		endTime,
+            	message
+        from 
+        	t_announcement
+        where 
+        	ID 			= #id#
+    </select>
+    <select id="read" resultClass="announcement" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	t_announcement
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <!-- <select id="queryByPage" resultClass="announcement" parameterClass="com.pay.app.dto.BaseDTO">
+      select * from 
+      (select a.*,rownum rownum_  from 
+      	(select  * from t_announcement order By displaysort Asc, starttime desc)a where rownum&lt;=#endNum#) 
+      where rownum_&gt;#beginNum#
+    </select>  -->   
+    
+    <select id="queryByPage" resultClass="announcement" parameterClass="com.pay.app.dto.AnnouncementParamDTO"><!-- com.pay.app.dto.BaseDTO -->
+      select * from 
+      (select a.*,rownum rownum_  from 
+      	(select  t1.*, t2.membercode from t_announcement t1 left join T_ANNOUNCEMENT_MERCHANT_REAL t2 on t1.id = t2.announcement_id and t2.memberCode=#memberCode# order By displaysort Asc, starttime desc)a where rownum&lt;=#endNum#) 
+      where rownum_&gt;#beginNum#
+    </select>    
+    
+        
+    <select id="queryTop" resultClass="announcement" parameterClass="java.lang.Integer">
+      Select * From(Select * From t_announcement Order By displaysort Asc, starttime Desc) Where Rownum&lt;=#topnum#
+    </select>  
+    
+</sqlMap>

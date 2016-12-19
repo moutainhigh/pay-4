@@ -1,0 +1,89 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title><#if feature.featureId?exists>权限修改<#else>权限新增</#if></title>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+
+</head>
+
+<body>
+<b>
+<a href="${rc.contextPath}/featuremenu.htm?method=featureView">返回列表</a>
+</b>
+<br><br><br>
+<form action="${rc.contextPath}/featuremenu.htm" method="post">
+<input type="hidden" name="method" value="doFeature"/>
+<table cellpadding="0" cellspacing="0" width="400" border="1">
+<tr>
+<td>权限名称</td>
+<td>
+<#if feature.featureId?exists>
+<input type="hidden" name="featureId" value="${feature.featureId}"/>
+<input type="text" name="name" value="${feature.name?default('')}" readonly="readonly"/>
+<#else>
+<input type="text" name="name" value="${feature.name?default('')}"/>
+</#if>
+
+</td>
+</tr>
+
+
+<tr>
+<td>权限级别</td>
+<td>
+ <#assign securLevel=feature.securLevel?default(2)>
+<select name="securLevel">
+<option value="1" <#if securLevel==1>selected</#if>>口令卡用户非口令卡登录</option>
+<option value="2" <#if securLevel==2>selected</#if>>普通登录</option>
+<option value="3" <#if securLevel==3>selected</#if>>口令卡登录</option>
+<option value="4" <#if securLevel==4>selected</#if>>数字证书</option>
+<option value="5" <#if securLevel==5>selected</#if>>U-盾</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>权限类型</td>
+<td>
+ <#assign type=feature.appScale?default(3)>
+<select name="appScale">
+<option value="2" <#if type==2>selected</#if>>企业</option>
+<option value="3" <#if type==3>selected</#if>>个人</option>
+<option value="4" <#if type==4>selected</#if>>个人卖家</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>是否有效</td>
+<td>
+ <#assign status=feature.status?default(1)>
+<select name="status">
+<option value="1" <#if status==1>selected</#if>>有效</option>
+<option value="0" <#if status==0>selected</#if>>无效</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>备注：</td>
+<td>
+<textarea rows="7" cols="30" name="description">
+${feature.description?default('')}
+</textarea>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<input type="submit" name="btnok" value="提交"/>
+</td>
+</tr>
+
+</table>
+</form>
+</body>
+
+</html>

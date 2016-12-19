@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="enterpriseContract" >
+  <typeAlias alias="enterpriseContract" type="com.pay.base.model.EnterpriseContract"/>
+ 	<insert id="create" parameterClass="com.pay.base.model.EnterpriseContract">
+    	<selectKey resultClass="java.lang.Long" keyProperty="contractId">
+			SELECT seq_enterp_contract_contr_id.nextval as contractId FROM dual 
+		</selectKey>     
+        insert into t_enterprise_contract
+				  (contract_id,
+				   member_code,
+				   contract_code,
+				   sign_name,
+				   sign_depart,
+				   continue_sign,
+				   contract_status,
+				   market_name,
+				   market_link,
+				   start_date,
+				   end_date,
+				   open_fee,
+				   year_fee,
+				   fact_open_fee,
+				   fact_year_fee,
+				   fact_start_date,
+				   fact_end_date,
+				   assure_fee,
+				   fact_assure_fee,
+				   assure_desc,
+				   create_date,
+				   update_date)
+				values
+				  (#contractId#,
+				   #memberCode#,
+				   #contractCode#,
+				   #signName#,
+				   #signDepart#,
+				   #continueSign#,
+				   #contractStatus#,
+				   #marketName#,
+				   #marketLink#,
+				   #startDate#,
+				   #endDate#,
+				   #openFee#,
+				   #yearFee#,
+				   #factOpenFee#,
+				   #factYearFee#,
+				   #factStartDate#,
+				   #factEndDate#,
+				   #assureFee#,
+				   #factAssureFee#,
+				   #assureDesc#,
+				   sysdate,
+				   sysdate)
+    </insert>
+   
+   
+   <select id="queryContractByMemberCode"  parameterClass="java.lang.Long"
+		resultClass="com.pay.base.model.EnterpriseContract">
+   			select 
+   					contract_id as contractId,
+				   member_code as memberCode,
+				   contract_code as contractCode,
+				   sign_name as signName,
+				   sign_depart as signDepart,
+				   continue_sign as continueSign,
+				   contract_status as contractStatus,
+				   market_name as marketName,
+				   market_link as marketLink,
+				   start_date as startDate,
+				   end_date as endDate,
+				   open_fee as openFee,
+				   year_fee as yearFee,
+				   fact_open_fee as factOpenFee,
+				   fact_year_fee as factYearFee,
+				   fact_start_date as factStartDate,
+				   fact_end_date as factEndDate,
+				   assure_fee as assureFee,
+				   fact_assure_fee as factAssureFee,
+				   assure_desc as assureDesc,
+				   create_date as createDate,
+				   update_date as updateDate
+				   from t_enterprise_contract
+				   where member_code=#memberCode#
+				   order by (case when fact_end_date &lt; sysdate then 1 else  0 end)  desc,
+           				fact_start_date asc
+   </select>
+ </sqlMap>

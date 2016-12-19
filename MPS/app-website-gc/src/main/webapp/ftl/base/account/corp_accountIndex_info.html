@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<link href="<@sp.static/>/mps/css/bootstrap.min.css" rel="stylesheet">
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+	<!-- data picker controller -->
+	<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+	<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+	<title>账户基本信息</title>
+</head>
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="corp_my_account"/>
+	
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section">
+				<div class="tit">
+					<span><a href="${rc.contextPath}/corp/myAccount.htm">基本信息</a></span> 
+					<span  class="current"><a href="#">账户信息</a></span> 
+					
+				</div>
+				<div id="dealBody" class="tabPanelBodyDiv" style="width:960px;">
+					
+<!--第二页-->
+<div id="dealToday">
+	<div class="section">
+
+		<div class="seccon">
+			<div class="transparentbox">
+				<table>
+					<tbody><tr>
+						<td>商户名称：</td>
+						<td style="width: 200px;">${enterpriseBase.zhName}</td>
+					</tr>
+					<tr>
+						<td>商户号：</td>
+						<td>${enterpriseBase.merchantCode?default('')}</td>
+					</tr>
+				</tbody></table>
+			</div>
+			<div class="transparentbox">
+				<table class="tab03" summary="Account Information List">
+					<thead>
+						<tr style="background-color: #eee">
+							<th>序号</th>
+							<th>账户名称</th>
+							<th>账户类型</th>
+							<th>币种</th>
+							<th>可用余额</th>
+							<th>冻结金额</th>
+							<th>账户状态</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+                   <#if acctList?exists>
+		   				<#list acctList as ts>
+						<tr>
+							<td>${ts_index+1}</td>
+							<td>${ts.acctName?default("")}</td>
+						    <td>
+						       <#if ts.isBasicAcct==1>
+						                                     基本账户
+						       <#else>
+						                                    保证金账户
+						       </#if>
+						    </td>
+						    <td>${ts.curName?default("")}</td>
+							<td>${(ts.balance?default(0)?string(",##0.00"))}</td>
+							<!-- 冻结金额 -->
+							<td>${ts.frozenAmount?default("0")?string(",##0.00")}</td>
+							<td>
+								<#if ts.status==0>
+									异常
+								<#elseif ts.status ==1>
+									正常
+								</#if>
+							</td>
+							<td>
+							   <a href="${rc.contextPath}/corp/myAccount.htm?method=acctDetail&acctCode=${ts.acctCode?default("")}">查看详情</a>
+							   <#if ts.isFrozenAcct==0>
+									<a href="${rc.contextPath}/corp/withdraw.htm">申请提现</a>
+								</#if>
+							</td>
+						</tr>
+						</#list>
+		 			</#if>
+					</tbody>
+				</table>
+			</div>
+			<input id="realWithdrawAmount" type="hidden">
+			<input id="realExchangeAmount" type="hidden">
+			<div id="exchangePurchaseDialog" style="display: none;">
+				<p class="tc fb" id="exchangMsg"></p>
+				<table style="widht: 100%;">
+					<tbody><tr><td style="width: 140px; text-align: right;">账户余额：</td><td><span id="exchangeBalance" style="margin-left: 10px;"></span><span style="margin-left: 120px;"><img title="可购汇金额为扣除手续费后可购汇的最大人民币金额，购汇手续费显示的为按照可购汇金额计算出来的最大手续费值。实际购汇手续费会根据填写的申请购汇金额，自动计算。实际购汇汇率以购汇当日银行汇率为准。"></span></td></tr>
+						<tr>
+							<td style="width: 140px; text-align: right;">申请购汇币种：</td><td>
+							<div style="margin-left: 10px;">
+								<select id="targetCurrency">
+									<option value="USD">USD</option>
+								</select>
+							</div>
+						</td>
+					</tr>
+					<tr><td style="width: 140px; text-align: right;">购汇手续费：</td><td><span id="exchangeFeeAmount" style="margin-left: 10px;"></span></td></tr>
+					<tr><td style="width: 140px; text-align: right;">可购汇金额：</td><td><span id="exchangeAvailableAmount" style="margin-left: 10px;"></span></td></tr>
+					<tr><td style="width: 140px; text-align: right;">申请购汇金额：</td><td><input class="base-input2" id="exchangeAmount" style="width: 80px; margin-left: 10px;" type="text"> CNY&nbsp;&nbsp;<span style="color: red;">申请金额不能大于可购汇金额</span></td></tr>
+					<tr><td style="width: 140px; text-align: right;">实际购汇手续费：</td><td><span id="actualExchangeFee" style="margin-left: 10px;"></span></td></tr>
+				</tbody></table>
+				<div id="error_msg_exchange" style="color: red; margin-top: 2px; margin-left: 90px; display: none;"></div>
+				<div class="submit" style="margin-top: 14px;">
+					<input class="btn_blue" id="applyExchangeBtn" type="button" alt="提交申请" value="提交申请">
+					<input class="btn_blue" id="cancelExchangeBtn" type="button" alt="取消" value="取消">
+				</div>
+			</div>
+			<div id="exchangeSaleDialog" style="display: none;">
+				<p class="tc fb" id="exchangMsg"></p>
+				<table style="widht: 100%;" class="table">
+					<tbody><tr><td style="width: 140px; text-align: right;">账户余额：</td><td><span id="exchangeBalance" style="margin-left: 10px;"></span><span style="margin-left: 120px;"><img title="可结汇金额为扣除手续费后可结汇的最大外币金额，结汇手续费显示的为按照可结汇金额计算出来的最大手续费值。实际结汇手续费会根据填写的申请结汇金额，自动计算。实际结汇汇率以结汇当日银行汇率为准。" ></span></td></tr>
+						<tr>
+							<td style="width: 140px; text-align: right;">申请结汇币种：</td><td><span style="margin-left: 10px;">CNY</span></td>
+						</tr>
+						<tr><td style="width: 140px; text-align: right;">结汇手续费：</td><td><span id="exchangeFeeAmount" style="margin-left: 10px;"></span></td></tr>
+						<tr><td style="width: 140px; text-align: right;">可结汇金额：</td><td><span id="exchangeAvailableAmount" style="margin-left: 10px;"></span></td></tr>
+						<tr><td style="width: 140px; text-align: right;">申请结汇金额：</td><td><input class="base-input2" id="exchangeAmount" style="width: 80px; margin-left: 10px;" type="text"><span id="applicationCurrency"></span>&nbsp;&nbsp;<span style="color: red;">申请金额不能大于可结汇金额</span></td></tr>
+						<tr><td style="width: 140px; text-align: right;">实际结汇手续费：</td><td><span id="actualExchangeFee" style="margin-left: 10px;"></span></td></tr>
+					</tbody></table>
+					<div id="error_msg_exchange" style="color: red; margin-top: 2px; margin-left: 90px; display: none;"></div>
+					<div class="submit" style="margin-top: 14px;">
+						<input class="btn_blue" id="applyExchangeBtn" type="button" alt="提交申请" value="提交申请">
+						<input class="btn_blue" id="cancelExchangeBtn" type="button" alt="取消" value="取消">
+					</div>
+				</div>
+				<div id="withdrawDialog" style="display: none;">
+					<p class="tc fb" id="withdrawMsg"></p>
+					<table style="widht: 100%;">						
+						<tbody><tr><td style="width: 150px; text-align: right;"><div id="currDesc">可提现金额：</div></td><td><span id="balance" style="margin-left: 10px;"></span><span style="margin-left: 80px;"><img title="可提现金额为扣除手续费后可提现的最大金额，提现手续费显示的为按照可提现金额计算出来的最大手续费值。实际提现手续费会根据填写的申请提现金额，自动计算。" ></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">提现手续费：</td><td><span id="feeAmount" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">银行：</td><td><span id="bankname" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">开户行</td><td><span id="branch" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">账户名称：</td><td><span id="bankAccountName" style="margin-left: 10px;"></span></td></tr>
+							<tr><td style="width: 150px; text-align: right;">账号：</td><td><span id="accountNo" style="margin-left: 10px;"></span></td></tr>
+							<tr><td valign="top" style="text-align: right;">申请提现金额：</td><td><input class="base-input2" id="withdrawAmount" style="width: 80px; margin-left: 10px;" onChange="onWithdrawAmountKeyup();" type="text"></td></tr>
+							<tr><td id="actualFeeRow" valign="top" style="text-align: right; visibility: hidden;">实际提现手续费：</td><td><span id="actualFee" style="margin-left: 10px;"></span></td></tr>
+						</tbody></table>
+						<div id="error_msg_withdraw" style="color: red; margin-top: 2px; margin-left: 90px; display: none;"></div>
+						<div class="submit" style="margin-top: 14px;">
+							<input class="btn_blue" id="applyWithdrawBtn" type="button" alt="提交申请" value="提交申请">
+							<input class="btn_blue" id="cancelWithdrawBtn" type="button" alt="取消" value="取消">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--第二页-->
+	</div>
+</div>
+</div>
+</div>
+<#include "/include/myfoot.html">
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bindMobile" >
+	<select id="queryOperatorBindInfo"  resultClass="com.pay.poss.safemanager.dto.OperatorBindDto" 
+	parameterClass="com.pay.poss.safemanager.dto.OperatorBindParamDto">
+		select 
+		me.member_code memberCode,
+       eb.zh_name memberName,
+       me.login_name loginName,
+       op.email operatorEmail,
+       op.identity operatorName,
+       decode(op.name, 'admin', 1, 0) as isAdmin,
+       op.mobile bindMobile,
+       op.NAME operatorFullName,
+       op.CERT_CODE certCode,
+       op.DEPART department,
+       op.email operatorEmail,
+       op.CREATE_DATE createDate,
+       op.STATUS status,
+       op.operator_id operatorId,
+       eb.merchant_code merchantCode,
+       op.phone operatorPhone
+		FROM t_enterprise_base eb
+		JOIN t_operator op
+		ON (eb.member_code =
+		op.member_code)
+		JOIN t_member me on (eb.member_code = me.member_code)
+		WHERE 1=1 
+		<isNotEmpty property="merchantCode" >
+			AND eb.merchant_code = #merchantCode#
+		</isNotEmpty>
+		<isNotEmpty property="loginName">
+			and me.login_name = #loginName#
+		</isNotEmpty>
+		<isNotEmpty property="operatorName">
+			and op.identity = #operatorName#
+		</isNotEmpty>
+		<isNotEmpty property="bindMobile">
+			and op.mobile = #bindMobile#
+		</isNotEmpty>
+		<isNotEmpty property="operatorId">
+			and op.operator_Id = #operatorId#
+		</isNotEmpty>
+		 AND op.status = 1
+	</select>
+	
+	<update id="updateBindMobile" parameterClass="map">
+		update t_operator set mobile = trim(#mobile#)
+			where OPERATOR_ID = #operatorId#
+	</update>
+	
+	<select id="queryCertStatus" parameterClass="map" resultClass="int">
+		SELECT t2.status FROM t_member_cert t2   
+		WHERE t2.operator_id  =  
+			<isEqual property="isAdmin" compareValue="1">0</isEqual>
+			<isNotEqual property="isAdmin" compareValue="1">#operatorId#</isNotEqual>
+		AND  t2.member_code = (SELECT t.member_code FROM t_operator t WHERE t.operator_id = #operatorId# )
+	</select>
+
+</sqlMap>

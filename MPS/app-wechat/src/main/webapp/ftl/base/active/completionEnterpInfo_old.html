@@ -1,0 +1,152 @@
+<!DOCTYPE HTML>
+<html>
+<#escape x as x?html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>${corp_active_add_info}${title}</title>
+<meta name="Keywords" content="${corp_active_add_info_Keywords}" />
+<meta name="Description" content="${corp_active_add_info_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/area/provinceArea.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/register/corpCompletionInfo.js"></script>
+  
+  
+  
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=0 type=2 index=true/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><strong>补全信息：请设置您的登录密码和相关信息，以确保账户的安全。</strong></h3>
+				</div>
+		<form id="corpForm" method="post" action="${rc.contextPath}/enterprise.htm" >
+		<input type="hidden" name="method" value="activeAndCompletionInfo">
+			<ul class="form_list mt20">
+			    <input id="memberCode" name="memberCode" type="hidden" value="${enterpriseInfo.memberCode?default('')}">		
+			    <input id="checkCode" name="checkCode" type="hidden" value="${enterpriseInfo.checkCode?default('')}">
+			     <input id="loginName" name="loginName" type="hidden" value="${enterpriseInfo.loginName?default('')}">
+			     <input id="oldIdentity" name="oldIdentity" type="hidden" value="${enterpriseInfo.oldIdentity?default('')}">
+               <li id="loginEmail-li"><label class="form_side" for=""><span>*</span>用户名：</label>
+                ${enterpriseInfo.loginName?default('')}
+				<span id="emailLoginNameTip"></span>
+                </li>
+				
+				<li>
+				   <label class="form_side" for=""><span>*</span>管理员：</label>
+					<input id="identity" name="identity" tabindex=1 type="text" class="inp_normal w200" maxlength="32" value="${enterpriseInfo.identity?default('')}"/>
+					<span id="identityTip"></span> 
+				</li>
+				<li>
+				   <label class="form_side" for=""><span>*</span>登录密码：</label>
+				   <@sp.password cid="safe_password" tabindex="2" nextTabid="safe_passwordConfirm" id="password" name="password"  width="210" height="24px" class="w200" />
+					<span id="passwordTip"></span> 
+				</li>
+				<li id="passwordpstrengli" style="display: none;">
+				     <label class="form_side" for="">密码强度：</label>
+				     <span id="passwordimagePstreng" class="pwd_level_1" style="width: 225px;"></span>
+				   	<span id="passwordPstreng" style="padding-left: 20px;"></span>  
+				</li>
+				
+				<li>
+				<label class="form_side" for="">
+				  <span>*</span>确认登录密码：</label>
+				<@sp.password cid="safe_passwordConfirm" tabindex="3" nextTabid="safe_payPassword" id="passwordConfirm" name="passwordConfirm"  width="210" height="24px" class="w200 inp_normal" />
+				<span id="passwordConfirmTip"></span>
+				</li>
+				
+				<li>
+				   <label class="form_side" for=""><span>*</span>支付密码：</label>
+				   <@sp.password cid="safe_payPassword" tabindex="4" nextTabid="safe_payPasswordConfirm" id="payPassword" name="payPassword"  width="210" height="24px" class="w200 inp_normal" />
+					<span id="payPasswordTip"></span> 
+				</li>
+				
+				
+				<li id="payPasswordpstrengli" style="display: none;">
+				   <label class="form_side" for="">密码强度：</label>
+				     <span id="payPasswordimagePstreng" class="pwd_level_1" style="width: 225px;"></span>
+				   	<span id="payPasswordPstreng" style="padding-left: 20px;"></span>  
+	
+				</li>
+				<li>
+				<label class="form_side" for=""><span>*</span>确认支付密码：</label>
+				<@sp.password cid="safe_payPasswordConfirm" tabindex="5" nextTabid="securityQuestion" id="payPasswordConfirm" name="payPasswordConfirm"  width="210" height="24px" class="w200 inp_normal" />
+				<span id="payPasswordConfirmTip"></span>
+				</li>
+			  <li><label class="form_side" for=""><span>*</span>设置安全保护问题：</label>
+                 <input type="hidden" value="" id="questionType" >
+                  <select  name="securityQuestion" tabindex="6" id="securityQuestion" class="inp_normal w200">
+                  <#assign foo=enterpriseInfo.securityQuestion?default('') />
+						<option <#if foo=='0'> selected="selected" </#if> value="0">==请选择安全保护问题==</option>
+						<option <#if foo=="1"> selected="selected"</#if> value="1">您的出生地是？</option>
+						<option <#if foo=="2"> selected="selected"</#if> value="2">您父亲的姓名是？</option>
+						<option <#if foo=="3"> selected="selected"</#if> value="3">你父亲的生日是？</option>
+						<option <#if foo=="4"> selected="selected"</#if> value="4">您母亲的姓名是？</option>
+						<option <#if foo=="5"> selected="selected"</#if> value="5">您母亲的生日是？</option>
+						<option <#if foo=="6"> selected="selected"</#if> value="6">您配偶的姓名是？</option>
+						<option <#if foo=="7"> selected="selected"</#if> value="7">您配偶的生日是？</option>
+						<option <#if foo=="8"> selected="selected"</#if> value="8">您孩子的名字是？</option>
+						<option <#if foo=="9"> selected="selected"</#if> value="9">您小学的学校名称是？</option>
+						<option <#if foo=="10"> selected="selected"</#if> value="10">您小学的班主任的名字是？</option>
+                  </select><span id="securityQuestionTip"></span> </li>
+			
+				
+				<li>
+				  <label class="form_side" for=""><span>*</span>您的回答：</label>
+					 <input id="securityAnswer" name="securityAnswer" tabindex="7" type="text" class="inp_normal w200" value="${enterpriseInfo.securityAnswer?default('')}" >
+					 <span id="securityAnswerTip"></span>
+				</li>
+				<li>
+					<label class="form_side" for="">设置问候语：</label>
+					<textarea id="greeting" name="greeting" tabindex="8" class="inp_normal  w200">${enterpriseInfo.greeting?default('')}</textarea>
+					<span id="greetingTip"></span>
+				</li>
+				<li>
+					<label class="form_side" for=""><span>*</span>验证码：</label>
+						<input id="randCode" tabindex="9" disableautocomplete autocomplete="off" name="randCode" type="text" class="inp_normal txtType3" maxlength="4">
+						<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+						<a id="refush" href="javascript:void(0);">换一张</a><span id="randCodeTip">请输入图中4位字母</span></li>
+				<li class="btn"><a id="btnSubmit" tabindex="10" href="javascript:void(0);" class="btn_yel"><span>同意以下协议并提交</span></a></li>
+				<li>
+					<label class="form_side" for="">gcpayment支付服务协议：</label>
+					<textarea class="inp_normal  w500" style="height:60px;">
+						<@sp.corpAgree/>
+					</textarea>
+				</li>
+			</ul>
+		</form>
+		<p class="bot"><i></i></p>
+	</div>
+	<#if msgStr?has_content>
+<script type="text/javascript">
+$(function(){
+	$.pay.alert("${msgStr}",{w:400});
+	$("#identity").focus();
+	
+});
+
+ </script>
+ </#if>
+</div>
+<!--主内容 end -->
+<!--footer -->
+	<#include "/common/include/footer.html">
+</body>
+</#escape>
+</html>

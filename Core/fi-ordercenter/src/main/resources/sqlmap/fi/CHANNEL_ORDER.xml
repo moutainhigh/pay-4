@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelOrder">
+	<typeAlias alias="channelOrder" type="com.pay.txncore.model.ChannelOrder"/>
+    <resultMap id="channelOrder" class="channelOrder">
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="PAY_AMOUNT" property="payAmount" jdbcType="DECIMAL"/>
+        <result column="SERIAL_NO" property="serialNo" jdbcType="VARCHAR"/>
+        <result column="RETURN_NO" property="returnNo" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_ORDER_NO" property="channelOrderNo" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="MERCHANT_NO" property="merchantNo" jdbcType="VARCHAR"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="TRANSFER_CURRENCY_CODE" property="transferCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="COMPLETE_DATE" property="completeDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="RECONCILIATION_FLG" property="reconciliationFlg" jdbcType="DECIMAL"/>
+        <result column="SETTLEMENT_CURRENCY_CODE" property="settlementCurrencyCode" jdbcType="VARCHAR" />
+        <result column="SETTLEMENT_RATE" property="settlementRate" jdbcType="VARCHAR" />
+        <result column="TRANSFER_RATE" property="transferRate" jdbcType="VARCHAR" />
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="ERROR_MSG" property="errorMsg" jdbcType="VARCHAR"/>
+        <result column="DCC_CURRENCY_CODE" property="dccCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="DCC_RATE" property="dccRate" jdbcType="VARCHAR"/>
+        <result column="DCC_AMOUNT" property="dccAmount" jdbcType="VARCHAR"/>
+        <result column="AUTHORISATION" property="authorisation" jdbcType="VARCHAR"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL"/>
+        <result column="CARD_ORG" property="cardOrg" jdbcType="VARCHAR"/>
+        <result column="REFERENCE_NO" property="referenceNo" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="channelOrder2" extends="channelOrder" class="channelOrder">  
+  		<result property="orderId" column="ORDER_ID" jdbcType="VARCHAR"/>  
+	</resultMap>
+	
+	<resultMap id="channelOrder3" extends="channelOrder" class="channelOrder">  
+  		<result property="originalRate" column="ORIGINAL_RATE" jdbcType="VARCHAR"/>
+  		<result property="floatValue" column="FLOAT_VALUE" jdbcType="VARCHAR"/>
+  		<result property="orderId" column="ORDER_ID" jdbcType="VARCHAR"/>
+  		<result column="ACCESS_CODE" property="accessCode" jdbcType="VARCHAR"/>
+        <result column="ORG_KEY" property="orgKey" jdbcType="VARCHAR"/>  
+	</resultMap>  
+   <insert id="create" parameterClass="channelOrder">
+	<selectKey resultClass="java.lang.Long" keyProperty="channelOrderNo">
+		SELECT	111 || TO_CHAR(SYSDATE, 'yymmddhh24mi')	||LPAD(SEQ_DEPOSIT_PROTOCOL_NO.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	 	INSERT INTO CHANNEL_ORDER(
+			CHANNEL_ORDER_NO,AMOUNT,SERIAL_NO,RETURN_NO,STATUS,CARD_ORG,
+			PAYMENT_ORDER_NO,MERCHANT_NO,ORG_CODE,CREATE_DATE,COMPLETE_DATE,TRANSFER_RATE,TRANSFER_CURRENCY_CODE,CURRENCY_CODE,PAY_AMOUNT,RECONCILIATION_FLG,SETTLEMENT_CURRENCY_CODE,SETTLEMENT_RATE,ERROR_CODE,ERROR_MSG,DCC_CURRENCY_CODE,DCC_RATE,DCC_AMOUNT,AUTHORISATION
+			,MERCHANT_BILL_NAME,ORIGINAL_RATE,FLOAT_VALUE,ACCESS_CODE,ORG_KEY
+        )
+        VALUES(
+            #channelOrderNo#,#amount#,#serialNo#,#returnNo#,#status#,#cardOrg#,
+			#paymentOrderNo#,#merchantNo#,#orgCode#,#createDate#,#completeDate#,#transferRate#,#settlementCurrencyCode#,
+			#currencyCode#,#payAmount#,#reconciliationFlg#,#settlementCurrencyCode#,#settlementRate#,#errorCode#,#errorMsg#,#dccCurrencyCode#,#dccRate#,#dccAmount#,#authorisation#
+			,#merchantBillName#,#originalRate#,#floatValue#,#accessCode#,#orgKey#
+		)
+	</insert>
+
+    <update id="update" parameterClass="channelOrder">
+        UPDATE CHANNEL_ORDER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="amount">
+            AMOUNT = #amount#
+        </isNotNull>
+        <isNotNull prepend="," property="payAmount">
+            PAY_AMOUNT = #payAmount#
+        </isNotNull>
+        <isNotEmpty prepend="," property="serialNo">
+            SERIAL_NO = #serialNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="returnNo">
+            RETURN_NO = #returnNo#
+        </isNotEmpty>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo#
+        </isNotNull>
+        <isNotEmpty prepend="," property="merchantNo">
+            MERCHANT_NO = #merchantNo#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="settlementCurrencyCode">
+            SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="transferCurrencyCode">
+            TRANSFER_CURRENCY_CODE = #transferCurrencyCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="settlementRate">
+            SETTLEMENT_RATE = #settlementRate#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="transferRate">
+            TRANSFER_RATE = #transferRate#
+        </isNotEmpty>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="completeDate">
+            COMPLETE_DATE = #completeDate#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        <isNotNull prepend="," property="reconciliationFlg">
+            RECONCILIATION_FLG = #reconciliationFlg#
+        </isNotNull>
+        <isNotEmpty prepend="," property="errorCode">
+            ERROR_CODE = #errorCode#
+        </isNotEmpty>        
+        <isNotEmpty prepend="," property="errorMsg">
+            ERROR_MSG = #errorMsg#
+        </isNotEmpty>        
+        <isNotEmpty prepend="," property="dccCurrencyCode">
+            DCC_CURRENCY_CODE = #dccCurrencyCode#
+        </isNotEmpty>        
+        <isNotEmpty prepend="," property="dccRate">
+            DCC_RATE = #dccRate#
+        </isNotEmpty>        
+        <isNotEmpty prepend="," property="dccAmount">
+            DCC_AMOUNT = #dccAmount#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="cardOrg">
+            CARD_ORG = #cardOrg#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="floatValue">
+            FLOAT_VALUE = #floatValue#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="originalRate">
+            ORIGINAL_RATE = #originalRate#
+        </isNotEmpty>          
+        <isNotEmpty prepend="," property="authorisation">
+            AUTHORISATION = #authorisation#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="merchantBillName">
+            MERCHANT_BILL_NAME = #merchantBillName#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="accessCode">
+            ACCESS_CODE = #accessCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="orgKey">
+            ORG_KEY = #orgKey#
+        </isNotEmpty>                 
+        </dynamic>
+        <dynamic prepend="WHERE">
+           <isNotNull prepend="and" property="channelOrderNo">
+            CHANNEL_ORDER_NO = #channelOrderNo#
+        	</isNotNull>
+        	<isNotNull prepend="and" property="oldStatus">
+        		status = #oldStatus#
+        	</isNotNull>
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="channelOrder3" parameterClass="java.lang.Long">
+        select co.*,t.partner_id,t.trade_order_no,t.order_id from channel_order co,payment_order po,trade_order t where co.PAYMENT_ORDER_NO=po.payment_order_no and
+po.trade_order_no = t.TRADE_ORDER_NO and co.CHANNEL_ORDER_NO=#channelOrderNo#
+    </select>
+    
+    <select id="findByDepositOrderNo" resultMap="channelOrder3" parameterClass="java.lang.Long">
+        select co.*,t.partner_id,t.trade_order_no,t.order_id from channel_order co,payment_order po,trade_order t where co.PAYMENT_ORDER_NO=po.payment_order_no and
+po.trade_order_no = t.TRADE_ORDER_NO and co.PAYMENT_ORDER_NO=#paymentOrderNo#
+    </select>
+    
+    <select id="findAndLockByProtocolId" resultMap="channelOrder3" parameterClass="java.lang.Long">
+        SELECT * FROM CHANNEL_ORDER
+        WHERE CHANNEL_ORDER_NO=#channelOrderNo# for update wait 10
+    </select>
+    
+    <select id="findByCriteria" resultMap="channelOrder3">
+        select co.*,t.partner_id,t.trade_order_no,T.ORDER_ID from channel_order co,payment_order po,trade_order t where co.PAYMENT_ORDER_NO=po.payment_order_no and
+po.trade_order_no = t.TRADE_ORDER_NO
+        <isNotNull prepend="AND" property="amount">
+            co.AMOUNT = #amount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="serialNo">
+            co.SERIAL_NO = #serialNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardOrg">
+            co.CARD_ORG = #cardOrg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="returnNo">
+            co.RETURN_NO = #returnNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            co.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="channelOrderNo">
+            co.CHANNEL_ORDER_NO = #channelOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            co.PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="merchantNo">
+            co.MERCHANT_NO = #merchantNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            co.ORG_CODE = #orgCode# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			co.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	co.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty> 
+        <isNotNull prepend="AND" property="completeDate">
+            co.COMPLETE_DATE = #completeDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            co.UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotEmpty prepend="and" property="transferCurrencyCode">
+            co.TRANSFER_CURRENCY_CODE = #transferCurrencyCode#
+        </isNotEmpty>        
+        <isNotNull prepend="and" property="reconciliationFlg">
+            co.RECONCILIATION_FLG = #reconciliationFlg#
+        </isNotNull>
+        <isNotNull prepend="and" property="authorisation">
+            co.authorisation = #authorisation#
+        </isNotNull>
+        <isNotNull prepend="and" property="partnerId">
+            t.partner_id = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="and" property="tradeOrderNo">
+            t.trade_order_no = #tradeOrderNo#
+        </isNotNull>
+        <isNotNull prepend="and" property="orderId">
+        	T.ORDER_ID = #orderId#
+        </isNotNull>
+        <isNotNull prepend="and" property="errorCode">
+        	CO.ERROR_CODE = #errorCode#
+        </isNotNull>
+         <isNotNull prepend="and" property="accessCode">
+        	CO.ACCESS_CODE = #accessCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="orgKey">
+        	CO.ORG_KEY = #orgKey#
+        </isNotNull>
+        <isNotNull prepend="and" property="terminalCode">
+        	CO.TERMINAL_CODE = #terminalCode#
+        </isNotNull> 
+        <isNotNull prepend="and" property="referenceNo">
+        	CO.REFERENCE_NO = #referenceNo#
+        </isNotNull>    
+        <isNotNull prepend="and" property="payAmount">
+        	CO.PAY_AMOUNT = #payAmount#
+        </isNotNull>            
+        order by co.CREATE_DATE desc
+    </select>
+    
+    <update id="updateStatusForConsumeCard" parameterClass="java.util.HashMap">
+        UPDATE CHANNEL_ORDER
+        set status = '1', AMOUNT = #amount# where CHANNEL_ORDER_NO = #channelOrderNo# and status = '0'
+    </update>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+       select count(*) from channel_order co,payment_order po,trade_order t where co.PAYMENT_ORDER_NO=po.payment_order_no and
+po.trade_order_no = t.TRADE_ORDER_NO
+        <isNotNull prepend="AND" property="amount">
+            co.AMOUNT = #amount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="serialNo">
+            co.SERIAL_NO = #serialNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="returnNo">
+            co.RETURN_NO = #returnNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardOrg">
+            co.CARD_ORG = #cardOrg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            co.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="channelOrderNo">
+            co.CHANNEL_ORDER_NO = #channelOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            co.PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="merchantNo">
+            co.MERCHANT_NO = #merchantNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            co.ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotEmpty prepend="and" property="transferCurrencyCode">
+            co.TRANSFER_CURRENCY_CODE = #transferCurrencyCode#
+        </isNotEmpty>        
+		<isNotEmpty prepend="AND" property="beginTime">
+			co.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	co.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty> 
+        <isNotNull prepend="AND" property="completeDate">
+            co.COMPLETE_DATE = #completeDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            co.UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="and" property="reconciliationFlg">
+            co.RECONCILIATION_FLG = #reconciliationFlg#
+        </isNotNull>
+        <isNotNull prepend="and" property="authorisation">
+            co.authorisation = #authorisation#
+        </isNotNull>
+        <isNotNull prepend="and" property="partnerId">
+            t.partner_id = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="and" property="tradeOrderNo">
+            t.trade_order_no = #tradeOrderNo#
+        </isNotNull>
+        <isNotNull prepend="and" property="orderId">
+        	T.ORDER_ID = #orderId#
+        </isNotNull>
+        <isNotNull prepend="and" property="errorCode">
+        	CO.ERROR_CODE = #errorCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="accessCode">
+        	CO.ACCESS_CODE = #accessCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="orgKey">
+        	CO.ORG_KEY = #orgKey#
+        </isNotNull>         
+    </select>
+    
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM CHANNEL_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="amount">
+            AMOUNT = #amount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="serialNo">
+            SERIAL_NO = #serialNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="returnNo">
+            RETURN_NO = #returnNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="channelOrderNo">
+            CHANNEL_ORDER_NO = #channelOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="merchantNo">
+            MERCHANT_NO = #merchantNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            orgCode = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardOrg">
+            co.CARD_ORG = #cardOrg# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty> 
+        <isNotNull prepend="AND" property="completeDate">
+            COMPLETE_DATE = #completeDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotEmpty prepend="and" property="transferCurrencyCode">
+            TRANSFER_CURRENCY_CODE = #transferCurrencyCode#
+        </isNotEmpty>        
+        <isNotNull prepend="and" property="reconciliationFlg">
+            RECONCILIATION_FLG = #reconciliationFlg#
+        </isNotNull>
+        <isNotNull prepend="and" property="authorisation">
+            authorisation = #authorisation#
+        </isNotNull>
+        <isNotNull prepend="and" property="accessCode">
+        	CO.ACCESS_CODE = #accessCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="orgKey">
+        	CO.ORG_KEY = #orgKey#
+        </isNotNull>             
+        </dynamic>
+    </select>
+    
+    <select id="getMaxChannelSerialNo" resultClass="java.lang.Long">
+	    <!-- Mack comment  below 2016年5月18日15:02:49 -->
+    	<!--select nvl(max(to_number(SERIAL_NO)),0) from CHANNEL_ORDER where 1=1 and ORG_CODE = #orgCode# -->
+		select SEQ_CHANNEL_SERIAL_NO.NEXTVAL from dual 
+    </select>
+    
+    <select id="queryByTradeDateAndAuthorisation" resultMap="channelOrder3">
+    	select t.*,0 trade_Order_No,0 partner_Id, '0' CARD_ORG From channel_order t 
+		where status = 1 
+		<isNotNull prepend="and" property="orgCode">
+			org_code = #orgCode# 
+		</isNotNull>
+		and t.AUTHORISATION = #authorisation# 
+		and t.COMPLETE_DATE &gt;= to_date(#tradeDate#,'yyyy-MM-dd')
+		and t.COMPLETE_DATE &lt; to_date(#tradeDate#,'yyyy-MM-dd') + 1
+    </select>
+</sqlMap>

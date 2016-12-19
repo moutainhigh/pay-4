@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!-- 银行对账文件处理服务配置 -->
+	<bean id="fo-rc-reconcileFileService" class="com.pay.fundout.reconcile.service.fileservice.impl.ReconcileFileServiceImpl">
+		<property name="reconcileFileDao">
+			<ref bean="fo_rc_queryreconcilefiledao"/>
+		</property>
+		<property name="reconcileRecordDao">
+			<ref bean="fo_rc_queryreconcilerecorddao"/>
+		</property>
+		
+		<property name="validateMessageService">
+			<ref bean="inf-pageMsgService"/>
+		</property>
+		<property name="parseFileHandle">
+			<ref bean="fo-rc-parserfilehandler"/>
+		</property>
+	</bean>
+	
+	<!-- 文件处理配置 -->
+	<bean id="fo-rc-parserfilehandler" class="com.pay.fundout.reconcile.common.parser.FoParserFileHandler">
+		<property name="queryReconcileFileDao">
+			<ref bean="fo_rc_queryreconcilefiledao"/>
+		</property>
+		<property name="reconcileRecordDao">
+			<ref bean="fo_rc_queryreconcilerecorddao"/>
+		</property>
+	</bean>
+</beans>

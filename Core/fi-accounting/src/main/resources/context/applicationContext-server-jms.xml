@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>file:/opt/pay/config/inf/notification/notification-jms.properties</value>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	
+	<bean id="pooledConnectionFactory"
+        class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="connectionFactory01" />
+    </bean>
+    
+	<bean id="connectionFactory01" class="org.apache.activemq.spring.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="${notification.brokerURL}" />
+		<property name="sendTimeout" value="1000"/>
+	</bean>
+	
+	<bean id="destination01" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- Set the Queue Name -->
+		<constructor-arg index="0" value="notify.accounting.reconcilelist" />
+	</bean>
+
+	<bean id="ReconcilationTaskListner" class="com.pay.txncore.task.ReconcilationTaskListner">
+		<property name="channelService" ref="channelService"></property>
+		<property name="reconcileBatchService" ref="reconcileBatchService"></property>
+		<property name="jmsSender" ref="jmsSender" ></property>
+		<!-- add by davis.guo at 2016-08-17 -->
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="reconcileRecordService" ref="reconcileRecordService"/>
+	</bean>
+	
+	<bean id="jmsContainer01"	class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory01" />
+		<property name="destination" ref="destination01" />
+		<property name="messageListener" ref="ReconcilationTaskListner" />
+		<property name="maxConcurrentConsumers" value="2" />
+	</bean>
+	
+</beans>

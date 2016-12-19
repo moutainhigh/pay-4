@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<meta content="text/html" charset="utf-8" />
+<title>gcpayment付-提现-账户信息</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/css.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/style.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+	type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+<script src="<@sp.static/>/js/pay/withdraw/withdraw.js?rand=2"
+	type="text/javascript"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+</head>
+<body>
+<div class="outer"><@sp.head channel=2 />
+<div class="content clearfix"><@sp.banner toptit="我的账户首页"/>
+<@sp.menu channel="1_1"/>
+<div class="main w770 con ">
+<div class="payto-account draw-money">
+<p class="free icon-warn-smal">本服务不收取手续费用。</p>
+<p>提现成功后，款项将打入您的银行卡账户中。</p>
+
+<div class="step">
+<ol class="step-1">
+	<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+	<li class="li-1 last">1、填写账户信息</li>
+	<li class="li-2 last">2、确认信息</li>
+	<li class="li-3 last">3、成功</li>
+</ol>
+</div>
+<form action="${rc.contextPath}/app/tocashsubmit.do" id="cashform"
+	onsubmit="return checkData(this);" method="post">
+<input type="hidden" name="bankCardNumber"	id="bankCardNumber" value="" /> 
+<input type="hidden" name="name" id="name" value="" /> 
+<input type="hidden" name="bankName" id="bankName" value="" /> 
+<input type="hidden" name="bankAddress"	id="bankAddress" value="" />	
+<div class="mode clearfix draw-money-info">
+<ul class="form-info">
+	<li><em>您的gcpayment支付户名称：</em>${name?default("")}(payay.staff.com.cn)</li>
+	<li><em>提现银行账户：</em>
+	<dl>
+		<dt><span class="item50">银行名称</span><span class="item50">公司账户</span></dt>
+		<#if bankCards?exists> <#list bankCards as ls>
+		<dd class="cur">
+			<span class="item50 select-bank"> 
+			<input type="radio" class="fl" name="bankCode" id="select-bank" value="${ls.bankCode}" cardNumber="${ls.cardNumber}" userName="${ls.name}" bankName="${ls.bankName}" bankAddress="${ls.bankAddress}"><label for="select-bank"	class="merchants"></label>
+			</span>
+			<span class="item50">**** **** **** ${ls.cardNumber?substring(ls.cardNumber?length-4,ls.cardNumber?length)}</span>
+		</dd>
+		</#list> </#if>
+	</dl>
+	</li>
+	<li><a href="${rc.contextPath}/app/toaddcashbank.do">添加银行账户</a>(最多可添加10张银行卡)</li>
+	<li>
+	<div id="amountfirm"></div>
+	</li>
+	<li><em>提现金额：</em><span class="font-prompt">￥</span><input
+		name="orderAmount" id="orderAmount" type="text" /><label id="cashmoneytip"></label>
+	<p><span class="no-hl">可用余额：</span><strong class="obvious">￥${balance?default("")}</strong>
+	（本日还可提现${count?default(0)}次）</p>
+	<input type="hidden" name="balance" value="${balance?default('')}" /></li>
+	<li>
+	<button class="red-btn" id="next" type="submit">下一步</button>
+	</li>
+</ul>
+</div>
+</form>
+<div class="bank w-box">
+<div class="title clearfix select-bank"><i class="merchants">招商银行</i>
+<strong><a href="#">支付限额</a></strong></div>
+<div class="bank-pay">
+<ul class="kinds clearfix">
+	<li><strong>专业版</strong></li>
+	<li><strong>大众版</strong></li>
+</ul>
+</div>
+<table class="table-items">
+	<colgroup>
+		<col class="item15"></col>
+		<col class="item20"></col>
+		<col class="item20"></col>
+		<col class="item20"></col>
+		<col class="item25"></col>
+	</colgroup>
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>单笔限额</th>
+			<th>每日限额</th>
+			<th>单笔限额</th>
+			<th>每日限额</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="keynote">
+			<td class="title_td"><strong>借记卡</strong></td>
+			<td><span>无限额</span></td>
+			<td><span>无限额</span></td>
+			<td><strong>5000.00</strong></td>
+			<td><strong>5000.00</strong></td>
+		</tr>
+		<tr class="keynote">
+			<td class="title_td"><strong>信用卡</strong></td>
+			<td colspan="4">单笔限额499.99元，单日额度由信用卡额度决定</td>
+		</tr>
+		<tr>
+			<td class="v-t title_td"><strong>特别提醒</strong></td>
+			<td colspan="4">为了最大限度地保证您的资金安全，2007年8月17日起，对网上支付交易启用"验证码"进行身份验证实施动态管理，即客户进行网上支付消费时，适时启动"验证码"进行身份验证,需要您用在申请网上支付功能时预留的电话，通过手机短信或电话方式，获取四位数字"验证码"，验证通过后方可完成支付。如果您在开通网上支付功能时，没有预留电话或预留电话错误，可拔打招行客户服务电话95555进行咨询。
+			<a href="" class="obvious">[点此详情]</a></td>
+		</tr>
+	</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- main end --></div>
+<!-- content end --></div>
+<!-- outer end -->
+<#include "/common/include/footer.html">
+<script type="text/javascript">
+
+$(function(){
+	
+	$("#select-bank").click(function(){
+		
+		$("#bankCardNumber").val($(this).attr("cardNumber"));
+		$("#name").val($(this).attr("userName"));
+		$("#bankName").val($(this).attr("bankName"));
+		$("#bankAddress").val($(this).attr("bankAddress"));
+	});
+	
+});
+</script>
+</body>
+</html>

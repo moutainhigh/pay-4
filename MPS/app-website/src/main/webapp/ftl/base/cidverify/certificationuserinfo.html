@@ -1,0 +1,296 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${realName_cert_tips}${title}</title>
+<meta name="Keywords" content="${realName_cert_tips_Keywords}" />
+<meta name="Description" content="${realName_cert_tips_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/bankacct/bankacct.js"></script>
+
+
+<script type="text/javascript">
+function upload() {
+	var pars = $("#inform").serialize();
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/app/cidverifyUserInfo.htm?method=upload",
+			data: pars,
+			success: function(result) {
+				alert(result);
+				//$('#infoLoadingDiv').dialog('close');
+				//$('#resultListDiv').html(result);
+			}
+		});
+}
+
+
+function refushCode() {
+	var d = new Date();
+	var src = "${rc.contextPath}/validatecode/validatecode.htm?date="+ d.getTime();
+	document.getElementById("code").src = src;
+}
+
+$(function(){
+$("#randCode").val("");
+$("#cbox").attr('checked', false);
+});
+
+function getByteLen() {
+	var val = $("#inname").val();
+	if(val.length < 2){
+		$("#innameTip").html("姓名格式长度不正确，请输入不少于2个汉字或2个字母的姓名。");
+        $("#innameTip").css("color","red");
+		return val;
+	}
+    var len = 0;
+    for (var i = 0; i < val.length; i++) {
+        //if (val[i].match(/[^\x00-\xff]/ig) != null)  // 在ie8 兼容性模式下 js报错
+        // if (val[i].charCodeAt(0)<299) {
+        if(val.charAt(i).match(/[\u0391-\uFFE5]/)){
+            len += 2;
+          // len++;
+         }
+        else{
+            len += 1;
+        	//len+=2;
+        }
+    }
+    if(len > 16){ 
+		$("#innameTip").html("姓名格式长度不正确，请输入8个汉字以内或者16个字母以内的姓名。");
+        $("#innameTip").css("color","red");
+	}
+   return len;
+}
+
+
+$(document).ready(function() {
+
+	$("#inname").keyup(function(){
+		//InputValid.digitOnly($("#barCode")[0]);
+		//fmtNoTips(this);
+		})
+			.focus(function(){$("#inname").addClass("inp_select");})
+			.blur(function(){
+				//alert("blur");
+				if(getByteLen() < 2 || getByteLen() >16){
+					return false;
+				}
+				$("#inname").removeClass("inp_select");
+			});
+
+	$("#idcno").keyup(function(){
+		})
+			.focus(function(){$("#idcno").addClass("inp_select");})
+			.blur(function(){
+				$("#idcno").removeClass("inp_select");
+			});
+
+	$("#randCode").keyup(function(){
+	})
+		.focus(function(){$("#randCode").addClass("inp_select");})
+		.blur(function(){
+			$("#randCode").removeClass("inp_select");
+		});
+
+	
+});
+
+$(function(){
+	$("#inname").focus();
+	$("#inform").submit(function(){
+		var name = $("#inname").val();
+		if(name.length < 2){
+			$("#innameTip").html("姓名格式长度不正确，请输入不少于2个汉字或2个字母的姓名。");
+	        $("#innameTip").css("color","red");
+			return false;
+		}
+		if(getByteLen() > 16){ 
+			$("#innameTip").html("姓名格式长度不正确，请输入8个汉字以内或者16个字母以内的姓名。");
+	        $("#innameTip").css("color","red");
+			return false;
+		}
+//		if($("#idcno").val()==''){
+//			$("#idcnoTip").html("&nbsp;&nbsp;请输入身份证号码");
+//			$("#idcnoTip").css("color","red");
+//			return false;
+//		}
+
+//	if($("#idcno").val()!=''){
+//			var val = checkIdcard($("#idcno").val());			
+//			if(val!=true){
+	//			$("#idcnoTip").html("&nbsp;&nbsp;"+val);
+	//			$("#idcnoTip").css("color","red");
+//				return false;
+//			}else{
+//				$("#idcnoTip").html(" ");
+//			}
+//		}
+		
+	});
+	
+});
+	
+
+</script>
+
+</head>
+
+<body>
+<!--导航 str-->
+<@sp.head channel=1 type=1 />
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+
+		<!--自适应box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg ">
+				<div class="tit_box ">
+					<h3 class="title font14"><strong><#if vf?default('')=="bank">银行卡鉴权认证<#else>实名认证</#if> </strong></h3>
+					<!--
+					<span class="more"><a href="" class="red">选择其他认证方式</a></span>
+					-->
+					</div>
+				<div class="content">
+            		<div class="payTo">
+                		<div class="step">
+                        	<ol class="step-1">
+                            	<li class="li-1 <#if vf?default('')!="bank">last</#if>"><span><i>1</i>填写个人信息</span></li>
+                            	<#if vf?default('')=="bank">
+                            		<li class="li-2"><i>2</i>填写银行卡信息</li>
+									<li class="li-3"><i>3</i>确认信息</li>
+									<li class="li-4"><span><i>4</i>认证结果</span></li>
+                            	<#else>
+									<li class="li-2 last"><i>2</i>确认信息</li>
+									<li class="li-3 last"><span><i>3</i>认证结果</span></li>
+								</#if>
+                        	</ol>
+              			</div>
+		            </div>
+		            
+		            
+		        <div class="ico_txtBox mt5"><i class="warn_ico"></i>
+					<p><#if isFree?default('') == '0'>优惠期，公安网实名认证仅需#{viewMoney?default(0);m1}元手续费。<#else>免费通过公安网进行实名认证。</#if></p>
+				</div>
+				<#if vf?default('')=="gov_upload">
+							<form class="mod_form pad_center" action="${rc.contextPath}/app/cidverifyUserInfo.htm?method=uploadForm" method="post" id="inform" name="inform" enctype="multipart/form-data">
+				<#else>
+							<#if vf?default('')=="bank">
+										<form class="mod_form pad_center" action="${rc.contextPath}/app/cidverifyBankBind.htm?method=cidverifyBankBind" method="post" id="inform" name="inform">
+							<#else>
+										<form class="mod_form pad_center" action="${rc.contextPath}/app/cidverifyConfirmInfo.htm?method=confirmInfo" method="post" id="inform" name="inform">
+							</#if>
+				</#if>
+				<input type="hidden" id="vf" name="vf" value="${vf?default('')}"/>
+				<input type="hidden" id="vn" name="vn" value="${vn?default('')}"/>
+				<input type="hidden" id="idc" name="idc" value="${idc?default('')}"/>
+				<input type="hidden" id="ln" name="ln" value="${ln?default('')}"/>
+				<input type="hidden" id="uploadFlag" name="uploadFlag" value="${uploadFlag?default('')}"/>
+				
+					<ul class="form_list form_f400">
+						<li>
+							<label class="form_side">iPayLinks支付户名：</label> <strong class="c_000 font14">${ln?default('')}</strong>
+						</li>
+						</li>
+						<li>
+							<label class="form_side2">真实姓名：</label>
+							<input type="text" class="inp_normal w100" maxlength="16" id="inname" name="inname" size="22" value="${vn?default('')}"/>
+							<label id="innameTip"></label>
+						</li>
+						<li>
+							<label class="form_side2">身份证号码：</label>
+							<input type="text" class="inp_normal w200" maxlength="18" id="idcno" size="20" name="idcno" value="${idcno?default('')}"/>
+                  			<label id="idcnoTip">&nbsp;请填写真实的身份证号码，身份证号码是15或18位数字。</label>
+						</li>
+						<#if vf?default('')=="gov" && uploadFlag?default('')=="1">
+							<li class="btn">
+								<font color="red">${uploadMsg?default('')}</font>
+							</li>
+						</#if>
+						<#if vf?default('')=="gov_upload" && uploadFlag?default('')!="1">
+							<li>
+								<label class="form_side2">上传身份证正面：</label>
+								<input type="file" size="40" id="img1" name="img1">
+	                  			<label id="img1Tip">&nbsp;请上传身份证正面扫描件</label>
+							</li>
+							<li>
+								<label class="form_side2">上传身份证反面：</label>
+								<input type="file" size="40" id="img2" name="img2">
+	                  			<label id="img2Tip">&nbsp;请上传身份证反面扫描件</label>
+							</li>
+							<li class="btn">
+								<font color="red">${uploadMsg?default('')}</font>
+							</li>
+							<li class="btn"><span class="btn_yel" id="b">
+								<button id="b1" name="uploadBtn"  type="submit">上传</button>
+								</span>
+							</li>
+						</#if>
+						<li>
+							<#if validate?default('')=="failed"><font color="red">姓名与身份证号不匹配</font><#else></#if>
+						</li>
+						<li class="security">
+							<#if vf?default('')=="gov_upload">
+							<#else>
+								<label class="form_side2">校验码：</label>
+								<input type="text" disableautocomplete autocomplete="off" id="randCode" name="randCode" maxLength="4" class="inp_normal w80" >
+								<img  src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="" name="code"  id="code" width="68" height="23" style="vertical-align: top" />
+								<span class="c_999"><a href="javascript:refushCode();">看不清，换一张</a></span>
+								<label id="randCodeTip">&nbsp;&nbsp;</label>
+	                  			<span><#if err?default('')=="randcode"><font color="red">验证码不正确</font><#else></span></#if>
+								</li>
+							</#if>
+						<li><input name="cbox" id="cbox" type="checkbox" value="checked"  class="ckpf" onclick="enableAction();"><label for="cbox"> 我已阅读并同意 </label><a class="red" href="${rc.contextPath}/help.htm?method=helpPPDetail&type=2" target="_blank">《iPayLinks支付实名认证服务协议》</a></li>
+						<li class="btn"><span class="btn_yel b_off" id="btnokspan">
+							<button id="btnok" disabled="disabled" type="submit">下一步</button>
+							</span></li>
+	
+					</ul>
+  
+
+<script type="text/javascript">
+function enableAction() {
+	
+	flag = false;
+    var objName= document.getElementById("cbox");
+    var vf = $("#vf").val();
+    if (objName.checked && vf=="gov"){    
+         flag = true;            
+    } 
+    if (flag) {
+      $("#btnok").attr("disabled", false);
+      $("#btnokspan").attr("class","btn_yel");
+      //alert('false');
+    } else {
+      $("#btnok").attr("disabled", true);
+      $("#btnokspan").attr("class","btn_yel b_off");
+    //  alert('true');
+      //$("#sp").attr("class","btn_yel_off");
+    }
+} 
+</script> 
+				</form>
+			</div>
+		
+		</div>
+			<p class="bot"><i></i></p>
+
+
+<!-- content end --></div>
+<!-- outer end --> <#include "/common/include/footer.html">
+</body>
+</html>

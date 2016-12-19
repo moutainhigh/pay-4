@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>BSP平台-出金</title>
+<#include "/common/macro/seoPerson.ftl">
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" charset="utf-8">
+	function checkSubmit(){
+		 if(hasSecurityCtrl()){
+			 	if(getPwdCtrlStrLength("paySafeEdit")<=0){
+					$('#pwdError').html('请输入支付密码');
+					return false;
+				}
+		        $("#payPwd").val(getPwdCtrlVal("paySafeEdit"));
+		    }
+		
+		if($("#payPwd").val() == ''){
+			$('#pwdError').html('请输入支付密码');
+			return false;
+		}else {
+			$("#applyWithdrawBtn").attr("disabled", true);   
+			$("#applySpan").attr("class","btn_yel b_off v_b");
+			$("#confirmWithdrawForm").attr("action","${rc.contextPath}/corp/bspWithdraw.htm?method=submit&hasSecurity="+$("#hasSecurity").val());
+			$("#confirmWithdrawForm").submit();
+		}
+	}
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3'
+	      });
+	}
+	$(function(){
+		$("#findselect").click(function() {
+			payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+		});
+	});
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="bsp_withdraw"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div> 
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><span class="ico_dot2"></span><strong>申请出金</strong></h3>
+				</div>
+			<div class="content">
+					<div class="step">
+						<ol class="step-2">
+							<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+							<li class="li-1 last"><span><i>1</i>申请出金</span> </li>
+							<li class="li-2 last"><i>2</i>出金确认</li>
+							<li class="li-3 last"><span><i>3</i>申请提交</span></li>
+						</ol>
+				</div>
+			<div class="ico_txtBox mt5"><i class="warn_ico"></i>
+				<p>银行账户的开户人姓名必须是"<strong class="red">${merchantName?default('')}</strong>",否则出金会失败。 </p>
+				<p>审核通过后到账日期在2-5个工作日。</p>
+			</div>
+
+			<form class="mod_form pad_center" action="${rc.contextPath}/corp/bspWithdraw.htm?method=submit" method="post" name="confirmWithdrawForm" id="confirmWithdrawForm">
+				<ul class="form_list">
+				<li><label class="form_side">商户名称：</label> <strong class="red">${merchantName?default('')}</strong></li>
+				<li>
+					<label class="form_side">出金银行账户：</label> 
+					${bankName?default('')}（尾号<strong class="red">${bankNo?default('')}</strong>）
+				</li>
+				<li><label class="form_side">出金金额：</label> <strong class="red">${withdrawAmount?default(0)}</strong> 元</li>
+				<li><label class="form_side"><span>*</span>支付密码：</label>
+				<@sp.password cid="paySafeEdit" id="payPwd" name="payPwd" width="150px" height="26px" class="inp_normal"/>
+							<span class=c_999 ml20>支付密码如果连续输错3次，账户将被锁定</span>
+							<p class="red" id="pwdError" ></p>
+				</li>
+				<li class="btn">
+					<span class="btn_yel v_b" id="applySpan" >
+						<button type="button" onclick="return checkSubmit();" id="applyWithdrawBtn">确认出金</button>
+					</span>
+					<a class="red ml30" href="${rc.contextPath}/corp/bspWithdraw.htm?targetBankId=${withdrawBank.id}&withdrawAmount=${withdrawAmount?default(0)}">返回修改
+						</a> | 
+					<a href="javascript:void(0);" id="findselect" class="red"> 忘记密码?</a></li>
+			</ul>
+				<input type="hidden" name="bankName" id="bankName" value="${bankName?default('')}"/>	
+				<input type="hidden" name="merchantName" id="merchantName" value="${merchantName?default('')}"/>		
+			</form>
+			</div></div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--自适应box end --> 
+	</div>
+<!--主内容 end --></div>
+<!--footer -->
+<#if errorMsg?has_content>
+<script type="text/javascript" charset="utf-8">
+<#if forward?has_content>
+	$(function(){
+		$.pay.alert('${errorMsg?default('')}',{h:160,t:'3',close:function(){
+			<#if forward?has_content>
+			window.location.href="${rc.contextPath}${rc.contextPath}/corp/bspWithdraw.htm";
+			</#if>
+		}});
+	});	
+<#else>
+	$('#pwdError').html('${errorMsg}');
+</#if>
+</script>
+</#if>
+<#include "/common/include/footer.html">
+</html>

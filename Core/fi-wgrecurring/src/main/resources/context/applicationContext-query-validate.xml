@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境API收单 -->
+	<bean id="api-query-validateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="api-query-rule" />
+	</bean>
+
+	<bean id="api-query-rule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="api-query-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="api-query-versionCheckRule" class="com.pay.gateway.validate.query.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-modeCheckRule" />
+		</property>
+		<property name="messageId" value="0001" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="api-query-modeCheckRule" class="com.pay.gateway.validate.query.ModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="Query mode is wrong:查询模式不正确" />
+	</bean>
+
+	<bean id="api-query-typeCheckRule" class="com.pay.gateway.validate.query.TypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Query type is wrong:查询类型不正确" />
+	</bean>
+
+	<bean id="api-query-orderIdCheckRule" class="com.pay.gateway.validate.query.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-queryTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Order numbers are not legitimate:订单号不合法" />
+	</bean>
+
+	<bean id="api-query-queryTimeCheckRule" class="com.pay.gateway.validate.query.QueryTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="message" value="Query start time is wrong:查询开始时间不正确" />
+	</bean>
+
+	<bean id="api-query-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.query.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+	<bean id="api-query-charsetCheckRule" class="com.pay.gateway.validate.query.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Coding type is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="api-query-signTypeCheckRule" class="com.pay.gateway.validate.query.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-signMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+
+	<bean id="api-query-signMsgCheckRule" class="com.pay.gateway.validate.query.SignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="api-query-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="api-query-gatewayRequestSaveAction" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="api-query-gatewayRequestSaveAction" class="com.pay.gateway.validate.query.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="api-query-exceptionAction" class="com.pay.gateway.validate.query.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

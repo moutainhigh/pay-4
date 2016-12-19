@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">  <!-- DataSource -->
+
+  <bean id="base-featureMenuService"
+    class="com.pay.base.service.featuremenu.impl.FeatureMenuServiceImpl">
+    <property name="mainDao" ref="base-featureMenuDAO" />
+  </bean>
+
+  <bean id="base-featureService"
+    class="com.pay.base.service.featuremenu.impl.FeatureServiceImpl">
+  <property name="mainDao" ref="base-featureDAO" />
+  </bean>
+
+  <bean id="base-memberFeatureService"
+    class="com.pay.base.service.featuremenu.impl.MemberFeatureServiceImpl">
+    <property name="featureMenuService" ref="base-featureMenuService" />
+    <property name="featureService" ref="base-featureService" />
+    <property name="operatorMenuService" ref="base-operatorMenuService" />
+    <property name="memberProductService" ref="base-memberProductService" />
+    <property name="memberFeatureCacheService" ref="base-memberFeatureCacheServiceImpl" />
+  </bean>
+	<bean id="base-memberProductService"
+    class="com.pay.base.service.featuremenu.impl.MemberProductServiceImpl">
+    <property name="memberProductDAO" ref="base-memberProductDAO" />
+  </bean>
+  
+  <bean id="base-memberFeatureCacheServiceImpl" 
+	class="com.pay.base.service.featuremenu.cache.MemberFeatureCacheServiceImpl">
+	<property name="featureService" ref="base-featureService" />
+	<property name="featureMenuService" ref="base-featureMenuService" />
+	<property name="memberProductService" ref="base-memberProductService" />
+  </bean>
+
+</beans> 

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="externalLog">
+		<typeAlias alias="externalLog" type="com.pay.poss.yk.dto.ExternalLogDto" />
+		<typeAlias alias="externalLogSearchDto" type="com.pay.poss.yk.dto.ExternalLogSearchDto" />
+		
+	
+	<sql id="search_param_segment">
+		<isNotEmpty property="externalType">
+			  		and EXTERNAL_TYPE = #externalType#
+			  	</isNotEmpty>
+		  	<isNotEmpty property="orderNo">
+			  		and ORDER_NO = #orderNo#
+			  	</isNotEmpty>
+		  	<isNotEmpty property="cardNo">
+		  		and CARD_NO = #cardNo#
+		  	</isNotEmpty>
+		  	<isNotEmpty property="startTime">
+		  		and CREATE_DATE &gt; #startTime#
+		  	</isNotEmpty>
+		  	<isNotEmpty property="endTime">
+		  		and CREATE_DATE &lt; #endTime#+1
+		  	</isNotEmpty>
+	  		<isNotEmpty property="externalProcessStatus">
+		  		and EXTERNAL_PROCESS_STATUS = #externalProcessStatus#
+		  	</isNotEmpty>
+	</sql>
+	
+	
+	 <select id="search"  parameterClass="externalLogSearchDto"  resultClass="externalLog">
+   	select 
+  			ID                      id,
+           ORDER_NO                orderNo,
+           EXTERNAL_TYPE           externalType,
+           CARD_NO                 cardNo,
+           PROCESS_STATUS          processStatus,
+           AMOUNT                  amount,
+           CREATE_DATE             createDate,
+           UPDATE_DATE             updateDate,
+           REMARK                  remark,
+           CURRENCY_CODE           currencyCode,
+           TRADING_WAY             tradingWay,
+           PAYER_MEMBER_CODE       payerMemberCode,
+           VALUE1                  value1,
+           VALUE2                  value2,
+           EXTERNAL_PROCESS_STATUS externalProcessStatus
+           
+        from   T_EXTERNAL_LOG t
+	
+	        where 1=1 
+	        	<include refid="search_param_segment"/>
+			  	
+			order by t.id desc	
+        
+     
+        
+       
+   	</select>
+   	
+   	 <select id="search_COUNT"  parameterClass="externalLogSearchDto"  resultClass="int">
+   		SELECT count(*) cu
+		  	FROM T_EXTERNAL_LOG
+		  	where 1=1
+		  	<include refid="search_param_segment"/>
+			
+   	</select>
+   	
+   	 
+		
+		
+</sqlMap>

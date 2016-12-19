@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css">
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style>
+<meta charset="utf-8">
+<title><!-- iPayLinks支付网关订单收款明细 -->跨境付款下载
+</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+			<tr>
+				<td colspan="9" style="text-align: middle;">#==============跨境付款==============</td>
+			</tr>
+			<tr>
+				<td colspan="9">下载时间 ：<#if
+					nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if></td>
+			</tr>
+			<tr>
+									<th width="10%">批次号</th>
+									<th width="17%">提交时间</th>
+									<th width="10%">业务类型</th>
+									<th width="7%">申请笔数</th>
+									<th width="7%">付款笔数</th>
+									<th width="10%">付款成功笔数</th>
+									<th width="7%">汇款费用</th>
+									<th width="7%">付款金额</th>
+									<th width="10%">处理状态</th>
+								</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists> <#list incomeDetailList as ls>
+							<tr>
+									<td>${ls.batchNo}</td>
+									<td>${ls.createDate?datetime}</td>
+									<td>
+											<#if ls.type =="0">
+													货物贸易
+											<#elseif ls.type =="1">
+													酒店住宿
+											<#elseif ls.type =="2">
+													机票旅游
+											<#else>
+													留学教育
+											</#if>
+									</td>
+									<td>${ls.allCount}</td>
+									<td>${ls.payCount}</td>
+									<td>${ls.successCount}</td>
+									<td>${((ls.remitAmount?default(0)/1000))?string(",##0.000")}  CNY</td>
+									<td>${((ls.payAmount?default(0)/1000))?string(",##0.000")} CNY </td>
+									<td>
+											<#if ls.status ==0>
+													处理中
+											<#elseif ls.status ==1>
+													处理成功
+											<#else>
+													处理失败
+											</#if>
+									</td>
+								</tr>
+			</#list> </#if>
+			<tr>
+				<td colspan="9">#------------跨境付款查询列表--------------</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

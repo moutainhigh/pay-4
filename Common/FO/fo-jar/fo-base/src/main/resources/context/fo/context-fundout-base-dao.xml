@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="PLATFORM.DAO_TEMPLATE" abstract="true">
+		<property name="dataSource">
+			<ref bean="foDs" />
+		</property>
+		<property name="pageGenerator">
+			<ref bean="pageGenerator" />
+		</property>
+		<property name="sequenceGenerator">
+			<ref bean="sequenceGenerator" />
+		</property>
+	</bean>
+
+	<bean id="pageGenerator" class="com.pay.inf.dao.impl.OraclePager" />
+
+	<bean id="poss-sqlExecutor" class="com.pay.inf.dao.impl.OraclePageExecutor">
+		<property name="dialect">
+			<bean class="com.pay.inf.dao.impl.OraclePager" />
+		</property>
+	</bean>
+
+	<bean id="sequenceGenerator" class="com.pay.inf.dao.impl.OracleSequenceGenerator">
+		<property name="sequenceName">
+			<value>SEQ_BASE_DAO</value>
+		</property>
+		<property name="paddingLength" value="0" />
+		<property name="dataSource" ref="foDs" />
+	</bean>
+
+	<bean id="PLATFORM.DEFAULT.DAOSERVICE" parent="PLATFORM.DAO_TEMPLATE"
+		class="com.pay.inf.dao.impl.BaseDAOImpl" init-method="initialize">
+		<property name="sqlMapClient">
+			<ref bean="sqlMapClientPoss" />
+		</property>
+		<property name="sqlExecutor">
+			<ref bean="poss-sqlExecutor" />
+		</property>
+	</bean>
+
+	<bean id="baseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="sqlMapClientPoss" />
+	</bean>
+
+	<bean id="bankDateServiceImpl" class="com.pay.poss.base.dataservice.impl.BankDateServiceImpl"
+		abstract="true">
+		<property name="daoService" ref="PLATFORM.DEFAULT.DAOSERVICE" />
+	</bean>
+
+	<!-- sqlMapClient 配置 -->
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
+
+	<bean id="sqlMapClientPoss" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmap/fo/sqlmap-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<value>classpath*:sqlmap/fo/**/*.xml</value>
+		</property>
+		<property name="dataSource">
+			<ref bean="foDs" />
+		</property>
+		<property name="lobHandler" ref="lobHandler" />
+	</bean>
+
+	<!-- codeTable Dao -->
+	<bean id="context_fundout_base_codeTableDAO"
+		class="com.pay.poss.base.tags.codetable.dao.impl.CodeTableDaoImpl"
+		parent="PLATFORM.DEFAULT.DAOSERVICE" />
+
+</beans>

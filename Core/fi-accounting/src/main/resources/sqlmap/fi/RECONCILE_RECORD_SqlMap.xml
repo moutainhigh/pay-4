@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchReconileRecord">
+	<typeAlias alias="reconileRecordBatch" type="com.pay.txncore.dto.ReconcileImportRecordBatchDto"/>
+	<typeAlias alias="reconileRecordDetail" type="com.pay.txncore.dto.ReconcileImportRecordDetailDto"/>
+
+	<insert id="insertReconcileImportRecordBatch" parameterClass="reconileRecordBatch" >
+		<selectKey resultClass="java.lang.String" keyProperty="bacthNo">
+    		SELECT 	#bacthNo# || RECONCILE_BATCH_SEQUENCE.nextval FROM  DUAL
+    	</selectKey>		
+		INSERT 	INTO
+		RECONCILE_IMPORT_RECORD_BATCH(
+		BATCH_NO,
+		APPLY_COUNT,
+		STATUS,
+		CREATE_DATE,
+		ORGCODE,
+		FILE_NAME,
+		OPERATOR		
+		) 
+		VALUES
+		(
+		#bacthNo#,
+		#applyCount#,
+		#status#,
+		#createDate#,
+		#orgCode#,
+		#fileName#,
+		#operator#
+		)
+	</insert>
+	<insert id="insertReconcileRecordDetail" parameterClass="reconileRecordDetail" >
+	<selectKey resultClass="java.lang.String" keyProperty="id" >
+    		SELECT RECONCILE_DETAIL_sequence.nextval FROM DUAL
+    	</selectKey>	
+	INSERT INTO 
+	RECONCILE_IMPORT_RECORD_DETAIL(
+	ID,
+	CHANNEL_ORDER_NO,
+	STATUS,
+	BATCH_NO_DETAIL,
+	MERCHANT_NO,
+	TRANSACTION_DATE,
+	POSTING_DATE,
+	TYPE,
+	CREDORAX_STATUS,
+	TRANSCURRENCY,
+	TRANSAMOUNT,
+	ACCTCURRENCY,
+	ACCTAMOUNTGROSS,
+	ACCTTOTALCHARGES,
+	CAPTURE_METHOD,
+	MERCH_TRAN_REF,
+	AUTH_CODE,
+	MERCHANT_NAME,
+	TRANSACTION_COUNTRY,
+	AREA_OF_EVENT,
+	FPI,
+	FEE_ERCENTAGE,
+	BASE,
+	INTERCHANGE_CURRENCY,
+	INTERCHANGE_AMOUNT,
+	DEBIT_OR_CREDITCARD,
+	MERCHANT_CITY,
+	ACQUIRER_REF
+	)
+	VALUES
+	(
+	#id#,
+	#channelOrderNo#,
+	#status#,
+	#batchNoDetail#,
+	#merchantNo#,
+	#transactionDate#,
+	#postingDate#,
+	#type#,
+	#credoraxStatus#,
+	#transCurrency#,
+	#transAmount#,
+	#acctCurrency#,
+	#acctAmountGross#,
+	#acctTotalCharges#,
+	#captureMethod#,
+	#merchTranRef#,
+	#authCode#,
+	#merchantName#,
+	#transActionCountry#,
+	#areaOfEvent#,
+	#fpi#,
+	#feeErcentage#,
+	#base#,
+	#interChangeCurrency#,
+	#interChangeAmount#,
+	#debitOrCreditCard#,
+	#merchantCity#,
+	#acquirerRef#
+	)
+	</insert>
+	
+	<update id="updateReconcileRecordBatch" parameterClass="reconileRecordBatch">
+		UPDATE 
+		RECONCILE_IMPORT_RECORD_BATCH
+		SET
+		SUCCESS_COUNT= #successCount#,
+		STATUS = #status#
+		WHERE
+		BATCH_NO = #bacthNo#
+	</update>
+	
+	<!-- 更新 Batch的各种处理过程 2012-08-12 -->
+	<update id="updateReconcileRecordBatchProcess" parameterClass="reconileRecordBatch">
+		UPDATE 
+		RECONCILE_IMPORT_RECORD_BATCH
+		<dynamic prepend="SET">
+        <isNotNull prepend="," property="preProcessStartTime">
+            PREPROCESS_START_TIME = #preProcessStartTime#
+        </isNotNull>
+        <isNotNull prepend="," property="preProcessEndTime">
+            PREPROCESS_END_TIME = #preProcessEndTime#
+        </isNotNull>
+        <isNotNull prepend="," property="preProcessSuccessNum">
+            PREPROCESS_SUCCESS_NUM = #preProcessSuccessNum#
+        </isNotNull>
+        <isNotNull prepend="," property="batchStartTime">
+            BATCH_START_TIME = #batchStartTime#
+        </isNotNull>
+        <isNotNull prepend="," property="batchEndTime">
+            BATCH_END_TIME = #batchEndTime#
+        </isNotNull>
+        <isNotNull prepend="," property="batchProcessNum">
+            BATCH_PROCESS_NUM = #batchProcessNum#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderNum">
+            PAYMENT_ORDER_NUM = #paymentOrderNum#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderSuccess">
+            PAYMENT_ORDER_SUCCESS = #paymentOrderSuccess#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderFailed">
+            PAYMENT_ORDER_FAILED = #paymentOrderFailed#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderNum">
+            REFUND_ORDER_NUM = #refundOrderNum#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderSuccess">
+            REFUND_ORDER_SUCCESS = #refundOrderSuccess#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderFailed">
+            REFUND_ORDER_FAILED = #refundOrderFailed#
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderRemark">
+            REFUND_ORDER_REMARK = #refundOrderRemark#
+        </isNotNull>
+        <isNotNull prepend="," property="successCount">
+            SUCCESS_COUNT = #successCount#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+ 
+        </dynamic>
+        
+		WHERE
+		BATCH_NO = #bacthNo#
+	</update>
+	
+	<update id="updateReconcileRecordDetail" parameterClass="reconileRecordDetail">
+		UPDATE
+		RECONCILE_IMPORT_RECORD_DETAIL
+		SET
+		REMARK = #remark#,
+		STATUS = #status# 
+		where
+		CHANNEL_ORDER_NO= #channelOrderNo#	
+		<isNotEmpty prepend="AND" property="batchNoDetail">
+			BATCH_NO_DETAIL = #batchNoDetail#
+		</isNotEmpty>		
+		<isNotEmpty prepend="AND" property="acquirerRef">
+			ACQUIRER_REF = #acquirerRef#
+		</isNotEmpty>		
+	</update>
+	
+	<!-- 预处理更新渠道订单号  20160-08-12 -->
+	<update id="updateReconcileRecordChannelOrderNo" parameterClass="reconileRecordDetail">
+		UPDATE
+		RECONCILE_IMPORT_RECORD_DETAIL
+		SET
+		CHANNEL_ORDER_NO = #channelOrderNo#
+		where
+			BATCH_NO_DETAIL = #batchNoDetail#
+			and 
+			ACQUIRER_REF = #acquirerRef#
+	</update>
+	
+	<select id="findByCriteria" parameterClass="java.util.Map" resultClass="reconileRecordBatch">
+	select 
+	BATCH_NO bacthNo,
+	CREATE_DATE	 createDate,
+	OPERATOR	operator
+	from
+	RECONCILE_IMPORT_RECORD_BATCH	
+	where 
+	1=1
+	<isNotEmpty prepend="AND" property="operator">
+	OPERATOR = #operator#
+	</isNotEmpty>	
+	<isNotEmpty prepend="AND" property="batchNo">
+	BATCH_NO = #batchNo#
+	</isNotEmpty>	
+	<isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> #startTime#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+			CREATE_DATE <![CDATA[<=]]> #endTime#
+	</isNotEmpty>
+	order  by CREATE_DATE desc 
+	</select>
+	
+	<!-- 根据文件名查找 批次  2016-08-12 -->
+	<select id="findByFileName" parameterClass="java.util.Map" resultClass="reconileRecordBatch">
+	select 
+	BATCH_NO bacthNo,
+	CREATE_DATE	 createDate,
+	OPERATOR	operator,
+	FILE_NAME fileName 
+	from
+	RECONCILE_IMPORT_RECORD_BATCH	
+	where 
+	FILE_NAME = #fileName#
+	<isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> #startTime#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+			CREATE_DATE <![CDATA[<=]]> #endTime#
+	</isNotEmpty>
+	order  by CREATE_DATE desc 
+	</select>
+	
+	
+	<select id="countByCriteria" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+	select 
+		count(1)
+	from
+	RECONCILE_IMPORT_RECORD_BATCH	
+	where 
+	1=1
+	<isNotEmpty prepend="AND" property="operator">
+	OPERATOR = #operator#
+	</isNotEmpty>	
+	<isNotEmpty prepend="AND" property="batchNo">
+	BATCH_NO = #batchNo#
+	</isNotEmpty>	
+	<isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> #startTime#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+			CREATE_DATE <![CDATA[<=]]> #endTime#
+	</isNotEmpty>
+	</select>
+	
+	
+		
+	<select id="queryReconcileDetailBatch" parameterClass="java.util.Map" resultClass="reconileRecordDetail">
+	select 
+	A.BATCH_NO_DETAIL 	batchNoDetail,
+	A.CHANNEL_ORDER_NO	 channelOrderNo,
+	B.OPERATOR			operator,
+	A.STATUS				status,
+	A.REMARK  			remark,
+	A.MERCH_TRAN_REF    merchTranRef,
+	B.CREATE_DATE 		createDate
+	from
+	RECONCILE_IMPORT_RECORD_DETAIL A
+	LEFT JOIN
+	RECONCILE_IMPORT_RECORD_BATCH B
+	ON
+	A.BATCH_NO_DETAIL = B.BATCH_NO
+	where 
+		A.BATCH_NO_DETAIL = #batchNo#
+		<!-- add by davis.guo 2016-08-11 -->
+		<isNotEmpty prepend="AND" property="status">
+			A.STATUS = #status#
+		</isNotEmpty>
+		order by 	A.STATUS  desc
+	</select>
+	
+	<!-- 查询详情 -->
+	<select id="queryReconcileDetailSingle" parameterClass="java.util.Map" resultClass="reconileRecordDetail">
+		SELECT ID id,
+		  CHANNEL_ORDER_NO channelOrderNo,
+		  REMARK remark,
+		  STATUS status,
+		  BATCH_NO_DETAIL batchNoDetail,
+		  MERCHANT_NO merchantNo,
+		  TRANSACTION_DATE transactionDate,
+		  POSTING_DATE postingDate,
+		  TYPE type,
+		  CREDORAX_STATUS credoraxStatus,
+		  TRANSCURRENCY transCurrency,
+		  TRANSAMOUNT transAmount,
+		  ACCTCURRENCY acctCurrency,
+		  ACCTAMOUNTGROSS acctAmountGross,
+		  ACCTTOTALCHARGES acctTotalCharges,
+		  CAPTURE_METHOD captureMethod,
+		  MERCH_TRAN_REF merchTranRef,
+		  AUTH_CODE authCode,
+		  MERCHANT_NAME merchantName,
+		  TRANSACTION_COUNTRY transActionCountry,
+		  AREA_OF_EVENT areaOfEvent,
+		  FPI fpi,
+		  FEE_ERCENTAGE feeErcentage,
+		  BASE base,
+		  INTERCHANGE_AMOUNT interChangeAmount,
+		  INTERCHANGE_CURRENCY interChangeCurrency,
+		  DEBIT_OR_CREDITCARD debitOrCreditCard,
+		  MERCHANT_CITY merchantCity,
+		  ACQUIRER_REF acquirerRef
+		FROM RECONCILE_IMPORT_RECORD_DETAIL 
+		where 1 = 1 
+		<isNotEmpty property="channelOrderNo" prepend="and">
+			CHANNEL_ORDER_NO=#channelOrderNo#
+		</isNotEmpty>  
+		<isNotEmpty property="reconciliationFlg" prepend="and">
+			STATUS=#reconciliationFlg#
+		</isNotEmpty>
+	</select>
+		
+</sqlMap>

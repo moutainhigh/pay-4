@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 查询对账结果 Sandy_Yang -->
+	<bean name="/queryReconcile.do"
+		class="com.pay.poss.controller.reconcile.ReconcileFileServiceController"
+		parent="reconcileBaseController">
+		<property name="urlMap">
+			<map>
+				<entry key="reconcileFileUpload" value="/reconcile/fileservice/reconcileFileUpload" />
+				<entry key="initQueryUploadInfo" value="/reconcile/fileservice/initQueryReconcileFileInfo" />
+				<entry key="queryUploadInfoList" value="/reconcile/fileservice/reconcileFileList" />
+				<entry key="reconcileFileDetail" value="/reconcile/fileservice/reconcileFileDetailInfo" />
+				<entry key="reconcileDetailList" value="/reconcile/fileservice/reconcileDetailList" />
+				<entry key="reconcileResult" value="/reconcile/fileservice/reconcileResult" />
+				<entry key="reconcileResult_new" value="/reconcile/fileservice/reconcileResult_new" />
+			</map>
+		</property>
+		<property name="reconcileFileService" ref="fo-rc-reconcileFileService" />
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="reconciliationService" ref="txncore-reconciliationService"/>
+		<property name="fileService" ref="fileService"/>
+		<property name="fundoutChannelService" ref="fo_channel_fundoutchannelservice" />
+	</bean>
+
+</beans>

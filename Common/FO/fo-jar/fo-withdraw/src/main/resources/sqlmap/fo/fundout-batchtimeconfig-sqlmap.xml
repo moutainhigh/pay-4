@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchtimeconfig">
+	<typeAlias alias="batchTimeConfig"
+		type="com.pay.fundout.withdraw.model.timeconfig.BatchTimeConfig" />
+	<typeAlias alias="timeConfigDTO"
+		type="com.pay.fundout.withdraw.dto.timeconfig.BatchTimeConfigDTO" />
+	<resultMap id="batchTimeConfig"
+		class="com.pay.fundout.withdraw.model.timeconfig.BatchTimeConfig">
+		<result column="START_TIME_POINT" property="startTimePoint"
+			jdbcType="VARCHAR" />
+		<result column="CREATION_DATE" property="creationDate"
+			jdbcType="TIMESTAMP" />
+		<result column="SPECIAL_POINT" property="specialPoint"
+			jdbcType="VARCHAR" />
+		<result column="TIME_SPAN" property="timeSpan" jdbcType="DECIMAL" />
+		<result column="STATUS" property="status" jdbcType="DECIMAL" />
+		<result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL" />
+		<result column="END_TIME_POINT" property="endTimePoint"
+			jdbcType="VARCHAR" />
+		<result column="TIME_TYPE" property="timeType" jdbcType="DECIMAL" />
+		<result column="WEEK_DAY_LIST" property="weekDayList" jdbcType="VARCHAR" />
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+
+
+	<sql id="Column_List">
+		START_TIME_POINT,CREATION_DATE,SPECIAL_POINT,TIME_SPAN,STATUS,
+		SEQUENCE_ID,END_TIME_POINT,TIME_TYPE,WEEK_DAY_LIST,UPDATE_DATE
+		
+    </sql>
+	<insert id="create" parameterClass="batchTimeConfig">
+		<selectKey resultClass="Long" keyProperty="sequenceId">
+			SELECT SEQ_BATCH_TIME_CONFIG.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO BATCH_TIME_CONFIG(
+		START_TIME_POINT,CREATION_DATE,SPECIAL_POINT,TIME_SPAN,STATUS,
+		SEQUENCE_ID,END_TIME_POINT,TIME_TYPE,WEEK_DAY_LIST,UPDATE_DATE
+		)
+		VALUES(
+		#startTimePoint#,#creationDate#,#specialPoint#,#timeSpan#,#status#,
+		#sequenceId#,#endTimePoint#,#timeType#,#weekDayList#,#updateDate#
+		)
+    </insert>
+
+	<update id="update" parameterClass="batchTimeConfig">
+		UPDATE BATCH_TIME_CONFIG
+		<dynamic prepend="SET">
+			<isNotNull prepend="," property="startTimePoint">
+				START_TIME_POINT = #startTimePoint#
+        </isNotNull>
+			<isNotNull prepend="," property="creationDate">
+				CREATION_DATE = #creationDate#
+        </isNotNull>
+			<isNotNull prepend="," property="specialPoint">
+				SPECIAL_POINT = #specialPoint#
+        </isNotNull>
+			<isNotNull prepend="," property="timeSpan">
+				TIME_SPAN = #timeSpan#
+        </isNotNull>
+			<isNotNull prepend="," property="status">
+				STATUS = #status#
+        </isNotNull>
+			<isNotNull prepend="," property="endTimePoint">
+				END_TIME_POINT = #endTimePoint#
+        </isNotNull>
+			<isNotNull prepend="," property="timeType">
+				TIME_TYPE = #timeType#
+        </isNotNull>
+			<isNotNull prepend="," property="weekDayList">
+				WEEK_DAY_LIST = #weekDayList#
+        </isNotNull>
+			<isNotNull prepend="," property="updateDate">
+				UPDATE_DATE = #updateDate#
+        </isNotNull>
+		</dynamic>
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+		</dynamic>
+	</update>
+
+	<delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+		DELETE FROM BATCH_TIME_CONFIG
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+		</dynamic>
+	</delete>
+
+	<delete id="deleteBySelective" parameterClass="batchTimeConfig">
+		DELETE FROM BATCH_TIME_CONFIG
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="startTimePoint">
+				START_TIME_POINT = #startTimePoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="creationDate">
+				CREATION_DATE = #creationDate# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="specialPoint">
+				SPECIAL_POINT = #specialPoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="timeSpan">
+				TIME_SPAN = #timeSpan# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="status">
+				STATUS = #status# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="endTimePoint">
+				END_TIME_POINT = #endTimePoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="timeType">
+				TIME_TYPE = #timeType# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="weekDayList">
+				WEEK_DAY_LIST = #weekDayList# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="updateDate">
+				UPDATE_DATE = #updateDate# 
+        </isNotNull>
+		</dynamic>
+	</delete>
+
+	<select id="findById" resultMap="batchTimeConfig"
+		parameterClass="java.lang.Long">
+		SELECT
+		START_TIME_POINT,CREATION_DATE,SPECIAL_POINT,TIME_SPAN,STATUS,
+		SEQUENCE_ID,END_TIME_POINT,TIME_TYPE,WEEK_DAY_LIST,UPDATE_DATE
+
+		FROM BATCH_TIME_CONFIG
+		WHERE
+		SEQUENCE_ID = #sequenceId# 
+    </select>
+
+	<select id="countByExample" resultClass="java.lang.Integer">
+		SELECT count(*) FROM BATCH_TIME_CONFIG
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="startTimePoint">
+				START_TIME_POINT = #startTimePoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="creationDate">
+				CREATION_DATE = #creationDate# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="specialPoint">
+				SPECIAL_POINT = #specialPoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="timeSpan">
+				TIME_SPAN = #timeSpan# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="status">
+				STATUS = #status# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="endTimePoint">
+				END_TIME_POINT = #endTimePoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="timeType">
+				TIME_TYPE = #timeType# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="weekDayList">
+				WEEK_DAY_LIST = #weekDayList# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="updateDate">
+				UPDATE_DATE = #updateDate# 
+        </isNotNull>
+		</dynamic>
+	</select>
+
+	<select id="findBySelective" resultMap="batchTimeConfig">
+		SELECT
+		START_TIME_POINT,CREATION_DATE,SPECIAL_POINT,TIME_SPAN,STATUS,
+		SEQUENCE_ID,END_TIME_POINT,TIME_TYPE,WEEK_DAY_LIST,UPDATE_DATE
+
+		FROM BATCH_TIME_CONFIG
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="startTimePoint">
+				START_TIME_POINT = #startTimePoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="creationDate">
+				CREATION_DATE = #creationDate# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="specialPoint">
+				SPECIAL_POINT = #specialPoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="timeSpan">
+				TIME_SPAN = #timeSpan# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="status">
+				STATUS = #status# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="sequenceId">
+				SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="endTimePoint">
+				END_TIME_POINT = #endTimePoint# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="timeType">
+				TIME_TYPE = #timeType# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="weekDayList">
+				WEEK_DAY_LIST = #weekDayList# 
+        </isNotNull>
+			<isNotNull prepend="AND" property="updateDate">
+				UPDATE_DATE = #updateDate# 
+        </isNotNull>
+		</dynamic>
+	</select>
+	
+	<select id="getSequenceIdByWeekDayListAndType" parameterClass="map"	resultClass="long">
+		select SEQUENCE_ID from BATCH_TIME_CONFIG where WEEK_DAY_LIST =	#weekDayList# and TIME_TYPE=#timeType#
+		<isNotNull prepend="AND" property="startTimePoint">
+			START_TIME_POINT = #startTimePoint# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="endTimePoint">
+			END_TIME_POINT = #endTimePoint# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="specialPoint">
+			SPECIAL_POINT = #specialPoint# 
+        </isNotNull>
+    </select>
+    
+    <select id="getTimeConfigById" resultClass="timeConfigDTO" parameterClass="long">
+		SELECT
+		START_TIME_POINT 	startTimePoint,
+		CREATION_DATE		creationDate,
+		SPECIAL_POINT 		specialPoint,
+		TIME_SPAN 			timeSpan,
+		STATUS 				status,
+		SEQUENCE_ID 		sequenceId,
+		END_TIME_POINT 		endTimePoint,
+		TIME_TYPE 			timeType,
+		WEEK_DAY_LIST 		weekDayList,
+		UPDATE_DATE 		updateDate
+		FROM BATCH_TIME_CONFIG
+		WHERE SEQUENCE_ID=#value#
+	</select>
+</sqlMap>

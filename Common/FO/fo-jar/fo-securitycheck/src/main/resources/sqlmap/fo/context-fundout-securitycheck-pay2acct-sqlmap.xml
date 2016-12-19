@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="securitycheck.pay2acct">
+	<typeAlias alias="pay2acctRisk"
+		type="com.pay.fundout.securitycheck.model.RiskData" />				
+	
+	 <select id="queryRiskOfDay"  resultClass="pay2acctRisk" parameterClass="java.util.Map">
+	    SELECT COUNT(1) dayTimes,NVL(SUM(amount),0) dayLimit 
+	      FROM MASSPAY_ORDER
+	     WHERE PAYER_MEMBER = #payerMemberCode#
+	       and busi_code=#busiType#
+	       AND STATUS = 111
+	       AND  update_date  between trunc(sysdate,'DD')  and sysdate
+	</select>  
+	 <select id="queryRiskOfMonth"  resultClass="pay2acctRisk" parameterClass="java.util.Map">
+	    SELECT COUNT(1) monthTimes,NVL(SUM(amount),0) monthLimit 
+	      FROM MASSPAY_ORDER
+	     WHERE PAYER_MEMBER = #payerMemberCode#
+	       and busi_code=#busiType#
+	       AND STATUS = 111
+	       AND  update_date  between trunc(sysdate,'MM')  and sysdate
+	</select> 	
+	
+	
+</sqlMap>

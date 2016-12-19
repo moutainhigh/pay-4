@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+            
+	<!-- 充退处理成功或失败消息处理 Begin -->
+	<bean id="RefundAccountingResponseDestination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0"
+			value="fundout.refund.accounting.response" />
+	</bean>
+
+	<bean id="RefundAccountingResponseJmsListener"
+		class="com.pay.fundout.mdp.refund.RefundAccountingResponseJmsQueueListener">
+		<!--<property name="refundManageService" ref="refundManageService"></property> -->
+		<property name="accountingServiceSucc" ref="accounting-500-508" />
+		<property name="accountingServiceFail" ref="accounting-500-511" />
+		<property name="orderCallBackService" ref="fundout-withdraw-chargeRefundCallBack" />
+	</bean>
+
+	<bean id="RefundResponseJmsContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="RefundAccountingResponseDestination" />
+		<property name="messageListener" ref="RefundAccountingResponseJmsListener" />
+	</bean>
+	<!-- 充退处理成功或失败消息处理 End -->
+
+	<!-- 商户退款请求消息处理 Begin -->
+	<bean id="fundout-customRefund-destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="fo.customRefund.fiTofo.req" />
+	</bean>
+
+	<bean id="fundout-customRefund-ResponseJmsQueueListener"
+		class="com.pay.fundout.external.mdp.refund.CustomRefundFromFiResponseJmsQueueListener">
+		<property name="refundManageService" ref="refundManageService"/>
+	</bean>
+
+	<bean id="fundout-customRefund-ProcessRequestContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout-customRefund-destination" />
+		<property name="messageListener"
+			ref="fundout-customRefund-ResponseJmsQueueListener" />
+	</bean>
+	<!-- 商户退款请求消息处理 End -->
+	
+	<!-- 自动退款任务请求消息处理 Begin -->
+	<bean id="fundout-autoRefund-destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="fo.autoRefund.fiTofo.req" />
+	</bean>
+
+	<bean id="fundout-autoRefund-ResponseJmsQueueListener"
+		class="com.pay.fundout.external.mdp.refund.AutoRefundFromFiResponseJmsQueueListener">
+		<property name="refundManageService" ref="refundManageService"/>
+	</bean>
+
+	<bean id="fundout-autoRefund-ProcessRequestContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout-autoRefund-destination" />
+		<property name="messageListener" ref="fundout-autoRefund-ResponseJmsQueueListener" />
+	</bean>
+	<!-- 自动退款任务请求消息处理 End -->
+	
+</beans>

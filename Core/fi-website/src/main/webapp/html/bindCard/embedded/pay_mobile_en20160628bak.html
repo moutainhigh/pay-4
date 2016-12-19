@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Payment</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="stylesheet" href="css/amazeui.min.css"/>
+    <link href="css/ipaylinks20150704.css" rel="stylesheet" type="text/css" />
+  <script src="<@sp.static/>/js/pay/common/jquery-1.3.2.js" type="text/javascript"></script>
+</head>
+<body>
+
+<!-- content start -->
+<div class="admin-content" style="font-size: 14px;">
+        <div id="a1" style="display:none;background-color:gray;margin:0px 0px;position:absolute; z-index:9999;opacity:0.2;text-align:center;color:red;width:100%;height:100%;"></div>
+		<div id="animate" style="display:none;width:100%;height:100%;position:absolute; z-index:99999;text-align:center;padding-top:100px;color:red;">
+			<img src="images/loadding.gif" style="opacity:1;" />
+			<div style="margin:30px auto;">The order is being processed. Please wait for a moment.</div>
+		</div>
+        <form class="am-form" action="${rc.contextPath}/bindCardChannelPay.htm?method=onSubmit" method="post" id="frm1">
+          <table class="am-table am-table-striped am-table-hover table-main">
+            <thead>
+              <tr style="background-color: #f7f7f7">
+                <th class="table-id" colspan="4">
+                   <span style="float:left;margin-left:20px">Please fill in the credit card information.</span>
+                </th>
+              </tr>
+              <tr>
+                 <th colspan="4" style="border: none;"></th>
+              </tr>
+            <tr>
+              <#if cardLimit?has_content>
+           			<th style="border: none;width:25%;" colspan="">
+           				<#if cardLimit=="001">
+			              	<div style="margin:0 auto;text-align:center;">
+			                  <img src="images/visa.png" alt="图片不存在" id="visaImg" />
+			              	</div>
+		              	</#if>
+		              </th>
+		              <th style="border: none;width:25%;" colspan="">
+		              	<#if cardLimit=="002">
+			              	<div style="margin:0 auto;text-align:center;position:relative;top:5px;padding-left:9px;">
+			              		<img src="images/master.png" alt="图片不存在" id="masterImg"/>
+			              	</div>
+		              	</#if>
+		              </th>
+		              <th style="border: none;width:25%;" colspan="">
+		              	<#if cardLimit=="003">
+			              	<div style="margin:0 auto;text-align:center;">
+			              		<img src="images/jcb.png" alt="图片不存在" id="jcbImg"/>
+			              	</div>
+		              	</#if>
+		              </th>
+		              <th style="border: none;width:25%;" colspan="">
+		              	&nbsp;
+		              </th>
+           		<#else>
+           			<th style="border: none;width:25%;" colspan="">
+		              	<div style="margin:0 auto;text-align:center;">
+		                  <img src="images/visa.png" alt="图片不存在" id="visaImg" />
+		              	</div>
+		              </th>
+		              <th style="border: none;width:25%;" colspan="">
+		              	<div style="margin:0 auto;text-align:center;position:relative;top:5px;padding-left:9px;">
+		              		<img src="images/master.png" alt="图片不存在" id="masterImg"/>
+		              	</div>
+		              </th>
+		              <th style="border: none;width:25%;" colspan="">
+		              	<div style="margin:0 auto;text-align:center;">
+		              		<img src="images/jcb.png" alt="图片不存在" id="jcbImg"/>
+		              	</div>
+		              </th>
+		              
+            	</#if>
+            </tr>
+          
+            <tr>
+               <td colspan="4" style="border-top: 0px;"></td>
+            </tr>
+            <tr>
+              <td style="width:25%;border-top:0px;" align="right">Card Number：</td>
+              <td colspan="2" align="left" style="border-top: 0px;width:50%">
+                <input type="text" name="cardHolderNumber" id="cardHolderNumber" style="width:100%" onkeyup="checkNum(this);"/>
+              </td>
+              <td style="border-top:0px;width:25%" align="left"><span style="float:left;color: red">*</span><tip id="cardHolderNumberTip" style="color: red"></tip></td>
+            </tr>
+            <tr>
+              <td  style="border-top: 0px;width:25%"align="right">
+              Validity：
+              </td>
+              <td  style="border-top: 0px;width:25%">
+              			<select id="cardExpirationMonth" name="cardExpirationMonth" style="width:100%;padding: 2px;"> 
+						<option value=""></option> 
+						<option value="01">01</option> 
+						<option value="02">02</option> 
+						<option value="03">03</option> 
+						<option value="04">04</option> 
+						<option value="05">05</option> 
+						<option value="06">06</option> 
+						<option value="07">07</option> 
+						<option value="08">08</option> 
+						<option value="09">09</option> 
+						<option value="10">10</option> 
+						<option value="11">11</option> 
+						<option value="12">12</option> 
+					</select>
+              </td>
+              <td  style="border-top: 0px;width:25%" align="left">
+                <select id="cardExpirationYear" name="cardExpirationYear" style="width:100%;padding: 2px;">
+						<option></option>
+						<option value="16">2016</option>
+						<option value="17">2017</option>
+						<option value="18">2018</option>
+						<option value="19">2019</option>
+						<option value="20">2020</option>
+						<option value="21">2021</option>
+						<option value="22">2022</option>
+						<option value="23">2023</option>
+						<option value="24">2024</option>
+						<option value="25">2025</option>
+						<option value="26">2026</option>
+						<option value="27">2027</option>
+						<option value="28">2028</option>
+						<option value="29">2029</option>
+						<option value="30">2030</option>
+              </td>
+              <td   style="border-top: 0px;width:25%" align="left">
+                 <span style="color: red">*</span><tip id="cardExpirationTip"></tip>
+              </td>
+            </tr>
+            <tr>
+              <td style="width:25%;border-top:0px;" align="right">FirstName：</td>
+              <td colspan="2" align="left" style="border-top: 0px;width:50%">
+                <input type="text" name="cardHolderFirstName" id="cardHolderFirstName" style="width:100%"/>
+              </td>
+              <td style="border-top:0px;width:25%" align="left">
+                  <span style="color: red">*</span><tip id="cardHolderFirstNameTip" style="color: red"></tip>
+              </td>
+            </tr>
+            <tr>
+              <td style="width:25%;border-top:0px;" align="right">LastName：</td>
+              <td colspan="2" align="left" style="border-top: 0px;width:50%">
+                <input type="text" name="cardHolderLastName" id="cardHolderLastName" style="width:100%"/>
+              </td>
+              <td style="border-top:0px;width:25%" align="left">
+                  <span style="color: red">*</span><tip id="cardHolderLastNameTip" style="color: red"></tip>
+              </td>
+            </tr>
+            <tr>
+              <td style="width:25%;border-top:0px;" align="right">CVV：</td>
+              <td  align="left" style="border-top: 0px;width:30%">
+                <input type="text" style="width:100%;height:31px;" id="securityCode" name="securityCode" maxlength="3" onkeyup="checkNum(this);" />
+              </td>
+               <td  align="left" style="border-top: 0px;width:20%">
+               <img src="images/cvv.png" alt="图片不存在" style="position:relative;top:10px;margin-left:60px;"/>
+               </td>
+              <td style="border-top:0px;width:25%" align="left">
+                  <tip id="resultTip"></tip>
+              </td>
+            </tr>
+            <tr>
+               <td colspan="4" style="border-top:0px;"></td>
+            </tr>
+            <tr>
+              <td style="width:25%;border-top:0px;" align="right"></td>
+              <td colspan="3" style="border-top:0px;">
+              <input type="button" id="submit" value="submit" class="fsubmit" style="width:181px;height:32px;"/>
+              </td>
+            </tr>
+          </thead>
+        </table>
+        <input type="hidden" name="tradeOrderNo" id="tradeOrderNo" value="${tradeOrderNo}"/>			
+			<input type="hidden" name="partnerId" id="partnerId" value="${partnerId}"/>			
+			<input type="hidden" name="orderAmount" id="orderAmount" value="${orderAmount}"/>			
+			<input type="hidden" name="currencyCode" id="currencyCode" value="${currencyCode}"/>			
+			<input type="hidden" name="orderId" id="orderId" value="${orderId}"/>			
+			<input type="hidden" name="payType" value="${payType!'ALL'}"/>
+			<input type="hidden" name="language" value="${language?default('en')}"/>
+			<input type="hidden" name="orderTerminal" value="${orderTerminal?default('01')}"/>
+			<input type="hidden" name="goodsDesc" id="goodsDesc" value="${goodsDesc?default('')}"/>
+			<input type="hidden" name="goodsName" id="goodsName" value="${goodsName?default('')}"/>
+			<input type="hidden" name="deviceFingerprintId" id="deviceFingerprintId" value="${deviceFingerprintId?default('')}"/>
+			<input type="hidden" name="siteId" id="siteId" value="${siteId?default('')}"/>
+			<input type="hidden" name="cardLimit" id="cardLimit" value="${cardLimit?default('')}"/>
+			<input type="hidden" name="remark" id="remark" value="${remark?default('')}"/>
+			<input type="hidden" name="returnUrl" id="returnUrl" value="${returnUrl?default('')}"/>
+			<input type="hidden" name="registerUserId" id="registerUserId" value="${registerUserId?default('')}"/>
+			<input type="hidden" name="is3D" id="is3D" value="${is3D?default('')}"/>
+			<input type="hidden" name="customerIP" id="customerIP" value="${customerIP?default('')}"/>		
+        </form>
+</div>
+ <script type="text/javascript">
+//数字粗略验证
+ function checkNum(obj) {
+ 	//检查是否是非数字值
+ 	if (isNaN(obj.value)) {
+ 		obj.value = "";
+ 	}
+ }
+function check(){
+	var cardHolderNumber = $('#cardHolderNumber').val();
+	if('' == cardHolderNumber){
+		//$('#cardHolderNumberTip').html('Please fill in Card Number.');
+		alert('Please fill in Card Number.');
+		return false;
+	}
+	var cardExpirationMonth = $('#cardExpirationMonth').val();
+	if('' == cardExpirationMonth){
+		//$('#cardExpirationTip').html('Please choose Valid Month.');
+		alert('Please choose Valid Month.')
+		return false;
+	}
+	var cardExpirationYear = $('#cardExpirationYear').val();
+	if('' == cardExpirationYear){
+		//$('#cardExpirationTip').html('Please choose Valid Year.');
+		alert('Please choose Valid Year.');
+		return false;
+	}
+	var cardHolderFirstName = $('#cardHolderFirstName').val();
+	if('' == cardHolderFirstName){
+		//$('#cardHolderFirstNameTip').html('Please fill in First Name.');
+		alert('Please fill in First Name.');
+		return false;
+	}else{
+		var fl = enCheck('#cardHolderFirstNameTip', cardHolderFirstName, 'firstName') ;
+		if(!fl) return false ;
+	}
+	var cardHolderLastName = $('#cardHolderLastName').val();
+	if('' == cardHolderLastName){
+		//$('#cardHolderLastNameTip').html('Please fill in last Name.');
+		alert('Please fill in last Name.');
+		return false;
+	}else{
+		var fl = enCheck('#cardHolderLastNameTip', cardHolderLastName, 'lastName') ;
+		if(!fl) return false ;
+	}
+	var securityCode = $('#securityCode').val();
+	if('' == securityCode){
+		//$('#securityCodeTip').html('Please fill in Card Verification Value.');
+		alert("Please fill in Card Verification Value.") ;
+		return false;
+	}
+	
+	return true;
+}
+
+String.prototype.startWith=function(str){
+    var reg=new RegExp("^"+str);
+    return reg.test(this);
+}
+
+
+$(function(){
+	$("#cardHolderNumber").blur(function(){
+		var cardHolderNumber = $('#cardHolderNumber').val();
+		if('' != cardHolderNumber){
+			$('#cardHolderNumberTip').html('');
+		}
+		if(cardHolderNumber.startWith("4")){
+			$("#visaImg").attr("src","images/visa.png");
+			$("#masterImg").attr("src","images/master-1.png");
+			$("#jcbImg").attr("src","images/jcb-1.png");
+		}else if(cardHolderNumber.startWith("5")){
+			$("#visaImg").attr("src","images/visa-1.png");
+			$("#jcbImg").attr("src","images/jcb-1.png");
+			$("#masterImg").attr("src","images/master.png");
+		}else if(cardHolderNumber.startWith("3")){
+			$("#visaImg").attr("src","images/visa-1.png");
+			$("#masterImg").attr("src","images/master-1.png");
+			$("#jcbImg").attr("src","images/jcb.png");
+		}
+		
+	});
+	
+	$("#cardExpirationMonth").blur(function(){
+		var cardExpirationMonth = $('#cardExpirationMonth').val();
+		if('' != cardExpirationMonth){
+			$('#cardExpirationTip').html('');
+		}
+		
+	});
+	
+	$("#cardExpirationYear").blur(function(){
+		var cardExpirationMonth = $('#cardExpirationMonth').val();
+		var cardExpirationYear = $('#cardExpirationYear').val();
+		if('' != cardExpirationMonth && '' != cardExpirationYear){
+			$('#cardExpirationTip').html('');
+		}
+		
+	});
+	
+	$("#cardHolderFirstName").blur(function(){
+		var cardHolderFirstName = $('#cardHolderFirstName').val();
+		if('' != cardHolderFirstName){
+			//$('#cardHolderFirstNameTip').html('');
+			var flag = enCheck('#cardHolderFirstNameTip', cardHolderFirstName, 'firstName') ;
+			//$('#cardHolderFirstNameTip').html('');
+			if(flag)
+				$('#cardHolderFirstNameTip').html('');
+		}
+	});
+	
+	$("#cardHolderLastName").blur(function(){
+		var cardHolderLastName = $('#cardHolderLastName').val();
+		if('' != cardHolderLastName){
+			//$('#cardHolderLastNameTip').html('');
+			var flag = enCheck('#cardHolderLastNameTip', cardHolderLastName, 'lastName') ;
+			//$('#cardHolderLastNameTip').html('');
+			if(flag)
+				$('#cardHolderLastNameTip').html('');
+		}
+	});
+	
+	$("#securityCode").blur(function(){
+		var securityCode = $('#securityCode').val();
+		if('' != securityCode){
+			$('#securityCodeTip').html('');
+		}
+	});
+	
+	$("#submit").click(function(){
+		$('#resultTip').html('');
+		if(check()){
+			shade();
+			var pars = $("#frm1").serialize();
+			window.location.href='${rc.contextPath}/bindCardChannelPay.htm?method=onSubmit&'+pars;
+		}
+		
+	});
+
+});
+
+//校验姓名，只能输入英文、空格
+function enCheck(tipid, desVal, name){
+	//校验英文
+	var reg = /^[A-Za-z\s]*$/ ;
+	var result = reg.test(desVal) ;
+	//alert(result) ;
+	if(!result){
+		if("firstName" == name){
+			//$(tipid).html("First name in English only") ;
+			alert("First name in English only") ;
+		}else if("lastName" == name){
+			//$(tipid).html("Last name in English only") ;
+			alert("Last name in English only") ;
+		}
+		return false ;
+	}
+	return true ;
+}
+
+function shade(){
+	
+	var box01Width = $(".box01").width();
+	var box01Height = $(".box01").innerHeight() ;
+	
+	var inner02Width = $(".box_inner_02").width();
+	var inner02Height = $(".box_inner_02").height();
+	
+	var animateMarginTop = (box01Height - inner02Height) / 2 ;
+	var animateMarginLeft = (box01Width - inner02Width) / 2 ;
+	
+	$("#a1").css({width:'100%', height:'100%' ,display:'block'});
+	$("#animate").css("margin-top", 0);
+	$("#animate").css("margin-left",0);
+	$("#animate").css({width:'100%',height:'100%',display:'block'});
+}
+
+</script> 
+  <p style="background:url(https://h.online-metrix.net/fp/clear.png?org_id=k8vif92e&session_id=ipaylinks${orderId}&m=1)"></p>
+<img src="https://h.online-metrix.net/fp/clear.png?org_id=k8vif92e&session_id=ipaylinks${orderId}&m=2" alt=""/>
+<object type="application/x-shockwave-flash" data="https://h.online-metrix.net/fp/fp.swf?org_id=ORGID&session_id=ipaylinks${orderId}" width="1" height="1" id="thm_fp">
+   <param name="movie" value="https://h.online-metrix.net/fp/fp.swf?org_id=k8vif92e&session_id=ipaylinks${orderId}" />
+<div></div>
+</object>
+<script src="https://h.online-metrix.net/fp/check.js?org_id=k8vif92e&session_id=ipaylinks${orderId}" type="text/javascript"></script>
+</body>
+</html>

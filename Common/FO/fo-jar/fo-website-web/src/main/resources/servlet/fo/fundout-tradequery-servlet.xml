@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+	<bean id="tradeQueryHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<!-- 个人 -->
+				<prop key="/app/tradeinfodetail.htm">personTradeDetailController</prop>
+				<prop key="/app/singletradeinfodetail.htm">personTradeDetailController</prop>
+				<prop key="/app/withdrawinfodetail.htm">personTradeDetailController</prop>
+				<prop key="/app/singlewithdrawinfodetail.htm">personTradeDetailController</prop>
+				<prop key="/app/tradedetail.htm">tradeQueryFacadeController</prop>
+				
+				<!-- 企业 -->
+				<prop key="/corp/incomedetail.htm">incomeDetailCorpController</prop>
+				<prop key="/corp/singleincomedetail.htm">incomeDetailCorpController</prop>
+				<prop key="/corp/paydetail.htm">payDetailCorpController</prop>
+				<prop key="/corp/singlepaydetail.htm">payDetailCorpController</prop>
+				<prop key="/corp/paybatchdetail.htm">payDetailCorpController</prop>
+				<prop key="/corp/singlepaybatchdetail.htm">payDetailCorpController</prop>
+				<prop key="/corp/bspwithdrawlist.htm">payDetailCorpController</prop>
+				<prop key="/corp/bspwithdrawdetail.htm">payDetailCorpController</prop>
+				<prop key="/corp/fundallotdetail.htm">payDetailCorpController</prop>
+				<prop key="/corp/receiptdetail.htm">accountReceiptDetailCorpController</prop>
+				<prop key="/corp/tradedetail.htm">tradeQueryFacadeController</prop>
+			</props>
+		</property>
+		
+		<property name="interceptors">
+			<list>
+				<ref bean="featureInterceptor"/>
+				<ref bean="operatPermInterceptor"/>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 交易查询父类 -->
+	<bean id="baseTradeQueryController"
+		class="com.pay.app.controller.fo.tradequery.BaseTradeQueryController">
+		<property name="methodNameResolver" ref="paramResolver" />
+
+		<!-- 默认pageSize -->		
+		<property name="pageSize" value="10" />
+		
+	<!-- 交易查询所有页面映射 -->
+		<!-- 个人-->
+		<property name="tradeInfoDetail" value="fo/tradequery/tradeinfodetail" />
+		<property name="exportTradeInfoDetail" value="fo/tradequery/export/exceltradeinfodetail" /><!-- 查询导出 -->
+		<property name="singleTradeInfoDetail" value="fo/tradequery/singletradeinfodetail" />
+		<property name="withdrawInfoDetail" value="fo/tradequery/withdrawinfodetail" />
+		<property name="exportWithdrawInfoDetail" value="fo/tradequery/export/excelwithdrawinfodetail" /><!-- 查询导出 -->
+		<property name="singleWithdrawInfoDetail" value="fo/tradequery/singlewithdrawinfodetail" />
+		
+		<!-- 企业 -->
+		<property name="incomeDetailCorp" value="fo/tradequery/corp/incomedetail" />
+		<property name="exportincomeDetailCorp" value="fo/tradequery/export/excelincomedetail" /> <!-- 导出收入查询结果 -->
+		<property name="singleIncomeDetailCorp" value="fo/tradequery/corp/singleincomedetail" />
+		<property name="payDetailCorp" value="fo/tradequery/corp/paydetail" />
+		<property name="exportPayDetailCorp" value="fo/tradequery/export/excelpaydetail" /><!-- 单笔付款查询结果导出 -->
+		<property name="exportPayDetailCorpCsv" value="fo/tradequery/export/csvpaydetail" /><!-- 单笔付款查询结果导出csv -->
+		<property name="singlePayDetailCorp" value="fo/tradequery/corp/singlepaydetail" />
+		<property name="payToBankCertificate" value="fo/tradequery/corp/paytobankcertificate" /><!-- 付款到银行凭证 -->
+		<property name="payToBankBatchCertificate" value="fo/tradequery/corp/paytobankbatchcertificate" /><!-- 批量付款到银行凭证 -->
+		<property name="payToBankBatchDetail" value="fo/tradequery/corp/payToBankBatchDetail" /><!-- 批量付款到银行凭证 -->
+		<property name="payToAcctBatchDetail" value="fo/tradequery/corp/paytoacctbatchdetail" /><!-- 批量付款到银行凭证 -->
+		<property name="payBatchDetailCorp" value="fo/tradequery/corp/paybatchdetail" />
+		<property name="exportPayBatchDetailCorp" value="fo/tradequery/export/excelpaybatchdetail" /><!-- 批量查询导出 -->
+		<property name="exportPayBatchDetailCorpCsv" value="fo/tradequery/export/csvpaybatchdetail" /><!-- 批量查询导出csv -->
+		<property name="singlePayBatchDetailCorp" value="fo/tradequery/corp/singlepaybatchdetail" />
+		<property name="receiptRecordDetailCorp" value="fo/tradequery/corp/receiptdetail" />
+		<property name="exportReceiptRecordDetailCorp" value="fo/tradequery/export/excelreceiptdetail" /><!-- 转账收款导出 -->
+		
+		<property name="bspWithdrawListCorp" value="fo/tradequery/corp/bspwithdrawlist" /><!-- bsp提现列表 -->
+		<property name="bspWithdrawDetailCorp" value="fo/tradequery/corp/bspwithdrawdetail" /><!-- bsp提现详情 -->
+		<property name="fundAllotDetailCorp" value="fo/tradequery/corp/fundallotdetail" /><!-- bsp提现详情 -->
+		
+		<!-- 错误提示页面-->
+		<property name="errorView" value="fo/tradequery/tradequeryerror" />
+	</bean>
+	
+	<!-- 对外转发交易明细查询-企业-->
+	<bean id="tradeQueryFacadeController"
+		class="com.pay.app.controller.fo.tradequery.facade.TradeQueryFacadeController" parent="baseTradeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="payToAcctOrderProcessService" ref="fo-order-payToAcctOrderProcessService"/>
+	</bean>
+	
+	<!-- 收款汇总-企业 -->
+	<bean id="incomeDetailCorpController"
+		class="com.pay.app.controller.fo.tradequery.corp.IncomeDetailCorpController" parent="baseTradeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="incomeDetailServiceFacade" ref="fundout-incomeDetailServiceFacade" />
+	</bean>
+	
+	<!-- 企业付款汇总-单笔,批量-->
+	<bean id="payDetailCorpController"
+		class="com.pay.app.controller.fo.tradequery.corp.PayDetailCorpController" parent="baseTradeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="payDetailService" ref="fundout_payDetailService" />
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService"/>
+		
+		<property name="batchPaymentReqBaseInfoService" ref="fo-order-batchPaymentReqBaseInfoService"></property>
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"></property>
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"></property>
+	</bean>
+	
+	<!-- 账户收款查询-->
+	<bean id="accountReceiptDetailCorpController"
+		class="com.pay.app.controller.fo.tradequery.corp.AccountReceiptDetailCorpController" parent="baseTradeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="payDetailService" ref="fundout_payDetailService" />
+	</bean>
+	
+	<!-- 个人收支、提现查询-->
+	<bean id="personTradeDetailController"
+		class="com.pay.app.controller.fo.tradequery.PersonTradeDetailController" parent="baseTradeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="payDetailService" ref="fundout_payDetailService" />
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+		<property name="bankService" ref="bankService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+	
+
+</beans>

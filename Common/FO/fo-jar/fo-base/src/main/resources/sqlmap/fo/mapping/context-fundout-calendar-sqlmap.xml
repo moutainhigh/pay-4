@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="calendar">
+	<typeAlias alias="calendar" type="com.pay.poss.base.model.CalendarDto" />
+	
+    <update id="update" parameterClass="calendar">
+        UPDATE t_calendar
+        <dynamic prepend="SET">
+            <isNotEmpty prepend="," property="cdateHolidy">
+                cdate_holidy = #cdateHolidy#
+            </isNotEmpty>
+        </dynamic>
+        WHERE cdate_tbsdy = #cdateTbsdy#
+    </update>
+    
+    <select id="getFundoutCalendarList" parameterClass="map" resultClass="calendar">
+    	SELECT cdate_tbsdy cdateTbsdy, cdate_weekdy cdateWeekdy, cdate_holidy cdateHolidy
+    	FROM t_calendar
+    	<dynamic prepend="WHERE">
+    		<isNotEmpty prepend="AND" property="cdateTbsdy">
+	            cdate_tbsdy = #cdateTbsdy#
+	        </isNotEmpty>
+    		<isNotEmpty prepend="AND" property="cdateWeekdy">
+	            cdate_weekdy = #cdateWeekdy#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="cdateHolidy">
+	            cdate_holidy = #cdateHolidy#
+	        </isNotEmpty>
+        </dynamic>
+        ORDER BY cdate_tbsdy DESC
+    </select>
+    
+    <select id="getFundoutCalendarList_COUNT" parameterClass="map" resultClass="integer">
+    	SELECT COUNT(*) FROM t_calendar
+    	<dynamic prepend="WHERE">
+    		<isNotEmpty prepend="AND" property="cdateTbsdy">
+	            cdate_tbsdy = #cdateTbsdy#
+	        </isNotEmpty>
+	    	<isNotEmpty prepend="AND" property="cdateWeekdy">
+	            cdate_weekdy = #cdateWeekdy#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="cdateHolidy">
+	            cdate_holidy = #cdateHolidy#
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+    
+    <select id="findByDate" parameterClass="date" resultClass="calendar">
+    	SELECT cdate_tbsdy cdateTbsdy, cdate_weekdy cdateWeekdy, cdate_holidy cdateHolidy
+    	FROM t_calendar
+    	<dynamic prepend="WHERE">
+    		<isNotEmpty prepend="AND" property="date">
+	            cdate_tbsdy = #date#
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+    
+    <select id="getActualWorkDay" parameterClass="date" resultClass="date">
+    	SELECT MIN(cdate_tbsdy) 
+    	FROM t_calendar
+    	WHERE cdate_holidy = '0'
+   		<isNotEmpty prepend="AND" property="date">
+            cdate_tbsdy > #date#
+        </isNotEmpty>
+    </select>
+    
+</sqlMap>

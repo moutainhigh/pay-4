@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 出款失败-->
+	<bean id="context_fundout_ordercenterbackfundoutservice"
+		class="com.pay.poss.service.ordercenter.fundout.impl.backfundout.OrderCenterBackFundoutServiceImpl"
+		parent="context_ordercenter_abstractCommonService">
+		<property name="orderCenterBackFundoutDao" ref="context_fundout_ordercenterbackfundoutdao" />
+		<property name="busiType2Table">
+			<map>
+				<entry key="10,11,12,13,17,18,19,25,26,27,28,29,30,31,32,33,34,260,263">
+					<value>context_fundout_backfundout_relation_withdraw</value>
+				</entry>
+				<entry key="20,21,22,23,24">
+					<value>context_fundout_backfundout_relation_pay2acct</value>
+				</entry>
+				<entry key="14,15,16">
+					<value>context_fundout_backfundout_relation_refund</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="context_fundout_ordercenterbackfundoutdao"
+		class="com.pay.poss.dao.ordercenter.fundout.backfundout.impl.OrderCenterBackFundoutDaoImpl"
+		parent="PLATFORM.DEFAULT.DAOSERVICE">
+		<property name="namespace" value="ordercenterbackfundout" />
+	</bean>
+	
+	<!-- 订单查询  提现-->
+	<bean id="context_fundout_orderCenterWithdrawService" 
+		class="com.pay.poss.service.ordercenter.fundout.impl.withdraw.OrderCenterWithdrawServiceImpl"
+		parent="context_ordercenter_abstractCommonService">
+       <property name="orderCenterWithdrawDao" ref="context_fundout_orderCenterWithdrawDao" />
+	</bean>
+	
+	<bean id="context_fundout_orderCenterWithdrawDao" class="com.pay.poss.dao.ordercenter.fundout.withdraw.impl.OrderCenterWithdrawDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE">
+       <property name="namespace" value="ordercenterwithdraw" />
+	</bean>	
+
+</beans>
+
+

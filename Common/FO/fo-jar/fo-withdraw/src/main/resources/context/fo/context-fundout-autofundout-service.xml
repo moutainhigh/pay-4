@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout_autofundout_Service"
+		class="com.pay.fundout.autofundout.custom.service.impl.AutoWithdrawServiceImpl">
+		<property name="autoFunoutConfigDAO" ref="fundout_autofundout_AutoFundoutConfigDAO"/>
+		<property name="autoQuotaConfigDAO" ref="fundout_autofundout_AutoQuotaConfigDAO"/>
+		<property name="autoTimeConfigDAO" ref="fundout_autofundout_AutoTimeConfigDAO"/>
+	</bean>
+	<bean id="fundout_autofundout_messageService"
+		class="com.pay.fundout.autofundout.message.impl.MessageServiceImpl">
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"/>
+		<property name="failEmailTemplateId"><value>${withdraw.delegate.requestFail.email}</value></property>
+		<property name="successTemplateId"><value>${withdraw.delegate.requestSuccess.email}</value></property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="queueName" value="fundout.withdraw.request.active"/>
+	</bean>
+	<bean id="fundout-autoFundoutConfigService"
+	class="com.pay.fundout.autofundout.service.impl.AutoFundoutConfigServiceImpl">
+		<property name="autoFundoutConfigDAO" ref="fundout_autofundout_AutoFundoutConfigDAO"/>
+	</bean>
+</beans>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-accApplyCheck">
+    <typeAlias alias="accApplyCheck" type="com.pay.acct.buySettleParities.model.AccApplyCheck"/>
+    <typeAlias alias="hashMap" type="java.util.HashMap"/>
+    <sql id="accApplyCheckFeild">
+    	ID id ,
+    	PARTNER_ID partnerId,
+    	PARTNER_NAME partnerName,
+    	ACC_CURRENCY_CODE accCurrencyCode,
+    	STATUS status,
+    	REASON reason,
+    	Operator operator,
+    	Create_Date createDate,
+    	Check_Date  checkDate,
+    	Update_Date updateDate,
+    	Remark remark
+    </sql>
+    
+   	 <sql id="accApplyCheckFeildByInsert">
+    	ID,
+    	PARTNER_ID,
+    	PARTNER_NAME,
+    	ACC_CURRENCY_CODE,
+    	STATUS,
+    	REASON,
+    	Operator,
+    	Create_Date,
+    	Check_Date,
+    	Update_Date,
+    	Remark 
+    </sql>
+   	<sql id="accApplyCheckSelect">
+		SELECT
+		<include refid="accApplyCheckFeild" />
+		FROM T_ACC_APPLY_CHECK applyCheck
+	</sql>
+	
+	<sql id="accApplyCheckConditions">
+	    <dynamic prepend="where">
+		    <isNotEqual compareValue="0"  property="id" prepend="and" >
+		      	applyCheck.ID = #id#
+		    </isNotEqual>
+		    <isNotEmpty property="partnerId" prepend="and">
+		      	applyCheck.PARTNER_ID = #partnerId#
+		    </isNotEmpty>
+		    <isNotEmpty property="partnerName" prepend="and">
+		      	applyCheck.PARTNER_NAME = #partnerName#
+		    </isNotEmpty>
+		    <isNotEmpty property="accCurrencyCode" prepend="and">
+		      	applyCheck.ACC_CURRENCY_CODE = #accCurrencyCode#
+		    </isNotEmpty>
+		    <isNotEmpty property="status" prepend="and">
+		      	applyCheck.STATUS = #status#
+		    </isNotEmpty>
+		    <isNotEmpty property="reason" prepend="and">
+		      	applyCheck.REASON = #reason#
+		    </isNotEmpty>
+		    <isNotEmpty property="operator" prepend="and">
+		      	applyCheck.Operator = #operator#
+		    </isNotEmpty>
+		    <isNotEmpty property="createDate" prepend="and">
+		      	applyCheck.Create_Date = #createDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="checkDate" prepend="and">
+		      	applyCheck.Check_Date = #checkDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="updateDate" prepend="and">
+		      	applyCheck.Update_Date = #updateDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="remark" prepend="and">
+		      	applyCheck.Remark = #remark#
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	
+	<select id="queryConditions" resultClass="accApplyCheck" parameterClass="accApplyCheck">
+   		<include refid="accApplyCheckSelect"/>
+   		<include refid="accApplyCheckConditions"/>
+   		order by create_date desc
+   	</select>
+   	
+	<select id="queryConditionsMap" resultClass="accApplyCheck" parameterClass="hashMap">
+   		<include refid="accApplyCheckSelect"/>
+   		<include refid="accApplyCheckConditions"/>
+   	</select>
+   	
+	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer" parameterClass="hashMap">
+		select count(1) from T_ACC_APPLY_CHECK applyCheck
+   		<include refid="accApplyCheckConditions"/>
+   	</select>
+   	
+   	<insert id="create" parameterClass="accApplyCheck">
+		 <selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_APPLY_CHECK_ID.Nextval from DUAL
+		</selectKey>
+			insert into T_ACC_APPLY_CHECK(
+				<include refid="accApplyCheckFeildByInsert"/>			
+				)
+		<![CDATA[
+			values(
+					#id#,
+					#partnerId#,
+					#partnerName#,
+					#accCurrencyCode#,
+					#status#,
+					#reason#,
+					#operator#,
+					#createDate#,
+					#checkDate#,
+					#updateDate#,
+					#remark#
+			)
+		  ]]>
+	</insert>
+	
+	<update id="check">
+		update T_ACC_APPLY_CHECK 
+		SET
+			 STATUS= #status#,
+			 OPERATOR= #operator#,
+			 CHECK_DATE= #checkDate#
+		where 
+				id = #id#
+	</update>
+	
+</sqlMap>

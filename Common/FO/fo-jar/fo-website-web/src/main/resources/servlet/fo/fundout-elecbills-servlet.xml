@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+	<bean id="elecBillsHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/ebills/withdraw.htm">eBillWithdrawController</prop>
+				<prop key="/corp/ebills/pay2bank.htm">eBillPay2BankController</prop>
+				<prop key="/corp/ebills/pay2bankbatch.htm">eBillPay2BankBatchController</prop>
+				<prop key="/corp/ebills/pay2bankbatchsummary.htm">eBillPay2BankBatchSummaryController</prop>
+				<prop key="/corp/ebills/pay2acct.htm">eBillPay2AcctController</prop>
+				<prop key="/corp/ebills/pay2acctbatch.htm">eBillPay2AcctBatchController</prop>
+				<prop key="/corp/ebills/pay2acctbatchsummary.htm">eBillPay2AcctBatchSummaryController</prop>
+				<prop key="/corp/ebills/chargeorder.htm">eBillChargeOrderController</prop>
+				<prop key="/corp/ebills/gatewaypay.htm">eBillGatewayPayController</prop>
+			</props>
+		</property>
+		<property name="interceptors">
+			<list>
+				<ref bean="featureInterceptor"/>
+				<ref bean="operatPermInterceptor"/>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 提现-->
+	<bean id="eBillWithdrawController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-withdrawHandler" />
+	</bean>
+	
+	<!-- 付款到银行-->
+	<bean id="eBillPay2BankController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-pay2BankSingleHandler" />
+	</bean>
+	
+	<!-- 批量付款到银行-->
+	<bean id="eBillPay2BankBatchController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-pay2BankBatchHandler" />
+	</bean>
+	
+	<!-- 批量付款到银行汇总-->
+	<bean id="eBillPay2BankBatchSummaryController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-pay2BankBatchSummaryHandler" />
+	</bean>
+	
+	<!-- 付款到账户-->
+	<bean id="eBillPay2AcctController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-pay2AcctHandler" />
+	</bean>
+	
+	<!-- 批量付款到账户-->
+	<bean id="eBillPay2AcctBatchController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-pay2AcctBatchHandler" />
+	</bean>
+	
+	<!-- 批量付款到账户汇总-->
+	<bean id="eBillPay2AcctBatchSummaryController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-pay2AcctBatchSummaryHandler" />
+	</bean>
+	
+	<!-- 账户充值-->
+	<bean id="eBillChargeOrderController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-chargeOrderHandler" />
+	</bean>
+	
+	<bean id="eBillGatewayPayController"
+		class="com.pay.fo.elecbills.controller.ElecBillsController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="imgName" value="支付平台支付电子凭证" />
+		<property name="elecBillsService" ref="fundout-gatewayPayHandler" />
+	</bean>
+</beans>

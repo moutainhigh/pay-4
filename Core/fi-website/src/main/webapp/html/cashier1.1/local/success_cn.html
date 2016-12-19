@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>支付成功</title>
+<link href="css/ipaylinks20150704.css" rel="stylesheet" type="text/css" />
+<script src="js/jquery-1.3.2.js" type="text/javascript"></script>
+</head>
+
+<body>
+	
+	<div class="box01" >
+		<div class="box_inner_01">
+			<div class="inner_title" style="color:#008000;">支付成功</div>
+		</div>
+		<div class="box_inner_02">
+			<div class="pay_tip_img">
+				<img src="images/02.png" alt="图片不存在"/>
+			</div>
+			<!--支付成功说明-->
+			<div class="pay_tip_result">
+				<p>您支付的订单已经成功。</p>
+				<br/>
+				<p>
+					<span style="font-weight:bold;">备注:</span>
+					由于国际信用卡的汇差原因，您订单的交易金额与实际支付金额有细微的差别。
+				</p>
+				<br/>
+				<p>交易日期:${dealDate?default('')}</p>
+				<br/>
+				<p>订单号:${orderId?default('')}</p>
+				<br/>
+				<p>支付流水号:${tradeOrderNo?default('')}</p>
+				<br/>
+				<p>交易金额:${orderAmount?default('')} ${currencyCode?default('')}</p>
+				<div class="clear"></div>
+			</div>
+			
+			<div class="clear"></div>
+			<div class="success_back">
+				<span style="font-weight:bold;">
+					此页面将会在 <font color="red"><strong><label style="width: 9px;" id="timeInte">5</label></strong></font> 秒钟后自动跳回到商户页面.
+				</span>
+				<br/><br/>
+				<input type="button" value="返回商户页面" id="back"/>
+			</div>
+		</div>
+		<!--底部图片-->
+		<div class="box_inner_03">
+			<div class="buttom_img_01">
+				<img src="images/06.png" alt="图片存在"/>
+			</div>
+			<div class="buttom_img_02">
+				<img src="images/05.png" alt="图片存在"/>
+			</div>
+			<div class="buttom_img_03" style="">
+				<img src="images/04.png" alt="图片存在"/>
+			</div>
+			<div class="buttom_img_03">
+				<img src="images/07.png" alt="图片存在"/>
+			</div>
+		</div>
+	</div>
+<form id="bankForm" action="${returnUrl?default('')}" method="${action?default('post')}">
+	<input type="hidden" name="orderId" value="${orderId?default('')}"/>
+	<input type="hidden" name="resultCode" value="${resultCode?default('')}"/>
+	<input type="hidden" name="resultMsg" value="${resultMsg?default('')}"/>
+	<input type="hidden" name="orderAmount" value="${orderAmount?default('')}"/>
+	<input type="hidden" name="payAmount" value="${payAmount?default('')}"/>
+	<input type="hidden" name="rates" value="${rates?default('')}"/>
+	<input type="hidden" name="settlementRates" value="${settlementRates?default('')}"/>
+	<input type="hidden" name="currencyCode" value="${currencyCode?default('')}"/>
+	<input type="hidden" name="settlementCurrencyCode" value="${settlementCurrencyCode?default('')}"/>
+	<input type="hidden" name="acquiringTime" value="${acquiringTime?default('')}"/>
+	<input type="hidden" name="completeTime" value="${completeTime?default('')}"/>
+	<input type="hidden" name="dealId" value="${dealId?default('')}"/>
+	<input type="hidden" name="partnerId" value="${partnerId?default('')}"/>
+	<input type="hidden" name="language" value="${language?default('')}"/>
+	<input type="hidden" name="remark" value="${remark?default('')}"/>
+	<input type="hidden" name="charset" value="${charset?default('')}"/>
+	<input type="hidden" name="signType" value="${signType?default('')}"/>
+	<input type="hidden" name="signMsg" value="${signMsg?default('')}"/>
+	<!-- <input type="hidden" name="remark" value="${remark?default('')}"/> -->
+	<input type="hidden" name="merchantBillName" value="${merchantBillName?default('')}"/>
+</form>
+<script type="text/javascript">
+$(function(){
+	
+	var num = 5; // 倒计时时间 
+	$("#timeInte").html(num); 
+	
+	function changeTime()
+	{
+	    if (num ==0 )
+	    { 
+	    	$("#bankForm").submit();   // 到时间后的操作
+	    }
+	    
+	    if(num > 0) {
+	       num = num - 1;
+	       curnum = num;
+	      $("#timeInte").html(curnum);
+	   } 
+	    
+	}
+	window.setInterval(changeTime,1000);
+	
+	$('#back').click(function() {
+		$("#bankForm").submit();
+	});
+	
+	
+});
+
+function timeout(){
+	$("#bankForm").submit();
+}
+
+</script>
+</body>
+</html>

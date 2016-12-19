@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付付款到银行</title>
+<#include "/common/macro/seoPerson.ftl">
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+</head>
+<body>
+<#escape x as x?html>
+<!--导航 str-->
+<@sp.head mCode="corp_pay2account,bsp_corp_pay2account"/>
+
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div> 
+		<!--box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<div class="title sub_nav3">
+						<#if sp.hasProduct('PAY2ACCT')>
+							<a href="${rc.contextPath}/corp/pay2account.htm">单笔付款到账户</a><span>|</span>
+						<#else>
+						</#if>
+						<a href="${rc.contextPath}/corp/pay2bank.htm" class="cur">单笔付款到银行</a>
+						<#if sp.hasProduct('BATCH2ACCT')>
+							<span>|</span><a href="${rc.contextPath}/corp/batchpay2acct.htm">批量付款到账户</a>
+						<#else>
+						</#if>
+						<#if sp.hasProduct('BATCH2BANK')>
+							<span>|</span><a href="${rc.contextPath}/corp/batchpay2bank.htm">批量付款到银行</a>
+						<#else>
+						</#if>
+					</div>
+				</div>
+				<div class="step">
+					<ol class="step-3">
+						<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+						<li class="li-1 last"><span><i>1</i>填写付款信息</span> </li>
+						<li class="li-2 last"><i>2</i>确认信息</li>
+						<li class="li-3 last"><span><i>3</i>付款提交成功</span></li>
+					</ol>
+				</div>
+				
+				<#if command.isHaveProduct==1>	
+				<div class="txtC mt10">
+					<div class="result_tips">
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X --> 
+						<span class="pop_s"></span>
+						<p class="words"><strong class="red2 f14">付款申请提交成功！</strong></p>
+						<p>系统正在处理您的申请。</p>
+						<p>所有付款处理完成后，iPayLinks支付会将结果明细发送至您的电子邮箱，<br>请注意查收！</p>
+					</div>
+				</div>
+				</div>
+				<#else>
+				<div class="txtC">
+				<div class="result_tips">
+						<div class="set_height clearfix">
+							<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X -->
+							<span class="pop_s"></span>
+							<p class="words"> <strong class="red2 f14">您的申请提交成功。</strong>
+								</p>
+							<p>到账日期一般在<#if command.tradeType?default(0)==0>2-3<#else>2-5</#if>个工作日，具体到账日期视各银行具体情况而定</p>
+						</div>
+					</div>
+					</div>
+					<div class="mod_l_tit"><h3>付款信息</h3>
+					<em class="more c_666">交易号：${command.orderId?default('')}</em>
+					</div>
+					<div class="my_pay_info">
+					<ul class="form_list mt20">
+						<li>
+							<label class="form_side">收款方户名：</label>
+							<strong class="c_000">${command.payeeName?default('')}</strong>
+						</li>
+						<li>
+							<label class="form_side">开户银行：</label>
+							${command.payeeBankName?default('')}
+						</li>
+						<li>
+							<label class="form_side">开户行所在城市：</label>
+								${command.payeeBankProvinceName?default('')} ${command.payeeBankCityName?default('')}
+							</li>
+							<li>
+							<label class="form_side">开户行名称：</label>
+								${command.payeeOpeningBankName?default('')}
+							</li>
+							<li>
+							<label class="form_side">银行账号：</label>
+								<strong class="c_000">${command.payeeBankAcctCode?default('')}</strong>
+							</li>
+							<li>
+							    <label class="form_side">收款方手机号码：</label>
+								${command.payeeMobile?default('')}
+							</li>
+					</ul>
+					<ul class="form_list pay_info_r">
+						<li>
+							<label class="form_side">实付金额：</label>
+							<strong class="red">${command.realpayAmountStr?default("0.00")}</strong> 元
+						</li>
+						<li>
+							<label class="form_side">手续费用：</label>
+							<strong class="red">${command.requestFee?default("0.00")}</strong> 元
+						</li>
+						<li>
+						<label class="form_side">到账金额：</label>
+							<strong class="red">${command.realoutAmountStr?default("0.00")}</strong> 元
+						</li>
+						<li>
+						    <label class="form_side">付款理由：</label>
+						    <#escape x as x?html>
+								${command.paymentReason?default('')}
+							 </#escape>
+						</li>
+					</ul>
+					</div>
+				</#if>
+					<div class="link_box">您可能需要： <a href="${rc.contextPath}/corp/paydetail.htm" class="red">查看付款记录</a> | <a href="${rc.contextPath}/corp/pay2bank.htm?next=1" class="red">继续付款</a> | <a href="${rc.contextPath}/corp/myAccount.htm" class="red">返回我的账户</a></div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--box end --> 
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+	<#include "/common/include/footer.html">
+	</#escape>
+</body>
+</html>

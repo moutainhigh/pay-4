@@ -1,0 +1,196 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>旅游信息详情</title>
+<#include "/common/macro/seoPerson.ftl"> 
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/person/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/moblie.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/imgbox.css" rel="stylesheet" type="text/css">
+</head>
+<script src="<@sp.static/>/js/pay/common/common.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.imgbox.js"></script>
+<body>
+<!--导航 str-->
+<@sp.head mCode="mpay_query_index"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+		<#if travel?has_content>
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">${travel.productName!''}详情</strong></div>
+			</div>
+			<div class="details_list">
+				<div class="pb_sort"><a href="${rc.contextPath}/corp/updatetravelinit.htm?productId=${travel.travelProductId}" class="fr blues" >修改</a><span class="blod">基本信息</span></div>
+				<ul class="form_list">
+					<li>
+						<label class="form_side">景点名称：</label>
+						<strong class="f14">${travel.productName!''}</strong> </li>
+					<li>
+						<label class="form_side">价格：</label>
+						<strong class="red f14b">${(travel.price/1000)?string("##0.00")}</strong> 元 </li>
+					<li>
+						<label class="form_side">评分：</label>
+						<strong class="red f14b">${travel.grade!'3'}</strong> 星 <span class="grade grade${travel.grade!'3'}"><i></i></span> </li>
+					<li>
+						<label class="form_side">产品提供商：</label>
+						${travel.serviceProvider!''} </li>
+					<li>
+						<label class="form_side">所在地区：</label>
+						${travel.city!''} </li>
+					<li>
+						<label class="form_side">景点地址：</label>
+						${travel.address!''} </li>
+					<li>
+						<label class="form_side">联系电话：</label>
+						${travel.telphone!''} </li>
+					<li>
+						<label class="form_side">行程安排：</label>
+						${travel.travelPlan!''} </li>
+					<li>
+						<label class="form_side">产品特色：</label>
+						${travel.feature!''} </li>
+				</ul>
+				<div class="pb_sort"><a href="${rc.contextPath}/corp/updatetravelinit.htm?productId=${travel.travelProductId}" class="fr blues" >修改</a><span class="blod">相关信息补充</span></div>
+				<ul class="form_list">
+					<li>
+						<label class="form_side">预定须知：</label>
+						${travel.orderNote!''} </li>
+					<li>
+						<label class="form_side">费用己包含：</label>
+						${travel.feeInclude!''}</li>
+					<li>
+						<label class="form_side">费用不包含：</label>
+						${travel.feeNoInclude!''} </li>
+					<li>
+						<label class="form_side">温馨提示：</label>
+						${travel.friendNote!''} </li>
+					<li>
+						<label class="form_side">优惠信息：</label>
+						${travel.promote!''} </li>
+					<li>
+						<label class="form_side">地理位置信息：</label>
+						${travel.postionInfo!''} </li>
+				</ul>
+				<a id="comment"></a>
+				<div class="pb_sort"><span class="blod">用户评论</span></div>
+				<div class="comment">
+					<#if comments?has_content>
+		   				<#list comments as ts>
+		   					<#if ts_index%2==0>
+		   					<div class="item">
+		   					<#else>
+		   					<div class="item even">
+		   					</#if>
+								<p class="comment_t"><span class="info">${ts.commentUserid!''}<i class="time">发表于：${ts.commentDate?string("yyyy-MM-dd HH:mm:ss")}</i></span><span class="grade grade${ts.comment1Count!'3'}"><i></i></span></p>
+								<div class="comment_c"> <span class="comment_user"></span>
+									<p>${ts.commentContext!''}</p>
+									<div class="reply_con" id="rContent${ts_index}">${ts.replyContext!''}</div>
+									<#if !ts.replyContext?exists>
+									<div class="reply" onclick="reply(${ts_index});" id="reply${ts_index}"><span class="reply_btn">回复</span></div>
+									<div class="reply" onclick="retract(${ts_index});" id="retract${ts_index}" style="display: none;"><span class="reply_btn">收起</span></div>
+									<div class="reply_txt" id="retractTxt${ts_index}" style="display: none;">
+										<textarea id="replyContent${ts_index}"></textarea>
+										<p>
+											<span class="btnB">
+											<button type="button" onclick="subreply('${ts_index}','${ts.contextCommentsId!''}');">提 交</button>
+											</span> 
+										</p>
+									</div>
+									</#if>
+								</div>
+							</div>
+		   				</#list>
+		 			</#if>
+				</div>
+				<#if pu?has_content>
+					<@sp.pagination pu=pu/>
+				</#if>
+				
+				<div class="pb_sort"><a href="${rc.contextPath}/corp/updatetravelinit.htm?productId=${travel.travelProductId}" class="fr blues">修改</a><span class="blod">图片</span></div>
+				<ul class="user_pic">
+				<#if travel.pics?has_content>
+	   				<#list travel.pics as pic>
+	   					<li>
+	   					<a href="${pic.pictureUrl?replace("_small","")}"  class="zoom" ><img src="${pic.pictureUrl!''}" /></a>
+	   				
+	   					</li>
+   					</#list>
+	 			</#if>
+				</ul>
+				<p class="btn_box"><span class="btn_yel">
+					<button type="button" onclick="window.close();">关闭</button>
+					</span></p>
+			</div>
+		</div>
+		
+	<#else>
+				<p align="center"><strong class="cur">不存在该产品信息</strong></p>
+		<p class="btn_box"><span class="btn_yel">
+					<button type="button" onclick="window.close();">关闭</button>
+					</span></p>
+	</#if>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+<script type="text/javascript">
+$(function(){
+	
+	$("a.zoom").imgbox({ 	
+		'alignment'		: 'center',
+		'overlayShow'	: true
+	});
+	
+})
+
+	function reply(obj){
+		$("#reply"+obj).hide();
+		$("#retract"+obj).show();
+		$("#retractTxt"+obj).show();
+	}
+	
+	function retract(obj){
+		$("#reply"+obj).show();
+		$("#retract"+obj).hide();
+		$("#retractTxt"+obj).hide();
+	}
+	
+	function subreply(obj,id){
+		
+		var replyContent = $.trim($("#replyContent"+obj).val());
+		
+		var pars = "replyContext=" + replyContent + "&contextCommentsId=" + id;
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/corp/travelreply.htm",
+			data: pars,
+			success: function(result) {
+				if(1 == result){
+					$("#rContent"+obj).html(replyContent);
+					$("#reply"+obj).hide();
+					$("#retract"+obj).hide();
+					$("#retractTxt"+obj).hide();
+				}else{
+					alert("回复提交失败");
+				}
+			}
+		});	
+	}
+	
+
+</script>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付订单详情</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename=""/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container"><#if errorMsg?has_content>
+<div class="mod_box paysuccess"><span class="corners c_topleft"></span>
+<span class="corners c_topright"></span>
+<div class="popup">
+<div class="popup_box">
+<div class="popup_content"><br />
+<p><strong><#if errorMsg?exists><font color="red">${errorMsg?default('')}</font></#if></strong></p>
+<span class="pop_war"></span></div>
+</div>
+<ul class="pop_link">
+	<li>您可能需要：</li>
+	<li><a
+		href="${rc.contextPath}/app/queryHistoryTradeList.htm?method=queryHistoryTrade">查询交易记录</a><span>|</span>
+	</li>
+	<li><a href="${rc.contextPath}/app/myAccount.htm">返回账户首页</a><span>|</span>
+	</li>
+	<li><a href="${rc.contextPath}/index.htm">返iPayLinks支付支付首页</a></li>
+</ul>
+</div>
+</div>
+<#else>
+<div class="form_box">
+<div class="form_tit">
+<h3><i></i></h3>
+</div>
+<div class="content verify_page"><!--表单str -->
+<form class="mod_form" name="payrentform" method="post" id="payrentform">
+<table class="verify_table">
+	<tbody>
+		<tr>
+			<td class="thead" colspan="2">订单详细信息</td>
+		</tr>
+		<tr>
+			<td class="type">交易号：</td>
+			<td>${paymentId?default('')}</td>
+		</tr>
+        <tr>
+			<td class="type">订单名称：</td>
+			<td>${billName?default('')}</td>
+		</tr>
+		
+		<tr>
+			<td class="type">账户类型：</td>
+			<td>人民币账户</td>
+		</tr>
+		<tr>
+			<td class="type">交易类型：</td>
+			<td><#if request.payeeAccountType==0>付款到银行卡<#else>付iPayLinks支付生支付账户</#if></td>
+		</tr>
+		<tr>
+			<td class="type">收支：</td>
+			<td><#if request.billPayMethod==0>付款<#else>收款</#if></td>
+		</tr>
+		<#if payerName?has_content>
+		<tr>
+			<td class="type">付款方：</td>
+			<td>${payerName?default('')}(${payerAcct?default('')})</td>
+		</tr>
+		</#if>
+		<tr>
+			<td class="type">收款方：</td>
+			<td>${payeeName?default('')}(${payeeAcct?default('')})</td>
+		</tr>
+		<#if request.billBarCode?has_content>
+		<tr>
+			<td class="type">条形码：</td>
+			<td>${request.billBarCode}</td>
+		</tr>
+		</#if>
+		<tr>
+			<td class="type">金额：</td>
+			<td>${orderAmount?default('0')}元</td>
+		</tr>
+		<tr>
+			<td class="type">费用：</td>
+			<td>${fee?default('0')}元</td>
+		</tr>
+		<tr>
+			<td class="type">创建时间：</td>
+			<td>${createDate?default('')}</td>
+		</tr>
+		<tr>
+			<td class="type">状态：</td>
+			<td>${orderStatus?default('')}</td>
+		</tr>
+		<tr>
+			<td class="type">备注：</td>
+			<td>${request.billremarks?default('')}</td>
+		</tr>
+		<tr>
+			<td class="type">结束时间：</td>
+			<td>${complateDate?default('')}</td>
+		</tr>
+	</tbody>
+</table>
+<p class="btn_box txtC sppf">
+ <span class="btn_yel">
+   <button onclick=window.close();>关闭</button>
+</span> 
+<#if request.billType=7 || request.billType=8 ||request.billType=9 ||request.billType=10>
+ <a target="_blank"  class="red ml20 f12" href="/website/app/payment_receipt.htm?ebillitemId=${paymentId?default('0')}">缴费回单</a>
+</#if>
+
+</p> 
+
+<!--表单end --></form>
+</div>
+</div>
+</#if> <!--问答 str--> <!--问答 end--></div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

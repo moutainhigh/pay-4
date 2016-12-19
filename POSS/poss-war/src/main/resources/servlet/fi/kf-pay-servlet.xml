@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/feeConfigKF.do">kfFeeConfingController</prop>
+				<prop key="/payFileDownload.do">payFileDownloadController</prop>
+				<prop key="/remitFailTyping.do">remitFailTypingController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="remitFailTypingController"
+		class="com.pay.poss.controller.acc.kf.RemitFailTypingController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="index">
+			<value>/buysettleforeigncurrency/kf/failTypingIndex</value>
+		</property>
+		<property name="list">
+			<value>/buysettleforeigncurrency/kf/failTypingList</value>
+		</property>
+			<property name="kfPayService" ref="kfPayService" />
+			<property name="myoss" ref="ossUtils" />
+	</bean>
+
+	<bean id="kfFeeConfingController"
+		class="com.pay.poss.controller.acc.kf.KfFeeConfingController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="index">
+			<value>/buysettleforeigncurrency/kf/feeConfigIndex</value>
+		</property>
+		<property name="list">
+			<value>/buysettleforeigncurrency/kf/feeConfigList</value>
+		</property>
+			<property name="kfFeeConfigService" ref="kfFeeConfigService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+	</bean>
+	
+	<bean id="payFileDownloadController"
+		class="com.pay.poss.controller.acc.kf.PayFileDownloadController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="index">
+			<value>/buysettleforeigncurrency/kf/payFileIndex</value>
+		</property>
+		<property name="list">
+			<value>/buysettleforeigncurrency/kf/payFileList</value>
+		</property>
+		<property name="kfPayService" ref="kfPayService" />
+			<property name="myoss" ref="ossUtils" />
+	</bean>
+</beans>

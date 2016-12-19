@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta charset="utf-8">
+<title>煜烁支付-AA收款</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<!--导航 str-->
+<div class="steward_header">
+	<div class="header">
+		<h1 class="logo"><a href="#"><img alt="payay生活管家" titlepayapay生活管家" src="<@sp.static/>/img/pay/steward_logo.png"></a></h1>
+		<span class="logo_txt">AA收款</span>
+		<div class="header_bar"><strong><td>${Session.verifyName}</strong> 您好！<a class="pad red" href="">gcpayment支付首页</a> | <a class="help" href="">帮助中心</a></div>
+	</div>
+</div>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="form_box">
+		<div class="form_tit">
+			<h3><i>AA收款</i></h3>
+			<em class="step_cur_2"></em> </div>
+		<div class="content verify_page"> 
+				
+				<!--表单str -->
+				<form class="mod_form" 	action="${rc.contextPath}/app/aaCreate.htm" 	name="payrentform" method="post">
+					<input type="hidden" name="remOrder" value="${remOrder}" />		
+					<table class="verify_table">
+					<tbody>
+						<tr>
+								<td class="thead" colspan="2">AA收款</td>
+						</tr>
+                        <tr>
+							<td class="type">AA收款到您的账户：</td>
+							<td >${Session.verifyName}（${Session.loginName}） </td>
+						</tr>
+						  <tr>
+							<td class="type">收款理由：</td>
+							<td>${command.topic}</td>
+						 </tr>
+							<#list command.aaChildRequestDtos as person>	
+						 <tr>
+							<td class="type">AA成员 ${person_index+1}：</td>
+							<td>${person.aaName}（${person.aaAccount}）<em class="pl20"> <strong class="red">${person.amount}</strong> 元</em></td>
+                         </tr>
+							</#list>
+						
+						  <tr>
+							<td class="type">付款人数： </td>
+							<td><strong class="red">${command.aaChildRequestDtos?size}</strong> 人<#if command.containMe = 1>（未包括自己）</#if></td>
+                            </tr>
+						  <tr>
+							<td class="type">总金额：</td>
+							<td><strong class="red">${command.totalAmount-command.selfAmount}</strong>元   <#if command.containMe = 1>（未包括自己付款部分）</#if></td>
+						</tr>
+							</tbody>
+							</table>
+						<div class="btn_box txtC solid_t"> <span class="btn_yel botton_yel">
+						<button type="button" onclick="payrentform.submit();this.disabled=true" >确认信息并创建收款</button>
+						</span> <a class="red bk_pf" href="${rc.contextPath}/app/aaCollect.htm?${remOrder}">返回修改</a> </div>
+				</form>
+				<!--表单end --> 
+				</div>
+	</div>
+				<!--问答 str-->
+				<#include "aa_help.html">
+				<!--问答 str--> 
+
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

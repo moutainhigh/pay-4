@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelConfig">
+
+	<typeAlias alias="channelConfig" type="com.pay.channel.model.ChannelConfig" />
+	<resultMap id="channelConfig" class="channelConfig">
+		<result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="ORG_KEY" property="orgKey" jdbcType="VARCHAR" />
+		<result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+		<result column="ORG_MERCHANT_CODE" property="orgMerchantCode"
+			jdbcType="VARCHAR" />
+		<result column="TERMINAL_CODE" property="terminalCode"
+			jdbcType="VARCHAR" />
+		<result column="ACCESS_CODE" property="accessCode" jdbcType="VARCHAR" />
+		<result column="TRANS_TYPE" property="transType" jdbcType="VARCHAR" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="STATUS" property="status" jdbcType="DECIMAL" />
+		<result column="KEY_FILE_PATH" property="keyFilePath" jdbcType="VARCHAR" />
+		<result column="MCC" property="mcc" jdbcType="VARCHAR" />
+		<result column="CURRENCY_CODE" property="currencyCode"
+			jdbcType="VARCHAR" />
+		<result column="PATTERN" property="pattern" jdbcType="VARCHAR" />
+		<result column="REQUEST_MERCHANT_NAME" property="requestMerchantName"
+			jdbcType="VARCHAR" />
+		<result column="MERCHANT_BILL_NAME" property="merchantBillName"
+			jdbcType="VARCHAR" />
+		<result column="SUPPORT_WEBSITE" property="supportWebsite" />
+
+		<result column="FIT_MERCHANT_TYPE" property="fitMerchantType" />
+
+		<result column="AUCR_FLAG" property="aucrFlag" />
+	</resultMap>
+
+	<insert id="create" parameterClass="channelConfig">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT
+			SEQ_CHANNEL_CONFIG_ID.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO CHANNEL_CONFIG(
+		id,ORG_KEY,ORG_CODE,ORG_MERCHANT_CODE,OPERATOR,CREATE_DATE,KEY_FILE_PATH,STATUS,TERMINAL_CODE,ACCESS_CODE,TRANS_TYPE,MCC,CURRENCY_CODE,PATTERN,REQUEST_MERCHANT_NAME
+		,MERCHANT_BILL_NAME,SUPPORT_WEBSITE,FIT_MERCHANT_TYPE,AUCR_FLAG)
+		VALUES(
+		#id#,#orgKey#,#orgCode#,#orgMerchantCode#,#operator#,sysdate,#keyFilePath#,#status#,#terminalCode#,#accessCode#,#transType#,#mcc#,#currencyCode#,#pattern#,#requestMerchantName#
+		,#merchantBillName#,#supportWebsite#,#fitMerchantType#,'0'
+		)
+	</insert>
+
+
+
+
+
+
+
+
+
+
+	<delete id="delete" parameterClass="java.lang.Long">
+		DELETE FROM CHANNEL_CONFIG where 1=1 AND id = #id#
+	</delete>
+
+	<update id="update">
+		UPDATE CHANNEL_CONFIG SET ID = #id#
+		<isNotNull property="orgCode" prepend=",">
+			ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="orgKey" prepend=",">
+			ORG_KEY = #orgKey#
+		</isNotNull>
+		<isNotNull property="orgMerchantCode" prepend=",">
+			ORG_MERCHANT_CODE = #orgMerchantCode#
+		</isNotNull>
+		<isNotNull property="terminalCode" prepend=",">
+			TERMINAL_CODE =
+			#terminalCode#
+		</isNotNull>
+		<isNotNull property="accessCode" prepend=",">
+			ACCESS_CODE =
+			#accessCode#
+		</isNotNull>
+		<isNotNull property="transType" prepend=",">
+			TRANS_TYPE =
+			#transType#
+		</isNotNull>
+		<isNotNull property="status" prepend=",">
+			STATUS = #status#
+		</isNotNull>
+		<isNotNull property="mcc" prepend=",">
+			MCC = #mcc#
+		</isNotNull>
+		<isNotNull property="currencyCode" prepend=",">
+			CURRENCY_CODE =
+			#currencyCode#
+		</isNotNull>
+		<isNotNull property="pattern" prepend=",">
+			PATTERN = #pattern#
+		</isNotNull>
+		<isNotNull property="aucrFlag" prepend=",">
+			AUCR_FLAG = #aucrFlag#
+		</isNotNull>
+		<isNotNull property="fitMerchantType" prepend=",">
+			FIT_MERCHANT_TYPE = #fitMerchantType#
+		</isNotNull>
+		<isNotNull property="merchantBillName" prepend=",">
+			MERCHANT_BILL_NAME = #merchantBillName#
+		</isNotNull>
+		<isNotNull property="requestMerchantName" prepend=",">
+			REQUEST_MERCHANT_NAME = #requestMerchantName#
+		</isNotNull>
+		<isNotNull property="supportWebsite" prepend=",">
+			SUPPORT_WEBSITE = #supportWebsite#
+		</isNotNull>
+		where 1=1 AND id = #id#
+	</update>
+
+	<select id="findById" resultMap="channelConfig" parameterClass="java.lang.Long">
+		SELECT * FROM CHANNEL_CONFIG WHERE id=#id#
+	</select>
+
+	<!-- 查询该商户的所有直连渠道 -->
+	<select id="findByorgKey" resultMap="channelConfig"
+		parameterClass="java.lang.Long">
+		SELECT * FROM CHANNEL_CONFIG
+		WHERE ORG_KEY=#orgKey#
+	</select>
+
+	<!-- 根据条件查询直连渠道 -->
+	<select id="findByCriteria" resultMap="channelConfig">
+		SELECT * FROM CHANNEL_CONFIG
+		WHERE 1=1
+		<isNotNull property="orgKey">
+			AND ORG_KEY = #orgKey#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="orgMerchantCode">
+			AND ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+		</isNotNull>
+		<isNotNull property="terminalCode">
+			AND TERMINAL_CODE = #terminalCode#
+		</isNotNull>
+		<isNotNull property="accessCode">
+			AND ACCESS_CODE = #accessCode#
+		</isNotNull>
+		<isNotNull property="transType">
+			AND TRANS_TYPE = #transType#
+		</isNotNull>
+		<isNotNull property="id">
+			AND ID = #id#
+		</isNotNull>
+		<isNotNull property="status">
+			AND status = #status#
+		</isNotNull>
+		<isNotNull property="aucrFlag">
+			AND AUCR_FLAG = #aucrFlag#
+		</isNotNull>
+		<isNotNull property="fitMerchantType" >
+			AND FIT_MERCHANT_TYPE = #fitMerchantType#
+		</isNotNull>
+		<isNotNull property="mcc">
+			AND MCC = #mcc#
+		</isNotNull>
+		<isNotNull property="currencyCode">
+			AND CURRENCY_CODE = #currencyCode#
+		</isNotNull>
+		<isNotNull property="merchantBillName">
+			AND MERCHANT_BILL_NAME =
+			#merchantBillName#
+		</isNotNull>
+		<isNotNull property="supportWebsite">
+			AND SUPPORT_WEBSITE like
+			'%$supportWebsite$%'
+		</isNotNull>
+	</select>
+
+	<select id="countByCriteria" resultClass="java.lang.Integer">
+		SELECT count(*) FROM CHANNEL_CONFIG
+		WHERE 1=1
+		<isNotNull property="orgKey">
+			AND ORG_KEY = #orgKey#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="aucrFlag">
+			AND AUCR_FLAG = #aucrFlag#
+		</isNotNull>
+		<isNotNull property="orgMerchantCode">
+			AND ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+		</isNotNull>
+		<isNotNull property="terminalCode">
+			AND TERMINAL_CODE = #terminalCode#
+		</isNotNull>
+		<isNotNull property="accessCode">
+			AND ACCESS_CODE = #accessCode#
+		</isNotNull>
+		<isNotNull property="transType">
+			AND TRANS_TYPE = #transType#
+		</isNotNull>
+		<isNotNull property="id">
+			AND ID = #id#
+		</isNotNull>
+		<isNotNull property="status">
+			AND status = #status#
+		</isNotNull>
+		<isNotNull property="mcc">
+			AND MCC = #mcc#
+		</isNotNull>
+		<isNotNull property="currencyCode">
+			AND CURRENCY_CODE = #currencyCode#
+		</isNotNull>
+		<isNotNull property="merchantBillName">
+			AND MERCHANT_BILL_NAME =
+			#merchantBillName#
+		</isNotNull>
+		<isNotNull property="supportWebsite">
+			AND SUPPORT_WEBSITE like
+			'%$supportWebsite$%'
+		</isNotNull>
+	</select>
+
+	<select id="findObjectByCriteria" resultMap="channelConfig">
+		SELECT * FROM CHANNEL_CONFIG
+		WHERE 1=1
+		<isNotNull property="orgKey">
+			AND ORG_KEY = #orgKey#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="orgMerchantCode">
+			AND ORG_MERCHANT_CODE =
+			#orgMerchantCode#
+		</isNotNull>
+		<isNotNull property="id">
+			AND ID = #id#
+		</isNotNull>
+		<isNotNull property="status">
+			AND status = #status#
+		</isNotNull>
+		<isNotNull property="mcc">
+			AND MCC = #mcc#
+		</isNotNull>
+		<isNotNull property="currencyCode">
+			AND nvl(CURRENCY_CODE,#currencyCode#) =
+			#currencyCode#
+		</isNotNull>
+	</select>
+
+	<select id="findByOrgCode" resultMap="channelConfig">
+		SELECT * FROM CHANNEL_CONFIG
+		WHERE 1=1
+		<isNotNull property="orgKey">
+			AND ORG_KEY = #orgKey#
+		</isNotNull>
+		<isNotNull property="orgCode">
+			AND ORG_CODE = #orgCode#
+		</isNotNull>
+		<isNotNull property="currencyCode">
+			AND nvl(CURRENCY_CODE,#currencyCode#) =
+			#currencyCode#
+		</isNotNull>
+	</select>
+
+	<insert id="createChannelSndrelationDate" parameterClass="channelConfig">
+
+		merge into fi.channel_sndrelation_date csd
+		using (select #orgCode# org_code,
+		#orgMerchantCode# org_merchant_code,
+		tb.card_org,
+		null as create_relate_date ,
+		null as cancel_relate_date ,
+		sysdate as create_date,
+		null as upd_date,
+		#operator# as operator
+		from dual,
+		(select 'VISA' card_org
+		from dual
+		union
+		select 'MASTER' card_org
+		from dual
+		union
+		select 'JCB' card_org from dual) tb) tc
+		on (csd.org_code = tc.org_code and csd.org_merchant_code =
+		tc.org_merchant_code and csd.card_org = tc.card_org)
+		when matched then
+		update
+		set csd.create_relate_date = null,
+		csd.cancel_relate_date = null,
+		csd.create_date = sysdate,
+		csd.upd_date = sysdate,
+		csd.operator = tc.operator
+		when not matched then
+		insert
+		values
+		(tc.org_code,
+		tc.org_merchant_code,
+		tc.card_org,
+		null,
+		null,
+		sysdate,
+		null,
+		tc.operator)
+	</insert>
+
+</sqlMap>

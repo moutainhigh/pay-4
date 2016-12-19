@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tsubmember">
+	<typeAlias alias="tSubMember" type="com.pay.poss.report.dto.SubMemberDTO"/>
+    <resultMap id="tSubMember" class="com.pay.poss.report.dto.SubMemberDTO">
+        <result column="PARENT_ID" property="parentId" jdbcType="DECIMAL"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="MEMBER_NAME" property="memberName" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		PARENT_ID,CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,
+		OPERATOR,MEMBER_CODE
+    </sql>
+    
+    <insert id="create" parameterClass="tSubMember">
+    	<selectKey resultClass="Long" keyProperty="sequenceId">
+			SELECT SEQ_SUB_MEMBER_ID.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO T_SUB_MEMBER(
+			PARENT_ID,CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,
+			OPERATOR,MEMBER_CODE
+        )
+        VALUES(
+            #parentId#,#createTime#,#updateTime#,#sequenceId#,#memberName#,
+			#operator#,#memberCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="tSubMember">
+        UPDATE T_SUB_MEMBER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="parentId">
+            PARENT_ID = #parentId#
+        </isNotNull>
+        <isNotNull prepend="," property="createTime">
+            CREATE_TIME = #createTime#
+        </isNotNull>
+        <isNotNull prepend="," property="updateTime">
+            UPDATE_TIME = #updateTime#
+        </isNotNull>
+        <isNotNull prepend="," property="memberName">
+            MEMBER_NAME = #memberName#
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+        <isNotNull prepend="," property="memberCode">
+            MEMBER_CODE = #memberCode#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM T_SUB_MEMBER        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+ 
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM T_SUB_MEMBER        
+        WHERE
+            SEQUENCE_ID = #sequenceId# 
+    </delete>
+ 
+    <delete id="deleteByParentId" parameterClass="java.lang.Long">
+        DELETE FROM T_SUB_MEMBER        
+        WHERE
+            PARENT_ID = #ParentId# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="tSubMember">
+        DELETE FROM T_SUB_MEMBER        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="parentId">
+            PARENT_ID = #parentId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createTime">
+            CREATE_TIME = #createTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateTime">
+            UPDATE_TIME = #updateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="tSubMember"
+        parameterClass="java.lang.Long">
+        SELECT 
+			PARENT_ID,CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,
+			OPERATOR,MEMBER_CODE
+        FROM T_SUB_MEMBER
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="tSubMember">
+        SELECT 
+			PARENT_ID,CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,
+			OPERATOR,MEMBER_CODE
+        FROM T_SUB_MEMBER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="parentId">
+            PARENT_ID = #parentId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createTime">
+            CREATE_TIME = #createTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateTime">
+            UPDATE_TIME = #updateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+   
+    <select id="findByMemberCode" resultMap="tSubMember"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+			PARENT_ID,MEMBER_CODE
+        FROM T_SUB_MEMBER
+        WHERE 
+            MEMBER_CODE = #memberCode# 
+    </select>
+
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM T_SUB_MEMBER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="parentId">
+            PARENT_ID = #parentId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createTime">
+            CREATE_TIME = #createTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateTime">
+            UPDATE_TIME = #updateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="querySubMember" resultMap="tSubMember">
+        SELECT 
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,MEMBER_CODE,PARENT_ID
+        FROM T_SUB_MEMBER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="parentId">
+            PARENT_ID= #parentId# 
+        </isNotNull>
+        </dynamic>
+    </select>    
+    
+    <select id="querySubMember_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(1) FROM T_SUB_MEMBER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="parentId">
+            PARENT_ID= #parentId# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

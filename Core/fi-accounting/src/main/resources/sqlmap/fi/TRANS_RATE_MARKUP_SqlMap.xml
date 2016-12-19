@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="TRANS_RATE_MARKUP" >
+	<typeAlias alias="transRateMarkup" type="com.pay.txncore.model.TransRateMarkup"/>
+	<resultMap id="BaseResultMap" class="transRateMarkup" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="CURRENCY" property="currency" jdbcType="VARCHAR" />
+	    <result column="TARGET_CURRENCY" property="targetCurrency" jdbcType="VARCHAR" />
+	    <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR"/>
+	    <result column="MARKUP" property="markup" jdbcType="VARCHAR" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	    <result column="STATUS" property="status" jdbcType="CHAR" />
+	    <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+	    <result column="CARD_ORG" property="cardOrg" jdbcType="VARCHAR" />
+	    <result column="LEAST_TRANS_AMOUNT" property="leastTransAmount" jdbcType="DECIMAL" />
+	    <result column="LTA_CURRENCY_CODE" property="ltaCurrencyCode" jdbcType="VARCHAR" />
+        <result column="CARD_CURRENCY_CODE" property="cardCurrencyCode" jdbcType="VARCHAR" />
+        <result column="CARD_COUNTRY" property="cardCountry" jdbcType="VARCHAR" />
+        <result column="PRIORITY"  property="priority" jdbcType="DECIMAL"/>
+        <result column="START_POINT" property="startPoint" jdbcType="DECIMAL" />
+        <result column="END_POINT" property="endPoint" jdbcType="DECIMAL" />
+        <result column="START_AMOUNT" property="startAmount" jdbcType="DECIMAL" />
+        <result column="END_AMOUNT" property="endAmount" jdbcType="DECIMAL" />
+	</resultMap>
+  
+  <sql id="Criteria_Where_Clause">
+  	<isNotNull prepend="and" property="currency" >
+        CURRENCY like '%$currency$%'
+        or CURRENCY='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="targetCurrency" >
+        TARGET_CURRENCY like '%$targetCurrency$%' or
+        TARGET_CURRENCY='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="startPoint" >
+        <![CDATA[START_POINT = #startPoint:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="endPoint" >
+        <![CDATA[END_POINT = #endPoint:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="startAmount" >
+        <![CDATA[START_AMOUNT = #startAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="endAmount" >
+        <![CDATA[END_AMOUNT = #endAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="startTime">
+             trunc(CREATE_DATE)=to_date(#startTime#,'yyyy-mm-dd')
+      </isNotNull>
+      <isNotNull prepend="and" property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardOrg" >
+        CARD_ORG like '%$cardOrg$%'
+        or CARD_ORG='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="leastTransAmount" >
+        LEAST_TRANS_AMOUNT = #leastTransAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="ltaCurrencyCode" >
+          LTA_CURRENCY_CODE = #ltaCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode" >
+          CARD_CURRENCY_CODE like '%$cardCurrencyCode$%'
+          or CARD_CURRENCY_CODE='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountry" >
+          CARD_COUNTRY like '%$cardCountry$%'
+          or CARD_COUNTRY='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="priority" >
+        <![CDATA[PRIORITY = #priority:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="id" >
+        <![CDATA[ID = #id:DECIMAL#]]>
+      </isNotNull>
+  </sql>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="transRateMarkup" >
+    select ID, MEMBER_CODE,CURRENCY,TARGET_CURRENCY, MARKUP, START_POINT, END_POINT,START_AMOUNT, END_AMOUNT,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE
+      ,CARD_CURRENCY_CODE,CARD_COUNTRY,PRIORITY
+    from TRANS_RATE_MARKUP where 1=1
+    <isParameterPresent >
+      <include refid="TRANS_RATE_MARKUP.Criteria_Where_Clause" />
+    </isParameterPresent>
+    order by ID asc
+  </select>
+  
+    <select id="findExistMarkup" resultMap="BaseResultMap" parameterClass="transRateMarkup" >
+    select ID, MEMBER_CODE,CURRENCY,TARGET_CURRENCY, MARKUP, START_POINT, END_POINT,START_AMOUNT, END_AMOUNT,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE
+      ,CARD_CURRENCY_CODE,CARD_COUNTRY,PRIORITY
+    from TRANS_RATE_MARKUP where 1=1
+      	<isNotNull prepend="and" property="currency" >
+        CURRENCY =#currency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="targetCurrency" >
+        TARGET_CURRENCY=#targetCurrency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="startPoint" >
+        START_POINT = #startPoint:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="endPoint" >
+        END_POINT = #endPoint:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="startAmount" >
+        START_AMOUNT = #startAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="endAmount" >
+        END_AMOUNT = #endAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="and" property="startTime">
+        CREATE_DATE=to_date(#startTime#,'yyyy-mm-dd hh24:mi:ss')
+      </isNotNull>
+      <isNotNull prepend="and" property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardOrg" >
+        CARD_ORG=#cardOrg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode" >
+          CARD_CURRENCY_CODE=#cardCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountry" >
+          CARD_COUNTRY=#cardCountry:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="priority" >
+        <![CDATA[PRIORITY = #priority:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="id" >
+        ID = #id:DECIMAL#
+      </isNotNull>
+  </select>
+  
+  <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM TRANS_RATE_MARKUP where 1=1 
+        <isParameterPresent >
+         <include refid="TRANS_RATE_MARKUP.Criteria_Where_Clause" />
+      </isParameterPresent>
+    </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select ID,MEMBER_CODE, CURRENCY,TARGET_CURRENCY,MARKUP, START_POINT, END_POINT,START_AMOUNT, END_AMOUNT,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE
+      ,CARD_COUNTRY,CARD_CURRENCY_CODE,PRIORITY
+    from TRANS_RATE_MARKUP
+    where ID = #id:DECIMAL#
+  </select>
+  
+  <insert id="create" parameterClass="transRateMarkup" >
+  	<selectKey keyProperty="id">
+  		SELECT SEQ_TRANS_RATE_MARKUP_ID.NEXTVAL FROM DUAL
+  	</selectKey>
+    insert into TRANS_RATE_MARKUP (ID,MEMBER_CODE, CURRENCY,TARGET_CURRENCY,MARKUP,
+      START_POINT, END_POINT, CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,CARD_ORG,LEAST_TRANS_AMOUNT
+      ,LTA_CURRENCY_CODE,CARD_CURRENCY_CODE,CARD_COUNTRY,PRIORITY,START_AMOUNT, END_AMOUNT)
+    values (#id:DECIMAL#,#memberCode:VARCHAR#, #currency:VARCHAR#,#targetCurrency:VARCHAR#,
+      #markup:VARCHAR#, #startPoint:DECIMAL#, #endPoint:DECIMAL#,
+      #createDate:TIMESTAMP#, #updateDate:TIMESTAMP#, #status:CHAR#, #operator:VARCHAR#,
+      #cardOrg:VARCHAR#,#leastTransAmount:DECIMAL#,#ltaCurrencyCode:VARCHAR#,#cardCurrencyCode:VARCHAR#
+      ,#cardCountry:VARCHAR#,#priority:DECIMAL#, #startAmount:DECIMAL#, #endAmount:DECIMAL#
+      )
+  </insert>
+  
+  <delete id="delete">
+  	delete from TRANS_RATE_MARKUP where id=#id#
+  </delete>
+  
+  <select id="countByCriteria" parameterClass="transRateMarkup" resultClass="java.lang.Integer" >
+    select count(*) fromTRANS_RATE_MARKUP where 1=1
+    <include refid="TRANS_RATE_MARKUP.Criteria_Where_Clause" />
+  </select>
+  
+  <update id="update" parameterClass="transRateMarkup" >
+    update TRANS_RATE_MARKUP
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="currency" >
+        CURRENCY = #currency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="targetCurrency" >
+        TARGET_CURRENCY = #targetCurrency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="targetCurrency" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="markup" >
+        MARKUP = #markup:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="startPoint" >
+        START_POINT = #startPoint:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="endPoint" >
+        END_POINT = #endPoint:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="startAmount" >
+        START_AMOUNT = #startAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="endAmount" >
+        END_AMOUNT = #endAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cardOrg" >
+        CARD_ORG = #cardOrg:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="leastTransAmount" >
+        LEAST_TRANS_AMOUNT = #leastTransAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="ltaCurrencyCode" >
+        LTA_CURRENCY_CODE = #ltaCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cardCurrencyCode" >
+        CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cardCountry" >
+        CARD_COUNTRY = #cardCountry:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="priority" >
+        <![CDATA[PRIORITY = #priority:DECIMAL#]]>
+      </isNotNull>
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+    
+    <update id="batchValidStatus" parameterClass="transRateMarkup">
+            update TRANS_RATE_MARKUP set STATUS='0'
+            WHERE 1=1
+           <isNotNull prepend="and" property="status">
+                      STATUS=#status:VARCHAR#
+            </isNotNull>
+            CURRENCY=#currency:VARCHAR# and TARGET_CURRENCY=#targetCurrency:VARCHAR# 
+            <isNotNull prepend="and" property="memberCode">
+                      MEMBER_CODE=#memberCode:VARCHAR#
+            </isNotNull>
+            <isNotNull prepend="and" property="cardOrg" >
+					  CARD_ORG = #cardOrg:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="and" property="leastTransAmount" >
+					  LEAST_TRANS_AMOUNT = #leastTransAmount:DECIMAL#
+			</isNotNull>
+			<isNotNull prepend="and" property="ltaCurrencyCode" >
+					  LTA_CURRENCY_CODE = #ltaCurrencyCode:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="and" property="cardCurrencyCode" >
+					  CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="and" property="priority" >
+                      <![CDATA[PRIORITY = #priority:DECIMAL#]]>
+            </isNotNull>
+			<isNotNull prepend="and" property="cardCountry" >
+					  CARD_COUNTRY = #cardCountry:VARCHAR#
+			</isNotNull>
+			<isNotNull prepend="and" property="id">
+					  ID = #id:DECIMAL#
+			</isNotNull>
+    </update>
+    
+        <update id="updateRate" parameterClass="transRateMarkup">
+            update TRANS_RATE_MARKUP set MARKUP=#markup:VARCHAR#
+            WHERE STATUS=#status:CHAR# and 
+                          CURRENCY=#currency:VARCHAR# and TARGET_CURRENCY=#targetCurrency:VARCHAR# 
+                          and MEMBER_CODE=#memberCode:VARCHAR# and PRIORITY = #priority:DECIMAL#
+    </update>
+  
+   <select id="findTransRateMarkup" resultMap="BaseResultMap">
+    select ID,MEMBER_CODE, CURRENCY,TARGET_CURRENCY,MARKUP, START_POINT, END_POINT,START_AMOUNT, END_AMOUNT,
+      CREATE_DATE, UPDATE_DATE, STATUS, OPERATOR,CARD_ORG,LEAST_TRANS_AMOUNT,LTA_CURRENCY_CODE
+      ,CARD_CURRENCY_CODE,CARD_COUNTRY,PRIORITY
+    from TRANS_RATE_MARKUP
+    where 1=1
+      	<isNotNull prepend="and" property="currency">
+        CURRENCY like '%$currency$%'
+        or CURRENCY='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="targetCurrency">
+        TARGET_CURRENCY like '%$targetCurrency$%' or
+        TARGET_CURRENCY='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="memberCode">
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="point">
+        <![CDATA[START_POINT <= #point:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="point" >
+        <![CDATA[END_POINT >= #point:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="status">
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardOrg">
+        CARD_ORG like '%$cardOrg$%'
+        or CARD_ORG='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="leastTransAmount">
+        <![CDATA[START_AMOUNT <= #leastTransAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="leastTransAmount">
+        <![CDATA[END_AMOUNT >= #leastTransAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode">
+          CARD_CURRENCY_CODE like '%$cardCurrencyCode$%'
+          or CARD_CURRENCY_CODE='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountry">
+          CARD_COUNTRY like '%$cardCountry$%'
+          or CARD_COUNTRY='*'
+      </isNotNull>
+      <isNotNull prepend="and" property="priority">
+        <![CDATA[PRIORITY = #priority:DECIMAL#]]>
+      </isNotNull>
+    order by PRIORITY desc
+  </select>
+</sqlMap>

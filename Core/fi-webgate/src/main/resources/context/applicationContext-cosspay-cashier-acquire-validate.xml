@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境收银台收单 -->
+	<bean id="crosspayAcquireValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="onlineAcquireRule" />
+	</bean>
+
+	<bean id="onlineAcquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="cashier1-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="cashier1-versionCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="版本号不正确" />
+		<property name="messageEn" value="The version number is not correct" />
+	</bean>
+
+	<bean id="cashier1-orderIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-goodsNameCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="订单号不合法" />
+		<property name="messageEn" value="Invalid order number" />
+	</bean>
+
+	<bean id="cashier1-goodsNameCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.GoodsNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-goodsDescCheckRule" />
+		</property>
+		<property name="messageId" value="0004" />
+		<property name="message" value="商品名称为空或过长" />
+		<property name="messageEn" value="Goods name is empty or too long" />
+	</bean>
+
+	<bean id="cashier1-goodsDescCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.GoodsDescCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="message" value="商品描述不能为空或过长" />
+		<property name="messageEn" value="Product description cannot be empty or too long" />
+	</bean>
+
+
+	<bean id="cashier1-submitTimeCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="订单提交时间不正确" />
+		<property name="messageEn" value="Order submission time is not correct" />
+	</bean>
+
+	<bean id="cashier1-partnerIdCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.PartnerIdCheckRuleNew">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-orderAmountCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageEn" value="Merchant(partner ID) is empty or wrong" />
+		<property name="message" value="会员号为空或不正确" />
+	</bean>
+
+	<bean id="cashier1-orderAmountCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="订单金额不正确" />
+		<property name="messageEn" value="Order amount is incorrect" />
+	</bean>
+
+	<bean id="cashier1-typeCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-payTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="未授权交易类型" />
+		<property name="messageEn" value="Unauthorized transaction type" />
+	</bean>
+
+	<bean id="cashier1-payTypeCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.PayTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="message" value="支付方式不正确" />
+		<property name="messageEn" value="Incorrect payment type" />
+	</bean>
+
+	<bean id="cashier1-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-dccProductCheckRule" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="message" value="交易币种不正确" />
+		<property name="messageEn" value="Incorrect transaction currency" />
+	</bean>
+	
+	<bean id="cashier1-dccProductCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.DCCProductCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-settlementCurrencyCodeCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0011" />
+		<property name="message" value="交易币种不正确" />
+		<property name="messageEn" value="Invalid transaction currency" />
+	</bean>
+
+	<bean id="cashier1-settlementCurrencyCodeCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.SettlementCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-siteIdCheckRule" />
+		</property>
+		<property name="messageId" value="0012" />
+		<property name="messageEn" value="Invalid settlement currency"/>
+		<property name="message" value="结算币种不正确" />
+	</bean>
+
+	<bean id="cashier1-siteIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.SiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-directFlagCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="未授权的域名" />
+		<property name="messageEn" value="Unauthorized Domain" />
+	</bean>
+
+	<bean id="cashier1-directFlagCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.DirectFlagCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-returnUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0054" />
+		<property name="message" value="是否直连为空" />
+		<property name="messageEn" value="Parameter directFlag is empty" />
+	</bean>
+
+	<bean id="cashier1-returnUrlCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ReturnUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0069" />
+		<property name="message" value="商户回调地址为空或过长" />
+		<property name="messageEn" value="Merchant return URL is empty or too long" />
+	</bean>
+
+	<bean id="cashier1-noticeUrlCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="商户通知地址不正确" />
+		<property name="messageEn" value="Invalid merchant notice URL" />
+	</bean>
+
+	<bean id="cashier1-remarkCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-customerIPCheckRule" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="备注信息不正确" />
+		<property name="messageEn" value="Invalid remark" />
+	</bean>
+
+	<bean id="cashier1-customerIPCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.CustomerIPCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-borrowingMarkedCheckRule" />
+		</property>
+		<property name="messageId" value="0066" />
+		<property name="message" value="客户下单IP为空或不正确" />
+		<property name="messageEn" value="Public IP of customer is empty or wrong" />
+	</bean>
+
+
+
+	<bean id="cashier1-borrowingMarkedCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.BorrowingMarkedCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-merchantStatusCheckRule" />
+		</property>
+		<property name="messageId" value="0013" />
+		<property name="message" value="资金来源借贷标识不正确" />
+		<property name="messageEn" value="Invalid value for paramter borrowingMarked" />
+	</bean>
+
+	<bean id="cashier1-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="商户状态异常" />
+		<property name="messageEn" value="Abnormal merchant status" />
+	</bean>
+
+	<bean id="cashier1-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-merchantAcctCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="未授权限的商户" />
+		<property name="messageEn" value="Unauthorized merchant" />
+	</bean>
+
+	<bean id="cashier1-merchantAcctCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillNameCheckRule" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="message" value="商户账户状态异常" />
+		<property name="messageEn" value="Abnormal merchant account status" />
+	</bean>
+
+	<bean id="cashier1-BillNameCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="账单姓名不合法" />
+		<property name="messageEn" value="Invalid billName" />
+	</bean>
+
+	<bean id="cashier1-BillAddressCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="message" value="账单地址不合法" />
+		<property name="messageEn" value="Invalid billAddress" />
+	</bean>
+
+	<bean id="cashier1-BillEmailCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillPhoneCheckRule" />
+		</property>
+		<property name="messageId" value="0020" />
+		<property name="message" value="账单邮箱不合法" />
+		<property name="messageEn" value="Invalid billEmail" />
+	</bean>
+
+	<bean id="cashier1-BillPhoneCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillPhoneCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillPostalCheckRule" />
+		</property>
+		<property name="messageId" value="0021" />
+		<property name="message" value="账单电话不合法" />
+		<property name="messageEn" value="Invalid billPhoneNumber" />
+	</bean>
+
+	<bean id="cashier1-BillPostalCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillPostalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillCityCheckRule" />
+		</property>
+		<property name="messageId" value="0022" />
+		<property name="message" value="账单邮编不合法" />
+		<property name="messageEn" value="Invalid billPoastalCode" />
+	</bean>
+
+	<bean id="cashier1-BillCityCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillStateCheckRule" />
+		</property>
+		<property name="messageId" value="0024" />
+		<property name="message" value="账单城市不合法" />
+		<property name="messageEn" value="Invalid billCity" />
+	</bean>
+
+	<bean id="cashier1-BillStateCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-BillCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0025" />
+		<property name="message" value="账单州不合法" />
+		<property name="messageEn" value="Invalid billState" />
+	</bean>
+
+	<bean id="cashier1-BillCountryCodeCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.BillCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-ShippingFullNameCheckRule" />
+		</property>
+		<property name="messageId" value="0026" />
+		<property name="message" value="账单国家不合法" />
+		<property name="messageEn" value="Invalid billCountryCode" />
+	</bean>
+
+	<bean id="cashier1-ShippingFullNameCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ShippingFullNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-ShippingAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0027" />
+		<property name="message" value="收货人姓名不合法" />
+		<property name="messageEn" value="Invalid shippingFullName" />
+	</bean>
+
+	<bean id="cashier1-ShippingAddressCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ShippingAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-ShippingEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0028" />
+		<property name="message" value="收货人地址不合法" />
+		<property name="messageEn" value="Invalid shippingAddress" />
+	</bean>
+
+	<bean id="cashier1-ShippingEmailCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ShippingEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-shippingCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0029" />
+		<property name="message" value="收货人邮箱不合法" />
+		<property name="messageEn" value="Invalid shippingMail" />
+	</bean>
+
+	<bean id="cashier1-shippingCountryCodeCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ShippingCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-shippingStateCheckRule" />
+		</property>
+		<property name="messageId" value="0035" />
+		<property name="message" value="收货人国家不合法" />
+		<property name="messageEn" value="Invalid ShippingCountryCode" />
+	</bean>
+
+	<bean id="cashier1-shippingStateCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ShippingStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-shippingCityCheckRule" />
+		</property>
+		<property name="messageId" value="0034" />
+		<property name="message" value="收货人州不合法" />
+		<property name="messageEn" value="Invalid ShippingState" />
+	</bean>
+
+	<bean id="cashier1-shippingCityCheckRule"
+		  class="com.pay.gateway.validate.crosspay.cashier.ShippingCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0033" />
+		<property name="message" value="收货人城市不合法" />
+		<property name="messageEn" value="Invalid ShippingCity" />
+	</bean>
+
+	<bean id="cashier1-charsetCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="编码方式不正确" />
+		<property name="messageEn" value="Character encoding is wrong" />
+	</bean>
+
+	<bean id="cashier1-signTypeCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-onlineAcquireSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="签名类型不正确" />
+		<property name="messageEn" value="Signature type is wrong" />
+	</bean>
+
+	<bean id="cashier1-onlineAcquireSignMsgCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.CrosspayAcquireCashierSignMsgCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-orderRepeatCheckRule" />
+		</property>
+		<property name="messageId" value="0048" />
+		<property name="message" value="签名校验不通过" />
+		<property name="messageEn" value="Signature verification fails" />
+	</bean>
+
+	<bean id="cashier1-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.crosspay.cashier.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="cashier1-gatewayRequestSaveAction" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="订单号重复" />
+		<property name="messageEn" value="Repeated transaction number" />
+	</bean>
+
+	<bean id="cashier1-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.crosspay.cashier.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

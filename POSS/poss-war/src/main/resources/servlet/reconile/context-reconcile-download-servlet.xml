@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean name="/downloadexcelcontroller.do"
+		class="com.pay.poss.controller.reconcile.ReconcileDownloadExcelController"
+		parent="reconcileBaseController">
+		<property name="reconcileQueryService" ref="fo_rc_queryReconcileResultService" />
+		<property name="operatorResultList2Excel" ref="operatorResultList2Excel" />
+		<property name="operatorResultDetail2Excel" ref="operatorResultDetail2Excel" />
+	</bean>
+
+	<!-- 对账结果列表下载Excel -->
+	<bean id="operatorResultList2Excel" class="com.pay.poss.base.common.poi.impl.OperatorPoiExcelImpl">
+		<property name="cellWidth" value="16" />
+		<property name="keyCount" value="7" />
+		<property name="keyValueString"
+			value="{thead1-网银名称,thead2-网银金额,thead3-网银笔数,thead4-系统金额 ,thead5-系统笔数,thead6-差异金额,thead7-差异笔数,thead8-调账后差异金额,thead9-调账后差异笔数}" />
+		<property name="targetClass"
+			value="com.pay.fundout.reconcile.dto.rcresult.ReconcileResultSummaryDTO" />
+		<property name="propertyNames"
+			value="withdrawBankId,allBankAmount,allBankCount,allAccountAmount,allAccountCount,differenceAmount,differenceCount,reviseAmount,reviseCount" />
+	</bean>
+
+	<!-- 对账结果列表下载Excel -->
+	<bean id="operatorResultDetail2Excel" class="com.pay.poss.base.common.poi.impl.OperatorPoiExcelImpl">
+		<property name="cellWidth" value="16" />
+		<property name="keyCount" value="6" />
+		<property name="keyValueString"
+			value="{thead1-银行名称,thead2-出款业务,thead3-交易号,thead4-交易流水号 ,thead5-交易金额,thead6-交易日期}" />
+		<property name="targetClass"
+			value="com.pay.fundout.reconcile.dto.rcresult.ReconcileResultDTO" />
+		<property name="propertyNames"
+			value="withdrawBankId,withdrawBusiTypeDesc,resultId,tradeSeq,tradeAmount,busiDate" />
+	</bean>
+
+</beans>

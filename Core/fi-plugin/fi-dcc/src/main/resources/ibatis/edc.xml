@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="edcNameSpace">
+	<typeAlias alias="edcConfig" type="com.pay.dcc.model.EDCConfig" />
+
+
+	<resultMap id="edcConfig" class="com.pay.dcc.model.EDCConfig">
+		<result column="ID" property="id" jdbcType="NUMBER" />
+		<result column="CURRENCY_CODE" property="currencyCode"
+			jdbcType="VARCHAR" />
+		<result column="MARK_UP" property="markUp" jdbcType="VARCHAR" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="DATE" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="DATE" />
+		<result column="STATUS" property="status" jdbcType="VARCHAR" />
+	</resultMap>
+	<insert id="insertedc" parameterClass="edcConfig">
+		<selectKey resultClass="java.lang.Integer" keyProperty="id">
+			SELECT	SEQ_CURRENCYEXCHANGE_ID.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO
+		EDC_CONFIG
+		(ID,CURRENCY_CODE,MARK_UP,OPERATOR,CREATE_TIME,UPDATE_TIME,STATUS)
+		values(#id#,#currencyCode#,#markUp#,#operator#,#createTime#,#updateTime#,#status#)
+	</insert>
+
+</sqlMap>

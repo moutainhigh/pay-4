@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+	<!-- 定义映射 -->
+	<bean id="fiPaymentHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/zsyChannelPay.htm">zsyGatewayChannelPayController</prop>
+				<prop key="/channelPay.htm">gatewayChannelPayController</prop>
+				<prop key="/bindCardChannelPay.htm">bindCardGatewayChannelPayController</prop>
+				<prop key="/acctPay.htm">gatewayAcctPayController</prop>
+				<prop key="/crosspayPay.htm">crosspayPaymentController</prop>
+				<prop key="/success.htm">gatewaySuccessRedirectController</prop>
+				<prop key="/orgRateQuery.htm">orgRateQueryController</prop>
+				<prop key="/newchannelPay.htm">newCashierController</prop>
+				<prop key="/crosspay.htm">crosspayController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="zsyGatewayChannelPayController"
+		class="com.pay.gateway.controller.zsy.ZsyOnlineChannelPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="alipayView">
+			<value>/fi/zsy/alipay</value>
+		</property>
+		<property name="weixinView">
+			<value>/fi/zsy/weixin</value>
+		</property>
+		<property name="cashierView">
+			<value>/fi/zsy/cashier</value>
+		</property>
+		<property name="successView">
+			<value>/fi/zsy/result</value>
+		</property>
+		<property name="closeView">
+			<value>/fi/zsy/close</value>
+		</property>
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="couponListService" ref="couponListService" />
+		<property name="txncoreClientService" ref="txncoreClientService" />
+	</bean>
+
+	<bean id="gatewayChannelPayController"
+		class="com.pay.gateway.controller.payment.OnlineChannelPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="failView">
+			<value>/cashier/fail</value>
+		</property>
+		<property name="enFailView">
+			<value>/cashier/fail_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/cashier/fail_cn</value>
+		</property>
+		<property name="pcEnFailView">
+			<value>/cashier/fail_en</value>
+		</property>
+		<property name="pcCnFailView">
+			<value>/cashier/fail_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/cashier/fail_mobile_en</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/cashier/fail_mobile_cn</value>
+		</property>
+		<property name="successView">
+			<value>/cashier/embedded/success</value>
+		</property>
+		<property name="enSuccessView">
+			<value>/cashier/embedded/success_en</value>
+		</property>
+		<property name="cnSuccessView">
+			<value>/cashier/embedded/success_cn</value>
+		</property>
+		<property name="pcEnSuccessView">
+			<value>/cashier/embedded/success_en</value>
+		</property>
+		<property name="pcCnSuccessView">
+			<value>/cashier/embedded/success_cn</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/cashier/embedded/success_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView">
+			<value>/cashier/embedded/success_mobile_cn</value>
+		</property>
+		<property name="dccView">
+			<value>/cashier/dcc</value>
+		</property>
+		<property name="enDccView">
+			<value>/cashier/dcc_en</value>
+		</property>
+		<property name="cnMobileDccView">
+			<value>/cashier/dcc_mobile_cn</value>
+		</property>
+		<property name="enMobileDccView">
+			<value>/cashier/dcc_mobile_en</value>
+		</property>
+		<property name="cnDccView">
+			<value>/cashier/dcc_cn</value>
+		</property>
+		<property name="mobileDccView">
+			<value>/cashier/dcc_mobile_en</value>
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayPaymentValidateService" />
+		</property>
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="memberBaseProductService" ref="acc-memberBaseProductService"/>
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+	</bean>
+	
+	<bean id="crosspayController"
+		class="com.pay.gateway.controller.payment.CrosspayController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="failView">
+			<value>/cashier1.1/fail</value>
+		</property>
+		<property name="enFailView">
+			<value>/cashier1.1/fail_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/cashier1.1/fail_cn</value>
+		</property>
+		<property name="pcEnFailView">
+			<value>/cashier1.1/fail_en</value>
+		</property>
+		<property name="pcCnFailView">
+			<value>/cashier1.1/fail_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/cashier1.1/fail_mobile_en</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/cashier1.1/fail_mobile_cn</value>
+		</property>
+		<property name="successView">
+			<value>/cashier1.1/embedded/success</value>
+		</property>
+		<property name="enSuccessView">
+			<value>/cashier1.1/embedded/success_en</value>
+		</property>
+		<property name="cnSuccessView">
+			<value>/cashier1.1/embedded/success_cn</value>
+		</property>
+		<property name="pcEnSuccessView">
+			<value>/cashier1.1/embedded/success_en</value>
+		</property>
+		<property name="pcCnSuccessView">
+			<value>/cashier1.1/embedded/success_cn</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/cashier1.1/embedded/success_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView">
+			<value>/cashier1.1/embedded/success_mobile_cn</value>
+		</property>
+		<property name="dccView">
+			<value>/cashier1.1/dcc</value>
+		</property>
+		<property name="enDccView">
+			<value>/cashier1.1/dcc_en</value>
+		</property>
+		<property name="cnMobileDccView">
+			<value>/cashier1.1/dcc_mobile_cn</value>
+		</property>
+		<property name="enMobileDccView">
+			<value>/cashier1.1/dcc_mobile_en</value>
+		</property>
+		<property name="cnDccView">
+			<value>/cashier1.1/dcc_cn</value>
+		</property>
+		<property name="mobileDccView">
+			<value>/cashier1.1/dcc_mobile_en</value>
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayPaymentValidateService" />
+		</property>
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="memberBaseProductService" ref="acc-memberBaseProductService"/>
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+	</bean>
+	
+	<bean id="bindCardGatewayChannelPayController"
+		class="com.pay.gateway.controller.payment.OnlineBindCardChannelPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="failView">
+			<value>/bindCard/fail</value>
+		</property>
+		<property name="enFailView">
+			<value>/bindCard/fail_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/bindCard/fail_cn</value>
+		</property>
+		<property name="pcEnFailView">
+			<value>/bindCard/fail_en</value>
+		</property>
+		<property name="pcCnFailView">
+			<value>/bindCard/fail_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/bindCard/fail_mobile_en</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/bindCard/fail_mobile_cn</value>
+		</property>
+		<property name="successView">
+			<value>/bindCard/embedded/success</value>
+		</property>
+		<property name="enSuccessView">
+			<value>/bindCard/embedded/success_en</value>
+		</property>
+		<property name="cnSuccessView">
+			<value>/bindCard/embedded/success_cn</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/bindCard/embedded/success_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView">
+			<value>/bindCard/embedded/success_mobile_cn</value>
+		</property>
+		<property name="validateService">
+			<ref bean="bindCard-CrosspayPaymentValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+	</bean>
+
+	<bean id="gatewayAcctPayController"
+		class="com.pay.gateway.controller.payment.OnlineAccountPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="fromView">
+			<value>/fi/pay/cashier</value>
+		</property>
+		<property name="failView">
+			<value>/fi/pay/fail</value>
+		</property>
+		<property name="successView">
+			<value>/fi/pay/successful</value>
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+	</bean>
+
+	<bean id="crosspayPaymentController"
+		class="com.pay.gateway.controller.payment.CrosspayPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="failView">
+			<value>/fi/pay/fail</value>
+		</property>
+		<property name="redirectView">
+			<value>/fi/pay/redirect</value>
+		</property>
+		<property name="successView">
+			<value>/fi/common/payAlertConfirm</value>
+		</property>
+		<property name="querysuccessView">
+			<value>/fi/pay/successful</value>
+		</property>
+		<property name="fromView">
+			<value>/fi/pay/cashier</value>
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+	</bean>
+
+	<bean id="gatewaySuccessRedirectController"
+		class="com.pay.gateway.controller.payment.SuccessRedirectController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="successView">
+			<value>/fi/pay/successful</value>
+		</property>
+		<property name="successDirectView">
+			<value>/fi/pay/redirectOut</value>
+		</property>
+	</bean>
+
+	<bean id="orgRateQueryController"
+		class="com.pay.gateway.controller.payment.OrgRateQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+	</bean>
+
+<bean id="newCashierController"
+		  class="com.pay.gateway.controller.cashier.CashierController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="failView">
+			<value>/cashier/fail</value>
+		</property>
+		<property name="enFailView">
+			<value>/cashier/fail_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/cashier/fail_cn</value>
+		</property>
+		<property name="pcEnFailView">
+			<value>/cashier/fail_en</value>
+		</property>
+		<property name="pcCnFailView">
+			<value>/cashier/fail_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/cashier/fail_mobile_en</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/cashier/fail_mobile_cn</value>
+		</property>
+		<property name="successView">
+			<value>/cashier/embedded/success</value>
+		</property>
+		<property name="enSuccessView">
+			<value>/cashier/embedded/success_en</value>
+		</property>
+		<property name="cnSuccessView">
+			<value>/cashier/embedded/success_cn</value>
+		</property>
+		<property name="pcEnSuccessView">
+			<value>/cashier/embedded/success_en</value>
+		</property>
+		<property name="pcCnSuccessView">
+			<value>/cashier/embedded/success_cn</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/cashier/embedded/success_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView">
+			<value>/cashier/embedded/success_mobile_cn</value>
+		</property>
+		<property name="dccView">
+			<value>/cashier/dcc</value>
+		</property>
+		<property name="enDccView">
+			<value>/cashier/dcc_en</value>
+		</property>
+		<property name="cnMobileDccView">
+			<value>/cashier/dcc_mobile_cn</value>
+		</property>
+		<property name="enMobileDccView">
+			<value>/cashier/dcc_mobile_en</value>
+		</property>
+		<property name="cnDccView">
+			<value>/cashier/dcc_cn</value>
+		</property>
+		<property name="mobileDccView">
+			<value>/cashier/dcc_mobile_en</value>
+		</property>
+		<property name="payGateService">
+			<ref bean="builderPayGateService" />
+		</property>
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="memberBaseProductService" ref="acc-memberBaseProductService"/>
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+	</bean>
+</beans>

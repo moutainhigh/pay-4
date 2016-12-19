@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- abc b2c 渠道 job配置 -->
+	<bean id="conn.wrapper.abc"
+		class="com.hnapay.fi.order.repair.conn.base.TwoWaySSLHttpClientWrapper">
+		<property name="jksPassword" value="changeit" />
+		<property name="jksUrl"
+			value="/opt/hnapay/config/gateway/orderrepair/abc/abc.truststore" />
+	</bean>
+	<bean id="conn.request.builder.abc"
+		class="com.hnapay.fi.order.repair.conn.base.StringRequestBuilder">
+		<property name="encoding" value="UTF-8" />
+		<property name="url"
+			value="https://www.95599.cn/b2c/trustpay/ReceiveMerchantTrxReqServlet" />
+		<property name="map2StringTransform">
+			<bean class="com.hnapay.fi.order.repair.abc.conn.requestbuilder.ABCJUMBOMap2StringTransform" />
+		</property>
+	</bean>
+	<bean id="conn.response.handler.abc.b2c"
+		class="com.hnapay.fi.order.repair.abc.conn.responsehandler.ABCResponseHandler">   
+	</bean>
+	<bean id="query.abc"
+		class="com.hnapay.fi.service.batchrepair.api.ABCLocalOrderQueryServiceApiImpl">
+	</bean>
+	<bean id="transform.abc.b2c"
+		class="com.hnapay.fi.order.repair.abc.engine.loader.ABCLocalOrderTransform">
+		<property name="queryDeail" value="false" />
+		<property name="merchantId" value="231000001885A03" />
+		<property name="merchantType" value="B2C" />
+	</bean>
+	<bean id="loader.abc.b2c"
+		class="com.hnapay.fi.order.repair.engine.loader.LocalOrderBasedBankOrderLoader">
+		<property name="channel" value="10002003" />
+		<property name="httpClientWrapper" ref="conn.wrapper.abc" />
+		<property name="httpRequestBuilder" ref="conn.request.builder.abc" />
+		<property name="httpResponseHandler" ref="conn.response.handler.abc.b2c" />
+		<property name="localOrderQueryService" ref="query.abc" />
+		<property name="maxThreadSize" value="10" />
+		<property name="paramTransform" ref="transform.abc.b2c" />
+		<property name="timePassed" value="108000" />
+	</bean>
+
+</beans>

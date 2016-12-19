@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/orderrisk/orderriskmonitor.do">orderRiskMonitorController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- 商户订单过滤规则 -->
+	<bean id="orderRiskMonitorController"
+		class="com.pay.poss.controller.risk.OrderRiskMonitorController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/riskcontrol/trademonitor/monitorReport</value>
+		</property>
+		<property name="setrule">
+			<value>/riskcontrol/trademonitor/setRule</value>
+		</property>
+		<property name="resultList">
+			<value>/riskcontrol/trademonitor/monitorReportList</value>
+		</property>
+		<property name="redisClient" ref="redisClient" />
+		<property name="orderThreholdService" ref="orderThreholdService"/>
+		<property name="riskTradeReportService" ref="riskTradeReportService"/>
+	</bean>
+
+</beans>

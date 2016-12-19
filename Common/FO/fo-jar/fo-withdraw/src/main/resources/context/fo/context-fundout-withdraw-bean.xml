@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<!-- Dao 配置 -->		
+ 	<bean id="fundout-withraw-withdrawOrderDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawAuditOrderDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE"/>
+	<bean id="fundout-withraw-withdrawAuditDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawAuditDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	<bean id="fundout-withraw-withdrawWorkDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawAuditWorkOrderDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	<bean id="fundout-withraw-resProcManualDao" class="com.pay.fundout.withdraw.dao.flowprocess.impl.WithdrawResProcManualDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	<bean id="fundout-withraw-exportDao" class="com.pay.fundout.withdraw.dao.export.impl.ExportWithdrawAuditDaoImpl" parent="PLATFORM.DEFAULT.DAOSERVICE" />
+	
+	<!-- Service 配置 -->
+	<bean id="fundout-withdraw-service" class="com.pay.fundout.withdraw.service.flowprocess.impl.WithdrawServiceImpl" >
+		<property name="withdrawWorkDao" ref="fundout-withraw-withdrawWorkDao" />
+		
+		<property name="businessTypeMap" ref="fundout-withdraw-businessTypeMap" />
+		<property name="callBackServiceMap" ref="fundout-withdraw-withdrawCallBackMap" />
+		<property name="accountingServiceMap" ref="fundout-withdraw-withdrawAccountingMap" />
+		<property name="prvCityService" ref="fundout-withdraw-provinceCityFacadeService" />
+		<property name="wfLogService" ref="fundout_withdraw_withdrawWfLogServicee" />
+		<property name="orderAfterService" ref="fundout-orderchandler-orderAfterProcService" />
+		<property name="orderAfterServiceNew" ref="fo-order-fundoutProcessFactoryService" />
+	</bean>
+	
+	<bean id="fundout-withdraw-withdrawCallBackMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="0111">
+	     			<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="2111">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="3111">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="4111">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="0112">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="2112">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="3112">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+		     	<entry key="4112">
+		     		<ref bean="fundout-withdraw-withDrawOrderCallBack" />
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-withdrawAccountingMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="0111">
+	     			<ref bean="fundout-withdrawSuccessAccounting" />
+		     	</entry>
+		     	<entry key="2111">
+		     		<ref bean="fundout-withdrawSuccessAccounting" />
+		     	</entry>
+		     	<entry key="3111">
+		     		<ref bean="fundout-pay2bankSuccessAccounting" />
+		     	</entry>
+		     	<entry key="4111">
+		     		<ref bean="fundout-batchPay2bankSuccessAccounting" />
+		     	</entry>
+		     	<entry key="3112">
+		     		<ref bean="fundout-pay2bankFailAccounting" />
+		     	</entry>
+		     	<entry key="2112">
+		     		<ref bean="fundout-withdrawFailAccounting" />
+		     	</entry>
+		     	<entry key="0112">
+		     		<ref bean="fundout-withdrawFailAccounting" />
+		     	</entry>
+		     	<entry key="4112">
+		     		<ref bean="fundout-batchPay2bankFailAccounting" />
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-businessTypeMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="0111">
+					<value>11</value>
+				</entry>
+				<entry key="2111">
+					<value>29</value>
+				</entry>
+				<entry key="3111">
+					<value>18</value>
+				</entry>
+				<entry key="4111">
+					<value>32</value>
+				</entry>
+				<entry key="0112">
+					<value>12</value>
+				</entry>
+				<entry key="3112">
+					<value>19</value>
+				</entry>
+				<entry key="2112">
+					<value>30</value>
+				</entry>
+				<entry key="4112">
+					<value>33</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+</beans>

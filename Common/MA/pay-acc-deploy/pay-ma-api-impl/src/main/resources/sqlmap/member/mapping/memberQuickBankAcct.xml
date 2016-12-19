@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-memberQuickBankAcct">
+	<typeAlias alias="memberQuickBankAcct" type="com.pay.acc.member.dao.model.MemberQuickBankAcct" />
+	
+	<resultMap id="memberQuickBankAcctMap" class="memberQuickBankAcct">
+		<result property="id" column="ID" />
+		<result property="bankName" column="BANK_NAME" />
+		<result property="bankId" column="BANK_ID" />
+		<result property="memberCode" column="MEMBER_CODE" />
+		<result property="name" column="NAME" />
+		<result property="bankCardNo" column="BANK_CARD_NO" />
+		<result property="bankCardType" column="BANK_CARD_TYPE" />
+		<result property="bankMobile" column="BANK_MOBILE" />
+		<result property="bindingFlag" column="BINDING_FLAG" />
+		<result property="bindingTime" column="BINDING_TIME" />
+		<result property="unbindingTime" column="UNBINDING_TIME" />
+		<result property="applyBindingTime" column="APPLY_BINDING_TIME" />
+		<result property="applyUnbindingTime" column="APPLY_UNBINDING_TIME" />
+		<result property="rsvdtext1" column="RSVDTEXT1" />
+		<result property="rsvdtext2" column="RSVDTEXT2" />
+		<result property="rsvdtext3" column="RSVDTEXT3" />
+
+	</resultMap>	
+
+	<insert id="create" parameterClass="memberQuickBankAcct">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select	SEQ_MEMBER_QUICK_BANK_ACCT_ID.nextval as ID from dual
+		</selectKey>
+		insert into
+		T_MEMBER_QUICK_BANK_ACCT
+		(
+		id,
+		bank_Id,
+		BANK_NAME,
+		MEMBER_CODE,
+		BANK_CARD_NO,
+		BANK_CARD_TYPE,
+		BANK_MOBILE,
+		BINDING_FLAG,
+		BINDING_TIME,
+		UNBINDING_TIME,
+		APPLY_BINDING_TIME,
+		APPLY_UNBINDING_TIME,
+		NAME,
+		RSVDTEXT1,
+		RSVDTEXT2,
+		RSVDTEXT3
+		)
+		values
+		(
+		#id#,
+		#bankId#,
+		#bankName#,
+		#memberCode#,
+		#bankCardNo#,
+		#bankCardType#,
+		#bankMobile#,
+		#bindingFlag#,
+		#bindingTime#,
+		#unbindingTime#,
+		#applyBindingTime#,
+		#applyUnbindingTime#,
+		#name#,
+		#rsvdtext1#,
+		#rsvdtext2#,
+		#rsvdtext3#
+		)
+	</insert>
+	
+	<update id="update" parameterClass="memberQuickBankAcct">
+		Update T_MEMBER_QUICK_BANK_ACCT 
+		Set
+		bank_id = #bankId#,
+		bank_name = #bankName#,
+		member_code = #memberCode#,
+		bank_card_no = #bankCardNo#,
+		bank_card_type = #bankCardType#,
+		bank_mobile = #bankMobile#,
+		binding_flag = #bindingFlag#,
+		binding_Time = #bindingTime#,
+		unbinding_Time = #unbindingTime#,
+		apply_Binding_Time = #applyBindingTime#,
+		apply_Unbinding_Time = #applyUnbindingTime#,
+		name = #name#,
+		rsvdtext1 = #rsvdtext1#,
+		rsvdtext2 = #rsvdtext2#,
+		rsvdtext3 = #rsvdtext3#
+		Where ID=#id#
+	</update>
+
+	<select id="findById" resultClass="memberQuickBankAcct">
+		SELECT * FROM T_MEMBER_QUICK_BANK_ACCT WHERE 1=1 and ID=#id#
+	</select>
+	
+	<select id="findByCriteria" resultClass="memberQuickBankAcct">
+		SELECT * FROM T_MEMBER_QUICK_BANK_ACCT WHERE 1=1
+		<isNotEmpty property="memberCode" prepend="and">
+			MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="bankCardNo" prepend="and">
+			bank_card_no = #bankCardNo#
+		</isNotEmpty>
+		<isNotEmpty property="bindingFlag" prepend="and">
+			binding_flag = #bindingFlag#
+		</isNotEmpty>
+	</select>
+
+</sqlMap>

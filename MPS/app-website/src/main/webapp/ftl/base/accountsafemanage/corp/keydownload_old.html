@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title id＝"title">${choice_back_paypwd}${title}</title>
+<meta name="Keywords" content="${choice_back_paypwd_Keywords}" />
+<meta name="Description" content="${choice_back_paypwd_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript">
+	$(function() {
+		$("#btnOk").click(function() { 
+			alert(21);
+		    obj=document.getElementsByName("mode");
+		    if(obj!=null){
+		        var i;
+		        for(i=0;i<obj.length;i++){
+		            if(obj[i].checked){   
+		    			$("#confirmDownload").serialize();
+		    			$("#confirmDownload").submit();
+		    		 }
+		        }
+		    }
+		});
+		$("#btnclose").click(function(){
+			parent.location.href="${rc.contextPath}/corp/accountActive.htm?method=accountSafe";
+			parent.payWin.dialog("close");
+			 // var url =
+			});
+
+	});
+</script>
+</head>
+<body>
+<div class="tip_page add_contact" padding-left="50px">
+<div class="con_box tips_cont" align="center" style="margin-left:-50px;">
+	<#if success?default('')!='Y'>
+	<div class="popup_content" id="apply" align="left">
+		<form id="confirmDownload"  method="post" >
+			<div class="ico_txtBox blod"><i class="warn_ico"></i>请确认是否下载密钥。如果非第一次下载，下载后原密钥将失效。</div>
+				<p align="center">
+				<input type="radio" name="mode" id="r1" value="RSA">RSA密钥
+				<input type="radio" name="mode" id="r2" value="MD5">MD5密钥</p>
+				<ul class="pop_link">
+				<li> <span class="btn_red botton_red"><button id="btnOK">下载</button></span></li>
+				<li> <span class="btn_grey_b botton_grey"><button id="btnclose">关闭</button></span></li>
+				</ul>		
+			</form>
+	</div>
+	<#else>
+	<div class="popup_content" id="result">
+			<p align="left">
+			<div class="ico_txtBox blod mt10"><i class="warn_ico"></i>密钥更新失败，请重新尝试！</div>
+			</p>
+			<ul class="pop_link">
+				<li> <span class="btn_grey_b botton_grey"><button id="btnclose">关闭</button></span></li>
+			</ul>		
+	</div>
+	</#if>
+</div>
+</div>				
+</body>
+</html>

@@ -1,0 +1,553 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付跨行转账</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script>
+<script type="text/javascript"><!--
+	$(function() {
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+		})
+		
+		$("#refush")
+				.click(
+						function() {
+							var d = new Date();
+							var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+									+ d.getTime();
+							$("#code").attr("src", src);
+						});
+
+		$("#prvinceClose").click(function(){
+			$("#add_provinces").hide();
+		});
+
+		$("#acctcity").click(function(){
+			$("#add_provinces").show(3);
+		});
+        $('#payeeAccountNoOnc').bind('copy paste', function(e){
+            e.preventDefault();
+         });
+        $('#payeeAcctKaiHu').bind('copy paste', function(e){
+            e.preventDefault();
+         });        	
+        $("#payeeAcctKaiHu").blur(function(){ 
+            var billOrgCodetext=$('#billOrgCode option:selected').text();
+            var payeeAcctKaiHuvalue=$("#payeeAcctKaiHu").val();
+            if(payeeAcctKaiHuvalue.indexOf(billOrgCodetext)==-1)
+            {
+            	$("#payeeAcctKaiHuerrmessage").show().html("<span style='color:red'>请填写正确的开户行名称</span>");    
+            	return false;
+            }
+            else
+            {
+            	$("#payeeAcctKaiHuerrmessage").text(""); 
+            }
+        });
+        $("#billremarks").blur(function(){ 
+        	var area=$(this); 
+        	var max=parseInt(area.attr("maxlength"),10);
+        	if(max>0){ 
+        	if(area.val().length>max){            	
+        	 area.val(area.val().substr(0,max)); 
+        	 $("#billremarkserrmessage").show().html("<font color=red>备注字数已超过100个汉字</font>");
+        	 return false;
+        	} 
+        	else
+        	{
+        		$("#billremarkserrmessage").show().text("");	 
+        	}
+        	} 
+        	});  
+    	$("#payeeAccountNo").blur(function(){
+    		InputValid.digitOnly($("#payeeAccountNo")[0]);
+    		this.value = this.value.replace(/\s/g,'');
+    		var payeeAccountNo = $("#payeeAccountNo").val();
+    		var billOrgCode = $("#billOrgCode").val();
+    		if(payeeAccountNo!='' && billOrgCode!=''){
+    		$.ajax( {
+				type : "post",
+				url : "${rc.contextPath}/validate.htm?payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode,
+				datatype : "json",
+				success : function(data) {
+					if (null != data && data != "") {
+						// $("#payeeAccountNo").val("");
+				        $("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号！</font>");
+					} 
+					else
+					{
+						 $("#payeeAccountNoerrmessage").text("");	
+					}
+		     }
+			});   }   
+    	});	
+		$("#payeeAccountNo").keyup(function(){fmtNoTips(this);})
+		.focus(function(){fmtNoTips(this);});
+		$("#payeeAccountNoOnc").keyup(function(){fmtNoTips(this);})
+		.focus(function(){fmtNoTips(this);}).blur(function(){
+			this.value = this.value.replace(/\s/g,'');
+			var payeeAccountNo = $("#payeeAccountNo").val();
+			if(payeeAccountNo!=this.value)
+			{
+				$("#payeeAccountNoOncerrmessage").show().html("<font color=red>两次输入的卡号不一致</font>");
+			}
+			else
+			{
+				$("#payeeAccountNoOncerrmessage").text("");
+			}
+		});		
+    	$("#billOrgCode").blur(function(){
+    		var payeeAccountNo = $("#payeeAccountNo").val();
+    		var billOrgCode = $("#billOrgCode").val();
+    		if(payeeAccountNo!='' && billOrgCode!=''){
+    		$.ajax( {
+				type : "post",
+				url : "${rc.contextPath}/validate.htm?payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode,
+				datatype : "json",
+				success : function(data) {
+					if (null != data && data != "") {
+						// $("#payeeAccountNo").val("");
+				        $("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号！</font>");
+					} 
+					else
+					{
+						 $("#payeeAccountNoerrmessage").text("");	
+					}
+		     }
+			});   }  
+    	});	    	
+	});
+
+function feeamount() {
+	var fee = $("#billAmount").val();
+	if(fee<0.01)
+	{
+		$("#checkboxMobile").removeAttr('checked');
+		$("#checkboxMobile").attr('disabled', 'true');
+		$("#mid").hide();
+		$("#mobile").val("");
+		$("#mobile").attr('readonly', 'true');		
+	}
+		else
+		{
+			$("#checkboxMobile").removeAttr('disabled');
+		}	
+	$("#billAmountString").val($("#billAmount").val());
+	$.ajax( {
+				type : "post",
+				url : "${rc.contextPath}/ca/toInterbank.htm?method=Transferfee&textfee="
+						+ fee,
+				datatype : "json",
+				success : function(data) {
+					if (null != data && data != "") {
+					
+						$("#billFeeAmountString").val(data.toString);
+						$("#chargeDiv").show();
+						$("#transferfee").show().html("<label class='form_side'>手 续 费：</label>"+data+"元");
+						$("#billAmounterrmessage").text("");
+						return true;
+					} else {
+						$("#chargeDiv").hide();
+						$("#transferfee").text("");
+						$("#billAmount").val("");
+						return false;
+			}
+		}
+			});		
+
+
+}
+
+function verify()
+{
+	var fee = $("#billAmount").val();
+	if (!fee.indexOf(".") == 0) {
+		if (parseFloat(fee)) {
+			if (!isNaN(fee)) {
+				$("#billAmount").val(parseFloat(fee).toFixed(2));
+			}
+		}
+	} 
+	if(parseFloat(fee).toFixed(2)==0)
+	{
+		$("#billAmount").val("");
+	}
+	if (fee * 1 >= 0.01) {
+		$("#checkboxMobile").attr("disabled", "");
+	} else {
+		$("#checkboxMobile").attr("disabled", "disabled");
+		$("#checkboxMobile").attr("checked", "");
+		$("#mobile").val("");
+		$("#mid").hide();
+	}   
+	$.ajax( {
+		type : "post",
+		url : "${rc.contextPath}/realnameverify.htm",
+		datatype : "json",
+		success : function(data) {
+			if (data == "YES" && fee>20000) {
+				$("#billAmounterrmessage").show().html("实名认证用户单笔金额不能大于20000");
+				$("#chargeDiv").hide();
+			    $("#transferfee").text("");
+			    return false;
+			} else if(data == "NO" && fee>2000){
+				$("#billAmounterrmessage").show().html("非实名认证用户单笔金额不能大于2000");
+				$("#chargeDiv").hide();
+			    $("#transferfee").text("");
+			    return false;
+			}
+			else
+			{
+				feeamount();
+		     return false;
+	        }
+		}
+	});
+}
+
+	function checkSubmit() {
+		if(null!=$("#payeeAcctKaiHuerrmessage").text() && $("#payeeAcctKaiHuerrmessage").text()!="")
+		{
+			$("#payeeAcctKaiHuerrmessage").show().html("<span style='color:red'>请填写正确的开户行名称</span>");    
+			return false;
+		}
+		if(null!=$("#payeeAccountNoerrmessage").text() && $("#payeeAccountNoerrmessage").text()!="")
+		{
+			var payeeAccountNo = $("#payeeAccountNo").val();
+    		if(payeeAccountNo==null||payeeAccountNo==""||payeeAccountNo.length<15||payeeAccountNo.length>23){
+				$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号！</font>");
+				return false; 
+            }
+			//return false;
+		}
+		if (null == $("#payeeName").val() || $("#payeeName").val() == "") {
+			$("#payeeNameerrmessage").show().html("<font color=red>开户人姓名不能为空</font>");
+			return false;
+		} else {
+			$("#payeeNameerrmessage").show().html("");
+		}
+		if (null == $("#billOrgCode").val() || $("#billOrgCode").val() == "") {
+			$("#bankerrmessage").show().html("开户银行不能为空");
+			return false;
+		} else {
+			$("#bankName").val($("#billOrgCode").find("option:selected").text());
+			$("#bankerrmessage").show().html("");
+		}
+		if (null == $("#billProvinceCode").val() || $("#billProvinceCode").val() == "") {
+			$("#PvandCyerrmessage").show().html("请选择开户行所在省份");
+	//		return false;
+		} else {
+			//$("#billProvince").val($("#province").find("option:selected").text());
+			//$("#billProvinceCode").val($("#province").val());
+			$("#PvandCyerrmessage").show().html("");
+		}
+		if (null == $("#acctcity").val() || $("#acctcity").val() == "") {
+			$("#PvandCyerrmessage").show().html("<span style='color:red'>请选择开户行所在城市</span>");
+			return false;
+		} else {
+			//$("#billCity").val($("#city").find("option:selected").text());
+			//$("#billCityCode").val($("#city").val());
+			$("#PvandCyerrmessage").show().html("");
+		}
+		if (null == $("#payeeAcctKaiHu").val()
+				|| $("#payeeAcctKaiHu").val() == "") {
+			$("#payeeAcctKaiHuerrmessage").show().html("<span style='color:red'>请填写开户行名称</span>");
+			return false;
+		} else {
+			$("#payeeAcctKaiHuerrmessage").show().html("");
+		}
+		if (null == $("#payeeAccountNo").val()
+				|| $("#payeeAccountNo").val() == "") {
+			$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写银行卡号</font>");
+			return false;
+		} else {
+			if (!isNumber($("#payeeAccountNo").val())) {
+				$("#payeeAccountNoerrmessage").show().html("<font color=red>请填写正确的银行卡号</font>");
+				return false;
+			} else {
+				$("#payeeAccountNoerrmessage").show().html("");
+			}
+		}
+		if ($("#payeeAccountNo").val() != $("#payeeAccountNoOnc").val()) {
+			$("#payeeAccountNoOncerrmessage").show().html("<font color=red>两次输入的卡号不一致</font>");
+			return false;
+		} else {
+			$("#payeeAccountNoOncerrmessage").show().html("");
+		}
+		if (null == $("#billAmount").val() || $("#billAmount").val() == "" || $("#billAmount").val()<0.01) {
+			$("#billAmounterrmessage").show().html("请输入金额");
+			return false;
+		} else {
+			$("#billAmounterrmessage").show().html("");
+		}
+		if ($("#checkboxMobile").attr("checked") == true) {		
+			if (null == $("#mobile").val() || $("#mobile").val() == "") {
+				$("#payeeMobileerrmessage").show().html("你选择了短信通知就要填写手机号码");
+				return false;
+			} else {
+				if (!isNumber($("#mobile").val()) || ($("#mobile").val()).length != 11) {
+					$("#payeeMobileerrmessage").show().html("请输入正确的手机号码");
+					return false;
+				} else {
+					$("#payeeMobileerrmessage").show().html("");
+				}
+			}
+		}
+		if (null == $("#ranCode").val() || $("#ranCode").val() == "") {
+			$("#ranCodeerrmessage").show().html("<font color=red>请输入验证码</font>");
+			return false;
+		} else {
+			$("#ranCodeerrmessage").show().html("");
+		}
+	}
+	function sendMobile() {
+		if ($("#checkboxMobile").attr("checked") == true) {
+			$("#mid").show();
+			$("#mobile").removeAttr('readonly');
+		} else {
+			$("#mid").hide();
+			$("#mobile").val("");
+			$("#mobile").attr('readonly', 'true');
+		}
+	}
+	$(document).ready(function(){
+		$("#sms").attr("checked", "");
+		if ($("#billAmount").val() != '' && $("#billAmount").val() * 1 > 0.01) {
+			$("#checkboxMobile").attr("disabled", "");
+		} else {
+			$("#checkboxMobile").attr("disabled", "disabled");
+		}
+		if ($("#mobile").val() != '') {
+			$("#checkboxMobile").attr("disabled", "");
+			$("#mid").show();
+			$("#checkboxMobile").attr("checked", "checked");
+		} else {
+		//	$("#checkboxMobile").attr("disabled", "disabled");
+			$("#mid").hide();
+			$("#checkboxMobile").attr("checked", "");
+		}	
+         if($('#billremarks').val() == "" || $('#billremarks').val() == null)
+         {
+        	 $('#div_billremarks').hide();
+         } else
+         {   
+        	 $('#chk_billremarks').attr('checked','checked');
+        	 $('#div_billremarks').show();
+         }
+         
+     	$('#chk_billremarks').click(function(){
+   		 if($('#chk_billremarks:checked').length>0)
+   		 {
+   			 $('#div_billremarks').show();
+   	     }else
+   	     {
+   	    	$('#billremarks').text("");
+   	    	 $('#div_billremarks').hide();
+   		 } 
+      });
+	});
+	
+
+	
+--></script>
+<#if errorMessage?has_content>
+	<script type="text/javascript">
+$(function(){	
+$.pay.alert('${errorMessage?default('')}',{h:160,t:'3'});
+});
+</script>
+</#if> <#if cmmand.billFeeAmountString?has_content>
+<script>
+	$(function() {
+		$("#chargeDiv").show();
+		$("#transferfee").show().html("<label class='form_side'>手 续 费：</label>"+${cmmand.billFeeAmountString}+"元");
+	});
+</script>
+</#if>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="跨行转账" />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container"> 
+	<!--侧导航 str -->
+	<@sp.ebillmenu channel="1_8"/>
+	<!--侧导航 end -->
+	
+	<div class="box_main">
+		<div class="form_box">
+			<div class="form_tit">
+				<h3><i>跨行转账</i></h3>
+				<em class="step_cur_1"></em> </div>
+			<div class="content"> 
+				<!--表单str -->
+				<form action="${rc.contextPath}/ca/toInterbank.htm?method=saveRequest" method="post" name="form" id="form" class="mod_form2">
+					<!--左str -->
+					<div class="form_list_l">
+						<ul class="form_list">
+							<li class="sort_tit">收款人账户银行卡信息</li>
+							<span id="errtips"></span>
+							<li>
+								<label class="form_side2">开户人姓名：</label>
+								<input type="text" class="input_txt2" name="payeeName" value="${cmmand.payeeName?default('')}"	id="payeeName"
+									onkeyup="value=value.replace(/[^\a-zA-Z\u4E00-\u9FA5]/g,'')" onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^\a-zA-Z\u4E00-\u9FA5]/g,''))" maxlength="25" tabindex="1">
+								<p class="onShow" id="payeeNameerrmessage">为确保付款成功，请正确填写持卡人姓名</p>
+							</li>
+							<li>
+								<label class="form_side2">开户银行：</label>
+								<select	name="billOrgCode" id="billOrgCode" class="select2 w170" tabindex="2">
+									<option value="">--请选择开户行--</option>
+									<#if cabankList?exists> <#list cabankList as bank> <#if	cmmand.billOrgCode?default('')==bank.bankCode>
+									<option value="${bank.bankCode}" selected>${bank.bankName}</option>
+									<#else>
+									<option value="${bank.bankCode}">${bank.bankName}</option>
+									</#if> </#list> </#if>
+								</select>
+								<p class="onShow" id="bankerrmessage" style='color: red'></p>
+							</li>
+							<li id="get_add">
+								<label class="form_side2">开户行所在地：</label>
+								<input type="text" class="input_txt2 w170" size="35" id="acctcity"
+			name="city" value="${cmmand.billCity?default('')}" readonly="true">
+								<p class="onShow" id="PvandCyerrmessage"></p>
+								
+								<!--弹出层 str--> 
+								<!--自动完成地址--> <#include "/common/include/province.html"> <!--弹出层 end--></li>
+							<li>
+								<label class="form_side2">开户行名称：</label>
+								<input type="text" name="payeeAcctKaiHu" id="payeeAcctKaiHu" size="35" value="${cmmand.payeeAcctKaiHu?default('')}" class="input_txt2 w170" maxlength="50" tabindex="3">
+								<p class="onShow"> <span id="payeeAcctKaiHuerrmessage"></span> </p>
+							</li>
+							<li>
+								<label class="form_side2">银行卡号：</label>
+								<input type="text" name="payeeAccountNo" id="payeeAccountNo" value="" class="input_txt2 w170" size="35" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" maxlength="23" tabindex="4">
+								<p class="onShow" id="payeeAccountNoerrmessage"></p>
+							</li>
+							<li>
+								<label class="form_side2">重复银行卡号：</label>
+								<input type="text" name="payeeAccountNoOnc" id="payeeAccountNoOnc" class="input_txt2 w170" size="35" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" maxlength="23" tabindex="5">
+								<p class="onShow" id="payeeAccountNoOncerrmessage"></p>
+							</li>
+						</ul>
+					</div>
+					<!--左end --> 
+					<!--右str -->
+					<div class="form_list_r">
+						<ul class="form_list">
+							<li class="sort_tit">转账信息</li>
+							<li>
+								<label class="form_side2">转账金额：</label>
+								<input type="text" class="input_txt2 w120"  name="billAmount" id="billAmount" maxlength="10" value="${cmmand.billAmount?default('')}" size="15" onblur="return verify();" tabindex="6"/>
+								元 <span id="remarkLink"> <a class="red ml20" href="javascript:void(0);"
+											onclick="$('#remarkli').hide();$('#a1').hide();$('#a2').show();"
+											id="a1"<#if
+								!cmmand.billremarks?has_content>style="display:none"</#if>>关闭备注</a><a class="red ml20"
+											href="javascript:void(0);"
+											onclick="$('#remarkli').show();$('#a1').show();$('#a2').hide();"
+											id="a2"<#if
+								cmmand.billremarks?has_content>style="display:none"</#if>>添加备注</a> </span>
+								<p class="onShow" id="billAmounterrmessage" style='color: red'></p>
+							</li>
+							<li
+										<#if !cmmand.billremarks?has_content>style="display:none"</#if>
+							id="remarkli">
+							<label class="form_side2"> 备注： </label>
+							<textarea class="textarea w170" name="billremarks" rows="1" tabindex="4" id="billremarks">${cmmand.billremarks?default('')}</textarea>
+							<p class="onShow" id="billremarkserrmessage">收款方将看到此信息(上限为100个汉字)</p>
+							</li>
+							<li id="chargeDiv" class="commission" style="display: none;"><strong class="red">
+							<span id="transferfee" class="col_b10000">${cmmand.billFeeAmountString?default('')}</span></strong></li>
+							<li class="send_msg">
+								<input type="checkbox" name="checkboxMobile" id="checkboxMobile" onclick="return sendMobile();" tabindex="7"/>
+								免费短信通知 
+								<p class="onShow"></p>
+							</li>
+							<li id="mid" style="display: none;">
+								<label class="form_side2">收款人手机号码：</label>
+								<input type="text" name="payeeMobile" id="mobile" value="${cmmand.payeeMobile?default('')}" class="input_txt2 w170" size="17"
+									maxlength="11" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')" tabindex="8">
+								<p class="onShow" id="payeeMobileerrmessage" style='color: red;display: none;' ></p>
+								<span class="gray_txt">&nbsp;</span></li>
+							<li>
+								<label class="form_side2">验证码：</label>
+								<input id="ranCode" name="ranCode" type="text" class="input_txt2" size="8" maxlength="4" tabindex="9">
+							<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张">
+								<p class="onShow" id="ranCodeerrmessage"></p>
+							</li>
+							<li class="l_btn"> <span class="btn_yel botton_yel">
+								<button type="submit" tabindex="10" onclick="return checkSubmit();">下一步</button>
+								</span> </li>
+						</ul>
+					</div>
+					<!--右end -->
+					<input type="hidden" name="billName" id="billName" value="跨行转账">
+					<input type="hidden" name="billCatalogId" id="billCatalogId" value="5">
+					<input type="hidden" name="billAmountString" id="billAmountString" value="${cmmand.billAmountString?default('')}">
+					<input type="hidden" name="payeeAccountNoSummit" id="payeeAccountNoSummit" value="">
+					<input type="hidden" name="billfeeAmountString" id="billfeeAmountString" value="${cmmand.billfeeAmountString?default('')}">
+					<input type="hidden" name="bankName" id="bankName" value="${cmmand.bankName?default('')}">
+					<input type="hidden" name="billProvince" id="billProvince" value="${cmmand.billProvince?default('')}">
+					<input type="hidden" name="billCity" id="billCity" value="${cmmand.billCity?default('')}">
+					<input type="hidden" name="billFeeAmount" id="billFeeAmount" value="${cmmand.billFeeAmount?default('')}">
+					<input type="hidden" id="billProvinceCode" value="${cmmand.billProvinceCode?default('')}" name="billProvinceCode">
+					<input type="hidden" id="billCityCode" value="${cmmand.billCityCode?default('')}" name="billCityCode">
+				</form>
+				<div class="bottom_border">
+					<p></p>
+					<p></p>
+				</div>
+				<!--表单end --> 
+				<!--步骤str
+				<div class="step_mod">
+					<dl>
+						<dt>流程说明:</dt>
+						<dd class="cur"><i>1</i>填写信息</dd>
+						<dd><i>2</i>确认信息</dd>
+						<dd><i>3</i>付 款</dd>
+						<dd><i>4</i>成 功</dd>
+					</dl>
+				</div>-->
+				<!--步骤end--> 
+			</div>
+		</div>
+		<!--问答 str-->
+		<div class="mod_box_a q_a">
+			<div class="con_box">
+				<div class="mod_tit">
+					<h3 class="title font14"><strong>有问题 我帮您</strong></h3>
+					<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+				<dl class="ico_txtBox">
+					<dt><i class="q_ico"></i>信用卡能跨行转账吗?</dt>
+					<dd><i class="a_ico"></i>不可以，这样做会将涉嫌利用信用卡套现，这是违法的。</dd>
+				</dl>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--问答 end--> 
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer --> 
+<#include "/common/include/footer.html">
+</body>
+</html>

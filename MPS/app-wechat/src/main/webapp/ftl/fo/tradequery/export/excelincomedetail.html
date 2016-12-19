@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>gcpayment支付账户收款明细导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="6" style="text-align: middle;">#==============gcpayment支付收款明细==============</td>
+		   </tr>
+			<tr>
+				<th width="18%">网关收单时间</th>
+				<th width="18%">网关订单流水号</th>
+				<th width="15%">商户订单号</th>
+				<th width="8%">订单状态</th>
+				<th width="8%">订单金额(元)</th>
+				<th width="12%">付款方式</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists>
+   				<#list incomeDetailList as ts>
+				<tr>
+					<td class="excel_txt">${ts.createDate?default("")}</td>
+					<td class="excel_txt" align="center">${ts.tradeOrderNo?default("")}</td>
+					<td class="excel_txt" align="center">${ts.orderId?default("")}</td>
+					<td class="excel_txt" align="center">
+						<#if ts.orderStatus?exists>
+							<#if ts.orderStatus =0>
+								未付款
+							<#elseif ts.orderStatus =1>
+								交易关闭
+							<#elseif ts.orderStatus =2>
+								已付款
+							<#elseif ts.orderStatus =3>
+								交易已退款
+							<#elseif ts.orderStatus =4>
+								交易成功
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">${(ts.orderAmount*0.001)?string(",##0.00")}</td>
+					<td class="excel_txt" align="center">
+						<#if ts.payType?exists>
+							<#if ts.payType="1">
+								账户支付
+							<#elseif ts.payType="2">
+								网银B2C普通
+							<#elseif ts.payType="3">
+								网银B2B
+							<#elseif ts.payType="4">
+								网银B2C大额
+							<#elseif ts.payType="5">
+								借记卡大额
+							<#elseif ts.payType="6">
+								信用卡大额
+							<#elseif ts.payType="7">
+								易卡支付
+							</#if>
+						</#if>
+					</td>
+				</tr>
+			</#list>
+		  </#if>
+		</tbody>
+	</table>
+</body>
+</html>

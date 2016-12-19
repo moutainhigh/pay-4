@@ -1,0 +1,302 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>gcpayment支付生活费</title>
+		<link href="
+		<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+		<link href="
+		<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+		<link href="
+		<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+		type="text/css">
+		<link href="
+		<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+		type="text/css">
+		<style type="text/css">
+</style>
+	</head>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+	<script charset="UTF-8" type="text/javascript" src="<@sp.static/>/js/pay/perdiem/perdiemaccount.js" ></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+	<script type="text/javascript">
+	var mon = new Array();
+	var years = new Array();
+	var contextPath="${rc.contextPath}";
+function selectLinker(linker) {
+		document.getElementById("accountName").value = linker;
+		$("#contDiv").hide();
+		$("#t1").hide();
+		$("#t2").show();
+		$("#accountName").blur();
+		}
+function formSubmit(){
+	$("#mobileTip").html("");
+	var mobile=$("#mobile").val();
+	var regxM=/^(13|15|18)[0-9]{9}$/;
+	if($("#sms").attr("checked") == true){
+		if(mobile==''){
+			$("#mobileTip").html("<font color=red>请填写收款方手机号码才能发送短信通知</font>");
+			$("#mobileTip").show();
+			$("#mobile").focus();
+			return false;
+		}else{
+			if(!regxM.test(mobile)){
+				$("#mobileTip").html("<font color=red>手机号码格式不正确</font>");
+				$("#mobileTip").show();
+				$("#mobile").focus();
+				return false;
+			}
+		}
+	}
+}
+
+
+var st = '1';
+$().ready(function(){
+	$("#btnREM").bind('click', function() {
+		if (st == '1'){
+			st = '0';
+			$('#remarkli').show();
+			$("#btnREM").html("关闭备注");
+		}else{
+			st = '1';
+			$('#remarkli').hide();
+			$("#btnREM").html("添加备注");
+		}
+	});
+	<#if backCode?has_content>
+		$("#accountName").val('${command.accountName}');
+		//$("#rentmonth").html('${command.month}');
+		$('#month').val('${command.month}');
+		$("#monthArry").val('${command.monthArry}');
+		$("#accountName").blur();
+		
+		var amounts = "${command.amount}";
+		if(amounts != "" && amounts *1 > 1)
+			$("#sms").attr("disabled", "");
+		else
+			$("#sms").attr("disabled", "disabled");
+		
+		$("#rented").val('${command.amount}');
+		$("#rented").blur();
+		<#if command.charge?has_content>
+			$("#chargeDiv").show();
+			$("#chargeSpan").html('${command.charge} 元');
+			$("#charge").val('${command.charge}');
+		<#else>
+			$("#chargeDiv").hide();
+			$("#chargeSpan").html("");
+			$("#charge").val("");
+		</#if>
+		<#if command.remark?has_content>
+			st = '0';
+			$('#remarkli').show();
+			$("#btnREM").html("关闭备注");
+			$("#remark").html('${command.remark}');
+		<#else>
+			st = '1';
+			$('#remarkli').hide();
+			$("#btnREM").html("添加备注");
+		</#if>
+		
+		<#if command.mobile?has_content>
+			$("#sms").attr("checked",true); 
+			$("#mid").show();
+			$("#mobile").val('${command.mobile}');
+		<#else>
+			$("#sms").attr("checked",false);
+			$("#mid").hide();
+			$("#mobile").val("");
+		</#if>
+	</#if>
+});
+</script>
+	<#if errorMsg?exists>
+	<script type="text/javascript">	
+$(function(){	
+$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+});
+</script>
+	</#if>
+	<body>
+		<!--导航 str-->
+		<@sp.ebillheader pagename="生活费"/>
+		<!--导航 end-->
+		<!--主内容 str -->
+		<div class="container">
+			<!--侧导航 str -->
+			<@sp.ebillmenu channel="1_11"/>
+			<!--侧导航 end -->
+			
+				<div class="box_main">
+					<div class="form_box">
+					<div class="form_tit">
+						<h3 class="cur dotted_r"><i>付款gcpayment支付支付账户</i></h3>
+						<h3><!-- a href="${rc.contextPath}/perdiem.htm?method=editBankInfo">付款到银行卡</a--></h3>
+						<em class="step_cur_1"></em> </div>
+						<div class="content">
+							<!--表单str -->
+							<form
+								action="${rc.contextPath}/perdiem.htm?method=submitAccount"
+								name="accountForm" method="post" id="accountForm"
+								class="mod_form" onsubmit="return formSubmit();">
+								<ul class="form_list mt20">
+									<input type="hidden" id="isLogin" name="isLogin"
+										value="${isLogin?default('')}" />
+									<#if isLogin=="0">
+									<li id="t1" class="user relative z9">
+										<label class="form_side2">
+											收gcpayment支付生支付账户：
+										</label>
+										<input type="text" class="input_txt2 w170" size="30"
+											name="accountName" tabindex="1" id="accountName" />
+										<p id="accountNameTip"></p>
+									</li>
+									<li id="t2" style="display: none;">
+										<label label class="form_side2">
+											gcpayment支付gcpayment支付账户：
+										</label>
+										<span id="accountNameSpan"></span><a
+											href="javascript:void(0);" id="changeacct">[修改]</a>
+									</li>
+									<#else>
+									<li class="user relative z9" id="t1">
+										<label class="form_side2">
+										gcpayment支付人gcpayment支付账户：
+										</label>
+										<input type="text" class="input_txt2 w170" size="30"
+											name="accountName" tabindex="1" id="accountName" />
+										<span class="payTo_position"><a class="red"
+											href="javascript:void(0);" id="linker">从我的联系人中选取</a>
+											<p id="accountNameTip"></p>
+											<div class="contList" id="contDiv" style="display: none;">
+												<a href="javascript:void(0);" class="close" id="contclose">关闭</a>
+												<!-- <div class="search">
+													<input type="text" class="txt" value="在我的联系人中搜索"
+														onfocus="if(this.value=='在我的联系人中搜索')this.value=''"
+														onblur="if(this.value=='')this.value='在我的联系人中搜索'" />
+													<a href="#" class="go">搜索</a>
+												</div> -->
+												<ul class="tab clearfix mt10">
+													<!-- <li>
+														<i>最近交易的</i>
+													</li> -->
+													<li class="on">
+														<i id="linkernum"></i>
+													</li>
+												</ul>
+												<div id="linkerlist"></div>
+											</div> </span>
+									</li>
+									<li class="user" id="t2" style="display: none;">
+										<label label class="form_side2">
+									gcpayment支付款人gcpayment支付账户：
+										</label>
+										<span id="accountNameSpan"></span><a
+											href="javascript:void(0);" id="changeacct">[修改]</a><a
+											href="javascript:void(0);" id="linker2">[选择其它联系人]</a>
+									</li>
+									</#if>
+									<li class="user" id="linkerdiv" style="display: none;">
+										<label class="form_side2">
+											<span></span>
+										</label>
+										<a href="javascript:void(0);" class="btn_yel_b" id="addlinker"><span>保存联系人</span>
+										</a>
+									</li>
+									<li class="relative z2">
+										<label class="form_side2">
+											生活费月份：
+										</label>
+										<div id="rentmonth" class="rentmonth">&nbsp;
+										</div>
+
+										<span id="remarkLink"> 
+											<a class="red ml20" href="javascript:void(0);" id="btnREM">添加备注</a> </span>
+										<p id="rentmonthTip"></p>
+										<#include "/common/include/month.html">
+									</li>
+									<li id="remarkli" style="display: none;">
+										<label class="form_side2">
+											备注：
+										</label>
+										<textarea cols="60" rows="1" class="textarea w170" name="remark"
+											tabindex="4" id="remark"></textarea><p id="remarkTip"></p>
+									</li>
+									<li>
+										<label class="form_side2">
+											生活费金额：
+										</label>
+										<input type="text" class="input_txt2 w120" size="10" name="amount" id="rented" maxlength="10"
+											tabindex="2"/>
+										元
+										<p id="rentedTip"></p> 
+									</li>
+									<li id="chargeDiv" style="display: none;" class="commission">
+										<label class="form_side">手续费：</label><strong class="red" id="chargeSpan"></strong></li>
+									<input type="hidden" name="charge" id="charge" />
+									<li class="send_msg">
+										<input type="checkbox" id="sms" tabindex="3"/>
+										免费短信通知
+										<p class="onShow"></p>
+									</li>
+									<li id="mid" style="display: none;">
+										<label class="form_side2">
+											收款人手机号码：
+										</label>
+										<input type="text" class="input_txt2" size="25" maxlength="11"
+											id="mobile" name="mobile" tabindex="4" />
+										<p id="mobileTip"></p>
+									</li>
+									<li class="user">
+										<label class="form_side2">
+											验证码：
+										</label>
+										<input name="randCode" type="text" class="input_txt2"
+											maxlength="4" id="randCode" tabindex="5" size="8">
+										<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张">
+										<p id="randCodeTip"></p>
+									</li>
+								</ul>
+								<p class="btn_box txtC">
+									<span class="btn_yel botton_yel">
+										<button type="submit" tabindex="6">
+											下一步
+										</button> </span>
+								</p>
+										<input type="hidden" id="month" name="month"/>
+										<input type="hidden" id="monthArry" name="monthArry"/>
+							</form>
+							<!--表单end -->
+						</div>
+					</div>
+					<!--问答 str-->
+					<div class="mod_box_a q_a">
+						<div class="con_box">
+							<div class="mod_tit">
+								<h3 class="title font14"> <strong>有问题 我帮您</strong> </h3>
+								<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+							<dl class="ico_txtBox">
+								<dt>
+									<i class="q_ico"></i>生活费产生的交易流量计算在哪一方?
+								</dt>
+								<dd>
+									<i class="a_ico"></i>创建交易方（即付生活费一方）。
+								</dd>
+							</dl>
+						</div>
+						<p class="bot"><i></i></p>
+					</div>
+					<!--问答 end--> 
+			</div>
+		</div>
+		<!--主内容 end -->
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>

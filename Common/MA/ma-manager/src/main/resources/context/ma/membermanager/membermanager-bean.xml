@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	
+	
+	                                  
+	
+	<bean id="poss-productConfigService"
+		class="com.pay.poss.membermanager.service.impl.ProductConfigServiceImpl">
+		<property name="productConfigDao" ref="poss-productConfigDao" />
+	</bean>
+	
+	<bean id="poss-productConfigDao" class="com.pay.poss.membermanager.dao.impl.ProductConfigDaoImpl" >
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+		<property name="namespace" value="productconfig"></property>		
+	</bean>
+	
+	
+	<aop:config>
+		<aop:pointcut id="poss-productConfigServiceMethod" expression="execution(* com.pay.poss.membermanager.service.*.*(..))" />
+		<aop:advisor advice-ref="accAdvice" pointcut-ref="poss-productConfigServiceMethod" />
+	</aop:config>
+
+</beans>

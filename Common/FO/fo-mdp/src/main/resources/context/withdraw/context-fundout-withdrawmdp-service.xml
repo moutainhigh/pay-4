@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout-withdraw-destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="fundout.withdraw.request.active" />
+	</bean>
+
+	<bean id="fundout-withdraw-withdrawRequestListener"
+		class="com.pay.fundout.mdp.withdraw.WithdrawRequestJmsQueueListener">
+		<property name="wdOrdAuditService" ref="wdOrdAuditService" />
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"/>
+		<property name="autoRiskManageService" ref="fundout-autoRiskManageService" />
+	</bean>
+
+	<bean id="fundout-withdraw-withdrawRequestContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout-withdraw-destination" />
+		<property name="messageListener" ref="fundout-withdraw-withdrawRequestListener" />
+	</bean>
+
+		<!-- 批量JMS监听 提现确认导入批量记账操作  henry_zeng add begin -->
+	<bean id="fundout_withdraw_batchReviceAccountJmsQueueListener"
+		class="com.pay.fundout.mdp.accounting.BatchReviceAccountJmsQueueListener">
+		<property name="handBatchFileService" ref="fundout-withdraw-handgeneratebatch" />
+	</bean>
+
+	<bean id="fundout-withdraw-batch-destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="foundout.withdraw.batchaccount.request" />
+	</bean>
+
+	<bean id="fundout_withdraw_withdrawRequestContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout-withdraw-batch-destination" />
+		<property name="messageListener" ref="fundout_withdraw_batchReviceAccountJmsQueueListener" />
+	</bean>
+	<!-- 批量JMS监听 提现确认导入批量记账操作  henry_zeng add end -->
+	
+	<!-- 企业自动提现JMS监听 henry_zeng add begin  -->
+	
+	<bean id="fundout_orderporcessorjmsqueuelistener"
+		class="com.pay.fundout.mdp.withdraw.autofundout.OrderProcessorJmsQueueListener">
+		<property name="atuoFundoutMap" ref="fundout_atuoFundoutMap" />
+	</bean>
+
+	<bean id="fundout_orderprocessor_destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="fundout.autofundout.withdraw.request" />
+	</bean>
+
+	<bean id="fundout_orderprocessor_requestContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout_orderprocessor_destination" />
+		<property name="messageListener" ref="fundout_orderporcessorjmsqueuelistener" />
+	</bean>
+	
+	<!-- 企业自动提现JMS监听 henry_zeng add end -->
+	
+	<!-- 批量付款总订单消息处理  Begin -->
+	<bean id="fundout-batchpayment-destination" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg index="0" value="fundout.batchpayment.request.active" />
+	</bean>
+
+	<bean id="fundout-batchpayment-ProcessJmsQueueListener"
+		class="com.pay.fundout.mdp.withdraw.BatchPaymentProcessJmsQueueListener">
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService" />
+		<property name="batchPay2BankRequestService" ref="fo-order-batchPay2BankRequestService"/>
+	</bean>
+
+	<bean id="fundout-masspay2bank-ProcessRequestContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="fundout-mdp-connectionFactory" />
+		<property name="destination" ref="fundout-batchpayment-destination" />
+		<property name="messageListener" ref="fundout-batchpayment-ProcessJmsQueueListener" />
+	</bean>
+	<!-- 批量付款到银行总订单消息处理  End. -->
+</beans>

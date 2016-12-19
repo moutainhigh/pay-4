@@ -1,0 +1,1048 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付收银台</title>
+
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/js/pay/common/jquery-1.3.2.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js?rand=6"></script>
+<script src="<@sp.static/>/js/pay/shoppingcity/validate.js?rand=3" type="text/javascript"></script>
+<script src="<@sp.static/>/js/pay/common/bankselect.js?rand=3" type="text/javascript"></script>
+<meta http-equiv="pragma" content="no-cache"> 
+<meta http-equiv="cache-control" content="no-cache"> 
+<meta http-equiv="expires" content="0"> 
+
+<script>
+
+	function radio_type1(){
+		document.getElementById('radio_type2').checked=false;
+		document.getElementById('acct2').style.display= 'none';
+		document.getElementById('acct3').style.display= 'none';
+		document.getElementById('acct1').style.display= '';
+	}
+	
+	function radio_type2(){
+		document.getElementById('radio_type1').checked=false;
+		document.getElementById('acct1').style.display= 'none';
+		document.getElementById('acct3').style.display= 'none';
+		document.getElementById('acct2').style.display= '';
+	}
+
+	function onSub(){
+		if(document.getElementById('acctb1').value=="" || document.getElementById('acctb2').value==""
+			|| document.getElementById('randCode').value==""){
+			document.getElementById('acctbErr').innerHTML="请输入正确的账户信息.";
+			return false;
+		}else{
+			document.getElementById('acctbErr').innerHTML="";
+			document.getElementById('acctbPayForm').submit();
+		}
+	}
+
+	
+	$(function(){
+		$("#refush").click(function(){
+			var d = new Date();
+			var src = "validatecode/validatecode.htm?date=" + d.getTime();
+			$("#code").attr("src",src);
+			return false;
+		});
+	});
+	
+	function findSelect() {
+		window.payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+	}
+			
+</script>
+
+</head>
+<body id="home">
+<div class="container">  
+	<@sp.headCommon />
+	<!--确认付款信息 str -->
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<h3 class="title f14"><strong>收银台</strong></h3>
+			</div>
+			<div class="step">
+				<ol class="step-2">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1 last"><span><i>1</i>确认付款信息</span></li>
+					<li class="li-2 last"><i>2</i>付款</li>
+					<li class="li-3 last"><span><i>3</i>付款完成</span></li>
+				</ol>
+			</div>
+			<div id="business_detail">
+				<table width="100%" border="0" cellpadding="0" cellspacing="0" class="table txtC business_inf">
+					<tr>
+						<th>订单号</th>
+						<th>商品名称</th>
+						<th>订单来自</th>
+						<th width="15%">交易对方</th>
+						<th>订单总额（元）</th>
+					</tr>
+					<#if orders?exists>
+					<#list orders as order>
+					<tr>
+						<td>${order.orderID?default('')}</td>
+						<td>${order.goodsName?default('')}</td>
+						<td>${order.sellerName?default('')}</td>
+						<td>${order.sellerName?default('')}</td>
+						<td><strong class="red">￥${order.orderAmount}</strong></td>
+					</tr>
+					</#list>
+					</#if>
+					<tr>
+						<td colspan="7" class="price txtR">总金额：<strong class="red">￥<span id="allAmount">${totalAmount?default('')}</span></strong> 元</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	<!--确认付款信息 end --> 
+	<div class="safe_warning_tips" style="background:#ffffef; padding: 5px 10px; margin-top: 10px; color:#f00; border: 1px solid #f90; font-weight:700">温馨提示：尊敬的用户，付款时请勿轻信他人，请确保自身账户信息安全。代付时要先核对对方信息，确认无误再进行付款。<a href="${rc.contextPath}/infomation.htm?method=infoAnnouncement&id=152" target="_blank" style="font-weight:400; margin-left:10px; color:#06f">查看详细说明</a></div>
+	<!-- 支付 -->
+		<!-- 支付方式TAB页显示start -->
+		<div class="mode_tit mt20">
+			<#if ACCT?default('') == "YES" || ACCT_B?default('') == "YES">
+				<h2  id="tabMenu1" class="sel"> <a onclick="javascript:menu();">gcpayment账户支付</a> </h2>
+			</#if>
+			<#if BANK?default('') == "YES">
+				<h2 id="tabMenu2"> <a onclick="javascript:menu();">网上银行支付</a> </h2>
+			</#if>
+			<#if CREDITCARD?default('') == "YES">
+				<h2 id="tabMenu4"> <a onclick="javascript:menu();">信用卡支付</a> </h2>
+			</#if>
+			<#if PREPAIDCARD?default('') == "YES">
+				<h2 id="tabMenu3"> <a onclick="javascript:menu();">预付费卡支付</a> </h2>
+			</#if>
+			<#if CONSUMECARD?default('') == "YES">
+				<h2 id="tabMenu5"> <a onclick="javascript:menu();">充值卡支付</a> </h2>
+			</#if>
+		</div>
+		<!-gcpayment支付账户余额支付START -->
+		<#if ACCT?default('') == "YES"  || ACCT_B?default('') == "YES">
+			<div class="pay_cashier hide" id="acctPay">
+			<ul>
+				<li  class="txt_pop">
+				<label class="form_side">应付总价：</label><strong class="red">${accttotalAmountFee?default('')}</strong> 元   
+						(含手续费金额：<span class='red'>${acctfee?default('')}</span> 元)<span class='blue ml20 pointer' onMouseOver='javascript:gatewayACCTfeeShow()'  onmouseout='javascript:closeAcctFeeShow()' >关于手续费</span>
+						
+						<div id="gatewayACCTfeeShow" class="txt_pop_con" style=" bottom:10px;left:340px; display:none;"> <span class="close_pop" title="关闭" onclick="javascript:closeFeeShow()">X</span>
+							<p class="c_666">经该商户约定，使用本支付渠道时，需缴纳${acctfee?default('')}元使用手续费</p>
+						</div>
+				</li>
+			<ul>
+			<br/>
+			<#if tempMember?exists>
+			<div class="ico_txtBox"><i class="warn_ico"></i>
+				<p>您的账户还没有激活，请在<a href="${rc.contextPath}/toActiveMember.htm?loginName=${loginName?default('')}" class="reds">激活</a>之gcpayment支付gcpayment支付余额支付</p>
+			</div>
+			<#else>
+				
+				<#if ACCT?default('') == "YES" && ACCT_B?default('') == "YES">
+					<div id="radio_div">
+						<label class="form_side">gcpayment支付类型：</label>	
+						<input type="radio" id="radio_type1" name="radio_type1" onclick="radio_type1();" checked="true">个人账户
+						<input type="radio" id="radio_type2" name="radio_type2" onclick="radio_type2();">企业账户
+					</div>
+				<#elseif ACCT?default('') == "YES" && ACCT_B?default('') != "YES">
+					<div id="radio_div"  style="display:none;">
+						<label class="form_side">gcpayment支付类型：</label>		
+						<input type="radio" id="radio_type1" name="radio_type1" onclick="radio_type1();" checked="true">个人账户
+						<input type="radio" id="radio_type2" name="radio_type2" onclick="radio_type2();">企业账户
+					</div>
+				<#elseif ACCT?default('') != "YES" && ACCT_B?default('') == "YES">
+					<div id="radio_div"  style="display:none;">
+						<label class="form_side">gcpayment支付类型：</label>		
+						<input type="radio" id="radio_type1" name="radio_type1" onclick="radio_type1();" checked="true">个人账户
+						<input type="radio" id="radio_type2" name="radio_type2" onclick="radio_type2();">企业账户
+					</div>
+					<div id="acct2">
+					<br/>
+					<form id="acctbPayForm" name="acctbPayForm" autocomplete="off" action="${rc.contextPath}/acctBusinessPay.htm?method=checkCode" method="post" onSubmit="return false;">
+					<ul class="form_list">
+						
+						<li>
+							<label class="form_side">gcpayment支付账号：</label>
+							<input id="acctb1" type="text" class="inp_normal w200" name="acctb1" tabindex="1" 
+							value="<#if loginName?default('') != "">${loginName?default('')}<#else>${mobileNo?default('')}</#if>" />
+						</li>
+						
+						<li>
+							<label class="form_side">操作员：</label>
+							<input id="acctb2" type="text" class="inp_normal w200" name="acctb2" tabindex="1" />
+						</li>
+						<li>
+							<label class="form_side">验证码：</label>
+							<input id="randCode" name="randCode" type="text" class="txtType3"  maxlength="4" style="width:80px;"  tabindex="1"/>
+							<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+							<a id="refush" href="javascript:void(0);">换一张</a>
+						</li>
+						
+						<li>
+							<p class="red"><span class="red" id="acctbErr"> ${CHECK_ACCTB_FLAG?default('')}</span></p>
+						</li>
+						<li id="acctPayFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctbPayFormSubmit"><button onclick="onSub();">下一步</button></span>
+						</li>
+					</ul>
+					</form>
+					</div>
+					<script>
+					$(function(){
+						 document.getElementById('acct1').style.display = "none";
+					});
+					</script>
+				</#if>
+				
+				<div id="acct1">
+				<br/>
+				<form id="acctPayForm" name="acctPayForm" autocomplete="off" action="${rc.contextPath}/acctPay.htm?method=onSubmit" method="post" onSubmit="return false;">
+					<ul class="form_list">
+					<#if !hasLogin?exists>
+						<li><label class="form_side">gcpayment支付账户：</label><strong>${loginName?default('')}</strong></li>
+						<li><label class="form_side">当前余额：</label><strong class="red">${balance?default(0)}</strong> 元 <a href="${rc.contextPath}/app/acctCharge.htm" class="blue ml30">充 值</a></li>
+					</#if>
+					<#if hasLogin?exists>
+						<li><label class="form_side">输入gcpayment支付账号：</label><input id="account" type="text" class="inp_normal w200" name="loginName" tabindex="1"
+										value="<#if loginName?default('') != "">${loginName?default('')}<#else>${mobileNo?default('')}</#if>" /></li>
+					</#if>
+					<#if paymentpasswordSetted?exists>
+						<li><label class="form_side">请输入支付密码：</label><@sp.password cid="paySafeEdit" id="acctPassword" tabindex="2" nextTabid="acctPayFormSubmit" name="acctPassword" width="209px" form="acctPayForm" height="24px" style="margin-bottom: 0px;" class="inp_normal" useCert="0"/>
+							<span class="c_999 ml20">支付密码如果连续输错3次，账户将被锁定</span>
+							<p class="red"><span class="red" id="acctErr"> ${verifyMsg?default('')}</span></p>
+						</li>
+					<#else>
+						<li><label class="form_side">未设置支付密码：</label>
+							点击<a class="reds" href="${rc.contextPath}/app/toupdatepaypwdpage.do?paypwdurl=set" target="_bank"> 这里设置支付密码</a>。</td>
+						</tr>
+					</#if>
+					<li id="acctPayFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctPayFormSubmit"><button>确认付款</button></span>
+					</li>
+					</ul>
+						<input type="hidden" name="loginName" value="${loginName?default('')}"/>
+						<input type="hidden" name="password" value=""/>
+						<input type="hidden" name="ordersKey" value="${ordersKey?default('')}"/>
+				</form>
+				</div>
+				
+				<div id="acct2" style="display:none;">
+					<br/>
+					<form id="acctbPayForm" name="acctbPayForm" autocomplete="off" action="${rc.contextPath}/acctBusinessPay.htm?method=checkCode" method="post" onSubmit="return false;">
+					<ul class="form_list">
+						
+						<li>
+							<label class="form_side">gcpayment支付账号：</label>
+							<input id="acctb1" type="text" class="inp_normal w200" name="acctb1" tabindex="1" 
+							value="<#if loginName?default('') != "">${loginName?default('')}<#else>${mobileNo?default('')}</#if>" />
+						</li>
+						
+						<li>
+							<label class="form_side">操作员：</label>
+							<input id="acctb2" type="text" class="inp_normal w200" name="acctb2" tabindex="1" />
+						</li>
+						<li>
+							<label class="form_side">验证码：</label>
+							<input id="randCode" name="randCode" type="text" class="txtType3"  maxlength="4" style="width:80px;"  tabindex="1"/>
+							<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+							<a id="refush" href="javascript:void(0);">换一张</a>
+						</li>
+						
+						<li>
+							<p class="red"><span class="red" id="acctbErr"> ${CHECK_ACCTB_FLAG?default('')}</span></p>
+						</li>
+						<li id="acctPayFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctPayFormSubmit"><button onclick="onSub();">下一步</button></span>
+						</li>
+					</ul>
+					</form>
+				</div>
+				
+				<div id="acct3"  style="display:none;">
+
+					<form id="acctbPayCheckForm" name="acctbPayCheckForm" autocomplete="off" action="${rc.contextPath}/acctPay.htm?method=onSubmit" method="post" onSubmit="return false;">
+						<ul class="form_list">	
+							<li><label class="form_side">问候语：</label>${ACCTB_GREET?default('')}</li>
+							<li><label class="form_side">支付金额：</label><strong class="red">${totalAmount?default('')}</strong> 元</li>
+							<li><label class="form_side">请输入支付密码：</label>
+							<@sp.password cid="paySafeEdit1" id="acctPassword1" tabindex="1" nextTabid="acctbPayCheckFormSubmit" name="acctPassword1" width="209px" form="acctbPayCheckForm" height="24px" style="margin-bottom: 0px;" class="inp_normal" memberCode="${memberCode?default('')}" operatorId="${operatorId?default('')}" />
+								<span class="c_999 ml20">支付密码如果连续输错3次，账户将被锁定</span>
+								<p class="red"><span class="red" id="acctcbErr"> ${verifyMsg?default('')}</span></p>
+								<a class="blues ml10" href="javascript:void(0);" id="findselect" onclick="findSelect();">找回支付密码</a>
+							</li>
+							<li id="acctbPayCheckFormSubmitTr" class="btn"><span class="btn_yel" tabindex="3" id="acctbPayCheckFormSubmit">
+								<button>确认付款</button></span>
+								<a href="javascript:void(0);" id="goback" onclick="goback();">返回修改</a>
+							</li>
+						</ul>	
+							<input type="hidden" name="CHECK_ACCTB_LN" value="${CHECK_ACCTB_LN?default('')}"/>
+							<input type="hidden" name="CHECK_ACCTB_AH" value="${CHECK_ACCTB_AH?default('')}"/>
+							<input type="hidden" name="ACCTB_GREET" value="${ACCTB_GREET?default('')}"/>
+							<input type="hidden" name="password" value=""/>
+							<input type="hidden" name="ordersKey" value="${ordersKey?default('')}"/>
+					</form>
+				</div>
+				
+			</#if>
+			</div>
+		</#if>
+		
+		<!-网银支付START和信用卡支付-->
+		<#if BANK?default('') == "YES" || CREDITCARD?default('') == "YES">
+		<div class="pay_cashier hide" id="bankPay">
+		<form action="${rc.contextPath}/channelPay.htm?method=onSubmit" name="bankPayForm" method="post" onSubmit="return false;" enctype="multipart/form-data">
+			
+			<ul class="form_list">
+				<li  class="txt_pop">
+					<i id="noFeeId" style=" bottom:22px;left:370px; display:display;" >
+						<label class="form_side">应付总价：</label>
+						<strong class="red">${banktotalAmountFee?default('')}</strong>元
+						(含手续费金额：<span class='red'>${bankfee?default('')}</span> 元)<span class='blue ml20 pointer' onMouseOver='javascript:gatewayfeeShow()'  onmouseout='javascript:closeGatewayFeeShow()' >关于手续费</span>
+					</i>
+					<i id="feeId" style=" bottom:22px;left:370px; display:none;" >
+						<label class="form_side">应付总价：</label>
+						<strong class="red">${totalAmountFee?default('')}</strong>元
+						(含信用卡支付手续费：<span class='red'>${fee?default('')}</span> 元)<span class='blue ml20 pointer' onMouseOver='javascript:feeShow()'  onmouseout='javascript:closeFeeShow()' >什么是手续费</span>
+					</i>
+					<div id="feeShow" class="txt_pop_con" style=" bottom:22px;left:370px; display:none;"> <span class="close_pop" title="关闭" onclick="javascript:closeFeeShow()">X</span>
+						<p class="c_666">使用该信用卡支付渠道时，需缴纳相应手续费，若您日后需要退款，此手续费不做退回</p>
+					</div>
+					<div id="gatewayfeeShow" class="txt_pop_con" style=" bottom:22px;left:370px; display:none;"> <span class="close_pop" title="关闭" onclick="javascript:closeFeeShow()">X</span>
+						<p class="c_666">经该商户约定，使用本支付渠道时，需缴纳${bankfee?default('')}元使用手续费</p>
+					</div>
+				</li>
+
+				<li class="checkBankInfo">
+					<label class="form_side2">请选择银行：</label>
+					<p class="myWay">
+						<#if item?exists>
+							<#include "../common/include/lastBankImg.html"> <a id="otherbank" href="javascript:void(0);" class="obvious">选择其它银行</a> </div>
+						<#else>
+								<label id="lastImg" for="" class="${labelClass?default('')}"></label>
+							<#if bankFlag?exists &&  bankFlag =="b2b">
+								<i id="bankImgs" class="show"><span class="bank_type">企业</span></i>
+							<#else>
+								<i id="bankImgs" class="hide"><span class="bank_type">企业</span></i>
+							</#if>
+							<i id="bankText" class="hide">
+								<span class="bank_type">企业</span>
+							</i>
+							<a href="javascript:void(0);" id="otherbank" class="reds ml20 hide">选择其它银行</a> 
+						</#if>
+						</p>
+
+						<div id="other-bank" class="other-bank"><#include "../common/bankList.html">
+						</div>
+						<div id="creditCardPay"  class="other-bank hide">
+							<div class="select-banklist per">
+								<#if creditCardList?exists> 
+								<ul>
+									<#list creditCardList as creditCard> 
+										<li>
+											<!-- 因为收银台要在点击此radio的时候算出费用(b2b和b2c在一起，必须要这样才能区分)，所以改bankId为bankIdFee-->
+											<input name="bankIdFee" type="radio" value="${creditCard.alias?default('')};${creditCard.orgcode?default('')}" id="${creditCard.alias}_radio" <#if bankCode?exists && bankCode== creditCard.orgcode> checked="true" </#if>>
+											<label id="${creditCard.alias}" for="${creditCard.alias}_radio" class="${creditCard.labelClass?default('')}" ></label>
+										</li>
+									</#list>
+								</ul>
+								</#if>
+							</div>
+				        </div>
+
+				</li>
+				<#if hasLogin?exists>
+				<li>
+					<label class="form_side2">请输入联系方式：</label>
+					<input type="text" name="loginName_input" class="inp_normal w200" id="loginName_input" value="${loginName?default('')}"/>
+					<p class="c_666">温馨提示：为保证您的资金安全，请您填写有效联系方式，此信息将用于发生支付退款等事宜时的联络，我们将确保您所填信息的保密性。</p>
+				</li>
+				</#if>
+				<li class="btn"><span class="btn_yel" id="postSubmit_span_1">
+					<button type="button" id="postSubmit" tabindex="3">去网上银行付款</button>
+				</span></li>
+			</ul>
+			<input type="hidden" name="transactionNo" value="${transactionNo?default('')}"/>
+			<input type="hidden" id="partner" name="partner" value="${partner?default('')}"/>
+			<input type="hidden" id="buyer" name="buyer" value="${buyerMemberCode?default('')}"/>
+			<input type="hidden" name="bankInfo" id="bankInfo" value="<#if item?exists>${item.alias};${item.orgcode?default('')}</#if>"/>
+			<input type="hidden" name="totalAmount" value="${payTotalAmount?default(0)}"/>
+			<input type="hidden" name="merchantName" value="${merchantName?default('')}"/>
+			<input type="hidden" name="productName" value="${productName?default('')}"/>
+			<input type="hidden" name="payorder" id="payorder" value="${payorder?default('')}"/>
+			<input type="hidden" name="tempPwd" id="tempPwd" value="<#if step1?exists || tempMember?exists>2<#elseif step2?exists>1</#if>"/>
+			<input type="hidden" name="tokenValue" value="${tokenValue?default('')}"/>
+			<input type="hidden" name="step" id="step_bank" value="1"/>
+			<input type="hidden" name="loginName" id="loginName_bank" value="${loginName?default('')}"/>
+			<input type="hidden" name="ordersKey" value="${ordersKey?default('')}"/>
+			<input type="hidden" name="bankFlag" id="bankFlag" value="${bankFlag?default('')}"/>
+			<input type="hidden" name="share" id="share" value="${share?default('')}">
+			
+		</form>
+		<div id="bank" class="bank w-box"></div>
+	</div>
+	</#if>
+		<div id="prepaidCardDiv" > </div> <!--预付费卡填充wangtq -->
+	    <div id="consumeCardDiv" > </div> <!--消费卡填充wangtq -->
+	</div>
+</body>
+<#include "/common/include/footer.html">
+<script type="text/javascript">
+$(function(){
+	var cookiePaymentChannelID = '${cookiePaymentChannelID?default(0)}'; //支付类型
+	var	cookieAlias = '${cookieAlias?default('')}';
+	var bankCode = '${bankCode?default('')}';
+	var totalAmount = '${totalAmount?default('')}';	
+	//1：如果用户填的支付类型为已知的支付类型(RMB或者是网上银行支付)则handler会有对应的值---start
+	<#if handler?exists && handler == 'ACCT'>
+		$("#tabMenu1").addClass("sel");
+		$("#tabMenu2").removeClass("sel");
+		$("#tabMenu4").removeClass("sel");
+		$("#acctPay").addClass("show");
+		$("#acctPay").removeClass("hide");
+		$("#bankPay").addClass("hide");
+		$("#bankPay").removeClass("show");
+		$("#bank").addClass("hide");
+		$("#bank").removeClass("show");
+	</#if>
+	<#if handler?exists && handler == 'BANK' && 6 != cookiePaymentChannelID>
+		$("#tabMenu1").removeClass("sel");
+		$("#tabMenu2").addClass("sel");
+		$("#tabMenu4").removeClass("sel");
+		$("#acctPay").addClass("hide");
+		$("#acctPay").removeClass("show");
+		//aaaa
+		$("#bankPay").addClass("show");
+		$("#bankPay").removeClass("hide");
+		$("#bank").addClass("show");
+		$("#bank").removeClass("hide");
+	</#if>
+	<#if handler?exists && handler == 'BANK' && 6 == cookiePaymentChannelID>
+		$("#tabMenu1").removeClass("sel");
+		$("#tabMenu2").removeClass("sel");
+		$("#tabMenu4").addClass("sel");
+		$("#bankPay").addClass("show");
+		$("#bankPay").removeClass("hide");
+		$("#bank").addClass("show");
+		$("#bank").removeClass("hide");
+	</#if>
+	//--------------------------------------------------------------------------------end
+	//2：注意：如果用户填写的为ALL时的优先顺序为：用户cookie为优先，其次为网上银行、信用卡大额 账户支付 预付卡 
+	//预付费卡判断隐藏显示逻辑  如果为ALL最后显示的TAB要放在最前面
+	<#if CONSUMECARD?default('') == "YES" && !handler?exists>
+		var partner = '${partner?default('')}';	
+		var conCardOrder = '${conCardOrders?default('')}';	
+		var tradeOrderNo = '${tradeOrderNo?default('')}';	 
+		$("#tabMenu5").addClass("sel");
+		$("#tabMenu1").removeClass("sel");
+		$("#tabMenu2").removeClass("sel");
+		$("#tabMenu4").removeClass("sel");
+		$("#tabMenu3").removeClass("sel");
+		
+		$("#acctPay").removeClass("show");
+		$("#bankPay").removeClass("show");
+		$("#bank").removeClass("show");
+		$("#prepaidCardDiv").removeClass("show");
+		$("#consumeCardDiv").addClass("show");
+		$("#consumeCardDiv").removeClass("hide");
+		
+		var pars = "totalAmount="+totalAmount+"&partner="+partner+"&conCardOrders="+conCardOrder+"&tradeOrderNo="+tradeOrderNo;
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/consumeCardCashier.htm?method=index",
+				cache: false,
+				data: pars,
+				success: function(result) {
+					//$.pay.alert(result,{h:160,t:'3'});
+					$('#consumeCardDiv').html(result);
+				}
+			});
+	</#if>
+	
+	//预付费卡判断隐藏显示逻辑  如果为ALL最后显示的TAB要放在最前面
+	<#if PREPAIDCARD?default('') == "YES" && !handler?exists>
+		var partner = '${partner?default('')}';	
+		var prepaidCardOrder = '${prepaidCardOrders?default('')}';	
+		var tradeOrderNo = '${tradeOrderNo?default('')}';	 
+		$("#tabMenu3").addClass("sel");
+		$("#tabMenu1").removeClass("sel");
+		$("#tabMenu2").removeClass("sel");
+		$("#tabMenu4").removeClass("sel");
+		$("#tabMenu5").removeClass("sel");
+		
+		$("#acctPay").removeClass("show");
+		$("#bankPay").removeClass("show");
+		$("#bank").removeClass("show");
+		$("#consumeCardDiv").removeClass("show");
+		$("#prepaidCardDiv").addClass("show");
+		$("#prepaidCardDiv").removeClass("hide");
+		var pars = "totalAmount="+totalAmount+"&partner="+partner+"&prepaidCardOrders="+prepaidCardOrder+"&tradeOrderNo="+tradeOrderNo;
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/prepaidCardCashier.htm?method=index",
+				cache: false,
+				data: pars,
+				success: function(result) {
+					//$.pay.alert(result,{h:160,t:'3'});
+					$('#prepaidCardDiv').html(result);
+				}
+			});
+	</#if>
+	//2-1如果只有信用卡
+	<#if CREDITCARD?default('') == "YES" && BANK?default('') != "YES" && !handler?exists>
+		$("#tabMenu4").addClass("sel");
+		$("#tabMenu1").removeClass("sel");
+		$("#tabMenu2").removeClass("sel");
+		$("#tabMenu3").removeClass("sel");
+		$("#tabMenu5").removeClass("sel");
+		
+		$("#acctPay").addClass("hide");
+		$("#acctPay").removeClass("show");
+		$("#bankPay").addClass("show");
+		$("#bankPay").removeClass("hide");
+	
+		$("#creditCardPay").addClass("show");
+		$("#creditCardPay").removeClass("hide");
+	
+		$("#other-bank").addClass("hide");
+		$("#other-bank").removeClass("show");
+		document.getElementById('noFeeId').style.display = 'none';//隐藏网上银行金额、费用
+		document.getElementById('feeId').style.display = ''; //显示信用卡金额、费用
+		$("#prepaidCardDiv").addClass("hide");
+		$("#prepaidCardDiv").removeClass("show");
+		$("#consumeCardDiv").addClass("hide");
+		$("#consumeCardDiv").removeClass("show");
+	</#if>
+
+	//只有账户支付
+	<#if (ACCT?default('') == "YES" || ACCT_B?default('') == "YES") && BANK?default('') != "YES" && CREDITCARD?default('') != "YES" && !handler?exists>
+		$("#tabMenu1").addClass("sel");
+		$("#tabMenu3").removeClass("sel");
+		$("#tabMenu5").removeClass("sel");
+		
+		$("#acctPay").addClass("show");
+		$("#acctPay").removeClass("hide")
+		$("#prepaidCardDiv").addClass("hide");
+		$("#prepaidCardDiv").removeClass("show");
+		$("#consumeCardDiv").addClass("hide");
+		$("#consumeCardDiv").removeClass("show");
+	</#if> 
+	
+	//2-2如果只有银行
+	<#if BANK?default('') == "YES" && !handler?exists>
+		$("#tabMenu2").addClass("sel");
+		$("#tabMenu1").removeClass("sel");
+		$("#tabMenu4").removeClass("sel");
+		$("#tabMenu3").removeClass("sel");
+		$("#tabMenu5").removeClass("sel");
+		
+		$("#bankPay").addClass("show");
+		$("#bankPay").removeClass("hide");
+
+		$("#bank").addClass("show");
+		$("#bank").removeClass("hide");
+
+		$("#acctPay").addClass("hide");
+		$("#acctPay").removeClass("show");
+		
+		$("#creditCardPay").addClass("hide");
+		$("#creditCardPay").removeClass("show");
+		$("#other-bank").addClass("show");
+		$("#other-bank").removeClass("hide");
+		document.getElementById('feeId').style.display = 'none';
+		document.getElementById('noFeeId').style.display = '';
+
+		$("#prepaidCardDiv").addClass("hide");
+		$("#prepaidCardDiv").removeClass("show");
+		$("#consumeCardDiv").addClass("hide");
+		$("#consumeCardDiv").removeClass("show");
+
+	</#if>
+	//2-4如果是使用企业账户支付
+	<#if CHECK_ACCTB_LN?exists>
+		$("#tabMenu1").addClass("sel");
+		$("#tabMenu2").removeClass("sel");
+		$("#tabMenu4").removeClass("sel");
+		$("#tabMenu3").removeClass("sel");
+		$("#tabMenu5").removeClass("sel");
+		
+		$("#acctPay").addClass("show");
+		$("#acctPay").removeClass("hide");
+		$("#bankPay").addClass("hide");
+		$("#bankPay").removeClass("show");
+		$("#bank").addClass("hide");
+		$("#bank").removeClass("show");
+		$("#prepaidCardDiv").addClass("hide");
+		$("#prepaidCardDiv").removeClass("show");
+		$("#consumeCardDiv").addClass("hide");
+		$("#consumeCardDiv").removeClass("show");
+	</#if>
+
+	//2-3如果cookie记忆为信用卡中的某值的逻辑处理
+	<#if CREDITCARD?default('') == "YES" && 6 == cookiePaymentChannelID>
+			$("#tabMenu4").addClass("sel");
+			$("#tabMenu1").removeClass("sel");
+			$("#tabMenu2").removeClass("sel");
+			$("#tabMenu3").removeClass("sel");
+			$("#tabMenu5").removeClass("sel");
+			
+			$("#acctPay").addClass("hide");
+			$("#acctPay").removeClass("show");
+			$("#bankPay").addClass("show");
+			$("#bankPay").removeClass("hide");
+
+			$("#creditCardPay").addClass("show");
+			$("#creditCardPay").removeClass("hide");
+
+			$("#other-bank").addClass("hide");
+			$("#other-bank").removeClass("show");
+			document.getElementById('noFeeId').style.display = 'none';//隐藏网上银行金额、费用
+			document.getElementById('feeId').style.display = '';
+
+			$("#prepaidCardDiv").addClass("hide");
+			$("#prepaidCardDiv").removeClass("show");
+			$("#consumeCardDiv").addClass("hide");
+			$("#consumeCardDiv").removeClass("show");
+	</#if>
+<#if errorMsg?exists>
+		//默认选中第一个的支付方式
+
+			$("#tabMenu1").click();
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+
+</#if>
+		$("#tabMenu2").click(function(){
+			$(this).addClass("sel");
+			$("#tabMenu1").removeClass("sel");
+			$("#tabMenu3").removeClass("sel");
+			$("#tabMenu4").removeClass("sel");
+			$("#tabMenu5").removeClass("sel");
+
+			$("#acctPay").addClass("hide");
+			$("#acctPay").removeClass("show");
+			$("#bankPay").addClass("show");
+			$("#bankPay").removeClass("hide");
+			$("#bank").addClass("hide");
+			$("#bank").removeClass("show");
+			$("#prepaidCardDiv").addClass("hide");
+			$("#prepaidCardDiv").removeClass("show");
+			$("#consumeCardDiv").addClass("hide");
+			$("#consumeCardDiv").removeClass("show");
+			
+			$("#other-bank").addClass("show");
+			$("#other-bank").removeClass("hide");
+
+			$("#creditCardPay").addClass("hide");
+			$("#creditCardPay").removeClass("show");
+			
+			//目的是为了清除信用卡的信息-----start
+		    $("#bankImgs").addClass("hide");
+			$("#bankImgs").removeClass("show"); 
+			$("#lastImg").removeClass($("#lastImg").attr("class"));
+			var bankId = document.getElementsByName("bankIdFee");
+			for ( var int = 0; int < bankId.length; int++) {
+				if( bankId[int].checked = true){
+					 bankId[int].checked = false;
+				}
+			}
+			//---------------------------------end
+			//处理cookie中记忆的东西-----start
+			//第1步：显示银行图标
+			if(3==cookiePaymentChannelID || 2==cookiePaymentChannelID){
+				$("#lastImg").removeClass($("#lastImg").attr("class"));
+				$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+				$("#lastImg").removeClass($("#lastImg").attr("for"));
+				$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+			}
+			//第2步：如果是B2B显示"企业"图标
+			if(3==cookiePaymentChannelID){
+				 $("#bankImgs").addClass("show");
+				 $("#bankImgs").removeClass("hide"); 
+			}
+			//第3步：使得radio处于选中
+			var tmpOrgCode = new Array();
+			var element = null;
+			var value = null;
+			for ( var int = 0; int < bankId.length; int++) {
+				element = bankId[int];
+				value = element.value;
+				tmpOrgCode = value.split(';');
+				//使得记录用户习惯选中的条件是银行code(要想到并且是B2B 或者B2C	)
+				if (tmpOrgCode[1] == bankCode && (cookiePaymentChannelID ==2 || cookiePaymentChannelID==3)) {
+					element.checked = true;
+				}
+			}
+			//------------------------------  -end
+			 //document.getElementById("feeId").innerHTML = "";
+			 document.getElementById('feeId').style.display = "none"; //隐藏费用
+			 document.getElementById('noFeeId').style.display = '';//
+		});
+	
+		$("#tabMenu1").click(function(){
+			$(this).addClass("sel");
+			$("#acctErr").empty();
+			$("#tabMenu2").removeClass("sel");
+			$("#tabMenu3").removeClass("sel");
+			$("#tabMenu4").removeClass("sel");
+			$("#tabMenu5").removeClass("sel");
+			
+			$("#acctPay").addClass("show");
+			$("#acctPay").removeClass("hide");
+			$("#bankPay").addClass("hide");
+			$("#bankPay").removeClass("show");
+			$("#bank").addClass("hide");
+			$("#bank").removeClass("show");
+			$("#prepaidCardDiv").addClass("hide");
+			$("#prepaidCardDiv").removeClass("show");
+			$("#consumeCardDiv").addClass("hide");
+			$("#consumeCardDiv").removeClass("show");
+		});	
+		$("#tabMenu3").click(function(){
+			var partner = '${partner?default('')}';	
+			var prepaidCardOrders = '${prepaidCardOrders?default('')}';	
+			var ordersKey = '${ordersKey?default('')}';	 
+
+			$(this).addClass("sel");
+			$("#tabMenu1").removeClass("sel");
+			$("#tabMenu2").removeClass("sel");
+			$("#tabMenu4").removeClass("sel");
+			$("#tabMenu5").removeClass("sel");
+			
+			$("#acctPay").addClass("hide");
+			$("#bankPay").addClass("hide");
+			$("#bank").addClass("hide");
+			
+			$("#prepaidCardDiv").addClass("show");
+			$("#prepaidCardDiv").removeClass("hide");
+			$("#consumeCardDiv").addClass("hide");
+			$("#consumeCardDiv").removeClass("show");
+
+			var pars = "totalAmount="+totalAmount+"&partner="+partner+"&prepaidCardOrders="+prepaidCardOrders+"&ordersKey="+ordersKey;
+			$.ajax({
+				 type: "POST",
+				 url: "${rc.contextPath}/prepaidCardCashier.htm?method=index",
+				 cache: false,
+				 data: pars,
+				 success: function(result) {
+					$('#prepaidCardDiv').html(result);
+				}
+			});
+		});	
+		$("#tabMenu5").click(function(){
+			var partner = '${partner?default('')}';	
+			var conCardOrders = '${conCardOrders?default('')}';	
+			var ordersKey = '${ordersKey?default('')}';	 
+
+			$(this).addClass("sel");
+			$("#tabMenu1").removeClass("sel");
+			$("#tabMenu2").removeClass("sel");
+			$("#tabMenu4").removeClass("sel");
+			$("#tabMenu3").removeClass("sel");
+			
+			$("#acctPay").addClass("hide");
+			$("#bankPay").addClass("hide");
+			$("#bank").addClass("hide");
+			$("#prepaidCardDiv").addClass("hide");
+			
+			$("#consumeCardDiv").addClass("show");
+			$("#consumeCardDiv").removeClass("hide");
+
+			var pars = "totalAmount="+totalAmount+"&partner="+partner+"&conCardOrders="+conCardOrders+"&ordersKey="+ordersKey;
+			$.ajax({
+				 type: "POST",
+				 url: "${rc.contextPath}/consumeCardCashier.htm?method=index",
+				 cache: false,
+				 data: pars,
+				 success: function(result) {
+					$('#consumeCardDiv').html(result);
+				}
+			});
+		});	
+		$("#tabMenu4").click(function(){
+			$(this).addClass("sel");
+			$("#tabMenu1").removeClass("sel");
+			$("#tabMenu2").removeClass("sel");
+			$("#tabMenu3").removeClass("sel");
+			$("#tabMenu5").removeClass("sel");
+			
+			$("#acctPay").addClass("hide");
+			$("#acctPay").removeClass("show");
+			//$("#bankPay").addClass("show");
+			//$("#bankPay").removeClass("hide");
+			//$("#bank").addClass("hide");
+			//$("#bank").removeClass("show");
+			$("#prepaidCardDiv").addClass("hide");
+			$("#prepaidCardDiv").removeClass("show");
+			$("#consumeCardDiv").addClass("hide");
+			$("#consumeCardDiv").removeClass("show");
+			
+			$("#creditCardPay").addClass("show");
+			$("#creditCardPay").removeClass("hide");
+
+			$("#other-bank").addClass("hide");
+			$("#other-bank").removeClass("show");
+
+			$("#bank").addClass("hide");
+			$("#bank").removeClass("show");
+			//目的是为了清除银行列表的信息----start
+			$("#bankImgs").addClass("hide");
+			$("#bankImgs").removeClass("show");   
+			$("#lastImg").removeClass($("#lastImg").attr("class"));
+			var bankId = document.getElementsByName("bankIdFee");
+			for ( var int = 0; int < bankId.length; int++) {
+				if( bankId[int].checked = true){
+					 bankId[int].checked = false;
+				}
+			}
+			//---------------------------------end
+			//显示cookie中记忆的东西-----------start
+			//第1步：显示银行图标
+			if(6==cookiePaymentChannelID){
+				$("#lastImg").removeClass($("#lastImg").attr("class"));
+				$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+				$("#lastImg").removeClass($("#lastImg").attr("for"));
+				$("#lastImg").addClass($("#"+cookieAlias).attr("class"));
+			}
+			//第2步：使得radio处于选中
+			var tmpOrgCode = new Array();
+			var element = null;
+			var value = null;
+			for ( var int = 0; int < bankId.length; int++) {
+				element = bankId[int];
+				value = element.value;
+				tmpOrgCode = value.split(';');
+				//使得记录用户习惯选中的条件是 银行code要想等并且是信用卡大额
+				if (tmpOrgCode[1] == bankCode && cookiePaymentChannelID ==6) {
+					element.checked = true;
+				}
+			}
+			//--------------------------------  -end
+			 document.getElementById('feeId').style.display = '';//显示费用
+			 document.getElementById('noFeeId').style.display = 'none';//隐藏网上银行金额、费用
+		});
+
+		var submitValid = true;
+		$("#acctPayFormSubmit").click(function(){
+			if(submitValid) {
+				submitValid = false;
+				$("#acctErr").empty();
+				$("#acctPayForm").submit();
+			} else {
+				return false;
+			}
+			
+		});
+
+	$("#acctPayForm").submit(function(){
+		var loginName = $("#account").val();
+		if(loginName == undefined) {
+			$("#account").val("");
+		} else if(loginName == ""){
+			$.pay.alert('请输入gcpayment支付号',{h:160,t:'3'});
+			return false;
+		}
+		if(hasSecurityCtrl('paySafeEdit')){
+	       $("#acctPassword").val(getPwdCtrlVal("paySafeEdit"));
+	       document.acctPayForm.password.value = $("#acctPassword").val();
+	    } else {
+	    	var x = document.acctPayForm.acctPassword.value;
+	    	document.acctPayForm.password.value = x;
+	    }
+	    if($("#paySafeEdit").length>0){
+			if(getPwdCtrlStrLength("paySafeEdit")<=0){
+				$.pay.alert('请输入支付密码',{h:160,t:'3'});
+				return false;
+			}
+		}
+	    $("#acctPayFormSubmit").addClass("b_off");
+	});
+	
+
+	$("#acctbPayCheckFormSubmit").click(function(){
+		if(submitValid) {
+			submitValid = false;
+			$("#acctErr").empty();
+			$("#acctbPayCheckForm").submit();
+		} else {
+			return false;
+		}
+		
+	});
+	
+	$("#acctbPayCheckForm").submit(function(){
+
+		if(hasSecurityCtrl('paySafeEdit1')){
+	       $("#acctPassword1").val(getPwdCtrlVal("paySafeEdit1"));
+	       document.acctbPayCheckForm.password.value = $("#acctPassword1").val();
+	    } else {
+	    	var x = document.acctbPayCheckForm.acctPassword1.value;
+	    	document.acctbPayCheckForm.password.value = x;
+	    }
+		
+	    if($("#paySafeEdit1").length>0){
+			if(getPwdCtrlStrLength("paySafeEdit1")<=0){
+				$.pay.alert('请输入支付密码',{h:160,t:'3'});
+				return false;
+			}
+		}
+	    $("#acctbPayCheckFormSubmit").addClass("b_off");
+	});
+	
+	var isValid = true;
+	$("#postSubmit").click(function(){
+		if(isValid) {
+			var selected = $(":radio[name=bankIdFee][checked]").val();
+			if(selected == undefined) {
+				$.pay.alert('请选择银行！',{h:160,t:'3'});
+				return false;
+			}
+			var bankInfo = $("#bankInfo").val();
+			var payorder = $("#payorder").val();
+			var ordersKey = document.bankPayForm.ordersKey.value;
+			var loginName;
+			<#if hasLogin?exists>
+				loginName = $("#loginName_input").val();
+			<#else>
+				loginName = $("#loginName_bank").val();
+			</#if>
+			if(loginName == "" || loginName == undefined) {
+				$.pay.alert('请输联系方式',{h:160,t:'3'});
+				return false;
+			}
+			var bankFlag = null;
+			if($("#bankImgs").attr("class") == 'show' ){
+				document.getElementById('bankFlag').value="b2b";
+				bankFlag = $("#bankFlag").val();
+			}
+			if($("#lastImg").attr("class")!=""){
+				bankInfo = selected;
+			}
+			loadWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+			var data = "bankInfo=" + bankInfo + "&payorder=" + payorder + "&ordersKey=" + ordersKey + "&loginName=" + loginName + "&password=" + "default" + "&hasSecurity=security"+ "&bankFlag=" + bankFlag;
+			$.ajax({
+				   type: "POST",
+				   url: "${rc.contextPath}/channelPay.htm?method=onSubmit&payFlag=pay",
+				   cache: false,
+				   data: data,
+				   async : false,
+				   success: function(msg){
+				   		$.pay.window(msg,{title:'',w:550,h:300,url:false,isClose:false});
+				   		$.pay.closeLoading(loadWin);
+				   		isValid = false;
+				   		//$("#postSubmit_span").addClass("b_off");
+						$("#postSubmit_span_1").addClass("b_off");
+				   		$("#bankForm").submit();
+				  	}
+			})
+		}
+	});
+
+	
+	
+	<#if CHECK_ACCTB_FLAG?default('') != "">
+		document.getElementById('acct1').style.display= 'none';
+		document.getElementById('acct2').style.display= '';
+		document.getElementById('acct3').style.display= 'none';
+		document.getElementById('radio_type1').checked=false;
+		document.getElementById('radio_type2').checked=true;
+	</#if>
+	<#if CHECK_ACCTB_FLAG?default('') == "" && CHECK_ACCTB_LN?default('') != "" && CHECK_ACCTB_AH?default('') != "">
+		document.getElementById('acct1').style.display= 'none';
+		document.getElementById('acct2').style.display= 'none';
+		document.getElementById('acct3').style.display= '';
+		document.getElementById('radio_div').style.display= 'none';
+		document.getElementById('radio_type1').checked=false;
+		document.getElementById('radio_type2').checked=true;
+	</#if>
+	//选择银行时算费(主要是网银b2b和b2c的费用展示)，因为在公用的bankselect.js中没有办法用ajax(取不到path)，所以再抽到此。
+	$(":radio[name=bankIdFee]").click(function(){
+		var value = new Array();
+		var orgCode = $(this).val().split(';');
+		$("#bankInfo").val($(this).val());
+		//选择银行图片显示
+		$("#lastImg").removeClass($("#lastImg").attr("class"));
+		$("#lastImg").addClass($("#"+orgCode[0]).attr("class"));
+		$("#lastImg").removeClass($("#lastImg").attr("for"));
+		
+		$("#lastImg").addClass($("#"+orgCode[0]).attr("class"));	
+		var a1 = $(this).parent().parent().html();
+		if(a1.indexOf("B2BBANKLABEL") > 0) {
+			$("#bankImgs").addClass("show");
+			$("#bankImgs").removeClass("hide");
+		} else {
+			$("#bankImgs").addClass("hide");
+			$("#bankImgs").removeClass("show");
+		}
+		var bankInfo = $("#bankInfo").val();
+		var pars = "orgCode=" + orgCode[1] + "&ordersKey=" + '${ordersKey?default("")}' + "&bankInfo=" + bankInfo;
+		var path = "${rc.contextPath}/cashier.htm?method=ajaxCalFee";
+			$.ajax({
+				type: "POST",
+				url: path,
+				cache: false,
+				data: pars,
+					success: function(result) {
+						if(result != ""){
+							document.getElementById("noFeeId").innerHTML=result ;
+						}
+					}
+				});
+				$.ajax({
+				   type: "POST",
+				   url: "${rc.contextPath}/queryBankDetail.htm?method=getBankDetail",
+				   cache: false,
+				   data: pars,
+				   async : false,
+				  error: function(){
+						$("#bank").removeClass("show");
+						$("#bank").addClass("hide");
+				 },
+				   success: function(msg){
+						$("#bank").html(msg);
+						$("#bank").removeClass("hide");
+						$("#bank").addClass("show");
+				  }
+			})
+		});
+
+	});
+	
+	function goback(){
+		document.getElementById('acct1').style.display= 'none';
+		document.getElementById('acct2').style.display= '';
+		document.getElementById('acct3').style.display= 'none';
+		document.getElementById('radio_div').style.display= '';
+		document.getElementById('radio_type1').checked=false;
+		document.getElementById('radio_type2').checked=true;
+	}
+	
+	function menu() {
+		return false;
+	}
+	function feeShow(){
+		document.getElementById('feeShow').style.display = '';
+	}
+	function closeFeeShow(){
+		document.getElementById('feeShow').style.display = "none";
+	}
+	function gatewayACCTfeeShow(){
+		document.getElementById('gatewayACCTfeeShow').style.display = '';
+	}
+	function closeAcctFeeShow(){
+		document.getElementById('gatewayACCTfeeShow').style.display = "none";
+	}
+	function gatewayfeeShow(){
+		document.getElementById('gatewayfeeShow').style.display = '';
+	} 
+	function closeGatewayFeeShow(){
+		document.getElementById('gatewayfeeShow').style.display = "none";
+	}
+</script>
+</html>

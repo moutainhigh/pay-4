@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="hession-gatewayService" class="com.pay.gateway.hessian.HessianService">
+		<property name="eventHandlerMap" ref="eventHandlerMap" />
+	</bean>
+
+	<bean id="eventHandlerMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="20101" value-ref="couponQueryHandler" />
+				<entry key="20102" value-ref="couponAddHandler" />
+				<entry key="20103" value-ref="couponUpdateHandler" />
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="couponQueryHandler" class="com.pay.gateway.handler.CouponQueryHandler">
+		<property name="couponListService" ref="couponListService" />
+	</bean>
+
+	<bean id="couponAddHandler" class="com.pay.gateway.handler.CouponAddHandler">
+		<property name="couponListService" ref="couponListService" />
+	</bean>
+	
+	<bean id="couponUpdateHandler" class="com.pay.gateway.handler.CouponUpdateHandler">
+		<property name="couponListService" ref="couponListService" />
+	</bean>
+
+</beans>

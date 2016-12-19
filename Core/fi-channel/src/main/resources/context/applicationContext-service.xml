@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+ "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/hessian/hessian.properties</value>
+				<value>file:/opt/pay/config/redis/redis.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+
+	<bean id="channel-paymentChannelService" class="com.pay.channel.service.impl.PaymentChannelServiceImpl">
+		<property name="paymentChannelCategoryDAO" ref="gatewayPaymentChannelCategoryDAO" />
+		<property name="paymentChannelDAO" ref="gatewayPaymentChannelDAO" />
+		<property name="paymentChannelItemDAO" ref="gatewayPaymentChannelItemDAO" />
+		<property name="paymentChannelItemConfigDAO" ref="gatewayPaymentChannelItemConfigDAO" />
+		<property name="paymentChannelItemDefaultDAO" ref="gatewayPaymentChannelItemDefaultDAO" />
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO" />
+		<property name="channelConfigDAO" ref="channelConfigDAO" />
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+	<bean id="channelService" class="com.pay.channel.service.impl.ChannelServiceImpl">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+		<property name="handlerClientService" ref="handlerClientService" />
+	<!-- 	<property name="channelMidCountService" ref="channelMidCountService"/> -->
+	</bean>
+
+	<bean id="channelRequestService" class="com.pay.channel.service.impl.ChannelRequestServiceImpl">
+		<property name="channelRequestDAO" ref="gatewayChannelRequestDAO" />
+	</bean>
+
+	<bean id="channelResponseService" class="com.pay.channel.service.impl.ChannelResponseServiceImpl">
+		<property name="channelResponseDAO" ref="gatewayChannelResponseDAO" />
+	</bean>
+
+	<bean id="handlerClientService" class="com.pay.channel.client.HandlerClientService">
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO"/>
+		<property name="channelConfigDAO" ref="channelConfigDAO"/>
+		<property name="jmsSender" ref="jmsSender"/>
+		<property name="readTimeOut" value="${hessian.readtimeout}"/>
+	</bean>
+	<!-- <bean id="channelMidCountService" class="com.pay.channel.service.impl.ChannelMidCountServiceImpl">
+		 <property name="channelMidCountDAO" ref="channelMidCountDAO"/> 
+		<property name="channelSecondRelationDAO"  ref="channelSecondRelationDAO"/>
+	</bean> -->
+	<bean id="channelMidAmountService" class="com.pay.channel.service.impl.ChannelMidAmountServiceImpl">
+		<property name="channelMidAmountDao"  ref="channelMidAmountDao"/>
+		<property name="channelSecondRelationDAO"  ref="channelSecondRelationDAO"/>
+	</bean>
+
+	<bean id="channelCurrencyService" class="com.pay.channel.service.impl.ChannelCurrencyServiceImpl">
+		<property name="channelCurrencyDao" ref="channelCurrencyDao" />
+	</bean>
+	
+	<bean id="channelItemRCurrencyService" class="com.pay.channel.service.impl.ChannelItemRCurrencyServiceImpl">
+		<property name="channelItemRCurrencyDAO" ref="channelItemRCurrencyDAO" />
+	</bean>
+
+	<bean id="parnterChannelCountryService" class="com.pay.channel.service.impl.ParnterChannelCountryServiceImpl">
+		<property name="parnterChannelCountryDAO" ref="parnterChannelCountryDAO" />
+	</bean>
+	<!-- add by yang.zhao at 20160907 start-->
+	<bean id="settlementCurrencyConfigService" class="com.pay.channel.service.impl.SettlementCurrencyConfigServiceImpl" >
+	    <property name="settlementCurrencyConfigDAO" ref="settlementCurrencyConfigDAO" />
+	</bean>
+	<!-- add by yang.zhao at 20160907 end-->
+
+	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
+		<property name="minIdle" value="${redis.maxIdle}"/>
+		<property name="maxWaitMillis" value="${redis.maxWait}"/>
+	</bean>
+
+	<bean id="redisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+		<property name="hostName" value="${redis.host}"></property>
+		<property name="port" value="${redis.port}"></property>
+		<property name="password" value="${redis.password}"></property>
+		<property name="database" value="8"></property>
+	</bean>
+	
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory"   ref="redisConnectionFactory" />
+	</bean>
+
+	<bean id="autoFitEngineService" class="com.pay.channel.service.impl.AutoFitEngineServiceImpl">
+		<property name="connectionFactory" ref="redisConnectionFactory"/>
+		<property name="memberCurrentConnectDAO" ref="memberCurrentConnectDAO"/>
+		<property name="paymentChannelItemDAO" ref="gatewayPaymentChannelItemDAO"/>
+		<property name="memberConnectHisDAO" ref="memberConnectHisDAO"/>
+		<property name="paymentChannelCountDAO" ref="paymentChannelCountDAO"/>
+		<property name="secondMerchantCountDAO" ref="secondMerchantCountDAO"/>
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO"/>
+		<property name="usableSecondMerchantDAO" ref="usableSecondMerchantDAO"/>
+		<property name="channelConfigDAO" ref="channelConfigDAO"/>
+		<property name="memberSecondLimitDAO" ref="memberSecondLimitDAO"/>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+
+</beans> 

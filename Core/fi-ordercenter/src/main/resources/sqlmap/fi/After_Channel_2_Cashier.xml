@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="afterChannel2Cashier">
+	<typeAlias alias="afterChannel2CashierAlias" type="com.pay.txncore.dto.AfterChannel2CashierDTO"/>
+	<resultMap id="afterChannel2CashierResultMap" class="afterChannel2CashierAlias">
+		<result column="CHANNEL_ORDER_NO" property="channelOrderNo" jdbcType="VARCHAR"/>
+		<result column="orderAmountOrigin" property="orderAmountOrigin" jdbcType="VARCHAR"/>
+		<result column="currencyCodeOrigin" property="currencyCodeOrigin" jdbcType="VARCHAR"/>
+		<result column="returnUrl" property="returnUrl" jdbcType="VARCHAR"/>
+		<result column="orderId" property="orderId" jdbcType="VARCHAR"/>
+		<result column="orderAmount" property="orderAmount" jdbcType="VARCHAR"/>
+		<result column="currencyCode" property="currencyCode" jdbcType="VARCHAR"/>
+		<result column="tradeOrderNo" property="tradeOrderNo" jdbcType="VARCHAR"/>
+		<result column="charset" property="charset" jdbcType="VARCHAR"/>
+		<result column="signType" property="signType" jdbcType="VARCHAR"/>
+		<result column="settlementCurrencyCode" property="settlementCurrencyCode" jdbcType="VARCHAR"/>
+		<result column="acquiringTime" property="acquiringTime" jdbcType="VARCHAR"/>
+		<result column="remark" property="remark" jdbcType="VARCHAR"/>
+		<result column="dealId" property="dealId" jdbcType="VARCHAR"/>
+		<result column="partnerId" property="partnerId" jdbcType="VARCHAR"/>
+	</resultMap>
+	<select id="queryChannel2CashierDTO" resultMap="afterChannel2CashierResultMap" parameterClass="afterChannel2CashierAlias">
+		SELECT
+		ch.CHANNEL_ORDER_NO,
+		tr.order_amount orderAmountOrigin,
+		tr.currency_code currencyCodeOrigin,
+		tb.return_url returnUrl,
+		tr.order_id orderId,
+		ch.PAY_AMOUNT orderAmount,
+		ch.CURRENCY_CODE currencyCode,
+		tr.trade_order_no tradeOrderNo,
+		tb.CHARSET charset,
+		tb.SIGN_TYPE signType,
+		tb.SETTLEMENT_CURRENCY_CODE settlementCurrencyCode,
+		to_char(tr.CREATE_DATE,'yyyymmddhh24miss') acquiringTime,
+		tb.REMARK remark,
+		tr.trade_order_no dealId,
+		tr.PARTNER_ID partnerId
+		FROM channel_order ch, payment_order pa, trade_order tr, trade_base tb
+		WHERE
+		ch.payment_order_no = pa.payment_order_no
+		AND pa.trade_order_no = tr.trade_order_no
+		AND tr.trade_base_no = tb.trade_base_no
+		<isNotEmpty prepend="AND" property="channelOrderNo">
+			ch.CHANNEL_ORDER_NO = #channelOrderNo#
+		</isNotEmpty>
+	</select>
+</sqlMap>

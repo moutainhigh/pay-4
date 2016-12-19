@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundExceptionBatch">
+	<typeAlias alias="refundExceptionBatch" type="com.pay.txncore.model.RefundExceptionBatch"/>
+	<typeAlias alias="long" type="java.lang.Long"/>
+	<typeAlias alias="int" type="java.lang.Integer"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<resultMap class="refundExceptionBatch" id="refundExceptionBatchMap">
+		<result column="BATCH_NO" property="batchNo" jdbcType="VARCHAR2"/>
+		<result column="CREATOR" property="creator" jdbcType="VARCHAR2"/>
+		<result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+		<result column="BATCH_TOTAL" property="batchTotal" jdbcType="NUMBER"/>
+	</resultMap>
+	<!-- 退款批量状态更新批次插入 -->
+	<insert id="create" parameterClass="hMap">
+	
+		insert into REFUND_EXCEPTION_BATCH(
+			BATCH_NO,
+			CREATOR,
+			CREATE_TIME,
+			UPDATE_TIME, 
+			BATCH_TOTAL
+		)
+		values(
+			#batchNo#,
+			#creator#,
+			#createTime#,
+			#updateTime#,
+			#batchTotal#
+		)
+	</insert>
+	<!-- 批量状态更新批次查询 -->
+	<select id="findByCriteria" parameterClass="hMap" resultMap="refundExceptionBatchMap">
+		select 
+			BATCH_NO,
+			CREATOR,
+			CREATE_TIME,
+			UPDATE_TIME,
+			BATCH_TOTAL
+		from REFUND_EXCEPTION_BATCH 
+		where 1=1
+		<isNotEmpty property="batchNo" prepend="and">
+			BATCH_NO=#batchNo#
+		</isNotEmpty>
+		<isNotEmpty property="creator" prepend="and">
+			CREATOR=#creator#
+		</isNotEmpty>
+		<isNotEmpty property="createTimeStart" prepend="and">
+			to_char(CREATE_TIME, 'YYYY-MM-DD') &gt;= #createTimeStart#
+		</isNotEmpty>
+		<isNotEmpty property="createTimeEnd" prepend="and">
+			to_char(CREATE_TIME, 'YYYY-MM-DD') &lt;= #createTimeEnd#
+		</isNotEmpty>
+		order by CREATE_TIME desc 
+	</select>
+	<!-- 分页使用 -->
+	<select id="countByCriteria" parameterClass="hMap" resultClass="int">
+		select count(1)
+		from REFUND_EXCEPTION_BATCH 
+		where 1=1
+		<isNotEmpty property="batchNo" prepend="and">
+			BATCH_NO=#batchNo#
+		</isNotEmpty>
+		<isNotEmpty property="creator" prepend="and">
+			CREATOR=#creator#
+		</isNotEmpty>
+		<isNotEmpty property="createTimeStart" prepend="and">
+			to_char(CREATE_TIME, 'YYYY-MM-DD') &gt;= #createTimeStart#
+		</isNotEmpty>
+		<isNotEmpty property="createTimeEnd" prepend="and">
+			to_char(CREATE_TIME, 'YYYY-MM-DD') &lt;= #createTimeEnd#
+		</isNotEmpty>
+	</select>
+</sqlMap>

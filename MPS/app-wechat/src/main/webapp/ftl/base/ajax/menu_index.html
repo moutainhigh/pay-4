@@ -1,0 +1,106 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>菜单管理</title>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+function findchild(pid,pname,type){
+	//alert(encodeURIComponent(pname));
+	  location.href="${rc.contextPath}/featuremenu.htm?method=menuView&pid="+pid+"&pname="+pname+"&type="+type;
+}
+
+</script>
+</head>
+
+<body>
+<b>${pid}
+${pname}列表    &nbsp;<a href="${rc.contextPath}/featuremenu.htm?method=menuNew&pid=${pid}&pname=${pname}">新增菜单</a>
+&nbsp;<a href="${rc.contextPath}/featuremenu.htm?method=sortingView&pid=${pid}&pname=${pname}&type=${type?default(0)}">排序</a>
+<#if pid!=0>
+&nbsp;
+<a href="${rc.contextPath}/featuremenu.htm?method=menuView">返回根目录列表</a>
+</#if>
+</b>
+<form method="post" action="${rc.contextPath}/featuremenu.htm?method=menuView">
+<input type="hidden" name="pid" value="${pid}">
+<select name="type">
+<option value="">所有</option>
+<option value="1" <#if type?default(0)=1>selected</#if>>ALL</option>
+<option value="2" <#if type?default(0)=2>selected</#if>>企业</option>
+<option value="3" <#if type?default(0)=3>selected</#if>>个人</option>
+<option value="4" <#if type?default(0)=4>selected</#if>>后台</option>
+<option value="5" <#if type?default(0)=5>selected</#if>>业务级</option>
+<option value="6" <#if type?default(0)=6>selected</#if>>功能</option>
+<option value="7" <#if type?default(0)=7>selected</#if>>个人卖家</option>
+</select>
+<input type="submit" value="查询"/>
+</form>
+<br><br><br>
+<table cellpadding="0" cellspacing="0" width="700" border="1">
+<tr>
+<td>菜单名称</td>
+<td>菜单链接</td>
+<td>是否有效</td>
+<td>是否显示</td>
+<td>所属</td>
+<td>操作</td>
+</tr>
+<#if menuList?has_content>
+<#list menuList as m>
+<tr>
+<td>${m.name}</td>
+<td>${m.url}</td>
+<td>
+<#if m.status==1>
+有效
+<#else>
+无效
+</#if>
+</td>
+<td>
+<#if m.displayFlag==1>
+显示
+<#else>
+不显示
+</#if>
+</td>
+<td>
+<#if m.type==1>
+公共
+<#elseif m.type==2>
+企业
+<#elseif m.type==3>
+个人
+<#elseif m.type==4>
+后台
+<#elseif m.type==5>
+业务级-口令卡
+<#elseif m.type==6>
+功能级别
+<#elseif m.type==7>
+个人卖家
+</#if>
+</td>
+<td>
+<a href="${rc.contextPath}/featuremenu.htm?method=menuNew&menuId=${m.menuId}&pid=${pid}">编辑</a>
+&nbsp;
+&nbsp;
+
+<a href="javascript:void(0);" onclick="findchild('${m.menuId}','${m.name}','${m.type}');">查看子菜单</a>
+
+</td>
+</tr>
+</#list>
+<#else>
+<tr>
+<td colspan="5" style="color: red;">--无记录--</td>
+</tr>
+</#if>
+</table>
+
+</body>
+
+</html>

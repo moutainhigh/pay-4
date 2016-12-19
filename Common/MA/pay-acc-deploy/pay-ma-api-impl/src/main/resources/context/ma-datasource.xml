@@ -1,0 +1,62 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:config/maConfig.properties</value>
+				<!--
+				<value>file:/opt/pay/config/ma/ma-common.properties</value>
+				-->
+			</list>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	
+	<bean id="sqlMapClientAcc" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ibatis/sqlmap-acc-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<list>
+				<value>classpath*:ibatis/accacct/*.xml</value>
+				<value>classpath*:ibatis/accmember/*.xml</value>
+				<value>classpath*:ibatis/accproduct/*.xml</value>
+				<value>classpath*:ibatis/cert/*.xml</value>
+				<value>classpath*:sqlmap/member/**/*.xml</value>
+			</list>
+		</property>
+		<property name="dataSource" ref="accDs" />
+	</bean>
+	
+	<!-- acc 的事务 -->
+	<bean id="accTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="accDs" />
+	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="serviceAccMethod"
+			expression="execution(* com.pay.acc..*.*(..))" />
+		<aop:advisor advice-ref="accTxAdvice" pointcut-ref="serviceAccMethod" />
+	</aop:config>
+	
+	<tx:advice id="accTxAdvice" transaction-manager="accTxManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="SUPPORTS" rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+		 	<tx:method name="*RnTx" propagation="REQUIRES_NEW"  rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+			<tx:method name="*Rntx" propagation="REQUIRES_NEW"  rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+			<tx:method name="*SpTx" propagation="SUPPORTS"  rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException" />
+			<tx:method name="*NsTx" propagation="NOT_SUPPORTED" />
+			<tx:method name="*RdTx" propagation="REQUIRED" rollback-for="com.pay.exception.AppException" no-rollback-for="com.pay.exception.AppUnTxException"/> 
+		</tx:attributes>
+	</tx:advice>
+	
+</beans>

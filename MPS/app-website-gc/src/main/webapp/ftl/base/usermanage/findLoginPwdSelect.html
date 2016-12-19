@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${back_loginpwd}${title}</title>
+<meta name="Keywords" content="${back_loginpwd_Keywords}" />
+<meta name="Description" content="${back_loginpwd_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+$(function(){
+	$(".act_box_gray").hover(
+		function(){$(this).addClass("act_box_red")},
+		function(){$(this).removeClass("act_box_red")}
+		)
+	})
+	
+	function subOk(value){
+	$("#radioFindType").val(value);
+	$("#loginpwdform_second").submit();
+	}
+		
+	
+	
+	
+</script>
+</head><body>
+<!--header-->
+<@sp.headCommonV2 title="找回登录密码" class="ver_fPwd"/>
+<!--/header--> 
+<!--主内容-->
+
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-1">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1">第一步：填写账号<i></i></li>
+				<li class="li-2">第二步：填写验证信息<i></i></li>
+				<li class="li-3">第三步：设置新登录密码<i></i></li>
+				<li class="li-4">第四步：设置成功<i></i></li>
+			</ol>
+		</div>
+		<form action="${rc.contextPath}/findLoginPwdSelect.htm" method="post" name="loginpwd" id="loginpwdform_second">
+				
+		<div class="fPwd_sort">
+		<#if userLoginType == "1" && isMobile == "true">
+			<a href="javascript:subOk(1);" class="fPwd_list fPwd_moble"></a>
+			<#else>
+			<a href="javascript:subOk(2);" class="fPwd_list fPwd_mail"></a>
+			</#if>
+			<a href="javascript:subOk(3)" class="fPwd_list fPwd_qa"></a>
+		</div>
+		<input type="hidden" name="userName" value="${userName}"/>
+				<input type="hidden" name="signData" value="${signData}"/>
+				<input type="hidden" name="radioFindType" id="radioFindType" >
+</form>
+	</div>
+</div>
+<!--/主内容--> 
+<!--footer -->
+	<#include "/common/include/footerV2.html">
+</body>
+</html>

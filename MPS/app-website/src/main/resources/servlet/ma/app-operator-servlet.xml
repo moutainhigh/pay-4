@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+    <bean id="OperatorManageHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/operatorManage.htm">operatorManageController</prop>
+				<prop key="/corp/operatorAction.htm">operatorActionController</prop>
+				<prop key="/operatorManage.htm">operatorManageController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	 <bean id="bindMobileHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bindMobile.htm">bindMobileController</prop>
+				<prop key="/corp/bindNewMobile.htm">bindNewMobileController</prop>
+				<prop key="/corp/unbindMobile.htm">unBindMobileController</prop>
+				<prop key="/corp/operatorBind.htm">operatorBindMobileController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+	<bean id="operatorManageController" class="com.pay.app.controller.base.operator.OperatorManageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        <property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="operatorManage">
+			<value>/base/operator/operatorManage</value>
+		</property>
+		<property name="addOperator">
+			<value>/base/operator/addOperator</value>
+		</property>
+		<property name="editOperator">
+			<value>/base/operator/editOperator</value>
+		</property>
+		<property name="login">
+			<value>/base/login/enterpriceSecurityLogin</value>
+		</property>
+		<property name="operatLoginInfo">
+			<value>/base/operator/operatLoginInfo</value>
+		</property>
+		<property name="updateOperatorLoginPwd">
+			<value>/base/operator/updateOperatorLoginPwd</value>
+		</property>
+		<property name="updateOperatorPayPwd">
+			<value>/base/operator/updateOperatorPayPwd</value>
+		</property>
+		<property name="selectPermission">
+			<value>/base/operator/selectPermission</value>
+		</property>
+		<property name="selectPermissionView">
+			<value>/base/operator/selectPermissionView</value>
+		</property>
+		<property name="resetOperatorLoginPwdQuestion">
+			<value>/base/operator/resetOperatorLoginPwdQuestion</value>
+		</property>
+		<property name="resetOperatorPayPwdQuestion">
+			<value>/base/operator/resetOperatorPayPwdQuestion</value>
+		</property>
+		<property name="operatorMenuService">
+			<ref bean="base-operatorMenuService" />
+		</property>
+		<property name="memberFeatureService">
+			<ref bean="base-memberFeatureService" />
+		</property>
+		<property name="featureMenuService">
+			<ref bean="base-featureMenuService" />
+		</property>
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+		<property name="safeQuestionVerifyService">
+			<ref bean="acc-safeQuestionVerifyService" />
+		</property>
+	</bean>
+	
+	<bean id="operatorActionController" class="com.pay.app.controller.base.operator.OperatorActionController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        <property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="addOperator">
+			<value>/base/operator/addOperator</value>
+		</property>
+		<property name="editOperator">
+			<value>/base/operator/editOperator</value>
+		</property>
+		<property name="deleteOperatorSuccess">
+			<value>/base/operator/deleteOperatorSuccess</value>
+		</property>
+		<property name="login">
+			<value>/base/login/enterpriceSecurityLogin</value>
+		</property>
+		<property name="updateOperatorLoginPwd">
+			<value>/base/operator/updateOperatorLoginPwd</value>
+		</property>
+		<property name="updateOperatorPayPwd">
+			<value>/base/operator/updateOperatorPayPwd</value>
+		</property>
+		<property name="iMessageDigest" ref="iMessageDigest"></property>
+	</bean>
+	
+	
+	<bean id="bindMobileBaseController" class="com.pay.app.controller.base.operator.BindMobileController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        <property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		 <property name="bindMobileService">
+			<ref bean="base-bindMobileService" />
+		</property>
+		 <property name="accountInfoService">
+			<ref bean="acc-accountInfoService" />
+		</property>
+	</bean>
+	
+	<bean id="bindMobileController" parent="bindMobileBaseController" class="com.pay.app.controller.base.operator.BindMobileController">
+		<property name="inputMobileView">
+			<value>/base/operator/bind_mobile/input_mobile</value>
+		</property>
+		<property name="confirmMobileView">
+			<value>/base/operator/bind_mobile/bind_confirm</value>
+		</property>
+		<property name="bindResultView">
+			<value>/base/operator/bind_mobile/bind_result</value>
+		</property>
+	</bean>
+	
+	<bean id="bindNewMobileController" parent="bindMobileBaseController" class="com.pay.app.controller.base.operator.BindMobileController">
+		<property name="inputMobileView">
+			<value>/base/operator/bind_new_mobile/input_mobile</value>
+		</property>
+		<property name="confirmMobileView">
+			<value>/base/operator/bind_new_mobile/bind_confirm</value>
+		</property>
+		<property name="bindResultView">
+			<value>/base/operator/bind_new_mobile/bind_result</value>
+		</property>
+		<property name="bindNew"><value>true</value></property>
+	</bean>
+	
+	<bean id="unBindMobileController"  class="com.pay.app.controller.base.operator.UnBindMobileController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        <property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		 <property name="bindMobileService">
+			<ref bean="base-bindMobileService" />
+		</property>
+		 <property name="accountInfoService">
+			<ref bean="acc-accountInfoService" />
+		</property>
+		
+		<property name="confirmUnBindView">
+			<value>/base/operator/unbind_mobile/unbind_confirm</value>
+		</property>
+		<property name="unBindResultView">
+			<value>/base/operator/unbind_mobile/unbind_result</value>
+		</property>
+		
+	</bean>
+	
+	
+	<bean id="operatorBindMobileController"  class="com.pay.app.controller.base.operator.OperatorBindMobileController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+        <property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		
+		<property name="inputNewMobileView">
+			<value>/base/operator/operator_bind/input_new_mobile</value>
+		</property>
+		<property name="bindResultView">
+			<value>/base/operator/operator_bind/bind_result</value>
+		</property>
+		
+	</bean>
+	
+	
+	
+	
+	
+</beans>

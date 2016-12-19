@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/crosspay/refuseOrder.do">RefusePaymentOrderController</prop>
+				<prop key="/refundOrder.do">RefundController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 非即时网关渠道配置 -->
+	<bean id="RefusePaymentOrderController"
+		class="com.pay.poss.controller.fi.crosspay.RefusePaymentOrderController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+
+		<property name="queryInit">
+			<value>/crosspay/refuseorder/queryInit</value>
+		</property>
+
+		<property name="recordList">
+			<value>/crosspay/refuseorder/recordList</value>
+		</property>
+	</bean>
+	
+		<!-- 非即时网关渠道配置 -->
+	<bean id="RefundController"
+		class="com.pay.poss.controller.fi.refund.RefundController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<!-- <property name="refundManageService">
+			<ref bean="refundManageService"/>
+		</property> -->
+        <property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+        <property name="crosspayTxncoreClientService" ref="txncoreClientService"/>
+        <property name="enterpriseBaseService" ref="acc-enterpriseBaseService"/>
+        <property name="refundExceptionBatchTxncoreClientService" ref="refundExceptionBatchTxncoreClientService" />
+		<property name="queryInit">
+			<value>/refund/tradeOrderRefund/queryInit</value>
+		</property>
+
+		<property name="recordList">
+			<value>/refund/tradeOrderRefund/recordList</value>
+		</property>
+		
+		<property name="applyView">
+			<value>/refund/tradeOrderRefund/apply</value>
+		</property>
+		
+		<property name="resultView">
+			<value>/refund/tradeOrderRefund/result</value>
+		</property>
+		
+		<property name="refundExceptionMonitor">
+			<value>/refund/refundexception/refundExceptionMonitor</value>
+		</property>
+		
+		<property name="refundExceptionMonitorList">
+			<value>/refund/refundexception/refundExceptionMonitorList</value>
+		</property>
+		<property name="refundExceptionBatchInitView">
+			<value>/refund/refundexception/refundExceptionBatchInit</value>
+		</property>
+		<property name="refundExceptionBatchListView">
+			<value>/refund/refundexception/refundExceptionBatchList</value>
+		</property>
+		<property name="refundExceptionBatchDetailListView">
+			<value>/refund/refundexception/refundExceptionBatchDetailList</value>
+		</property>
+		
+	</bean>
+</beans>

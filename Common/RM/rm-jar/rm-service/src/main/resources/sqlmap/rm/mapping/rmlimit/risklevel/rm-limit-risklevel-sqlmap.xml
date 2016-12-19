@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcrisklevel">
+	<typeAlias alias="rcRiskLevel" type="com.pay.rm.service.model.rmlimit.risklevel.RcRiskLevel"/>
+    <resultMap id="rcRiskLevel" class="com.pay.rm.service.model.rmlimit.risklevel.RcRiskLevel">
+        <result column="RISK_LEVEL" property="riskLevel" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="LEVEL_NAME" property="levelName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		RISK_LEVEL,STATUS,LEVEL_NAME
+    </sql>
+    <insert id="create" parameterClass="rcRiskLevel">
+        INSERT INTO RC_RISK_LEVEL(
+			RISK_LEVEL,STATUS,LEVEL_NAME
+        )
+        VALUES(
+            #riskLevel#,#status#,#levelName#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcRiskLevel">
+        UPDATE RC_RISK_LEVEL
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="levelName">
+            LEVEL_NAME = #levelName#
+        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+            </isNotEmpty>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+        DELETE FROM RC_RISK_LEVEL        
+        where 
+            RISK_LEVEL = #riskLevel# 
+ 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcRiskLevel">
+        DELETE FROM RC_RISK_LEVEL        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="levelName">
+            LEVEL_NAME = #levelName# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcRiskLevel"
+        parameterClass="java.lang.Long">
+        SELECT 
+			RISK_LEVEL,STATUS,LEVEL_NAME
+        FROM RC_RISK_LEVEL
+        WHERE 
+            RISK_LEVEL = #riskLevel# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcRiskLevel">
+        SELECT 
+			RISK_LEVEL,STATUS,LEVEL_NAME
+        FROM RC_RISK_LEVEL
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="levelName">
+            LEVEL_NAME = #levelName# 
+        </isNotEmpty>
+        </dynamic>
+        ORDER BY RISK_LEVEL
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT COUNT(*) FROM RC_RISK_LEVEL
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="levelName">
+            LEVEL_NAME = #levelName# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

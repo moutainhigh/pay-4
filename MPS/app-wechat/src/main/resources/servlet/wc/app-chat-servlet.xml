@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+	<bean id="AppChatHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+		
+			<props>	
+				<!-- 测试Controller映射配置 -->			
+				<prop key="/toPageTest.htm">testController</prop>
+				<prop key="/abcPage.htm">testController</prop>
+				
+				<!-- 响应微信服务器Controller映射配置 -->
+				<prop key="/doServerResp.htm">wechatCoreController</prop>
+				<!-- 员工登录 -->
+				<prop key="/toEmployeeBind.htm">employeeController</prop>
+				<prop key="/toDrawPwd.htm">employeeController</prop>
+				
+				<prop key="/toQuestionBind.htm">employeeController</prop>
+				<prop key="/toBindOk.htm">employeeController</prop>
+				
+			</props>
+			
+		</property>
+	</bean>
+	
+	<!-- 测试Controller -->
+	<bean id="testController" class="com.pay.wechat.controller.test.TestController">
+		<property name="toPageTest">
+			<value>/test/abc</value>
+		</property>
+		<property name="abcPage">
+			<value>/test/pwd</value>
+		</property>
+	</bean>
+
+	<!-- 微信公众号接入核心Controller -->
+	<bean id="wechatCoreController" class="com.pay.wechat.controller.WechatCoreController">
+		<property name="coreService" ref="coreService" />
+		<!-- <property name="toEmployeeBind">
+			<value>/wechat/employeeBind</value>
+		</property> -->
+		
+	</bean>
+	
+	<bean id="employeeController" class="com.pay.wechat.controller.EmployeeController">
+		<property name="toEmployeeBind">
+			<value>/wechat/employeeBind</value>
+		</property>
+		<property name="toDrawPwd">
+			<value>/wechat/drawPwd</value>
+		</property>
+		<property name="toQuestionBind">
+			<value>/wechat/questionBind</value>
+		</property>
+		<property name="toBindOk">
+			<value>/wechat/bindOk</value>
+		</property>
+		
+		
+		
+		<!-- 未激活 ,提示激活 -->
+		<property name="malllogin">
+			<value>/base/usercheck/related</value>
+		</property>
+
+		<property name="autoJump">
+			<value>/base/login/autoJump</value>
+		</property>
+		<property name="autoCertJump">
+			<value>/base/login/autoCertJump</value>
+		</property>
+
+		<!-- 企业会员登录首页 -->
+		<property name="companyIndex">
+			<value>/wechat/enterprise_login</value>
+		</property>
+
+		<property name="individualLogout">
+			<value>/base/login/individualLogin</value>
+		</property>
+
+		<property name="enterpriceLogout">
+			<value>/base/login/enterpriceLogin</value>
+		</property>
+
+		<property name="individualSecurityLogout">
+			<value>/base/login/individualSecurityLogin</value>
+		</property>
+
+		<property name="enterpriceSecurityLogout">
+			<!-- <value>/base/login/enterpriceSecurityLogin</value> -->
+			<value>/wechat/employeeBind</value>
+		</property>
+
+		<!-- 广告service -->
+		<property name="announcementService">
+			<ref bean="app-announcementService" />
+		</property>
+
+		<!-- 判断是否是从商城过来的 -->
+		<property name="notActivation">
+			<ref bean="app-notActivation" />
+		</property>
+
+		<property name="matrixCardLoginService">
+			<ref bean="matrixCardLoginService" />
+		</property>
+
+		<property name="operatorServiceFacade">
+			<ref bean="base-operatorService" />
+		</property>
+		<property name="userLoginService">
+			<ref bean="base-userLoginService" />
+		</property>
+		<property name="advertiseService">
+			<ref bean="base-advertiseService" />
+		</property>
+
+		<property name="userHelper">
+			<ref bean="base-userHelper" />
+		</property>
+	</bean>
+	
+</beans>
+ 

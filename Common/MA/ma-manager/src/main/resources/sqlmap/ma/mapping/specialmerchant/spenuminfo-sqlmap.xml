@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="spEnumInfoconfig">
+	
+    <typeAlias alias="spEnumInfo"		type="com.pay.poss.specialmerchant.dto.SpEnumInfoDto" />
+
+	 <insert id="create" parameterClass="spEnumInfo" >
+   		<selectKey keyProperty="enumId" resultClass="long">
+   				SELECT SEQ_ENUM_ID.nextval AS ID FROM DUAL
+   		</selectKey>
+   		insert into T_SP_ENUM_INFO
+				  (ENUM_ID,
+				   ENUM_NAME,
+				   ENUM_CODE,
+				   ENUM_TYPE,
+				   VALUE1,
+				   VALUE2
+				   )
+				values
+				  (#enumId#,
+				   #enumName#,
+				   #enumCode#,
+				   #enumType#,
+				   #value1#,
+				   #value2#
+				   )
+   </insert>
+   
+	<select id="search"  parameterClass="spEnumInfo"  resultClass="spEnumInfo">
+   		select  
+   		       t.enum_id enumId,
+               t.enum_name enumName,
+               t.enum_code enumCode,
+               t.enum_type enumType,
+               t.value1 value1,
+               t.value2 value2 
+               from t_sp_enum_info t
+               WHERE (1=1)
+                <isNotEmpty property="enumId" >
+   		 	     and t.enum_id &lt;&gt; #enumId#
+   		       </isNotEmpty>
+   		       <isNotEmpty property="enumName" >
+   		 	     and t.enum_name = #enumName#
+   		       </isNotEmpty>
+   		       <isNotEmpty property="enumCode" >
+   		 	     and t.enum_code = #enumCode#
+   		       </isNotEmpty>
+   		       <isNotEmpty property="enumType" prepend="and">       
+			    <isEqual property="enumType" compareValue="1">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+			    <isEqual property="enumType" compareValue="2">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+   		       </isNotEmpty>
+                 order by t.enum_id desc
+    </select>
+   
+    <select id="search_COUNT"  parameterClass="spEnumInfo"  resultClass="int">
+   		select  
+   		       count(*) 
+               from t_sp_enum_info t
+                WHERE (1=1)
+                <isNotEmpty property="enumId" >
+   		 	     and t.enum_id &lt;&gt; #enumId#
+   		       </isNotEmpty>
+   		       <isNotEmpty property="enumName" >
+   		 	     and t.enum_name = #enumName#
+   		       </isNotEmpty>
+   		       <isNotEmpty property="enumCode" >
+   		 	     and t.enum_code = #enumCode#
+   		       </isNotEmpty>
+   		       <isNotEmpty property="enumType" prepend="and">       
+			    <isEqual property="enumType" compareValue="1">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+			    <isEqual property="enumType" compareValue="2">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+   		       </isNotEmpty>
+   </select>
+   
+   <select id="findById"  parameterClass="long"  resultClass="spEnumInfo">
+   			select  
+   		       t.enum_id enumId,
+               t.enum_name enumName,
+               t.enum_code enumCode,
+               t.enum_type enumType,
+               t.value1 value1,
+               t.value2 value2 
+               from t_sp_enum_info t  		 	 
+   		 where  enum_id = #id#			
+   </select>
+   
+    <select id="findMaxEnumCode"  parameterClass="map"  resultClass="int">
+   			select nvl(max(t.enum_code),0) 
+   			from t_sp_enum_info t 
+   			where 1=1
+   			<isNotEmpty property="enumType" prepend="and">       
+			    <isEqual property="enumType" compareValue="1">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+			    <isEqual property="enumType" compareValue="2">
+	            <![CDATA[
+	              t.enum_type = #enumType#
+	             ]]>
+			    </isEqual>
+   		     </isNotEmpty>			
+   </select>
+   
+   <delete id="delete" parameterClass="long">
+		Delete From t_sp_enum_info  Where enum_id=#id#
+   </delete>
+   
+    <update id="updateSpEnumInfo" parameterClass="map">
+			update t_sp_enum_info t set t.enum_name = #enumName#  , t.value1 = #value1#,
+			 t.value2 = #value2# where t.enum_id= #enumId#
+   </update>
+</sqlMap>

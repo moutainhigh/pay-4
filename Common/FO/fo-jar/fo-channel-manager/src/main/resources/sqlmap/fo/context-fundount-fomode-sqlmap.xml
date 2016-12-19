@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutmode">
+	<typeAlias alias="fundoutMode" type="com.pay.fundout.channel.model.mode.FundoutMode"/>
+
+	<resultMap id="fundoutModeResult" class="com.pay.fundout.channel.model.mode.FundoutMode">
+        <result column="MODE_ID" property="modeId" />
+        <result column="NAME" property="name" />
+        <result column="CODE" property="code" />
+        <result column="OPERATOR" property="operator" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="UPDATE_DATE" property="updateDate" />
+        <result column="MARK" property="mark" />
+        <result column="status" property="status" />
+    </resultMap>
+    
+    <insert id="create" parameterClass="fundoutMode">
+     <selectKey resultClass="java.lang.Long" keyProperty="modeId">
+			select  SEQ_FUNDOUT_MODE_MODE_ID.NEXTVAL as id from DUAL 
+	</selectKey>
+        insert into FUNDOUT_MODE (MODE_ID, NAME, OPERATOR, CREATE_DATE, UPDATE_DATE, MARK,status,code)
+        values (#modeId#, #name#, #operator#, sysdate, sysdate, #mark#,#status#,#code#)
+    </insert>
+    
+    <select id="queryModeList" resultMap="fundoutModeResult" parameterClass="fundoutMode">
+        select MODE_ID, NAME, OPERATOR, CREATE_DATE, UPDATE_DATE, MARK,status,code
+        from FUNDOUT_MODE
+        where 1 = 1
+        <isNotEmpty property="name" prepend="AND">
+            name = #name#
+  	 	</isNotEmpty>
+        <isNotEmpty property="code" prepend="AND">
+            code = #code#
+  	 	</isNotEmpty>
+  	 	 <isNotEmpty property="status" prepend="AND">
+            status = #status#
+  	 	</isNotEmpty>
+    </select> 
+    
+    <select id="queryModeList_COUNT" resultClass="java.lang.Integer" parameterClass="fundoutMode">
+        select count(*)
+        from FUNDOUT_MODE
+        where 1 = 1
+        <isNotEmpty property="name" prepend="AND">
+            name = #name#
+  	 	</isNotEmpty>
+  	 	<isNotEmpty property="code" prepend="AND">
+            code = #code#
+  	 	</isNotEmpty>
+        <isNotEmpty property="status" prepend="AND">
+            status = #status#
+  	 	</isNotEmpty>
+    </select>  
+    
+    <select id="findById" resultMap="fundoutModeResult" parameterClass="java.lang.Long">
+        select MODE_ID, NAME, OPERATOR, CREATE_DATE, UPDATE_DATE, MARK,status,code
+        from FUNDOUT_MODE
+        where 
+            MODE_ID = #modeId#
+    </select> 
+    
+        
+    <select id="findByCode" resultMap="fundoutModeResult" parameterClass="string">
+        select MODE_ID, NAME, OPERATOR, CREATE_DATE, UPDATE_DATE, MARK,status,code
+        from FUNDOUT_MODE
+        where 
+            CODE = #code#
+    </select> 
+    
+     <update id="update" parameterClass="fundoutMode">
+		UPDATE FUNDOUT_MODE
+        <dynamic prepend="SET"> 
+	        <isNotEmpty prepend="," property="status">
+	            STATUS = #status#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="code">
+	            CODE = #code#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="name">
+	            name = #name#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="mark">
+	            MARK = #mark#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="updateDate">
+	            UPDATE_DATE = sysdate
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="operator">
+	            OPERATOR = #operator#
+	        </isNotEmpty>
+        </dynamic>
+        where
+           MODE_ID = #modeId#
+	</update>
+    
+    
+    
+</sqlMap>

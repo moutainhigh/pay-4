@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/zidingyi.js"></script>
+<!-- jquery validate -->
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<title>提现</title>
+
+<script type="text/javascript" charset="utf-8">
+	function checkSubmit(){
+		  if(hasSecurityCtrl()){
+				  if(getPwdCtrlStrLength("paySafeEdit")<=0){
+						$('#pwdError').html('请输入支付密码');
+						return false;
+					}
+		        $("#payPwd").val(getPwdCtrlVal("paySafeEdit"));
+		    }
+		if($("#payPwd").val() == ''){
+			$('#pwdError').html('请输入支付密码');
+			return false;
+		}else {
+			$("#applyWithdrawBtn").attr("disabled", true);   
+			$("#applySpan").attr("class","btn_yel v_b b_off");
+			$("#confirmWithdrawForm").submit();
+		}
+	}
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3' });
+	}
+	$(function(){
+		$("#findselect").click(function() {
+			payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+		});
+		$("#payPwd").keyup(function(event) {
+			if(event.keyCode == 13) {
+				$("#confirmWithdrawForm").submit();
+			}
+		});
+	});
+	function backConfirm(){
+		var form = document.getElementById("confirmWithdrawForm");
+		$("#method").val("confirm");
+		$("#back").val("true");
+		form.action="${rc.contextPath}/corp/withdraw.htm?date="+ new Date();
+		form.submit();
+	}
+</script>
+</head>
+
+<body>
+
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                           <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="mainbox" style="padding-top: 20px">
+		<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<span class="current" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">申请提现</a></span>
+			</div>
+			<div class="seccon">
+				<div class="bgbox">
+			   <form class="pad_center" action="${rc.contextPath}/corp/withdraw.htm" method="post"	name="confirmWithdrawForm" id="confirmWithdrawForm">
+			    <!-- <input type="hidden" id="myAccount" value="${myAccount?default('')}"/> -->
+			    <input type="hidden" id="method" name="method" value='pay'> 
+				<input type="hidden" id="back" name="back"> 
+				<input type="hidden" id="token" name="token" value="${token?default('')}">
+				<div class="secure_top pay_login">
+				<ul>
+					<li id="tips_box" style="display:none;position: absolute;"><i class="error_tips_box">大写锁定，请确认是否按下CapsLock</i></li>
+					<li><font color=red id="returninfo">${returninfo?default('')}</font></li>
+				</ul>
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<table class="tab01">
+							<tbody>
+								<tr>
+									<td><div align="right">真是姓名：</div></td>
+									<td>
+									<strong class="red">${command.payeeName?default('')}</strong>
+									</td>
+									<td>
+									<#assign startIndex = (command.payeeBankAcctCode?length)-4>
+									<#assign endIndex = command.payeeBankAcctCode?length>
+									</td>
+								</tr>
+								<tr>
+									<td><div align="right">提现银行：</div></td>
+									<td>
+                                      ${command.payeeBankName?default('')}（尾号<strong class="red">${command.payeeBankAcctCode?substring(startIndex,endIndex)}</strong>）
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td><div align="right">提现金额：</div></td>
+									<td>
+                                       <strong class="red">${command.realoutAmountStr?default('0.00')}</strong> 元
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td><div align="right">手续费：</div></td>
+									<td>
+                                       <strong class="red">${command.requestFee?default('0.00')}</strong> 元
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td><div align="right">支付密码：</div></td>
+									<td>
+                                       <@sp.password cid="paySafeEdit" id="payPwd" name="payPwd" width="150px" height="26px" class="inp_normal"/> 
+                                       <span class="c_999 ml10">支付密码如果连续输错3次，账户将被锁定</span>
+									<p class="red" id="pwdError"></p>
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td></td>
+									<td colspan="3">
+									     <button  onclick="return checkSubmit();" id="applyWithdrawBtn" name="applyWithdrawBtn" class="btn_blue">确认付款</button></span> 
+									     <i class="ml10"><a class="red" href="${rc.contextPath}/corp/toupdatepaypwdpage.htm">返回修改</a>  
+									     </i>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</div>
+						</div>
+						</form>
+					</div>	
+					<div id="resultListDiv" class="listFence" >
+				     <div><font color="red"></font></div>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+		<script type="text/javascript">
+	<#if validateMsg?exists>
+	var validateMsg = '${validateMsg}';
+	if(''!=validateMsg&&null!=validateMsg){
+		$('#pwdError').html(validateMsg);
+		$("#applyWithdrawBtn").attr("disabled", false);
+	}
+	</#if>
+	<#if message?exists>
+		var message = '${message}';
+		if(''!=message&&null!=message){
+			$.pay.alert(message, {
+				h : 160,
+				w : 450,
+				t : '3',
+				close:function(){
+				$("#applyWithdrawBtn").focus();
+				$("#applyWithdrawBtn").attr("disabled", false);
+			}});
+		}
+	</#if>
+    </script>
+<#include "/include/myfoot.html">
+</body>
+</html>

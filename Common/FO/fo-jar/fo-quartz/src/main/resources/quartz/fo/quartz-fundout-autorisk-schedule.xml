@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="fo-autoriskPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" p:ignoreUnresolvablePlaceholders="true" p:order="1">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/poss/context-poss.properties</value>
+				<value>file:/opt/pay/config/fo/notifyTemplateId.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="fundout-autorisk" class="com.pay.fo.quartz.autorisk.AutoRiskTaskExecutor">
+		<property name="withdrawOrderAuditService" ref="wdOrdAuditService" />
+		<property name="autoCheckService" ref="fundout_autocheck_service" />
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="recAddressList">
+			<list>
+				<value>${autorisk.agree.y-tang}</value>
+				<value>${autorisk.agree.yp-yan3}</value>
+				<value>${autorisk.agree.xh-yuan}</value>
+				<value>${autorisk.agree.cqi}</value>
+				<value>${autorisk.agree.w-liu2}</value>
+				<value>${autorisk.agree.jy_shen1}</value>
+				<value>${autorisk.agree.ybin_zhu}</value>
+				<value>${autorisk.agree.shb_yang}</value>
+				<value>${autorisk.agree.chenjing3}</value>
+				<value>${autorisk.agree.lq_shao}</value>
+			</list>
+		</property>
+		<property name="ccAddressList">
+			<list>
+				<value>${autorisk.agree.chen-ji3}</value>
+				<value>${autorisk.agree.yuny_liu}</value>
+			</list>
+		</property>
+		<property name="tempId" value="${autorisk.agree.email}" />
+	</bean>
+
+	<bean id="fundout-autorisk-jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="fundout-autorisk" />
+		</property>
+		<property name="targetMethod">
+			<value>autorisk</value>
+		</property>
+	</bean>
+
+	<bean id="fundout-autorisk-half-cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout-autorisk-jobDetail" />
+		</property>
+		<property name="cronExpression">
+			<value>${fundout.autorisk.half.quartz}</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout-autorisk-whole-cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout-autorisk-jobDetail" />
+		</property>
+		<property name="cronExpression">
+			<value>${fundout.autorisk.whole.quartz}</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout-autorisk-quarter-cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout-autorisk-jobDetail" />
+		</property>
+		<property name="cronExpression">
+			<value>${fundout.autorisk.quarter.quartz}</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout-autorisk-three-quarter-cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="fundout-autorisk-jobDetail" />
+		</property>
+		<property name="cronExpression">
+			<value>${fundout.autorisk.three.quarter.quartz}</value>
+		</property>
+	</bean>
+</beans>

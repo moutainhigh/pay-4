@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundOrderExtend">
+    <typeAlias alias="refundOrderExtend" type="com.pay.txncore.model.RefundOrderExtend"/>
+    <resultMap class="refundOrderExtend" id="refundOrderExtendResult">
+    	<result column="REFUND_EXTEND_NO" property="refundExtendNo" jdbcType="DECIMAL"/>
+    	<result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+    	<result column="SETTLEMENT_ORDER_NO" property="settlementOrderNo" jdbcType="DECIMAL"/>
+    	<result column="SETTLEMENT_FLG" property="settlementFlg" jdbcType="DECIMAL"/>
+    	<result column="ASSURESETTLEMENT_FLG" property="assureSettlementFlg" jdbcType="DECIMAL"/>
+    	<result column="SETTLEMENT_AMOUNT" property="settlementAmount" jdbcType="DECIMAL"/>
+    	<result column="ASSURESETTLEMENT_AMOUNT" property="assureSettlementAmount" jdbcType="DECIMAL"/>
+		<result column="TRADE_REFUND_AMOUNT" property="tradeRefundAmount" jdbcType="DECIMAL"/>
+		<result column="FIXED_FEE_AMOUNT" property="fixedFeeAmount" jdbcType="DECIMAL"/>
+		<result column="PER_FEE_AMOUNT" property="perFeeAmount" jdbcType="DECIMAL"/>
+		<result column="FEE_AMOUNT" property="feeAmount" jdbcType="DECIMAL"/>
+		<result column="SETTLEMENT_CURRENCY" property="settlementCurrency" jdbcType="VARCHAR"/>
+		<result column="BASE_ACCT_DELTA" property="baseAcctDelta" jdbcType="DECIMAL"/>
+		<result column="ASSURE_ACCT_DELTA" property="assureAcctDelta" jdbcType="DECIMAL"/>		
+    	<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>    	
+    	<result column="FEE_DELTA" property="feeDelta" jdbcType="DECIMAL"/>	
+    	<result column="FEE_FLG" property="feeFlg" jdbcType="DECIMAL"/>		    	
+    	<result column="REFUND_FLG" property="refundFlg" jdbcType="DECIMAL"/>	
+    	<result column="POLICY_VERSION" property="policyVersion" jdbcType="DECIMAL"/>	
+    	<result column="SETTLEMENT_RATE" property="settlementRate" jdbcType="VARCHAR"/>	
+    	<result column="REFUND_SETTLEMENT_FLG" property="refundSettlementFlg" jdbcType="DECIMAL"/>		
+    	<result column="SMALLORDER_FIXEDFEE_AMOUNT" property="smallOrderFixedfeeAmount" jdbcType="DECIMAL"/>	
+    	<result column="SMALLORDER_FIXEDFEE_DELTA" property="smallOrderFixedfeeDelta" jdbcType="VARCHAR"/>	
+    	<result column="SMALLORDER_FIXEDFEE_RCOUNT" property="smallOrderFixedfeeRCount" jdbcType="DECIMAL"/>	
+    </resultMap>
+    
+     <insert id="create" parameterClass="refundOrderExtend">  	
+        <selectKey resultClass="java.lang.Long" keyProperty="refundExtendNo">
+			SELECT seq_refund_order_extend_id.nextval as refundExtendNo FROM dual 
+		</selectKey>  
+		
+        INSERT INTO REFUND_ORDER_EXTEND(
+			REFUND_EXTEND_NO,REFUND_ORDER_NO,SETTLEMENT_ORDER_NO,SETTLEMENT_FLG,ASSURESETTLEMENT_FLG,
+			SETTLEMENT_AMOUNT,ASSURESETTLEMENT_AMOUNT,TRADE_REFUND_AMOUNT,FIXED_FEE_AMOUNT,PER_FEE_AMOUNT,
+			FEE_AMOUNT,SETTLEMENT_CURRENCY,BASE_ACCT_DELTA,ASSURE_ACCT_DELTA,CREATE_DATE,FEE_DELTA,FEE_FLG,
+			REFUND_FLG,POLICY_VERSION,SETTLEMENT_RATE,REFUND_SETTLEMENT_FLG,UPDATE_DATE,
+			SMALLORDER_FIXEDFEE_AMOUNT,SMALLORDER_FIXEDFEE_DELTA,SMALLORDER_FIXEDFEE_RCOUNT
+        )
+        VALUES(
+            #refundExtendNo#,#refundOrderNo#,#settlementOrderNo#,#settlementFlg#,#assureSettlementFlg#,
+			#settlementAmount#,#assureSettlementAmount#,#tradeRefundAmount#,#fixedFeeAmount#,#perFeeAmount#,
+			#feeAmount#,#settlementCurrency#,#baseAcctDelta#,#assureAcctDelta#,sysdate,#feeDelta#,#feeFlg#,
+			#refundFlg#,#policyVersion#,#settlementRate#,#refundSettlementFlg#,sysdate,
+			#smallOrderFixedfeeAmount#,#smallOrderFixedfeeDelta#,#smallOrderFixedfeeRCount#
+		)
+    </insert>
+    
+    <select id="findByRefundOrderNo" parameterClass="java.lang.Long" resultMap="refundOrderExtendResult">
+        select * from refund_order_extend re where re.REFUND_ORDER_NO = #refundOrderNo#
+    </select>
+    
+    
+    <update id="addRefundOrderExtendCount" parameterClass="java.util.HashMap">
+		UPDATE refund_order_extend 
+		set UPDATE_DATE = sysdate,SMALLORDER_FIXEDFEE_RCOUNT = SMALLORDER_FIXEDFEE_RCOUNT +1 
+		where REFUND_ORDER_NO = #refundOrderNo# and REFUND_EXTEND_NO=#refundExtendNo#
+	</update>
+    
+    
+</sqlMap>

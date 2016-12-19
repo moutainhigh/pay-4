@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-createtempMember">
+
+	<typeAlias alias="member" type="com.pay.acc.member.model.Member" />
+	<typeAlias alias="acct_ctm" type="com.pay.acc.member.model.Acct" />
+	<typeAlias alias="acctAttrib_ctm" type="com.pay.acc.member.model.AcctAttrib" />
+ 	<typeAlias alias="individualInfo_ctm" type="com.pay.acc.member.model.IndividualInfo"/>
+	 
+	<insert id="createMember" parameterClass="member">
+		<selectKey resultClass="java.lang.Long" keyProperty="memberCode">
+			SELECT
+			SEQ_MEMBER_MEMBER_CODE.nextval as memberCode FROM dual 
+   	 	</selectKey>
+		INSERT INTO T_MEMBER
+		(
+		MEMBER_CODE ,
+		SERVICE_LEVEL_CODE ,
+		GREETING ,
+		STATUS,
+		SECURITY_QUESTION ,
+		SECURITY_ANSWER ,
+
+		LOGIN_TYPE ,
+		LOGIN_NAME ,
+		LOGIN_PWD
+		)
+		VALUES
+		(
+		#memberCode#,
+		#serviceLevelCode#,
+		#greeting#,
+		#status#,
+		#securityQuestion#,
+		#securityAnswer#,
+
+		#loginType#,
+		#loginName#,
+		#loginPwd#
+		)
+	</insert>
+	
+	<insert id="createIndividualInfo" parameterClass="individualInfo_ctm">
+		<selectKey resultClass="java.lang.Long" keyProperty="individualId">
+			SELECT SEQ_IND_IND_ID.nextval as individualId FROM dual 
+    	</selectKey>
+		insert into T_INDIVIDUAL_INFO
+		(
+		INDIVIDUAL_ID,
+		MEMBER_CODE,
+		NAME
+		)
+		values
+		(
+		#individualId#,
+		#memberCode#,
+		#name#
+		)
+	</insert>
+
+	<insert id="createAcct" parameterClass="acct_ctm">
+		insert into T_ACCT
+		(
+		ACCT_ID ,
+		ACCT_CODE ,
+		MEMBER_CODE
+
+		)
+		values
+		(
+		#acctCode#,
+		#memberCode#
+		)
+	</insert>
+
+	<insert id="createAcctAttrib" parameterClass="acctAttrib_ctm">
+		<selectKey resultClass="java.lang.Long" keyProperty="attribId">
+			SELECT
+			SEQ_ATTRIB_ATTRIB_ID.NEXTVAL as attribId FROM dual
+        </selectKey>
+		INSERT INTO T_ACCT_ATTRIB
+		(
+		ATTRIB_ID,
+		ACCT_CODE,
+		ALLOW_DEPOSIT,
+		ALLOW_WITHDRAWAL,
+		ALLOW_TRANSFER_IN,
+		ALLOW_TRANSFER_OUT,
+		ALLOW_IN,
+		ALLOW_OUT,
+		DESCRIPTION,
+		FROZEN,
+		DEF_REC_ACCT,
+		CUR_CODE,
+		PAY_PWD,
+		ACCT_LEVEL,
+		BALANCE_BY,
+		BEAR_INTEREST ,
+		PAY_ABLE,
+		ALLOW_OVERDRAFT,
+		NEED_PROTECT,
+		MANAGERABLE,
+		TYPE,
+		MEMBER_CODE,
+		MEMBER_ACCT_CODE,
+		SUBJECT_CODE
+		)
+		SELECT
+		#attribId#,
+		SUBJECT_CODE || #memberCode# || ACCT_TYPE_ID,
+		ALLOW_DEPOSIT,
+		ALLOW_WITHDRAWAL,
+		ALLOW_TRANSFER_IN,
+		ALLOW_TRANSFER_OUT,
+		ALLOW_IN,
+		ALLOW_OUT,
+		DESCRIPTION,
+		FROZEN,
+		DEF_REC_ACCT,
+		CUR_CODE,
+		#payPwd#,
+		ACCT_LEVEL,
+		BALANCE_BY,
+		BEAR_INTEREST,
+		PAY_ABLE,
+		ALLOW_OVERDRAFT,
+		NEED_PROTECT,
+		MANAGERABLE,
+		TYPE,
+		#memberCode#,
+		#memberCode# ||
+		ACCT_TYPE_ID,
+		SUBJECT_CODE
+		FROM T_MEMBER_ACCT_TEMPLATE
+		WHERE TYPE = 1
+	</insert>
+
+	<insert id="createMemberProduct" parameterClass="java.lang.Long">
+		insert into
+		t_member_product
+		(id,member_code,product_id,creation_date,update_date)
+		select SEQ_MEMBER_PRODUCT_ID.Nextval, #memberCode#,
+		p.product_id,sysdate,sysdate from t_product_acct_template p
+		where
+		p.MEMBER_ACCT_TEMPLATE_ID=1
+	</insert>
+
+	<select id="getAttCodeById" parameterClass="java.lang.Long"
+		resultClass="java.lang.String">
+		SELECT ACCT_CODE FROM T_ACCT_ATTRIB WHERE
+		ATTRIB_ID=#attribId#
+	</select>
+
+</sqlMap>

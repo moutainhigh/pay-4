@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bfrefund">
+	<typeAlias alias="bfrefundFileSummaryModel" type="com.pay.fundout.bankfile.generator.model.FileSummaryModel"/>
+	<typeAlias alias="bfrefundInnerDetailModel" type="com.pay.fundout.bankfile.generator.model.FileDetailMode"/>
+	<typeAlias alias="bfrefundRefundImportRecord" type="com.pay.fundout.bankfile.parser.model.RefundImportRecordModel"/>
+	<typeAlias alias="bfrefundFileParserMode" type="com.pay.fundout.bankfile.parser.model.FileParserMode"/>
+	
+	<!-- 计算概要信息 -->
+     <select id="calcMasterInfoByBatchNum" resultClass="bfrefundFileSummaryModel" parameterClass="java.lang.String">
+	  	SELECT 
+	  		  OD.RECHARGE_BANK bankCode,SUM(OD.APPLY_AMOUNT) totalAmount,COUNT(OD.RECHARGE_BANK) totalCount 
+	  	FROM
+	     (SELECT REFUND_M_KY FROM REFUND_WORKORDER WHERE BATCH_NUM = #value# AND BATCH_STATUS=1 AND STATUS=4) WO 
+	      INNER JOIN
+	          (select APPLY_AMOUNT,RECHARGE_BANK,MASTER_KY from REFUND_ORDER_D where status = 101) OD
+	      ON WO.REFUND_M_KY = OD.MASTER_KY
+	      GROUP BY RECHARGE_BANK
+     </select>
+     
+     
+     <!-- 文件详细  -->
+     <select id="selectRefundBatchDTOByBatchNumAndBankCode" resultClass="bfrefundInnerDetailModel" parameterClass="java.util.Map">
+       SELECT
+		    OD.RECHARGE_ORDER_SEQ AS RECHARGEORDERSEQ,
+		    OD.RECHARGE_BANK_SEQ AS RECHARGEBANKSEQ,
+		    OD.RECHARGE_BANK AS RECHARGEBANK,
+		    (SELECT p.org_name 
+	           FROM inf.p_organization p
+	           WHERE p.org_code = OD.RECHARGE_BANK
+	             AND ROWNUM=1) BANKNAME,
+		    OD.RECHARGE_AMOUNT RECHARGEAMOUNT,
+		    od.deposit_type_name DEPOSITTYPENAME,
+		    OD.RECHARGE_TIME RECHARGETIME,
+		    OD.APPLY_AMOUNT AS APPLYAMOUNT,
+		    OD.RECHARGE_BANK_ORDER RECHARGEBANKORDER,
+		    OM1.MEMBER_CODE AS MEMBERCODE,
+		    OM1.MEMBER_NAME AS MEMBERNAME,
+	        OM1.APPLY_TIME AS APPLYTIMES,
+	        OM1.BATCH_NUM AS BATCHNUM,
+	        OM1.REFUND_M_KY REFUNDORDERSEQ,
+		    OD.APPLY_REMARK AS APPLYREMARK,
+        	OD.DETAIL_KY AS DETAILKY
+      FROM (SELECT * FROM
+         (SELECT REFUND_M_KY,BATCH_NUM FROM REFUND_WORKORDER WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND STATUS=4) WO 
+      INNER JOIN
+          REFUND_ORDER_M OM
+      ON WO.REFUND_M_KY = OM.ORDER_KY 
+      ) OM1
+      INNER JOIN
+          (SELECT DETAIL_KY,MASTER_KY,RECHARGE_ORDER_SEQ,
+          			RECHARGE_BANK_SEQ,RECHARGE_AMOUNT,RECHARGE_TIME,deposit_type_name,
+          			RECHARGE_BANK,APPLY_AMOUNT,RECHARGE_BANK_ORDER,APPLY_REMARK
+             FROM REFUND_ORDER_D WHERE STATUS = 101
+			<isNotEmpty prepend="and" property="BANK_CODE">
+				 RECHARGE_BANK = #BANK_CODE# 
+			</isNotEmpty>
+          )OD
+      ON OM1.ORDER_KY = OD.MASTER_KY
+      ORDER BY OD.RECHARGE_BANK
+     </select>
+     
+     <!-- 自动批次 -->
+     <update id="updateWOBatchNumWithAuto">
+     	UPDATE REFUND_WORKORDER 
+     		SET BATCH_NUM = #batchNum#, BATCH_STATUS=#status#
+     	WHERE BATCH_NUM = 'SYS_0' AND STATUS=4 AND BATCH_STATUS=0
+     </update>
+
+     <select id="fundout-refund-queryBanks" resultClass="java.lang.String">
+		SELECT DISTINCT (RECHARGE_BANK)
+		  FROM REFUND_ORDER_D T1
+		 INNER JOIN (SELECT REFUND_M_KY
+		               FROM REFUND_WORKORDER
+		              WHERE BATCH_NUM = #value#
+		                AND BATCH_STATUS = 1
+		                AND STATUS = 4) T2
+		 ON T1.MASTER_KY = T2.REFUND_M_KY
+     </select>
+     
+      <!-- 插入 银行状态文件记录表 信息 -->
+	    <insert id="createRefundImportRecord" parameterClass="bfrefundRefundImportRecord">
+	        insert into REFUND_IMPORT_RECORD (FILE_KY, BATCH_NUM, BANK_CODE, ORDER_SEQ, BANK_AMOUNT,
+	            BANK_ACCT_NAME, BANK_SEQ, BANK_REMARK, BANK_STATUS, BUSI_TIME, STATUS)
+	        values (#fileKy#, #batchNum#, #bankCode#, #orderSeq#, #bankAmount#, #bankAcctName#,
+	            #bankSeq#, #bankRemark#, #bankStatus#, #busiTime#, #status#)
+	    </insert>
+	 
+	 <!-- 更新导入文件状态 -->   
+	 <update id="updateRefundImportFileStatus" parameterClass="bfrefundFileParserMode">
+	 	update refund_import_file 
+	 	   set status=#status#
+	 	 where FILE_KY=#fileNo#
+	 </update>
+	 
+	 <!-- 查找对应的解析器 -->
+	 <select id="queryGeneratorsByCode" parameterClass="java.lang.String" resultClass="java.lang.String">
+	 	select distinct (value)
+		  from code_mapping
+		 where CODE in ($bankCodes$)
+		   and FAMILY='GENERATOR'
+	       and CATEGORY='BANK_FILE'
+	       and status=0
+	 </select>
+</sqlMap>

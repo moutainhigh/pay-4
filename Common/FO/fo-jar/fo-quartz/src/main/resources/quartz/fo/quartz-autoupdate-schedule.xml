@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+	 <!-- 定义调用对象和调用对象的方法 -->
+	<bean id="refundManageScheduleTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="refundManageSchedule" />
+		</property>
+            <!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>updateProcExecuteTask</value>
+		</property>
+	</bean>
+	<bean id="massPay2bankScheduleTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="fundout_withdraw_massPay2bankSchedule" />
+		</property>
+            <!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>updateProcExecuteTask</value>
+		</property>
+	</bean>
+	
+	<bean id="massPay2AcctScheduleTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+            <!-- 调用的类 -->
+		<property name="targetObject">
+			<ref bean="fundout_withdraw_massPay2AcctSchedule" />
+		</property>
+            <!-- 调用类中的方法 -->
+		<property name="targetMethod">
+			<value>updateProcExecuteTask</value>
+		</property>
+	</bean>
+	
+	
+        <!-- 定义触发时间 -->
+	<bean id="refundManageScheduleTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="refundManageScheduleTask" />
+		</property>
+            <!-- cron表达式 -->
+		<property name="cronExpression">
+			<value>0 0/5 * * * ?</value>
+		</property>
+	</bean>
+	<bean id="massPay2bankScheduleTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="massPay2bankScheduleTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 1/5 * * * ?</value>
+		</property>
+	</bean>
+		<bean id="massPay2AcctScheduleTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail">
+			<ref bean="massPay2AcctScheduleTask" />
+		</property>
+		<property name="cronExpression">
+			<value>0 1/5 * * * ?</value>
+		</property>
+	</bean>
+</beans>

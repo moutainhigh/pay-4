@@ -1,0 +1,149 @@
+	<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${fill_register_message}${title}</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/css.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/register/corpRegisterValidator.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=0 type=2/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box lightUp">
+		<div class="tit">
+			<h3><strong>用户注册</strong></h3><a href="${rc.contextPath}/baseHelp.htm?method=myAccountRegister" class="more red" >使用遇到问题?</a>
+		</div>
+		<form class="con_box" id="memberForm" method="post" action="${rc.contextPath}/corpRegister.htm" >
+		<input type="hidden" name="method" value="register">
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1"><span><i>1</i>填写注册信息</span></li>
+					<li class="li-2"><i>2</i>填写银行信息</li>
+					<li class="li-3"><i>3</i>激活账号</li>
+					<li class="li-4"><span><i>4</i>注册成功</span></li>
+				</ol>
+			</div>
+			<ul>
+				<li>
+					<label for=""><i>*</i>Email：</label>
+                <input id="email" name="email"  tabindex=2 type="text" class="txtType1" value="${info.email?default('')}" maxlength="60">
+					<span id="emailTip"></span>
+                </li>
+				
+				<li>
+				   	<label for=""><i>*</i>公司名称：</label>
+				  	<input id="zhName" name="zhName" tabindex=3 type="text" class="txtType1" value="${info.zhName?default('')}" maxlength="32">
+					<span id="zhNameTip"></span> 
+				</li>
+				
+				<li>
+				<label for=""><i>*</i>公司法人代表姓名：</label>
+				 <input id="legalName" name="legalName" tabindex=4 type="text" class="txtType1" value="${info.legalName?default('')}" maxlength="16">
+				<span id="legalNameTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>联系人：</label>
+					    <input id="compayLinkerName" name="compayLinkerName" tabindex=5 type="text" class="txtType1" value="${info.compayLinkerName?default('')}" maxlength="16">
+						<span id="compayLinkerNameTip"></span>
+				</li>
+				
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>公司联系电话：</label>
+					    <input id="tel" name="tel" tabindex=6 type="text" class="txtType1" value="${info.tel?default('')}" maxlength="16">
+						<span id="telTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>营业执照号：</label>
+					    <input id="bizLicenceCode" name="bizLicenceCode" tabindex=7 type="text" class="txtType1" value="${info.bizLicenceCode?default('')}" maxlength="15">
+						<span id="bizLicenceCodeTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>组织机构号：</label>
+					    <input id="govCode" name="govCode" tabindex=8 type="text" class="txtType1" value="${info.govCode?default('')}" maxlength="32">
+						<span id="govCodeTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>税务登记证号：</label>
+					    <input id="taxCode" name="taxCode" tabindex=9 type="text" class="txtType1" value="${info.taxCode?default('')}" maxlength="18">
+						<span id="taxCodeTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>联系人电话：</label>
+					    <input id="compayLinkerTel" name="compayLinkerTel" tabindex=10 type="text" class="txtType1" value="${info.compayLinkerTel?default('')}" maxlength="16">
+						<span id="compayLinkerTelTip"></span>
+				</li>
+			</ul>
+				<ul >
+					<li>
+					<label for=""><i>*</i>验证码：</label>
+						<input id="randCode" tabindex=11 disableautocomplete autocomplete="off" name="randCode" type="text" class="txtType3" maxlength="4">
+						<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+						<a id="refush" href="javascript:void(0);">换一张</a><span id="randCodeTip">请输入图中4位字母</span></li>
+				</ul>
+			
+			<ul class="l">
+			<!-- 
+				<li class="msg">
+					<textarea class="areaType2">
+					<@sp.agree/>
+					</textarea>
+				</li> -->
+				
+				
+				<li>
+					<input type="checkbox" class="check"  checked="checked"  id="chk"/>
+					我已阅读并同意遵守<a href="${rc.contextPath}/help.htm?method=helpPPDetail&type=1" target="_blank">《gcpayment支付服务协议》</a>
+				</li>
+				<li class="btn">
+				<span id="spansub" class="btn_yel"><button id="btnSubmit"  type="button">下一步</button></span>
+				</li>
+			</ul>
+		</form>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#if  msgStr?has_content>
+<script>
+$(function(){
+	$.pay.alert('${msgStr}',{w:400});
+	$("#email").blur();
+	
+});
+</script>
+</#if>   
+
+
+	<#include "/common/include/footer.html">
+</body>
+</html>

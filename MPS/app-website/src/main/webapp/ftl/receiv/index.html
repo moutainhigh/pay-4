@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+
+<#include "/common/macro/seoCorp.ftl">
+<title>我要收款</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/moblie.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script>
+$(function(){
+	$.formValidator.initConfig({formid:"reForm",onerror:function(msg,obj){return false;},
+		onsuccess:function(){}});
+	
+	$("#productName").formValidator({tipid:"productNameTip",onshow:"请输入产品名称，不超过15个汉字",onfocus:"付款方将看到此内容，不允许输入如<、>和|特殊字符 ",oncorrect:" "})
+	.inputValidator({min:1,max:30,empty:false,onerror:"产品名称不能超过15个汉字或30个字符，不可为空"})
+	.regexValidator({regexp:"noIllegal",datatype:"enum",onerror:"不允许输入<、>和|特殊字符"});
+	
+    $("#productDesc").formValidator({tipid:"remarkTip",onshow:"请输入产品描述，不超过100个汉字",onfocus:"付款方将看到此内容，不允许输入如<、>和|特殊字符 ",oncorrect:" "})
+		.inputValidator({min:1,max:200,empty:false,onerror:"产品描述不能超过100个汉字或200个字符且不能为空"})
+		.regexValidator({regexp:"noIllegal",datatype:"enum",onerror:"不允许输入<、>和|特殊字符"});
+    
+    $("#amount").formValidator({tipid:"amountTip",onshow:"请输入订单金额",onfocus:"请输入正确的订单金额",oncorrect:" "})
+	.inputValidator({min:1,max:10,empty:false,onerror:"请输入订单金额，不可为空且不能超过10位"})
+	.regexValidator({regexp:"amount",datatype:"enum",onerror:"请输入正确的订单金额，只支持到小数点后两位"});
+    
+    $("#mobile").formValidator({tipid:"mobileTip",onshow:"请输入用户手机号码",onfocus:"请输入正确的手机号码",oncorrect:" "})
+	.inputValidator({min:1,max:11,empty:false,onerror:"请输入用户手机号码，不可为空"})
+	.regexValidator({regexp:"mobile",datatype:"enum",onerror:"请输入正确的手机号码"});
+	
+});
+</script>
+</head>
+<body>
+<@sp.head  mCode="corp_receiv"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">我要收款</strong></div>
+			</div>
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1 last">1、填写收款信息</li>
+					<li class="li-2 last">2、确认收款信息</li>
+					<li class="li-3 last">2、收款信息创建结果</li>
+				</ol>
+			</div>
+			<form class="" method="post" id="reForm" action="${rc.contextPath}/corp/receiv/receiv.htm">
+				<input type="hidden" name="method" value="confirm"/>
+				<div class="details_list2">
+				<ul class="form_list  ">
+					<li>
+						<label class="form_side"><span>*</span>产品名称：</label>
+						<input type="text" class="inp_normal w300" id="productName" name="productName" value="${apiOrder.productName?default('')}"/>
+						<span class="c_999 ml20" id="productNameTip">请输入产品名称，不超过15个汉字</span>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>产品描述：</label>
+						<textarea id="productDesc" name="productDesc" class="inp_normal w300  v_t" rows="3" maxlength="200">${apiOrder.productDesc?default('')}</textarea>
+						<span class="c_999 ml20" id="remarkTip">请输入产品描述，不超过100个汉字</span>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>订单金额：</label>
+						<input type="text" class="inp_normal w100" id="amount" name="amount" value="${apiOrder.amount?default('')}" maxlength="10"/> 元
+						<span class="c_999 ml20" id="amountTip">请输入订单金额</span>
+					</li>
+					<li>
+						<label class="form_side"><span>*</span>(用户)手机号码：</label>
+						<input type="text" class="inp_normal w300" id="mobile" name="mobile" value="${apiOrder.mobile?default('')}"/>
+						<span class="c_999 ml20" id="mobileTip">请输入用户手机号码</span>
+					</li>
+					<li class="btn mt20"><span class="btn_yel">
+						<button type="submit">下一步</button>
+						</span></li>
+				</ul>
+				</div>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+
+<script>
+$(function(){
+<#if errMsg?exists && errMsg?has_content>
+	$.pay.alert("${errMsg}",{w:400});
+</#if>
+
+
+});
+</script>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

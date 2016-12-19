@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 提现SQLMAp配置 -->
+<sqlMap namespace="reconcile">
+	 <typeAlias alias="webQueryFile" type="com.pay.txncore.model.WebQueryFile"/>
+	 <typeAlias alias="reconcileImportFile" type="com.pay.txncore.model.ReconcileImportFile"/>
+	 <typeAlias alias="reconcileImportRecord" type="com.pay.txncore.model.ReconcileImportRecord"/>
+	
+	<!-- 文件导入表操作 -->
+	 <resultMap id="reconcileImportFile" class="reconcileImportFile">
+        <result column="FILE_ID" property="fileId" 			/>
+        <result column="ERROR_TIPS" property="errorTips" />
+        <result column="STATUS" property="status" />
+        <result column="ORG_CODE" property="orgCode" />
+        <result column="FILE_NAME" property="fileName" />
+        <result column="SETTLEMENT_START_DATE" property="settlementStartDate" />
+        <result column="SETTLEMENT_END_DATE" property="settlementEndDate" />
+        <result column="UPLOAD_DATE" property="uploadDate" />
+        <result column="OPERATOR" property="operator" />
+    </resultMap>
+
+	<insert id="createFile" parameterClass="reconcileImportFile">
+		 <selectKey resultClass="java.lang.Long" keyProperty="fileId">
+			select  SEQ_IMPORT_FILE_ID.NEXTVAL as id from DUAL 
+		</selectKey>
+        INSERT INTO RECONCILE_IMPORT_FILE(FILE_ID,ERROR_TIPS,STATUS,ORG_CODE,FILE_NAME,SETTLEMENT_START_DATE,SETTLEMENT_END_DATE,UPLOAD_DATE,OPERATOR)
+        VALUES(
+            #fileId:NUMERIC#,#errorTips:VARCHAR#,#status:NUMERIC#,#orgCode:VARCHAR#,#fileName:VARCHAR#,#settlementStartDate:DATE#,#settlementEndDate:DATE#,sysdate,#operator:VARCHAR#
+		)
+    </insert>
+    
+    <update id="fo_rc_updateImportFile" parameterClass="reconcileImportFile">
+        UPDATE RECONCILE_IMPORT_FILE
+        SET FILE_ID=#fileId:NUMERIC#
+        <isNotEmpty prepend="," property="errorTips">
+            ERROR_TIPS = #errorTips:VARCHAR#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status:NUMERIC#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="orgCode">
+            ORG_CODE = #orgCode:VARCHAR#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="fileName">
+            FILE_NAME = #fileName:VARCHAR#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="settlementStartDate">
+            SETTLEMENT_START_DATE &gt;= #settlementStartDate:DATE#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="settlementStartDate">
+            SETTLEMENT_END_DATE &lt;= #settlementEndDate:DATE#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="uploadDate">
+            UPLOAD_DATE = #uploadDate:DATE#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="operator">
+            OPERATOR = #operator:VARCHAR#
+        </isNotEmpty>
+        WHERE FILE_ID = #fileId:NUMERIC#
+    </update>
+    
+     <delete id="fo_rc_deleteImportFileById" parameterClass="java.lang.Long">
+        DELETE FROM RECONCILE_IMPORT_FILE        
+        WHERE 
+            <isNotEmpty prepend="AND" property="fileId">
+            FILE_ID = #fileId# 
+            </isNotEmpty>
+    </delete>
+    
+    <!-- 根据主键查询FileImport信息 -->    
+    <select id="fo_rc_findImportFileById" resultClass="reconcileImportFile"
+        parameterClass="java.lang.Long">
+        SELECT 
+			FILE_ID				fileId			,
+			ERROR_TIPS			errorTips		,
+			STATUS				status			,
+			ORG_CODE			orgCode	,
+			FILE_NAME			fileName		,
+			SETTLEMENT_START_DATE			settlementStartDate		,
+			SETTLEMENT_END_DATE			settlementEndDate		,
+			UPLOAD_DATE			uploadDate		,
+			OPERATOR			operator
+        FROM RECONCILE_IMPORT_FILE
+        WHERE 
+            FILE_ID = #fileId# 
+    </select>
+	
+	<!-- 查看上传银行对账文件 列表 分页显示 -->    
+    <select id="fo_rc_findImportFile2List" parameterClass="webQueryFile" resultClass="reconcileImportFile">
+        SELECT 
+			FILE_ID				fileId			,
+			ERROR_TIPS			errorTips		,
+			STATUS				status			,
+			ORG_CODE	orgCode	,
+			FILE_NAME			fileName		,
+			SETTLEMENT_START_DATE			settlementStartDate,
+			SETTLEMENT_END_DATE			settlementEndDate,
+			UPLOAD_DATE			uploadDate		,
+			OPERATOR			operator,
+			decode(trunc(upload_date),trunc(sysdate),'Y','N') currFlag
+        FROM RECONCILE_IMPORT_FILE
+        <dynamic prepend=" WHERE ">
+        	<isNotEmpty prepend="AND" property="fileName">
+	            FILE_NAME like '%' || #fileName:VARCHAR# || '%' 
+	        </isNotEmpty>
+        	<isNotEmpty property="startDate" prepend="AND">
+            	<![CDATA[ SETTLEMENT_START_DATE >= #startDate:DATE# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endDate" prepend="AND">
+           		<![CDATA[ SETTLEMENT_END_DATE <= #endDate:DATE#]]>
+            </isNotEmpty>	        
+	        <isNotEmpty prepend="AND" property="busiStatus">
+	            STATUS = #busiStatus:NUMERIC# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="orgCode">
+	         	ORG_CODE=#orgCode:VARCHAR#
+	        </isNotEmpty>
+	     </dynamic>
+    </select>
+    
+    <select id="fo_rc_findImportFile2List_COUNT"  parameterClass="webQueryFile"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM RECONCILE_IMPORT_FILE
+       <dynamic prepend=" WHERE "> 
+        	<isNotEmpty prepend="AND" property="fileName">
+	            FILE_NAME like '%' || #fileName:VARCHAR# || '%' 
+	        </isNotEmpty>
+        	<isNotEmpty property="startDate" prepend="AND">
+            	<![CDATA[ SETTLEMENT_START_DATE >= #startDate:DATE# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endDate" prepend="AND">
+           		<![CDATA[ SETTLEMENT_END_DATE <= #endDate:DATE#]]>
+            </isNotEmpty>	        
+	        <isNotEmpty prepend="AND" property="busiStatus">
+	            STATUS = #busiStatus:NUMERIC# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="orgCode">
+	         	ORG_CODE=#orgCode:VARCHAR#
+	        </isNotEmpty>
+	    </dynamic>
+    </select>
+    
+    <!-- 文件详情查询 -->
+     <insert id="createRecord" parameterClass="reconcileImportRecord">
+      	<selectKey resultClass="java.lang.Long" keyProperty="recordId">
+			select  SEQ_RC_IMPORT_RECORD_RECORD_ID.NEXTVAL as id from DUAL 
+		</selectKey>
+        INSERT INTO RECONCILE_IMPORT_RECORD(RECORD_ID,FILE_ID,BUSI_TYPE,BANK_ORDER_NO,BANK_AMOUNT,TRADE_DATE,ORG_CODE,BUSI_STATUS,TRADE_ORDER_NO,CREATE_DATE
+        )
+        VALUES(
+            #recordId:NUMERIC#,#fileId:NUMERIC#,#busiType:NUMERIC#,#bankOrderNo:VARCHAR#,#bankAmount:NUMERIC#,
+			#tradeDate:DATE#,#orgCode:VARCHAR#,#busiStatus:NUMERIC#,#tradeOrderNo:VARCHAR#,#createDate#
+		)
+    </insert>
+    
+      <select id="fo_rc_findImportRecord2List" resultClass="reconcileImportRecord"
+        parameterClass="java.util.Map">
+        SELECT 
+			RECORD_ID			recordId		,
+			FILE_ID				fileId			,
+			BUSI_TYPE	busiType,
+			BANK_ORDER_NO			bankOrderNo			,
+			BANK_AMOUNT			bankAmount		,
+			TRADE_DATE			tradeDate		,
+			ORG_CODE	orgCode  ,
+			BUSI_STATUS			busiStatus		,
+			TRADE_ORDER_NO			tradeOrderNo
+        FROM RECONCILE_IMPORT_RECORD   WHERE FILE_ID = #fileId# 
+   	 </select>
+
+    <select id="fo_rc_findImportRecord2List_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+        SELECT 
+			COUNT(1)
+        FROM RECONCILE_IMPORT_RECORD
+        WHERE FILE_ID = #fileId# 
+    </select>
+    
+    <!-- 验证文件信息是否存在 -->
+    <select id="fo_rc_validFileInfoExist" parameterClass="reconcileImportFile" resultClass="java.lang.Integer">
+    	select count(FILE_ID) from RECONCILE_IMPORT_FILE WHERE 1=1
+    	  <dynamic>
+   	  		<isNotEmpty prepend="and" property="fileName">
+   	  			FILE_NAME=#fileName:VARCHAR#
+   	  		</isNotEmpty>
+   	  		<isNotEmpty prepend="and" property="orgCode">
+   	  			ORG_CODE=#orgCode:VARCHAR#
+   	  		</isNotEmpty>
+        	<isNotEmpty property="startDate" prepend="AND">
+            	<![CDATA[ SETTLEMENT_START_DATE >= #startDate:DATE# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endDate" prepend="AND">
+           		<![CDATA[ SETTLEMENT_END_DATE <= #endDate:DATE#]]>
+            </isNotEmpty>	
+    	  </dynamic>
+    </select>
+    
+    <!-- 删除对账明细信息 -->
+    <delete id="fo_rc_deleteReconcileRecord" parameterClass="java.util.Map">
+    	delete from RECONCILE_IMPORT_RECORD where FILE_ID=#fileId:VARCHAR#
+    </delete>
+    
+    <!-- 删除对账结果信息 -->
+    <delete id="fo_rc_deleteReconcileResult" parameterClass="java.util.Map">
+    	delete from RECONCILE_RESULT where FILE_ID=#fileId:VARCHAR#
+    </delete>
+</sqlMap>

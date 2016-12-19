@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchruleconfig">
+	<typeAlias alias="batchRuleConfig" type="com.pay.fundout.withdraw.model.ruleconfig.BatchRuleConfig"/>
+	<typeAlias alias="ruleConfigQueryDTO" type="com.pay.fundout.withdraw.dto.ruleconfig.RuleConfigQueryDTO"/>
+    <resultMap id="batchRuleConfig" class="com.pay.fundout.withdraw.model.ruleconfig.BatchRuleConfig">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="BUSI_TYPE" property="busiType" jdbcType="DECIMAL"/>
+        <result column="LOST_EFFECT_DATE" property="lostEffectDate" jdbcType="TIMESTAMP"/>
+        <result column="MAX_ORDER_COUNTS" property="maxOrderCounts" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BATCH_TIME_CONF_ID" property="batchTimeConfId" jdbcType="DECIMAL"/>
+        <result column="EFFECT_DATE" property="effectDate" jdbcType="TIMESTAMP"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="BATCH_RULE_DESC" property="batchRuleDesc" jdbcType="VARCHAR"/>
+        <result column="BATCH_LEVEL" property="batchLevel" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CREATION_DATE,BUSI_TYPE,LOST_EFFECT_DATE,MAX_ORDER_COUNTS,STATUS,
+		BATCH_TIME_CONF_ID,EFFECT_DATE,SEQUENCE_ID,BATCH_RULE_DESC,BATCH_LEVEL
+    </sql>
+    <insert id="create" parameterClass="batchRuleConfig">
+        INSERT INTO BATCH_RULE_CONFIG(
+			CREATION_DATE,BUSI_TYPE,LOST_EFFECT_DATE,MAX_ORDER_COUNTS,STATUS,
+			BATCH_TIME_CONF_ID,EFFECT_DATE,SEQUENCE_ID,BATCH_RULE_DESC,BATCH_LEVEL
+        )
+        VALUES(
+            #creationDate#,#busiType#,#lostEffectDate#,#maxOrderCounts#,#status#,
+			#batchTimeConfId#,#effectDate#,#sequenceId#,#batchRuleDesc#,#batchLevel#
+		)
+    </insert>
+
+    <update id="update" parameterClass="batchRuleConfig">
+        UPDATE BATCH_RULE_CONFIG
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="creationDate">
+            CREATION_DATE = #creationDate#
+        </isNotNull>
+        <isNotNull prepend="," property="busiType">
+            BUSI_TYPE = #busiType#
+        </isNotNull>
+        <isNotNull prepend="," property="lostEffectDate">
+            LOST_EFFECT_DATE = #lostEffectDate#
+        </isNotNull>
+        <isNotNull prepend="," property="maxOrderCounts">
+            MAX_ORDER_COUNTS = #maxOrderCounts#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="batchTimeConfId">
+            BATCH_TIME_CONF_ID = #batchTimeConfId#
+        </isNotNull>
+        <isNotNull prepend="," property="effectDate">
+            EFFECT_DATE = #effectDate#
+        </isNotNull>
+        <isNotNull prepend="," property="batchRuleDesc">
+            BATCH_RULE_DESC = #batchRuleDesc#
+        </isNotNull>
+        <isNotNull prepend="," property="batchRuleDesc">
+            BATCH_LEVEL = #batchLevel#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM BATCH_RULE_CONFIG        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="batchRuleConfig">
+        DELETE FROM BATCH_RULE_CONFIG        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiType">
+            BUSI_TYPE = #busiType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lostEffectDate">
+            LOST_EFFECT_DATE = #lostEffectDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="maxOrderCounts">
+            MAX_ORDER_COUNTS = #maxOrderCounts# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchTimeConfId">
+            BATCH_TIME_CONF_ID = #batchTimeConfId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="effectDate">
+            EFFECT_DATE = #effectDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleDesc">
+            BATCH_RULE_DESC = #batchRuleDesc# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchLevel">
+            BATCH_LEVEL = #batchLevel#
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="batchRuleConfig"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATION_DATE,BUSI_TYPE,LOST_EFFECT_DATE,MAX_ORDER_COUNTS,STATUS,
+			BATCH_TIME_CONF_ID,EFFECT_DATE,SEQUENCE_ID,BATCH_RULE_DESC,BATCH_LEVEL
+        FROM BATCH_RULE_CONFIG
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    
+    <select id="findBatchRuleConfigList" resultMap="batchRuleConfig">
+         SELECT 
+			A.CREATION_DATE,
+      		A.BUSI_TYPE,
+      		A.LOST_EFFECT_DATE,
+      		A.MAX_ORDER_COUNTS,
+      		A.STATUS,
+			A.BATCH_TIME_CONF_ID,
+	    	A.EFFECT_DATE,
+	    	A.SEQUENCE_ID,
+	    	A.BATCH_RULE_DESC,
+	    	A.BATCH_LEVEL
+        FROM BATCH_RULE_CONFIG A,BATCH_TIME_CONFIG B
+	      WHERE A.BATCH_TIME_CONF_ID=B.SEQUENCE_ID
+         ORDER BY BATCH_LEVEL ASC 
+    </select>
+    
+    <select id="findBySelective" resultMap="batchRuleConfig">
+        SELECT 
+			CREATION_DATE,BUSI_TYPE,LOST_EFFECT_DATE,MAX_ORDER_COUNTS,STATUS,
+			BATCH_TIME_CONF_ID,EFFECT_DATE,SEQUENCE_ID,BATCH_RULE_DESC,BATCH_LEVEL
+        FROM BATCH_RULE_CONFIG WHERE
+        <![CDATA[LOST_EFFECT_DATE >= sysdate]]>
+        <![CDATA[ AND EFFECT_DATE <= sysdate ]]> 
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiType">
+            BUSI_TYPE = #busiType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="maxOrderCounts">
+            MAX_ORDER_COUNTS = #maxOrderCounts# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchTimeConfId">
+            BATCH_TIME_CONF_ID = #batchTimeConfId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleDesc">
+            BATCH_RULE_DESC = #batchRuleDesc# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchLevel">
+            BATCH_LEVEL = #batchLevel#
+        </isNotNull>
+         ORDER BY BATCH_LEVEL ASC 
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM BATCH_RULE_CONFIG
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="creationDate">
+            CREATION_DATE = #creationDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiType">
+            BUSI_TYPE = #busiType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lostEffectDate">
+            LOST_EFFECT_DATE = #lostEffectDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="maxOrderCounts">
+            MAX_ORDER_COUNTS = #maxOrderCounts# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchTimeConfId">
+            BATCH_TIME_CONF_ID = #batchTimeConfId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="effectDate">
+            EFFECT_DATE = #effectDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchRuleDesc">
+            BATCH_RULE_DESC = #batchRuleDesc# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="batchLevel">
+            BATCH_LEVEL = #batchLevel#
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="getSeqId" resultClass="long">
+    	select seq_batch_rule_config.nextval from dual
+    </select>
+    
+    <select id="getRuleConfigList" parameterClass="map" resultClass="ruleConfigQueryDTO">
+    	SELECT 	A.SEQUENCE_ID       sequenceId,
+          		A.BATCH_RULE_DESC    batchRuleDesc,
+           		A.EFFECT_DATE      effectDate,
+           		A.LOST_EFFECT_DATE    lostEffectDate,
+          		A.MAX_ORDER_COUNTS    maxOrderCounts,
+           		A.CREATION_DATE      creationDate,
+           		B.SEQUENCE_ID      batchTimeConfId,
+           		B.WEEK_DAY_LIST      weekDayList,
+           		A.STATUS			status
+	      FROM BATCH_RULE_CONFIG A,BATCH_TIME_CONFIG B
+	      WHERE A.BATCH_TIME_CONF_ID=B.SEQUENCE_ID
+    	<isNotNull prepend="AND" property="sequenceId">
+            A.SEQUENCE_ID = #sequenceId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="ruleConfigDesc">
+            A.BATCH_RULE_DESC = #ruleConfigDesc#
+        </isNotNull>
+        ORDER BY sequenceId DESC
+    </select>
+    
+    <select id="getRuleConfigList_COUNT" parameterClass="map" resultClass="integer">
+    	SELECT COUNT(*)
+    	FROM BATCH_RULE_CONFIG A,BATCH_TIME_CONFIG B
+    	WHERE A.BATCH_TIME_CONF_ID=B.SEQUENCE_ID
+    	<isNotNull prepend="AND" property="sequenceId">
+            A.SEQUENCE_ID = #sequenceId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="ruleConfigDesc">
+            A.BATCH_RULE_DESC = #ruleConfigDesc#
+        </isNotNull>
+    </select>
+    
+    <select id="getRuleConfigById" resultClass="ruleConfigQueryDTO"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATION_DATE 		creationDate,
+			BUSI_TYPE 			busiType,
+			LOST_EFFECT_DATE 	lostEffectDate,
+			MAX_ORDER_COUNTS 	maxOrderCounts,
+			STATUS 				status,
+			BATCH_TIME_CONF_ID 	batchTimeConfId,
+			EFFECT_DATE 		effectDate,
+			SEQUENCE_ID 		sequenceId,
+			BATCH_RULE_DESC 	batchRuleDesc,
+			BATCH_LEVEL 		batchLevel
+        FROM BATCH_RULE_CONFIG
+        WHERE SEQUENCE_ID = #value# 
+    </select>
+</sqlMap>

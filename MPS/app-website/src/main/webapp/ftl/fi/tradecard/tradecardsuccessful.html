@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>充值成功</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<!--导航 str-->	
+<div class="header">
+	<h1 class="logo"><a href="${rc.contextPath}/index.htm"><img alt="iPayLinks支付 src="<@sp.static/>/img/pay/logo.png"></a></h1>
+	<div class="header_bar"><span class="pad"><strong><#if memberInfo?exists>${memberInfo.name?default('')}</#if></strong> 您好！
+		<a class="pad" href="${rc.contextPath}/logout.htm">退出</a> | 
+		<a class="mall" href="">iPayLinks商城</a> | 
+		<a class="help" href="${rc.contextPath}/baseHelp.htm">帮助中心</a>
+	</div>
+</div>
+<ul class="nav">
+	<li class="short"><a class="cur" href="${rc.contextPath}/index.htm"><strong>首 页</strong></a></li>
+	<li><a href="${rc.contextPath}/app/myAccount.htm"><strong>我的账户</strong></a></li>
+	<li><a href="${rc.contextPath}/app/pay2account.htm"><strongiPayLinks支付支付款</strong></a></li>
+	<li><a href="${rc.contextPath}/app/queryHistoryTradeList.htm?method=queryHistoryTrade"><strong>交易管理</strong></a></li>
+	<li><a href="${rc.contextPath}/lifemanage.htm"><strong>生活管家</strong></a></li>
+	<li><a href="${rc.contextPath}/app/accountActive.htm?method=accountSafe"><strong>安全中心</strong></a></li>
+	<li class="last">
+		<a class="cur" href="${rc.contextPath}/index.htm?method=index">个人服务</a>
+	 	<a href="${rc.contextPath}/index.htm?method=indexConmpany">企业服务</a>
+	</li>
+</ul>
+<!--导航 end-->
+
+<!--主内容 start -->
+<div class="container">
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg pad20">
+			<div class="content">
+				<div class="result_tips result_tips_hack" style="margin:50px 0 80px 100px;">
+					<div class="set_height clearfix">
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+						<span class="pop_s"></span>
+						<div class="words"> 
+						<strong class="col_black">
+							<#if errorMsg?exists>
+								充值正在处理中！
+								<#else>
+								<script>
+									if (null != window.opener) {
+										try {
+											window.opener.document.getElementById("finishDeposit").click();
+											window.opener=null;  
+											window.open('','_self');  
+											window.close(); 
+										} catch (e) {
+											//resolve access is denied
+										}
+									}
+								</script>
+								充值成功！
+							</#if>
+						</strong><br>
+							本次充值金额： <strong class="red"><#if errorMsg?exists>0<#else>${orderAmount}</#if></strong>元</div>
+					</div>
+					<p>您可能需要：
+						<a href="${rc.contextPath}/app/queryCompositionList.htm?method=queryComposition">查询充提记录</a>|
+						<a href="${rc.contextPath}/app/myAccount.htm">返回我的账户</a>|
+						<a href="${rc.contextPath}/index.htm">iPayLinks支付生支付首页</a></p>
+				</div>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+</body>
+</html>

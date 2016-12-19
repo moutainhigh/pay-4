@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<!-- <script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script> -->
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+<!-- jquery validate -->
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<title>域名管理</title>
+<style type="text/css">
+.commonLink {
+	cursor: pointer;
+	text-decoration: none;
+}
+.commonLink:hover {
+	cursor: pointer;
+	text-decoration: none;
+}
+.blueHighlight {
+	font-family: 微软雅黑;
+	font-size: 13px;
+	font-weight: normal;
+	font-style: normal;
+	text-decoration: none;
+	color: #00F;
+}
+</style>
+<script type="text/javascript" charset="utf-8">
+	function reloadSite(){
+		location.reload();
+	}
+	function isUrl(url){    
+	 	//var regUrl=new RegExp("(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\&%_\./-~-]*)?");
+	 	var reg = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/ ;
+	    if(reg.test(url)){  
+	       return true;
+	    } else{  
+		   return false;
+	    }      
+	}    
+	
+	function delSiteSet(id, siteName) {
+		var opt={};
+		opt.close=reloadSite;
+		
+		var url = "${rc.contextPath}/corp/cross/siteset.htm?method=deleteSite";
+		var param = {
+				'id' : id
+			};
+		
+		var str = "是否要删除 " + siteName + "的网站吗？";
+		if(confirm(str)){
+			$.ajax({
+				type : "post",
+				url : url,
+				datatype : "json",
+				data:param,
+				success : function(data) {
+					var str = data;
+					var jsonStr = eval("("+str+")");
+					if (jsonStr.result === "success") {
+						alert("网站删除成功",opt);
+						reloadSite() ;
+						return;
+					} else {
+						alert(jsonStr.message);
+						return;
+					}
+				}
+			});
+		}
+
+	}
+	function saveSite() {
+		var opt={};
+		opt.close=reloadSite;
+		var url = "${rc.contextPath}/corp/cross/siteset.htm";
+
+		var siteUrl = $("#url").val();
+		var param = {
+			'url' : siteUrl,
+			'method' : 'saveSite'
+		};
+
+		if (!siteUrl) {
+			alert('保存域名不能为空!');
+			return;
+		}
+		if (!isUrl(siteUrl)) {
+			alert("该域名格式不正确，例：www.pay.com");
+			return;
+		}
+		if (siteUrl.length>64) {
+			alert('域名长度不能超过64!');
+			return;
+		}
+		
+		$.ajax({
+			type : "post",
+			url : url,
+			datatype : "json",
+			data:param,
+			success : function(data) {
+				var str = data;
+				var jsonStr = eval("("+str+")");
+				if (jsonStr.result === "success") {
+					alert("网站添加成功",opt);
+					reloadSite() ;
+					return;
+				} else {
+					alert(jsonStr.message);
+					return;
+				}
+			}
+		});
+	}
+	
+</script>
+
+
+<script>
+	  	function reloadSite(){
+			location.reload();
+		}
+	 	$(function(){
+			var uploadeDialog,saveDialog;
+			saveDialog=$("#dialog-editAndsave" ).dialog({
+			      autoOpen: false,
+			      height: 300,
+			      width: 400,
+			      modal: true,
+			      buttons: {
+			          "取消": function() {
+			        	  $("#dialog-editAndsave" ).dialog( "close" );
+			          },
+		      		  "确定":function() {
+		      				trackingSave();
+			          }
+			        },
+			      close: function() {
+			    	  document.getElementById("saveTracking").reset();
+			      }
+		    });
+			uploadeDialog=$("#dialog-uploade" ).dialog({
+		      autoOpen: false,
+		      height: 300,
+		      width: 450,
+		      modal: true,
+		      buttons: {
+		          "取消": function() {
+		        	  $("#dialog-uploade" ).dialog( "close" );
+		          },
+	      	      "确定":function() {
+	      	    	  batchUpload();
+	      	      }
+		        },
+		      close: function() {
+		    	  document.getElementById("uploadeSite").reset();
+		      }
+		    }); 
+			function batchUpload(){
+				 $('#uploadeSite').submit();
+				 //$("#dialog-uploade" ).dialog( "close" );
+			}
+		 
+		function trackingSave(){
+			var opt={};
+			opt.close=reloadSite;
+			
+			var vTrackingNo=$("#vTrackingNo").val();
+			var vExpressCom=$("#expressCom").val();
+			
+			
+			var vQueryUrl=$("#queryUrl").val(); 
+		 	var regUrl=new RegExp("(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\&%_\./-~-]*)?");  
+		    
+			var url = "${rc.contextPath}/corp/cross/siteset.htm?method=submitUploade";
+			$.ajax({
+				cache:true,
+				type : "post",
+				url : url,
+				data:$('#saveTracking').serialize(),
+				datatype : "json",
+				async:false,
+				success : function(data) {
+					var str = data;
+					var jsonStr = eval("("+str+")");
+					if (jsonStr.result == "success") {
+						$.pay.alert(jsonStr.message);
+						$("#dialog-editAndsave" ).dialog( "close" );
+						//window.location.href = window.location.href;
+						$("#uploadeSite").submit();
+						$("#dialog-editAndsave" ).dialog( "close" );
+						return;
+					} else {
+						$.pay.alert(jsonStr.message);
+						return;
+					}
+				}
+			});
+		}
+	})
+</script>
+<script type="text/javascript">
+	function uploadeSiteFunc(){
+	    $("#dialog-uploade" ).dialog( "open" );
+	}
+	function downloadTemplates(){
+		window.location.href="${rc.contextPath}/corp/cross/siteset.htm?method=downLoadFile&fileName=siteset_template.xls"
+	}
+</script>
+</head>
+
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="cross_site_set" />
+<div class="mainbox" style="">
+  <div class="wrap">
+	    <div class="section01">										<!-- 修改添加为添加域名 -->
+	      <div class="tit"><span><a href="${rc.contextPath}/corp/cross/siteset.htm">域名管理</a></span> </div>
+	      <div class="seccon">
+	      <!-- 域名管理添加查询功能by tom.wag 2016年4月29日17:18:16 -->
+	      <div class="bgbox">
+	       <form action="${rc.contextPath}/corp/cross/siteset.htm" method="post" id="sisteForm">
+	       	<table class="tab01 formtable">
+				<colgroup>
+		                <col width="100px;"/>
+		                <col width="368px;"/>
+		                <col width="100px;"/>
+		                <col/>
+		        </colgroup>
+		        <tr>
+					<td><div align="right">网站域名：</div></td>
+					<td> <input  name="url" value="${url!''}"id="url" class="base-input"></td>
+					<td><div align="right">网站状态：</div></td>
+					<td>
+					<select name="statusIn" id="status" value="${status!''}">
+				         <option value="" >--请选择--</option>
+				         <option value="0" <#if (((status)!'') == '0')>selected="selected"</#if> >冻结</option>
+				         <option value="1,6" <#if (((status)!'') == '1,6')>selected="selected"</#if> >正常</option>
+				         <option value="2,5" <#if (((status)!'') == '2,5')>selected="selected"</#if> >待审核</option>
+				         <option value="3" <#if (((status)!'') == '3')>selected="selected"</#if> >审核未通过</option>
+				         <option value="4" <#if (((status)!'') == '4')>selected="selected"</#if> >已删除</option>
+		  			 	</select>
+		  			</td>
+				</tr>
+   				<tr>
+					<td><div align="right">上传时间：</div></td>
+					<td >       
+						<input type="text" class="Wdate inp_normal w380" name="startTime"  readonly="readonly" id="startTime"  
+						 onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})"   value="${startTime!''}">
+			         		<span>-</span>
+			          	<input type="text" class="Wdate inp_normal w380" name="endTime" readonly="readonly" id="endTime" gtbfieldid="110" 
+			          	 onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="${endTime!''}"> 
+					</td>	
+					<td></td>		
+					<td></td>		
+				</tr>
+				<tr >
+					<td colspan="3">
+						<div class="divquery">
+								<input class="btn_blue2"  type="submit" alt="查 询" value="查 询" >
+							</div>
+							<div class="divquery">
+						   <input id="commitBatchFile" type="button" class="btn_blue2" value="添加" onclick="saveSite()" />
+					      &nbsp;&nbsp;	<a	onclick="return uploadeSiteFunc();" href="#" >批量上传网站</a>
+					</div>
+					</td>
+				</tr>	
+			</table>
+	       
+	       </form>
+	        </div>
+	       
+	         <table class="tab03">
+	             <thead>
+					<tr>
+						<th class="item15" >siteID</th>
+						<th class="item15">域名</th>
+						<th class="item10" >网站状态</th>
+						<th class="item10">创建时间</th>
+						<th class="item10" >创建ip</th>
+						<th class="item30" >备注</th>
+						<th class="item10">操作</th>
+					</tr>
+				</thead>
+				<tbody> 
+					<#if result?exists> 
+						<#list result as site>
+							<tr class="even" align="center">
+								<td><em>${site.id?default('')}</em></td>
+								<td><span></span>${site.url?default('')}<span></span></td>
+								<td>
+									<!--0：冻结1：正常2：待审核3：审核未通过4：已删除  --> 
+									<#if	site.status=='0'>冻结</#if> 
+									<#if site.status=='1'>正常</#if>
+									<#if site.status=='6'>正常</#if>
+									<#if site.status=='2'>待审核</#if> 
+									<#if site.status=='5'>待审核</#if> 
+									<#if site.status=='3'>审核未通过</#if> 
+									<#if site.status=='4'>已删除</#if>
+								</td>
+								<td>${site.createDate?string("yyyy-MM-dd")}</strong></td>
+								<td align="left">${site.ip?default('')}</td>
+								<td align="left">${site.remark?default('')}</td>
+								<td><a href="javaScript:;"
+								onclick="delSiteSet('${site.id}','${site.url}')" style="color:#55A4C6;">删除</a></td>
+				 		 	</tr>
+						</#list>
+					</#if>
+				</tbody>
+	         </table>
+	      </div>
+	    </div>
+	    <#if result?has_content>
+			<hr style="border-style:dotted; " />
+		</#if>
+		<div align="right">
+			<#if result?has_content>
+				<@sp.pagination pu=pu/>
+			</#if>
+		</div>
+	</div>
+</div>
+
+<!--网站批量上传  -->
+<div id="dialog-uploade" title="网站批量上传" style="display: none;">
+  <form action="${rc.contextPath}/corp/cross/siteset.htm?method=submitUploade" id="uploadeSite" enctype="multipart/form-data" name="uploadeSite" method="post" target="hidden_frame" >
+  	<!--change 修改样式 by tom.wang 2016年4月23日19:22:06  -->
+  	<div style="margin-top: 50px;">   	 
+  	  <div style="margin-left: 70px; "> 
+  	   <div>需按照规定模板填写域名，否则无法通过审核</div>  
+      <div style="margin: 30px 0px;"><input type="button" value="下载模版" onclick="downloadTemplates();"></div>
+      <label for="lbl_sitefile" class="side">上传文件</label>
+      <input type="file"  name="file_siteuploade" id="file_siteuploade" accept=".xls"  value="点击上传">
+      </div>
+    <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+   </div>
+   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+  </form>
+</div>
+<script type="text/javascript">
+	function callback(result){  
+		var opt={};
+		opt.close=reloadSite;
+	    var statue=result.split("|")[0];
+	    var msg=result.split("|")[1];
+	    if(statue=="Y"){
+			$.pay.alert(msg);
+			$("#dialog-uploade" ).dialog( "close" );
+			//window.location.href = window.location.href;
+			/* setTimeout(function(){
+				reloadSite() ;
+			}, 2000) ; */
+			
+		}else if(statue=="N"){
+			$.pay.alert(msg);
+		}
+	}
+</script>
+
+<#include "/include/myfoot.html">
+</body>
+</html>

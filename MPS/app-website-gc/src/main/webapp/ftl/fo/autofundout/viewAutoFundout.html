@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>iPayLinks支付委托提现</title>
+		<#include "/common/macro/seoPerson.ftl">
+		<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$("#modifyBtn").click(function(){
+					window.location="${rc.contextPath}/corp/autoFundout.htm?method=modifyPage";
+				});
+
+				$("#cancelBtn").click(function(){
+					window.location="${rc.contextPath}/corp/autoFundout.htm?method=cancelPage";
+				});
+			});
+		</script>
+	</head>
+	
+	<body>
+		<!--导航 str-->
+		<@sp.head mCode="corp_withdraw,bsp_corp_withdraw"/>
+		
+		<!--导航 end--> 
+		<!--主内容 str -->
+		<div class="container">
+		<div>
+		<!--自适应box str -->
+        <div class="mod_box_a">
+        <p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3">
+					<a href="${rc.contextPath}/corp/withdraw.htm">手工提现</a><span>|</span>
+					<a href="${rc.contextPath}/corp/autoFundout.htm" class="cur">委托提现</a>
+				</div>
+			</div>
+						<div class="ico_txtBox mt5"><i class="warn_ico"></i>
+							<p>提现银行户名必须与您的企业名称相同。您已接受
+							<a class="red" href="https://www.pay.com/website/help.htm?method=helpCorpDetail" target="_blaiPayLinks支付">《iPayLinks支付委托提现协议》</a>，请遵守。</p>
+						</div>
+						<form class="mod_form pad_center">
+							<input type="hidden" name="configId" value="${common.sequenceid?default(0)}"/>
+							<ul class="form_list c_000">
+								<li>
+									<label class="form_side">委托提现申请时间：</label>
+									<span>${common.createDate?string("yyyy-MM-dd HH:mm:ss")}</span></li>
+								<li>
+									<label class="form_side">提现银行账户：</label>
+									<span class="blod c_000">${common.bankName}(****${common.bankAccCode[common.bankAccCode?length-4..common.bankAccCode?length-1]})</span>
+									<p class="gray_tips">到账日期一般在2-5个工作日</p>
+								</li>
+								<li>
+									<label class="form_side">委托提现方式：</label>
+									<span>
+										<#if common.autoType==1>
+											定期委托提现
+										</#if>
+										<#if common.autoType==2>	
+											定额委托提现
+										</#if>
+									</span>
+									<p class="gray_tips"></p>
+								</li>
+								<li id="retained">
+									<label class="form_side">最低留存金额：</label>
+									<span>${(common.retainedAmount?default(0)/1000)?string("#,##0.00")}元</span>
+								</li>
+								<#if common.autoType==2>	
+								<li>
+									<label class="form_side">基本提现金额：</label>
+									<span>${(common.baseAmount?default(0)/1000)?string("#,##0.00")}元</span>
+								</li>
+								</#if>
+								<#if common.autoType==1>	
+								<li>
+									<label class="form_side">委托提现频度：</label>
+									<#if common.timeType==4>
+										<#if common.timeSources?exists>
+					   						<#list common.timeSources as ts>
+												<span>每天${ts}</span>提现一次</span><br/>
+											</#list>
+										</#if>
+									<#else>
+										<span>每${common.timeDesc?default('')}</span><span class="ml10">提现一次</span>
+									</#if>
+								</li>
+								</#if>
+								<#if common?exists && common.settleFlag?exists && common.settleFlag == 1>
+								<li>
+									<label class="form_side">期结提现：</label>
+									<input type="checkbox" name="settleFlag" id="settleFlag" disabled="disabled" checked="checked"  value="1">
+								</li>
+								</#if>
+								<!--<li>
+									<label class="form_side">备注：</label>
+									<span>${common.remark?default('')}</span>
+								</li>
+								--><li class="btn"><span class="btn_yel">
+									<button type="button" id="modifyBtn">修改委托提现</button>
+									</span>　 <span class="btn_grey_b">
+									<button type="button" id="cancelBtn">终止委托提现</button>
+									</span>
+								</li>
+							</ul>
+						</form>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				</div>
+				
+				<!--end --> 
+		</div>
+		<!--主内容 end --> 
+		<#if common?exists && common.settleFlag?exists && common.settleFlag == 1>
+			<script type="text/javascript" charset="utf-8">
+				$(function(){
+					$("#retained").css("display", "none");
+					});
+			</script>
+		</#if>
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>

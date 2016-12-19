@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html> 
+<head>
+	<meta charset="utf-8">
+	<title>安捷支付-批量退款申请</title>
+	<#include "/common/macro/seoPerson.ftl"> 
+	<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<!--<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script> -->
+    <script type="text/javascript" src="<@sp.static/>/js/pay/pay2acct/mydiv.js"></script>
+	<meta http-equiv="pragma" content="no-cache"> 
+	<meta http-equiv="cache-control" content="no-cache"> 
+	<meta http-equiv="expires" content="0"> 
+</head>
+<body>
+
+<!--导航 str-->
+<@sp.head mCode="corp_card_batchRefundApply"/>
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box_a mt10">
+<p class="top"></p>
+<div class="con_box has_bg">
+	<div class="tit_box">
+		<div class="title sub_nav3">
+			<strong class="cur">批量退款申请</strong>
+			<span class="line">|</span>
+			<a href="${rc.contextPath}/corp/cardRefundOrderQuery.htm">批量退款查询</a>
+		</div>
+	</div>
+	<div class="step">
+		<ol class="step-1">
+			<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+			<li class="li-1 last"><span><i>1</i>上传批退文件</span></li>
+			<li class="li-2 last"><i>2</i>确认上传信息</li>
+			<li class="li-3 last"><span><i>3</i>提交批退申请</span></li>
+		</ol>
+	</div>
+	<div class="ico_txtBox mt5"><i class="warn_ico"></i>
+	<p>如果您还没有模版文件，请先下载:<a href="javascript:downloadTemplate()" class="reds ml20"><i class="ico_excel"></i>批量退款模版</a> </p>
+
+	</div>
+
+	<form class="mod_form pad_center" id="fileForm" action="${rc.contextPath}/corp/cardBatchRefundApply.htm?method=submitApply" method="post"  enctype="multipart/form-data">
+		<ul class="form_list">
+			<!-- <li>
+				<label class="form_side">可用余额：</label>
+				<span class="red blod">command.currentBanlance!('')</span>元 
+			</li>
+			-->
+		
+			<li>
+				<label class="form_side">上传批量退款文件：</label>
+				<input type="file" size="30" name="refundFile" id="refundFile"/>
+				<input type="hidden" name="refundFileName" id="refundFileName"/>
+			</li>
+			<li>
+				<label class="form_side">验证码：</label> 
+				<input type="text" name="randCode"  id="randCode" class="inp_normal w80">
+					<img class="v_m pointer" title="看不清楚？点击换一张"  src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" id="code" style="vertical-align: top;" width="80" height="24">
+				<a href="javascript:Refresh();">看不清，换一张</a>
+
+				<p class="red">${randError!('')}</p>
+			</li>
+		
+			<li class="btn">
+				<span class="btn_yel">
+					<button type="button" onClick="return valid();" id="btn">提交申请</button>
+					<input type="hidden" id="uuid" name="uuid" value="${Session['CardBatchRefundApplyController_uuidToken']?default('')}"/>
+				</span>
+			</li>
+		</ul>
+	</form>
+</div>
+<p class="bot"><i></i></p>
+</div>
+<div id="uploading" style="display: none;"><br><br>系统正在对您上传的信息进行处理，请稍候......</div>
+</div>
+<!--主内容 end -->
+
+</div>
+
+<script type="text/javascript">
+	function Refresh(){
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+				+ d.getTime();
+		document.getElementById("code").src= src;
+	}
+	
+	function valid(){
+		var refundFile = $("#refundFile").val();
+		if (refundFile == '') {
+			$.pay.alert('请选择您要上传的批退文件!', {
+				h : 160,
+				t : '3',
+				close:function(){
+					$("#refundFile").focus();
+				}
+			});
+			return false;
+		}
+		
+		var fileName=refundFile.substring(refundFile.lastIndexOf("\\")+1);
+		var expand=fileName.substring(fileName.lastIndexOf(".")+1);
+		if(fileName.length>0 && !(expand=="xls")){
+			$.pay.alert('文件类型不正确，请选择扩展名为.xls的文件重新上传!', {
+				h : 160,
+				t : '3',
+				close:function(){
+					$("#refundFile").focus();
+				}
+			});
+			return false;
+		}				
+
+
+		var randCode = $("#randCode").val();
+		if (randCode == '') {
+			$.pay.alert('验证码不可为空!', {
+				h : 160,
+				t : '3',
+				close:function(){
+					$("#randCode").focus();
+				}
+			});
+			return false;
+		}
+
+		$("#refundFileName").val(fileName);
+		$("#btn").attr("disabled","disabled");
+		$("#fileForm").submit();
+		var win=$.mydiv.window($("#uploading").html());
+	}
+	function downloadTemplate(){
+		window.location="${rc.contextPath}/corp/cardBatchRefundApply.htm?method=dowloadTemplate"
+	}
+	<#if msg?has_content>
+		$(function(){	
+			$.pay.alert('${msg?default('')}',{h:160,t:'3'});
+		});
+	</#if>
+	
+	$(document).ready(function(){  
+		   $("html").die().live("keydown",function(event){  
+		        if(event.keyCode==13){  
+		        	valid();
+		         }  
+		    });  
+		}
+	);  
+</script>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+
+</html>

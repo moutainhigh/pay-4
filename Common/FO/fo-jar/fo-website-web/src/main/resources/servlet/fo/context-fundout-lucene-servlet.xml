@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="fundout-lucene-config-PropertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		p:ignoreUnresolvablePlaceholders="true" p:order="1">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/fo/lucene_config.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="fundout-luceneRebuildHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/generateRebuild.htm">fundout-luceneRebuildController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean name="fundout-luceneRebuildController"
+		class="com.pay.controller.fo.lucene.LuceneRebuildController">
+		<property name="luceneService" ref="fundout-lucene-service" />
+		<property name="lucene_key">
+			<value>${lucene_key}</value>
+		</property>
+	</bean>
+</beans>
+
+

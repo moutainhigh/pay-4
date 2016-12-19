@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${set_paypwd}${title}</title>
+<meta name="Keywords" content="${set_paypwd_Keywords}" />
+<meta name="Description" content="${set_paypwd_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/capslock.jquery.js"></script>
+<script type="text/javascript">
+	$(function() {
+		if(hasSecurityCtrl()){
+			$("#paypasswordform").submit(function(){
+				if(getPwdCtrlStrLength("password1")==0){
+					$("#returninfo").html("支付密码不能为空!").addClass("onError");
+					return false;
+				}
+				if(getPwdCtrlStrLength("password2")==0){
+					$("#returninfo").html("确认支付密码不能为空!").addClass("onError");
+					return false;
+				}
+				$("#newpaypassword1").val(getPwdCtrlVal("password1"));
+				$("#newpaypassword2").val(getPwdCtrlVal("password2"));
+				//$("#newpaypassword1").formValidator({tipid:"newpaypasswordConfirm1",onshow:"8-20个字符，建议使用数字和字母组合密码，不能单独使用数字、字母或字符。",onfocus:"8-20个字符，建议使用数字和字母组合密码，不能单独使用数字、字母或字符。",oncorrect:" "});
+				//$("#newpaypassword2").formValidator({tipid:"newpaypasswordConfirm2",onshow:"请再次输入您的支付密码",onfocus:"两次填写的支付密码必须一致",oncorrect:" "});
+			});			
+		}else{
+			$().capslock({
+				ids:['newpaypassword1','newpaypassword2'],
+				caps_lock_on:function(){
+					$("#tips_box").get()[0].style.display="block";
+				},
+				caps_lock_off:function(){
+					$("#tips_box").get()[0].style.display="none";
+				}
+			});
+	
+			$("#newpaypassword1").val("");
+	        $("#newpaypassword2").val("");
+			
+			
+			$.formValidator.initConfig( {
+				formid : "paypasswordform",
+				onerror : function(msg) {
+				}
+			});
+			$("#newpaypassword2").formValidator( {
+				tipid : "newpaypasswordConfirm2",
+				onshow : "两次填写的密码必须一致",
+				onfocus : "确认支付密码不能为空",
+				oncorrect : " "
+			}).inputValidator( {
+				min : 8,
+				max : 20,
+				empty : false,
+				onerror : "支付密码必须是8-20位字母和数字混合，并区分大小写"
+			}).compareValidator( {
+				desid : "newpaypassword1",
+				operateor : "=",
+				onerror : "两次密码不一致,请确认"
+			}).functionValidator({fun:isPayPassword});
+			$("#newpaypassword1").formValidator( {
+				tipid : "newpaypasswordConfirm1",
+				onshow : "8-20个字符，建议使用数字和字母组合密码，不能单独使用数字、字母或字符。",
+				onfocus : "8-20个字符，建议使用数字和字母组合密码，不能单独使用数字、字母或字符。",
+				oncorrect : " "
+			}).inputValidator( {
+				min : 8,
+				max : 20,
+				empty : false,
+				onerror : "支付密码必须是8-20位字母和数字混合，并区分大小写"
+			}).functionValidator({fun:isPayPassword}).ajaxValidator({
+				type : "get",
+				url : "${rc.contextPath}/validatePayPassword.htm?paypwd=newpaypassword1",
+				datatype : "json",
+				success : function(data){
+					if( data == true || data=='true')
+					{
+						
+		                return true;
+					}
+				},
+				error: function(){alert("服务器没有返回数据，可能服务器忙，请重试");},
+				onerror : "支付密码不能与登录密码一致",
+				onwait : "正在密码进行合法性校验，请稍候..."
+			});
+	
+			$("#loginPwd").formValidator( {
+				tipid : "loginPwdConfirm",
+				onshow : "请输入登录密码",
+				onfocus : "",
+				oncorrect : " "
+			});
+			$("#btnOK").click(function() {
+				if (null == $("#randCode").val() || $("#randCode").val() == "") {
+					$("#ranCodeerrmessage").show().html("请输入验证码");
+					return false;
+				} else {
+					$("#ranCodeerrmessage").show().html("");
+				}
+				$("#paypasswordform").attr("action","${rc.contextPath}/memberActive.htm");
+				$("#paypasswordform").submit();
+				
+			});
+		}
+
+		$("#refush").click(
+			function() {
+				var d = new Date();
+				var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+						+ d.getTime();
+				$("#icode").attr("src", src);
+				return false;
+		});
+	});
+</script>
+</head>
+<body>
+<!--header-->
+<@sp.headCommonV2 title="用户注册" class="ver_reg"/>
+<!--/header--> 
+<!--主内容-->
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-2">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1 s3">第一步：填写注册信息<i></i></li>
+				<li class="li-2 s3">第二步：激活帐号<i></i></li>
+				<li class="li-3 s3">第三步：注册成功<i></i></li>
+			</ol>
+		</div>
+		<!--表单 -->
+		<div class="set_paypwd">
+	<form action="" method="post"
+	name="paypassword" id="paypasswordform">
+	<input type="hidden" id="from" name="from" value="from_set_paypwd"/>
+	<input type="hidden" id="code" name="code" value='${Request["code"]?default('')}'/>
+				<div class="activate">
+					<p class="tit"><img src="<@sp.static/>/img/v2/pay/reg/reg_pwd.png" class="reg_suc_ico" />设置您的支付密码，以保证账户的安全</p>
+					<ul class="mod_list">
+					<li id="tips_box" style="display:none;position: absolute;"><i class="error_tips_box">大写锁定，请确认是否按下CapsLock</i></li>
+					<input type="hidden" name="paypwdurl" value="set" />
+					<input type="hidden" id="myAccount" value="${myAccount?default('')}"/>
+						<li>
+							<label class="mod_side">您的账户名：</label>
+							<span class="blue">${Request["loginName"]?default('')}</span></li>
+						<li>
+							<label class="mod_side"><i class="red">*</i> 支付密码：</label>
+							<@sp.password cid="password1" id="newpaypassword1" tabindex="1" nextTabid="password2" name="newpaypassword1" width="153px" height="26px" style="margin-bottom: 5px;" class="inp_normal w150"/>
+							<span id="newpaypasswordConfirm1"></span>
+							</li>
+						<li>
+							<label class="mod_side"><i class="red">*</i> 确认支付密码：</label>
+							<@sp.password cid="password2" id="newpaypassword2" tabindex="2" nextTabid="randCode" name="newpaypassword2" width="153px" height="26px" style="margin-bottom: 5px;" class="inp_normal w150"/>	
+								<span id="newpaypasswordConfirm2"></span></li>
+						<li>
+							<label class="mod_side"><i class="red">*</i> 验证码：</label>
+							<input type="text" id="randCode" tabindex="10" disableautocomplete="" autocomplete="off" name="randCode" class="inp_normal w50" maxlength="4"> 
+							
+							<img class="code" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="icode"  width="68" height="23" id="icode" style="vertical-align: top" /> 
+							<a class="red" id="refush" href="javascript:void(0);">看不清，换一张</a>
+							<span id="ranCodeerrmessage" style="color:red"></span>
+							<#if returninfo?has_content><span id="returninfo" class="onError">${returninfo?default('')}</span>
+							<#else><span id="returninfo" class=""></span></#if>
+							</li>
+						<li><span class="btnD">
+								<button type="submit" id="btnOK" tabindex=4>确认提交</button>
+							</span></li>
+					</ul>
+				</div>
+				<div class="activate_tips">
+					<p>温馨提示</p>
+					<p>1.支付密码在付款、提现等影响账户资金变动的操作中使用，<br>
+						并且<span class="red">不能与登录密码相同。</span></p>
+					<p class="mt5">2.密码由8-20位字母、数字及符号组成，区分大小写</p>
+				</div>
+			</form>
+		</div>
+		<!--/表单 --> 
+	</div>
+</div>
+<!--/主内容--> 
+<!--footer -->
+<#include "/common/include/footerV2.html">
+</body>
+</html>

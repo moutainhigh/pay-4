@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentChannelItemConfig">
+
+	<typeAlias alias="paymentChannelItemConfig" type="com.pay.channel.model.PaymentChannelItemConfig"/>
+    <resultMap id="paymentChannelItemConfigMap" class="paymentChannelItemConfig">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_TYPE" property="paymentType" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_CHANNEL_ITEM_ID" property="paymentChannelItemId" jdbcType="DECIMAL"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="DATE"/>
+        <result column="CHANNEL_PRIORITY" property="channelPriority" jdbcType="VARCHAR"/>
+    </resultMap>
+
+     <insert id="create" parameterClass="paymentChannelItemConfig">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_ITEM_CONFIG.nextval FROM DUAL
+		</selectKey>
+	 	INSERT INTO PAYMENT_CHANNEL_ITEM_CONFIG(
+			id,MEMBER_CODE,PAYMENT_CHANNEL_ITEM_ID,OPERATOR,CREATE_DATE,PAYMENT_TYPE
+        )
+        VALUES(
+            #id#,#memberCode#,#paymentChannelItemId#,#operator#,sysdate,#paymentType#
+		)
+	</insert>
+    
+    <delete id="delete">
+        DELETE FROM PAYMENT_CHANNEL_ITEM_CONFIG where 1=1
+       <isNotNull property="id">
+			AND id = #id#
+	   </isNotNull>
+	   <isNotNull property="memberCode">
+			AND MEMBER_CODE = #memberCode#
+	   </isNotNull>
+	   <isNotNull property="paymentType">
+			AND PAYMENT_TYPE = #paymentType#
+	   </isNotNull>
+       	<isNotNull property="paymentChannelItemId">
+			AND PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+	   </isNotNull>
+    </delete>
+    
+    <select id="findById" resultMap="paymentChannelItemConfigMap" parameterClass="java.lang.Long">
+        SELECT * FROM PAYMENT_CHANNEL_ITEM_CONFIG WHERE id=#id#
+    </select>
+    
+    <!-- 查询该商户的所有直连渠道 -->
+    <select id="findBymemberCode" resultMap="paymentChannelItemConfigMap"
+        parameterClass="java.lang.Long">
+        SELECT * FROM PAYMENT_CHANNEL_ITEM_CONFIG
+        WHERE MEMBER_CODE=#memberCode#
+    </select>
+    
+    <!-- 根据条件查询直连渠道 -->
+    <select id="findByCriteria" resultMap="paymentChannelItemConfigMap">
+        SELECT * FROM PAYMENT_CHANNEL_ITEM_CONFIG
+        WHERE 1=1
+       <isNotNull property="memberCode">
+			AND MEMBER_CODE = #memberCode#
+	   </isNotNull>
+       <isNotNull property="paymentType">
+			AND PAYMENT_TYPE = #paymentType#
+	   </isNotNull>
+	   <isNotNull property="paymentChannelItemId">
+			AND PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+	   </isNotNull>
+    </select>
+    
+    <update id="update" parameterClass="paymentChannelItemConfig">
+    	update PAYMENT_CHANNEL_ITEM_CONFIG
+    	<dynamic prepend="set">
+		    <isNotNull prepend="," property="memberCode">
+    			MEMBER_CODE = #memberCode:DECIMAL#
+		    </isNotNull>
+		    <isNotNull prepend="," property="paymentChannelItemId">
+    			PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId:DECIMAL#
+		    </isNotNull>
+		    <isNotNull prepend="," property="paymentType">
+    			PAYMENT_TYPE = #paymentType:DECIMAL#
+		    </isNotNull>
+		    <isNotNull prepend="," property="operator">
+    			OPERATOR = #operator:VARCHAR#
+		    </isNotNull>
+		    <isNotNull prepend="," property="channelPriority">
+    			CHANNEL_PRIORITY = #channelPriority:VARCHAR#
+		    </isNotNull>
+		</dynamic>
+		where ID = #id:DECIMAL#
+    </update>
+  
+</sqlMap>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>Card user display page</title>
+
+<!-- main css -->
+<link href="style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="js/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="js/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="js/jquery-1.8.3.js"></script>
+
+
+</head>
+
+<body>
+	<div id="pagewrap">
+    	<div id="content" style="text-align:left;">
+        	<!-- 头部提示 -->
+            <div class="title_box">
+            	<div class="tip_box" onclick="javascript:window.history.go(-1);" style="padding-left:2%;">
+                	<img src="images/H5/u6.png" alt="Back" style="vertical-align:middle;"/>
+                    <font style="display:inline-block;padding-left:10px;padding-top:5px;height:18px;line-height:18px;color:#FFF;">Back</font>
+                </div>
+            	<div style="padding-right:10%;">
+                	<font style="color:#FFF;">iPayLinks</font>
+                </div>
+            </div>
+            <!-- 卡片信息Start -->
+            <form action="${rc.contextPath}/crosspay.htm?method=onSubmit" method="post" id="frm1" >
+            	<input type="hidden" name="tradeOrderNo" id="tradeOrderNo" value="${tradeOrderNo}"/>			
+				<input type="hidden" name="partnerId" id="partnerId" value="${partnerId}"/>			
+				<input type="hidden" name="dccAmount" id="orderAmount" value="${amountFor}"/>
+				<input type="hidden" name="amountLoc" id="amountLoc" value="${amountLoc}"/>
+				<input type="hidden" name="dccCurrencyCode" id="dccCurrency" value="${Currency}"/>
+				<input type="hidden" name="orderAmount" id="orderAmount" value="${orderAmount}"/>			
+				<input type="hidden" name="currencyCode" id="currencyCode" value="${currencyCode}"/>			
+				<input type="hidden" name="orderId" id="orderId" value="${orderId}"/>			
+				<input type="hidden" name="orgCode" value="${orgCode!''}"/>
+				<input type="hidden" name="tradeType" value="${tradeType!''}"/>
+				<input type="hidden" name="cardHolderLastName" value="${cardHolderLastName!''}"/>
+				<input type="hidden" name="cardHolderFirstName" value="${cardHolderFirstName!''}"/>			
+				<input type="hidden" name="orgMerchantCode" value="${orgMerchantCode!''}"/>		
+				<input type="hidden" name="cardHolderNumber" value="${cardHolderNumber!''}"/>		
+				<input type="hidden" name="cardExpirationYear" value="${cardExpirationYear!''}"/>		
+				<input type="hidden" name="cardExpirationMonth" value="${cardExpirationMonth!''}"/>		
+				<input type="hidden" name="securityCode" value="${securityCode!''}"/>
+				<input type="hidden" name="language" value="${language?default('en')}"/>
+				<input type="hidden" name="orderTerminal" value="${orderTerminal?default('01')}"/>
+				<input type="hidden" name="remark" value="${remark?default('')}"/>
+				<input type="hidden" name="customerIP" id="customerIP" value="${customerIP?default('')}"/>
+				
+                <div id="li_0" class="reg_nav_li_common cc_center">
+                   <div style="background:#FFF;">
+                   	<div class="dcc_tip">
+                    	<font>FX RATE</font>
+                    </div>
+                    <div class="dcc_tip">
+                    	<font> ${currencyCode?default('')}/${Currency?default('')}</font>
+                    </div>
+                    <div class="dcc_tip">
+                    	<font> ${Conversion_Rate?default('')}</font>
+                    </div>
+                    <div style="clear:both;"></div>
+                   </div>
+                </div>
+            	<!-- 卡片信息End -->
+            
+                <div class="clear"></div>
+                <div style="margin-top:20px;">
+                	<p style=" text-indent:2em;">I DECLARE THAT I HAVE BEEN OFFERED A CHOICE OF PAYMENT CURRENCIES AND MY CHOICE IS FINAL.</p>
+                </div>
+               <!-- <a class="submit button_disable" id="enterprise_reg_next">下一步</a>-->
+                <!-- 下一步按钮 -->
+                <div style="width:95%;margin:80px auto 0px;">
+                	<div class="common_button" style="padding:1px;text-align:center;margin-top:20px;" id="edcPay">
+                    <!--  <input type="button" id="edcPay" value="PAY ${currencyCode?default('')}&nbsp;${amountLoc?default('')}" /> -->
+                    PAY ${currencyCode?default('')}&nbsp;${amountLoc?default('')}
+                   </div>
+                </div>
+                <div style="width:95%;margin:30px auto 0px;">
+                	<div class="common_button" style="padding:1px;text-align:center;margin-top:20px;" id="dccPay">
+                     <!-- <input type="button" id="dccPay" value="PAY ${Currency?default('')}&nbsp;${amountFor?default('')}" /> -->
+                     PAY ${Currency?default('')}&nbsp;${amountFor?default('')}
+                   </div>
+                </div>
+               
+            </form>
+            <input type="hidden" name="prdtCode" id="prdtCode" value="${prdtCode?default('')}"/>
+        </div>
+    </div>
+	
+  <script type="text/javascript">
+	 $(function(){
+			
+			$("#edcPay").click(function(){
+				var pars = $("#frm1").serialize() + "&dccFlg=EDC&prdtCode=EDC";
+				window.location.href='${rc.contextPath}/crosspay.htm?method=dccPay&'+pars;
+			});
+			
+			$("#dccPay").click(function(){
+				var pars = $("#frm1").serialize() + "&dccFlg=DCC&prdtCode="+$("#prdtCode").val();
+				window.location.href='${rc.contextPath}/crosspay.htm?method=dccPay&'+pars;
+			});
+			
+		});
+	</script> 
+</body>
+</html>
+

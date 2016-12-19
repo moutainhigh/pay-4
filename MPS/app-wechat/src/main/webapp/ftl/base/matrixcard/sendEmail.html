@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${unbinding_pwd_card}${title}</title>
+<meta name="Keywords" content="${unbinding_pwd_card_Keywords}" />
+<meta name="Description" content="${unbinding_pwd_card_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css"/>
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css"/>
+<link href="<@sp.static/>/css/pay/css.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript">
+    $(function(){
+    	$("#randCode").focus();
+       // $.formValidator.initConfig({formid:"mobileForm"});
+        $("#refush").click(function(){
+    		var d = new Date();
+    		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+			$("#code").attr("src",src);
+			return false;
+    	});
+
+    	$("#mobileForm").submit(function(){
+    		if($.trim($("#randCode").val())== ''){
+				$("#errtips").show().html("请输入验证码");
+				return false;
+			}
+		});
+    });  
+</script>
+<#if errMsg?has_content>
+<script>
+$(function(){
+	$("#errtips").show().html("${errMsg?default('')}");
+});
+</script>
+</#if>   
+</head>
+<body>
+<!--导航 start-->
+<@sp.head channel=2 />
+<!--导航 end-->
+<!--主内容 start -->
+<div class="container">
+	<div class="mod_box lightUp">
+		<div class="tit">
+			<h3><strong>口令卡解绑</strong></h3>
+
+		</div>
+		<div class="con_box">
+			<form action="${rc.contextPath}/app/reSendUnBindMail.htm" name="mobileForm" id="mobileForm">
+			<div class="feedback warning">
+				<div><p id="errtips" class="tips hide"></p></div>
+				<#if isFail?has_content && isFail == 'fail'>
+				   <h1>解绑口令卡邮件发送失败,您可以重新发送!</h1>
+				   <p>验证码：<input id="randCode" name="randCode" type="text" class="bor" maxlength="4">
+					 <img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" /> 
+					<a id="refush" href="javascript:void(0);">换一张</a>
+					</p>
+					<div class="btn_area"> 
+					<span class="btn_yel botton_yel">
+						<button type="submit">重新发送解绑信</button>
+						</span><!-- <span class="btn_grey_b botton_grey">
+						<button>去邮箱查收</button> 
+					</span> --></div>
+				<#else>
+					 <h1>解绑口令卡您的安全级别将降低。</h1>
+					<p>gcpayment支付发送一封"口令卡解绑信"到您的邮箱.</p>
+					<p>电子邮箱：${email?default('')} </p>
+					<p>请您收到邮件后，点击信中的链接，解绑您的口令卡.</p>
+					<h3>未收到口令卡解绑信？</h3>
+					<ul>
+						<li>1、请检查您输入的邮箱是否正确</li>
+						<li>2、是否自动过滤成了垃圾邮件</li>
+					</ul>
+					<p>验证码：<input id="randCode" disableautocomplete autocomplete="off" name="randCode" type="text" class="bor" maxlength="4">
+					 <img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" /> 
+					<a id="refush" href="javascript:void(0);">换一张</a>
+					</p>
+					<div class="btn_area"> 
+					<span class="btn_yel botton_yel">
+						<button type="submit">重新发送解绑信</button>
+						</span>
+					</div>
+				</#if>
+			</div>
+			<input type="hidden" name="method" value="retoEmail" /> 
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

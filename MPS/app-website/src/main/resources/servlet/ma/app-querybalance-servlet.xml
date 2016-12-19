@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean id="querybalanceHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<!-- 个人会员 -->
+				<prop key="/app/queryBalanceList.htm">querybalanceController</prop>
+				<prop key="/app/excelBalance.htm">querybalanceController</prop>
+				<!-- 企业会员 -->
+				<prop key="/corp/queryBalanceList.htm">querybalanceController</prop>
+				<prop key="/corp/excelBalance.htm">querybalanceController</prop>
+        		<!-- 个人卖家 -->
+        		<prop key="/app/excelSellerBalance.htm">queryIndividualSellerBalanceController</prop>
+        		<prop key="/app/querySellerBalanceList.htm">queryIndividualSellerBalanceController</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<bean id="queryIndividualSellerBalanceController"
+		class="com.pay.app.controller.base.queryhistory.QueryIndividualSellerBalanceController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="queryBalance">
+			<value>/base/queryhistory/seller/queryBalanceList</value>
+		</property>
+		
+		<property name="excleBalance">
+			<value>/base/excel/seller/excelBalanceList</value>
+		</property>
+		
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		
+		<property name="queryBalanceService">
+			<ref bean="base-queryBalanceService" />
+		</property>
+		
+		
+		<property name="accountTypeService">
+			<ref bean="base-accountTypeService" />
+		</property>
+	</bean>
+
+	<bean id="querybalanceController"
+		class="com.pay.app.controller.base.queryhistory.QueryBalanceController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="queryBalance">
+			<value>/base/queryhistory/queryBalanceList</value>
+		</property>
+		
+		<property name="excleBalance">
+			<value>/base/excel/excelBalanceList</value>
+		</property>
+		
+		<!-- 企业服务的余额查询 -->
+		<property name="corpQueryBalance">
+		     <!--  
+			<value>/base/queryhistory/corp/queryBalanceList</value>-->
+			<value>/gcpayment/account/user_balance_detail</value>
+		</property>
+		<property name="corpExcelBalance">
+			<value>/base/excel/corp/excelBalanceList</value>
+		</property>
+		
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		
+		<property name="queryBalanceService">
+			<ref bean="base-queryBalanceService" />
+		</property>
+		
+		
+		<property name="accountTypeService">
+			<ref bean="base-accountTypeService" />
+		</property>
+
+            	<!-- 企业会员基本信息服务 -->
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+	</bean>
+</beans>

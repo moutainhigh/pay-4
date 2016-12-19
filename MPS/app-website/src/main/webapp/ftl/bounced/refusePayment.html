@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+  <!--     <script  type="text/javascript" src="<@sp.static/>/mps/js/zidingyi.js"></script> -->
+
+<!-- jquery validate -->
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/pay/common/website.js"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>拒付查询</title> 
+</head>
+<body>
+
+
+<script type="text/javascript">
+
+</script>
+<script type="text/javascript">
+
+</script>
+<script type="text/javascript">
+		function downwExcel(){
+			$("#export").attr("value",'1');
+			$("#bouncedForm").submit();
+		}
+		function sub(){
+			$("#export").removeAttr("value");
+			$("#bouncedForm").submit();
+		}
+		function checkNum(obj) {
+			//检查是否是非数字值
+			if (isNaN(obj.value)) {
+				obj.value = "";
+			}
+		}
+		
+		function cheked(){
+			 if($("#check").attr("checked")==true){
+				 $("input[type='checkbox']").each(function(){
+					 this.checked=true;
+				 })
+			 }else{
+				 $("input[type='checkbox']").each(function(){
+					 this.checked=false;
+				 })
+			 }
+		}
+		
+		function bacthNoAppeal(){
+			var orderIds="";
+			 $("input[type='checkbox']").each(function(){
+				 if(this.checked){
+					if($(this).val()!='on'){
+						orderIds+=$(this).val()+",";							
+					}
+				};
+			 })
+			if (!confirm("确认不申诉?")) {
+				return;
+			} 
+			if(orderIds==''){
+				alert("请选择不申诉的订单！！！");
+				return ;	
+			}
+			 $.ajax({
+				type : "POST",
+				url : "${rc.contextPath}/corp/bounced.htm?method=bacthNoAppeal",
+				data : "orderIds="+orderIds,
+				success : function(result) {
+					alert(result)
+					$("#bouncedForm").submit();
+			}
+		});
+	}
+</script>
+<script type="text/javascript">   
+  function fileChange(target) { 
+	var has = true ;
+	var isIE = /msie/i.test(navigator.userAgent) && !window.opera;   
+    var fileSize = 0;          
+    if (isIE && !target.files) {      
+      var filePath = target.value;      
+      var fileSystem = new ActiveXObject("Scripting.FileSystemObject");         
+      var file = fileSystem.GetFile (filePath);      
+      fileSize = file.Size;     
+    } else {     
+     fileSize = target.files[0].size;      
+    }    
+    var size = fileSize / 1024;
+    if(size>50000){   
+     has = false ;
+    }   
+    return has ;
+  }    
+</script> 
+<script type="text/javascript">
+	$(function(){
+		var uploadeDialog;
+		uploadeDialog=$("#dialog-uploade" ).dialog({
+	      autoOpen: false,
+	      height: 300,
+	      width: 510,
+	      modal: true,
+	      buttons: {
+	          "取消": function() {
+	        	  $("#d_fileEmpty").css('visibility', 'hidden') ;
+	        	  $("#d_fileSize").css('visibility', 'hidden') ;
+	        	  $("#dialog-uploade" ).dialog( "close" );
+	          },
+      	      "确定":function() {
+      	    	  batchUpload();
+      	      }
+	        },
+	      close: function() {
+	    	  document.getElementById("uploadeSite").reset();
+	      }
+	    }); 
+		function batchUpload(){
+			var fileName = $("#file").val() ;
+			if(null == fileName || "" == fileName){
+				$("#d_fileEmpty").css('visibility', 'visible') ;
+				return false ;
+			}
+			var file = $("#file").get(0) ;
+			var _has = fileChange(file) ;
+			if(!_has){
+				$("#d_fileSize").css('visibility', 'visible') ;
+				return false ;
+			}
+			$('#uploadeSite').submit();
+			$("#dialog-uploade" ).dialog( "close" );
+		}
+	})
+	function appeal(obj, baseAmount, assAmount, settlementCurrency, orderId, refNo,batchNo){
+		var $this = $(obj) ;
+		var $thisTr = $(obj).parent("td").parent("tr") ;
+		var orderNo = $thisTr.find("td:eq(1)").text().trim() ;
+		var orderAmount = $thisTr.find("td:eq(3)").text().trim() ;
+		var chargeBackAmount = $thisTr.find("td:eq(5)").text().trim() ;
+		var settlementRate = $thisTr.find("td:eq(4)").text().trim() ;
+		$("#d_orderNo").text(orderNo) ;
+		$("#d_orderAmount").text(orderAmount) ;
+		$("#d_chargeBackAmount").text(chargeBackAmount) ;
+		$("#d_settlementRate").text(settlementRate) ;
+		var _baseAmount = baseAmount + " " + settlementCurrency ;
+		var _assAmount = assAmount + " " + settlementCurrency ;
+		$("#d_baseAmount").text(_baseAmount) ;
+		$("#d_assAmount").text(_assAmount) ;
+		var _orderId = orderId ;
+		$("#d_orderId").val(_orderId) ;
+		$("#d_refNo").val(refNo);
+		$("#d_batchNo").val(batchNo);
+	    $("#dialog-uploade" ).dialog( "open" );
+	}
+</script>
+<#include "/include/topbar.html">
+<@sp.head  mCode="02"/>
+<!-- 获取企业还是个人url str -->
+
+	<div class="mainbox">
+<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<!-- <span class="current"><a href="${rc.contextPath}/corp/bounced.htm?method=bounced">拒付查询 </a></span> -->
+			</div>
+				<div class="seccon">
+					<div class="bgbox">
+					<form class="form" action="${rc.contextPath}/corp/bounced.htm?method=bounced" method="post" name="bouncedForm" id="bouncedForm">
+						<input type="hidden" name="export" id="export" value="" />
+						<table class="tab01" style="line-height: 25px">
+							<tbody>
+								<tr>
+                                   <td width="100">
+                                        <span style="float:right">商户订单号：</span>
+                                   </td>
+                                   <td>
+                                     <input type="text" style="height: 25px;" class="inp_normal w250"  value="${requetParam.orderNo?default('')}" name="orderNo" id="orderNo" >
+                                   </td>
+                                   <td width="100">
+                                        <span style="float:right">拒付状态：</span>
+                                   </td>
+                                   <td>
+                                     <select id="status" name="status" class="" value="${status!''}" style="padding:3px;">
+										<option value="0" <#if (((requetParam.status)!'') == '0')>selected="selected"</#if> >未处理</option>
+                                    		<option value=""  <#if (((requetParam.status)!'') == '8')>selected="selected"</#if> >全部 </option>
+										<option value="1,2,3,4" <#if (((requetParam.status)!'') == '1,2,3,4')>selected="selected"</#if> >处理中</option>
+										<option value="7" <#if (((requetParam.status)!'') == '7')>selected="selected"</#if> >不申诉</option>
+										<option value="6" <#if (((requetParam.status)!'') == '6')>selected="selected"</#if> >申诉成功</option>
+										<option value="5" <#if (((requetParam.status)!'') == '5')>selected="selected"</#if> >申诉失败</option>
+									</select>
+                                   </td>
+								</tr>
+								<tr>
+                                   <td width="100"><span style="float:right">交易时间：</span></td>
+                                   <td>
+	                                  <input type="text" class="Wdate inp_normal w380" name="tradeBeginTime"  readonly="readonly" id="tradeBeginTime" gtbfieldid="109" value="<#if requetParam.tradeBeginTime?has_content>${requetParam.tradeBeginTime?date}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})" value="${requetParam.tradeBeginTime!''}">
+							          <span>-</span>
+							          <input type="text" class="Wdate inp_normal w380" name="tradeEndTime" readonly="readonly" id="tradeEndTime" gtbfieldid="110" value="<#if requetParam.tradeEndTime?has_content>${requetParam.tradeEndTime?date}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})" value="${requetParam.tradeEndTime!''}">
+	                                     
+                                   </td>
+                                   <td width="100">
+                                       <span style="float:right">拒付时间：</span>
+                                   </td>
+                                   <td>
+                                     	<input type="text" class="Wdate inp_normal w380" name="createBeginTime"  readonly="readonly" id="createBeginTime" gtbfieldid="109" value="<#if requetParam.createBeginTime?has_content>${requetParam.createBeginTime?date}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+						                   <span>-</span>
+						                 <input type="text" class="Wdate inp_normal w380" name="createEndTime" readonly="readonly" id="createEndTime" gtbfieldid="110" value="<#if requetParam.createEndTime?has_content>${requetParam.createEndTime?date}</#if>" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+                                   </td>
+								</tr>
+								<tr >
+									<td colspan="4" style="">
+										<div class="divquery">
+											<input class="btn_blue2" type="submit" id="submitId" onclick="return sub('');" alt="查  询" value="查  询" >
+											&nbsp;&nbsp;<a href="javascript:void(0)" onclick="downwExcel() ;" id="exportExcel" name="exportExcel" style="text-decoration:underline;">查询下载</a>
+										</div>
+										<div class="divdown">
+											 <input class="btn_blue2" type="button" onclick="bacthNoAppeal();" value="批量不申诉" >
+                                      		&nbsp;&nbsp;
+                                      		<a href="javascript:void(0)" onclick="javascript:window.location.href='${rc.contextPath}/corp/bounced.htm?method=downBouncedAppealTemplate&fileName=拒付申诉资料模板.docx'" style="text-decoration:underline;">回复模版下载</a>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</form>
+					</div>
+				<div><font color="red"></font></div>
+					<div class="listFence" id="resultListDiv">
+						
+						<div>
+							<table class="tab03">
+								<thead>
+									<tr>
+									<td>
+									<input type="checkbox" onclick="cheked()" id="check">
+									</td>
+										<th>商户订单号</th>
+										<th>交易时间</th>
+										<th>交易金额</th>
+										<th>清算汇率</th>
+										<th>拒付金额</th>
+										<th>拒付时间</th>
+										<th>拒付原因</th>
+										<th>拒付状态</th>
+										<th>最晚回复时间</th>
+										<th>操作</th>
+									</tr>
+								</thead>
+								<tbody>
+								<#if resultList?has_content>
+							 		<#list resultList as ts>
+										<tr <#if ts_index%2==0> class="gray" </#if> >
+											<td>
+												
+												<#if ts.status?exists>
+													<#if ts.status == 0>
+														<input type="checkbox" value="${ts.orderId!('')}">
+													</#if>
+												</#if>
+											</td>
+											<td>${ts.orderNo!('')}</td>
+											<td>
+													${ts.tradeDate?default("")}
+											</td>
+											<td>
+												${(ts.tradeAmount*0.001)?string(",##0.000")}&nbsp;&nbsp;${ts.tranCurrencyCode?default("")}
+											</td>
+			   								<td>${ts.settlementRate!('')}</td>
+			   								<td>
+			   									${(ts.chargeBackAmount*0.001)?string(",##0.000")}&nbsp;&nbsp;${ts.tranCurrencyCode?default("")}
+											</td>
+											<td>
+												${ts.cpdDate?default("")}
+											</td>
+											<td>
+											<#if ts.visableCode?exists>
+												<#if ts.visableCode == '1'>
+													需要交易凭证
+												<#elseif ts.visableCode == '2'>
+													未收到货物或服务
+												<#elseif ts.visableCode == '3'>
+													未授权交易
+												<#elseif ts.visableCode == '4'>
+													重复处理
+												<#elseif ts.visableCode == '5'>
+													欺诈伪冒
+												<#elseif ts.visableCode == '6'>
+													货不对版
+												<#elseif ts.visableCode == '7'>
+													不承认
+												<#elseif ts.visableCode == '8'>
+													要求个人纪录
+												<#elseif ts.visableCode == '9'>
+													商品已退回未退款
+												<#elseif ts.visableCode == '10'>
+													未收到退款
+												<#elseif ts.visableCode == '11'>
+													金额不符
+												<#elseif ts.visableCode == '12'>
+													未提供单据
+												<#elseif ts.visableCode == '13'>
+													重复扣款
+												</#if>
+											</#if>
+											</td>
+											<td>
+											<#if ts.status?exists>
+												<#if ts.status == 0>
+													未处理
+												<#elseif ts.status == 1 || ts.status == 2 || ts.status == 3 || ts.status == 4 >
+													处理中
+												<#elseif ts.status == 5>
+													申诉失败
+												<#elseif ts.status == 6>
+													申诉成功
+												<#elseif ts.status == 7>
+													不申诉
+												</#if>
+											</#if>
+											</td>
+											<td>
+												<#if ts.latestAnswerDate?exists>
+													<#if ts.latestAnswerDate?exists>
+														<#if ts.status?default(0) == 0>
+															${ts.latestAnswerDate?default("")} 18:00
+															<#else>
+																--
+														</#if>
+													</#if>
+												<#else>
+														--
+												</#if>
+											</td>
+											<td>
+												<#if ts.appealFlag?has_content>
+													<#if (ts.appealFlag == "1" && ts.status == 0) || (ts.appealFlag == "1" && ts.status == 1)>
+														<a href="javascript:void(0);"
+															onclick="javascript:appeal(this, '${(ts.baseAmount?default(0)?number*0.001*ts.settlementRate?default(0)?number)?string(",##0.000")}', '${(ts.assureAmount?default(0)?number*0.001*ts.settlementRate?default(0)?number)?string(",##0.000")}','${(ts.settlementCurrencyCode!(""))}', '${ts.orderId!("")}','${ts.refNo!("")}','${ts.batchNo!("")}');">申诉</a>
+													<#else>
+															--
+													</#if>
+													<#else>
+														--
+												</#if>
+											</td>
+										</tr> 
+									</#list>
+								</#if>
+								<tbody>
+							</tbody></table>
+						 </div>
+						<div class="page_box" style="text-align: right">
+						<!-- 分页str -->
+						<#if pu?exists>
+							<@sp.pagination pu=pu/>
+						</#if>
+						<!-- 分页end -->
+					</div>
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+<!-- 申诉 -->
+	<div id="dialog-uploade" title="拒付申诉" style="display: none;">
+	  <form action="${rc.contextPath}/corp/bounced.htm?method=uploadChargeFile" id="uploadeSite" enctype="multipart/form-data" name="uploadeSite" method="post" target="hidden_frame" >
+	  	<input type="hidden" name="d_cpType" id="d_cpType" value="0" /><!-- 拒付 -->
+	  	<input type="hidden" name="d_orderId" id="d_orderId" value="" />
+	  	<input type="hidden" name="d_refNo" id="d_refNo" value="" />
+	  	<input type="hidden" name="d_batchNo" id="d_batchNo" value="" />
+	  	<div style="margin-top: 20px;">   	 
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;">
+	  			<span style="width:230px;display: inline-block;padding:0 5px 0 5px;">商户订单号: <font id="d_orderNo"></font></span>
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;">清算金额(基本户)：<font id="d_baseAmount"></font></span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;">
+	  			<span style="width:230px;display: inline-block;padding:0 5px 0 5px;">交易金额： <font id="d_orderAmount"></font></span>
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;">拒付金额：<font id="d_chargeBackAmount"></font></span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;">
+	  			<span style="width:230px;display: inline-block;padding:0 5px 0 5px;">清算汇率：<font id="d_settlementRate"></font></span>
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;">清算金额(保证金)：<font id="d_assAmount"></font></span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;text-align: center;">
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;color:red;visibility: hidden;" id="d_fileSize">(文件大小不能超5M)</span>
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;text-align: center;">
+	  			<input type="file" name="file" id="file" />
+	  		</div>
+	  		<div style="margin:0px 20px 0 20px;height:30xp;line-height:30px;text-align: center;">
+	  			<span style="width:210px;display: inline-block;padding:0 5px 0 5px;color:red;visibility: hidden;" id="d_fileEmpty">请上传回复资料</span>
+	  		</div>
+	    <!-- <input type="submit" tabindex="-1" style="position:absolute; top:-1000px"> -->
+	   </div>
+	   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+	  </form>
+	  <script type="text/javascript">
+		function callback(result){  
+			var opt={};
+		    var statue=result.split("|")[0];
+		    var msg=result.split("|")[1];
+		    //var success = result.split("|")[2] ;
+		    if(statue=="Y"){
+				$.pay.alert(msg);
+				$("#dialog-uploade" ).dialog( "close" );
+			}else if(statue=="N"){
+				$.pay.alert(msg);
+			}
+		}
+	</script>
+	</div>
+</body>
+</html>
+

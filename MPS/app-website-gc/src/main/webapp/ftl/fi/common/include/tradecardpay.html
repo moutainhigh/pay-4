@@ -1,0 +1,61 @@
+<!--侧导航企业版 end -->
+<#if Session["userSession"].scaleType==2>
+<#assign urlPath = 'corp' />
+<#else>
+<#assign urlPath = 'app' />
+</#if>
+
+<script>
+	function chooseTradeCardDetail(orgCode){	 
+		if (null != orgCode && "MOBILE" == orgCode) {
+			$("#tradeCardComment").removeClass("hide");
+		} else {
+			$("#tradeCardComment").addClass("hide");
+		}
+		
+		$.ajax({
+		   type: "POST",
+		   url: "${rc.contextPath}/${urlPath}/cardChargeDesk.htm?method=displayCardDetail",
+		   data: "cardType="+orgCode,
+		   success: function(msg){
+			   $("#cardDeskDetail").html(msg);
+			   if (null != orgCode && "JCARD" == orgCode) {
+				   $("#heepayDealAmount").focus();
+			   }
+		   }
+		});
+	}
+</script>
+<div>
+	<div id="tradeCardComment">
+		<p class="red mt10"><i class="warn_ico" style="margin-left:0;"></i>&nbsp;您选择的金额与充值卡面额必须一致，否则将可能导致充值不成功、或充值卡金额丢失</p>
+	</div>
+	<div class="clearfix mt20">
+		<div class="form_info">
+			<span class="tit_txt333">选择行业卡类型：</span> 
+			<#if channelItemDTOs?exists> 
+				<#list channelItemDTOs as tradeCard> 
+				
+				<#if tradeCard.orgcode=='MOBILE'>
+				<input id="tradeCardId_${tradeCard.orgcode}" name="sort" type="radio" 
+						onclick="chooseTradeCardDetail('${tradeCard.orgcode?default('')}');" 
+						value="${tradeCard.alias?default('')};${tradeCard.orgcode?default('')}" class="lb_sec" checked="checked" /> 
+				<#else>
+					<input id="tradeCardId_${tradeCard.orgcode}" name="sort" type="radio" 
+						onclick="chooseTradeCardDetail('${tradeCard.orgcode?default('')}');" 
+						value="${tradeCard.alias?default('')};${tradeCard.orgcode?default('')}" class="lb_sec" /> 
+				</#if> 
+					<label class="lb_f" for="tradeCardId_${tradeCard.orgcode}" 
+					style="cursor: pointer; background: url('<@sp.static/>/img/tradecardpay/${tradeCard.labelClass?default('')}.jpg') 
+					no-repeat scroll 0 0 transparent;display: inline-block; width: 135px;height:32px;
+    				font-size: 0;line-height: 0;margin: 0 5px;overflow: hidden;vertical-align: middle;"> 
+					</label> 
+				</#list> 
+			</#if>
+		</div>
+	</div>
+	<div id="cardDeskDetail"></div>
+</div>
+<script>
+	chooseTradeCardDetail('MOBILE');
+</script>

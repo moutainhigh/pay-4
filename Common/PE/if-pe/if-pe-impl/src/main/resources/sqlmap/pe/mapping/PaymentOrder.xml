@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentorder">
+	<typeAlias alias="paymentOrder" type="com.pay.pe.model.PaymentOrder"/>
+    <resultMap id="paymentOrder" class="com.pay.pe.model.PaymentOrder">
+        <result column="RETURN_URL" property="returnUrl" jdbcType="VARCHAR"/>
+        <result column="PAYEE_DISPLAY_NAME" property="payeeDisplayName" jdbcType="VARCHAR"/>
+        <result column="MEMO" property="memo" jdbcType="VARCHAR"/>
+        <result column="ORDER_CODE" property="orderCode" jdbcType="DECIMAL"/>
+        <result column="LAST_UPDATE_TIME" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="PAYEE_ACCT_CODE" property="payeeAcctCode" jdbcType="DECIMAL"/>
+        <result column="RELATED_TYPE" property="relatedType" jdbcType="DECIMAL"/>
+        <result column="PAYEE_ORG_CODE" property="payeeOrgCode" jdbcType="DECIMAL"/>
+        <result column="DISCOUNT_AMOUNT" property="discountAmount" jdbcType="DECIMAL"/>
+        <result column="COUPON_NUMBER" property="couponNumber" jdbcType="VARCHAR"/>
+        <result column="RELATED_SEQUENCE_ID" property="relatedSequenceId" jdbcType="VARCHAR"/>
+        <result column="PAYEE_IDENTITY" property="payeeIdentity" jdbcType="VARCHAR"/>
+        <result column="REFERENCE_NUM" property="referenceNum" jdbcType="VARCHAR"/>
+        <result column="VERSION" property="version" jdbcType="VARCHAR"/>
+        <result column="ORDER_DIGEST" property="orderDigest" jdbcType="VARCHAR"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="OP_VERSION" property="opVersion" jdbcType="DECIMAL"/>
+        <result column="SUBMIT_ACCT_CODE" property="submitAcctCode" jdbcType="DECIMAL"/>
+        <result column="PRODUCT_NUM" property="productNum" jdbcType="DECIMAL"/>
+        <result column="PAYEE_ORG_TYPE" property="payeeOrgType" jdbcType="DECIMAL"/>
+        <result column="PAYER_ORG_TYPE" property="payerOrgType" jdbcType="DECIMAL"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+        <result column="TERMINAL_TYPE_CODE" property="terminalTypeCode" jdbcType="DECIMAL"/>
+        <result column="PAY_METHOD" property="payMethod" jdbcType="DECIMAL"/>
+        <result column="PAYER_ACCT_CODE" property="payerAcctCode" jdbcType="DECIMAL"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="PAYER_ACCT_TYPE" property="payerAcctType" jdbcType="DECIMAL"/>
+        <result column="LOYAL_CARD_NUMBER" property="loyalCardNumber" jdbcType="VARCHAR"/>
+        <result column="ORDER_TIME" property="orderTime" jdbcType="TIMESTAMP"/>
+        <result column="PAYER_DISPLAY_NAME" property="payerDisplayName" jdbcType="VARCHAR"/>
+        <result column="ORDER_STATUS" property="orderStatus" jdbcType="DECIMAL"/>
+        <result column="IP" property="ip" jdbcType="VARCHAR"/>
+        <result column="PAYER_ORG_CODE" property="payerOrgCode" jdbcType="DECIMAL"/>
+        <result column="ORG_ORDER_ID" property="orgOrderId" jdbcType="VARCHAR"/>
+        
+        <result column="PAYEE_ACCT_TYPE" property="payeeAcctType" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="MERCHANT_ORDER_TIME" property="merchantOrderTime" jdbcType="TIMESTAMP"/>
+        <result column="PRODUCT_NAME" property="productName" jdbcType="VARCHAR"/>
+        <result column="IS_REVERSED" property="isReversed" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		RETURN_URL,PAYEE_DISPLAY_NAME,MEMO,ORDER_CODE,LAST_UPDATE_TIME,
+		PAYEE_ACCT_CODE,RELATED_TYPE,PAYEE_ORG_CODE,DISCOUNT_AMOUNT,COUPON_NUMBER,
+		RELATED_SEQUENCE_ID,PAYEE_IDENTITY,REFERENCE_NUM,VERSION,ORDER_DIGEST,
+		ORDER_AMOUNT,OP_VERSION,SUBMIT_ACCT_CODE,PRODUCT_NUM,PAYEE_ORG_TYPE,
+		PAYER_ORG_TYPE,ORDER_ID,TERMINAL_TYPE_CODE,PAY_METHOD,PAYER_ACCT_CODE,
+		CURRENCY_CODE,PAYER_ACCT_TYPE,LOYAL_CARD_NUMBER,ORDER_TIME,PAYER_DISPLAY_NAME,
+		ORDER_STATUS,IP,PAYER_ORG_CODE,ORG_ORDER_ID,
+		PAYEE_ACCT_TYPE,SEQUENCE_ID,MERCHANT_ORDER_TIME,PRODUCT_NAME,IS_REVERSED
+		
+    </sql>
+    <insert id="create" parameterClass="paymentOrder">
+    	<selectKey  resultClass="java.lang.Long" keyProperty="sequenceId">
+			select SEQ_PAYMENTORDER_ID.nextval as sequenceId from DUAL 
+		</selectKey>
+        INSERT INTO PAYMENT_ORDER(
+			RETURN_URL,PAYEE_DISPLAY_NAME,MEMO,ORDER_CODE,LAST_UPDATE_TIME,
+			PAYEE_ACCT_CODE,RELATED_TYPE,PAYEE_ORG_CODE,DISCOUNT_AMOUNT,COUPON_NUMBER,
+			RELATED_SEQUENCE_ID,PAYEE_IDENTITY,REFERENCE_NUM,VERSION,ORDER_DIGEST,
+			ORDER_AMOUNT,OP_VERSION,SUBMIT_ACCT_CODE,PRODUCT_NUM,PAYEE_ORG_TYPE,
+			PAYER_ORG_TYPE,ORDER_ID,TERMINAL_TYPE_CODE,PAY_METHOD,PAYER_ACCT_CODE,
+			CURRENCY_CODE,PAYER_ACCT_TYPE,LOYAL_CARD_NUMBER,ORDER_TIME,PAYER_DISPLAY_NAME,
+			ORDER_STATUS,IP,PAYER_ORG_CODE,ORG_ORDER_ID,
+			PAYEE_ACCT_TYPE,SEQUENCE_ID,MERCHANT_ORDER_TIME,PRODUCT_NAME,IS_REVERSED
+			
+        )
+        VALUES(
+            #returnUrl#,#payeeDisplayName#,#memo#,#orderCode#,#lastUpdateTime#,
+			#payeeAcctCode#,#relatedType#,#payeeOrgCode#,#discountAmount#,#couponNumber#,
+			#relatedSequenceId#,#payeeIdentity#,#referenceNum#,#version#,#orderDigest#,
+			#orderAmount#,#opVersion#,#submitAcctCode#,#productNum#,#payeeOrgType#,
+			#payerOrgType#,#orderId#,#terminalTypeCode#,#payMethod#,#payerAcctCode#,
+			#currencyCode#,#payerAcctType#,#loyalCardNumber#,#orderTime#,#payerDisplayName#,
+			#orderStatus#,#ip#,#payerOrgCode#,#orgOrderId#,
+			#payeeAcctType#,#sequenceId#,#merchantOrderTime#,#productName#,#isReversed#
+			
+		)
+    </insert>
+
+    <update id="update" parameterClass="paymentOrder">
+        UPDATE PAYMENT_ORDER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="returnUrl">
+            RETURN_URL = #returnUrl#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeDisplayName">
+            PAYEE_DISPLAY_NAME = #payeeDisplayName#
+        </isNotNull>
+        <isNotNull prepend="," property="memo">
+            MEMO = #memo#
+        </isNotNull>
+        <isNotNull prepend="," property="orderCode">
+            ORDER_CODE = #orderCode#
+        </isNotNull>
+        <isNotNull prepend="," property="lastUpdateTime">
+            LAST_UPDATE_TIME = #lastUpdateTime#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="relatedType">
+            RELATED_TYPE = #relatedType#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="discountAmount">
+            DISCOUNT_AMOUNT = #discountAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="couponNumber">
+            COUPON_NUMBER = #couponNumber#
+        </isNotNull>
+        <isNotNull prepend="," property="relatedSequenceId">
+            RELATED_SEQUENCE_ID = #relatedSequenceId#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeIdentity">
+            PAYEE_IDENTITY = #payeeIdentity#
+        </isNotNull>
+        <isNotNull prepend="," property="referenceNum">
+            REFERENCE_NUM = #referenceNum#
+        </isNotNull>
+        <isNotNull prepend="," property="version">
+            VERSION = #version#
+        </isNotNull>
+        <isNotNull prepend="," property="orderDigest">
+            ORDER_DIGEST = #orderDigest#
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount">
+            ORDER_AMOUNT = #orderAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="opVersion">
+            OP_VERSION = #opVersion#
+        </isNotNull>
+        <isNotNull prepend="," property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="productNum">
+            PRODUCT_NUM = #productNum#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType#
+        </isNotNull>
+        <isNotNull prepend="," property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType#
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+            ORDER_ID = #orderId#
+        </isNotNull>
+        <isNotNull prepend="," property="terminalTypeCode">
+            TERMINAL_TYPE_CODE = #terminalTypeCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payMethod">
+            PAY_METHOD = #payMethod#
+        </isNotNull>
+        <isNotNull prepend="," property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType#
+        </isNotNull>
+        <isNotNull prepend="," property="loyalCardNumber">
+            LOYAL_CARD_NUMBER = #loyalCardNumber#
+        </isNotNull>
+        <isNotNull prepend="," property="orderTime">
+            ORDER_TIME = #orderTime#
+        </isNotNull>
+        <isNotNull prepend="," property="payerDisplayName">
+            PAYER_DISPLAY_NAME = #payerDisplayName#
+        </isNotNull>
+        <isNotNull prepend="," property="orderStatus">
+            ORDER_STATUS = #orderStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="ip">
+            IP = #ip#
+        </isNotNull>
+        <isNotNull prepend="," property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId#
+        </isNotNull>
+        
+        <isNotNull prepend="," property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType#
+        </isNotNull>
+        <isNotNull prepend="," property="merchantOrderTime">
+            MERCHANT_ORDER_TIME = #merchantOrderTime#
+        </isNotNull>
+        <isNotNull prepend="," property="productName">
+            PRODUCT_NAME = #productName#
+        </isNotNull>
+        <isNotNull prepend="," property="isReversed">
+            IS_REVERSED = #isReversed#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM PAYMENT_ORDER        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="paymentOrder">
+        DELETE FROM PAYMENT_ORDER        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="returnUrl">
+            RETURN_URL = #returnUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeDisplayName">
+            PAYEE_DISPLAY_NAME = #payeeDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memo">
+            MEMO = #memo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderCode">
+            ORDER_CODE = #orderCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lastUpdateTime">
+            LAST_UPDATE_TIME = #lastUpdateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="relatedType">
+            RELATED_TYPE = #relatedType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="discountAmount">
+            DISCOUNT_AMOUNT = #discountAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="couponNumber">
+            COUPON_NUMBER = #couponNumber# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="relatedSequenceId">
+            RELATED_SEQUENCE_ID = #relatedSequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeIdentity">
+            PAYEE_IDENTITY = #payeeIdentity# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="referenceNum">
+            REFERENCE_NUM = #referenceNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="version">
+            VERSION = #version# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderDigest">
+            ORDER_DIGEST = #orderDigest# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="opVersion">
+            OP_VERSION = #opVersion# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="productNum">
+            PRODUCT_NUM = #productNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="terminalTypeCode">
+            TERMINAL_TYPE_CODE = #terminalTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payMethod">
+            PAY_METHOD = #payMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="loyalCardNumber">
+            LOYAL_CARD_NUMBER = #loyalCardNumber# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderTime">
+            ORDER_TIME = #orderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerDisplayName">
+            PAYER_DISPLAY_NAME = #payerDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderStatus">
+            ORDER_STATUS = #orderStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ip">
+            IP = #ip# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId# 
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="merchantOrderTime">
+            MERCHANT_ORDER_TIME = #merchantOrderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="productName">
+            PRODUCT_NAME = #productName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isReversed">
+            IS_REVERSED = #isReversed# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="paymentOrder"
+        parameterClass="java.lang.Long">
+        SELECT 
+			RETURN_URL,PAYEE_DISPLAY_NAME,MEMO,ORDER_CODE,LAST_UPDATE_TIME,
+			PAYEE_ACCT_CODE,RELATED_TYPE,PAYEE_ORG_CODE,DISCOUNT_AMOUNT,COUPON_NUMBER,
+			RELATED_SEQUENCE_ID,PAYEE_IDENTITY,REFERENCE_NUM,VERSION,ORDER_DIGEST,
+			ORDER_AMOUNT,OP_VERSION,SUBMIT_ACCT_CODE,PRODUCT_NUM,PAYEE_ORG_TYPE,
+			PAYER_ORG_TYPE,ORDER_ID,TERMINAL_TYPE_CODE,PAY_METHOD,PAYER_ACCT_CODE,
+			CURRENCY_CODE,PAYER_ACCT_TYPE,LOYAL_CARD_NUMBER,ORDER_TIME,PAYER_DISPLAY_NAME,
+			ORDER_STATUS,IP,PAYER_ORG_CODE,ORG_ORDER_ID,
+			PAYEE_ACCT_TYPE,SEQUENCE_ID,MERCHANT_ORDER_TIME,PRODUCT_NAME,IS_REVERSED
+			
+        FROM PAYMENT_ORDER
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="paymentOrder">
+        SELECT 
+			RETURN_URL,PAYEE_DISPLAY_NAME,MEMO,ORDER_CODE,LAST_UPDATE_TIME,
+			PAYEE_ACCT_CODE,RELATED_TYPE,PAYEE_ORG_CODE,DISCOUNT_AMOUNT,COUPON_NUMBER,
+			RELATED_SEQUENCE_ID,PAYEE_IDENTITY,REFERENCE_NUM,VERSION,ORDER_DIGEST,
+			ORDER_AMOUNT,OP_VERSION,SUBMIT_ACCT_CODE,PRODUCT_NUM,PAYEE_ORG_TYPE,
+			PAYER_ORG_TYPE,ORDER_ID,TERMINAL_TYPE_CODE,PAY_METHOD,PAYER_ACCT_CODE,
+			CURRENCY_CODE,PAYER_ACCT_TYPE,LOYAL_CARD_NUMBER,ORDER_TIME,PAYER_DISPLAY_NAME,
+			ORDER_STATUS,IP,PAYER_ORG_CODE,ORG_ORDER_ID,
+			PAYEE_ACCT_TYPE,SEQUENCE_ID,MERCHANT_ORDER_TIME,PRODUCT_NAME,IS_REVERSED
+			
+        FROM PAYMENT_ORDER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="returnUrl">
+            RETURN_URL = #returnUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeDisplayName">
+            PAYEE_DISPLAY_NAME = #payeeDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memo">
+            MEMO = #memo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderCode">
+            ORDER_CODE = #orderCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lastUpdateTime">
+            LAST_UPDATE_TIME = #lastUpdateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="relatedType">
+            RELATED_TYPE = #relatedType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="discountAmount">
+            DISCOUNT_AMOUNT = #discountAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="couponNumber">
+            COUPON_NUMBER = #couponNumber# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="relatedSequenceId">
+            RELATED_SEQUENCE_ID = #relatedSequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeIdentity">
+            PAYEE_IDENTITY = #payeeIdentity# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="referenceNum">
+            REFERENCE_NUM = #referenceNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="version">
+            VERSION = #version# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderDigest">
+            ORDER_DIGEST = #orderDigest# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="opVersion">
+            OP_VERSION = #opVersion# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="productNum">
+            PRODUCT_NUM = #productNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="terminalTypeCode">
+            TERMINAL_TYPE_CODE = #terminalTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payMethod">
+            PAY_METHOD = #payMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="loyalCardNumber">
+            LOYAL_CARD_NUMBER = #loyalCardNumber# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderTime">
+            ORDER_TIME = #orderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerDisplayName">
+            PAYER_DISPLAY_NAME = #payerDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderStatus">
+            ORDER_STATUS = #orderStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ip">
+            IP = #ip# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId# 
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="merchantOrderTime">
+            MERCHANT_ORDER_TIME = #merchantOrderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="productName">
+            PRODUCT_NAME = #productName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isReversed">
+            IS_REVERSED = #isReversed# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PAYMENT_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="returnUrl">
+            RETURN_URL = #returnUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeDisplayName">
+            PAYEE_DISPLAY_NAME = #payeeDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memo">
+            MEMO = #memo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderCode">
+            ORDER_CODE = #orderCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lastUpdateTime">
+            LAST_UPDATE_TIME = #lastUpdateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="relatedType">
+            RELATED_TYPE = #relatedType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="discountAmount">
+            DISCOUNT_AMOUNT = #discountAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="couponNumber">
+            COUPON_NUMBER = #couponNumber# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="relatedSequenceId">
+            RELATED_SEQUENCE_ID = #relatedSequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeIdentity">
+            PAYEE_IDENTITY = #payeeIdentity# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="referenceNum">
+            REFERENCE_NUM = #referenceNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="version">
+            VERSION = #version# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderDigest">
+            ORDER_DIGEST = #orderDigest# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="opVersion">
+            OP_VERSION = #opVersion# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="productNum">
+            PRODUCT_NUM = #productNum# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="terminalTypeCode">
+            TERMINAL_TYPE_CODE = #terminalTypeCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payMethod">
+            PAY_METHOD = #payMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="loyalCardNumber">
+            LOYAL_CARD_NUMBER = #loyalCardNumber# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderTime">
+            ORDER_TIME = #orderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerDisplayName">
+            PAYER_DISPLAY_NAME = #payerDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderStatus">
+            ORDER_STATUS = #orderStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ip">
+            IP = #ip# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId# 
+        </isNotNull>
+        
+        <isNotNull prepend="AND" property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="merchantOrderTime">
+            MERCHANT_ORDER_TIME = #merchantOrderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="productName">
+            PRODUCT_NAME = #productName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isReversed">
+            IS_REVERSED = #isReversed# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

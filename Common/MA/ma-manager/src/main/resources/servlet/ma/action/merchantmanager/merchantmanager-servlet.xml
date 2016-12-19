@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="multipartResolver"
+       class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- set the max upload size100MB -->
+        <property name="maxUploadSize">
+        	<value>104857600</value>
+    	</property>
+	    <property name="maxInMemorySize">
+	        <value>4096</value>
+	    </property>
+   	</bean>
+
+	<bean id="merchantSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/merchantAdd.do">merchantAddController</prop>
+				<prop key="/merchantAddValidate.do">merchantAddValidateController</prop>
+				<prop key="/merchantListForEdit.do">merchantListForEditController</prop>
+				<prop key="/merchantListForCheck.do">merchantListForCheckController</prop>
+				<prop key="/merchantListForActivation.do">merchantListForActivationController</prop>
+				<prop key="/merchantEditForEdit.do">merchantEditForEditController</prop>
+				<prop key="/merchantEditValidate.do">merchantEditValidateController</prop>
+				<prop key="/merchantEditForCheck.do">merchantEditForCheckController</prop>
+				<prop key="/merchantSendEmail.do">merchantSendEmailController</prop>
+				<prop key="/sendEmail.do">sendEmailController</prop>
+				
+				<!-- <prop key="/contractList.do">contractListController</prop>	
+				<prop key="/contractAdd.do">contractAddController</prop> -->						
+			</props>       
+		</property>
+	</bean>
+	<bean id="merchantAddValidateController"
+		class="com.pay.poss.merchantmanager.controller.MerchantAddValidateController">
+		<property name="merchantService" ref="merchantService"/>	
+	</bean>
+	<bean id="sendEmailController"
+		class="com.pay.poss.merchantmanager.controller.SendEmailController">
+		<property name="merchantService" ref="merchantService"/>	
+	</bean>
+	<bean id="merchantEditValidateController"
+		class="com.pay.poss.merchantmanager.controller.MerchantEditValidateController">
+		<property name="merchantService" ref="merchantService"/>	
+	</bean>
+	<bean id="merchantEditForEditController"
+		class="com.pay.poss.merchantmanager.controller.MerchantEditForEditController">
+		<property name="commandName">
+			<value>merchantFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantFormBean</value>
+		</property>	
+		<property name="formView">		
+			<value>/merchantmanager/merchantEditForEdit</value>
+		</property>	
+		<property name="successView">
+			<value>/merchantmanager/merchantEditForEdit</value>
+		</property>
+		
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService"/>
+		<property name="merchantService" ref="merchantService"/>
+		<property name="bankService" ref="bankService"/>
+		<property name="iSignMessageService" ref="iSignMessageService"/>
+		<property name="rcLimitRuleFacade">
+			<ref bean="rm-rclimitrulefacade"/>
+		</property>
+		
+	</bean>
+	
+	<bean id="merchantEditForCheckController"
+		class="com.pay.poss.merchantmanager.controller.MerchantEditForCheckController">
+		<property name="commandName">
+			<value>merchantFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/merchantEditForCheck</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/merchantCheck_result</value>
+		</property>
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService"/>
+		<property name="merchantService" ref="merchantService"/>
+		<property name="bankService" ref="bankService"/>
+		<property name="rcLimitRuleFacade">
+			<ref bean="rm-rclimitrulefacade"/>
+		</property>
+		
+	</bean>
+	<bean id="merchantListForActivationController"
+		class="com.pay.poss.merchantmanager.controller.MerchantListForActivationController">
+		<property name="commandName">
+			<value>merchantSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/merchantListForActivation</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/merchantListForActivationResult</value>
+		</property>
+		<property name="merchantService" ref="merchantService"/>
+		
+	</bean>
+	<bean id="merchantSendEmailController"
+		class="com.pay.poss.merchantmanager.controller.MerchantSendEmailController">
+		<property name="commandName">
+			<value>merchantActivationFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantActivationFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/merchantListForActivation</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/merchantListForActivation</value>
+		</property>
+		<property name="merchantService" ref="merchantService"/>
+		
+	</bean>
+	<bean id="merchantListForEditController"
+		class="com.pay.poss.merchantmanager.controller.MerchantListForEditController">
+		<property name="commandName">
+			<value>merchantSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/merchantListForEdit</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/merchantListForEditResult</value>
+		</property>
+		<property name="merchantService" ref="merchantService"/>
+		
+	</bean>
+	<bean id="merchantListForCheckController"
+		class="com.pay.poss.merchantmanager.controller.MerchantListForCheckController">
+		<property name="commandName">
+			<value>merchantSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/merchantListForCheck</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/merchantListForCheckResult</value>
+		</property>
+		<property name="merchantService" ref="merchantService"/>
+	</bean>
+	
+	<bean id="merchantAddController"
+		class="com.pay.poss.merchantmanager.controller.MerchantAddController">
+		<property name="commandName">
+			<value>merchantFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.MerchantFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/merchantAdd</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/merchantAdd_result</value>
+		</property>
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService" />
+		<property name="merchantService" ref="merchantService"/>
+		<property name="bankService" ref="bankService"/>
+		<property name="iSignMessageService" ref="iSignMessageService"/>
+		<property name="rcLimitRuleFacade">
+			<ref bean="rm-rclimitrulefacade"/>
+		</property>
+	</bean>
+	
+	<!-- <bean id="contractListController"
+		class="com.pay.poss.merchantmanager.controller.ContractListController">
+		<property name="commandName">
+			<value>contractSearchFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.ContractSearchFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/contractList</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/contractList</value>
+		</property>
+		<property name="contractService" ref="contractService"/>
+	</bean>
+	<bean id="contractAddController"
+		class="com.pay.poss.merchantmanager.controller.ContractAddController">
+		<property name="commandName">
+			<value>contractFormBean</value>
+		</property>
+		<property name="commandClass">
+			<value>com.pay.poss.merchantmanager.formbean.ContractFormBean</value>
+		</property>
+		<property name="formView">		
+			<value>/merchantmanager/contractAdd</value>
+		</property>
+		<property name="successView">
+			<value>/merchantmanager/contractAdd</value>
+		</property>
+		<property name="contractService" ref="contractService"/>
+	</bean>
+	 -->
+	 
+	 <bean id="bankCommponSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/getBranchBanksOptions.do">bankCommonController</prop>
+				<prop key="/getBranchBanksOptions_2.do">bankCommonController</prop>
+				<prop key="/isValidCardBin.do">bankCommonController</prop>
+				<prop key="/queryBranchBanksOptions.do">bankCommonController</prop>
+			</props>       
+		</property>
+	</bean>
+	<bean id="bankCommonController" class="com.pay.poss.merchantmanager.controller.BankCommonController">
+		<property name="methodNameResolver">
+			<ref bean="bankCommponMethodNameResolver"/>
+		</property>
+		<property name="luceneService">
+			<ref bean="fundout-lucene-service"/>
+		</property>
+<!-- 		<property name="cardBinInfoFactoryService"> -->
+<!-- 			<ref bean="cardBinInfoService"/> -->
+<!-- 		</property> -->
+		<property name="bankBrancheInfoService" ref="fundout-bankBrancheInfoService" />
+	</bean>
+	<bean id="bankCommponMethodNameResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/getBranchBanksOptions.do">getBranchBanksOptions</prop>
+				<prop key="/getBranchBanksOptions_2.do">getBranchBanksOptions_2</prop>
+				<prop key="/isValidCardBin.do">validCardNo</prop>
+				<prop key="/queryBranchBanksOptions.do">queryBranchBanksOptions</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
+
+

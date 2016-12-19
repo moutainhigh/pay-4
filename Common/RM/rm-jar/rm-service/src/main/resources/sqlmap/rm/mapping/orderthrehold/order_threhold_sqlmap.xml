@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="order_threhold">
+	<typeAlias alias="orderThrehold" type="com.pay.rm.orderthrehold.dto.OrderThreholdRuleDTO"/>
+	<resultMap id="BaseResultMap" class="orderThrehold" >
+		<result column="RISK_TYPE" property="type" jdbcType="VARCHAR" />
+	    <result column="RISK_DESCRIPTION" property="description" jdbcType="VARCHAR" />
+	    <result column="DURATION" property="duration" jdbcType="DECIMAL" />
+	    <result column="THREHOLD" property="threhold" jdbcType="DECIMAL" />
+	</resultMap>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.String" >
+    select RISK_TYPE,RISK_DESCRIPTION,DURATION,THREHOLD
+    from T_RISK_THREHOLD where RISK_TYPE = #type:VARCHAR#
+  </select>
+  
+  <update id="update" parameterClass="orderThrehold" >
+    update T_RISK_THREHOLD
+    <dynamic prepend="set" >
+	  <isNotNull prepend="," property="description" >
+        RISK_DESCRIPTION = #description:VARCHARL#
+      </isNotNull>
+      <isNotNull prepend="," property="duration" >
+        DURATION = #duration:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="threhold" >
+        THREHOLD = #threhold:DECIMAL#
+      </isNotNull>
+    </dynamic>
+    where RISK_TYPE = #type:VARCHAR#
+  </update>
+  
+</sqlMap>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ma-blackwhitelist">
+	<typeAlias alias="businessType" type="com.pay.rm.blackwhitelist.model.BusinessType" />
+	<typeAlias alias="businessTypeDto" type="com.pay.rm.blackwhitelist.dto.BusinessTypeDto" />
+	
+	<typeAlias alias="blackWhiteList" type="com.pay.rm.blackwhitelist.model.BlackWhiteList" />
+	<typeAlias alias="blackWhiteListDto" type="com.pay.rm.blackwhitelist.dto.BlackWhiteListDto" />
+
+	<sql id="blackWhiteList.paging_start">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="blackWhiteList.paging_end">
+       	<![CDATA[
+       	  ) t1    )
+       		 where (linenum <= #pageEndRow#) and (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	<insert id="createBusinessType" parameterClass="businessType">
+		insert into
+		t_business_type
+		(
+			id ,business_name ,status ,business_type ,create_time ,update_time,remark
+		)
+		values
+		(
+			#businessTypeId#,#businessName#,#status#,#businessType#,sysdate,sysdate,#remark#
+		)
+	</insert>
+	
+	<insert id="create" parameterClass="blackWhiteList">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select seq_black_white_list_id.nextval from dual
+		</selectKey>
+		insert into	t_black_white_list
+		(id,member_code ,business_type_id ,list_type ,status ,create_date,CONTENT,PART_TYPE,operator,value1,value2,approval_id)
+		values(#id#,#memberCode#,#businessTypeId#,#listType#,#status#,#createDate#,#content#,#partType#,#operator#,#value1#,#value2#,#approvalId#)
+	</insert>
+	
+	<sql id="businessTypeCommon">
+       	<isNotEmpty property="businessTypeId">
+    		<![CDATA[   and tbt.id=#businessTypeId#	]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="businessName">
+    		<![CDATA[   and tbt.business_name like '%' ||#businessName#||'%' ]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="status">
+    		<![CDATA[   and tbt.status=#status#	]]>
+    	</isNotEmpty>
+    	<isNotEmpty property="businessType">
+    		<![CDATA[   and tbt.business_type=#businessType#	]]>
+    	</isNotEmpty>
+	</sql>
+	
+	<sql id="blackWhiteListCommon">
+       	<isNotNull property="id">
+    		<![CDATA[   and tbwl.id = #id#	]]>
+    	</isNotNull>
+    	<isNotEmpty property="memberCode">
+    		<![CDATA[   and tbwl.member_code = #memberCode#	]]>
+    	</isNotEmpty>
+    	<isNotNull property="businessTypeId">
+    		<![CDATA[   and tbwl.business_type_id = #businessTypeId#	]]>
+    	</isNotNull>
+    	<isNotNull property="listType">
+    		<![CDATA[   and tbwl.list_type = #listType#	]]>
+    	</isNotNull>
+    	<isNotNull property="status">
+    		<![CDATA[   and tbwl.status = #status#	]]>
+    	</isNotNull>
+    	<isNotEmpty property="content">
+    		<![CDATA[   and tbwl.content = #content#]]>
+    	</isNotEmpty>
+    	<isNotNull property="partType">
+    		<![CDATA[   and tbwl.PART_TYPE = #partType#	]]>
+    	</isNotNull>
+    	<isNotNull property="value1">
+    		<![CDATA[   and tbwl.value1 = #value1#	]]>
+    	</isNotNull>
+    	<isNotNull property="value2">
+    		<![CDATA[   and tbwl.value2 = #value2#	]]>
+    	</isNotNull>
+    	<isNotNull property="approvalId">
+    		<![CDATA[   and tbwl.APPROVAL_ID = #approvalId#	]]>
+    	</isNotNull>
+	</sql>
+	
+	<select id="queryBusinessTypeList" resultClass="businessTypeDto" parameterClass="businessType">
+		<include refid="blackWhiteList.paging_start" />
+			select tbt.id businessTypeId,
+			       tbt.business_name businessName,
+			       tbt.status status,
+			       tbt.business_type businessType,
+			       tbt.create_time createTime,
+			       tbt.update_time updateTime,
+			       tbt.remark remark
+			from  t_business_type tbt 
+			 where 1=1
+		 <include refid="businessTypeCommon" />
+		 	order by tbt.update_time desc
+		 <include refid="blackWhiteList.paging_end" />
+	</select>
+	
+	<select id="countBusinessTypeList" resultClass="java.lang.Integer" parameterClass="businessType">
+		select count(tbt.id)
+		  from  t_business_type tbt 
+		  where 1=1
+
+	</select>
+	<select id="queryBusinessTypeById" resultClass="businessTypeDto" parameterClass="businessType">
+			select tbt.id businessTypeId,
+			       tbt.business_name businessName,
+			       tbt.status status,
+			       tbt.business_type businessType,
+			       tbt.create_time createTime,
+			       tbt.update_time updateTime,
+			       tbt.remark remark
+			from  t_business_type tbt 
+			 where tbt.id=#businessTypeId#	
+	</select>
+	
+	 <update id="updateBusinessTypeList" parameterClass="businessType">
+       update t_business_type tbt   set
+       	<isNotEmpty property="businessTypeId">
+        	tbt.id = #businessTypeId# ,	
+    	</isNotEmpty>
+    		tbt.business_name = #businessName# ,
+    		tbt.status = #status# ,
+    	  	tbt.business_type = #businessType# ,
+    	  	tbt.remark = #remark# ,
+ 		  	tbt.update_time = sysdate
+       	 where tbt.id =#businessTypeId#
+    </update>
+    
+	<delete id="deleteBusinessType" parameterClass="businessType">
+       delete t_business_type tbt  
+       	 where tbt.id =#businessTypeId#
+    </delete>
+	
+	<select id="queryBlackWhiteList" resultClass="blackWhiteListDto" parameterClass="blackWhiteList">
+		<include refid="blackWhiteList.paging_start" />
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        PART_TYPE partType,
+			        content,
+			        operator,
+			        value1,
+			        value2,
+			        tbwl.approval_id approvalId
+			 from t_black_white_list tbwl
+			 where 1=1
+		 <include refid="blackWhiteListCommon" />
+		 	order by nvl(tbwl.update_date,tbwl.create_date) desc
+		 <include refid="blackWhiteList.paging_end" />
+	</select>
+	
+	<select id="queryBlackWhiteListByCriteria" resultClass="blackWhiteListDto" parameterClass="blackWhiteList">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        PART_TYPE partType,
+			        content,
+			        operator,
+			        value1,
+			        value2,
+			        tbwl.approval_id approvalId
+			 from t_black_white_list tbwl
+			 where 1=1
+		 <include refid="blackWhiteListCommon" />
+	</select>
+	
+	<select id="countBlackWhiteList" resultClass="java.lang.Integer" parameterClass="blackWhiteList">
+		select count(tbwl.id)
+		   from t_black_white_list tbwl
+		  where 1=1
+		<include refid="blackWhiteListCommon" />
+	</select>
+	
+	<update id="updateBlackWhiteList" parameterClass="blackWhiteList">
+       update t_black_white_list tbwl   
+       <dynamic prepend="set">
+    	<isNotEmpty prepend="," property="memberCode">
+    		 tbwl.member_code = #memberCode#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="businessTypeId">
+    		 tbwl.business_type_id = #businessTypeId#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="listType">
+    		 tbwl.list_type = #listType#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="status">
+    		 tbwl.status = #status#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="content">
+    		 tbwl.content = #content#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="partType">
+    		 tbwl.part_type = #partType#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="value1">
+    		 tbwl.value1 = #value1#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="value2">
+    		 tbwl.value2 = #value2#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="updateDate">
+    		 tbwl.update_date = #updateDate#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="approvalId">
+    		 tbwl.approval_id = #approvalId#	
+    	</isNotEmpty>
+    	<isNotEmpty prepend="," property="operator">
+    		 tbwl.operator = #operator#	
+    	</isNotEmpty>
+    	</dynamic>
+ 		where tbwl.id = #id#
+    </update>
+    
+    <delete id="deleteBlackWhiteList" parameterClass="blackWhiteList">
+       delete t_black_white_list tbwl  
+       	 where  tbwl.id = #id#
+    </delete>
+    
+	<select id="queryBlackWhiteById" resultClass="blackWhiteListDto" parameterClass="blackWhiteList">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        part_type partType,
+			        content,
+			        operator,
+			        value1,
+			        value2,
+			        tbwl.approval_id approvalId
+			 from t_black_white_list tbwl
+			 where tbwl.id = #id#	
+	</select>
+	
+	<select id="queryBlackWhiteListByBuIDAndListType" resultClass="blackWhiteListDto" parameterClass="blackWhiteListDto">
+			select  tbwl.id id,
+					tbwl.member_code memberCode,
+					tbwl.business_type_id businessTypeId,
+					tbwl.list_type listType,
+					tbwl.status status,
+			        tbwl.create_date createDate,
+			        tbwl.update_date updateDate,
+			        part_type partType,
+			        content,
+			        operator,
+			        value1,
+			        value2,
+			        tbwl.approval_id approvalId
+			 from t_black_white_list tbwl
+			 where 1=1 and status = 1
+			 <isNotNull property="businessTypeId">
+    			<![CDATA[   and tbwl.business_type_id = #businessTypeId#	]]>
+    		 </isNotNull>
+    		 <isNotNull property="listType">
+    		 	<![CDATA[   and tbwl.list_type = #listType#	]]>
+    		 </isNotNull>
+	</select>
+</sqlMap>
+

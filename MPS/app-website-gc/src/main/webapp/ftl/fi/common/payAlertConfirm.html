@@ -1,0 +1,47 @@
+<!--修改IE下弹出页面后，银行列表显示位置偏移问题。因为此页面是alert出的，已经在父页面中赋予此弹出页面的属性值，所以会导致页面部分元素错误 -->
+<!-- tips -->
+<div class="tip_page" >
+	<div class="con_box tips_cont" style="padding-left:85px;">
+		<div class="popup_content">
+			<#if errorMsg?exists>
+				<div class="popup_box" style="margin-left:-45px;">
+						<div class="popup_content"> 
+							<p class="mt20 red2 f14b"><#if errorMsg?exists>${errorMsg?default('')}</#if></p>
+							<span class="pop_war"></span></div>
+					</div>
+			<#else>
+				<h3>请在新打开的网上银行页面上完成<#if buttonLabel?exists>充值<#else>付款</#if>。</h3>
+				<p class="other_condition"><#if buttonLabel?exists>充值<#else>付款</#if>完成前不要关闭此窗口。<br /><em class="red">完成<#if buttonLabel?exists>充值<#else>付款</#if>后请根据您的情况点击此按钮：</em></p>
+				<span class="pop_war"></span>
+			</#if>
+			<#if errorMsg?exists>
+			<p style="padding-left:60px" class="mt20">
+				<span class="btn_yel botton_yel">
+					<button onclick="javascript:window.location.href='${rc.contextPath}/channelPay.htm?method=fail';">确 定</button>
+				</span>
+			</p>
+		<#else>
+			<p>
+				<span class="btn_grey_b">
+					<button onclick="javascript:window.location.href='${rc.contextPath}/channelPay.htm?method=success&depositid=${depositid?default(0)}&payer=${payer?default('')}';">已完成<#if buttonLabel?exists>充值<#else>付款</#if></button>
+				</span>
+				<span class="btn_grey_b ml10">
+					<button onclick="javascript:window.location.href='${rc.contextPath}/help/p/payment.htm';">付款遇到问题</button>
+				</span>
+			</p>
+		</#if>
+		</div>
+		
+	</div>
+	<#if errorMsg?exists>
+	<#else>
+		<#if post2Bankurl?exists>
+		<form id="bankForm" action="${post2Bankurl?default('')}" method="${action?default('post')}" target="_blank">
+		<#if bankParamMap?exists>
+			<#list bankParamMap?keys as paramKey>  
+				<input type="hidden" name="${paramKey?default('')}" value="${bankParamMap[paramKey]?default('')}"/>
+			</#list>
+		</#if>
+		</form>
+		</#if>
+	</#if>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="creditCurrency">
+	<typeAlias alias="partnerCreditCurrency" type="com.pay.credit.conditon.creditorder.PartnerCreditCurrency" />
+	<resultMap class="partnerCreditCurrency" id="creditCurrency">
+		<result property="id" column="ID"/>
+		<result property="currency" column="CREDIT_CURRENCY"/>
+		<result property="partnerid" column="PARTNERID"/>
+		<result property="createDate" column="CREATEDATE"/>
+		<result property="updateDate" column="UPDATEDATE"/>
+		<result property="status" column="STATUS"/>
+		<result property="operator" column="OPERATOR"/>
+	</resultMap>
+	
+	<select id="findByCriteria" resultMap="creditCurrency" parameterClass="partnerCreditCurrency">
+	SELECT * FROM 
+	PARTNER_CREDIT_CURRENCY
+	WHERE 1=1
+	<isNotEmpty prepend="and" property="partnerid">
+			PARTNERID=#partnerid#
+	</isNotEmpty> 
+	<isNotEmpty  prepend="and" property="currency">
+			CREDIT_CURRENCY=#currency#
+	</isNotEmpty> 
+	order by UPDATEDATE DESC
+	</select>		
+	<select id="findByCriteria_COUNT" resultClass="java.lang.Integer" parameterClass="partnerCreditCurrency">
+		SELECT count(1) FROM 
+		PARTNER_CREDIT_CURRENCY
+		WHERE 1=1
+		<isNotEmpty prepend="and" property="partnerid">
+				PARTNERID=#partnerid#
+		</isNotEmpty> 
+		<isNotEmpty  prepend="and" property="currency">
+				CREDIT_CURRENCY=#currency#
+		</isNotEmpty> 
+	</select>	
+	
+	<insert id="addCreditCurrency" parameterClass="partnerCreditCurrency" >
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select CREDITCURRENCY.nextval as rateLogId from dual
+		</selectKey>
+	insert into 
+	PARTNER_CREDIT_CURRENCY(
+	ID,
+	CREDIT_CURRENCY,
+	PARTNERID,
+	CREATEDATE,
+	UPDATEDATE,
+	OPERATOR
+	)
+	values(
+	#id#,
+	#currency#,
+	#partnerid#,	
+	#createDate#,
+	#updateDate#,	
+	#operator#		
+	)
+	</insert>
+	
+	<select id="findCreditCurrency" parameterClass="java.lang.String" resultMap="creditCurrency">
+		SELECT * FROM 
+		PARTNER_CREDIT_CURRENCY
+		WHERE PARTNERID = #merchantCode#
+	</select>
+	<update id="updateCurrencyConf" parameterClass="partnerCreditCurrency">
+	UPDATE 
+	PARTNER_CREDIT_CURRENCY
+	SET
+	CREDIT_CURRENCY = #currency#,
+	UPDATEDATE = #updateDate#,
+	OPERATOR = #operator#
+	WHERE ID=#id# AND 
+	PARTNERID = #partnerid#
+	</update>
+	<delete id="deleteCurrencyConf" parameterClass="java.lang.String">
+	DELETE FROM	
+	PARTNER_CREDIT_CURRENCY
+	WHERE 
+	ID = #deleteId#	
+	</delete>
+</sqlMap>

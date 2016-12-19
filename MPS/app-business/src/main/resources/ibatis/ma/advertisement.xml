@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="advertisement">
+    <typeAlias alias="advertisement" type="com.pay.app.model.Advertisement"/>
+    
+    <insert id="create" parameterClass="advertisement">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_advertisement_ID.nextval as ID from dual 
+		</selectKey>
+        insert into 
+        	advertisement 
+        	(
+        		id, 	
+        		available, 
+        		advtype, 
+        		sort, 
+        		title, 
+        		targets,
+            	parameters,
+            	code,
+            	startTime,
+            	endTime,
+            	remark
+            )
+        values 
+        	(
+        		#id#, 	
+        		#available#, 
+        		#advtype#, 
+        		#sort#, 
+        		#title#, 
+        		#targets#,
+            	#parameters#,
+            	#code#,
+            	#startTime#,
+            	#endTime#,
+            	#remark#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		advertisement
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		advertisement
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="advertisement">
+        update 
+        	advertisement
+        set 
+        		available = #available#, 
+        		advtype = #advtype#, 
+        		sort = #sort#, 
+        		title = #title#, 
+        		targets = #targets#,
+            	parameters = #parameters#,
+            	code = #code#,
+            	startTime = #startTime#,
+            	endTime = #endTime#,
+            	remark = #remark#
+        where 
+        	id	= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		advertisement
+    </select>
+    
+    
+    <select id="findById" resultClass="advertisement" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		available, 
+        		advtype, 
+        		sort, 
+        		title, 
+        		targets,
+            	parameters,
+            	code,
+            	startTime,
+            	endTime,
+            	remark
+        from 
+        	advertisement
+        where 
+        	ID 	= #id#
+    </select>
+    <select id="read" resultClass="advertisement" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	advertisement
+        where 
+        	ID 	= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="advertisement" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		available, 
+        		advtype, 
+        		sort, 
+        		title, 
+        		targets,
+            	parameters,
+            	code,
+            	startTime,
+            	endTime,
+            	remark
+        from 
+        	advertisement
+    </select>    
+    
+</sqlMap>

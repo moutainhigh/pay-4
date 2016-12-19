@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<script type="text/javascript"
+	src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script type="text/javascript"
+	src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script>
+<!-- 
+<script type="text/javascript"
+	src="<@sp.static/>/gcpayment/js/zidingyi.js"></script>
+ -->	
+<!-- jquery validate -->
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link
+	href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css"
+	type="text/css" rel="stylesheet" />
+<script
+	src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js"
+	type="text/javascript"></script>
+<script
+	src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js"
+	type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js"
+	type="text/javascript"></script>
+<script
+	src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js"
+	type="text/javascript"></script>
+
+<script
+	src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js"
+	type="text/javascript"></script>
+<script
+	src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js"
+	type="text/javascript"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css"
+	href="<@sp.static/>/gcpayment/css/main.css" />
+<link
+	href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css"
+	type="text/css" rel="stylesheet" />
+<link type="image/x-icon"
+	href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon" />
+
+<title>账户余额</title>
+
+</head>
+
+<body>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png" alt="" title=""
+					width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+				<ul class="mainmenu clearfix">
+					<li id="topmenu_5"><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+					<li id="topmenu_3"><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+					<li id="topmenu_1"><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+					<li id="topmenu_2"><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+					<li id="topmenu_6"><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+
+					<li id="secmenu_5_52" class="other"><a
+						href="${rc.contextPath}/corp/myAccount.htm">基本信息</a></li>
+
+					<li id="secmenu_5_51" class="current"><a
+						href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">账户余额明细</a>
+					</li>
+				</ul>
+
+				<ul class="submenu" style="display: none" id="secmenuul_3">
+
+					<li id="secmenu_3_31" class="other"><a
+						href="../gatewayorder/gatewayOrderQuery.htm">交易查询</a></li>
+
+					<li id="secmenu_3_32" class="other"><a
+						href="../merchantbill/merchantBillDownloadlist.htm">对账单下载</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="#">余额明细</a></span> <span><a
+						href="${rc.contextPath}/corp/cross/settlementOrder.htm">清算查询</a></span> <span><a
+						href="${rc.contextPath}/corp/withdrawOrderQuery.htm">提现查询</a></span> 
+						<span><a href="${rc.contextPath}/corp/cross/settlementOrder.htm?method=queryNosett">待清算交易统计</a></span>
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="seccon">
+							<div class="bgbox">
+								<form class="form single"
+									action="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance"
+									method="post" name="balanceListForm" id="balanceListForm" onsubmit="return check();">
+									<table class="tab01">
+										<tbody>
+											<tr>
+												<td><div align="right">商户名称：</div></td>
+												<td><div>${enterpriseBase.zhName}</div></td>
+												<td><div align="right">商户号：</div></td>
+												<td><div>${enterpriseBase.merchantCode?default('')}</div></td>
+											</tr>
+											<tr>
+												<td><div align="right">选择账户：</div></td>
+												<td colspan="1"><select id="acctCode" name="acctCode" size="1">
+														<option value="" selected>---请选择---</option> 
+														<#list acctList as at>
+														<option value="${at.acctCode}" <#if acctCode?exists && acctCode == at.acctCode>selected</#if>>${at.acctName}</option>
+														</#list>
+												</select></td>
+												<td><div align="right">交易类型：</div></td>
+												<td colspan="1">
+													<select class="normal_select" name="dealType" id="dealType"> 
+													<option value="" selected>全部</option>
+													<#list dealTypeList	as dt>
+														<option value="${dt.code}"<#if dealType?exists && dealType == dt.code>selected</#if>>${dt.message}</option>
+													</#list>
+												</select></td>
+											</tr>
+											<tr>
+												<td><div align="right">更新时间：</div></td>
+												<td colspan="1">
+													<input class="Wdate" type="text" id="startTime" name="startTime" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'endTime\',{M:-3})}',maxDate:'#F{$dp.$D(\'endTime\')}'})" value="${stValue!''}">
+													至 <input class="Wdate" type="text" id="endTime"	name="endTime" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'startTime\')}',maxDate:'%y-%M-%d %H:%m:%s'})" value="${eValue!''}">
+												</td>
+												<td></td>
+												<td colspan="1"></td>
+											</tr>
+
+											<tr>
+												<td></td>
+												<td colspan="3"><input type="hidden" name="queryPro"
+													id="queryPro"> <input type="submit"
+													class="btn_blue" value="查询" alt="查询""></td>
+											</tr>
+										</tbody>
+									</table>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div id="resultListDiv" class="listFence" style="margin-top:10px">
+						<!--余额明细 str-->
+						<div class="barg_table mb20">
+							<table style="width: 100%; overflow: hidden;line-height: 25px;">
+								<tr>
+									<th width="15%" style="border:1px #ccc;">创建日期</th>
+									<th width="17%">交易流水号</th>
+
+									<th width="13%">交易类型</th>
+									<th width="15%">收入（元）</th>
+									<th width="15%">支出(元)</th> 
+									<th width="15%">账户余额(元)</th>
+									<!-- th>操作</th-->
+								</tr>
+								<#if qbdList?has_content> <#list qbdList as qs>
+								<tr>
+									<td style="border:1px red;"><#if qs.balanceDate?default("")?length lt 19>
+										${qs.balanceDate?default("")} <#else> ${qs.balanceDate[0..18]}
+										</#if></td>
+									<td align="center">${qs.payNo?default("")}</td>
+									<td align="center"><#if qs.fundTrace == "神舟行交易" || 	qs.fundTrace == "神州行网关充值"> 充值卡支付 <#else>
+										${qs.fundTrace?default("")} </#if></td>
+									<td align="center"><span class="green">#{qs.revenue?default(0);m2}</span></td>
+									<td align="center"><span class="red">#{qs.pay?default(0);m2}</span></td>
+									<td align="center">#{qs.balance?default(0);m2}</td>
+									<!-- td align="center"><#if qs.corpHaveView > 
+										<#if
+										qs.corpViewFlag == "fo"> <a class="blues" target="_blank"
+										href="${rc.contextPath}/corp/tradedetail.htm?method=forCorp&serialNo=${qs.payNo?default('')}&busiType=${qs.fundTraceType?default('')}">
+											查 看</a> <#elseif qs.corpViewFlag = "fi"> <a class="blues"
+										target="_blank"
+										href="${rc.contextPath}/corp/findTradeOrderNo.htm?paymentOrderNo=${qs.payNo?default('')}&busiType=${qs.fundTraceType?default('')}">
+											查 看</a> </#if> <#else> &nbsp; 
+										</#if>
+									</td-->
+								</tr>
+								</#list> <#else> <#--
+								<tr class="gray">
+									<td colspan="7">
+										<div class="tip">
+											<div class="ico"></div>
+											<h2>暂无任何记录</h2>
+											<p>
+												您可以：<em><a href="${rc.contextPath}/corp/myAccount.htm">查看账户首页</a>
+													<a href="${rc.contextPath}/corp/acctCharge.htm">充值到gcpayment支付</a></em>
+											</p>
+										</div>
+									</td>
+								</tr>
+								--> </#if>
+							</table>
+						</div>
+						<#if qbdList?has_content>
+						<hr style="border-style: dotted;" />
+						共${sum.count}笔交易 收入总计：#{sum.incomeSumNo?default(0);m2}元
+						支出总计：#{sum.expensesSumNo?default(0);m2}元
+						<div style="text-align: right;">
+						<!--分页 str -->
+						<@sp.pagination pu=pu/><input type="hidden"
+							value="${pu.curPageNo}" id="curPage">
+						<!--分页 end -->
+						</div>
+						</#if>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+<script type="text/javascript">
+   $(function(){
+	   
+   });
+   
+   function check(){
+	   var acctCode = $("#acctCode").val();
+	   var startTime = $("#startTime").val();
+	   var endTime = $("#endTime").val();
+	   if(acctCode==''){
+		   alert('请选择账户');
+		   return false;
+	   }else if(startTime==''){
+		   alert('请选起始时间！');
+		   return false;
+	   }else if(endTime==''){
+		   alert('请选截止时间！');
+		   return false;
+	   }
+   }
+</script>
+</body>
+</html>

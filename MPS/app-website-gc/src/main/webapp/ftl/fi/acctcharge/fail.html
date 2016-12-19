@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>充值处理中</title>
+<#include "/common/macro/seoCorp.ftl">
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/js/pay/common/jquery-1.3.2.js" type="text/javascript"></script>
+<script src="<@sp.static/>/js/pay/common/common.js" type="text/javascript"></script>
+<script src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js" type="text/javascript"></script>
+</head>
+<body>
+
+<!-- 获取企业还是个人url str -->
+<#if Session["userSession"]?exists>
+	<#if Session["userSession"].scaleType==2 || (Session["userSession"].scaleType==10 && Session["userSession"].bspIdentity==1)>
+		<@sp.head mCode="corp_acctcharge"/>
+		<#assign indexPath = 'index.htm' />
+		<#assign urlPath = 'corp' />
+		<#assign pre = '' />
+		<#assign depositName="充值">
+	<#elseif Session["userSession"].scaleType==10 && Session["userSession"].bspIdentity==2>
+		<@sp.head mCode="bsp_acharge"/>
+		<#assign indexPath = 'index.htm' />
+		<#assign urlPath = 'corp' />
+		<#assign pre = '/bsp' />
+		<#assign depositName="入金">
+	<#else>
+		<@sp.head mCode="app_acharge"/>
+		<#assign indexPath = 'index.htm?method=indexApp' />
+		<#assign urlPath = 'app' />
+		<#assign pre = '' />
+		<#assign depositName="充值">
+	</#if>
+<#else>
+	<@sp.head mCode="corp_acctcharge"/>
+	<#assign indexPath = 'index.htm' />
+	<#assign urlPath = 'corp' />
+	<#assign pre = '' />
+	<#assign depositName="充值">
+</#if>
+
+<!--主内容 start -->
+<div class="container">
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="txtC">
+				<div class="result_tips" >
+					<div class="result_tips">
+						<div class="set_height clearfix">
+							<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+							<span class="pop_war"></span>
+							<p class="words"><strong>${depositName}处理中</strong></p>
+							<p>由于暂时无法获知您的${depositName}情况。建议您稍后到“${depositName}记录”中查询。</p>
+							<p>如果您支付时遇到问题，可拨打服务热线。</p>
+							</p>
+							<p class="link">您可能需要：
+							<a href="${rc.contextPath}/${urlPath}${pre}/acctCharge.htm">返回重新${depositName}</a>|
+							<a href="${rc.contextPath}/${urlPath}/myAccount.htm">返回我的账户</a>|
+							<a href="${rc.contextPath}/${indexPath}">iPayLinks支付首页</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+
+
+</body>
+</html>

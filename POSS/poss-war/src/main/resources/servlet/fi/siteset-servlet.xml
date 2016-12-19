@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/crosspay/siteset.do">SitesetController</prop>
+				<prop key="/crosspay/sitesetAudit.do">auditSitesetController</prop>
+				<prop key="/crosspay/sitesetAuditPending.do">auditSitesetController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 非即时网关渠道配置 -->
+	<bean id="SitesetController" class="com.pay.poss.controller.fi.crosspay.SitesetController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/siteset/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/siteset/add</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/siteset/recordList</value>
+		</property>
+		<property name="memberService" ref="acc-memberService"/>
+		<property name="crosspayWebsiteConfigService" ref="crosspayWebsiteConfigService" />
+	</bean>
+	
+	<bean id="auditSitesetController" class="com.pay.poss.controller.fi.crosspay.SitesetController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/siteset/auditInit</value>
+		</property>
+		<property name="addView">
+			<value>/crosspay/siteset/audit</value>
+		</property>
+		<property name="recordList">
+			<value>/crosspay/siteset/auditRecordList</value>
+		</property>
+		<property name="reviewed">
+			<value>/crosspay/siteset/reviewed</value>
+		</property>
+		<property name="memberService" ref="acc-memberService"/>
+		<property name="crosspayWebsiteConfigService" ref="crosspayWebsiteConfigService" />
+	</bean>
+	
+</beans>

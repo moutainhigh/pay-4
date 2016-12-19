@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelCurrency">
+	<typeAlias alias="channelCurrency" type="com.pay.channel.model.ChannelCurrency"/>
+	<typeAlias alias="channelCurrencyReviewed" type="com.pay.channel.model.ChannelCrrencyReviewed"/>
+   	
+   	<select id="findByCriteria" parameterClass="channelCurrency" resultClass="channelCurrency">
+			SELECT  cc.ID,cc.PARTNER_ID partnerId,
+			 cc. ORG_CODE orgCode,
+			  REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+			   REPLACE(cc.PRDT_CODE,'PARTNER_DCC_PRDCT','自建纯DCC'),
+			   'CUSTOM_HIDDEN_DCC','自建隐藏DCC'), 
+			   'CUSTOM_FORCED_DCC','自建强制DCC'),
+			   'CUSTOM_STANDARD_DCC','自建标准DCC'),
+			   'EDC','EDC'),'STANDARD_DCC','卡司标准DCC')
+			   ,'FORCED_DCC','卡司强制DCC') prdtDesc,
+			  cc.PRDT_CODE  prdtCode,
+			  cc.CURRENCY_CODE currencyCode,
+			  cc.CARD_CURRENCY_CODE cardCurrencyCode,
+			  cc.CHANNEL_CURRENCY_CODE channelCurrencyCode,
+			  cc.OPERATOR operator,
+			  cc.CREATE_DATE createDate,
+			  cc.UPDATE_DATE updateDate,
+			  cc.PAY_TYPE payType,
+			  ccc.FLAG flag,
+			  ccc.STATUS status
+			FROM 
+				CHANNEL_CURRENCY    cc   left  join ( select * from  CHANNEL_CURRENCY_REVIEWED where status =0 ) ccc on
+					cc.id = ccc.CHANNEL_CURRENCY_ID 
+			   		WHERE 1=1
+   		<isNotEmpty prepend="AND" property="id">
+		cc.id = #id#   		
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="orgCode">
+			cc.ORG_CODE = #orgCode#   		
+   		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerId">
+			cc.PARTNER_ID = #partnerId#
+		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="prdtCode">
+  			cc.PRDT_CODE like   '%'||#prdtCode# ||'%'
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="payType">
+   			cc.PAY_TYPE = #payType#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="currencyCode">
+   			cc.currency_Code = #currencyCode#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="cardCurrencyCode">
+   			cc.CARD_CURRENCY_CODE = #cardCurrencyCode#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="channelCurrencyCode">
+   			cc.CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+   		</isNotEmpty>
+   		order by cc.create_date desc
+   	</select>
+   	<select id="countByCriteria" parameterClass="channelCurrency" resultClass="java.lang.Integer">
+   		SELECT 
+   		count(1)
+   		FROM 
+   			CHANNEL_CURRENCY
+   		WHERE 1=1
+   		<isNotEmpty prepend="AND" property="orgCode">
+			ORG_CODE = #orgCode#   		
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="prdtCode">
+  			PRDT_CODE like   '%'||#prdtCode# ||'%'
+   		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="payType">
+   			PAY_TYPE = #payType#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="currencyCode">
+   			currency_Code = #currencyCode#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="cardCurrencyCode">
+   			CARD_CURRENCY_CODE = #cardCurrencyCode#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="channelCurrencyCode">
+   			CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+   		</isNotEmpty>
+   	</select>
+
+   	<delete id="delete" parameterClass="java.util.Map">
+   		delete from CHANNEL_CURRENCY where id = #id#
+   	</delete>
+   	
+    <insert id="create" parameterClass="java.util.Map">
+	 	  	<selectKey resultClass="Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_CURRENCY_ID.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+	 	INSERT INTO CHANNEL_CURRENCY(
+			ID,PARTNER_ID,ORG_CODE,PRDT_CODE,CURRENCY_CODE,CARD_CURRENCY_CODE,CHANNEL_CURRENCY_CODE,OPERATOR,CREATE_DATE,UPDATE_DATE,PAY_TYPE
+        )
+        VALUES(
+            #id#,#partnerId#,#orgCode#,#prdtCode#,#currencyCode#,#cardCurrencyCode#,#channelCurrencyCode#,#operator#,sysdate,sysdate,#payType#
+		)
+	</insert>	   	
+	
+	<update id="update" parameterClass="channelCurrency">
+		update CHANNEL_CURRENCY
+			set 
+				id = #id#
+	   		<isNotEmpty prepend="," property="orgCode">
+   					ORG_CODE = #orgCode#
+   			</isNotEmpty>
+			<isNotEmpty prepend="," property="partnerId">
+				    PARTNER_ID = #partnerId#
+			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="prdtCode">
+   					PRDT_CODE = #prdtCode#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="currencyCode">
+   					CURRENCY_CODE = #currencyCode#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="cardCurrencyCode">
+   					CARD_CURRENCY_CODE = #cardCurrencyCode#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="channelCurrencyCode">
+   					CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="operator">
+   					OPERATOR = #operator#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="updateDate">
+   					UPDATE_DATE = #updateDate#
+   			</isNotEmpty>
+	   		<isNotEmpty prepend="," property="payType">
+   					PAY_TYPE = #payType#
+   			</isNotEmpty>
+   			WHERE 
+   				ID = #id#
+	</update>
+	
+	<select id="queryChannelCurrencyReviewed" parameterClass="channelCurrencyReviewed" resultClass="channelCurrencyReviewed">
+			SELECT ID,PARTNER_ID partnerId,
+				  ORG_CODE orgCode,
+				  REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+				   REPLACE(PRDT_CODE,'PARTNER_DCC_PRDCT','自建纯DCC'),
+				   'CUSTOM_HIDDEN_DCC','自建隐藏DCC'), 
+				   'CUSTOM_FORCED_DCC','自建强制DCC'),
+				   'CUSTOM_STANDARD_DCC','自建标准DCC'),
+				   'EDC','EDC'),'STANDARD_DCC','卡司标准DCC')
+				   ,'FORCED_DCC','卡司强制DCC') prdtDesc,
+				   PRDT_CODE  prdtCode,
+				  CURRENCY_CODE currencyCode,
+				  CARD_CURRENCY_CODE cardCurrencyCode,
+				  CHANNEL_CURRENCY_CODE channelCurrencyCode,
+				  OPERATOR operator,
+				  CREATE_DATE createDate,
+				  UPDATE_DATE updateDate,
+				  PAY_TYPE payType,
+				  CHANNEL_CURRENCY_ID channelCurrencyId,
+				  flag,
+				  status
+			FROM CHANNEL_CURRENCY_REVIEWED
+			   		WHERE 1=1
+   		<isNotEmpty prepend="AND" property="id">
+			id = #id#   		
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="orgCode">
+			ORG_CODE = #orgCode#   		
+   		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="prdtCode">
+  			PRDT_CODE like   '%'||#prdtCode# ||'%'
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="payType">
+   			PAY_TYPE = #payType#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="status">
+   			STATUS= #status#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="flag">
+   			FLAG= #flag#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="channelCurrencyId">
+   			CHANNEL_CURRENCY_ID= #channelCurrencyId#
+   		</isNotEmpty>
+   		  <isNotEmpty prepend="AND" property="currencyCode">
+   			currency_Code = #currencyCode#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="cardCurrencyCode">
+   			CARD_CURRENCY_CODE = #cardCurrencyCode#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="channelCurrencyCode">
+   			CHANNEL_CURRENCY_CODE = #channelCurrencyCode#
+   		</isNotEmpty>
+   		order by create_date desc
+   	</select>
+  	<select id="checkSameSetting" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		 SELECT
+		 	SUM(SELFCOUNT) * 10 + SUM(SUBMITCOUNT)
+		 FROM
+		 	(SELECT
+		 		COUNT(1) SELFCOUNT, 0 SUBMITCOUNT
+		 	 FROM
+		 	    CHANNEL_CURRENCY
+		 	 WHERE
+		 	 	PARTNER_ID = #partnerId#
+		 	 AND
+		 	 	ORG_CODE = #orgCode#
+			 AND
+				PAY_TYPE = #payType#
+			 <isNotEmpty prepend="AND" property="id">
+				id != #id#
+			 </isNotEmpty>
+			 <isEqual property="payType" compareValue="EDC">
+			 AND
+				 currency_Code = #currencyCode#
+			 </isEqual>
+		     <isEqual property="payType" compareValue="DCC">
+			 AND
+				 CARD_CURRENCY_CODE = #cardCurrencyCode#
+			 </isEqual>
+		     UNION
+			 SELECT
+				0 SELFCOUNT, COUNT(1) SUBMITCOUNT
+			 FROM
+				CHANNEL_CURRENCY_REVIEWED
+			 WHERE
+				PARTNER_ID = #partnerId#
+			 AND
+				ORG_CODE = #orgCode#
+			 AND
+				PAY_TYPE = #payType#
+			 AND
+				STATUS = '0'
+			 <isNotEmpty prepend="AND" property="id">
+				 channel_currency_id = #id#
+			 </isNotEmpty>
+		     <isEqual property="payType" compareValue="EDC">
+			 AND
+				currency_Code = #currencyCode#
+			 </isEqual>
+			 <isEqual property="payType" compareValue="DCC">
+			 AND
+				CARD_CURRENCY_CODE = #cardCurrencyCode#
+			 </isEqual>
+		 	)
+	</select>
+   	<select id="queryChannelCurrencyReviewed_COUNT" parameterClass="channelCurrencyReviewed" resultClass="java.lang.Integer">
+   		SELECT 
+   		count(1)
+   		FROM 
+   			CHANNEL_CURRENCY_REVIEWED
+   		WHERE 1=1
+   		<isNotEmpty prepend="AND" property="orgCode">
+			ORG_CODE = #orgCode#   		
+   		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="partnerId">
+			PARTNER_ID = #partnerId#
+		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="prdtCode">
+  			PRDT_CODE like   '%'||#prdtCode# ||'%'
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="payType">
+   			PAY_TYPE = #payType#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="status">
+   			STATUS= #status#
+   		</isNotEmpty>
+   		<isNotEmpty prepend="AND" property="flag">
+   			FLAG= #flag#
+   		</isNotEmpty>
+   	</select>
+	  <insert id="addChannelCurrencyReviewed" parameterClass="java.util.Map">
+	 	  	<selectKey resultClass="Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_R_CURRENCY_ID.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+	 	INSERT INTO CHANNEL_CURRENCY_REVIEWED(
+			ID,PARTNER_ID,ORG_CODE,PRDT_CODE,CURRENCY_CODE,CARD_CURRENCY_CODE,CHANNEL_CURRENCY_CODE,OPERATOR,CREATE_DATE,UPDATE_DATE,PAY_TYPE,FLAG,STATUS,CHANNEL_CURRENCY_ID
+        )
+        VALUES(
+            #id#,#partnerId#,#orgCode#,#prdtCode#,#currencyCode#,#cardCurrencyCode#,#channelCurrencyCode#,#operator#,sysdate,sysdate,#payType#,#flag#,#status#,#channelCurrencyId#
+		)
+	</insert>	
+	
+	<update id="updateChannelCurrencyRev"  parameterClass="java.util.Map">
+		update	 CHANNEL_CURRENCY_REVIEWED set status = #status#
+		where id = #id#
+	</update>
+
+	<insert id="addChannelCurrency" parameterClass="java.util.Map">
+	  	<selectKey resultClass="Long" keyProperty="id">
+			SELECT SEQ_CHANNEL_CURRENCY_ID.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+	 	INSERT INTO CHANNEL_CURRENCY(
+			ID,PARTNER_ID,ORG_CODE,PRDT_CODE,CURRENCY_CODE,CARD_CURRENCY_CODE,CHANNEL_CURRENCY_CODE,OPERATOR,CREATE_DATE,UPDATE_DATE,PAY_TYPE
+        )    
+        select  
+         #id#,
+		PARTNER_ID,
+        ORG_CODE,
+        PRDT_CODE,
+        CURRENCY_CODE,
+        CARD_CURRENCY_CODE,
+        CHANNEL_CURRENCY_CODE,
+        OPERATOR,
+        CREATE_DATE,
+        UPDATE_DATE,
+        PAY_TYPE
+        from 
+		CHANNEL_CURRENCY_REVIEWED
+		where id = #channelCurrencyRevId#
+	</insert>
+	
+	<update id="updateChannelCurrency" parameterClass="java.util.Map">
+			 update fi.channel_currency  cc  
+		 set  
+		 cc.org_code  = (select cr.org_code from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1   AND cr.id = #id#) , 
+		 cc.partner_id  = (select cr.partner_id from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) ,
+		 cc.prdt_code  = (select cr.prdt_code from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) ,
+		 cc.currency_code  = (select cr.currency_code from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) , 
+		 cc.card_currency_code = (select cr.card_currency_code from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) ,
+		 cc.channel_currency_code =(select cr.channel_currency_code from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) ,  
+		 cc.operator =  (select cr.operator from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) ,  
+		 cc.create_date =(select cr.create_date from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) ,  
+		 cc.update_date =(select cr.update_date from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) , 
+		 cc.pay_type = (select cr.pay_type from  fi.channel_currency_reviewed cr where cc.id = cr.channel_currency_id and  cr.status=1  AND cr.id = #id#) 
+		 where cc.id in  ( select channel_currency_id from fi.channel_currency_reviewed cd where cd.status=1 AND cd.id = #id# ) 
+	</update>
+	
+	
+	
+	
+</sqlMap>

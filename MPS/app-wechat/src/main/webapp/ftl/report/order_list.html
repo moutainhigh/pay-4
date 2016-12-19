@@ -1,0 +1,53 @@
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title font14">查询结果</h3> <a class="fr f14b" href="javascript:download(${size});">下载查询结果</a>
+				</div>
+				<div class="refund_box">
+					<div class="barg_table">
+						<table>
+							<thead>
+								<tr>
+									<th>结算日期</th>
+									<th>交易笔数</th>
+									<th>交易金额</th>
+									<th>退款笔数</th>
+									<th>退款金额</th>
+									<th>结算金额</th>
+									<th>手续费</th>
+									<th>入帐金额</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+							<#if result?exists>
+								<#list result as ls>
+								<tr>
+									<td>${ls.settleTime?string("yyyy-MM-dd")}</td>
+									<td>${ls.dealCount}</td>
+									<td>${ls.dealAmountDesc?string(",##0.00")}</td>
+									<td>${ls.refundCount}</td>
+									<td>${ls.refundAmountDesc?string(",##0.00")}</td>
+									<td>${ls.settleAmountDesc?string(",##0.00")}</td>
+									<td>${ls.feeDesc?string(",##0.00")}</td>
+									<td>${ls.intoAmountDesc?string(",##0.00")}</td>
+									<td><a class="blues" href="${rc.contextPath}/corp/liquidateItem.htm?method=queryItem&parentSequenceId=${ls.sequenceId}&settleTime=${ls.settleTime?string("yyyy-MM-dd")}" target="_item">查看明细</a></td>
+								</tr>
+								</#list>
+							</#if>
+							</tbody>
+						</table>
+					</div>
+					<div class="page_box">
+						
+						<!--分页 str -->
+					<#if pu?has_content>
+						<@sp.page page=pu/>
+					</#if>
+					<!--分页 end --> 
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>

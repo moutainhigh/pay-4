@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcbusinesslimit">
+	<typeAlias alias="rcBusinessLimit" type="com.pay.rm.service.model.rmlimit.businesslimit.RcBusinessLimit"/>
+    <resultMap id="rcBusinessLimit" class="com.pay.rm.service.model.rmlimit.businesslimit.RcBusinessLimit">
+        <result column="DAY_LIMIT" property="dayLimit" jdbcType="DECIMAL"/>
+        <result column="MONTH_LIMIT" property="monthLimit" jdbcType="DECIMAL"/>
+        <result column="MONTH_TIMES" property="monthTimes" jdbcType="DECIMAL"/>
+        <result column="RISK_LEVEL" property="riskLevel" jdbcType="DECIMAL"/>
+        <result column="MCC" property="mcc" jdbcType="DECIMAL"/>
+        <result column="SINGLE_LIMIT" property="singleLimit" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BUSINESS_TYPE" property="businessType" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="DAY_TIMES" property="dayTimes" jdbcType="DECIMAL"/>
+        <result column="BATCH_ACCOUNTS" property="batchAccounts" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,RISK_LEVEL,MCC,
+		SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,DAY_TIMES,BATCH_ACCOUNTS
+    </sql>
+    <insert id="create" parameterClass="rcBusinessLimit">
+        INSERT INTO RC_BUSINESS_LIMIT(
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,RISK_LEVEL,MCC,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,DAY_TIMES,BATCH_ACCOUNTS
+        )
+        VALUES(
+            #dayLimit#,#monthLimit#,#monthTimes#,#riskLevel#,#mcc#,
+			#singleLimit#,#status#,#businessType#,SEQ_RC_BUSINESS_LIMIT_ID.NEXTVAL,#dayTimes#,#batchAccounts#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcBusinessLimit">
+        UPDATE RC_BUSINESS_LIMIT
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="dayLimit">
+            DAY_LIMIT = #dayLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="monthLimit">
+            MONTH_LIMIT = #monthLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="monthTimes">
+            MONTH_TIMES = #monthTimes#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="riskLevel">
+            RISK_LEVEL = #riskLevel#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="mcc">
+            MCC = #mcc#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="singleLimit">
+            SINGLE_LIMIT = #singleLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="businessType">
+            BUSINESS_TYPE = #businessType#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="dayTimes">
+            DAY_TIMES = #dayTimes#
+        </isNotEmpty>
+      	<isNotEmpty prepend="," property="batchAccounts">
+            BATCH_ACCOUNTS = #batchAccounts#
+        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotEmpty>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+        DELETE FROM RC_BUSINESS_LIMIT        
+		WHERE      SEQUENCE_ID = #sequenceId# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcBusinessLimit">
+        DELETE FROM RC_BUSINESS_LIMIT        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="dayLimit">
+            DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthLimit">
+            MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthTimes">
+            MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mcc">
+            MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="dayTimes">
+            DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcBusinessLimit"
+        parameterClass="java.lang.Long">
+        SELECT 
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,RISK_LEVEL,MCC,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,DAY_TIMES,BATCH_ACCOUNTS
+			
+        FROM RC_BUSINESS_LIMIT
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcBusinessLimit">
+        SELECT 
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,RISK_LEVEL,MCC,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,DAY_TIMES,BATCH_ACCOUNTS
+        FROM RC_BUSINESS_LIMIT
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="dayLimit">
+            DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthLimit">
+            MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthTimes">
+            MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mcc">
+            MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="dayTimes">
+            DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+        </dynamic>
+        ORDER BY SEQUENCE_ID
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM RC_BUSINESS_LIMIT
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="dayLimit">
+            DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthLimit">
+            MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthTimes">
+            MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="riskLevel">
+            RISK_LEVEL = #riskLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mcc">
+            MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="dayTimes">
+            DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

@@ -1,0 +1,42 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="acc-idCardVerifyService"
+		class="com.pay.acc.service.cidverify.impl.IdCardVerifyServiceImpl">
+		<property name="nciicClient" ref="acc-cidgov" />
+		<property name="xmlModelManager" ref="acc-xmlModelManager" />
+		<property name="mainDao" ref="acc-idcVerifyBaseDAO" />
+		<property name="idcVerifyGovService" ref="acc-idcVerifyGovService" />
+		<property name="idcVerifyBankService" ref="acc-idcVerifyBankService" />
+		<property name="individualInfoService" ref="acc-individualInfoService" />
+		<property name="idcVerifyBaseDAO" ref="acc-idcVerifyBaseDAO" />
+		<property name="idcVerifyGovDAO" ref="acc-idcVerifyGovDAO" />
+		<property name="transLogService" ref="acc-transLogService" />
+		<property name="validatorService" ref="idcValidatorService"/>
+		<!-- 满源实名认证服务 -->
+		<property name="identityVerifyService" ref="identityVerifyServiceImpl"/>
+	</bean>
+
+	<bean id="acc-idcVerifyGovService"
+		class="com.pay.acc.service.cidverify.impl.IdcVerifyGovServiceImpl">
+		<property name="mainDao" ref="acc-idcVerifyGovDAO" />
+		<property name="idcVerifyGovDAO" ref="acc-idcVerifyGovDAO" />
+	</bean>
+
+	<bean id="acc-idcVerifyBankService"
+		class="com.pay.acc.service.cidverify.impl.IdcVerifyBankServiceImpl">
+	</bean>
+
+	<bean name="idcValidatorService"
+		class="com.pay.acc.service.cidverify.impl.validation.ValidatorService">
+		<!-- property name="userName" value="${idc.userName}" />
+		<property name="password" value="${idc.password}" /-->
+	</bean>
+</beans>

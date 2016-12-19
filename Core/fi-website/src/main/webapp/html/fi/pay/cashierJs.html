@@ -1,0 +1,88 @@
+<script>
+$("#acctPayForm").submit(function(){
+	
+	var loginName = $("#account").val();
+	if(loginName == undefined) {
+		$("#account").val("");
+	} else if(loginName == ""){
+		$.pay.alert('请输入安捷支付号',{h:160,t:'3'});
+		return false;
+	}
+    if(hasSecurityCtrl()){
+        $("#password").val(getPwdCtrlVal("payaySafeEdit"));
+    }
+    if($(payapaySafeEdit").length>0){
+		if(getPwdCtrlStrLengpaypaySafeEdit")<=0){
+			$.pay.alert('请输入支付密码',{h:160,t:'3'});
+			return false;
+		}
+	}
+});
+
+$("#account").keyup(function(event){
+	var code = event.keyCode;
+    var accountValue = $("#account").val();
+    var passwordValue = $("#password").val();
+    if(code == 13 && accountValue == "" && passwordValue == "") {
+    	$.pay.alert('请输安捷支付支付账户！', {
+			h : 160,
+			t : '3'
+		});
+    } else if(code == 13 && accountValue != "" && passwordValue == "") {
+    	return false;
+    } else if(code == 13 && accountValue != "" && passwordValue != "") {
+    	$("#acctPayForm").submit();
+	}
+	return false;
+})
+
+$("#password").keyup(function(event){
+    var code = event.keyCode;
+    var accountValue = $("#account").val();
+    var passwordValue = $("#password").val();
+    if(accountValue == undefined) {
+    	if( code == 13 &&  passwordValue != "" ){
+    		$("#acctPayForm").submit();
+    	} else if(code == 13 &&  passwordValue == "") {
+    		$.pay.alert('请输入支付密码！', {
+    			h : 160,
+    			t : '3'
+    		});
+    	}
+    } else {
+	    if(code == 13 && accountValue == "") {
+	    	$.pay.alert('请安捷支付生支付账户！', {
+    			h : 160,
+    			t : '3'
+    		});
+	    } else if(code == 13 && accountValue != "" && passwordValue == "") {
+	    	$.pay.alert('请输入支付密码！', {
+    			h : 160,
+    			t : '3'
+    		});
+	    } else if(code == 13 && accountValue != "" && passwordValue != "") {
+	    	$("#acctPayForm").submit();
+    	}
+    }
+	return false;
+})
+
+var hander ;	  
+function updateTimeLabel(div,layer) {
+  var time = 60;
+  clearInterval(hander);
+  hander = setInterval(function() {
+         if (time <= 0) {
+       	  clearInterval(hander);
+       	  layer.html("");
+             div.show();
+         }
+         else {
+        	 layer.html("（" + time + "秒后）重新获取短信");
+             div.hide();
+         }
+         time--;
+     }, 1000);
+ }
+
+</script>

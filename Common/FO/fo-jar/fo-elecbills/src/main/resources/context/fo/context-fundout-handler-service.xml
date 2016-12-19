@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="fundout-baseHandler" class="com.pay.fo.elecbills.external.impl.BaseHandler"
+		abstract="true">
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService" />
+		<property name="payDetailService" ref="fundout_payDetailService" />
+		<property name="agreementPayName" value="海南支付平台信息技术有限公司" />
+	</bean>
+
+	<!-- 单笔到银行 -->
+	<bean id="fundout-pay2BankSingleHandler"
+		class="com.pay.fo.elecbills.external.impl.Pay2BankSingleHandler"
+		parent="fundout-baseHandler">
+		<property name="pagePath" value="/fo/elecbills/ebpay2banksingle" />
+		<property name="imgPath"
+			value="/opt/pay/config/poss/elecbills/pay2banksingle.jpg" />
+		<property name="tradeType" value="付款到银行" />
+	</bean>
+	
+	<!-- 批量到银行 -->
+	<bean id="fundout-pay2BankBatchHandler"
+		class="com.pay.fo.elecbills.external.impl.Pay2BankBatchHandler"
+		parent="fundout-baseHandler">
+		<property name="pagePath" value="/fo/elecbills/ebpay2bankbatch" />
+		<property name="imgPath"
+			value="/opt/pay/config/poss/elecbills/pay2bankbatch.jpg" />
+		<property name="tradeType" value="批量付款到银行" />
+	</bean>
+	
+	<!-- 批量到银行汇总 -->
+	<bean id="fundout-pay2BankBatchSummaryHandler"
+		class="com.pay.fo.elecbills.external.impl.Pay2BankBatchSummaryHandler"
+		parent="fundout-baseHandler">
+		<property name="pagePath" value="/fo/elecbills/ebpay2bankbatch" />
+		<property name="imgPath"
+			value="/opt/pay/config/poss/elecbills/pay2bankbatch.jpg" />
+		<property name="tradeType" value="批量付款到银行" />
+	</bean>
+	
+	<!-- 提现 -->
+	<bean id="fundout-withdrawHandler"
+		class="com.pay.fo.elecbills.external.impl.WithdrawHandler"
+		parent="fundout-baseHandler">
+		<property name="pagePath" value="/fo/elecbills/ebwithdraw" />
+		<property name="imgPath"
+			value="/opt/pay/config/poss/elecbills/ebwithdraw.jpg" />
+		<property name="tradeType" value="提现" />
+		<property name="commonQueryService" ref="fo-withdrawOrderQueryService" />
+	</bean>
+
+</beans>

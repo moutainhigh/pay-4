@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+			
+	<bean id="fundout-jmsLogAopService" class="com.pay.poss.jmslog.service.JmsLogAopService">
+		<property name="jmsLogService" ref="fundout_jmslog_FundoutJmsLogService"/>
+	</bean>
+	
+	<aop:config>
+		<aop:aspect id="jmsPreAop" ref="fundout-jmsLogAopService">
+			<aop:pointcut id="preSend" expression="execution(* com.pay.poss.service.withdraw.inf.output.NotifyFacadeService.sendRequest(..))" />
+			<aop:before method="preSendLog" pointcut-ref="preSend" />
+		</aop:aspect>
+		<aop:aspect id="jmsReturnAop" ref="fundout-jmsLogAopService">
+			<aop:pointcut id="returnSendFundout" expression="execution(* com.pay.fundout.mdp..*.onMessage(..))" />
+			<aop:after-returning method="afterReturnReceiveLog" pointcut-ref="returnSendFundout" />
+		</aop:aspect>
+	</aop:config>
+	
+	<bean id="fundout_jmslog_FundoutJmsLogDAO" class="com.pay.poss.jmslog.dao.impl.FundoutJmsLogDAOImpl"
+		parent="PLATFORM.DEFAULT.DAOSERVICE">
+		<property name="namespace" value="fundoutjmslog"></property>
+	</bean>
+
+	<bean id="fundout_jmslog_FundoutJmsLogService"
+		class="com.pay.poss.jmslog.service.impl.FundoutJmsLogServiceImpl">
+		<property name="fundoutJmsLogDAO" ref="fundout_jmslog_FundoutJmsLogDAO" />
+		<property name="queueName" value="fundout.withdraw.request.active" />
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"/>
+	</bean>
+</beans>

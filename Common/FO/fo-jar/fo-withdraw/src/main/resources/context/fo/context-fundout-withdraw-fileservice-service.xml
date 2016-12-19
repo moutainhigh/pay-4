@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+			
+			
+	<bean id="fundout-withdraw-reviewFoFileMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="140_2">
+					<bean id="fundout-withdraw-abcreviewfofile"
+						 class="com.pay.fundout.withdraw.service.reviewfofile.impl.ACBReviewFoFileService2EImpl" />
+				</entry>
+				<entry key="100_2">
+					<bean id="fundout-withdraw-icbcreviewfofile"
+						 class="com.pay.fundout.withdraw.service.reviewfofile.impl.ICBCReviewFoFileServiceImpl" />
+				</entry>
+				<entry key="160_2">
+					<bean id="fundout-withdraw-ccbreviewfofile"
+						 class="com.pay.fundout.withdraw.service.reviewfofile.impl.CCBReviewFoFileServiceImpl" />
+				</entry>
+				<entry key="120_0">
+					<bean id="fundout-withdraw-cmbPersonreviewfofile"
+						 class="com.pay.fundout.withdraw.service.reviewfofile.impl.CMBReviewFoFileServiceForPersonalImpl" />
+				</entry>
+				<entry key="120_1">
+					<bean id="fundout-withdraw-cmbEnterprisereviewfofile"
+						 class="com.pay.fundout.withdraw.service.reviewfofile.impl.CMBReviewFoFileServiceForEnterpriseImpl" />
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>		
+	
+	<!-- service 配置-->
+	<bean id="fundout-withdraw-querybatchfileservice"
+		class="com.pay.fundout.withdraw.service.fileservice.impl.QueryBatchFileServiceImpl">
+		<property name="queryBatchFileDao" ref="fundout-withdraw-querybatchfiledao" />
+		<property name="recResultDao" ref="fundout-withdraw-wdreconcileresultdao" />
+	</bean>
+
+	<bean id="fundout-withdraw-handgeneratebatch"
+		class="com.pay.fundout.withdraw.service.fileservice.impl.HandBatchFileServiceImpl">
+		<property name="queryBatchFileDao" ref="fundout-withdraw-querybatchfiledao" />
+		<property name="withdrawAuditDao" ref="fundout-withraw-withdrawAuditDao" />
+		<property name="withdrawWorkDao" ref="fundout-withraw-withdrawWorkDao" />
+		<property name="withdrawService" ref="fundout-withdraw-service" />
+		<property name="batRulChResService"
+			ref="fundout-ruleconfig-BatchRuleChannelResService" />
+		<!-- send email -->
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="mailAddr">
+			<list>
+				<value>nana_xing@hnair.com</value>
+				<value>houjun@hnair.com</value>
+			</list>
+		</property>
+		<property name="emailTemplateId">
+			<value>${batchRule.email}</value>
+		</property>
+	</bean>
+
+	<bean id="fundout-withdraw-foparserfilehandler"
+		class="com.pay.fundout.withdraw.service.result.impl.ParserFileHandlerServiceImpl">
+		<property name="importResultDao" ref="fundout-withdraw-importresultdao" />
+		<property name="queryBatchFileDao" ref="fundout-withdraw-querybatchfiledao" />
+		<property name="fileParseService" ref="fo-batchinfo-withdrawFileParserService" />
+	</bean>
+
+	<bean id="fundout-withdraw-wdreconcileresultserviceimpl"
+		class="com.pay.fundout.withdraw.service.result.impl.WdReconcileResultServiceImpl">
+		<property name="wdReconcileResultDao" ref="fundout-withdraw-wdreconcileresultdao" />
+		<property name="queryBatchFileDao" ref="fundout-withdraw-querybatchfiledao" />
+		<property name="batchSendAccountFacadeService"
+			ref="fundout_withdraw_batchSendAccountFacadeService" />
+		<property name="handBatchFileService" ref="fundout-withdraw-handgeneratebatch" />
+		<property name="withdrawWorkDao" ref="fundout-withraw-withdrawWorkDao" />
+		<property name="accountingServiceMap">
+			<map>
+				<entry key="0-101" >
+					<ref bean="fundout-withdrawSuccessAccounting"/>
+				</entry>
+				<entry key="0" >
+					<ref bean="fundout-withdrawFailAccounting"/>
+				</entry>
+				<entry key="3-101" >
+					<ref bean="fundout-pay2bankSuccessAccounting"/>
+				</entry>
+				<entry key="3">
+					<ref bean="fundout-pay2bankFailAccounting"/>
+				</entry>
+				<entry key="4-101" >
+					<ref bean="fundout-batchPay2bankSuccessAccounting"/>
+				</entry>
+				<entry key="4">
+					<ref bean="fundout-batchPay2bankFailAccounting"/>
+				</entry>
+			</map>
+		</property>
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+	</bean>
+
+	<bean id="fo_withdraw_bankservice"
+		class="com.pay.fundout.withdraw.service.bank.impl.FoBankInfoServiceMock" />
+
+	<bean id="fundout-special-busi-generatebatch"
+		class="com.pay.fundout.withdraw.service.fileservice.impl.SpecialBusiFundoutServiceImpl">
+		<property name="queryBatchFileDao" ref="fundout-withdraw-querybatchfiledao" />
+	</bean>
+
+</beans>

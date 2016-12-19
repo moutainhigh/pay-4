@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- 风控DAO模板 -->
+	<bean id="RM_DAO_TEMPLATE" abstract="true">
+		<property name="dataSource">
+			<ref bean="riskDs" />
+		</property>
+		<property name="pageGenerator">
+			<ref bean="rm_pageGenerator" />
+		</property>
+		<property name="sequenceGenerator">
+			<ref bean="rm_sequenceGenerator" />
+		</property>
+	</bean>
+	
+	<!-- 风控page生成器 -->
+	<bean id="rm_pageGenerator" class="com.pay.inf.dao.impl.OraclePager">
+	</bean>
+
+	<!-- 风控序列生成器 -->
+	<bean id="rm_sequenceGenerator" class="com.pay.inf.dao.impl.OracleSequenceGenerator">
+		<property name="sequenceName">
+			<value>SEQ_BASE_DAO</value>
+		</property>
+		<property name="paddingLength" value="0" />
+		<property name="dataSource" ref="riskDs" />
+	</bean>
+
+	<!-- 风控default daoservice -->
+	<bean id="RM_DEFAULT_DAOSERVICE" parent="RM_DAO_TEMPLATE"
+		class="com.pay.inf.dao.impl.BaseDAOImpl" init-method="initialize">
+		<property name="sqlMapClient">
+			<ref bean="rm_sqlMapClientRiskManager" />
+		</property>
+		<property name="sqlExecutor">
+			<ref bean="rm_riskManager_sqlExecutor" />
+		</property>
+	</bean>
+	
+	<!-- 风控sqlExecutor -->
+	<bean id="rm_riskManager_sqlExecutor" class="com.pay.inf.dao.impl.OraclePageExecutor">
+		<property name="dialect">
+			<bean class="com.pay.inf.dao.impl.OraclePager" />
+		</property>
+	</bean>
+
+	<!-- 风控 BaseDAO -->
+	<bean id="rm_riskManagerBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl" abstract="true">
+		<property name="sqlMapClient" ref="rm_sqlMapClientRiskManager"/>
+	</bean>
+	
+	<!-- 风控 sqlMapClient 配置-->
+	<bean id="rm_riskManagerLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" />
+
+	<!-- 风控  sqlMapClient -->
+	<bean id="rm_sqlMapClientRiskManager" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmap/rm/sqlmap-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<value>classpath*:sqlmap/rm/mapping/**/*.xml</value>
+		</property>
+		<property name="dataSource">
+			<ref bean="riskDs" />
+		</property>
+		<property name="lobHandler" ref="rm_riskManagerLobHandler"></property>
+	</bean>
+	
+	<bean id="context_rm_base_codeTableDAO" class="com.pay.rm.base.tags.codetable.dao.impl.CodeTableDaoImpl" parent="RM_DEFAULT_DAOSERVICE" />
+	
+</beans>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:ps="http://pay.woyo.com/schema/inf/pricingstrategy/"
+	targetNamespace="http://pay.woyo.com/schema/inf/pricingstrategy/">
+
+    <element name="pricing-strategy-request" type="ps:pricing-strategy-request" />
+    <element name="pricing-strategy-response" type="ps:pricing-strategy-response" />
+
+    <complexType name="pricing-strategy-request">
+        <sequence>
+            <element name="request-header" type="ps:request-header"/>
+            <element name="request-body" type="ps:request-body"/>
+        </sequence>
+    </complexType>
+    
+    <complexType name="pricing-strategy-response">
+        <sequence>
+            <element name="response-header" type="ps:response-header" />
+            <element name="response-body" type="ps:response-body" />
+        </sequence>
+    </complexType>
+    
+	<complexType name="request-header">
+		<sequence>
+			<element type="string" name="version" fixed="1.0" />
+			<element type="string" name="service" fixed="inf.pricingstrategy" />
+			<element type="string" name="requestId" minOccurs="0" maxOccurs="1"/>
+			<element type="string" name="appId"  minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="request-body">
+		<sequence>
+			<element name="transactionAmount" type="long" />
+			<element name="paymentServiceCode" type="long" />
+			<element name="serviceLevelCode" type="int"  minOccurs="0" maxOccurs="1"/>
+			<element name="memberCode" type="long" />
+			<element name="date" type="string" />
+			<element name="terminaltype" type="int"  minOccurs="0" maxOccurs="1"/>
+			<element name="reservedCode" type="string"  minOccurs="0" maxOccurs="1"/>
+		</sequence>
+	</complexType>
+
+    <complexType name="response-header">
+        <sequence>
+			<element type="string" name="version" fixed="1.0"/>
+			<element type="string" name="service" fixed="inf.pricingstrategy"/>
+			<element type="string" name="requestId"  minOccurs="0" maxOccurs="1"/>
+			<element type="string" name="appId"  minOccurs="0" maxOccurs="1"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="response-body">
+    	<sequence>
+            <element type="boolean" name="resultCode"  minOccurs="0" maxOccurs="1"/>
+            <element type="string" name="result"  minOccurs="0" maxOccurs="1"/>
+            <element type="string" name="errorCode"  minOccurs="0" maxOccurs="1"/>
+            <element type="string" name="errorMsg"  minOccurs="0" maxOccurs="1"/>
+    	</sequence>
+    </complexType>
+</schema>

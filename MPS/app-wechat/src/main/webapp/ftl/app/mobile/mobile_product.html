@@ -1,0 +1,95 @@
+<label class="side">充值面额：</label>
+<#if mpl?exists>
+	<#list mpl as mobileProduct>
+            <input class="radio" id="chargeAmount_${mobileProduct_index}" name="chargeAmount" type="radio" value="${mobileProduct.chargeAmount}" tabindex="${mobileProduct_index}" /><label class="for_radio" for="chargeAmount_${mobileProduct_index}">${mobileProduct.chargeAmount}元</label>
+	</#list>
+</#if>
+<input type="hidden" id="mpl_size" value="${mpl?size}">
+
+<script type="text/javascript">
+	$(function(){
+		  //radio click
+		 $('.radio').click(function(){
+			 $('#amount_yuan').html("")
+			 $('#show_amount').html('');
+			 $('#chargeAmount').val($(this).val());
+			 //------------
+			 //set next 
+			  $('#chargeAmount_next').val($(this).val());
+			//------------
+			 // show amount
+			 loadDiscount();
+		  });
+		
+           //radio default checked
+         if($('#chargeAmount').val() == ""){
+             //-------------------
+              if($('#chargeAmount_next').val() != ""){
+                   var j=0;
+            	  $('input[type=radio]').each(function(i){
+            		  if($(this).val() ==$('#chargeAmount_next').val()){
+                		   j=1;
+            		      return;
+                	   }
+            	   });
+           	      if(j>0){
+           	    	$('input[type=radio]').each(function(i){
+              		  if($(this).val() ==$('#chargeAmount_next').val()){
+              			 $('input[type=radio]').get(i).checked = true;
+              		      return;
+                  	   }
+              	     });
+               	   }
+           	      else{
+	           	    	   if($('#mpl_size').val()>1){
+	                  	      $('input[type=radio]').get(1).checked = true;
+	                        }else {
+	                      	  $('input[type=radio]').get(0).checked = true;
+	                        }
+	                         
+               	       var v = $('input[type=radio]:checked').val();
+               		   $('#chargeAmount_next').val(v);
+               	   }
+           	      
+               	  //////////else;22222
+                        
+              }else
+              {
+                  if($('#mpl_size').val()>1){
+            	   $('input[type=radio]').get(1).checked = true;
+                  }else {
+                	  $('input[type=radio]').get(0).checked = true;
+                  }
+                   
+              }
+           //-------------------
+          //   $('input[type=radio]').get(1).checked = true;
+		      
+          }else{
+              
+              //back
+        	  $('input[type=radio]').each(function(i){
+				  if($(this).val() ==$('#chargeAmount').val())
+				  {
+					  $('input[type=radio]').get(i).checked = true;
+					  return false;
+				 }
+			 });
+        	
+          }
+     
+        
+         //set #chargeAmount value
+         $('input[type=radio]').each(function(j){
+		        if($(this).attr('checked') == true)
+		         {
+		    	    $('#chargeAmount').val($(this).val());
+		    	    // show amount
+		    	    loadDiscount(); 
+		    	    return ;
+		        }
+		 });
+	       
+    });
+	
+</script>

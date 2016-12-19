@@ -1,0 +1,47 @@
+<script type="text/javascript" src="<@sp.static/>/js/pay/cert/atlcrypt.js"></script>
+<style>
+.win_tips{margin:0; padding:20px 20px 20px 100px; position:relative; line-height:24px;zoom:1}
+.win_tips .pop_s,.win_tips .pop_war,.win_tips .pop_fail{ position:absolute; top:25px; left:20px;}
+.win_tips .blues{ color:#09f; text-decoration:underline;}
+</style>
+<div id="cerTips" style="display:none;">
+<div class="win_tips">
+	 <!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+	<span class="pop_fail"></span>
+	 <p class="f14b">您还没有安装数字证书控件。</p>
+	 <p class="c_999">请手动下载控件，安装成功后，请刷新页面或重启浏览器后重试。</p>
+	<p><a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit" class="blues">下载控件</a>|
+	<a href="javascript:void(0);" id="installSuccess" onclick="closeCerWin();">安装完成</a>
+	</p>
+</div>
+</div>
+<embed id="atlCrypt" name="atlCrypt" type="application/hnacert" width="1" height="1" loop="true" pluginspage="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit" style=""></embed>
+<script type="text/javascript">
+var cerWin;
+function closeCerWin() {
+	cerWin.dialog("close");
+	cerWin = null;
+}
+
+
+var pluginCert = null;
+$(function() {
+	var isWindows = ${result.isWindows?string('true','false')};
+	if(isWindows ){
+		if (!detectActiveX()) {
+			cerWin = $.pay.window($("#cerTips").html(), {
+				title : "控件提示",
+				w : 600,
+				h : 20,
+				url : false,
+				iframe : false,
+				close : function() {
+					window.location.reload();
+				}
+			});
+		}
+	}else{
+		$.pay.alert("数字证书控件只支持windows系统");
+	}
+});
+</script>

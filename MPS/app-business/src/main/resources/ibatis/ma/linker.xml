@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="linker">
+	<typeAlias alias="linker" type="com.pay.base.model.Linker" />
+
+	<insert id="create" parameterClass="linker">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			SEQ_linker_ID.nextval as ID from dual 
+		</selectKey>
+		insert into
+		t_linker
+		(
+		id,
+		memberCode,
+		linkerId,
+		linkerName,
+		description,
+		groupId,
+		joinDate,
+		status,
+		remark
+		)
+		values
+		(
+		#id#,
+		#memberCode#,
+		#linkerId#,
+		#linkerName#,
+		#description#,
+		#groupId#,
+		#joinDate#,
+		#status#,
+		#remark#
+		)
+	</insert>
+	<delete id="delete">
+		delete from
+		t_linker
+		where
+		ID = #id#
+    </delete>
+
+	<delete id="deletes" parameterClass="java.util.List">
+		delete from
+		t_linker
+		where
+		ID
+		in
+		<iterate open="(" close=")" conjunction=",">
+			#ids[]#
+            </iterate>
+	</delete>
+	<update id="update" parameterClass="linker">
+		update
+		t_linker
+		set
+		memberCode =
+		#memberCode#,
+		linkerId = #linkerId#,
+		linkerName = #linkerName#,
+		description = #description#,
+		groupId = #groupId#,
+		joinDate = #joinDate#,
+		status = #status#,
+		remark = #remark#
+		where
+		ID = #id#
+    </update>
+	<select id="count" resultClass="java.lang.Integer">
+		select
+		count(id)
+		from
+		t_linker
+    </select>
+
+
+	<select id="findById" resultClass="linker" parameterClass="java.lang.Long">
+		select
+		id,
+		memberCode,
+		linkerId,
+		linkerName,
+		description,
+		groupId,
+		joinDate,
+		status,
+		remark
+		from
+		t_linker
+		where
+		ID = #id#
+    </select>
+	<select id="read" resultClass="linker" parameterClass="java.lang.Long">
+		select
+		ID
+		from
+		t_linker
+		where
+		ID = #id#
+    </select>
+
+	<select id="loadAll" resultClass="linker" parameterClass="java.util.List">
+		select
+		id,
+		memberCode,
+		linkerId,
+		linkerName,
+		description,
+		groupId,
+		joinDate,
+		status,
+		remark
+		from
+		t_linker
+    </select>
+
+
+	<select id="queryCount" resultClass="java.lang.Integer"
+		parameterClass="com.pay.base.dto.LinkerDTO">
+		select
+		count(id)
+		from
+		t_linker
+		<dynamic prepend="where">
+
+			<isNotEmpty prepend="AND" property="memberCode">
+				memberCode =
+				#memberCode:VARCHAR#
+				AND exists (select member_code from t_member m where (m.status =1 or m.status=2) AND member_code = linkerId)
+            </isNotEmpty>
+		</dynamic>
+	</select>
+
+	<!-- 分页查询 -->
+	<select id="pageQueryLinker" parameterClass="com.pay.base.dto.LinkerDTO"
+		resultClass="linker">
+		select
+		id as id,
+		memberCode as memberCode,
+		linkerId as linkerId,
+		m.login_name as linkerName,
+		description as description,
+		groupId as
+		groupId,
+		joinDate as joinDate,
+		l.status as status,
+		remark as remark
+		from
+		(select rid
+		from (select rownum rn, rid
+		from (select
+		rowid rid from
+		t_linker
+		where 1=1
+
+		<dynamic>
+
+			<isNotEmpty prepend="AND" property="memberCode">
+				memberCode =
+				#memberCode:VARCHAR#
+            </isNotEmpty>
+			<!--
+				<isNotEmpty prepend="AND" property="startDate"> CREATED_AT &gt;=
+				to_date(#startDate#,'yyyy-MM-dd') </isNotEmpty> <isNotEmpty
+				prepend="AND" property="endDate"> CREATED_AT &lt;
+				to_date(#endDate#,'yyyy-MM-dd')+1 </isNotEmpty>
+			-->
+
+
+		</dynamic>
+		order by joinDate desc
+		)
+		<dynamic prepend="WHERE">
+			<isNotEmpty property="endNum">
+				rownum &lt;=#endNum# )   
+          </isNotEmpty>
+			<isNotEmpty property="beginNum">
+				where rn &gt;#beginNum# )t,t_linker l,t_member m
+				where t.rid = l.rowid AND m.member_code = linkerId and (m.status =1 or m.status=2)
+						</isNotEmpty>
+
+
+
+
+		</dynamic>
+
+	</select>
+	<select id="querybymemberCode" resultClass="linker" parameterClass="java.lang.Long">
+		select
+		id as id,
+		memberCode as memberCode,
+		linkerId as linkerId,
+		m.login_name as
+		linkerName,
+		description as description,
+		groupId as groupId,
+		joinDate as
+		joinDate,
+		l.status as status,
+		remark as remark
+		from t_linker l,t_member m
+		where
+		m.member_code = linkerId AND (m.status =1 or m.status=2)
+		AND memberCode=#memberCode:VARCHAR#
+	</select>
+
+	<select id="verifylinkerrepeat" resultClass="linker" parameterClass="com.pay.base.dto.LinkerDTO">
+		select
+		id as id,
+		memberCode as memberCode,
+		linkerId as linkerId,
+		linkerName as
+		linkerName,
+		description as description,
+		groupId as groupId,
+		joinDate as
+		joinDate,
+		status as status,
+		remark as remark
+		from t_linker
+		where
+		linkerId=#linkerId:VARCHAR#
+		and 
+		memberCode=#memberCode:VARCHAR#
+	</select>
+
+</sqlMap>

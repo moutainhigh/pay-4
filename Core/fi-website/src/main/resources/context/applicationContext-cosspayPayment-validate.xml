@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境收银台收单 -->
+	<bean id="crosspayPaymentValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="onlinePaymentRule" />
+	</bean>
+
+	<bean id="onlinePaymentRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="cardHolderNumberCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="cardHolderNumberCheckRule" class="com.pay.gateway.validate.rule.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="cardNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0037" />
+		<property name="message" value="请输入正确的银行卡号" />
+		<property name="messageEn" value="Please enter the correct number." />
+	</bean>
+
+	<bean id="cardNumberCheckRule" class="com.pay.gateway.validate.rule.CardOrgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="cardExpirationMonthCheckRule" />
+		</property>
+		<property name="messageId" value="0055" />
+		<property name="message" value="您输入的卡号与卡组织不一致" />
+		<property name="messageEn" value="Please enter the correct number." />
+	</bean>
+
+	<bean id="cardExpirationMonthCheckRule"
+		class="com.pay.gateway.validate.rule.CardExpirationMonthCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="cardExpirationYearCheckRule" />
+		</property>
+		<property name="message" value="持卡人卡片有效月不能为空" />
+		<property name="messageId" value="0040" />
+		<property name="messageEn" value="Please enter the correct valid month." />
+	</bean>
+
+	<bean id="cardExpirationYearCheckRule"
+		class="com.pay.gateway.validate.rule.CardExpirationYearCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="cardHolderFirstNameCheckRule" />
+		</property>
+
+		<property name="messageId" value="0040" />
+		<property name="message" value="持卡人卡片有效年不能为空" />
+		<property name="messageEn" value="Please enter the correct valid year." />
+	</bean>
+
+	<bean id="cardHolderFirstNameCheckRule"
+		class="com.pay.gateway.validate.rule.CardHolderFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="cardHolderLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="请输入账单名" />
+		<property name="messageEn" value="Please enter this First name." />
+	</bean>
+
+	<bean id="cardHolderLastNameCheckRule"
+		class="com.pay.gateway.validate.rule.CardHolderLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="securityCodeCheckRule" />
+		</property>
+
+		<property name="messageId" value="0018" />
+		<property name="message" value="请输入账单姓" />
+		<property name="messageEn" value="Please enter the last name." />
+	</bean>
+
+	<bean id="securityCodeCheckRule" class="com.pay.gateway.validate.rule.SecurityCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="crosspay-cashier-orderCheckRule" />
+		</property>
+		<property name="messageId" value="0042" />
+		<property name="message" value="请输入卡片校验码" />
+		<property name="messageEn" value="Please enter the security code." />
+	</bean>
+	<bean id="crosspay-cashier-orderCheckRule" class="com.pay.gateway.validate.rule.TradeOraderCheckRule">
+	    <property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="messageId" value="0054" />
+		<property name="message" value="订单校验失败！" />
+		<property name="messageEn" value="the order verification failed"/>
+	</bean>
+</beans>

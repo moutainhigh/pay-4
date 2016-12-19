@@ -1,0 +1,254 @@
+<!--侧导航企业版 end -->
+<!-- 获取企业还是个人url str -->
+<!-- 获取企业还是个人url end -->
+			
+<form id="acctForm" name="acctForm">			
+	<ul class="form_list mt10">		
+		<li class="checkBankInfo">
+			<label class="form_side2">请选择银行：</label>
+			<p class="myWay">
+				<#if item?exists>
+					<label id="lastImg" for="${item.labelClass?default('')}" class="${item.labelClass?default('')}"></label><span id="bankType" class="bank_type">企业</span>
+				<#else>
+					 <label id="lastImg" for="" class=""></label>  <span id="bankType" style="display:none" class="bank_type">企业</span>
+				</#if>
+				
+			 </p>
+			<!--<a class="reds ml20" href="#">选择其他银行</a>-->
+
+			<div id="other-bank" class="other-bank">
+				<div class="select-banklist bus">
+				<p class="bank_type_tit">企业版网银</p>
+				
+				<!-- 银行列表开始  -->
+				<ul>
+					<#if channelItemDTOs?exists> 
+						<#list channelItemDTOs as bankB2B>
+							<li>
+								<input name="bankId" type="radio" value="${bankB2B.alias?default('')};${bankB2B.orgcode?default('')}" id="${bankB2B.alias}_radio" onclick="bankTypeShow();">
+								<label id="${bankB2B.alias}" for="${bankB2B.alias}_radio" class="${bankB2B.labelClass?default('')}" onclick="bankTypeShow();"></label>
+							</li>
+						</#list>
+					</#if>
+				</ul>
+				<!-- 银行列表结束  -->
+				</div>
+			</div>
+		</li>
+		
+		<!--充值金额FORM开始 -->
+		<li>
+			<label class="form_side2"><strong>入金金额</strong>：</label>
+			<input type="text" id="dealAmount" name="dealAmount" tabindex="1" class="inp_normal blod w121" maxlength="12"/>
+			<strong>元</strong>
+		</li>
+		<li class="btn">
+			<span class="btn_yel">
+				<button id="postSubmit" type="button" tabindex="2">下一步</button>
+			</span>
+		</li>
+		<!--充值金额FORM结束 -->
+	</ul>
+	<input type="hidden" id="bankInfo" name="bankInfo" value="<#if item?exists>${item.alias?default('')};${item.orgcode?default('')}</#if>"/>
+	<input type="hidden" id="name" name="name" value="${memberInfo.name?default('')}"/>
+	<input type="hidden" id="email" name="email" value="${memberInfo.loginName?default('')}"/>
+</form>
+
+<div id="bank" class="bank w-box"></div>
+
+<script>
+	$("#dealAmount").focus();
+	$(function(){
+		var loadWin;
+		$("#postSubmit").click(function(){
+			if($("#postSubmit").attr("disabled")) return;
+			if (validAcctForm()) { 
+				loadWin=$.pay.loading('正在处理中请稍候...',{success:function(){}});
+				$("#postSpan").addClass("b_off");
+				$("#postSubmit").attr("disabled", true);
+				var bankInfo = $("#bankInfo").val();
+				var name = $("#name").val();
+				var email = $("#email").val();
+				var dealAmount = $("#dealAmount").val();
+				$.ajax({
+					type: "POST",
+					cache: false,   
+					url: "${rc.contextPath}/corp/bsp/acctCharge.htm?method=onSubmit",
+					data: "dealAmount="+dealAmount+"&name="+name+"&email="+email+"&bankInfo="+bankInfo,
+					async: false,
+					success: function(msg){
+						$.pay.closeLoading(loadWin);
+						//it means timeout if msg is a html page
+						if(0==msg.indexOf("<!DOCTYPE HTML>")){
+							window.location.href = "${rc.contextPath}/index.htm";
+							return false;
+						}
+						if (-1 != msg.indexOf("validateError")){
+							$("#postSpan").removeClass("b_off");
+							$("#postSubmit").attr("disabled", false);
+							var to = msg.length;
+							msg = msg.substring(13, to);
+							$.pay.alert(msg,{h:160,t:'3',close:function(){$("#dealAmount").val("");$("#dealAmount").focus();}});
+							return false;
+						}
+						$.pay.window(msg,{title:'',w:500,h:300,url:false,isClose:false});	
+						$("#bankForm").submit();
+					}
+				});
+			}
+		});
+		
+		
+		$("#dealAmount").keypress(function(e){
+			var keyCode = e.which;
+			if(keyCode == 13){
+		    	$("#postSubmit").click();
+		    	//for do not submit
+		    	return false;
+		    }
+		});
+		
+		$(":radio").keypress(function(e){
+			var keyCode = e.which;
+			if(keyCode == 13){
+		    	$("#postSubmit").click();
+		    	//for do not submit
+		    	return false;
+		    }
+		});
+		
+	});
+
+
+	function validAcctForm() {
+		var bank = document.acctForm.bankId;
+		var check = false;
+		if(null == bank){
+			alert("无法选择银行");
+			$("#dealAmount").focus();
+			return false;
+		}
+		
+		if (bank.length > 0) {
+			for ( var i = 0; i < bank.length; i++) {
+				if (bank[i].checked == true) {
+					check = true;
+					break;
+				}
+			}
+		} else {
+			check = bank.checked;
+		}
+	
+		var amount = document.acctForm.dealAmount.value;
+		if (amount == '') {
+			$.pay.alert('请输入充值金额！', {
+				h : 160,
+				t : '3',
+				close:function(){
+					$("#dealAmount").focus();
+				}
+			});
+			return false;
+		}
+		
+		if (!check) {
+			$.pay.alert('请选择一个支付银行！', {
+				h : 160,
+				t : '3',
+				close:function(){$("#dealAmount").focus();}
+			});
+			//window.event.returnValue = false;
+			return false;
+		}
+		
+		if (!isNumber(amount)) {
+			$.pay.alert('请输入正确金额 ！', {
+				h : 160,
+				t : '3',
+				close:function(){$("#dealAmount").val("");$("#dealAmount").focus();}
+			});
+			return false;
+		}
+		
+		if (amount <= 0) {
+			$.pay.alert('充值金额不能小于等于0 ！', {
+				h : 160,
+				t : '3',
+				close:function(){$("#dealAmount").focus();}
+			});
+			return false;
+		}	
+		return true;
+	}
+
+
+
+	$(function(){
+		var orgCode = new Array();
+		$("#dealAmount").focus();
+		var bankInfo = $("#bankInfo").val();
+		if (null != bankInfo && "" != bankInfo) {
+			orgCode = $("#bankInfo").val().split(';');
+			var $bankdetail=$("#bankdetail_"+orgCode[1]);//orgCode[1]是paymentItem里面的orgCode
+			$("#lastImg").addClass($("#"+orgCode[0]).attr("class"));
+			$("#bank").html($bankdetail.html());
+			
+			var bankId = new Array();
+			var tmpOrgCode = new Array();
+			
+			bankId = document.getElementsByName("bankId");
+			var element = null;
+			var value = null;
+			for ( var int = 0; int < bankId.length; int++) {
+				element = bankId[int];
+				value = element.value;
+				tmpOrgCode = value.split(';');
+				if (tmpOrgCode[1] == orgCode[1]) {
+					element.checked = true;
+				}
+			}
+		}
+		
+
+		$(":radio[name=bankId]").click(function(){
+			var value = new Array();
+			var orgCode = $(this).val().split(';');
+			
+			//$bankdetail=$("#bankdetail_"+orgCode[1]);
+			//alert($bankdetail.html());
+			//$("#bank").html($bankdetail.html());
+			
+			$("#bankInfo").val($(this).val());
+			
+			//选择银行图片显示
+			$("#lastImg").removeClass($("#lastImg").attr("class"));
+			$("#lastImg").addClass($("#"+orgCode[0]).attr("class"));
+			$("#lastImg").removeClass($("#lastImg").attr("for"));
+			$("#lastImg").addClass($("#"+orgCode[0]).attr("class"));	
+			
+			//预防点击单银行后再点击选择其它银行第一次无反应
+			$("#other-bank").removeClass("hide");
+			$("#other-bank").addClass("bankhide");
+			var a1 = $(this).parent().parent().html();
+			if(a1.indexOf("B2BBANKLABEL") > 0) {
+				$("#bankImgs").addClass("show");
+				$("#bankImgs").removeClass("hide");
+			} else {
+				$("#bankImgs").addClass("hide");
+				$("#bankImgs").removeClass("show");
+			}
+		});
+
+	});
+
+
+	function bankTypeShow(){
+		$("#bankType").show();
+	}
+
+	function bankTypeHide(){
+		$("#bankType").hide();
+	}
+
+</script>

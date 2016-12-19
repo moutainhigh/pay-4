@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>启赟支付账户付款明细导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="6" style="text-align: middle;">#==============启赟支付付款明细==============</td>
+		   </tr>
+			<tr>
+				<th width="18%">创建时间</th>
+				<th width="10%">批次号</th>
+				<th width="15%">交易类型</th>
+				<th width="8%">申请笔数</th>
+				<th width="10%">申请金额(元)</th>
+				<th width="10%">复核状态</th>
+				<th width="8%">付款笔数</th>
+				<th width="10%">付款金额(元)</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists>
+				<#list incomeDetailList as ts>
+				<tr>
+					<td class="excel_txt">${ts.createTime!''}</td>
+					<td class="excel_txt" align="center">${ts.batchNum?default('')}</td>
+					<td class="excel_txt" align="center">
+						<#if ts.orderType?has_content>
+							<#if ts.orderType==2>
+								批量付款到账户
+							</#if>
+							<#if ts.orderType==4>
+								批量付款到银行卡
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">
+						${ts.applyCount!(0)}
+					</td>
+					<td class="excel_txt" align="center">
+						${((ts.applyAmount!(0)?number)* 0.001)?string(",##0.00")}
+					</td>
+					<td class="excel_txt" align="center">
+						<#if ts.reCheckStatus?has_content>
+							<#if ts.reCheckStatus==0>
+								待复核
+							<#elseif ts.reCheckStatus==1>
+								待复核
+							<#elseif ts.reCheckStatus==2>
+								复核通过
+							<#elseif ts.reCheckStatus==3>
+								复核拒绝
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">
+						${ts.successCount!('0')}
+					</td>
+					<td class="excel_txt" align="center">
+						${((ts.successAmount!(0)?number) * 0.001)?string(",##0.00")}
+					</td>
+				</tr>
+			</#list>
+		  </#if>
+		</tbody>
+	</table>
+</body>
+</html>

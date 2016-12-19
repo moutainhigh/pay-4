@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Cashier</title>
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/stylesheets/reset.css" media="all" />
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/stylesheets/style.css" media="all" />
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/js/pay/common/jquery-1.3.2.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/common.js?rand=6"></script>
+<script src="<@sp.static/>/js/pay/shoppingcity/validate.js?rand=3" type="text/javascript"></script>
+<script src="<@sp.static/>/js/pay/common/bankselect.js?rand=3" type="text/javascript"></script>
+<meta http-equiv="pragma" content="no-cache"> 
+<meta http-equiv="cache-control" content="no-cache"> 
+<meta http-equiv="expires" content="0"> 
+
+</head>
+<body id="home">
+<div class="head">
+	<div class="grid-960">
+		<b>SSL CREDIT CARD ONLINE PAYMENT</b>
+	</div>
+</div>
+<div class="container grid-960">
+	<div class="top">
+	</div>
+	<div class="mid fix">
+		<div class="left-bar">
+			<ul class="payInfo">
+				<li><h6>Product Name:</h6>${goodsName?default('')}</li>
+				<li><h6>Product Type:</h6></li>
+				<li><h6>Quantity:</h6>${goodsCount?default('')}</li>
+				<li><h6>Order Number:</h6>${orderId?default('')}</li>				
+				<li><h6>The Total price:</h6>${orderAmount?default('')}</li>
+				<li><h6>Phone:</h6>${phone?default('')}</li>
+			</ul>
+		</div>
+		<div class="right-bar">
+		<form id="crossPayForm" name="crossPayForm" action="${rc.contextPath}/channelPay.htm?method=onSubmit" method="post" >
+			<table class="banktbl">
+				<tbody>
+					<tr>
+						<td colspan="2" align="center">
+							<span><strong>VISA</strong></span> <label><input type="radio" name="channel" value="visa"/></label>&nbsp;&nbsp;
+							<span><strong>MASTER</strong></span><label><input type="radio" name="channel" value="master"/></label>
+							<span><strong>MOCK</strong></span><label><input type="radio" name="channel" value="mock"/></label>
+						</td>
+					</tr>
+					<tr>
+						<th>Cardholder Name:</th>
+						<td><span class="red">*</span><input type="text" class="inputStyle width240" name="cardHolderName" id="cardHolderName"/></td>
+					</tr>
+					<tr>
+						<th>Credit Card No:</th>
+						<td><span class="red">*</span><input type="text" class="inputStyle width240" name="creditCardNo" id="creditCardNo"/></td>
+					</tr>
+					<tr>
+						<th>Credit Card expiryMonth:</th>
+						<td><span class="red">*</span><input type="text" class="inputStyle width240" name="expiryMonth" id="expiryMonth"/></td>
+					</tr>
+					<tr>
+						<th>Credit Card expiryYear:</th>
+						<td><span class="red">*</span><input type="text" class="inputStyle width240" name="expiryYear" id="expiryYear"/></td>
+					</tr>
+					<tr>
+						<th>Credit Card ccv2:</th>
+						<td><span class="red">*</span><input type="text" class="inputStyle width240" name="cvv2" id="cvv2"/></td>
+					</tr>
+					<tr>
+						<th></th>
+						<td><button type="button" class="btn-1" onclick="doSubmit();">Submit</button><button type="button" class="btn-2 marginLeft60" onclick="doReset();">Reset</button></td>
+					</tr>
+				</tbody>
+			</table>
+			<input type="hidden" name="tradeOrderNo" value="${tradeOrderNo?default('')}"/>
+			<input type="hidden" id="partnerId" name="partnerId" value="${partnerId?default('')}"/>
+			<input type="hidden" name="orderAmount" value="${orderAmount?default(0)}"/>
+			</form>
+		</div>
+	</div>
+	<div class="bottom">
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+ 
+	function doSubmit() {
+
+		var cardHolder = $("#cardHolder").val();
+		if ("" == cardHolder) {
+			$.pay.alert('Please Input cardHolder', {
+				h : 160,
+				t : '3'
+			});
+			return;
+		}
+
+		var creditCardNo = $("#creditCardNo").val();
+		if ("" == creditCardNo) {
+			$.pay.alert('Please Input creditCardNo', {
+				h : 160,
+				t : '3'
+			});
+			return;
+		}
+
+		var idNo = $("#idNo").val();
+		if ("" == idNo) {
+			$.pay.alert('Please Input idNo', {
+				h : 160,
+				t : '3'
+			});
+			return;
+		}
+
+		var pars = $("#crossPayForm").serialize();
+		loadWin = $.pay.loading('wait for a moment...', {
+			success : function() {
+			}
+		});
+		$.ajax({
+			type : "POST",
+			url : "${rc.contextPath}/channelPay.htm?method=onSubmit&payFlag=pay",
+			cache : false,
+			data : pars,
+			async : false,
+			success : function(msg) {
+				$.pay.window(msg, {
+					title : '',
+					w : 550,
+					h : 300,
+					url : false,
+					isClose : false
+				});
+				$.pay.closeLoading(loadWin);
+				//$("#postSubmit_span").addClass("b_off");
+				//$("#postSubmit_span_1").addClass("b_off");
+				$("#bankForm").submit();
+			}
+		});
+	}
+
+	function doReset() {
+		$('#cardHolder').val('');
+		$('#creditCardNo').val('');
+		$('#expiryMonth').val('');
+		$('#expiryYear').val('');
+		$('#cvv2').val('');
+	}
+</script>
+</html>

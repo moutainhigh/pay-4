@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channelMidAmtDao">
+
+	<insert id="create" parameterClass="java.util.Map">
+		<selectKey resultClass="java.lang.String" keyProperty="currMonth">
+    			select to_char(sysdate,'YYYYMM') from dual 
+		</selectKey>
+		MERGE INTO Channel_Mid_amount T1
+		USING (SELECT #orgMerchantCode# mid,
+		       	    	nvl(#cardOrg#,'OTH')   card_org,
+		              #currMonth# curr_month,
+		              #payAmount# sum_amount
+		         FROM dual) T2
+		ON (T1.mid = T2.mid and nvl(t1.card_org ,'OTH')= nvl(t2.card_org,'OTH') and t1.curr_month = t2.curr_month)
+		WHEN MATCHED THEN
+		  UPDATE
+		     SET t1.sum_amount  = t1.sum_amount + t2.sum_amount,
+		         t1.update_date = sysdate
+		WHEN NOT MATCHED THEN
+		  INSERT
+		    (mid, card_org, curr_month, sum_amount, create_date, update_date)
+		  VALUES
+		    (#orgMerchantCode#, nvl(#cardOrg#,'OTH'), #currMonth#, #payAmount#, sysdate, sysdate)
+	</insert>
+	
+</sqlMap>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/zidingyi.js"></script>
+<!-- jquery validate -->
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+
+<title>对账单下载</title>
+</head>
+
+<body>
+<#include "/include/topbar.html">
+<!-- 获取企业还是个人url str -->
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                           <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+
+					<li id="secmenu_5_53" class="current">
+						<a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易查询</a>
+					</li>
+
+					<li id="secmenu_5_51" class="other">
+						<a href="${rc.contextPath}/corp/reconcileDownload.htm">对账单下载</a>
+					</li>
+					<li id="secmenu_3_39" class="other">
+						<a href="${rc.contextPath}/corp/cross/trackingMgr.htm">发货单据</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<span class="current" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">对账单下载</a></span>
+			</div>
+			<div class="seccon">
+				<div class="bgbox">
+			    <form class="pad_center" action="${rc.contextPath}/corp/reconcileDownload.htm?method=excelDownload"
+	method="post" name="reconcileForm" id="reconcileForm">
+                
+				<div class="seccon">
+					<div class="bgbox">
+						<table class="tab01">
+							<tbody>
+								<tr>
+									<td colspan="3" style="color: red;"> 提醒：对账单数据如果超过10000条，请分次下载。</td>
+								</tr>
+								<#if errorMsg?has_content>
+								<tr>
+									<td colspan="3" style="color: red">${errorMsg}</td>
+								</tr>
+					            </#if>
+								<tr>
+									<td width="150"><div align="right">下载类型：</div></td>
+									<td width="150" align="left">
+                                       <input name="checktime" type="radio" value="monthCheck" id="month" checked="checked"><label for="checktime">按月查询</label>
+									</td>
+									<td align="left">
+									   <input  name="checktime" type="radio" class="ml30" id="day" value="dayCheck" ><label for="checktime">按日查询</label>
+									</td>
+								</tr>
+
+								<tr>
+									<td align="right"><label class="form_side" id="month_l" style="float:right">按月查询 ：</label>
+									<label class="form_side" style="display: none;float:right" id="day_l">按日查询 ：</label>
+									</td>
+									<td id="month_td">
+					                    <input class="Wdate inp_normal w130" type="text" id="monthTime" value="${nowDate?string("yyyy-MM")}" 
+					                           readonly="readonly" name="monthTime" val="monthCheck" onclick="WdatePicker({dateFmt:'yyyy-MM',skin:'whyGreen',maxDate:'%y-%M',isShowClear:false})"/>
+									  <span id="liWait" style="display: none;color: red;">等 待</span>
+									</td>
+									<td style="display: none" id="day_td">
+									  <input class="Wdate inp_normal w130" type="text" id="dayTime" value="${nowDate?string("yyyy-MM-dd")}"  readonly="readonly" name="dayTime" val="dayCheck" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',skin:'whyGreen',maxDate:'%y-%M-%d',isShowClear:false})"/>
+					                   <span id="liWait2" style="display: none;color: red;">等 待</span>
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td></td>
+									<td colspan="3">
+										<input type="submit" id="btnOk" class="btn_blue" value="下载" alt="下载" />
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</div>
+						</div>
+						</form>
+					</div>	
+					<div id="resultListDiv" class="listFence" >
+				     <div><font color="red"></font></div>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+	<!--主内容 end -->
+<script type="text/javascript" charset="utf-8">
+$(function() { 
+// 绑定获得字母的事件 
+    //$(':radio{name=checktime}').click(function(){getLetter($(this).val())}); 
+	$(':radio{name=checktime}').click(function(){
+
+		var id=$(this).attr("id");
+		if(id=='day'){
+			$("#month_l").hide();
+			$("#month_td").hide();
+			
+			$("#day_l").show();
+			$("#day_td").show();
+		}else{
+			$("#month_l").show();
+			$("#month_td").show();
+			
+			$("#day_l").hide();
+			$("#day_td").hide();
+		}
+	});
+});
+
+function getLetter(val) 
+{ 
+	$(".Wdate").each(function(){
+		if($(this).attr("val")==val){
+			$(this).parent().show();
+		}
+		else{
+			$(this).parent().hide();
+		}
+	});
+
+} 
+
+var wait = 20; //设置秒数(单位秒) 
+var secs = 0;
+
+$("#download").click(function(){
+	$("#reconcileForm").submit();
+	$("#liWait").show();
+	$("#liWait2").show();
+	$("#liDown").hide();
+	for(var i=1;i<=wait;i++) 
+	{ 
+		 window.setTimeout("sTimer("+i+")",i*1000); 
+	} 
+	
+	
+}); 
+
+function sTimer(num) 
+{ 
+ if(num==wait) 
+ { 
+	$("#liDown").show();
+	$("#liWait").hide();
+	$("#liWait2").hide();
+ } 
+ else 
+ { 
+  secs=wait-num; 
+  var sest=secs;
+  if(secs<10)
+  {
+	sest= '0'+secs;
+  }
+
+ $("#liWait").text("等待("+sest+")秒");
+ $("#liWait2").text("等待("+sest+")秒");
+
+ } 
+} 
+
+</script>
+<#include "/include/myfoot.html">
+</body>
+</html>

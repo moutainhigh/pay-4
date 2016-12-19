@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ma-monitorTradelist">
+	
+	<typeAlias alias="monitorTradeDTO" type="com.pay.rm.blacklistcheck.dto.MonitorTradeDTO" />
+   	<resultMap class="java.util.HashMap" id="menmap">
+  		<result column="MERCHANT_CODE" property="merchantCode" jdbcType="VARCHAR" />
+  		<result column="ZH_NAME" property="merchantName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+		<resultMap class="java.util.HashMap" id="trademap">
+  		<result column="trade_order_no" property="tradeno" jdbcType="VARCHAR" />
+  		
+	</resultMap>
+ 
+	<insert id="insert" parameterClass="monitorTradeDTO">
+	
+		insert into	t_trade_monitor
+		(MONITOR_TYPE,MONITOR_DATE,trade_order_no,CUSTOMER_IP,partner_id  ,merchant_id ,merchant_name,order_id,ORDER_AMOUNT,CURRENCY,DISPLAY_NAME,STATUS,PAYMENT_AMOUNT,PAY_WAY, PAY_TYPE, 
+	BILL_NAME, BILL_FIRST_NAME, BILL_LAST_NAME, BILL_PHONE, BILL_EMAIL, BILL_COUNTRY,BILL_STATE,BILL_CITY, BILL_STREET, BILL_ADRESS, BILL_POSTALCODE, SHIPPING_NAME, 
+	SHIPPING_FIRST_NAME,SHIPPING_LAST_NAME, SHIPPING_COMPANY, SHIPPING_PHONE, SHIPPING_EMAIL, SHIPPING_COUNTRY ,  SHIPPING_STATE , SHIPPING_CITY ,  SHIPPING_STREET , 
+	 SHIPPING_ADDRESS ,  SHIPPING_POSTALCODE ,COMPLETE_DATE,CHANNEL_RESP_CODE,CHANNEL_RESP_MSG,CARD_COUNTRY,CARD_NO,SITEID,GOODS_NAME)
+		values(#monitorType#,sysdate,#tradeOrderNo#,#customerIp#,#partnerId#,#merchantId#,#merchantName#,#orderId#
+		,#orderAmount#,#currency#,#displayName#,#status#,#paymentAmount#,#payWay#,#payType#,#billName#,#billFirstName#,#billLastName#,#billPhone#,#billEmail#
+		,#billCountry#,#billState#,#billCity#,#billStreet#,#billAdress#,#billPostalcode#,#shippingName#,#shippingFirstName#,#shippingLastName#,#shippingCompany#,#shippingPhone#
+		,#shippingEmail#,#shippingCountry#,#shippingState#,#shippingCity#,#shippingStreet#,#shippingAddress#,#shippingPostalcode#,#completeDate#,#channelRespCode#,#channelRespMsg#,#cardCountry#,#cardNo#,#siteId#,#goodsName#)
+	</insert>
+	
+		
+	<select id="findmembypid" parameterClass="java.util.Map" resultMap="menmap">
+  		SELECT 
+			MERCHANT_CODE,  ZH_NAME		
+  		FROM 
+  			ACC.T_ENTERPRISE_BASE	WHERE  MEMBER_CODE=#memberCode#
+  	 
+  </select>
+  
+  	
+	<select id="findbytradeno" parameterClass="java.util.Map" resultMap="trademap">
+  		SELECT 
+			trade_order_no		
+  		FROM 
+  			t_trade_monitor	WHERE  trade_order_no=#tradeOrderNo# and MONITOR_TYPE=#monitorType#
+  	 
+  </select>
+	
+
+</sqlMap>
+

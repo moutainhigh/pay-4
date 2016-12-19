@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orderconsistency_masspaytobank">
+	<typeAlias alias="orderByMasspayToBankDTO" type="com.pay.fundout.withdraw.dto.orderconsistency.masspaytobank.OrderByMasspayToBankDTO"/>
+
+	<!-- 查询总订单状态为111，但有子订单没有生成的总订单记录 -->
+   	<select id="getMasspayToBankOrder" parameterClass="map" resultClass="orderByMasspayToBankDTO">
+  SELECT 
+    BP.ORDER_ID MASSORDERSEQ,
+    BP.BUSINESS_BATCH_NO BUSINESSNO,
+    BP.PAYER_MEMBERCODE PAYERMEMBERCODE,
+    BP.PAYMENT_COUNT TOTALNUM,
+    BP.ORDER_AMOUNT TOTALAMOUNT,
+    BP.FEE TOTALFEE,
+    BP.ORDER_STATUS AS STATUS,
+    BP.CREATE_DATE AS CREATEDATE,
+    BPR.REQUEST_SEQ UPLOADSEQ,
+    BPR.CREATE_DATE UPLOADDATE
+    FROM BATCH_PAYMENTORDER BP,BATCH_PAYMENTREQBASEINFO BPR
+   WHERE BP.PAYER_MEMBERCODE = BPR.PAYER_MEMBERCODE
+    AND BP.BUSINESS_BATCH_NO = BPR.BUSINESS_BATCHNO
+    AND ORDER_TYPE = 4
+    AND BPR.REQUEST_TYPE = 4
+    AND BP.PAYMENT_COUNT <![CDATA[<>]]> (SELECT COUNT(1) FROM FO.Fundout_Order WHERE ORDER_TYPE = 4 AND PARENT_ORDERID IS NOT NULL AND PARENT_ORDERID = BP.ORDER_ID)
+        <isNotNull prepend="AND" property="businessNo">
+            BP.BUSINESS_BATCH_NO = #businessNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerMemberCode">
+            BP.PAYER_MEMBERCODE = #payerMemberCode#
+        </isNotNull>
+        <isNotNull prepend="AND" property="startDate">
+            BP.create_date >= to_date(#startDate#,'yyyy-MM-dd')
+        </isNotNull>
+        <isNotNull prepend="AND" property="endDate">
+        	BP.create_date <![CDATA[<]]> to_date(#endDate#,'yyyy-MM-dd') +1
+        </isNotNull>
+        <isNotNull prepend="AND" property="massOrderSeq">
+            BP.ORDER_ID = #massOrderSeq# 
+        </isNotNull>
+   	</select>
+   	
+   	<!-- 没有生成子订单的明细记录 -->
+   	<select id="getDetail" parameterClass="map" resultClass="orderByMasspayToBankDTO">
+     SELECT 
+     		   PD.DETAIL_SEQ DETAILSEQ,
+           	   PB.BUSINESS_BATCHNO 		BUSINESSNO,
+		       PB.PAYER_MEMBERCODE PAYERMEMBERCODE,
+		       PD.PAYEE_OPENINGBANKNAME OPENINGBANKNAME,
+		       PD.PAYEE_BANKACCTCODE 	PAYEEBANKACCT,
+		       PD.PAYMENT_AMOUNT 			AMOUNT,
+		       PD.REQUEST_AMOUNT 	UPLOADAMOUNT,
+		       PB.REQUEST_SEQ UPLOADSEQ,
+		       PD.VALID_STATUS 	VALIDATESTATUS,
+		       PD.ORDER_STATUS 		ORDERSTATUS
+		FROM BATCH_PAYMENTREQBASEINFO PB,BATCH_PAYMENTTOBANKREQDETAIL PD
+		WHERE PB.REQUEST_SEQ=PD.REQUEST_SEQ 
+	    AND PD.VALID_STATUS = 1 
+	    AND PD.ORDER_STATUS = 0
+	    AND PB.REQUEST_SEQ = #uploadSeq#
+   	</select>
+</sqlMap>

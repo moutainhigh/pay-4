@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="unbindnewValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="unbindnew-acquireRule" />
+	</bean>
+
+	<bean id="unbindnew-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="unbindnew-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="unbindnew-versionCheckRule" class="com.pay.gateway.validate.crosspay.rule.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+	
+	<bean id="unbindnew-partnerIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+
+
+	<bean id="unbindnew-orderIdCheckRule" class="com.pay.gateway.validate.crosspay.rule.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="unbindnew-submitTimeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Order submission time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="unbindnew-typeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-customerIPCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="Unauthorized trade type:未授权交易类型" />
+	</bean>
+
+	<bean id="unbindnew-customerIPCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CustomerIPCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0066" />
+		<property name="message" value="Public IP of customer is empty or wrong:客户下单IP为空或不正确" />
+	</bean>
+
+	<bean id="unbindnew-noticeUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="unbindnew-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+
+	<bean id="unbindnew-remarkCheckRule"	class="com.pay.gateway.validate.crosspay.rule.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="Invalid remark:备注信息不正确" />
+	</bean>
+
+	<bean id="unbindnew-charsetCheckRule" class="com.pay.gateway.validate.crosspay.rule.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="unbindnew-signTypeCheckRule" class="com.pay.gateway.validate.crosspay.rule.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-returnUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+	
+	<bean id="unbindnew-returnUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.ReturnUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0069" />
+		<property name="message" value="Merchant return URL is empty or too long:商户回调地址为空或过长" />
+	</bean>
+
+	<bean id="unbindnew-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="unbindnew-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-deviceFingerPrintIdCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="unbindnew-deviceFingerPrintIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DeviceFingerPrintIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-languageCheckRule" />
+		</property>
+		<property name="messageId" value="0068" />
+		<property name="message" value="DeviceFingerprintId is empty or too long:设备指纹ID为空或过长" />
+	</bean>
+
+	<bean id="unbindnew-languageCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.LanguageCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-cardLimitCheckRule" />
+		</property>
+		<property name="messageId" value="0058" />
+		<property name="message" value="Wrong display Language:显示语言不正确" />
+	</bean>
+
+	<bean id="unbindnew-cardLimitCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardLimitCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-orderTerminalCheckRule" />
+		</property>
+		<property name="messageId" value="0059" />
+		<property name="message" value="Wrong card limit type:支付卡种限制不正确" />
+	</bean>
+	
+	<bean id="unbindnew-orderTerminalCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderTerminalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-tokenValidationCheckRule" />
+		</property>
+		<property name="messageId" value="0045" />
+		<property name="message" value="Paramter orderTerminal is empty or too long:终端设备标识为空或过长" />
+	</bean>
+
+	<bean id="unbindnew-tokenValidationCheckRule"
+		  class="com.pay.gateway.validate.crosspay.token.TokenValidationCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="unbindnew-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="unbindnew-gatewayRequestSaveAction" />
+		</property>
+		<property name="messageId" value="0000" />
+		<property name="message" value="check" />
+	</bean>
+	
+	<bean id="unbindnew-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.crosspay.rule.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="unbindnew-exceptionAction" class="com.pay.gateway.validate.crosspay.rule.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

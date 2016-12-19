@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bulkpayorder">
+
+	<typeAlias alias="bulkPaymentOrder" type="com.pay.batchpay.dto.BulkPaymentOrder" />
+	<typeAlias alias="orderTemplateUnion" type="com.pay.batchpay.dto.OrderTemplateUnion"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<resultMap id="bulkPaymentOrder" class="bulkPaymentOrder">
+        <result column="ID" 					property="id" 				jdbcType="NUMBER"/>
+        <result column="BULKPAY_NO" 			property="bulkpayNo" 		jdbcType="VARCHAR2"/>
+        <result column="CREATE_TIME" 			property="createTime" 		jdbcType="DATE"/>
+        <result column="UPDATE_TIME" 			property="updateTime" 		jdbcType="DATE"/>
+        <result column="CREATOR" 				property="creator" 			jdbcType="VARCHAR2"/>
+        <result column="UPDATOR" 				property="updator" 			jdbcType="VARCHAR2"/>
+        <result column="FILENAME" 				property="fileName" 		jdbcType="VARCHAR2"/>
+        <result column="STATUS" 				property="status" 			jdbcType="NUMBER"/>
+        <result column="FILE_PATH" 				property="filePath" 		jdbcType="VARCHAR2"/>
+        <result column="LOGINNAME" 				property="loginName" 		jdbcType="VARCHAR2"/>
+    </resultMap>
+	
+	<resultMap class="orderTemplateUnion" id="otResult">
+		<result column="ID" 					property="id" jdbcType="NUMBER"/>
+		<result column="BULKPAY_NO" 			property="bulkpayNo" 		jdbcType="VARCHAR2"/>
+        <result column="CREATE_TIME" 			property="createTime" 		jdbcType="DATE"/>
+        <result column="UPDATE_TIME" 			property="updateTime" 		jdbcType="DATE"/>
+        <result column="CREATOR" 				property="creator" 			jdbcType="VARCHAR2"/>
+        <result column="UPDATOR" 				property="updator" 			jdbcType="VARCHAR2"/>
+        <result column="FILENAME" 				property="fileName" 		jdbcType="VARCHAR2"/>
+        <result column="STATUS" 				property="status" 			jdbcType="NUMBER"/>
+        
+        <!-- 临时列 -->
+        <result property="resultDes" />
+        <result property="success" />
+        <result property="paying" />
+        <result property="fail" />
+        <result property="template_Count" />
+        <result property="sum_Amount" /> 
+        
+	</resultMap>
+	
+	<insert id="insertBulkpayOrder" parameterClass="bulkPaymentOrder">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_T_BULKPAYMENT_ORDER_ID.nextval AS ID from dual 
+		</selectKey>
+		insert into
+		T_BULKPAYMENT_ORDER
+		(
+			ID,
+			BULKPAY_NO,
+			CREATE_TIME,
+			UPDATE_TIME,
+			CREATOR,
+			UPDATOR,
+			FILENAME,
+			STATUS,
+			FILE_PATH,
+			LOGINNAME
+		)
+		values
+		(
+			#id#,
+			#bulkpayNo#,
+			#createTime#,
+			#updateTime#,
+			#creator#,
+			#updator#,
+			#fileName#,
+			#status#,
+			#filePath#,
+			#loginName#
+		)
+	</insert>
+	
+	<select id="findBulkpayOrder" parameterClass="hMap" resultMap="otResult">
+		<!-- with bulk_temp as 
+		(select tb.BULKPAY_NO,count(1) as template_count,sum(tb.PAY_AMOUNT) as sum_amounct from T_BULKPAYMENT_TEMPLATE tb group by tb.BULKPAY_NO)
+		select ta.ID, ta.BULKPAY_NO, ta.CREATE_TIME, ta.UPDATE_TIME,ta.CREATOR, ta.UPDATOR, ta.FILENAME, ta.STATUS ,
+		tc.template_count,tc.sum_amounct from T_BULKPAYMENT_ORDER ta left join bulk_temp tc on ta.bulkpay_no = tc.BULKPAY_NO -->
+		
+		with bulk_temp as (select tb.BULKPAY_NO,tb.PAYResult,count(1) as template_count,sum(tb.PAY_AMOUNT) as sum_amounct from T_BULKPAYMENT_TEMPLATE tb group by tb.BULKPAY_NO,tb.PAYResult)
+		,bulk_amount_temp as(
+		select BULKPAY_NO,WMSYS.WM_CONCAT(template_count||'_'||PAYResult) as resutlDes,
+		sum(decode(PAYResult,0,sum_amounct,0))  success,
+		sum(decode(PAYResult,1,sum_amounct,0)) paying, 
+		sum(decode(PAYResult,2,sum_amounct,0)) fail from bulk_temp group by BULKPAY_NO ),
+		bulk_count_temp as (select tb.BULKPAY_NO,count(1) as template_count,sum(tb.PAY_AMOUNT) as sum_amounct from T_BULKPAYMENT_TEMPLATE tb group by tb.BULKPAY_NO )
+		
+		select ta.ID, ta.BULKPAY_NO, ta.CREATE_TIME, ta.UPDATE_TIME,ta.CREATOR, ta.UPDATOR, ta.FILENAME, ta.STATUS ,
+		tc.resutlDes,tc.success,tc.paying,tc.fail,td.template_count,td.sum_amounct from T_BULKPAYMENT_ORDER ta left join bulk_amount_temp tc on ta.bulkpay_no = tc.BULKPAY_NO 
+		left join bulk_count_temp td on ta.BULKPAY_NO = td.BULKPAY_NO
+		
+		<dynamic prepend="where">
+			<!-- <isNotEmpty prepend="and" property="startTime">
+				to_char(ta.CREATE_TIME,'YYYY-MM-DD') = #beginTime#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="endTime">
+				to_char(ta.CREATE_TIME,'YYYY-MM-DD') = #endTime#
+			</isNotEmpty> -->
+			<isNotEmpty prepend="and" property="timeQuery">
+				<![CDATA[  to_char(ta.CREATE_TIME,'YYYY-MM-DD') >= #beginTime# and to_char(ta.CREATE_TIME,'YYYY-MM-DD') <= #endTime# ]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+				ta.STATUS = #status#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="bulkpayNo">
+				ta.BULKPAY_NO = #bulkpayNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="fileName">
+				ta.FILENAME = #fileName#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="memberCode">
+				ta.CREATOR #memberCode#
+			</isNotEmpty>
+		</dynamic>
+		order by ta.CREATE_TIME desc
+	</select>
+	
+	<!-- 查询批量付款模板文件保存路径 -->
+	<select id="findBulkorderFilePath" resultClass="string" parameterClass="hMap">
+		select FILE_PATH from T_BULKPAYMENT_ORDER where BULKPAY_NO = #bulkpayNo#	
+		<isNotEmpty prepend="and" property="memberCode">
+			CREATOR = #memberCode#
+		</isNotEmpty>
+	</select>
+	
+	<!-- 变更批次状态 -->
+	<update id="updateBulkordedrStatus" parameterClass="hMap">
+		update T_BULKPAYMENT_ORDER set STATUS = #newStatus#, REMARK = #remark# where ID = #id# 
+	</update>
+	
+</sqlMap>

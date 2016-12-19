@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="masspayorderconsistency">
+	<typeAlias alias="masspayOrder" type="com.pay.fundout.withdraw.model.paytoaccount.Pay2AcctOrder"/>
+    <resultMap id="masspayOrder" class="com.pay.fundout.withdraw.model.paytoaccount.Pay2AcctOrder">
+        <result column="PAYER_CODE" property="payerCode" jdbcType="VARCHAR"/>
+        <result column="PAYER_MEMBER" property="payerMember" jdbcType="DECIMAL"/>
+        <result column="PAYER_PHONE" property="payerPhone" jdbcType="VARCHAR"/>
+        <result column="PAYEE_ACCT_CODE" property="payeeAcctCode" jdbcType="VARCHAR"/>
+        <result column="CALL_SEQ" property="callSeq" jdbcType="VARCHAR"/>
+        <result column="PAYEE_MEMTYPE" property="payeeMemType" jdbcType="DECIMAL"/>
+        <result column="REMARKS" property="remarks" jdbcType="VARCHAR"/>
+        <result column="BUSI_CODE" property="busiCode" jdbcType="VARCHAR"/>
+        <result column="PARENT_ORDER" property="parentOrder" jdbcType="DECIMAL"/>
+        <result column="PAYEE_PHONE" property="payeePhone" jdbcType="VARCHAR"/>
+        <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR"/>
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="PAYER_MEMTYPE" property="payerMemType" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYER_ACCT_CODE" property="payerAcctCode" jdbcType="VARCHAR"/>
+        <result column="ERROR_TIPS" property="errorTips" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PAYER_ACCT_TYPE" property="payerAcctType" jdbcType="DECIMAL"/>
+        <result column="PAYEE_MAIL" property="payeeMail" jdbcType="VARCHAR"/>
+        <result column="PAYEE_CODE" property="payeeCode" jdbcType="VARCHAR"/>
+        <result column="PAYEE_MEMBER" property="payeeMember" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYER_MAIL" property="payerMail" jdbcType="VARCHAR"/>
+        <result column="PAYEE_ACCT_TYPE" property="payeeAcctType" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		PAYER_CODE,PAYER_MEMBER,PAYER_PHONE,PAYEE_ACCT_CODE,CALL_SEQ,
+		PAYEE_MEMTYPE,REMARKS,BUSI_CODE,PARENT_ORDER,PAYEE_PHONE,
+		PAYEE_NAME,AMOUNT,PAYER_MEMTYPE,CREATE_DATE,PAYER_ACCT_CODE,
+		ERROR_TIPS,STATUS,PAYER_ACCT_TYPE,PAYEE_MAIL,PAYEE_CODE,
+		PAYEE_MEMBER,UPDATE_DATE,PAYER_MAIL,PAYEE_ACCT_TYPE,SEQUENCE_ID,
+		PAYER_NAME
+    </sql>
+   
+
+    <select id="findById" resultMap="masspayOrder"
+        parameterClass="java.lang.Long">
+        SELECT 
+			PAYER_CODE,PAYER_MEMBER,PAYER_PHONE,PAYEE_ACCT_CODE,CALL_SEQ,
+			PAYEE_MEMTYPE,REMARKS,BUSI_CODE,PARENT_ORDER,PAYEE_PHONE,
+			PAYEE_NAME,AMOUNT,PAYER_MEMTYPE,CREATE_DATE,PAYER_ACCT_CODE,
+			ERROR_TIPS,STATUS,PAYER_ACCT_TYPE,PAYEE_MAIL,PAYEE_CODE,
+			PAYEE_MEMBER,UPDATE_DATE,PAYER_MAIL,PAYEE_ACCT_TYPE,SEQUENCE_ID,
+			PAYER_NAME
+        FROM MASSPAY_ORDER
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="searchOrder101" resultMap="masspayOrder">
+        SELECT 
+			PAYER_CODE,PAYER_MEMBER,PAYER_PHONE,PAYEE_ACCT_CODE,CALL_SEQ,
+			PAYEE_MEMTYPE,REMARKS,BUSI_CODE,PARENT_ORDER,PAYEE_PHONE,
+			PAYEE_NAME,AMOUNT,PAYER_MEMTYPE,CREATE_DATE,PAYER_ACCT_CODE,
+			ERROR_TIPS,STATUS,PAYER_ACCT_TYPE,PAYEE_MAIL,PAYEE_CODE,
+			PAYEE_MEMBER,UPDATE_DATE,PAYER_MAIL,PAYEE_ACCT_TYPE,SEQUENCE_ID,
+			PAYER_NAME
+        FROM MASSPAY_ORDER 
+       
+        WHERE 
+        	STATUS = 101
+		and to_char(create_date,'YYYY-MM-DD HH:MM:SS') &gt;= #startDate#
+		and to_char(create_date,'YYYY-MM-DD HH:MM:SS') &lt;= #endDate#
+		
+        <isNotEmpty prepend="AND" property="parentOrder">
+            PARENT_ORDER = #parentOrder# 
+        </isNotEmpty>
+    </select>
+    <select id="searchOrder112" resultMap="masspayOrder">
+		select 	    c.PAYER_CODE,c.PAYER_MEMBER,c.PAYER_PHONE,c.PAYEE_ACCT_CODE,c.CALL_SEQ,
+      c.PAYEE_MEMTYPE,c.REMARKS,c.BUSI_CODE,c.PARENT_ORDER,c.PAYEE_PHONE,c.
+      PAYEE_NAME,c.AMOUNT,c.PAYER_MEMTYPE,c.CREATE_DATE,c.PAYER_ACCT_CODE,c.
+      ERROR_TIPS,c.STATUS,c.PAYER_ACCT_TYPE,c.PAYEE_MAIL,c.PAYEE_CODE,c.
+      PAYEE_MEMBER,c.UPDATE_DATE,c.PAYER_MAIL,c.PAYEE_ACCT_TYPE,c.SEQUENCE_ID,c.PAYER_NAME
+			 from (select 			PAYER_CODE,PAYER_MEMBER,PAYER_PHONE,PAYEE_ACCT_CODE,CALL_SEQ,
+			PAYEE_MEMTYPE,REMARKS,BUSI_CODE,PARENT_ORDER,PAYEE_PHONE,
+			PAYEE_NAME,AMOUNT,PAYER_MEMTYPE,CREATE_DATE,PAYER_ACCT_CODE,
+			ERROR_TIPS,STATUS,PAYER_ACCT_TYPE,PAYEE_MAIL,PAYEE_CODE,
+			PAYEE_MEMBER,UPDATE_DATE,PAYER_MAIL,PAYEE_ACCT_TYPE,SEQUENCE_ID,
+			PAYER_NAME from masspay_order t 
+			where t.status = 112
+		 ) c
+		left join back_fundment_order b 
+		on c.sequence_id = b.sequence_src 
+		where b.sequence_id is  null
+		and to_char(c.create_date,'YYYY-MM-DD HH:MM:SS') &gt;= #startDate#
+		and to_char(c.create_date,'YYYY-MM-DD HH:MM:SS') &lt;= #endDate#
+        <isNotEmpty prepend="AND" property="parentOrder">
+            c.PARENT_ORDER = #parentOrder# 
+        </isNotEmpty>
+    </select>
+</sqlMap>

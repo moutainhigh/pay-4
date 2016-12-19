@@ -1,0 +1,283 @@
+<!DOCTYPE HTML>
+<html>
+<#escape x as x?html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${fill_active}${title}</title>
+<meta name="Keywords" content="${fill_register_message_Keywords}" />
+<meta name="Description" content="${fill_register_message_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/person/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/register/updateValidator.js"></script>
+<script type="text/javascript">
+    $(function(){
+    		<#if criteria.memberType?default(1)==1>
+        		$("#regType").val("1");
+		       	$("#emailLoginName").unFormValidator(true);
+		        $("input[name=regType][value='1']").attr("checked","checked");
+		        $("#contact-em").html("联系方式（E-mail）：");
+		    	$("#contact").formValidator({tipid:"contactTip",onshow:"Email是您找回个人信息的主要途径之一",empty:true,onfocus:"联系方式可以为空",oncorrect:" "})
+				   .regexValidator({regexp:"email",datatype:"enum",onerror:"Email格式不正确"});
+				   
+		        <#elseif criteria.memberType?default(1)==2>
+		        $("#regType").val("2");
+		        	$("#contact-em").html("联系方式（手机号码）：");
+		   			$("#mobileLoginName").unFormValidator(true);
+		        	$("input[name=regType][value='2']").attr("checked","checked");
+		        	 $("#contact").formValidator({tipid:"contactTip",onshow:"请填写您的真实号码，找回个人信息的途径",empty:true,onfocus:"联系方式可以为空",oncorrect:" "})
+			 	  		.regexValidator({regexp:"mobile",datatype:"enum",onerror:"手机号码格式不正确且必须为11位数字"});
+			 	  		
+        </#if>  
+     });
+</script>  
+</head>
+<body>
+<!--导航 str-->
+<@sp.headCommonV2 title="用户注册" class="ver_reg"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-3">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1">第一步：填写注册信息<i></i></li>
+				<li class="li-2">第二步：激活帐号<i></i></li>
+				<li class="li-3">第三步：补填信息<i></i></li>
+				<li class="li-4">第四步：注册成功<i></i></li>
+			</ol>
+		</div>
+		<div class="reg_info">
+		<form class="mt20" id="memberForm" method="post" action="${rc.contextPath}/updateMemberInfo.htm" >
+		<div class="gap"><span class="c_f60">(必填)</span> 基本信息</div>
+		<input type="hidden" name="method" value="updateMemberInfo">
+		<input type="hidden" name="formToken" value="${formToken?default("")}"/>
+		<input type="hidden" name="checkCode" value="${checkCode!''}"/>
+		<input type="hidden" name="origin" value="${origin!''}"/>
+		<div class="chunk_box">
+			<ul>
+				<li> <label for=""><i>*</i>用户名：</label>
+                ${loginName?default('')}
+                </li>
+			</ul>
+			<input type="hidden" name="regType" value="1">
+			<ul>
+				<li>
+				   	<label for=""><i>*</i>登录密码：</label>
+					<@sp.password cid="password" id="loginPassword" from="temp_register" tabindex="1" nextTabid="password0" name="loginPassword" class="inp_normal w250" style="+margin-left:-18px;" width="227" height="22"/>
+					<span id="loginPasswordTip"></span> 
+				</li>
+				<li>
+					<label for=""><i>*</i>确认登录密码：</label>
+					<@sp.password cid="password0" id="loginPasswordConfirm" from="temp_register" tabindex="2" nextTabid="password1" name="loginPasswordConfirm" class="inp_normal w250" style="+margin-left:-18px;" width="227" height="22"/>
+					<span id="loginPasswordConfirmTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+				   <label for=""><i>*</i>支付密码：</label>
+					<@sp.password cid="password1" id="payPassword" from="temp_register" tabindex="3" nextTabid="password2" name="payPassword" class="inp_normal w250" style="+margin-left:-18px;" width="227" height="22"/>
+					<span id="passwordTip"></span> 
+				</li>
+				<li>
+				<label for=""><i>*</i>确认支付密码：</label>
+				<@sp.password cid="password2" id="payPasswordConfirm" from="temp_register" tabindex="4" nextTabid="realName" name="payPasswordConfirm" class="inp_normal w250" style="+margin-left:-18px;" width="227" height="22"/>
+                  
+				<span id="passwordConfirmTip"></span>
+				</li>
+			</ul>
+			<ul>
+				<li>
+					<label for=""><i>*</i>真实姓名：</label>
+					    <input id="realName" name="realName" tabindex=5 type="text" class="inp_normal w250" value="${criteria.realName?default('')}" maxlength="16">
+						<span id="verifyNameTip"></span>
+				</li>
+				
+			</ul>
+			<ul>
+			  <li><label for=""><i>*</i>安全保护问题：</label>
+                 <#assign securityQuestion = criteria.securityQuestion?default(0)/>
+                 <input type="hidden" value="${criteria.securityQuestion?default(0)}" id="questionType" >
+                  <select class="inp_normal w250" name="securityQuestion" tabindex=7 id="securityQuestion" class="select">
+						<option selected="selected" value="0">==请选择安全保护问题==</option>
+						<option <#if securityQuestion==1> selected="selected" </#if> value="1">您的出生地是？</option>
+						<option <#if securityQuestion==2> selected="selected" </#if> value="2">您父亲的姓名是？</option>
+						<option <#if securityQuestion==3> selected="selected" </#if> value="3">你父亲的生日是？</option>
+						<option <#if securityQuestion==4> selected="selected" </#if> value="4">您母亲的姓名是？</option>
+						<option <#if securityQuestion==5> selected="selected" </#if> value="5">您母亲的生日是？</option>
+						<option <#if securityQuestion==6> selected="selected" </#if> value="6">您配偶的姓名是？</option>
+						<option <#if securityQuestion==7> selected="selected" </#if> value="7">您配偶的生日是？</option>
+						<option <#if securityQuestion==8> selected="selected" </#if> value="8">您孩子的名字是？</option>
+						<option <#if securityQuestion==9> selected="selected" </#if> value="9">您小学的学校名称是？</option>
+						<option <#if securityQuestion==10> selected="selected" </#if> value="10">您小学的班主任的名字是？</option>
+                  </select><span id="securityQuestionTip"></span> </li>
+			
+				
+				<li>
+				  <label for=""><i>*</i>您的回答：</label>
+					 <input id="securityAnswer" name="securityAnswer" tabindex=8 type="text" class="inp_normal w250" value="${criteria.securityAnswer?default('')}" maxLength="40">
+					 <span id="securityAnswerTip"></span>
+				</li>
+			</ul>
+				<ul >
+					<li>
+					<label for=""><i>*</i>验证码：</label>
+						<input id="randCode" tabindex=10 disableautocomplete autocomplete="off" name="randCode" type="text" class="inp_normal w80" maxlength="4" autocomplete="off">
+						<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+						<a id="refush" href="javascript:void(0);">换一张</a><span id="randCodeTip">请输入图中4位字母</span></li>
+				</ul>
+			</div>
+			<div class="gap" id="form_basic"><span>(可选)</span> 完善全部信息，增加账户安全 <i>▼</i></div>
+			<ul style="display: none;">
+				<li>
+					<label for="">设置问候语：</label>
+					<textarea id="greeting" name="greeting" class="inp_normal w250" tabindex=11 maxlength="50">${criteria.greeting?default('')}</textarea>
+					<span id="greetingTip"></span>
+				</li>
+				<li><label for="" id="contact-em">联系方式（E-mail）：</label>
+                 <input id="contact" name="contact" type="text" tabindex=8 class="inp_normal w250" value="${criteria.contact?default('')}" maxlength="28">
+				 <span id="contactTip"></span>
+				 </li>
+				<li>
+					<label for="">证件类型：</label>
+					<input type="hidden" id="certificateTypeHid" name="certificateTypeHid" value="${criteria.certificateType?default('0')}">
+					<#assign certificateType = criteria.certificateType?default(0)/>
+					<select name="certificateType" id="certificateType"   class="inp_normal w250">
+					<option value="">--请选择证件类型--</option>
+					<option <#if certificateType==1> selected="selected" </#if> value="1">身份证</option>
+					<option  <#if certificateType==2> selected="selected" </#if> value="2">护照</option>
+					<option  <#if certificateType==3> selected="selected" </#if> value="3">军官证</option>
+					<option  <#if certificateType==4> selected="selected" </#if> value="4">港澳台居民大陆通行证</option>
+					</select>
+				</li>
+				<li>
+					<label for="">证件号码：</label>
+					<input id="certificateNo" name="certificateNo" type="text" class="inp_normal w250" value="${criteria.certificateNo?default('')}" maxlength="30">
+					<span id="certificateNoTip"></span>
+				</li>
+				<li>
+					<label for="">固定电话：</label>
+					<input id="tel" name="tel" type="text" class="inp_normal w250" value="${criteria.tel?default('')}" maxLength="15">
+					<span id="telTip"></span>
+					</li>
+				<li>
+					<label for="">传真：</label>
+					<input id="fax" name="fax" type="text" class="inp_normal w250" value="${criteria.fax?default('')}" maxLength="15">
+					<span id="faxTip"></span>
+					</li>
+			
+				<li>
+					<label for="">QQ：</label>
+					<input id="qq" name="qq" type="text" class="inp_normal w250" value="${criteria.qq?default('')}" maxLength="16">
+					<span id="qqTip"></span>
+				</li>
+				<li>
+					<label for="">MSN：</label>
+					<input id="msn" name="msn" type="text" class="inp_normal w250" value="${criteria.msn?default('')}" maxLength="26">
+					<span id="msnTip"></span>
+				</li>
+				<li>
+				<input type="hidden" id="pv" value="${criteria.province?default('')}">
+			<input type="hidden" id="cy" value="${criteria.city?default('')}">
+					<label for="">省份：</label>
+					<select name="province" id="province" class="inp_normal w130"></select>
+					<label for="" class="s">城市：</label>
+					<select name="city" id="city" class="inp_normal w130" style="width: 180px;"><option value="">--请选择城市--</option></select>
+				</li>
+				<li>
+					<label for="">地址：</label>
+					<input id="address" name="addr" type="text" class="inp_normal w250" value="${criteria.addr?default('')}" maxLength="64">
+					<span id="addressTip"></span>
+				</li>
+				<li>
+					<label for="">邮编：</label>
+					<input id="zip" name="zip" type="text" class="inp_normal w250" value="${criteria.zip?default('')}" maxLength="6">
+					<span id="zipTip"></span>
+				</li>
+				
+			</ul>
+			
+			
+			
+			<!-- 
+				<li class="msg">
+					<textarea class="areaType2">
+					<@sp.agree/>
+					</textarea>
+				</li> -->
+				
+				
+					<div class="agreement">
+					<p class="f14b">iPayLinks支付注册服务协议</p>
+					iPayLinks支付注册服务（以下简称本服务）海南iPayLinks支付结算软件系统（以下简称本系统）及(或)附随的货款代收代付的中介服务。本协议由您和本公司签订。
+					<p>一 声明：</p>
+					为了保障您的权益，请于注册或使用本服务前，详iPayLinks支付“iPayLinks支付用户服务协议”条款（以下称“服务条款”）所有内容。当您注册或使用本服务时，即表示您已充分阅读、了解并同意接受本服务条款之所有内容；一旦您使用本服务，即表示您同意遵循本协议之所有约定。本公司保留随时修改本服务条款之权利，并随时通过iPayLinks支付不限于iPayLinks支付网站(www.pay.com)公布最新之变更事项，而无需另作个别通知。若您不同意修改后的协议内容，您应停止使用本服务。
+					<p>二 iPayLinks支付账户注册义务：</p>
+					<p>（一） “iPayLinks支付账户”：指在您使用本服务时，本公司向您提供的唯一编号。您可自行设置密码，并用以查询或计量您的预付、应收或应付款。</p>
+					<p>（二） 在使用本服务前，您必须先行注册，取得iPayLinks支付提供给您的“iPayLinks支付账户”（以下简称该账户），且保证在您同意iPayLinks支付协议并注册成为iPayLinks支付用户时，您是具有法律规定的完全民事权利能力和民事行为能力、能够独立承担民事责任的自然人、法人或其他组织；本协议内容不受您所属国家或地区的排斥。不具备前述条件的，您应立即终止注册或停止使用本服务。</p>
+					</div>
+			
+			<p class="submit_btn"> <span class="btnD">
+					<button type="submit" id="btnSubmit">同意以上协议并注册</button>
+					</span> </p>
+			
+		</form>
+		</div>
+	
+</div>
+<!--主内容 end -->
+<!--footer -->
+<script type="text/javascript">
+$(function(){
+	$("#memberForm").submit(function(){
+		if(hasSecurityCtrl()){
+			if(getPwdCtrlStrLength("password")==0){
+				$.pay.alert("登录密码不能为空!");
+				return false;
+			}
+			if(getPwdCtrlStrLength("password0")==0){
+				$.pay.alert("确认登录密码不能为空!");
+				return false;
+			}
+			if(getPwdCtrlStrLength("password1")==0){
+				$.pay.alert("支付密码不能为空!");
+				return false;
+			}
+			if(getPwdCtrlStrLength("password2")==0){
+				$.pay.alert("确认支付密码不能为空!");
+				return false;
+			}
+			$("#loginPassword").val(getPwdCtrlVal("password"));
+			$("#loginPasswordConfirm").val(getPwdCtrlVal("password0"));
+			$("#payPassword").val(getPwdCtrlVal("password1"));
+			$("#payPasswordConfirm").val(getPwdCtrlVal("password2"));
+		}
+	});
+});
+
+</script>
+<#if  msgStr?has_content>
+<script>
+$(function(){
+$.pay.alert("${msgStr?default('')}",{t:'2'});
+});
+</script>
+</#if>   
+	<#include "/common/include/footer.html">
+<script type="text/javascript">
+	if(!hasSecurityCtrl()){
+		document.write("\<script type='text/javascript' src='<@sp.static/>\/js/pay\/register\/verifypassword4temporary.js\'>\<\/script\>");
+	}
+</script>
+</body>
+</#escape>
+</html>

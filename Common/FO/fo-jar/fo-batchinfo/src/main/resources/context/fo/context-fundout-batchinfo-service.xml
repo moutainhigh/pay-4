@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="fo-batchinfo-fileGenerateService" abstract="true">
+		<property name="transactionTemplate" ref="bankfile_transactionTemplate" />
+		<property name="bankService" ref="bankService" />
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService" />
+		<property name="luceneService" ref="fundout-lucene-service"/>
+		<property name="bankBrancheInfoService" ref="fundout-bankBrancheInfoService"/>
+	</bean>
+	
+	<bean id="bankfile_transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="possTransactionManager" />
+	</bean>
+
+	<!-- 提现批次文件生成器 -->
+	<bean id="fo-batchinfo-withdrawFileGenerateService"
+		class="com.pay.fundout.batchinfo.service.genbatch.impl.FundoutBatchFileGenerator" parent="fo-batchinfo-fileGenerateService">
+	</bean>
+
+	<!-- 充退批次文件生成器 -->
+	<bean id="fo-batchinfo-refundFileGenerateService"
+		class="com.pay.fundout.batchinfo.service.genbatch.impl.RefundBatchFileGenerator" parent="fo-batchinfo-fileGenerateService">
+	</bean>
+
+	<!-- 充退银行结果文件解析器 -->
+	<bean id="fo-batchinfo-refundFileParserService"
+		class="com.pay.fundout.batchinfo.service.parfile.impl.BaseRefundFileParser">
+		<property name="iBaseDao" ref="PLATFORM.DEFAULT.DAOSERVICE" />
+		<property name="dataService" ref="POSS.DATASERVICE" />
+	</bean>
+
+	<!-- 提现银行结果文件解析器 -->
+	<bean id="fo-batchinfo-withdrawFileParserService"
+		class="com.pay.fundout.batchinfo.service.parfile.impl.BaseWithdrawFileParser">
+		<property name="iBaseDao" ref="PLATFORM.DEFAULT.DAOSERVICE" />
+		<property name="dataService" ref="POSS.DATASERVICE" />
+	</bean>
+</beans>

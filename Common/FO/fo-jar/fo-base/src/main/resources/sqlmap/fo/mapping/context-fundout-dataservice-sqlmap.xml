@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="base.dataservice">
+	<typeAlias alias="codeMapping" type="com.pay.poss.base.model.CodeMapping" />
+	<select id="queryCodeMappings"  parameterClass="java.util.HashMap" resultClass="codeMapping">
+	 	SELECT 
+		       	   FAMILY      			family    ,
+		           CATEGORY      		category    ,
+		           CODE        			code    ,
+		           NAME					name	,
+		           VALUE     		 	value    ,
+		           DESCRITE      		descrite    ,
+		           STATUS				status		,
+		       	   UPDATE_TIME			updateTime	
+  		FROM CODE_MAPPING 
+    	<dynamic prepend="WHERE"> 
+      		 <isNotEmpty property="FAMILY" prepend="AND">
+		       		FAMILY = #FAMILY#
+		     </isNotEmpty>
+		     <isNotEmpty property="CATEGORY" prepend="and">
+		       		CATEGORY = #CATEGORY#
+		     </isNotEmpty>
+		     <isNotEmpty property="CODE" prepend="and">
+		       		CODE = #CODE#
+		     </isNotEmpty>
+		     <isNotEmpty property="STATUS" prepend="and">
+		       		STATUS = #STATUS#
+		     </isNotEmpty>		     
+     	</dynamic>  		
+	</select>
+</sqlMap>

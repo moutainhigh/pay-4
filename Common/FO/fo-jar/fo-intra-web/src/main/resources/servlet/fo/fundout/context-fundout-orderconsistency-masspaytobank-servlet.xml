@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean name="/orderMassPayToBank.htm"
+		class="com.pay.fo.controller.fundout.orderconsistency.masspaytobank.OrderMassPayToBankController"
+		parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+
+		<property name="orderMassPayToBankService" ref="orderMassPayToBankService"/>
+		<property name="massPaytobankImportBaseService" ref="fundout_withdraw_massPaytobankImportBaseService" />
+		<property name="massPaytobankImportDetailService" ref="fundout_withdraw_massPaytobankImportDetailService" />
+		<property name="massPaytobankOrderService" ref="fundout_withdraw_massPaytobankOrderService" />
+
+		<property name="urlMap">
+			<map>
+				<entry key="noChildInit" value="/orderconsistency/masspaytobank/batchOrderByNoChildInit" />
+				<entry key="noChildList" value="/orderconsistency/masspaytobank/batchOrderByNoChildList" />
+				<entry key="noChildDetail" value="/orderconsistency/masspaytobank/noChildDetail" />
+				<entry key="toNoChildInit" value="/orderMassPayToBank.htm" />
+			</map>
+		</property>
+	</bean>
+</beans>
+
+

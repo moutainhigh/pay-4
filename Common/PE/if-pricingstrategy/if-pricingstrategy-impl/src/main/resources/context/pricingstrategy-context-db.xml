@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean id="pricingstrategyLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"
+		lazy-init="true" />
+
+	<!-- Transaction manager for a single JDBC DataSource -->
+	<bean id="pricingstrategyTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="peDs" />
+		</property>
+	</bean>
+
+	<bean id="pricingstrategySqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="classpath:ibatis/pricingstrategy-sqlmap-config.xml" />
+		<property name="dataSource" ref="peDs" />
+		<property name="lobHandler" ref="pricingstrategyLobHandler" />
+	</bean>
+
+	<bean id="pricingStrategyBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="pricingstrategySqlMapClient"></property>
+	</bean>
+
+	<aop:config >
+		<aop:pointcut id="pricingstrategyServiceMethod"
+			expression="execution(* com.pay.pricingstrategy.service..*.*(..))" />
+		<aop:advisor advice-ref="pricingstrategyTxAdvice" pointcut-ref="pricingstrategyServiceMethod" />
+	</aop:config>
+
+	<tx:advice id="pricingstrategyTxAdvice" transaction-manager="pricingstrategyTransactionManager">
+		<tx:attributes>
+			<tx:method name="query*" read-only="true" />
+			<tx:method name="*" propagation="SUPPORTS" rollback-for="AppException"
+				no-rollback-for="AppUnTxException" />
+			<tx:method name="do*RnTx" propagation="REQUIRES_NEW"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="do*SpTx" propagation="SUPPORTS"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="do*NsTx" propagation="NOT_SUPPORTED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="do*RdTx" propagation="REQUIRED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="process*" propagation="REQUIRED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="update*" propagation="REQUIRED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="insert*" propagation="REQUIRED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="create*" propagation="REQUIRED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+			<tx:method name="delete*" propagation="REQUIRED"
+				rollback-for="AppException" no-rollback-for="AppUnTxException" />
+		</tx:attributes>
+	</tx:advice>
+</beans>

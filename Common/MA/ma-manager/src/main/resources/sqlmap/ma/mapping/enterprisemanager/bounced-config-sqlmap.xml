@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bouncedConfig">
+		
+	<insert id="create" parameterClass="java.util.Map">
+	<selectKey  keyProperty="id" resultClass="java.lang.Long">
+		SELECT SQE_BOUNCED_FINE_RULE_SEQUENCE.nextval FROM DUAL
+	</selectKey>
+		insert into BOUNCED_FINE_RULE(ID,CREATE_DATE,PARTNER_ID,CARD_ORG,RULE_NO,
+		COUNT_RATE1,FINE_AMOUNT1,COUNT_RATE2,FINE_AMOUNT2,COUNT_RATE3,FINE_AMOUNT3)
+		values(#id#,sysdate,#memberCode#,#cardOrg#,#rules#,#content1#,
+		#content2#,#content3#,#content4#,#content5#,#content6#)
+	</insert>
+
+	<update id="update" parameterClass="java.util.Map">
+		update BOUNCED_FINE_RULE 
+		set 
+			COUNT_RATE1 = #content1#, FINE_AMOUNT1 = #content2#, COUNT_RATE2 = #content3# ,FINE_AMOUNT2 =#content4# , 
+			COUNT_RATE3 = #content5# ,FINE_AMOUNT3 = #content6#
+		where 
+		id = #id# and PARTNER_ID =#memberCode# and CARD_ORG = #cardOrg# and RULE_NO = #rules#
+	</update>
+
+
+	<resultMap class="java.util.HashMap" id="bouncedFineMap">
+		<result property="id" column="ID" jdbcType="DECIMAL"/>
+		<result property="createDate" column="CREATE_DATE" jdbcType="TIMESTAMP"/>
+		<result property="memberCode" column="PARTNER_ID" jdbcType="DECIMAL"/>
+		<result property="cardOrg" column="CARD_ORG" jdbcType="VARCHAR"/>
+		<result property="ruleNo" column="RULE_NO" jdbcType="VARCHAR"/>
+		<result property="ruleName" column="RULE_NAME" jdbcType="VARCHAR"/>
+		<result property="countRate1" column="COUNT_RATE1" jdbcType="VARCHAR"/>
+		<result property="fineAmount1" column="FINE_AMOUNT1" jdbcType="DECIMAL"/>
+		<result property="countRate2" column="COUNT_RATE2" jdbcType="VARCHAR"/>
+		<result property="fineAmount2" column="FINE_AMOUNT2" jdbcType="DECIMAL"/>
+		<result property="countRate3" column="COUNT_RATE3" jdbcType="VARCHAR"/>
+		<result property="fineAmount3" column="FINE_AMOUNT3" jdbcType="DECIMAL"/>
+	</resultMap>
+    
+    <select id="findByCriteria" parameterClass="java.util.Map" resultMap="bouncedFineMap">
+    	select 
+    	ID,
+		CREATE_DATE,
+		PARTNER_ID,
+		CARD_ORG,
+		RULE_NO,
+		RULE_NAME,
+		COUNT_RATE1,
+		FINE_AMOUNT1,
+		COUNT_RATE2,
+		FINE_AMOUNT2,
+		COUNT_RATE3,
+		FINE_AMOUNT3
+    	from
+    	BOUNCED_FINE_RULE
+    	where  1=1
+    	<isNotNull prepend="and" property="memberCode" >
+    		PARTNER_ID = #memberCode#
+    	</isNotNull>
+    	<isNotNull prepend="and" property="cardOrg" >
+    		CARD_ORG = #cardOrg#
+    	</isNotNull>
+    	<isNotNull prepend="and" property="rules" >
+    		RULE_NO = #rules#
+    	</isNotNull>
+    </select>
+    
+    <delete id="delete" parameterClass="java.util.Map">
+    	delete from BOUNCED_FINE_RULE  where id = #id#
+    </delete>
+    
+</sqlMap>

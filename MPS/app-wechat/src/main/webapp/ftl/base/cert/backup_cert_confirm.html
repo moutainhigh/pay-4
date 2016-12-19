@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>备份数字证书_gcpayment支付</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_cert_manager"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">备份数字证书</strong><span>|</span><a href="#">使用遇到问题?</a></div>
+			</div>
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写备份信息</li>
+					<li class="li-2">2.选择备份路径</li>
+					<li class="li-3">2.成功</li>
+				</ol>
+			</div>
+			<div class="ico_txtBox mt10"><i class="warn_ico"></i> 请牢记您的备份密码 ,导入证书时需要此密码才能正常操作。</div>
+			<form class="pad_center" id="form0" onsubmit="return false">
+				<ul class="form_list">
+              <li>
+                <label class="form_side">手机校验码：</label>
+                  <input type="text" class="inp_normal" name="validateCode" id="validateCode" maxlength="6"> <span class="c_999 ml20">请输入手机短信里的6位数字校验码</span>
+				  <p class="red" id="validateCodeTip">${errorCheckCode?default("")}</p>
+               </li>
+               <li>
+              
+                  <div class="clew_box"><span class="f12 f333">如果1分钟内没有收到校验码，请点击下方按钮免费重新获取!</span><br>
+					<input type="button" id="seconds" disabled="disabled" tabindex="0" />
+					</div>
+				</li>
+				<li>
+						<label class="form_side">证书备份密码：</label> 
+						<input type="password" class="inp_normal" name="backupPwd" id="backupPwd" /> <span class="c_999 ml20">备份密码用于导入证书时使用，可防止证书被他人盗用</span>
+						 <p class="red" id="backupPwdTip">请输入证书备份密码，不可为空</p>
+					</li>
+					<li>
+						<label class="form_side">验证码：</label>
+						<input type="text" class="inp_normal w80" id="randCode" name="randCode" maxlength="4"/>
+						<img class="v_m pointer" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" id="code" style="vertical-align: top;" height="23" width="68"
+						onclick="this.src='${rc.contextPath}/validatecode/validatecode.htm?date='+new Date()"  />
+						<span class="c_999 ml20">请输入左侧图片里的字符</span>
+						 <p class="red" id="randCodeTip"></p>
+					</li>
+            <li class="btn"><span class="btn_yel">
+						<button type="button" id="ajaxConfrim">确 定</button>
+						</span> <a class="blues ml30" href="${rc.contextPath}/corp/certManager.htm">返回</a></li>
+            </ul>
+				
+				
+				
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+<@sp.cfca />
+</body>
+<script type="text/javascript">
+$(function(){
+$.formValidator.initConfig({formid:"form0",onerror:function(msg,obj){}});
+
+$("input").blur(function(){
+	$(this).val($(this).val().trim());
+});
+
+
+$("#validateCode").formValidator({tipid:"validateCodeTip",onshow:"请输入手机短信里的6位数字校验码",onfocus:"请输入手机短信里的6位数字校验码",oncorrect:"&nbsp;"})
+.inputValidator({min:6,max:6,empty:false,onerror:"校验码必须是6位"});
+
+$("#backupPwd").formValidator({tipid:"backupPwdTip",onshow:"请输入证书备份密码，不可为空",onfocus:"请输入证书备份密码，不可为空",oncorrect:"&nbsp;"})
+.inputValidator({min:1,empty:false,onerror:"请输入证书备份密码，不可为空"});
+
+$("#randCode").formValidator({tipid:"randCodeTip",onshow:" ",onfocus:"请输入图片中的文字",oncorrect:"&nbsp;"})
+.inputValidator({min:4,empty:false,onerror:"验证码必须是4位"});
+
+$("#ajaxConfrim").click(function(event){
+	event.preventDefault();
+	var flag = $.formValidator.pageIsValid("1");
+	
+	if(!! flag){
+		$("#submitBtn").attr("disabled",true);
+		$.post("${rc.contextPath}/corp/backupCert.htm",
+			{method:"validateCode",validateCode:$("#validateCode").val(),"randCode":$("#randCode").val()},
+			function cbk(msg){
+				if(msg=="Y"){
+	 					$.post("${rc.contextPath}/corp/certMebQuery.htm",{method:"queryCurrCn",d:new Date()},function cbk(cn){
+						 if(cn!=null && cn.length >1){
+							 if(iscert(cn)){
+								 var path = exportPfx(cn,$("#backupPwd").val());
+								 if(path){
+									  window.location.href = "${rc.contextPath}/corp/backupCert.htm?method=backupResult&status=1&dir="+path+"&tk=${tk}"
+								 }
+							 }else{
+								 alert("本机未安装证书");
+							 }
+						 }
+						 
+					 });
+				}
+				else{
+					$.pay.alert(msg);
+				}
+				
+				$("#code").click();
+				$("#submitBtn").attr("disabled",false);
+			}
+		)
+	}
+});
+
+});
+
+
+var iTime = 60;
+var timeFunId = null;
+
+var timeFun = function() {
+	var sTime = "";
+	if (iTime > 0) {
+		sTime = iTime + "秒";
+
+		if (sTime == "1秒") {
+			clearTimeout(timeFunId);
+			$("#seconds").val("重发校验码短信");
+			document.getElementById("seconds").disabled = "";
+		} else {
+			timeFunId = setTimeout(timeFun, 1000);
+			$("#seconds").val("(" + sTime + ")后重新获取短信");
+			document.getElementById("seconds").disabled = "disabled";
+		}
+		iTime = iTime - 1;
+	}
+}
+
+timeFun();
+
+var resend = function(){
+	$.ajax( {
+		type : "POST",
+		url : "${rc.contextPath}/corp/backupCert.htm",
+		data : "method=reSendCode&tk=${tk}",
+		success : function(msg) {
+			if (msg == "Y") {
+				$.pay.alert("短信发送成功 ,请及时查收", {
+					h : 160,
+					t : '1',
+					close : function() {
+					}
+				});
+			} else {
+				$.pay.alert("短信发送失败！", {
+					h : 160,
+					t : '2',
+					close : function() {
+					}
+				});
+			} 
+		}
+	});
+}
+
+$("#seconds").click(function() {
+	if ($("#seconds").attr("disabled") != "disabled") {
+		resend();
+		iTime = 60;
+		timeFun();
+	}
+	return false;
+});
+
+</script>
+</html>

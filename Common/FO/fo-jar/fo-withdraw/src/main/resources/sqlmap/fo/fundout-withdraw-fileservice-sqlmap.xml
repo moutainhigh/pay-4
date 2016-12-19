@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 提现SQLMAp配置 -->
+<sqlMap namespace="wdfileservice">
+
+	 <typeAlias alias="withdrawBatchInfo" type="com.pay.fundout.withdraw.model.fileservice.WithdrawBatchInfo"/>
+	 
+	 <typeAlias alias="queryBatchWithDraw" type="com.pay.fundout.withdraw.model.fileservice.QueryBatchWithDraw"/>
+	 
+	 <typeAlias alias="withdrawWorkorder" type="com.pay.fundout.withdraw.model.work.WithdrawWorkorder"/>
+	 
+	 <typeAlias alias="withdrawMasterinfo" type="com.pay.fundout.withdraw.model.schedule.WithdrawMasterInfo"/>
+	 <typeAlias alias="withdrawDetailinfo" type="com.pay.fundout.withdraw.model.schedule.WithdrawDetailInfo"/>
+	 
+	<typeAlias alias="auditQueryOrderModel" type="com.pay.fundout.withdraw.model.flowprocess.WithdrawAuditQuery" />
+	
+	<select id="fundout-withdraw_query_workorder" parameterClass="java.lang.String" resultClass="withdrawWorkorder">
+    	SELECT 
+    		   WORKORDER_KY 					workOrderky,
+		       BATCH_NUM 						batchNum,
+		       BATCH_STATUS 					batchStatus,
+		       ORDER_SEQ 						orderSeq,
+		       STATUS 							status,
+		       WORKFLOW_KY 						workflowKy
+		FROM WITHDRAW_WORKORDER 
+		WHERE 
+			BATCH_NUM = #values#
+    </select>
+	
+	
+	<!-- 批次文件查询 -->
+	 <select id="fundout-withdraw-query-inner-file" parameterClass="queryBatchWithDraw" resultClass="withdrawBatchInfo">
+       	 SELECT 
+       				C.STATUS				finStatus,
+       	 			C.ORDER_SEQ             tradeSeq  ,
+		       	   B.BATCH_KY      			batchKy  ,
+		          nvl((select batch_rule_desc from batch_rule_config where sequence_id = B.RULE_KY ),batch_name)      		ruleName    ,
+		           B.RULE_KY        		ruleKy      ,
+		           A.FILE_KY				fileKy		,
+		           A.BATCH_NUM     		 	batchNum    ,
+		           A.FILE_PATH      		filePath    ,
+		           A.FILE_NAME      		fileName    ,
+		           A.FILE_TYPE      		fileType    ,
+		           A.ALL_AMOUNT             allAmount    ,
+		           A.ALL_COUNT      		allCount    ,
+		           A.BANK_CODE      		bankCode    ,
+		           A.OPERATORS      		operators    ,
+		           A.UPDATE_TIME    		updateTime    ,
+		           B.BATCH_TYPE      		batchType    ,
+		           A.DL_BATCH_COUNT 		dlBatchCount  ,
+		           A.DL_BATCH_BUSI_COUNT  	dlBatchBusiCount,
+		           A.DL_BANK_COUNT    		dlBankCount    ,
+		           A.DL_BANK_BUSI_COUNT  	dlBankBusiCount  ,
+		            B.STATUS				status			,
+		           A.BATCH_FILE_STATUS		batchFileStatus			,
+		           A.GENERATE_TIME  		generateTime	,
+		           A.IMPORT_TIME			importTime		,
+		           A.SUREIMPORT_TIME		sureImportTime	,
+		           A.DOWNLOAD_TIME			downloadTime	,
+		           A.FOREVIEW_TIME			foreviewTime	,
+		           decode(B.STATUS,1,'批次未生成',2,'批次已生成',3,'已废除批次文件',4,'已出批次文件',5,'未出批次文件',6,'已重支付平台成批次',B.STATUS)	statusDesc,
+		       	   decode(A.BATCH_FILE_STATUS,1,'文件未生成',2,'文件已生成',3,'已下载',4,'已导入',5,'已确认导入',6,'批次文件已废除',A.BATCH_FILE_STATUS)	batchFileStatusDesc		
+  		FROM (SELECT * FROM BATCH_FILE_INFO 
+  			WHERE (FILE_TYPE = 12)
+  		    <isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+			<isNotEmpty property="batchFileStatus" prepend="AND">
+         		BATCH_FILE_STATUS = #batchFileStatus#
+			 </isNotEmpty>
+			<isNotEmpty property="code" prepend="AND">
+         		CHANNEL_CODE = #code#
+			 </isNotEmpty>
+  		  )  A 
+  		inner join (select * FROM BATCH_INFO 
+  		where batch_type = '200002'
+  		 	<isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+            <isNotEmpty property="ruleName" prepend="AND">
+         		RULE_NAME = #ruleName#
+			 </isNotEmpty>
+            <isNotEmpty property="batchStatus" prepend="AND">
+         		STATUS = #batchStatus#
+			 </isNotEmpty>
+			 <isNotEmpty property="startTime" prepend="AND">
+            	<![CDATA[ UPDATE_TIME >= #startTime# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endTime" prepend="AND">
+           		<![CDATA[ UPDATE_TIME < #endTime# + 1]]>
+           	</isNotEmpty>
+	  		)B  on A.BATCH_NUM =  B.BATCH_NUM  
+	  		inner join(select * from WITHDRAW_WORKORDER 
+  		<dynamic prepend="WHERE">
+  			<isNotEmpty property="tradeSeq" prepend="AND">
+         		ORDER_SEQ = #tradeSeq#
+			 </isNotEmpty>
+  			<isNotEmpty property="finStatus" prepend="AND">
+         		STATUS in ($finStatus$)
+			 </isNotEmpty>
+		</dynamic>
+	  		)C   on B.BATCH_NUM=C.BATCH_NUM 				
+	  		order by A.UPDATE_TIME desc
+		</select>
+	
+	
+	
+	 <select id="fundout-withdraw-query-inner-file_COUNT" parameterClass="queryBatchWithDraw" resultClass="java.lang.Integer">
+       		 SELECT 
+		       	  count(1)		
+  		FROM (SELECT * FROM BATCH_FILE_INFO 
+  		 WHERE (FILE_TYPE = 12)
+  		    <isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+			 <isNotEmpty property="batchFileStatus" prepend="AND">
+         		BATCH_FILE_STATUS = #batchFileStatus#
+			 </isNotEmpty>
+			 <isNotEmpty property="code" prepend="AND">
+         		CHANNEL_CODE = #code#
+			 </isNotEmpty>
+  		  )  A 
+  		inner join (select * FROM BATCH_INFO 
+  			where batch_type = '200002'
+  		 	<isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+            <isNotEmpty property="ruleName" prepend="AND">
+         		RULE_NAME = #ruleName#
+			 </isNotEmpty>
+            <isNotEmpty property="batchStatus" prepend="AND">
+         		STATUS = #batchStatus#
+			 </isNotEmpty>
+			 <isNotEmpty property="startTime" prepend="AND">
+            	<![CDATA[ UPDATE_TIME >= #startTime# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endTime" prepend="AND">
+           		<![CDATA[ UPDATE_TIME < #endTime# + 1]]>
+           	</isNotEmpty>
+  		)B  on A.BATCH_NUM =  B.BATCH_NUM 
+  		inner join(select * from WITHDRAW_WORKORDER 
+  		where 1=1 
+  			<isNotEmpty property="tradeSeq" prepend="AND">
+         		ORDER_SEQ = #tradeSeq#
+			 </isNotEmpty>
+			 <isNotEmpty property="finStatus" prepend="AND">
+         		STATUS in ($finStatus$)
+			 </isNotEmpty>
+  		)C on B.BATCH_NUM=C.BATCH_NUM 	 
+	</select>
+	
+	<select id="fundout-withdraw-batch-info" parameterClass="queryBatchWithDraw" resultClass="withdrawBatchInfo">
+       	 SELECT 
+	       	    BATCH_KY      			batchKy     ,
+	       	    RULE_KY        		ruleKy      ,
+	            BATCH_NUM     		 	batchNum    ,
+	            BATCH_TYPE      		batchType   ,
+	            UPDATE_TIME    		updateTime  ,
+	            nvl((select batch_rule_desc from batch_rule_config where sequence_id = RULE_KY ),batch_name)      		ruleName    ,
+	            decode( 
+		            (select count(1) from fo.BATCH_FILE_INFO where batch_num = b.batch_num and FILE_TYPE = 22) ,
+		            0,1,
+		            (select count(1)  from fo.BATCH_FILE_INFO m,custom_batch_flow n
+		                    where m.bank_code ||'_'||m.file_busi_type = n.bank_code_rule(+) 
+		                    and batch_num = b.batch_num
+		                    and FILE_TYPE = 22 
+		                    and ( ( (flag is null or flag in (0,2)) and batch_file_status not in (3,4,5,6,7,8,9) )
+		                        or
+		                        ( flag in (1,3) and batch_file_status not in (4,5,6,7,8,9) ) ) )
+		            ) batchFileStatus,
+	            STATUS				  	status	,
+	           decode(STATUS,1,'批次未生成',2,'批次已生成',3,'已废除批次文件',4,'已出批次文件',5,'未出批次文件',6,'已重支付平台成批次',7,'已下载',STATUS)	statusDesc
+		     FROM BATCH_INFO  b
+  		where batch_type = '200002'
+  		 	<isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+            <isNotEmpty property="ruleName" prepend="AND">
+         		RULE_NAME = #ruleName#
+			 </isNotEmpty>
+			 <isNotEmpty property="ruleKy" prepend="AND">
+         		RULE_KY = #ruleKy#
+			 </isNotEmpty>
+            <isNotEmpty property="batchStatus" prepend="AND">
+         		STATUS = #batchStatus#
+			 </isNotEmpty>
+			 <isNotEmpty property="startTime" prepend="AND">
+            	<![CDATA[ UPDATE_TIME >= #startTime# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endTime" prepend="AND">
+           		<![CDATA[ UPDATE_TIME < #endTime# + 1]]>
+           	</isNotEmpty>
+           	order by UPDATE_TIME desc
+	</select>
+	
+	
+	<select id="fundout-withdraw-batch-info_COUNT" parameterClass="queryBatchWithDraw" resultClass="java.lang.Integer">
+       	SELECT  count(1) FROM BATCH_INFO 
+  		where batch_type = '200002'
+  		 	<isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+            <isNotEmpty property="ruleName" prepend="AND">
+         		RULE_NAME = #ruleName#
+			 </isNotEmpty>
+			 <isNotEmpty property="ruleKy" prepend="AND">
+         		RULE_KY = #ruleKy#
+			 </isNotEmpty>
+            <isNotEmpty property="batchStatus" prepend="AND">
+         		STATUS = #batchStatus#
+			 </isNotEmpty>
+			 <isNotEmpty property="startTime" prepend="AND">
+            	<![CDATA[ UPDATE_TIME >= #startTime# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endTime" prepend="AND">
+           		<![CDATA[ UPDATE_TIME < #endTime# + 1]]>
+           	</isNotEmpty>
+	</select>
+	
+	
+	
+	<!-- 查询提交提现银行文件 -->
+	<select id="fundout-withdraw-query-bank-file" parameterClass="queryBatchWithDraw" resultClass="withdrawBatchInfo">
+       	 SELECT 
+       	 		  (select count(1) from withdraw_reconcile_result where batch_num = a.batch_num and G_FILE_KY =a.file_ky and  BUSI_FLAG IN (104)) sureCount	,
+       	 		  (select flag from custom_batch_flow where bank_code_rule = a.bank_code||'_'||a.file_busi_type) flag,
+		       	   B.BATCH_KY      			batchKy    ,
+		           nvl((select batch_rule_desc from batch_rule_config where sequence_id = B.RULE_KY ),batch_name)      		ruleName    ,   
+		           B.RULE_KY        		ruleKy      ,
+		           A.FILE_KY				fileKy		,
+		           A.CHANNEL_CODE			channelCode	,
+		           A.BATCH_NUM     		 	batchNum    ,
+		           A.FILE_PATH      		filePath    ,
+		           A.FILE_NAME      		fileName    ,
+		           A.FILE_TYPE      		fileType    ,
+		           A.ALL_AMOUNT     		allAmount    ,
+		           A.ALL_COUNT      		allCount    ,
+		           A.BANK_CODE      		bankCode    ,
+		           A.OPERATORS      		operators    ,
+		           A.UPDATE_TIME    		updateTime    ,
+		           B.BATCH_TYPE      		batchType    ,
+		           A.DL_BATCH_COUNT 		dlBatchCount  ,
+		           A.DL_BATCH_BUSI_COUNT  	dlBatchBusiCount,
+		           A.DL_BANK_COUNT    		dlBankCount    ,
+		           A.DL_BANK_BUSI_COUNT  	dlBankBusiCount  ,
+		           B.STATUS				  	status			,
+		           A.BATCH_FILE_STATUS		batchFileStatus			,
+		           A.GENERATE_TIME  		generateTime	,
+		           A.IMPORT_TIME			importTime		,
+		           A.SUREIMPORT_TIME		sureImportTime	,
+		           A.DOWNLOAD_TIME			downloadTime	,
+		           decode(A.FILE_BUSI_TYPE,0,'同行代发(对私)',1,'批量转账',3,'同行代发(对公)',4,'批量转账(跨行)',5,'同行代发(上海)',6,'同行代发(非上海)',A.FILE_BUSI_TYPE)			fileBusiTypeStr	,
+		           A.FILE_BUSI_TYPE          fileBusiType	,
+		           A.FOREVIEW_TIME			foreviewTime	,
+		       	   decode(A.BATCH_FILE_STATUS,1,'文件未生成',2,'文件已生成',3,'已下载',4,'已导入',5,'已确认导入',6,'批次文件已废除',8,'已复核',9,'已复核导入',A.BATCH_FILE_STATUS)	batchFileStatusDesc		
+  		 FROM  (select * from BATCH_FILE_INFO 
+  		 		 WHERE  FILE_TYPE = 22
+	  		    <isNotEmpty property="batchNum" prepend="AND">
+	         		BATCH_NUM = #batchNum#
+				 </isNotEmpty>
+				 <isNotEmpty property="bankCode" prepend="AND">
+	         		BANK_CODE = #bankCode#
+				 </isNotEmpty>
+	  		    <isNotEmpty property="batchFileStatus" prepend="AND">
+	         		BATCH_FILE_STATUS = #batchFileStatus#
+				 </isNotEmpty>
+				 <isNotEmpty property="paramStatus" prepend="AND">
+	         		BATCH_FILE_STATUS in ($paramStatus$)
+				 </isNotEmpty>
+				 <isNotEmpty property="startTime" prepend="AND">
+            		<![CDATA[ GENERATE_TIME >= #startTime# ]]>
+     			</isNotEmpty>
+        		<isNotEmpty property="endTime" prepend="AND">
+           			<![CDATA[ GENERATE_TIME < #endTime# + 1]]>
+           		</isNotEmpty>
+  		) A  inner join (select * FROM BATCH_INFO 
+			where batch_type = '200002'
+  		 	<isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+            <isNotEmpty property="ruleName" prepend="AND">
+         		RULE_NAME = #ruleName#
+			 </isNotEmpty>
+            <isNotEmpty property="batchStatus" prepend="AND">
+         		STATUS = #batchStatus#
+			 </isNotEmpty>
+  		) B on A.BATCH_NUM =  B.BATCH_NUM
+  		order by A.UPDATE_TIME desc
+	</select>
+	
+	<select id="fundout-withdraw-query-bank-file_COUNT" parameterClass="queryBatchWithDraw" resultClass="java.lang.Integer">
+       	 SELECT COUNT(1)	
+  		 FROM  (select * from BATCH_FILE_INFO 
+  		 		 WHERE  FILE_TYPE = 22
+	  		    <isNotEmpty property="batchNum" prepend="AND">
+	         		BATCH_NUM = #batchNum#
+				 </isNotEmpty>
+				 <isNotEmpty property="bankCode" prepend="AND">
+	         		BANK_CODE = #bankCode#
+				 </isNotEmpty>
+	  		    <isNotEmpty property="batchFileStatus" prepend="AND">
+	         		BATCH_FILE_STATUS = #batchFileStatus#
+				 </isNotEmpty>
+				 <isNotEmpty property="paramStatus" prepend="AND">
+	         		BATCH_FILE_STATUS in ($paramStatus$)
+				 </isNotEmpty>
+  		) A   inner join(select * FROM BATCH_INFO 
+  			where batch_type = '200002'
+  		 	<isNotEmpty property="batchNum" prepend="AND">
+         		BATCH_NUM = #batchNum#
+			 </isNotEmpty>
+            <isNotEmpty property="ruleName" prepend="AND">
+         		RULE_NAME = #ruleName#
+			 </isNotEmpty>
+            <isNotEmpty property="batchStatus" prepend="AND">
+         		STATUS = #batchStatus#
+			 </isNotEmpty>
+			 <isNotEmpty property="startTime" prepend="AND">
+            	<![CDATA[ UPDATE_TIME >= #startTime# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endTime" prepend="AND">
+           		<![CDATA[ UPDATE_TIME < #endTime# + 1]]>
+           	</isNotEmpty>
+  		) B  on A.BATCH_NUM =  B.BATCH_NUM
+	</select>
+
+	<!-- 更新工单表47 -->
+	<update id="fundout-withdraw-update-workorder47" parameterClass="withdrawWorkorder">
+        UPDATE 	WITHDRAW_WORKORDER	
+        	SET 
+        		UPDATE_TIME = sysdate ,
+        		STATUS = #status#
+        	<isNotEmpty property="batchStatus" prepend=",">
+        		BATCH_STATUS = #batchStatus#
+        	</isNotEmpty>
+        	<isNotEmpty property="batchNum" prepend=",">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+        WHERE  (STATUS = 4 or status = 7 or STATUS = 14) 
+       		 <isNotEmpty property="batchNum" prepend="AND">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+        	 <isNotEmpty property="fileKy" prepend="AND">
+        		FILE_KY = #fileKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="orderSeq" prepend="and">
+        		ORDER_SEQ = #orderSeq#
+        	</isNotEmpty>			
+       		 <isNotEmpty property="workOrderky" prepend="and">
+        		WORKORDER_KY = #workOrderky#
+        	</isNotEmpty>
+
+    </update>
+
+
+
+	<!-- 更新工单表 -->
+	<update id="fundout-withdraw-update-workorder-fetch" parameterClass="withdrawWorkorder">
+        UPDATE 	WITHDRAW_WORKORDER	
+        	SET 
+        		UPDATE_TIME = sysdate ,
+        		STATUS = #status#
+        	<isNotEmpty property="batchStatus" prepend=",">
+        		BATCH_STATUS = #batchStatus#
+        	</isNotEmpty>
+        	<isNotEmpty property="batchNum" prepend=",">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+        WHERE  STATUS = 4 and BATCH_STATUS =1 
+       		 <isNotEmpty property="batchNum" prepend="AND">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+       		 <isNotEmpty property="orderSeq" prepend="and">
+        		ORDER_SEQ = #orderSeq#
+        	</isNotEmpty>			
+       		 <isNotEmpty property="workOrderky" prepend="and">
+        		WORKORDER_KY = #workOrderky#
+        	</isNotEmpty>
+
+    </update>
+    
+   	<delete id="deleteBatchFileRecordforFileKy" >
+		DELETE FROM FO.BATCH_FILE_RECORD T  WHERE T.G_FILE_KY IN (SELECT FILE_KY FROM BATCH_FILE_INFO WHERE BATCH_NUM = #values#)  
+	</delete>
+    
+    
+
+	
+	<!-- 更新工单表 -->
+	<update id="fundout-withdraw-update-workorder" parameterClass="withdrawWorkorder">
+        UPDATE 	WITHDRAW_WORKORDER	
+        	SET 
+        		UPDATE_TIME = sysdate ,
+        		STATUS = #status#
+        	<isNotEmpty property="batchStatus" prepend=",">
+        		BATCH_STATUS = #batchStatus#
+        	</isNotEmpty>
+        	<isNotEmpty property="batchNum" prepend=",">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+        <dynamic prepend=" WHERE ">  
+       		 <isNotEmpty property="batchNum" prepend="AND">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+       		 <isNotEmpty property="orderSeq" prepend="and">
+        		ORDER_SEQ = #orderSeq#
+        	</isNotEmpty>			
+       		 <isNotEmpty property="workOrderky" prepend="and">
+        		WORKORDER_KY = #workOrderky#
+        	</isNotEmpty>
+        </dynamic>
+    </update>
+	
+	<!--更新批次文件表 -->
+	<update id="fundout-withdraw-update-batch-status" parameterClass="java.lang.String">
+        UPDATE 	BATCH_INFO	 SET STATUS = 4
+        WHERE BATCH_NUM = #values#
+    </update>
+    
+    <!--更新订单表 -->
+	<update id="fundout-withdraw-update-withdraw-order" parameterClass="auditQueryOrderModel">
+        UPDATE FUNDOUT_ORDER 
+        	SET UPDATE_DATE = sysdate ,FUNDOUT_BANKCODE = #withdrawBankCode# 
+        WHERE 
+        	ORDER_ID 
+        		IN (SELECT ORDER_SEQ FROM WITHDRAW_WORKORDER B WHERE 1=1
+	        			<isPropertyAvailable property="subList" prepend="">
+						 	<isNotEmpty property="subList">
+						 		AND B.WORKORDER_KY in 
+						 		<iterate property="subList" open="(" close=")" conjunction=",">
+						 			#subList[]#
+						 		</iterate>
+						 	</isNotEmpty>
+						 </isPropertyAvailable>
+						 AND B.BATCH_STATUS in(0,2)
+        		)
+    </update>
+         
+     <!-- 手工生成批次 -->
+	 	
+	 <update id="fundout-withdraw-update-generate">
+     	UPDATE WITHDRAW_WORKORDER 
+     		SET UPDATE_TIME = sysdate ,BATCH_NUM = #batchNum#, BATCH_STATUS=1
+     	WHERE STATUS in (4,14) AND BATCH_STATUS!=1
+		<isPropertyAvailable property="seqSql">
+			<isNotEmpty property="seqSql" prepend="AND">
+		 		WORKORDER_KY IN $seqSql$
+		 	</isNotEmpty>
+	 	</isPropertyAvailable>     	
+     </update>  
+         
+     <!-- 重支付平台成生成批次 -->
+     <update id="fundout-withdraw-update-regenerate">
+     	UPDATE WITHDRAW_WORKORDER 
+     		SET UPDATE_TIME = sysdate ,BATCH_NUM = #newBatchNum#, BATCH_STATUS=1
+     	WHERE BATCH_NUM = #batchNum# AND STATUS=4 AND BATCH_STATUS = 2
+     </update>   
+     
+     <!-- 自动批次 -->
+     <update id="fundout-withdraw-update-batch-auto">
+		UPDATE WITHDRAW_WORKORDER W
+		   SET W.BATCH_NUM = #batchNum#,
+		   		W.UPDATE_TIME = sysdate ,
+		   BATCH_STATUS=1
+		 WHERE W.ORDER_SEQ IN
+		       (SELECT O.Order_Id
+		          FROM fundout_order O, WITHDRAW_WORKORDER WW
+		         WHERE WW.ORDER_SEQ = O.Order_Id
+		           AND WW.BATCH_STATUS in(0,2)
+		           AND WW.STATUS = 4
+		           AND O.FUNDOUT_BANKCODE = #withdrawBankId#
+		           AND O.FUNDOUT_MODE = #withdrawType#
+		           AND O.ORDER_TYPE = #busiType#
+		           AND <![CDATA[ ROWNUM <= #maxCount# ]]> 
+		         )
+		   AND W.BATCH_STATUS in(0,2)
+		   AND W.STATUS = 4		   
+     </update>
+     <!-- 查询规则信息 -->
+     <resultMap id="batchRuleConfig" class="com.pay.fundout.withdraw.model.ruleconfig.BatchRuleConfig">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="BUSI_TYPE" property="busiType" jdbcType="DECIMAL"/>
+        <result column="LOST_EFFECT_DATE" property="lostEffectDate" jdbcType="TIMESTAMP"/>
+        <result column="MAX_ORDER_COUNTS" property="maxOrderCounts" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BATCH_TIME_CONF_ID" property="batchTimeConfId" jdbcType="DECIMAL"/>
+        <result column="EFFECT_DATE" property="effectDate" jdbcType="TIMESTAMP"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="BATCH_RULE_DESC" property="batchRuleDesc" jdbcType="VARCHAR"/>
+    </resultMap>
+     
+     
+     <!-- 查询规则信息 -->
+     <resultMap id="batchRuleConfig" class="com.pay.fundout.withdraw.model.ruleconfig.BatchRuleConfig">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="BUSI_TYPE" property="busiType" jdbcType="DECIMAL"/>
+        <result column="LOST_EFFECT_DATE" property="lostEffectDate" jdbcType="TIMESTAMP"/>
+        <result column="MAX_ORDER_COUNTS" property="maxOrderCounts" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BATCH_TIME_CONF_ID" property="batchTimeConfId" jdbcType="DECIMAL"/>
+        <result column="EFFECT_DATE" property="effectDate" jdbcType="TIMESTAMP"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="BATCH_RULE_DESC" property="batchRuleDesc" jdbcType="VARCHAR"/>
+    </resultMap>
+     
+	 <select id="findBatchRuleConfig" resultMap="batchRuleConfig">
+        SELECT 
+			CREATION_DATE,BUSI_TYPE,LOST_EFFECT_DATE,MAX_ORDER_COUNTS,STATUS,
+			BATCH_TIME_CONF_ID,EFFECT_DATE,SEQUENCE_ID,BATCH_RULE_DESC
+        FROM BATCH_RULE_CONFIG
+        order by SEQUENCE_ID
+    </select>
+    
+    <!-- 更新工单状态 -->
+    <update id="updateWithdrawWorkOrderStatus" parameterClass="withdrawWorkorder">
+    	update WITHDRAW_WORKORDER
+    	   set UPDATE_TIME = sysdate ,
+    	   		BATCH_STATUS=#batchStatus:NUMERIC#
+    	 WHERE BATCH_NUM=#batchNum:VARCHAR#
+    </update>
+    
+     <select id="generateRulyKy" resultClass="Long">
+			SELECT SEQ_FO_GLOBE_CYCLE.NEXTVAL
+			  FROM DUAL
+  	</select>
+</sqlMap>

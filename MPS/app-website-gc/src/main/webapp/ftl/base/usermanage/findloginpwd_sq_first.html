@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${back_loginpwd}${title}</title>
+<meta name="Keywords" content="${back_loginpwd_Keywords}" />
+<meta name="Description" content="${back_loginpwd_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+var reEmail = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+var Pho = /(^0{0,1}1[3|4|5|6|7|8|9][0-9]{9}$)/;
+	$(function() {
+		$("#username").focus();
+		$.formValidator.initConfig( {
+			formid : "loginpwdform_first",
+			onerror : function(msg) {
+				//alert(msg);
+			}
+		});
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : "请输入图中4位字母或数字",
+			onfocus : "请填写验证码",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 4,
+			empty : false,
+			onerror : "请输入图中4位字母或数字"
+		});
+
+		$("#username").formValidator( {
+			tipid : "usernametip",
+			onshow : "请填写您的gcpayment支付号",
+			onfocus : "请填gcpayment支付账号",
+			oncorrect : " "
+		}).regexValidator( {
+			regexp : "usernameNew",
+			datatype : "enum",
+			onerror : "账户格式不正确,必须是电子邮箱或者手机号码"
+		});
+
+		$("#refush")
+				.click(
+						function() {
+							var d = new Date();
+							var dtime = d.getTime();
+							var url ="${rc.contextPath}/validatecode/validatecode.htm?date=dtime";
+							url = url.replace("dtime",dtime);
+							$("#code").attr("src", url);
+						});
+	});
+	function refushCode() {
+		var d = new Date();
+		var dtime = d.getTime();
+		var url ="${rc.contextPath}/validatecode/validatecode.htm?date=dtime";
+		url = url.replace("dtime",dtime);
+		document.getElementById("code").src = url;
+	}
+
+</script>
+</head>
+<body>
+<!--header-->
+<@sp.headCommonV2 title="找回登录密码" class="ver_fPwd"/>
+<!--/header--> 
+<!--主内容-->
+
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-1">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1">第一步：填写账号<i></i></li>
+				<li class="li-2">第二步：填写验证信息<i></i></li>
+				<li class="li-3">第三步：设置新登录密码<i></i></li>
+				<li class="li-4">第四步：设置成功<i></i></li>
+			</ol>
+		</div>
+		<div class="f_pwd_pad">
+		<!--表单 -->
+			<form action="${rc.contextPath}/findLoginPwdFirst.htm?method=findLoginPwdFirst" method="post"
+			name="loginpwd" id="loginpwdform_first">
+				<ul class="mod_list">
+				<#if returninfo?has_content>
+						<li><font color=red>${returninfo?default('')}</font></li>
+						</#if>
+						<li>
+							<label class="mod_side"><i class="red">*</i> gcpayment支付账号：</label>
+							<input type="text" maxlength="30" value="" class="inp_normal w150" name="username" id="username" value="" tabindex="1"/>
+							<span id="usernametip"></span></li>
+						<li>
+							<label class="mod_side"><i class="red">*</i> 验证码：</label>
+							<input id="randCode" class="inp_normal w80" type="text" maxlength="4" name="randCode" autocomplete="off" disableautocomplete="" tabindex="2">
+							<img 	src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()"
+							alt="" name="code" width="80" id="code"	style="vertical-align: top" />
+							<span class="refresh"><a href="javascript:refushCode();">看不清，换一张</a></span>
+							<span id="randCodeTip"></span>
+						</li>
+						<li><span class="btnD">
+							<button id="btnOK" type="submit">下一步</button>
+							</span>
+						</li>
+				</ul>
+
+			</form>
+		<!--/表单 --> 
+		</div>
+	</div>
+</div>
+<!--/主内容--> 
+<!--footer -->
+<#include "/include/myfoot.html">
+</body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="loginfaillog">
+	<typeAlias alias="loginFailLogDto" type="com.pay.fundout.withdraw.dto.autorisk.LoginFailLogDto" />
+	
+	<insert id="create" parameterClass="loginFailLogDto">
+		INSERT INTO rm_login_err_daily(member_code, error_time)
+		VALUES(#memberCode#, #errorTime#)
+	</insert>
+	
+	<select id="queryLoginFailNum" parameterClass="map" resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+		FROM rm_login_err_daily
+		<dynamic prepend="where">
+    		<isNotEmpty prepend="AND" property="memberCode">
+				member_code = #memberCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginDate">
+				<![CDATA[error_time >= #beginDate#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endDate">
+				<![CDATA[error_time <= #endDate#]]>
+			</isNotEmpty>
+        </dynamic>
+	</select>
+	
+</sqlMap>

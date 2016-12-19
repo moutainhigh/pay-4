@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+	<bean id="updateUserPhoneHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+   	  </property>
+		<property name="mappings">
+			<props>	
+				<prop key="/corp/bsp/bspUpdatePhone.htm">updateUserPhoneController</prop>
+				<prop key="/corp/bsp/reconcili.htm">reconciliController</prop>
+			</props>
+		</property>
+	</bean>
+
+
+	<!-- bsp修改手机号-->
+	<bean id="updateUserPhoneController"
+		class="com.pay.app.controller.bsp.UpdateUserPhoneController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="updateUserPhoneService" ref="app-updateUserPhoneService" />
+		<property name="formView" >
+			<value>/bsp/updatephone/bsp_update_phone</value>
+		</property>
+		<property name="successView">
+			<value>/bsp/updatephone/bsp_update_phone_result</value>
+		</property>
+	</bean>
+
+
+	<bean id="reconciliController" class="com.pay.app.controller.base.Reconciliation.ReconciliationController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="reconciliView">
+			<value>/bsp/reconciliation/reconcili</value>
+		</property>
+		
+		
+	</bean>
+
+
+</beans>

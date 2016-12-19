@@ -1,0 +1,4732 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="reportData">
+
+	<resultMap id="resultMap" class="java.util.HashMap">
+		<result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL" />
+		<result column="ORDERTIME" property="orderTime" jdbcType="VARCHAR" />
+		<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+		<result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+		<result column="PAYMENT_AMOUNT" property="paymentAmount"
+			jdbcType="DECIMAL" />
+		<result column="PAY_TYPE" property="payType" jdbcType="VARCHAR" />
+		<result column="COUPON_NUMBER" property="couponNumber"
+			jdbcType="VARCHAR" />
+		<result column="COUPON_VALUE" property="couponValue" jdbcType="DECIMAL" />
+		<result column="ORDERSTATUS" property="orderStatus" jdbcType="DECIMAL" />
+		<result column="PAYMENTSTATUS" property="paymentStatus"
+			jdbcType="DECIMAL" />
+	</resultMap>
+
+	<select id="queryPartnerReport" parameterClass="java.util.Map"
+		resultMap="resultMap">
+		select
+		T.PARTNER_ID,
+		to_char(t.create_date,'yyyy-MM-dd')
+		orderTime,
+		t.trade_order_no order_id,
+		t.order_amount,
+		p.payment_amount,
+		pay_type,
+		nvl(coupon_value,0) coupon_value,
+		coupon_number,
+		T.STATUS
+		orderStatus,
+		p.status paymentStatus
+		from trade_order t,payment_order p
+		where 1=1
+		and
+		t.trade_order_no =
+		p.trade_order_no
+		<isNotEmpty property="tradeOrderNo" prepend="and">
+			t.trade_order_no = #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="partnerId" prepend="and">
+			t.PARTNER_ID =
+			#partnerId#
+		</isNotEmpty>
+		<isNotEmpty property="paymentStatus" prepend="and">
+			p.status =
+			#paymentStatus#
+		</isNotEmpty>
+		<isNotEmpty property="orderStatus" prepend="and">
+			t.status =
+			#orderStatus#
+		</isNotEmpty>
+		<isNotEmpty property="payType" prepend="and">
+			p.pay_type =
+			#payType#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+	</select>
+
+	<!-- 交易基本情况分析 -->
+	<resultMap id="tradeBaseMap" class="java.util.HashMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="tradeDate" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="cardType" property="cardOrg" jdbcType="VARCHAR" />
+		<result column="success_cnt" property="tradeSuccessCount"
+			jdbcType="VARCHAR" />
+		<result column="total_cnt" property="tradeCount" jdbcType="VARCHAR" />
+		<result column="percnt" property="tradeSuccessRate" jdbcType="VARCHAR" />
+		<result column="kdj" property="perTicketSales" jdbcType="VARCHAR" />
+		<result column="sumamount" property="tradeAmount" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryTradeBaseReports" parameterClass="java.util.Map"
+		resultMap="tradeBaseMap">
+		select ta.*,
+		tc.total_cnt,
+		#cardType# cardType,
+		nvl(tb.success_cnt,0)
+		success_cnt,
+		case nvl(tc.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		round(nvl(tb.success_cnt ,0)/ tc.total_cnt, 4) * 100 || '%'
+		end percnt,
+		td.sumamount,
+		case nvl(tc.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(round(td.sumamount / tc.total_cnt, 2))
+		end kdj
+		from (
+		select
+		t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)),
+		'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)),
+		'yyyy/mm/dd') tradeDate
+		from fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) success_cnt
+		from fi.trade_order t ,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+
+		) tb,
+
+		(
+		select
+		t.partner_id, count(1) total_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+
+		) tc,
+
+		(
+		select
+		partner_id,
+
+		round(sum(nvl(exchange_rate, 1) * order_amount / 1000), 3)
+		sumamount
+		from (
+		select t.trade_order_no,
+		rt.exchange_rate,
+		t.order_amount,
+		t.partner_id,
+		ROW_NUMBER() OVER(PARTITION BY
+		t.trade_order_no ORDER BY rt.create_date desc) line
+		from
+		fi.transaction_base_rate rt,
+		fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.currency_code = rt.currency(+)
+		and nvl(c.cd_org,'XX')
+		=
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		and rt.target_currency = 'CNY'
+		and
+		t.create_date >= rt.create_date
+		and t.status in (3, 4, 5)
+		)
+		where line =
+		1
+		group by partner_id ) td
+		where ta.partner_id = tb.partner_id(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		and ta.partner_id = tc.partner_id
+		and ta.partner_id = td.partner_id(+)
+		order by ta.partner_id asc
+	</select>
+
+	<select id="queryTradeBaseReports_COUNT" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select count(1)
+		from (
+		select
+		t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)),
+		'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)),
+		'yyyy/mm/dd') tradeDate
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) success_cnt
+		from fi.trade_order t ,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+
+		) tb,
+
+		(
+		select
+		t.partner_id, count(1) total_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+
+		) tc,
+
+		(
+		select
+		partner_id,
+
+		round(sum(nvl(exchange_rate, 1) * order_amount / 1000), 3)
+		sumamount
+		from (
+		select t.trade_order_no,
+		rt.exchange_rate,
+		t.order_amount,
+		t.partner_id,
+		ROW_NUMBER() OVER(PARTITION BY
+		t.trade_order_no ORDER BY rt.create_date desc) line
+		from
+		fi.transaction_base_rate rt,
+		fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.currency_code = rt.currency(+)
+		and nvl(c.cd_org,'XX')
+		=
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		and rt.target_currency = 'CNY'
+		and
+		t.create_date >= rt.create_date
+		and t.status in (3, 4, 5)
+		)
+		where line =
+		1
+		group by partner_id ) td
+		where ta.partner_id = tb.partner_id(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		and ta.partner_id = tc.partner_id
+		and ta.partner_id = td.partner_id(+)
+		order by ta.partner_id asc
+	</select>
+
+
+
+	<resultMap id="totalResultMap" class="java.util.HashMap">
+		<result column="tot_all" property="totalAll" jdbcType="VARCHAR" />
+		<result column="tot_success" property="totalSuccess" jdbcType="VARCHAR" />
+		<result column="percnt" property="percnt" jdbcType="VARCHAR" />
+		<result column="tot_sum" property="totalSum" jdbcType="VARCHAR" />
+		<result column="kdj" property="kdj" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryTotalTradeBase" parameterClass="java.util.Map"
+		resultMap="totalResultMap">
+		select
+		tt.tot_all,
+		tt.tot_success,
+		case nvl(tt.tot_all,0) when
+		0 then '-' else
+		round(tt.tot_success/tt.tot_all,4)*100||'%' end percnt,
+		to_char(tt.tot_sum) tot_sum,
+		case nvl(tt.tot_all,0) when 0 then '-'
+		else
+		to_char(round(tt.tot_sum/tt.tot_all,2)) end kdj
+		from
+		(
+		select
+		sum(nvl(success_cnt,0)) tot_success, sum(nvl(total_cnt,0)) tot_all,
+		sum(nvl(sumamount,0)) tot_sum
+		from
+		(
+		select t.partner_id
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		AND
+		DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+
+		(
+		select t.partner_id, count(1) success_cnt
+		from fi.trade_order t,
+		fi.trade_data c ,acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status in (3, 4)
+		and nvl(c.cd_org,'XX') = decode(#cardType#,'ALL', nvl(c.cd_org,'XX') , #cardType# )
+		AND
+		DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id
+		) tb ,
+
+		(
+
+		select
+		t.partner_id, count(1) total_cnt
+		from fi.trade_order t, fi.trade_data c
+		,acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		and
+		t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#,'ALL', nvl(c.cd_org,'XX') , #cardType# )
+		AND
+		DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id
+
+		) tc ,
+
+		(
+		select
+		partner_id,
+		round(sum(nvl(exchange_rate, 1) * order_amount / 1000), 3)
+		sumamount
+		from (select t.trade_order_no,
+		rt.exchange_rate,
+		t.order_amount,
+		t.partner_id,
+		ROW_NUMBER() OVER(PARTITION BY
+		t.trade_order_no ORDER BY rt.create_date desc) line
+		from
+		fi.transaction_base_rate rt,
+		fi.trade_data c,
+		fi.trade_order t,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		and
+		t.partner_id = b.member_code
+		and t.currency_code = rt.currency(+)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#,'ALL', nvl(c.cd_org,'XX') , #cardType# )
+		AND
+		DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		and rt.target_currency = 'CNY'
+		and
+		t.create_date >= rt.create_date
+		and t.status in (3, 4, 5) )
+		where line =
+		1
+		group by partner_id
+		) td
+		where ta.partner_id = tb.partner_id(+)
+		and
+		ta.partner_id = tc.partner_id(+)
+		and ta.partner_id = td.partner_id (+)
+		) tt
+	</select>
+
+	<resultMap id="tradeFailMap" class="java.util.HashMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="timerange" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="cardtype" property="cardOrg" jdbcType="VARCHAR" />
+		<result column="failed_cnt" property="tradeFailCount" jdbcType="VARCHAR" />
+		<result column="percnt" property="tradeFailRate" jdbcType="VARCHAR" />
+		<result column="resp_msg" property="failDesc" jdbcType="VARCHAR" />
+		<result column="c_percnt" property="failScale" jdbcType="VARCHAR" />
+		<result column="target" property="target" jdbcType="VARCHAR" />
+		<result column="totalCount" property="totalCount" jdbcType="VARCHAR" />
+		<result column="failCount" property="failCount" jdbcType="VARCHAR" />
+	</resultMap>
+	<!-- 查询交易失败详情全部 -->
+	<select id="queryTradeFailDealReportsAll" parameterClass="java.util.Map"
+		resultMap="tradeFailMap">
+		select ta.partner_id,
+		ta.zh_name,
+		ta.timerange,
+		tc.total_cnt totalCount,
+		#cardType# cardtype,
+		#target# target,
+		tb.failed_cnt,
+		nvl(td.trade_cnt,0)
+		failCount,
+		case
+		nvl(tc.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		round(nvl(tb.failed_cnt, 0) /
+		tc.total_cnt, 4) * 100 || '%'
+		end percnt,
+		td.resp_msg,
+		case
+		nvl(tb.failed_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(
+		round(nvl(td.trade_cnt, 0) / tb.failed_cnt, 4) * 100
+		,'FM9999990D90')|| '%'
+		end c_percnt
+		from (select '-' partner_id,
+		'-'
+		zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		) ta,
+		(
+		select count(1) failed_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tb,
+
+		(
+		select count(1) total_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) tc,
+
+		(
+		select * from (
+		select 'C' vtype, c.error_code as
+		resp_code,c.error_msg as resp_msg,
+		count(1) trade_cnt
+		from
+		fi.trade_order t , fi.channel_order c, fi.payment_order p ,
+		fi.trade_data cc, acc.t_enterprise_base b
+		where p.payment_order_no =
+		c.payment_order_no
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		 nvl(cc.cd_org,'XX')  = decode(#cardType#, 'ALL',  nvl(cc.cd_org,'XX') , #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by c.error_code,c.error_msg
+		union
+		all
+		select 'T' vtype, t.resp_code,t.resp_msg, count(1) trade_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data cc, acc.t_enterprise_base b
+		where  t.trade_order_no =
+		cc.trade_order_no(+)
+		
+		and t.partner_id = b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		 
+		and t.status =5
+		 and
+		 nvl(cc.cd_org,'XX')  = decode(#cardType#, 'ALL',  nvl(cc.cd_org,'XX') , #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.resp_code ,t.resp_msg
+    ) where  vtype =#target#
+		) td
+		 
+		ORDER BY ta.partner_id,failCount DESC
+	</select>
+
+
+	<select id="queryTradeFailDealReportsAll_COUNT" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select
+		count(1)
+		from (select '-' partner_id,
+		'-'
+		zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		) ta,
+		(
+		select count(1) failed_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tb,
+
+		(
+		select count(1) total_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) tc,
+
+		(select * from (
+		select 'C' vtype, c.error_code as
+		resp_code,c.error_msg as resp_msg,
+		count(1) trade_cnt
+		from
+		fi.trade_order t , fi.channel_order c, fi.payment_order p ,
+		fi.trade_data cc, acc.t_enterprise_base b
+		where p.payment_order_no =
+		c.payment_order_no
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by c.error_code,c.error_msg
+		union
+		all
+		select 'T' vtype, t.resp_code,t.resp_msg, count(1) trade_cnt
+		from
+		fi.trade_order t, 
+		fi.trade_data cc, acc.t_enterprise_base b
+		where  t.trade_order_no =
+		cc.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		 
+		and t.partner_id = b.member_code
+		and t.status =5
+		 and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.resp_code ,t.resp_msg
+       ) 
+       where vtype =#target#
+		) td
+	 
+	</select>
+
+
+
+
+
+	<select id="queryTradeFailDealReportsByMemberCode"
+		parameterClass="java.util.Map" resultMap="tradeFailMap">
+		select
+		ta.* ,
+		#cardType# cardtype,
+		tc.total_cnt totalCount,
+		#target#
+		target,
+		tb.failed_cnt,
+		case
+		nvl(tc.total_cnt,0) when 0 then '-' else
+		to_char(round(
+		nvl(tb.failed_cnt,0)/tc.total_cnt,4)*100,'FM999990D99')||'%'
+		end
+		percnt,
+		td.resp_msg,
+		case nvl(tb.failed_cnt,0) when 0 then '-' else
+		to_char(round( nvl(td.trade_cnt,0)/tb.failed_cnt,4)*100,'FM999990D99')
+		||'%'
+		end c_percnt ,
+		nvl(td.trade_cnt,0) failCount
+		from
+		(
+		select
+		t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)),
+		'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)),
+		'yyyy/mm/dd') timerange
+		from fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+
+		select t.partner_id, count(1) failed_cnt
+		from fi.trade_order t ,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb ,
+
+		( select
+		t.partner_id, count(1) total_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tc,
+
+		(
+		select * from (
+		select
+		'C'	vtype, t.partner_id, c.error_code as resp_code,c.error_msg as
+		resp_msg, count(1) trade_cnt
+		from fi.trade_order t , fi.channel_order
+		c, fi.payment_order p ,
+		fi.trade_data cc, acc.t_enterprise_base b
+		where
+		p.payment_order_no = c.payment_order_no
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id ,
+		c.error_code,c.error_msg
+		union all
+		select 'T' vtype, t.partner_id,
+		t.resp_code,t.resp_msg, count(1) trade_cnt
+		from fi.trade_order t,
+		fi.trade_data cc,
+		acc.t_enterprise_base b
+		where  
+		  t.trade_order_no =
+		cc.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id , t.resp_code
+		,t.resp_msg
+        ) 
+        where vtype=#target#
+		) td
+
+		where ta.partner_id = tb.partner_id(+)
+		and ta.partner_id =
+		tc.partner_id(+)
+		and ta.partner_id = td.partner_id(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		 and tb.failed_cnt is not null
+		ORDER BY ta.partner_id,failCount DESC
+	</select>
+
+	<select id="queryTradeFailDealReportsByMemberCode_COUNT"
+		parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		select
+		count(1)
+		from
+		(
+		select
+		t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)),
+		'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)),
+		'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+
+		select t.partner_id, count(1) failed_cnt
+		from fi.trade_order t ,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb ,
+
+		( select
+		t.partner_id, count(1) total_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tc,
+
+		(
+		select * from (
+		select
+		'C'
+		vtype, t.partner_id, c.error_code as resp_code,c.error_msg as
+		resp_msg, count(1) trade_cnt
+		from fi.trade_order t , fi.channel_order
+		c, fi.payment_order p ,
+		fi.trade_data cc, acc.t_enterprise_base b
+		where
+		p.payment_order_no = c.payment_order_no
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		 nvl(cc.cd_org,'XX')  = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX') , #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id ,
+		c.error_code,c.error_msg
+		union all
+		select 'T' vtype, t.partner_id,
+		t.resp_code,t.resp_msg, count(1) trade_cnt
+		from fi.trade_order t,
+		 
+		fi.trade_data cc,
+		acc.t_enterprise_base b
+		where  
+		  t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id , t.resp_code
+		,t.resp_msg
+       ) where vtype=#target#
+		) td
+
+		where ta.partner_id = tb.partner_id(+)
+		and ta.partner_id =
+		tc.partner_id(+)
+		and ta.partner_id = td.partner_id(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		and tb.failed_cnt is not null 
+	</select>
+
+
+
+
+
+
+	<!-- 商户退款比例报表 -->
+	<resultMap class="java.util.HashMap" id="refundResultMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="refund_cnt" property="refundCount" jdbcType="VARCHAR" />
+		<result column="percnt" property="refundPercnt" jdbcType="VARCHAR" />
+		<result column="success_cnt" property="tradeTotalCount"
+			jdbcType="VARCHAR" />
+		<result column="timerange" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="cardType" property="cardOrg" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryRefundPercntReports" parameterClass="java.util.Map"
+		resultMap="refundResultMap">
+		select
+		ta.*,
+		nvl(tb.refund_cnt,0) as refund_cnt,
+		#cardType# cardType,
+		nvl(tc.success_cnt,0) as success_cnt,
+		case
+		nvl(tc.success_cnt,0) when 0
+		then '-' else
+		to_char(round(tb.refund_cnt/tc.success_cnt,4)*100,'FM999999D90')||'%'
+		end percnt
+		from
+		(
+		select t.partner_id ,b.zh_name ,
+		to_char(min(trunc(t.create_date)),
+		'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) refund_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and exists ( select 1 from
+		fi.refund_order r where t.trade_order_no =
+		r.trade_order_no)
+		and
+		t.status in (3,4)
+		and nvl(c.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),
+		#cardType#)
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb
+		,
+		(
+		select t.partner_id, count(1) success_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tc
+		where
+		ta.partner_id = tb.partner_id(+)
+		and
+		ta.partner_id = tc.partner_id(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		ORDER BY ta.partner_id,ta.timerange desc
+	</select>
+
+	<select id="queryRefundPercntReports_COUNT" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select
+		count(1)
+		from
+		(
+		select t.partner_id ,b.zh_name
+		from fi.trade_order
+		t, acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) refund_cnt
+		from fi.trade_order t,
+		fi.channel_order c, fi.payment_order p,
+		fi.refund_order r
+		where
+		p.payment_order_no = c.payment_order_no
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.trade_order_no =
+		r.trade_order_no
+		and t.status in (3, 4)
+		and substr(c.card_org, 1, 1) =
+		decode(#cardType#,
+		'ALL',
+		substr(c.card_org, 1, 1),
+		substr(#cardType#, 1,
+		1))
+		group by t.partner_id
+		) tb ,
+		(
+		select t.partner_id, count(1)
+		success_cnt
+		from fi.trade_order t, fi.channel_order c, fi.payment_order
+		p
+		where p.payment_order_no = c.payment_order_no
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.status in (3, 4)
+		and
+		substr(c.card_org, 1, 1) =
+		decode(#cardType#,
+		'ALL',
+		substr(c.card_org,
+		1, 1),
+		substr(#cardType#, 1, 1))
+		group by t.partner_id
+		) tc
+		where
+		ta.partner_id = tb.partner_id(+)
+		and ta.partner_id = tc.partner_id(+)
+	</select>
+	<!-- 商户退款比例总计 -->
+	<resultMap class="java.util.HashMap" id="totalRefundResultMap">
+		<result column="refund_cnt" property="refundTotalCount"
+			jdbcType="VARCHAR" />
+		<result column="success_cnt" property="totalSuccess" jdbcType="VARCHAR" />
+		<result column="percnt" property="refundPercnt" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="queryTotalRefundPercnt" parameterClass="java.util.Map"
+		resultMap="totalRefundResultMap">
+		select
+		refund_cnt,success_cnt,
+		case nvl(success_cnt,0) when 0
+		then '-' else
+		round(refund_cnt/success_cnt,4)*100||'%' end percnt
+		from (
+		select
+		sum( nvl(tb.refund_cnt,0) ) refund_cnt,
+		sum(
+		nvl(tc.success_cnt,0) )
+		success_cnt
+		from
+		(
+		select t.partner_id ,b.zh_name
+		from fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		AND
+		DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) refund_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and exists ( select 1
+		from fi.refund_order r where t.trade_order_no =
+		r.trade_order_no)
+		and
+		t.status in (3,4)
+		and nvl(c.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),
+		#cardType#)
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb
+		,
+		(
+		select t.partner_id, count(1) success_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status in (3,4)
+		and nvl(c.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tc
+		where
+		ta.partner_id = tb.partner_id(+)
+		and
+		ta.partner_id = tc.partner_id(+)
+		)
+	</select>
+
+
+	<!-- 卡类型比例 -->
+	<resultMap class="java.util.HashMap" id="cardorgResultMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="timerange" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="total_cnt" property="totalCount" jdbcType="VARCHAR" />
+		<result column="visa" property="visa" jdbcType="VARCHAR" />
+		<result column="master" property="master" jdbcType="VARCHAR" />
+		<result column="jcb" property="jcb" jdbcType="VARCHAR" />
+		<result column="ae" property="ae" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="queryCardorgDistrReport" parameterClass="java.util.Map"
+		resultMap="cardorgResultMap">
+		select
+		ta.*,
+		tb.total_cnt,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(visa.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end visa ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(master.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end master ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(jcb.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end jcb ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(ae.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end ae
+		from
+		(
+		select t.partner_id ,b.zh_name ,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+
+		(
+		select t.partner_id, count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb ,
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'VISA'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) visa,
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'MASTER'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) master,
+
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'JCB'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) jcb,
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'AE'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1))
+		=
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) ae
+
+		where
+		ta.partner_id = tb.partner_id(+)
+		and ta.partner_id = visa.partner_id(+)
+		and ta.partner_id = master.partner_id(+)
+		and ta.partner_id =
+		jcb.partner_id(+)
+		and ta.partner_id = ae.partner_id(+)
+		and total_cnt is
+		not null
+		order by ta.partner_id,ta.timerange desc
+	</select>
+
+	<select id="queryCardorgDistrReport_COUNT" parameterClass="java.util.Map"
+		resultClass="java.lang.Integer">
+		select
+		count(1)
+		from
+		(
+		select t.partner_id ,b.zh_name ,
+		to_char(min(trunc(t.create_date)),
+		'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)),
+		'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		) ta,
+
+		(
+		select t.partner_id, count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb ,
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'VISA'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) visa,
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'MASTER'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) master,
+
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'JCB'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) jcb,
+		(
+		select
+		t.partner_id, count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'AE'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1))
+		=
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) ae
+
+		where
+		ta.partner_id = tb.partner_id(+)
+		and ta.partner_id = visa.partner_id(+)
+		and ta.partner_id = master.partner_id(+)
+		and ta.partner_id =
+		jcb.partner_id(+)
+		and ta.partner_id = ae.partner_id(+)
+		and total_cnt is
+		not null
+	</select>
+	<resultMap id="totalCardorgResultMap" class="java.util.HashMap">
+		<result column="total_cnt" property="totalAll" jdbcType="VARCHAR" />
+		<result column="visa" property="visaPrs" jdbcType="VARCHAR" />
+		<result column="master" property="masterPrs" jdbcType="VARCHAR" />
+		<result column="jcb" property="jcbPrs" jdbcType="VARCHAR" />
+		<result column="ae" property="aePrs" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryTotalCardorg" parameterClass="java.util.Map"
+		resultMap="totalCardorgResultMap">
+		select
+		tb.total_cnt,
+		case nvl(tb.total_cnt,0) when 0 then '-'
+		else
+		to_char(round(nvl(visa.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end visa ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(master.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end master ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(jcb.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end jcb ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(ae.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end ae
+		from
+		(
+		select count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,
+		4,5)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1))
+		=
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tb ,
+		(
+		select
+		count(1) card_cnt
+		from
+		fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		and
+		t.partner_id = b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and
+		t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		'VISA'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+
+		) visa,
+		(
+		select
+		count(1) card_cnt
+		from
+		fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		and
+		t.partner_id = b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.status in (3, 4,5)
+		and c.cd_org =
+		'MASTER'
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) master,
+
+		(
+		select count(1) card_cnt
+		from
+		fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		and t.partner_id = b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.status in (3, 4,5)
+		and c.cd_org = 'JCB'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) jcb,
+		(
+		select count(1) card_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		and
+		t.partner_id = b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.status in (3, 4,5)
+		and c.cd_org =
+		'AE'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1))
+		=
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) ae
+
+	</select>
+
+	<resultMap class="java.util.HashMap" id="ipDistrMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="timerange" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="cardorg" property="cardType" jdbcType="VARCHAR" />
+		<result column="state" property="state" jdbcType="VARCHAR" />
+		<result column="s_percent" property="sPercent" jdbcType="VARCHAR" />
+	</resultMap>
+	<select id="queryIpDistrReportByMemberCode" parameterClass="java.util.Map"
+		resultMap="ipDistrMap">
+		select ta.*,
+		#cardType# cardorg,
+		tc.country_desc state,state_cnt
+		,total_cnt,
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(round(nvl(state_cnt, 0) / total_cnt * 100, 2),'FM999990D90')
+		|| '%'
+		end s_percent
+		from (
+		select t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id , b.zh_name
+		) ta,
+		(
+		select t.partner_id , count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX')
+		=decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'),
+		#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code,
+		1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb,
+		(
+		select
+		partner_id, country_desc, count(1) state_cnt
+		from (
+		select t.partner_id,
+		t.trade_order_no, nvl(( select ip.country_code_3 from
+		inf.ip_country_inf ip where cc.ip_num between ip.start_ip and
+		ip.end_ip and rownum &lt; 2), 'NUL') country_desc
+		from fi.trade_order
+		t,
+		fi.trade_data cc,
+		acc.t_enterprise_base b
+		where t.trade_order_no =
+		cc.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and
+		t.status in (3, 4, 5)
+		and nvl(cc.cd_org,'XX')
+		= decode(#cardType#, 'ALL',
+		nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) ttt
+
+		group by partner_id,
+		country_desc
+		) tc
+		where ta.partner_id = tb.partner_id
+		and ta.partner_id =
+		tc.partner_id
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		order by ta.partner_id,state_cnt desc
+	</select>
+
+	<select id="queryIpDistrReportAll" parameterClass="java.util.Map"
+		resultMap="ipDistrMap">
+		select ta.*,
+		#cardType# cardorg,
+		tc.country_desc state,state_cnt
+		,total_cnt,
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(
+		round(nvl(state_cnt, 0) / total_cnt * 100, 2),'FM999990D90') || '%'
+		end s_percent
+		from (select '-' partner_id,
+		'-' zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		where t.partner_id = b.member_code
+		AND
+		DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		) ta,
+		(select count(1) total_cnt
+		from
+		fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tb,
+		(
+		select country_desc, count(1)
+		state_cnt
+		from (
+		select nvl(( select ip.country_code_3 from
+		inf.ip_country_inf ip where
+		cc.ip_num between ip.start_ip and
+		ip.end_ip
+		and rownum &lt;2), 'NUL') country_desc
+		from fi.trade_order t,
+		fi.trade_data cc,
+		acc.t_enterprise_base b
+		where t.trade_order_no =
+		cc.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(cc.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		)
+		group by country_desc) tc
+		order by ta.partner_id,state_cnt desc
+	</select>
+
+	<resultMap class="java.util.HashMap" id="cardBinDistrMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="timerange" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="cardorg" property="cardType" jdbcType="VARCHAR" />
+		<result column="cnty_code" property="cntyCode" jdbcType="VARCHAR" />
+		<result column="cnty_desc" property="cntyDesc" jdbcType="VARCHAR" />
+		<result column="state_cnt" property="stateCnt" jdbcType="VARCHAR" />
+		<result column="total_cnt" property="totalCnt" jdbcType="VARCHAR" />
+		<result column="s_percent" property="sPercent" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryCardBinDistrReportByMemberCode" parameterClass="java.util.Map"
+		resultMap="cardBinDistrMap">
+		select ta.*,
+		#cardType# cardorg,
+		tc.cnty_code,
+		tc.cnty_desc,
+		state_cnt ,
+		total_cnt,
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(
+		round(nvl(state_cnt, 0) / total_cnt * 100, 2),'FM999990D90') || '%'
+		end s_percent
+		from (select t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id,
+		b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb,
+		(select
+		t.partner_id, cd.cnty_code,cd.cnty_desc, count(1) state_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data cc,
+		inf.card_bin_inf cb,
+		inf.country_district cd, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.trade_order_no = cc.trade_order_no(+)
+		and substr(cc.ar_in,3,6) =
+		cb.card_bin
+		and cb.country_code3 = cd.cnty_code
+		and t.status in (3, 4,
+		5)
+		and nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id,
+		cd.cnty_code,cd.cnty_desc) tc
+		where ta.partner_id = tb.partner_id
+		and
+		ta.partner_id = tc.partner_id
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		order by ta.partner_id, state_cnt desc
+	</select>
+
+	<select id="queryCardBinDistrReportAll" parameterClass="java.util.Map"
+		resultMap="cardBinDistrMap">
+		select ta.*,
+		#cardType# cardorg,
+		tc.cnty_code, tc.cnty_desc,state_cnt
+		,total_cnt,
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(
+		round(nvl(state_cnt, 0) / total_cnt * 100, 2),'FM999990D90') || '%'
+		end s_percent
+		from (select '-' partner_id,
+		'-' zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		) ta,
+		(
+		select count(1) total_cnt
+		from
+		fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tb,
+		(select cd.cnty_code,cd.cnty_desc,
+		count(1) state_cnt
+		from fi.trade_order t,
+		fi.trade_data cc,
+		inf.card_bin_inf cb,
+		inf.country_district cd, acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.trade_order_no = cc.trade_order_no(+)
+		and substr(cc.ar_in,3,6) =
+		cb.card_bin
+		and cb.country_code3 = cd.cnty_code
+		and t.status in (3, 4,
+		5)
+		and nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by cd.cnty_code,cd.cnty_desc) tc
+		order by state_cnt desc
+	</select>
+
+	<resultMap class="java.util.HashMap" id="ipAndCardBinMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="timerange" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="cardorg" property="cardType" jdbcType="VARCHAR" />
+		<!-- <result column="state_percent" property="statePercent" jdbcType="VARCHAR" 
+			/> -->
+		<result column="cnty_percent" property="cntyPercent" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryIpAndCardBinMatchRepByMemberCode"
+		parameterClass="java.util.Map" resultMap="ipAndCardBinMap">
+		select ta.* ,#cardType# cardorg,
+		case nvl(tb.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char( round(nvl(te.cnty_cnt, 0) / tb.total_cnt * 100, 2)
+		,'FM9999990D90')
+		|| '%'
+		end cnty_percent
+
+		from (
+		select t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id,
+		b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb,
+		(
+		select
+		tc.partner_id, sum(decode(tc.country_code3,td.country_code_3,1,0))
+		cnty_cnt
+		from
+		(
+		select t.partner_id, t.trade_order_no, cb.country_code3
+		from fi.trade_order t,
+		fi.trade_data c,
+		inf.card_bin_inf cb,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and substr(c.ar_in,3,6) = cb.card_bin
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) tc,
+		(
+		select
+		t.partner_id, t.trade_order_no, nvl(( select ip.country_code_3 from
+		inf.ip_country_inf ip where c.ip_num between ip.start_ip and
+		ip.end_ip
+		and rownum &lt;2), 'OTH') country_code_3
+		from fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.status in (3, 4, 5)
+		and t.partner_id = b.member_code
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) td
+		where tc.partner_id = td.partner_id
+		and tc.trade_order_no = td.trade_order_no
+		group by tc.partner_id
+		) te
+		where ta.partner_id = tb.partner_id
+		and ta.partner_id = te.partner_id
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		ORDER BY ta.partner_id,ta.timerange desc
+	</select>
+
+	<select id="queryIpAndCardBinMatchRepByMemberCode_COUNT"
+		parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		select 
+		count(1)
+		from (
+		select t.partner_id,
+		b.zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id,
+		b.zh_name
+		) ta,
+		(
+		select t.partner_id, count(1) total_cnt
+		from fi.trade_order t,
+		fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		) tb,
+		(
+		select
+		tc.partner_id, sum(decode(tc.country_code3,td.country_code_3,1,0))
+		cnty_cnt
+		from
+		(
+		select t.partner_id, t.trade_order_no, cb.country_code3
+		from fi.trade_order t,
+		fi.trade_data c,
+		inf.card_bin_inf cb,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and substr(c.ar_in,3,6) = cb.card_bin
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) tc,
+		(
+		select
+		t.partner_id, t.trade_order_no, nvl(( select ip.country_code_3 from
+		inf.ip_country_inf ip where c.ip_num between ip.start_ip and
+		ip.end_ip
+		and rownum &lt;2), 'OTH') country_code_3
+		from fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.status in (3, 4, 5)
+		and t.partner_id = b.member_code
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) td
+		where tc.partner_id = td.partner_id
+		and tc.trade_order_no = td.trade_order_no
+		group by tc.partner_id
+		) te
+		where ta.partner_id = tb.partner_id
+		and ta.partner_id = te.partner_id
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		ORDER BY ta.partner_id,ta.timerange desc
+	</select>
+
+	<resultMap class="java.util.HashMap" id="ipAndCardBinCountMap">
+		<!-- <result column="state_percent" property="statePercent" jdbcType="VARCHAR" 
+			/> -->
+		<result column="cnty_percent" property="cntyPercent" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryIpAndCardBinMatchRepAll" parameterClass="java.util.Map"
+		resultMap="ipAndCardBinCountMap">
+		select
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(round(nvl(cnty_cnt, 0) / total_cnt * 100, 2),'FM9999990D90') || '%'
+		end cnty_percent
+
+		from (
+		select '-' partner_id,
+		'-' zh_name,
+		to_char(min(trunc(t.create_date)), 'yyyy/mm/dd') || '- ' ||
+		to_char(max(trunc(t.create_date)), 'yyyy/mm/dd') timerange
+		from fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) ta,
+		(
+		select count(1) total_cnt
+		from fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#,
+		'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tb,
+		(
+		select sum(decode(tc.country_code3,td.country_code_3,1,0)) cnty_cnt
+		from
+		(
+		select t.partner_id, t.trade_order_no, cb.country_code3
+		from fi.trade_order t,
+		fi.trade_data c,
+		inf.card_bin_inf cb,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and substr(c.ar_in,3,6) = cb.card_bin
+		and t.status in (3, 4, 5)
+		and
+		nvl(c.cd_org,'XX') = decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tc,
+		(
+		select t.partner_id, t.trade_order_no,
+		nvl(( select ip.country_code_3 from inf.ip_country_inf ip where c.ip_num
+		between ip.start_ip and
+		ip.end_ip and rownum &lt;2), 'OTH') country_code_3
+		from fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) td
+		where tc.partner_id = td.partner_id
+		and tc.trade_order_no = td.trade_order_no
+		<isNotEmpty property="memberCode" prepend="and">
+			tc.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		) te
+
+	</select>
+
+	<select id="queryTradeBaseReportsDown" parameterClass="java.util.Map"
+		resultMap="tradeBaseMap">
+		select ta.*,
+		tc.total_cnt,
+		#cardType# cardType,
+		nvl(tb.success_cnt,0)
+		success_cnt,
+		case nvl(tc.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		round(nvl(tb.success_cnt ,0)/ tc.total_cnt, 4) * 100 || '%'
+		end percnt,
+		to_char( td.sumamount) sumamount,
+		case nvl(tc.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(round(td.sumamount / tc.total_cnt, 2))
+		end kdj
+		from (
+		select t.partner_id,
+		b.zh_name,
+		trunc(t.create_date) tradeDate
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name,
+		trunc(t.create_date)
+		) ta,
+
+		(
+
+		select t.partner_id, trunc(t.create_date)
+		trans_date, count(1) success_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id,
+		trunc(t.create_date)
+
+		) tb,
+
+		(
+		select t.partner_id, trunc(t.create_date)
+		trans_date, count(1) total_cnt
+		from fi.trade_order t , fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+
+		) tc,
+
+		(
+		select partner_id,
+		trans_date,
+		round(sum(nvl(exchange_rate, 1) * order_amount / 1000), 3) sumamount
+		from (
+		select t.trade_order_no,
+		rt.exchange_rate,
+		t.order_amount,
+		t.partner_id,
+		trunc(t.create_date) trans_date,
+		ROW_NUMBER()
+		OVER(PARTITION BY t.trade_order_no ORDER BY rt.create_date desc) line
+		from fi.transaction_base_rate rt,
+		fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.currency_code = rt.currency(+)
+		and nvl(c.cd_org,'XX')
+		=
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		and rt.target_currency = 'CNY'
+		and
+		t.create_date >= rt.create_date
+		and t.status in (3, 4, 5)
+		)
+		where line =
+		1
+		group by partner_id, trans_date) td
+		where ta.partner_id =
+		tb.partner_id(+)
+		and ta.partner_id = tc.partner_id
+		and ta.partner_id =
+		td.partner_id(+)
+		and ta.tradeDate = tb.trans_date(+)
+		and ta.tradeDate =
+		tc.trans_date
+		and ta.tradeDate = td.trans_date(+)
+		order by
+		ta.partner_id, ta.tradeDate desc
+	</select>
+
+	<select id="queryTradeFailDealReportsDown" parameterClass="java.util.Map"
+		resultMap="tradeFailMap">
+		select
+		ta.* ,
+		#cardType# cardtype,
+		#target# target,
+		tb.failed_cnt,
+		tc.total_cnt totalCount,
+		case
+		nvl(tc.total_cnt,0) when 0 then '-' else
+		round(
+		nvl(tb.failed_cnt,0)/tc.total_cnt,4)*100||'%'
+		end percnt,
+		td.resp_msg,
+		case nvl(tb.failed_cnt,0) when 0 then '-' else
+		to_char(round(
+		nvl(td.trade_cnt,0)/tb.failed_cnt,4)*100,'FM999990D90')||'%'
+		end
+		c_percnt ,
+		nvl(td.trade_cnt,0) failCount
+		from
+		(
+		select t.partner_id,
+		b.zh_name,
+		trunc(t.create_date) as timerange
+		from fi.trade_order t,
+		acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name,
+		trunc(t.create_date)
+		) ta,
+		(
+		select t.partner_id, trunc(t.create_date) as
+		trans_date ,count(1) failed_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id ,
+		trunc(t.create_date)
+		) tb ,
+
+		( select t.partner_id, trunc(t.create_date)
+		as trans_date , count(1)
+		total_cnt
+		from fi.trade_order t , fi.trade_data
+		c, acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id,
+		trunc(t.create_date)
+		) tc,
+
+		(
+		select * from (
+		select 'C' vtype, t.partner_id, c.error_code
+		as resp_code,c.error_msg as
+		resp_msg, trunc(t.create_date) as
+		trans_date, count(1) trade_cnt
+		from fi.trade_order t , fi.channel_order
+		c, fi.payment_order p ,
+		fi.trade_data cc, acc.t_enterprise_base b
+		where
+		p.payment_order_no = c.payment_order_no
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and p.trade_order_no = t.trade_order_no
+		and t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		and t.status =5
+		and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id ,
+		c.error_code,c.error_msg , trunc(t.create_date)
+		union all
+		select 'T'
+		vtype, t.partner_id, t.resp_code,t.resp_msg, trunc(t.create_date)
+		as
+		trans_date, count(1) trade_cnt
+		from fi.trade_order t,  
+		fi.trade_data cc, acc.t_enterprise_base b
+		where
+		  
+		  t.trade_order_no =
+		cc.trade_order_no(+)
+		and t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		
+		and t.status =5
+		and
+		nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id , t.resp_code
+		,t.resp_msg, trunc(t.create_date)
+		)
+		where vtype=#target#
+		) td
+		where ta.partner_id =
+		tb.partner_id
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		and ta.partner_id = tc.partner_id(+)
+		and ta.partner_id = td.partner_id(+)
+		and
+		ta.timerange = tb.trans_date(+)
+		and ta.timerange = tc.trans_date(+)
+		and
+		ta.timerange = td.trans_date(+)
+		order by
+		ta.partner_id, ta.timerange DESC
+	</select>
+
+
+	<select id="queryRefundPercntReportsDown" parameterClass="java.util.Map"
+		resultMap="refundResultMap">
+		select
+		#cardType# cardType,
+		ta.*,
+		nvl(tb.refund_cnt,0) as refund_cnt,
+		nvl(tc.success_cnt,0) as success_cnt,
+		case nvl(tc.success_cnt,0) when 0
+		then '-' else
+		to_char(
+		round(tb.refund_cnt/tc.success_cnt,4)*100,'FM999999D90')||'%'
+		end
+		percnt
+		from
+		(
+		select t.partner_id ,
+		b.zh_name ,
+		trunc(t.create_date)
+		timerange
+		from fi.trade_order t, acc.t_enterprise_base b
+		where
+		t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id,
+		b.zh_name,trunc(t.create_date)
+		) ta,
+		(
+		select t.partner_id,
+		trunc(t.create_date) trans_date, count(1)
+		refund_cnt
+		from fi.trade_order
+		t, fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4)
+		and exists (
+		select 1 from fi.refund_order r where t.trade_order_no =
+		r.trade_order_no)
+		and nvl(c.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),
+		#cardType#)
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		,trunc(t.create_date)
+		) tb ,
+		(
+		select t.partner_id,trunc(t.create_date)
+		trans_date, count(1)
+		success_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3,4)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'),#cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+		) tc
+		where ta.partner_id =
+		tb.partner_id
+		and ta.partner_id = tc.partner_id
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		and ta.timerange = tb.trans_date
+		and ta.timerange = tc.trans_date
+		order
+		by ta.partner_id, ta.timerange
+	</select>
+
+
+	<select id="queryIpDistrReportDown" parameterClass="java.util.Map"
+		resultMap="ipDistrMap">
+		select ta.*,
+		#cardType# cardorg,
+		tc.country_desc state, state_cnt
+		,total_cnt,
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		round(nvl(state_cnt, 0) / total_cnt * 100, 2) || '%'
+		end s_percent
+		from
+		(
+		select t.partner_id,
+		b.zh_name,
+		trunc(t.create_date) timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id , b.zh_name ,
+		trunc(t.create_date)
+
+		) ta,
+		(
+		select t.partner_id , trunc(t.create_date)
+		trans_date, count(1) total_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		AND nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id ,
+		trunc(t.create_date)
+		) tb,
+		(
+		select partner_id, trans_date, country_desc
+		, count(1) state_cnt
+		from (
+		select t.partner_id,trunc(t.create_date)
+		trans_date,
+		nvl(( select ip.country_code_3 from inf.ip_country_inf ip
+		where cc.ip_num
+		between ip.start_ip and
+		ip.end_ip and rownum&lt;2),
+		'NUL') country_desc
+		from fi.trade_order t,
+		fi.trade_data cc,
+		acc.t_enterprise_base b
+		where t.trade_order_no = cc.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(cc.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		)
+		group by partner_id, trans_date ,
+		country_desc
+
+		) tc
+		where ta.partner_id = tb.partner_id
+		and ta.partner_id =
+		tc.partner_id
+		and ta.timerange = tb.trans_date
+		and ta.timerange =
+		tc.trans_date
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		order by ta.partner_id,ta.timerange desc
+	</select>
+
+
+	<resultMap class="java.util.HashMap" id="cardorgResultDownMap">
+		<result column="partner_id" property="memberCode" jdbcType="VARCHAR" />
+		<result column="zh_name" property="merchantName" jdbcType="VARCHAR" />
+		<result column="trans_date" property="tradeDate" jdbcType="VARCHAR" />
+		<result column="visaPrs" property="visaPrs" jdbcType="VARCHAR" />
+		<result column="masterPrs" property="masterPrs" jdbcType="VARCHAR" />
+		<result column="jcbPrs" property="jcbPrs" jdbcType="VARCHAR" />
+		<result column="aePrs" property="aePrs" jdbcType="VARCHAR" />
+		<result column="visa" property="visa" jdbcType="VARCHAR" />
+		<result column="master" property="master" jdbcType="VARCHAR" />
+		<result column="jcb" property="jcb" jdbcType="VARCHAR" />
+		<result column="ae" property="ae" jdbcType="VARCHAR" />
+		<result column="total_cnt" property="totalCount" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="queryCardorgDistrReportDown" parameterClass="java.util.Map"
+		resultMap="cardorgResultDownMap">
+		select
+		tb.total_cnt,
+		ta.*,
+		visa.card_cnt visa,
+		master.card_cnt master,
+		jcb.card_cnt jcb,
+		ae.card_cnt ae,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(visa.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end visaPrs ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(master.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end masterPrs ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(jcb.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end jcbPrs ,
+		case nvl(tb.total_cnt,0) when 0 then '-' else
+		to_char(round(nvl(ae.card_cnt,0)/tb.total_cnt*100,2),'FM999990D90')||'%'
+		end aePrs
+		from
+		(
+		select t.partner_id ,b.zh_name ,
+		trunc(t.create_date)
+		trans_date
+		from fi.trade_order t, acc.t_enterprise_base b
+		where
+		t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id,
+		b.zh_name,trunc(t.create_date)
+		) ta,
+
+		(
+		select
+		t.partner_id,trunc(t.create_date) trans_date, count(1) total_cnt
+		from
+		fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+		) tb ,
+		(
+		select t.partner_id,
+		trunc(t.create_date) trans_date, count(1) card_cnt
+		from fi.trade_order
+		t, fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and c.cd_org =
+		'VISA'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+		) visa,
+		(
+		select
+		t.partner_id,trunc(t.create_date) trans_date, count(1) card_cnt
+		from
+		fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and c.cd_org =
+		'MASTER'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+		) master,
+
+		(
+		select t.partner_id,
+		trunc(t.create_date) trans_date, count(1) card_cnt
+		from fi.trade_order
+		t, fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and c.cd_org =
+		'JCB'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1,
+		1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+		) jcb,
+		(
+		select t.partner_id,
+		trunc(t.create_date) trans_date, count(1) card_cnt
+		from fi.trade_order
+		t, fi.trade_data c, acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and c.cd_org =
+		'AE'
+		AND DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1))
+		=
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by
+		t.partner_id,trunc(t.create_date)
+		) ae
+
+		where ta.partner_id =
+		tb.partner_id(+)
+		and ta.partner_id = visa.partner_id(+)
+		and
+		ta.partner_id = master.partner_id(+)
+		and ta.partner_id =
+		jcb.partner_id(+)
+		and ta.partner_id = ae.partner_id(+)
+
+		and ta.trans_date
+		= tb.trans_date(+)
+		and ta.trans_date = visa.trans_date(+)
+		and
+		ta.trans_date = master.trans_date(+)
+		and ta.trans_date =
+		jcb.trans_date(+)
+		and ta.trans_date = ae.trans_date(+)
+
+		and total_cnt is
+		not null
+		order by ta.trans_date desc
+	</select>
+
+	<select id="queryCardBinDistrRepDown" parameterClass="java.util.Map"
+		resultMap="cardBinDistrMap">
+		select ta.*,
+		#cardType# cardorg,
+		tc.cnty_code,tc.cnty_desc,state_cnt
+		,total_cnt,
+		case nvl(total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		round(nvl(state_cnt, 0) / total_cnt * 100, 2) || '%'
+		end s_percent
+		from
+		(select t.partner_id,
+		b.zh_name,
+		trunc(t.create_date) timerange
+		from
+		fi.trade_order t, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id,
+		b.zh_name,trunc(t.create_date)
+		) ta,
+		(
+		select
+		t.partner_id,trunc(t.create_date) trans_date, count(1) total_cnt
+		from
+		fi.trade_order t, fi.trade_data c, acc.t_enterprise_base b
+		where
+		t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id
+		,trunc(t.create_date)
+		) tb,
+		(select t.partner_id, trunc(t.create_date)
+		trans_date,
+		cd.cnty_code,cd.cnty_desc, count(1) state_cnt
+		from
+		fi.trade_order t,
+		fi.trade_data cc,
+		inf.card_bin_inf cb,
+		inf.country_district cd, acc.t_enterprise_base b
+		where t.partner_id =
+		b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.trade_order_no = cc.trade_order_no(+)
+		and substr(cc.ar_in,3,6) =
+		cb.card_bin
+		and cb.country_code3 = cd.cnty_code
+		and t.status in (3, 4,
+		5)
+		and nvl(cc.cd_org,'XX') = decode(#cardType#, 'ALL', nvl(cc.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id,
+		trunc(t.create_date) ,cd.cnty_code,cd.cnty_desc) tc
+		where ta.partner_id
+		= tb.partner_id
+		and ta.partner_id = tc.partner_id
+		and ta.timerange =
+		tb.trans_date
+		and ta.timerange = tc.trans_date
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		order by ta.timerange desc
+	</select>
+
+	<select id="queryIpAndCardBinMatchRepDown" parameterClass="java.util.Map"
+		resultMap="ipAndCardBinMap">
+		select ta.* , #cardType# cardorg,
+		case nvl(tb.total_cnt, 0)
+		when 0 then
+		'-'
+		else
+		to_char(round(nvl(te.cnty_cnt, 0) / tb.total_cnt * 100, 2)
+		,'FM9999990D90') || '%'
+		end cnty_percent
+
+		from (
+		select t.partner_id,
+		b.zh_name,
+		trunc(t.create_date) timerange
+		from fi.trade_order t,
+		acc.t_enterprise_base b
+		where t.partner_id = b.member_code
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		AND DECODE(#merchantType#,'ALL','1',SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#, 'ALL','1', 'GC', '8', 'IPAY', '5',
+		SUBSTR(b.merchant_code, 1, 1 ))
+		group by t.partner_id, b.zh_name
+		,trunc(t.create_date)
+		) ta,
+		(
+		select t.partner_id, trunc(t.create_date)
+		trans_date, count(1) total_cnt
+		from fi.trade_order t, fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.partner_id = b.member_code
+		and t.status in (3, 4,5)
+		and nvl(c.cd_org,'XX') =
+		decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		group by t.partner_id ,
+		trunc(t.create_date)
+		) tb,
+		(
+
+		select tc.partner_id, tc.trans_date,
+		sum(decode(tc.country_code3,td.country_code_3,1,0)) cnty_cnt
+		from
+		(
+		select t.partner_id, t.trade_order_no, cb.country_code3 ,
+		trunc(t.create_date) trans_date
+		from fi.trade_order t,
+		fi.trade_data c,
+		inf.card_bin_inf cb,
+		acc.t_enterprise_base b
+		where t.trade_order_no =
+		c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and substr(c.ar_in,3,6) = cb.card_bin
+		and t.partner_id = b.member_code
+		and t.status in (3, 4, 5)
+		and nvl(c.cd_org,'XX') = decode(#cardType#, 'ALL',
+		nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+		) tc,
+		(
+		select
+		t.partner_id, t.trade_order_no, trunc(t.create_date) trans_date,
+		nvl((
+		select ip.country_code_3 from inf.ip_country_inf ip where
+		c.ip_num
+		between ip.start_ip and
+		ip.end_ip and rownum&lt;2), 'NUL')
+		country_code_3
+		from fi.trade_order t,
+		fi.trade_data c,
+		acc.t_enterprise_base b
+		where t.trade_order_no = c.trade_order_no(+)
+		<isNotEmpty property="memberCode" prepend="and">
+			t.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date
+			&gt;= to_date(#startTime#,'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;
+			to_date(#endTime#,'yyyy-MM-dd')+1
+		</isNotEmpty>
+		and t.status in (3, 4, 5)
+		and t.partner_id = b.member_code
+		and nvl(c.cd_org,'XX')
+		= decode(#cardType#, 'ALL', nvl(c.cd_org,'XX'), #cardType#)
+		AND
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		SUBSTR(b.merchant_code, 1, 1)) =
+		DECODE(#merchantType#,
+		'ALL',
+		'1',
+		'GC',
+		'8',
+		'IPAY',
+		'5',
+		SUBSTR(b.merchant_code, 1, 1))
+
+		) td
+		where tc.partner_id = td.partner_id
+		and tc.trade_order_no = td.trade_order_no
+		and tc.trans_date =
+		td.trans_date
+		group by tc.partner_id, tc.trans_date
+		) te
+		where
+		ta.partner_id = tb.partner_id
+		and ta.partner_id = te.partner_id
+		and
+		ta.timerange = tb.trans_date
+		and ta.timerange = te.trans_date
+		<isNotEmpty property="memberCode" prepend="and">
+			ta.partner_id
+			=#memberCode#
+		</isNotEmpty>
+		order by
+		ta.partner_id, ta.timerange asc
+	</select>
+
+
+
+</sqlMap>

@@ -1,0 +1,37 @@
+<script type="text/javascript">
+	$(function(){
+		window.setTimeout("timeout()", 1*60*1000);
+		var status = '${status?default('')}';
+		var msg = '${msg?default('')}';
+		var errorCode = '${errorCode?default('')}';
+		if(status=='1'){
+			if(msg!='msg'){
+				if(errorCode=='00000'||errorCode=='00001'){
+					window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingProcess";
+				}else{
+					window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingFail";
+				}
+			}else{
+				setTimeout("getShoppingStatus()", 6*1000)	
+			}			
+		}else if(status=='2'){
+			//alert('成功'+status);
+			window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingProcess";
+		}else if(status=='3'){// 支付失败 
+			window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingFail";
+		}else if(status=='4'){// 支付异常 
+			window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingException";
+		}
+	});
+	
+	function timeout(){
+		var status = '${status?default('')}';
+		if(status=='1'){
+			var payFlag = '${payFlag?default('')}';
+			if(payFlag=='0'){
+				window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingFail";
+			}else
+				window.location.href="${rc.contextPath}/cardPayRedirect.htm?method=shoppingTimeOut";	
+		}
+	}
+</script>

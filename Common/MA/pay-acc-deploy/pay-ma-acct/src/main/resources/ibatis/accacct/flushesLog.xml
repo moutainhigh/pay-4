@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-flushesLog">
+	<typeAlias alias="flushesLog"
+		type="com.pay.acc.translog.model.FlushesLog" />
+	<insert id="create" parameterClass="flushesLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			SEQ_FLUSHES_LOG_ID.nextval from DUAL 
+	</selectKey>
+		insert into t_flushes_log(id,
+								  flushes_order_id,
+								  order_id,
+								  deal_code,
+								  amount,
+								  deal_type,
+								  status,
+								  create_date)
+		                  	values(#id#,
+		                          #flushesOrderId#,
+		                          #orderId#,
+		                          #dealCode#,
+		                          #amount#,
+		                          #dealType#,
+		                          #status#,
+		                          sysdate       
+		                          )
+	</insert>
+	
+	
+	<update id="updateFlushesLog" parameterClass="java.util.Map" >
+   <![CDATA[
+                    update t_flushes_log l set l.update_date=sysdate,
+                           l.status=#status#
+                     where l.id=#id# 
+                           and  l.status <> 1
+  	 ]]>  
+    </update>  
+    
+    <!--                  update t_flushes_log l set l.update_date=sysdate,
+                           l.status=#status#
+                     where l.order_id=#orderId#
+                           and l.deal_code=#dealCode#
+                           and l.amount=#amount#
+                        and  l.status <> 1
+                         -->
+   <update id="updateFlushesLogByStatus" parameterClass="java.util.Map" >
+   <![CDATA[
+                         
+                          update t_flushes_log lo set lo.update_date=sysdate,
+                           lo.status=#status#
+                     where lo.id=(  select l.id from t_flushes_log l 
+                        where  l.order_id=#orderId#
+                           and l.deal_code=#dealCode#
+                           and l.amount=#amount#
+                           and  l.status <> 1                           
+                           and not exists ( select 1 from t_flushes_log l 
+                                           where  l.order_id=#orderId#
+                                           and l.deal_code=#dealCode#
+                                           and l.amount=#amount#
+                                           and  l.status = 1)
+                                                                     
+                           and  rownum=1)       
+  	 ]]>  
+    </update>  
+    
+    <select id="countFlushesStatus" resultClass="int"
+		parameterClass="java.util.Map">
+    <![CDATA[
+    	select count(1) from t_flushes_log l 
+    	where  l.order_id =#orderId#
+		       and l.deal_code= #dealCode#
+		       and l.status= #status#
+        ]]>
+
+	</select>
+
+</sqlMap>

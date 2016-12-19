@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>付款到账户确认页</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="水电煤账单详情"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+<div class="ht15"></div>
+  <div class="box_w620" style="margin-left:170px">
+    <!--自适应box str -->
+    <div class="mod_box_a">
+      <p class="top"><i></i></p>
+      <div class="con_box has_bg pad20">
+        <div class="tit_box border_b">
+          <h3 class="title font14"><span class="ico_dot"></span><strong>gcpayment支付费回单</strong></h3>
+        </div>
+        <div class="ht15"></div>
+        <div class="content">
+        <#if errorMsg?has_content>
+           <div class="mod_box paysuccess"><span class="corners c_topleft"></span>
+              <span class="corners c_topright"></span>
+             <div class="popup">
+             <div class="popup_box">
+            <div class="popup_content"><br />
+             <p><strong><#if errorMsg?exists><font color="red">${errorMsg?default('')}</font></#if></strong></p>
+          <span class="pop_war"></span></div>
+			</div>
+			<ul class="pop_link">
+				<li>您可能需要：</li>
+				<li><a
+					href="${rc.contextPath}/app/queryHistoryTradeList.htm?method=queryHistoryTrade">查询交易记录</a><span>|</span>
+				</li>
+				<li><a href="${rc.contextPath}/app/myAccount.htm">返回账户首页</a><span>|</span>
+				</li>
+				<li><a href="${rc.contextPath}/index.htm">返gcpayment支付支付首页</a></li>
+			</ul>
+			</div>
+			</div>
+<#else>
+        
+          <table class="verify_tab">
+            <tbody>
+              <tr>
+                <td class="typegcpayment支付生支付流水号： </td>
+                <td><strong class="col333">${map.ebillItemId?default('')}</strong></td>
+              </tr>
+              <tr>
+                <td class="type">缴费项目：</td>
+                <td>${map.billName?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">缴费地区：</td>
+                <td>${map.cityCode?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">收单单位：</td>
+                <td>${map.payeeName?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">条形码：</td>
+                <td>${map.billBarCode?default('')} </td>
+              </tr>
+<!--              <tr>-->
+<!--                <td class="type">账单月份：</td>-->
+<!--                <td>2010年12月</td>-->
+<!--              </tr>-->
+              <tr>
+                <td class="type">缴费金额：</td>
+                <td>${map.orderAmount?default('')}元</td>
+              </tr>
+              <tr>
+                <td class="type">缴费状态：</td>
+                <td>
+                <#switch  map.orderStatus>
+                  <#case 101>
+                                                                           初始化
+                  <#break>
+                  <#case 111>
+                                                                           支付成功
+                  <#break>
+                  <#case 112>
+                                                                           支付失败
+                  <#break>    
+                  <#default>
+                                                                         订单完成
+                  </#switch>
+                <em class="cachet"></em>
+                
+                </td>
+              </tr>
+              <tr>
+                <td class="type">创建时间：</td>
+                <td>${map.creationDate?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">支付时间：</td>
+                <td>${map.receiveDate?default('')}</td>
+              </tr>
+              <tr>
+                <td class="type">回单生成时间：</td>
+                <td>${map.currentDate?default('')}</td>
+              </tr>
+              <tr>
+                <td height="20" colspan="2"></td>
+              </tr>
+              <tr>
+                <td height="60" class="type"></td>
+                <td><span class="btn_yel">
+                  <button onclick="javascript:window.print()">打印单据</button>
+                </span> <a class="red ml20 f12" href="${rc.contextPath}/app/queryHistoryTradeList.htm">返回交易记录</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="bot"><i></i></p>
+    </div>
+    <!--自适应box end -->
+  </div>
+  <div class="ht15"></div>
+</div>
+<!--主内容 end -->
+</div>
+</#if>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

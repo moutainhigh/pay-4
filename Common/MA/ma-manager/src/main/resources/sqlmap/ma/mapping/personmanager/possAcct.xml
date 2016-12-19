@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="poss_acct">
+
+	<typeAlias alias="possAcctDto"
+		type="com.pay.poss.personmanager.dto.AcctDto" />
+
+	<sql id="DETAIL_SELECT_ACCT">
+	   	<![CDATA[
+		select  t.acct_id acctId,
+		        t.acct_code acctCode,
+		        t.acct_type_id acctTypeId,
+		        t.member_code memberCode,
+		        t.balance,
+		        t.status,
+		        t.frozen_amount frozenAmount,
+		        t.credit_balance creditBalance,
+		        t.debit_balance debitBalance,
+		        t.create_date createDate,
+		        t.update_date updateDate
+		from t_acct  t
+			where 1=1
+	   	 ]]>
+	</sql>
+
+	<sql id="COMMON_CONDITION_SELECT_DETAIL">
+		<isNotEmpty prepend="and" property="memberCode">
+			t.member_code=#memberCode#
+	   </isNotEmpty>
+	</sql>
+
+
+	<select id="findAcctByMemberCode" resultClass="possAcctDto"
+		parameterClass="long">
+		<include refid="DETAIL_SELECT_ACCT" />
+		<![CDATA[
+		  and t.member_code=#value#
+		]]>
+	</select>
+	
+
+	<select id="selectAcctByPossAcct" resultClass="possAcctDto"
+		parameterClass="possAcctDto">
+		<include refid="DETAIL_SELECT_ACCT" />
+		<include refid="COMMON_CONDITION_SELECT_DETAIL" />
+		<!--
+			<include refid="COMMON.PAGING_START"/> <include
+			refid="COMMON.PAGING_END"/>
+		-->
+	</select>
+
+</sqlMap>

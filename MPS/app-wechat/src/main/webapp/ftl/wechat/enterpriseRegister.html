@@ -1,0 +1,852 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>商户注册</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$("#loginName").blur(function(){
+			//$(this).css('color','#9A9A9A') ;
+			var ln = $("#loginName").val() ;
+			
+			if('' != ln && '该账号已存在!' != ln && '邮件地址，用于网络版登录' != ln ){
+				$(this).removeClass('input_val_tip') ;
+			}
+		}) ;
+		
+		$("#corp_operatorName").blur(function(){
+			var con = $("#corp_operatorName").val() ;
+			if('' != con  && '管理员账户，可在网络版分配用户权限' != con ){
+				$(this).removeClass('input_val_tip') ;
+			}
+		}) ;
+		
+		$("#payPassWord").blur(function(){
+			var pp = $("#payPassWord").val() ;
+			if('' != pp  && '用于网络版提现时使用' != pp ){
+				$(this).removeClass('input_val_tip') ;
+			}
+		}) ;
+		
+		
+	}) ;
+
+	function checkLoginName() {
+		var loginName = $('#loginName').val();
+		$.ajax({
+			type: "POST",
+			url: "/wechat/enterpriseRegister.htm?method=checkLoginNameIsExists&loginName=" + loginName,
+			data: "",
+			success: function (result) {
+				if (result != 1) {
+					$('#loginName').val("该账号已存在!").css('color',"red");
+				} else {
+					//$('#loginName').val("邮件地址，用于网络版登录");
+				}
+			}
+		});
+	}
+
+	function changeCity(val, id) {
+		var pars = "provinceId=" + val;
+		$.ajax({
+			type: "POST",
+			url: "/wechat/province.htm?method=city",
+			data: pars,
+			success: function (d) {
+				$("#" + id).html(d);
+			}
+		});
+	}
+	
+	function getOpeningBankNames() {
+		$("#branchBankId").html("<option value=''>请选择开户行</option>");
+		var payeeBankName = "";
+		if ($("#bankId").val() != '') {
+			var payeeBank = document.getElementById('bankId');
+			var selectValue = payeeBank.options[payeeBank.selectedIndex].text;
+			payeeBankName = $.trim(selectValue);
+		}
+		var payeeBankProvinceName = "";
+		if ($("#regionBank").val() != '') {
+			var province = document.getElementById('regionBank');
+			var selectValue = province.options[province.selectedIndex].text;
+			payeeBankProvinceName = $.trim(selectValue);
+		}
+		var payeeBankCityName = '';
+		if ($("#cityBank").val() != '') {
+			var city = document.getElementById('cityBank');
+			var selectValue = city.options[city.selectedIndex].text;
+			payeeBankCityName = $.trim(selectValue);
+		}
+		var payeeOpeningBankNameKey = $.trim($("#payeeOpeningBankNameKey").val());
+		var url = "/wechat/openning/pay2bank.htm";
+
+		if (payeeBankName != '' && payeeBankProvinceName != '' && payeeBankCityName != '') {
+			var bankOrgCode = $('#bankId').val();
+			var data = {
+				"method": "queryOpeningBankNameList",
+				"b": payeeBankName,
+				"p": payeeBankProvinceName,
+				"c": payeeBankCityName,
+				"k": payeeOpeningBankNameKey,
+				"bankOrgCode": bankOrgCode
+			};
+			jQuery.post(url + "?date=" + new Date(), data, function (response) {
+				if ("" != response) {
+					$("#branchBankId").append(response);
+				}
+			});
+		}
+	}
+
+</script>
+
+<script type="text/javascript">
+	$(function(){
+		$(".input_val_tip")	.focus(function(){
+			$(this).val("");
+		});
+	});
+</script>
+<style type="text/css">
+	/*样式2*/
+	.file {
+		position: relative;
+		display: inline-block;
+		background: #FFFFFF;
+		border: 1px solid #99D3F5;
+		border-radius: 4px;
+		padding: 4px 12px;
+		overflow: hidden;
+		color: #1E88C7;
+		text-decoration: none;
+		text-indent: 0;
+		line-height: 210px;
+		
+	}
+	.file input {
+		position: absolute;
+		font-size: 100px;
+		right: 0;
+		top: 0;
+		opacity: 0;
+	}
+	.file:hover {
+		background: #E5F8FF;
+		border-color: #78C3F3;
+		color: #004974;
+		text-decoration: none;
+	}
+	/*新加*/
+	.file{box-sizing:border-box;}
+	.file input{height:210px;}
+</style>
+
+<script type="text/javascript">
+	$(function(){
+		$("#clickGoBack").click(function(){
+			window.history.go(-1) ;
+		}) ;
+		
+		
+	});
+</script>
+</head>
+
+<body>
+	<div id="pagewrap">
+    	<div id="content" style="text-align:left;">
+    		<!-- 半透明遮罩层 -->
+            <div id="a1" style="display:none;background-color:gray;margin:0px 0px;position:absolute; z-index:9999;opacity:0.2;
+                                filter: progid:DXImageTransform.Microsoft.Alpha(opacity=20);text-align:center;color:red;">
+            </div>
+            <div id="animate" style="display:none;position:absolute; z-index:99999;text-align:center;color:red;"> <!-- margin:20px 550px; -->
+		
+                <img src="<@sp.static/>/wechat/images/loadding.gif" style="opacity:1;" id="ld"/>
+                <!-- <div style="margin:30px auto;"></div>-->
+            </div>
+        	<!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:52px;float:left;" id="clickGoBack">
+                    	<div class="go_back" style="float:left;padding-top:3px;">
+                            <!-- <img src="images/jt.png"/> -->
+                        </div>
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">商户注册</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+            <!-- 注册导航 -->
+            <div class="reg_nav" style="">
+            	<ul style="">
+                	<div id="li_page1">
+                    	<li class="page_1_selected">登录信息</li>
+                        <li class="un_selected">法人信息</li>
+                        <li class="un_selected">公司信息</li>
+                        <li class="page_4_un_selected">结算信息</li>
+                    </div>
+                    <div id="li_page2" style="display:none;">
+                    	<li class="page_1_un_selected">公司信息</li>
+                        <li class="un_selected">结算信息</li>
+                        <li class="selected">支付密码</li>
+	                    <li class="page_4_un_selected">证件上传</li>
+                    </div>
+                </ul>
+                
+            </div>
+            
+            <!-- 登录信息Start -->
+            <form action="/wechat/enterpriseRegister.htm?method=register" method="post" name="memberForm" id="memberForm" enctype="multipart/form-data">
+                <div id="li_0" class="reg_nav_li_common cc_center">
+                    
+                    <div class="row">
+                        <div class="row_r">
+                            <span >账&nbsp;&nbsp;&nbsp;&nbsp;号</span>
+                            <input type="text" name="loginName" id="loginName" value="邮件地址，用于网络版登录" onblur="checkLoginName();" class="input_val_tip"/>
+                        </div>
+                        
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >用户名</span>
+                            <input type="text" name="" id="corp_operatorName" value="管理员账户，可在网络版分配用户权限" class="input_val_tip"/>
+                        </div>
+                       
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >登录密码</span>
+                            <input type="text" name="loginPwd" id="loginPwd" value="" />
+                        </div>
+                     
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >确认密码</span>
+                            <input type="text" name="loginPwdConfirm" id="loginPwdConfirm" />
+                        </div>
+                      
+                    </div>
+                    
+                </div>
+            	<!-- 登录信息End -->
+            
+                <!-- 法人信息Start -->
+                <div id="li_1" class="reg_nav_li_common cc_center li_hidden">
+                    <div class="row">
+                        <div class="row_r">
+                            <span >法人姓名</span>
+                            <input type="text" name="legalName" id="legalName" value="" />
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >手机号</span>
+                            <input type="text" name="legalLink" id="legalLink" />
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >固定电话</span>
+                            <input type="text" name="tel" id="tel" />
+                        </div>
+                    </div>
+                </div>
+                <!-- 法人信息End -->
+                
+                <!-- 公司信息Start -->
+                <div id="li_2" class="reg_nav_li_common cc_center li_hidden">
+                    <div class="row">
+                        <div class="row_r">
+                            <span >公司名称</span>
+                            <input type="text" name="zhName" id="zhName" value="" />
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >省&nbsp;&nbsp;&nbsp;&nbsp;份</span>
+                            <select name="region" id="region" onchange="changeCity(this.value,'city');">
+                                <option value="" selected="">---请选择省份---</option>
+                                <option value="344" selected="">香港</option>
+                                <option value="9100" selected="">台湾省</option>
+                                <option value="1000" selected="">北京市</option>
+                                <option value="1100" selected="">天津市</option>
+                                <option value="1200" selected="">河北省</option>
+                                <option value="1600" selected="">山西省</option>
+                                <option value="1900" selected="">内蒙古自治区</option>
+                                <option value="2200" selected="">辽宁省</option>
+                                <option value="2400" selected="">吉林省</option>
+                                <option value="2600" selected="">黑龙江省</option>
+                                <option value="2900" selected="">上海市</option>
+                                <option value="3000" selected="">江苏省</option>
+                                <option value="3300" selected="">浙江省</option>
+                                <option value="3600" selected="">安徽省</option>
+                                <option value="3900" selected="">福建省</option>
+                                <option value="4200" selected="">江西省</option>
+                                <option value="4500" selected="">山东省</option>
+                                <option value="4900" selected="">河南省</option>
+                                <option value="5200" selected="">湖北省</option>
+                                <option value="5500" selected="">湖南省</option>
+                                <option value="5800" selected="">广东省</option>
+                                <option value="6100" selected="">广西自治区</option>
+                                <option value="6400" selected="">海南省</option>
+                                <option value="6500" selected="">四川省</option>
+                                <option value="6900" selected="">重庆市</option>
+                                <option value="7000" selected="">贵州省</option>
+                                <option value="7300" selected="">云南省</option>
+                                <option value="7700" selected="">西藏自治区</option>
+                                <option value="7900" selected="">陕西省</option>
+                                <option value="8200" selected="">甘肃省</option>
+                                <option value="8500" selected="">青海省</option>
+                                <option value="8700" selected="">宁夏自治区</option>
+                                <option value="8800" selected="">新疆自治区</option>
+                                <option value="446" selected="">澳门</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >城&nbsp;&nbsp;&nbsp;&nbsp;市</span>
+                            <select name="city" id="city" class="inp_normal w200">
+                                <option value="">---请选择城市---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >公司地址</span>
+                            <input type="text" name="address" id="address" />
+                        </div>
+                    </div>
+                </div>
+                <!-- 公司信息End -->
+                
+                <!-- 结算信息Start -->
+                <div id="li_3" class="reg_nav_li_common cc_center li_hidden">
+                    <div class="row">
+                        <div class="row_r">
+                            <span >银行名称</span>
+                            <select id="bankId" name="bankId" class="inp_normal w200">
+                                <option value="">请选择银行</option>
+                                <option value="10001001" selected="">中国工商银行</option>
+                                <option value="10002001" selected="">中国农业银行</option>
+                                <option value="10003001" selected="">中国银行</option>
+                                <option value="10004001" selected="">中国建设银行</option>
+                                <option value="10005001" selected="">交通银行</option>
+                                <option value="10006001" selected="">招商银行</option>
+                                <option value="10007001" selected="">中国民生银行</option>
+                                <option value="10008001" selected="">兴业银行</option>
+                                <option value="10009001" selected="">上海浦东发展银行</option>
+                                <option value="10010001" selected="">中国邮政储蓄银行</option>
+                                <option value="10011001" selected="">东亚银行</option>
+                                <option value="10012001" selected="">华夏银行</option>
+                                <option value="10013001" selected="">中信银行</option>
+                                <option value="10014001" selected="">中国光大银行</option>
+                                <option value="10015001" selected="">广发银行</option>
+                                <option value="10017001" selected="">平安银行</option>
+                                <option value="10018001" selected="">宁波银行</option>
+                                <option value="10019001" selected="">北京银行</option>
+                                <option value="10021001" selected="">青岛银行</option>
+                                <option value="10027001" selected="">上海银行</option>
+                                <option value="10040001" selected="">天津银行</option>
+                                <option value="10042001" selected="">南昌银行</option>
+                                <option value="10050001" selected="">浙商银行</option>
+                                <option value="10053001" selected="">大连银行</option>
+                                <option value="10057001" selected="">花旗银行</option>
+                                <option value="10062001" selected="">温州银行</option>
+                                <option value="10064001" selected="">威海银行</option>
+                                <option value="10067001" selected="">长安银行</option>
+                                <option value="10068001" selected="">南京银行</option>
+                                <option value="10073001" selected="">恒丰银行</option>
+                                <option value="10074001" selected="">汇丰银行</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >省&nbsp;&nbsp;&nbsp;&nbsp;份</span>
+                            <select name="regionBank" id="regionBank" onchange="changeCity(this.value,'cityBank');">
+                                <option value="" selected="">---请选择省份---</option>
+                                <option value="344" selected="">香港</option>
+                                <option value="9100" selected="">台湾省</option>
+                                <option value="1000" selected="">北京市</option>
+                                <option value="1100" selected="">天津市</option>
+                                <option value="1200" selected="">河北省</option>
+                                <option value="1600" selected="">山西省</option>
+                                <option value="1900" selected="">内蒙古自治区</option>
+                                <option value="2200" selected="">辽宁省</option>
+                                <option value="2400" selected="">吉林省</option>
+                                <option value="2600" selected="">黑龙江省</option>
+                                <option value="2900" selected="">上海市</option>
+                                <option value="3000" selected="">江苏省</option>
+                                <option value="3300" selected="">浙江省</option>
+                                <option value="3600" selected="">安徽省</option>
+                                <option value="3900" selected="">福建省</option>
+                                <option value="4200" selected="">江西省</option>
+                                <option value="4500" selected="">山东省</option>
+                                <option value="4900" selected="">河南省</option>
+                                <option value="5200" selected="">湖北省</option>
+                                <option value="5500" selected="">湖南省</option>
+                                <option value="5800" selected="">广东省</option>
+                                <option value="6100" selected="">广西自治区</option>
+                                <option value="6400" selected="">海南省</option>
+                                <option value="6500" selected="">四川省</option>
+                                <option value="6900" selected="">重庆市</option>
+                                <option value="7000" selected="">贵州省</option>
+                                <option value="7300" selected="">云南省</option>
+                                <option value="7700" selected="">西藏自治区</option>
+                                <option value="7900" selected="">陕西省</option>
+                                <option value="8200" selected="">甘肃省</option>
+                                <option value="8500" selected="">青海省</option>
+                                <option value="8700" selected="">宁夏自治区</option>
+                                <option value="8800" selected="">新疆自治区</option>
+                                <option value="446" selected="">澳门</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                     <div class="row">
+                        <div class="row_r">
+                            <span >城&nbsp;&nbsp;&nbsp;&nbsp;市</span>
+                            <select name="cityBank" id="cityBank" onchange="getOpeningBankNames();">
+                                <option value="" selected="">---请选择城市---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >支&nbsp;&nbsp;&nbsp;&nbsp;行</span>
+                            <select id="branchBankId" name="branchBankId" >
+                                <option value="">请选择开户行</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >户&nbsp;&nbsp;&nbsp;&nbsp;名</span>
+                            <input type="text" name="acctName" id="acctName" value="" />
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >卡&nbsp;&nbsp;&nbsp;&nbsp;号</span>
+                            <input type="text" name="bankAcct" id="bankAcct" value="" />
+                        </div>
+                    </div>
+                    
+                </div>
+                <!-- 结算信息End -->
+                
+                <!-- 支付密码Start -->
+                <div id="li_4" class="reg_nav_li_common cc_center li_hidden">
+                    <div class="row">
+                        <div class="row_r">
+                            <span >支付密码</span>
+                            <input type="text" name="payPassWord" id="payPassWord" value="用于网络版提现时使用" class="input_val_tip"/>
+                        </div>
+                    </div>
+                    <div class="row_split"></div>
+                    <div class="row">
+                        <div class="row_r">
+                            <span >再次输入</span>
+                            <input type="text" name="payPassWordConfirm" id="payPassWordConfirm" />
+                        </div>
+                    </div>
+                </div>
+                <!-- 支付密码End -->
+                
+                <!-- 证件上传Start -->
+                <div id="li_5" class="reg_nav_li_common cc_center li_hidden">
+                
+                    <div class="five_certificates">
+		           		<div class="certificate_aside">
+		                	<a href="javascript:;" class="file">营业执照
+		                        <input type="file" name="file1" id="" onChange="fileSelectToggle(this);">
+		                    </a>
+		                </div>
+		                <div class="certificate_center">
+		               
+		                	<a href="javascript:;" class="file">税务登记证
+		                        <input type="file" name="file2" id="" onChange="fileSelectToggle(this);">
+		                    </a>
+		                </div>
+		                <div class="certificate_aside">
+		                	<a href="javascript:;" class="file" >组织机构代码
+		                        <input type="file" name="file3" id="" onChange="fileSelectToggle(this);">
+		                    </a>
+		                </div>
+		           </div> 
+		           <div style="box-sizing:border-box;height:1px;border-top:1px solid #EAEAEA;"></div>
+		           <div class="five_certificates">
+		           		<div class="certificate_aside">
+		                	<a href="javascript:;" class="file">开户许可证
+		                        <input type="file" name="file4" id="" onChange="fileSelectToggle(this);">
+		                    </a>
+		                </div>
+		                <div class="certificate_center">
+		                	<a href="javascript:;" class="file">法人身份证
+		                        <input type="file" name="file5" id="" onChange="fileSelectToggle(this);">
+		                    </a>
+		                </div>
+		                <div class="certificate_aside">
+		                	<a href="javascript:;" class="file">其他
+		                        <input type="file" name="file6" id="" onChange="fileSelectToggle(this);">
+		                    </a>
+		                </div>
+		           </div>
+		           </div>
+                   
+                </div>
+                <!-- 证件上传End -->
+                <div class="clear"></div>
+               <!-- <a class="submit button_disable" id="enterprise_reg_next">下一步</a>-->
+                <!-- 下一步按钮 -->
+               <div class="common_button" style="padding:1px;" id="enterprise_reg_next">
+                 <div style="width:42%;float:left;">&nbsp;</div>
+                 <div style="width:16%;float:left;">下一步</div>
+                 <div style="width:42%;float:left;">&nbsp;</div>
+               </div>
+            </form>
+            
+            
+        </div>
+    </div>
+	
+    <script type="text/javascript">
+    	function shade(){
+    		var contentWidth = $("#content").width() ;
+			var contentHeight = $("#content").height();
+			
+			$("#a1").css('width', contentWidth);
+			$("#a1").css('height', contentHeight);
+			
+			$("#animate").css('width', contentWidth);
+			$("#animate").css('height', contentHeight);
+			
+			$("#a1").css('display','block');				
+			$("#ld").css("margin-top", contentHeight/2 - 32);
+			$("#animate").css('display','block');
+    	}
+		$(function(){
+			
+			var liPos ;			 	//当前选中li下标对应于li_page1
+			var $_liSelected ;		//当前选中li jQuery对象
+			
+			var liPosPage2;			//当前选中li下标对应于li_page2
+			//下一步
+			$("#enterprise_reg_next").click(function(){
+				
+				var flag = validateForm();
+
+				if(!flag) return ;			//表单校验结果
+				
+				var aText = $(this).text();
+				if(aText == "完成注册"){
+					//TODO   form表单提交
+					//--------------------------------------------
+					shade();
+					//--------------------------------------------
+					$("#memberForm").submit() ;			//表单提交
+					return false ;	
+				}
+				else{
+					//遍历所有注册导航li,找到当前被选中
+					
+					var liPage1IsVisible = $("div#li_page1").is(":visible");
+					var liPage2IsVisible = $("div#li_page2").is(":visible");
+					
+					if(liPage1IsVisible){
+						$("div#li_page1").find("li").each(function(n, o){	
+							var _selected = $(o).attr("class") ;
+							
+							if(_selected == "selected" || _selected == "page_1_selected" || _selected == "page_4_selected"){
+								
+								liPos = n;
+								if(_selected == "selected"){
+									$(o).removeClass("selected") ;	
+								}
+								else if(_selected == "page_1_selected"){
+									$(o).removeClass("page_1_selected");
+								}
+								
+								$_liSelected = $(o) ;
+							}
+						}) ;		
+					}
+					
+					if(liPage2IsVisible){
+						$("div#li_page2").find("li").each(function(n, o){	
+							var _selected = $(o).attr("class") ;
+							if(_selected == "selected" || _selected == "page_1_selected" || _selected == "page_4_selected"){
+								
+								liPosPage2 = n;
+								
+								if(_selected == "selected"){
+									$(o).removeClass("selected") ;	
+								}
+								else if(_selected == "page_1_selected"){
+									$(o).removeClass("page_1_selected");
+								}
+								
+								$_liSelected = $(o) ;
+							}
+						}) ;
+					}
+					
+					//$_liSelected.next("li").addClass("selected") ;
+					//===================================================处理对应的li_page1开始===================================
+					$("#li_" + liPos).css("display", "none") ;
+					if((liPos+1) == 6){		//到达最后一个li导航项
+						$("li:first").addClass("selected") ;
+						$("#li_0").css("display", "block") ;
+					}else{
+						
+						if((liPos+1) == 3){			//第3个被点击
+							$_liSelected.next("li").removeClass("page_4_un_selected") ;
+							$_liSelected.next("li").addClass("page_4_selected") ;
+						}else{
+							$_liSelected.next("li").removeClass("un_selected") ;
+							$_liSelected.next("li").addClass("selected") ;
+						}
+						
+						if((liPos+1) == 1){		    //第一个被点击
+							$_liSelected.addClass("page_1_un_selected");
+						}else{
+							$_liSelected.addClass("un_selected") ;
+						}
+						
+						$("#li_" + (liPos+1)).css("display", "block");
+					}
+					
+					if((liPos+1) == 4){
+						$("div#li_page1").css("display","none");
+						$("div#li_page2").css("display","block");
+					}
+					//====================================================处理对应的li_page1结束===================================
+					//====================================================处理对应的li_page2开始===================================
+					if((liPosPage2+1) == 3){	//li_page2第3个
+						$_liSelected.next("li").removeClass("page_4_un_selected");
+						$_liSelected.next("li").removeClass("selected");
+						$_liSelected.next("li").addClass("page_4_selected");
+						
+						$("#li_" + (liPosPage2+2)).css("display","none");
+						
+						$("#li_" + (liPosPage2+2+1)).css("display","block");
+						//替换文字
+						$(this).text("完成注册") ;
+					}
+					if((liPosPage2+1) == 4){
+						$("#li_4").css("display","none");	
+					}
+					
+					//====================================================处理对应的li_page2结束===================================
+					
+					
+					
+					//if((liPos+1) == 5){
+//						$(this).text("完成注册") ;
+//					}else{
+//						$(this).text("下一步");	
+//					}
+				}
+				
+			});	
+			
+			
+		});
+    </script>
+    <script type="text/javascript">
+    	function validateForm() {
+			
+			var divLi0Vis = $("form").find("div#li_0").is(":visible") ;
+			var divLi1Vis = $("form").find("div#li_1").is(":visible") ;
+			var divLi2Vis = $("form").find("div#li_2").is(":visible") ;
+			var divLi3Vis = $("form").find("div#li_3").is(":visible") ;
+			var divLi4Vis = $("form").find("div#li_4").is(":visible") ;
+			var divLi5Vis = $("form").find("div#li_5").is(":visible") ;
+			
+			//登录信息
+			if(divLi0Vis){
+			
+				var loginName = $('#loginName').val();
+				if ('' == loginName || "邮件地址，用于网络版登录" == loginName || "该账号已存在!" == loginName) {
+					alert('请输入账号！');
+					return false;
+				}
+				var loginPwd = $('#loginPwd').val();
+				if ('' == loginPwd) {
+					alert('请输入登录密码！');
+					return false;
+				}
+				var operatorName = $("#corp_operatorName").val() ;
+				if('' == operatorName || "管理员账户，可在网络版分配用户权限" == operatorName){
+					alert('用户名不能为空！') ;
+					return false ;
+				}
+				
+				var loginPwdConfirm = $('#loginPwdConfirm').val();
+				if ('' == loginPwdConfirm) {
+					alert('请输入确认密码！');
+					return false;
+				}
+				if (loginPwd != loginPwdConfirm) {
+					alert('两次输入的密码不一致！');
+					return false;
+				}
+			}
+			//法人信息
+			if(divLi1Vis){
+				var legalName = $('#legalName').val();
+				if ('' == legalName) {
+					alert('请输入法人姓名！');
+					return false;
+				}
+				var email = $('#email').val();
+				if ('' == email) {
+					alert('请输入邮箱！');
+					return false;
+				}
+				var legalLink = $('#legalLink').val();
+				if ('' == legalLink) {
+					alert('请输入手机！');
+					return false;
+				}
+				var tel = $('#tel').val();
+				if ('' == tel) {
+					alert('请输入固定电话！');
+					return false;
+				}
+			}
+			//公司信息
+			if(divLi2Vis){
+				var zhName = $('#zhName').val();
+				if ('' == zhName) {
+					alert('请输入公司名称！');
+					return false;
+				}
+				var region = $('#region').val();
+				if ('' == region) {
+					alert('请选择省份！');
+					return false;
+				}
+				var city = $('#city').val();
+				if ('' == city) {
+					alert('请选择城市！');
+					return false;
+				}
+				var address = $('#address').val();
+				if ('' == address) {
+					alert('请输入公司地址！');
+					return false;
+				}
+			}
+			//结算信息
+			if(divLi3Vis){
+				var bankId = $('#bankId').val();
+				if ('' == bankId) {
+					alert('请选择银行名称！');
+					return false;
+				}
+				var regionBank = $('#regionBank').val();
+				if ('' == regionBank) {
+					alert('请选择开户省份！');
+					return false;
+				}
+				var cityBank = $('#cityBank').val();
+				if ('' == cityBank) {
+					alert('请选择开户城市！');
+					return false;
+				}
+				var branchBankId = $('#branchBankId').val();
+				if ('' == branchBankId) {
+					alert('请选择开户支行！');
+					return false;
+				}
+				var bankAcct = $('#bankAcct').val();
+				if ('' == bankAcct) {
+					alert('请输入卡号！');
+					return false;
+				}
+				var acctName = $('#acctName').val();
+				if ('' == acctName) {
+					alert('请输入持卡人姓名！');
+					return false;
+				}
+			}
+			if(divLi4Vis){
+				var payPassWord = $('#payPassWord').val();
+				if ('' == payPassWord) {
+					alert('输入支付密码！');
+					return false;
+				}
+				var payPassWordConfirm = $('#payPassWordConfirm').val();
+				if ('' == payPassWordConfirm) {
+					alert('请输入确认密码！');
+					return false;
+				}
+				if(payPassWord != payPassWordConfirm){
+					alert('两次输入的密码不一致！')
+					return false ;
+				}
+			}
+			return true;
+		}
+       </script> 
+      
+	<script type="text/javascript">
+		//文件上传样式控制
+	  	function fileSelectToggle(targetFile){
+			if (null == targetFile) return ;
+			var targetVal = $(targetFile).val() ;
+			if(targetVal != ''){
+				$(targetFile).parent('a').css('color','#CECECE');
+			}else{
+				//alert(11);
+				$(targetFile).parent('a').css('color','#2199DD') ;
+			}
+		}
+	</script>	
+
+    
+</body>
+</html>
+

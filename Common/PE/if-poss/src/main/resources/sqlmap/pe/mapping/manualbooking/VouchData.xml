@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="vouchdata">
+	<typeAlias alias="vouchData" type="com.pay.pe.manualbooking.model.VouchData"/>
+	
+    <resultMap id="vouchData" class="com.pay.pe.manualbooking.model.VouchData">
+        <result column="VOUCH_DATA_ID" property="vouchDataId" jdbcType="DECIMAL"/>
+        <result column="AUDIT_DATE" property="auditDate" jdbcType="TIMESTAMP"/>
+        <result column="VOUCH_CODE" property="vouchCode" jdbcType="VARCHAR"/>
+        <result column="AUDITOR" property="auditor" jdbcType="VARCHAR"/>
+        <result column="APPLICATION_CODE" property="applicationCode" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="ACCOUNTING_DATE" property="accountingDate" jdbcType="TIMESTAMP"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="VERSION" property="version" jdbcType="DECIMAL"/>
+    </resultMap>
+
+<!--  
+    <sql id="Column_List">
+		VOUCH_DATA_ID,AUDIT_DATE,VOUCH_CODE,AUDITOR,APPLICATION_CODE,
+		STATUS,REMARK,ACCOUNTING_DATE,CREATE_DATE,CREATOR,
+		VERSION
+    </sql>
+-->    
+
+
+<!-- 			select  SEQ_VOUCH_DATA__ID.NEXTVAL as id from DUAL 
+SELECT 800 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_VOUCH_DATA__ID.NEXTVAL, 6, 0)  FROM DUAL -->    
+    <insert id="create" parameterClass="vouchData">
+       <selectKey resultClass="java.lang.Long" keyProperty="vouchDataId">			
+			SELECT 800  || TO_CHAR(SYSDATE, 'yy') || LPAD(SEQ_VOUCH_DATA__ID.NEXTVAL, 8, 0)  FROM DUAL
+		</selectKey>
+        INSERT INTO VOUCH_DATA(
+			VOUCH_DATA_ID,AUDIT_DATE,VOUCH_CODE,AUDITOR,APPLICATION_CODE,
+			STATUS,REMARK,ACCOUNTING_DATE,CREATE_DATE,CREATOR,
+			VERSION
+        )
+        VALUES(
+            #vouchDataId#,#auditDate:DATE#,#vouchCode:VARCHAR#,#auditor:VARCHAR#,#applicationCode#,
+			#status#,#remark:VARCHAR#,#accountingDate:DATE#,#createDate#,#creator#,
+			#version#
+		)
+    </insert>
+
+
+    <update id="update" parameterClass="vouchData">
+        UPDATE VOUCH_DATA
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="auditDate">
+            AUDIT_DATE = #auditDate#
+        </isNotNull>
+        <isNotNull prepend="," property="vouchCode">
+            VOUCH_CODE = #vouchCode#
+        </isNotNull>
+        <isNotNull prepend="," property="auditor">
+            AUDITOR = #auditor#
+        </isNotNull>
+        <isNotNull prepend="," property="applicationCode">
+            APPLICATION_CODE = #applicationCode#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="creator">
+            CREATOR = #creator#
+        </isNotNull>
+        <isNotNull prepend="," property="version">
+            VERSION = #version#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM VOUCH_DATA        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+
+    
+    <delete id="deleteBySelective" parameterClass="vouchData">
+        DELETE FROM VOUCH_DATA        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchCode">
+            VOUCH_CODE = #vouchCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditor">
+            AUDITOR = #auditor# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applicationCode">
+            APPLICATION_CODE = #applicationCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="version">
+            VERSION = #version# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <select id="createId" resultClass="vouchData"  parameterClass="java.lang.String">
+		select 
+		    vouch_Data_Id		vouchDataId	,
+			application_Code	applicationCode	,
+			STATUS				status ,
+			audit_Date	        auditDate ,
+			accounting_Date		accountingDate ,
+			creator			    creator ,
+			vouch_Code			vouchCode ,
+			create_Date			createDate ,
+			auditor			    auditor , 
+			remark			    remark ,
+			version			    version 
+		from vouch_data where application_Code =#application_Code#
+	</select>
+   
+    <select id="findById" resultMap="vouchData"
+        parameterClass="java.lang.Long">
+        SELECT 
+			VOUCH_DATA_ID,AUDIT_DATE,VOUCH_CODE,AUDITOR,APPLICATION_CODE,
+			STATUS,REMARK,ACCOUNTING_DATE,CREATE_DATE,CREATOR,
+			VERSION
+        FROM VOUCH_DATA
+        WHERE 
+            VOUCH_DATA_ID = #vouchDataId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="vouchData">
+        SELECT 
+			VOUCH_DATA_ID,AUDIT_DATE,VOUCH_CODE,AUDITOR,APPLICATION_CODE,
+			STATUS,REMARK,ACCOUNTING_DATE,CREATE_DATE,CREATOR,
+			VERSION
+        FROM VOUCH_DATA
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchCode">
+            VOUCH_CODE = #vouchCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditor">
+            AUDITOR = #auditor# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applicationCode">
+            APPLICATION_CODE = #applicationCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="version">
+            VERSION = #version# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM VOUCH_DATA
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="vouchDataId">
+            VOUCH_DATA_ID = #vouchDataId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditDate">
+            AUDIT_DATE = #auditDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="vouchCode">
+            VOUCH_CODE = #vouchCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditor">
+            AUDITOR = #auditor# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applicationCode">
+            APPLICATION_CODE = #applicationCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="accountingDate">
+            ACCOUNTING_DATE = #accountingDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="version">
+            VERSION = #version# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

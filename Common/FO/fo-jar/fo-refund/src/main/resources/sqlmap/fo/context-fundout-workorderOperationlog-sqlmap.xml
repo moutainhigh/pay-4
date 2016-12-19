@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="workorderOperation">
+	<typeAlias alias="workorderOperationLog" type="com.pay.poss.refund.model.WordorderOperationLogDto"/>
+
+    <insert id="create" parameterClass="workorderOperationLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			SELECT SEQ_WORKORDER_OPERATION_SEQ.nextval FROM DUAL
+		</selectKey>    
+        insert into workorder_operation_log (SEQUENCE_ID, WORKORDER_KY, OPERATOR, STATE, OPERATION_TIME, REMARK)
+        values (#sequenceId#, #workorderKy#, #operator#, #state#, #operationTime#, #remark#)
+    </insert>
+    
+    <!-- 根据条件查充退操作记录 -->
+    <select id="queryByWorkorderKy" parameterClass="java.lang.String" resultClass="workorderOperationLog">
+    	SELECT 	
+    		SEQUENCE_ID AS sequenceId,
+    		WORKORDER_KY AS workorderKy,
+    		OPERATOR AS operator,
+    		STATE AS state,
+    		OPERATION_TIME AS operationTime,
+    		REMARK AS remark
+    	FROM workorder_operation_log
+	    WHERE
+	    	WORKORDER_KY = #workorderKy#
+	    order by operation_time desc
+    </select>
+
+</sqlMap>

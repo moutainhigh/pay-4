@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="appealService"
+		class="com.pay.poss.appealmanager.service.impl.AppealServiceImpl">
+		
+		<property name="appealDao" ref="appealDao" />	
+		
+	</bean>
+	<bean id="dataService"
+		class="com.pay.poss.appealmanager.service.impl.DataServiceImpl">
+		<!--<property name="userService" ref="userService" />
+		<property name="orgService" ref="orgService" />-->
+		<property name="dataDao" ref="dataDao" />	
+		
+	</bean>
+	
+	<bean id="appealDao"
+		class="com.pay.poss.appealmanager.dao.impl.AppealDaoImpl"
+		parent="baseDAO">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>		
+	</bean>
+	<bean id="dataDao"
+		class="com.pay.poss.appealmanager.dao.impl.DataDaoImpl"
+		parent="baseDAO">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>		
+	</bean>
+	<aop:config>
+		<aop:pointcut id="appealServiceMethod" expression="execution(* com.pay.poss.appealmanager.service.*.*(..))" />
+		<aop:advisor advice-ref="accAdvice" pointcut-ref="appealServiceMethod" />
+	</aop:config>
+	
+</beans>

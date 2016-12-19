@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<!-- 定义映射 -->
+	<bean id="sitesetMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/cross/siteset.htm">sitesetController</prop>
+				<prop key="/corp/cross/dishonour.htm">refuseOrderController</prop>
+				<prop key="/corp/cross/trackingMgr.htm">trackingMgrController</prop>
+				<prop key="/corp/cross/settlementOrder.htm">partnerSettlementOrderController</prop>
+				<prop key="/corp/fiIncomedetail.htm">queryDetailCropController</prop>
+				<prop key="/corp/reconcileDownload.htm">fiReconcileDownloadController</prop>
+				<prop key="/corp/orderRefund.htm">orderRefundController</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="2" />
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <list>
+                <value>file:/opt/pay/config/gateway/reconcile/reconcile_config.properties</value>
+            </list>
+        </property>
+    </bean>
+
+	<bean id="sitesetController" class="com.pay.fi.SiteSetController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="index">
+			<value>/crosspay/siteset/index</value>
+		</property>
+		<property name="crosspayWebsiteConfigService" ref="crosspayWebsiteConfigService" />
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+
+	<bean id="refuseOrderController" class="com.pay.fi.RefuseOrderController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="index">
+			<value>/crosspay/refuse/index</value>
+		</property>
+		<property name="refusePaymentService" ref="refusePaymentService" />
+	</bean>
+	
+	<bean id="orderRefundController" class="com.pay.fi.OrderRefundController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="orderQueryService">
+			<ref bean="fi-orderQueryService" />
+		</property>
+		<property name="refundOrderService">
+		    <ref bean="refundOrderService"/>
+		</property>
+		<property name="queryView" value="fi/refund/corp/refundorderlist" />
+		<property name="excelView" value="fi/refund/corp/refundorderExcelList" />
+		<property name="applyView" value="fi/refund/corp/refundApply" />
+		<property name="resultView" value="fi/refund/corp/msg" />
+		<property name="payLinkResultView" value="paylink/transaction/msg" />
+		<property name="batchErrorDetailView" value="fi/refund/corp/batchErrorDetail" />
+	</bean>
+
+	<bean id="trackingMgrController" class="com.pay.fi.TrackingMgrController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="queryView">
+			<value>/crosspay/trackingmgr/trackingMgr</value>
+		</property>
+		<property name="batchErrorDetailView" value="/crosspay/trackingmgr/batchErrorDetail" />
+		<property name="expressTrackingService" ref="expressTrackingService" />
+		<property name="exportinDetailCorp" value="fi/tradequery/export/exceltrackingMgr" />
+		
+	</bean>
+
+	<bean id="partnerSettlementOrderController" class="com.pay.fi.PartnerSettlementOrderController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="queryNoSettView">
+		     <value>/crosspay/settlement/queryNoSett</value>
+		</property>
+		
+		<property name="queryView">
+			<value>/crosspay/settlement/query</value>
+		</property>
+		
+		<property name="excelView">
+			<value>/crosspay/settlement/excelQueryList</value>
+		</property>
+		     	<!-- 企业会员基本信息服务 -->
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		<property name="settlementOrderService" ref="settlementOrderService" />
+	</bean>
+	<bean id="queryDetailCropController" class="com.pay.fi.QueryDetailCropController"
+		parent="queryBaseTradeController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientServiceImpl" ref="truetxncoreClientService"/>
+		<property name="orderQueryService">
+			<ref bean="fi-orderQueryService" />
+		</property>
+		<property name="incomeDetailCorp" value="fi/tradequery/corp/incomedetail" />
+		<property name="singleIncomeDetailCorp" value="fi/tradequery/corp/singleincomedetail" />
+		<property name="exportinDetailCorp" value="fi/tradequery/export/excelincomedetail" />
+	</bean>
+
+	<!-- 企业对账单下载 -->
+	<bean id="fiReconcileDownloadController" class="com.pay.fi.ReconcileDownloadController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toIndex">
+			<value>/fi/queryhistory/reconcileDownload</value>
+		</property>
+		<property name="excelQueryHistoryTradeBusiness">
+			<value>/fi/excle/excelReconcileDownload</value>
+		</property>
+		<property name="orderQueryService" ref="fi-orderQueryService"/>
+		<property name="txncoreClientService" ref="txncoreClientService"/>
+    	<property name="acctAttribService" ref="base-acctAttribService" /><!-- add by davis.guo at 2016-08-30 -->
+		<property name="patnerReconcileFilePath" value="${patnerReconcileFilePath}"/>
+	</bean>
+
+	<!-- 交易查询父类 -->
+	<bean id="queryBaseTradeController" class="com.pay.fi.QueryBaseTradeController">
+		<property name="methodNameResolver" ref="paramResolver" />
+		<!-- 默认pageSize -->
+		<property name="pageSize" value="20" />
+		<!-- 错误提示页面 -->
+		<property name="errorView" value="fi/tradequery/tradequeryerror" />
+	</bean>
+</beans>

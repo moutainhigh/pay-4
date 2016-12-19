@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentChannelItem">
+
+	<typeAlias alias="paymentChannelItem" type="com.pay.channel.model.PaymentChannelItem" />
+	
+	<resultMap id="paymentChannelItemResult" class="paymentChannelItem">
+		<result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="CODE" property="code" jdbcType="DECIMAL" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+		<result column="ALIAS" property="alias" jdbcType="VARCHAR" />
+		<result column="BANK_CODE" property="bankCode" jdbcType="VARCHAR" />
+		<result column="RATE" property="rate" jdbcType="VARCHAR" />
+		<result column="PROTOCOL_TYPE" property="protocolType" jdbcType="VARCHAR" />
+		<result column="PRE_SERVER_URL" property="preServerUrl" jdbcType="VARCHAR" />
+		<result column="LABEL_CLASS" property="labelClass" jdbcType="VARCHAR"/>
+		<result column="STATUS" property="status" jdbcType="DECIMAL" />
+		<result column="PAYMENT_CATEGORY_CODE" property="paymentCategoryCode" jdbcType="VARCHAR" />
+		<result column="PAYMENT_CHANNEL_CODE" property="paymentChannelCode" jdbcType="VARCHAR" />
+		<result column="ROUTE_AMOUNT" property="routeAmount" jdbcType="DECIMAL" />
+		<result column="SINGLE_AMOUNT" property="singleAmount" jdbcType="DECIMAL" />
+		<result column="ORG_MERCHANT_CODE" property="orgMerchantCode" jdbcType="VARCHAR" />
+		<result column="FRONT_CALLBACK_URL" property="frontCallbackUrl" jdbcType="VARCHAR" />
+		<result column="BACKGROUND_CALLBACK_URL" property="backgroundCallbackUrl" jdbcType="VARCHAR" />
+		<result column="SIGN_FLAG" property="signFlag" jdbcType="DECIMAL" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="SERIAL_NO" property="serialNo" jdbcType="DECIMAL" />
+		<result column="CARD_TYPE" property="cardType" jdbcType="DECIMAL"/>
+		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+		<result column="SETTLEMENT" property="settlement" jdbcType="VARCHAR" />
+		<result column="PATTERN" property="pattern" jdbcType="VARCHAR" />
+		<result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+		<result column="TERMINAL_CODE" property="terminalCode" jdbcType="VARCHAR"/>
+        <result column="ACCESS_CODE" property="accessCode" jdbcType="VARCHAR"/>
+        <result column="TRANS_TYPE" property="transType" jdbcType="VARCHAR"/>
+        <result column="ORG_KEY" property="orgKey" jdbcType="VARCHAR"/>
+        <result column="MERCHANT_BILL_NAME" property="merchantBillName" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap class="paymentChannelItem" id="paymentChannelItemResult2" extends="paymentChannelItemResult">
+		<result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL" />
+		<result column="PAYMENT_TYPE" property="paymentType" jdbcType="DECIMAL"/>
+		<result column="ID" property="paymentChannelItemConfigId" jdbcType="VARCHAR"/>
+		<result column="CHANNEL_PRIORITY" property="channelPriority" jdbcType="VARCHAR"/>
+	</resultMap>
+	
+	<resultMap class="paymentChannelItem" id="paymentChannelItemResult3" extends="paymentChannelItemResult">
+		<result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL" />
+		<result column="ID" property="paymentChannelItemConfigId" jdbcType="VARCHAR"/>
+	</resultMap>
+
+	<insert id="create" parameterClass="paymentChannelItem">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_PAYMENT_CHANNEL_ITEM_NO.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO PAYMENT_CHANNEL_ITEM(ID,CODE,NAME,ORG_CODE,ALIAS,RATE,PROTOCOL_TYPE,PRE_SERVER_URL,LABEL_CLASS,PATTERN,CURRENCY_CODE,
+		STATUS,PAYMENT_CATEGORY_CODE,PAYMENT_CHANNEL_CODE,ROUTE_AMOUNT,SINGLE_AMOUNT,ORG_MERCHANT_CODE,BANK_CODE,SETTLEMENT,
+		FRONT_CALLBACK_URL,BACKGROUND_CALLBACK_URL,SIGN_FLAG,OPERATOR,CREATE_DATE,UPDATE_DATE,SERIAL_NO,CARD_TYPE,DESCRIPTION,TERMINAL_CODE,ACCESS_CODE,TRANS_TYPE,ORG_KEY
+		,MERCHANT_BILL_NAME)
+		VALUES(#id#,#code#,#name#,#orgCode#,#alias#,#rate#,#protocolType#,#preServerUrl#,#labelClass#,#pattern#,#currencyCode#,#status#,#paymentCategoryCode#,
+		#paymentChannelCode#,#routeAmount#,#singleAmount#,#orgMerchantCode#,#bankCode#,#settlement#,#frontCallbackUrl#,#backgroundCallbackUrl#,
+		#signFlag#,#operator#,#createDate#,#updateDate#,#serialNo#,#cardType#,#description#,#terminalCode#,#accessCode#,#transType#,#orgKey#,#merchantBillName#)
+	</insert>
+	
+	<update id="update" parameterClass="paymentChannelItem">
+		UPDATE PAYMENT_CHANNEL_ITEM
+		<dynamic prepend="SET">
+			<isNotNull prepend="," property="serialNo">
+				SERIAL_NO = #serialNo#
+	        </isNotNull>
+			<isNotEmpty prepend="," property="orgCode">
+				ORG_CODE = #orgCode#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="alias">
+				ALIAS = #alias#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="bankCode">
+				BANK_CODE = #bankCode#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="settlement">
+				SETTLEMENT = #settlement#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="pattern">
+				pattern = #pattern#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="name">
+				NAME = #name#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="code">
+				CODE = #code#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="currencyCode">
+				CURRENCY_CODE = #currencyCode#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="paymentCategoryCode">
+				PAYMENT_CATEGORY_CODE = #paymentCategoryCode#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="paymentChannelCode">
+				PAYMENT_CHANNEL_CODE = #paymentChannelCode#
+	        </isNotEmpty>
+			<isNotNull prepend="," property="status">
+				STATUS = #status#
+	        </isNotNull>
+			<isNotEmpty prepend="," property="description">
+				DESCRIPTION = #description#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="frontCallbackUrl">
+				FRONT_CALLBACK_URL = #frontCallbackUrl#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="backgroundCallbackUrl">
+				BACKGROUND_CALLBACK_URL = #backgroundCallbackUrl#
+	        </isNotEmpty>
+			<isNotEmpty prepend="," property="operator">
+				OPERATOR = #operator#
+	        </isNotEmpty>
+			<isNotNull prepend="," property="updateDate">
+				UPDATE_DATE = #updateDate#
+	        </isNotNull>
+			<isNotEmpty prepend="," property="preServerUrl">
+				PRE_SERVER_URL = #preServerUrl#
+	        </isNotEmpty>
+			<isNotNull prepend="," property="cardType">
+				CARD_TYPE = #cardType#
+	        </isNotNull>	        
+			<isNotEmpty prepend="," property="labelClass">
+				LABEL_CLASS = #labelClass#
+	        </isNotEmpty>	        
+			<isNotEmpty prepend="," property="orgMerchantCode">
+				ORG_MERCHANT_CODE = #orgMerchantCode#
+	        </isNotEmpty>	        
+			<isNotNull prepend="," property="rate">
+				RATE = #rate#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="signFlag">
+				SIGN_FLAG = #signFlag#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="protocolType">
+				PROTOCOL_TYPE = #protocolType#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="routeAmount">
+				ROUTE_AMOUNT = #routeAmount#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="singleAmount">
+				SINGLE_AMOUNT = #singleAmount#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="terminalCode">
+				TERMINAL_CODE = #terminalCode#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="accessCode">
+				ACCESS_CODE = #accessCode#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="transType">
+				TRANS_TYPE = #transType#
+	        </isNotNull>	        
+			<isNotNull prepend="," property="orgKey">
+				ORG_KEY = #orgKey#
+	        </isNotNull>
+	        <isNotNull prepend="," property="merchantBillName">
+				MERCHANT_BILL_NAME = #merchantBillName#
+	        </isNotNull>		        
+		</dynamic>
+		WHERE 1=1
+		<isNotNull prepend="and" property="code">
+			CODE = #code#
+        </isNotNull>
+		<isNotNull prepend="and" property="id">
+			ID = #id#
+        </isNotNull>
+	</update>
+
+	<select id="findById" resultMap="paymentChannelItemResult" parameterClass="java.lang.Long">
+		SELECT * FROM PAYMENT_CHANNEL_ITEM	WHERE ID = #id# 
+    </select>
+    
+	<select id="findByPaymentChannelItemByOrgCode" resultMap="paymentChannelItemResult" parameterClass="java.lang.String">
+		SELECT * FROM PAYMENT_CHANNEL_ITEM	WHERE ORG_CODE = #orgCode# and rownum <![CDATA[<=]]> 1
+    </select>
+    
+     <select id="loadAll" resultMap="paymentChannelItemResult">
+		SELECT * FROM PAYMENT_CHANNEL_ITEM
+    </select>
+
+	<select id="findByCriteria" resultMap="paymentChannelItemResult" >
+		SELECT * FROM PAYMENT_CHANNEL_ITEM WHERE 1=1
+		<isNotNull prepend="and" property="serialNo">
+			SERIAL_NO = #serialNo#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="orgCode">
+			ORG_CODE = #orgCode#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="alias">
+			ALIAS = #alias#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="name">
+			NAME like '%$name$%'
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="code">
+			CODE = #code#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="settlement">
+			SETTLEMENT = #settlement#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="pattern">
+			pattern = #pattern#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="bankCode">
+			BANK_CODE = #bankCode#
+	    </isNotEmpty>
+		<isNotEmpty prepend="and" property="currencyCode">
+			CURRENCY_CODE = #currencyCode#
+        </isNotEmpty>	    
+		<isNotEmpty prepend="and" property="paymentCategoryCode">
+			PAYMENT_CATEGORY_CODE = #paymentCategoryCode#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="paymentChannelCode">
+			PAYMENT_CHANNEL_CODE = #paymentChannelCode#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="status">
+			STATUS = #status#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="description">
+			DESCRIPTION = #description#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="frontCallbackUrl">
+			FRONT_CALLBACK_URL = #frontCallbackUrl#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="backgroundCallbackUrl">
+			BACKGROUND_CALLBACK_URL = #backgroundCallbackUrl#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="operator">
+			OPERATOR = #operator#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="updateDate">
+			UPDATE_DATE = #updateDate#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="preServerUrl">
+			PRE_SERVER_URL = #preServerUrl#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="cardType">
+			CARD_TYPE = #cardType#
+        </isNotNull>	        
+		<isNotEmpty prepend="and" property="labelClass">
+			LABEL_CLASS = #labelClass#
+        </isNotEmpty>	        
+		<isNotEmpty prepend="and" property="orgMerchantCode">
+			ORG_MERCHANT_CODE = #orgMerchantCode#
+        </isNotEmpty>	        
+		<isNotNull prepend="and" property="rate">
+			RATE = #rate#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="signFlag">
+			SIGN_FLAG = #signFlag#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="protocolType">
+			PROTOCOL_TYPE = #protocolType#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="routeAmount">
+			ROUTE_AMOUNT = #routeAmount#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="singleAmount">
+			SINGLE_AMOUNT = #singleAmount#
+        </isNotNull>
+        <isNotNull prepend="and" property="merchantBillName">
+			MERCHANT_BILL_NAME = #merchantBillName#
+        </isNotNull>	
+	</select>
+	
+	<select id="countByCriteria" resultClass="java.lang.Integer">
+		SELECT count(*) FROM PAYMENT_CHANNEL_ITEM WHERE 1=1
+		<isNotNull prepend="and" property="serialNo">
+			SERIAL_NO = #serialNo#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="orgCode">
+			ORG_CODE = #orgCode#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="alias">
+			ALIAS = #alias#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="name">
+			NAME like '%$name$%'
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="code">
+			CODE = #code#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="currencyCode">
+			CURRENCY_CODE = #currencyCode#
+        </isNotEmpty>        
+		<isNotEmpty prepend="and" property="settlement">
+			SETTLEMENT = #settlement#
+        </isNotEmpty>        
+		<isNotEmpty prepend="and" property="pattern">
+			pattern = #pattern#
+        </isNotEmpty>        
+        <isNotEmpty prepend="and" property="bankCode">
+			BANK_CODE = #bankCode#
+	    </isNotEmpty>        
+		<isNotEmpty prepend="and" property="paymentCategoryCode">
+			PAYMENT_CATEGORY_CODE = #paymentCategoryCode#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="paymentChannelCode">
+			PAYMENT_CHANNEL_CODE = #paymentChannelCode#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="status">
+			STATUS = #status#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="description">
+			DESCRIPTION = #description#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="frontCallbackUrl">
+			FRONT_CALLBACK_URL = #frontCallbackUrl#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="backgroundCallbackUrl">
+			BACKGROUND_CALLBACK_URL = #backgroundCallbackUrl#
+        </isNotEmpty>
+		<isNotEmpty prepend="and" property="operator">
+			OPERATOR = #operator#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="updateDate">
+			UPDATE_DATE = #updateDate#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="preServerUrl">
+			PRE_SERVER_URL = #preServerUrl#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="cardType">
+			CARD_TYPE = #cardType#
+        </isNotNull>	        
+		<isNotEmpty prepend="and" property="labelClass">
+			LABEL_CLASS = #labelClass#
+        </isNotEmpty>	        
+		<isNotEmpty prepend="and" property="orgMerchantCode">
+			ORG_MERCHANT_CODE = #orgMerchantCode#
+        </isNotEmpty>	        
+		<isNotNull prepend="and" property="rate">
+			RATE = #rate#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="signFlag">
+			SIGN_FLAG = #signFlag#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="protocolType">
+			PROTOCOL_TYPE = #protocolType#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="routeAmount">
+			ROUTE_AMOUNT = #routeAmount#
+        </isNotNull>	        
+		<isNotNull prepend="and" property="singleAmount">
+			SINGLE_AMOUNT = #singleAmount#
+        </isNotNull>
+        <isNotNull prepend="and" property="merchantBillName">
+			MERCHANT_BILL_NAME = #merchantBillName#
+        </isNotNull>
+	</select>
+
+	<delete id="delete" parameterClass="java.lang.Long">
+		delete from PAYMENT_CHANNEL_ITEM where id = #id#
+	</delete>
+	
+	<select id="findByOrgCode" parameterClass="java.lang.String" resultMap="paymentChannelItemResult">
+		select * from PAYMENT_CHANNEL_ITEM where ORG_CODE = #orgCode#
+	</select>
+
+	<select id="queryPaymentChannelItemConfig" parameterClass="java.util.Map" resultMap="paymentChannelItemResult2">
+	    SELECT 
+		p.ID,
+		p.CODE,
+		p.NAME,
+		p.ORG_CODE,
+		p.ALIAS,
+		p.BANK_CODE,
+		p.RATE,
+		p.PROTOCOL_TYPE,
+		p.PRE_SERVER_URL,
+		p.LABEL_CLASS,
+		p.STATUS,
+		p.PAYMENT_CATEGORY_CODE,
+		p.PAYMENT_CHANNEL_CODE,
+		p.ROUTE_AMOUNT,
+		p.SINGLE_AMOUNT,
+		p.ORG_MERCHANT_CODE,
+		p.FRONT_CALLBACK_URL,
+		p.BACKGROUND_CALLBACK_URL,
+		p.SIGN_FLAG,
+		p.OPERATOR,
+		p.CREATE_DATE,
+		p.UPDATE_DATE,
+		p.SERIAL_NO,
+		p.CARD_TYPE,
+		p.DESCRIPTION,
+		p.SETTLEMENT,
+		p.PATTERN,
+		p.CURRENCY_CODE,
+		p.TERMINAL_CODE,
+		p.ACCESS_CODE,
+		p.ACCESS_CODE,
+		p.ORG_KEY,
+		p.MERCHANT_BILL_NAME,
+		p.trans_type,
+		pc.MEMBER_CODE,
+		pc.PAYMENT_TYPE,
+		pc.ID,
+		pc.CHANNEL_PRIORITY
+		FROM PAYMENT_CHANNEL_ITEM_CONFIG pc, PAYMENT_CHANNEL_ITEM p
+	    where  1=1
+	    and
+		    pc.payment_channel_item_id = p.id
+	    <isNotEmpty prepend="and" property="memberCode">
+		    pc.member_code = #memberCode#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="and" property="paymentType">
+		    pc.payment_type = #paymentType#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="and" property="orgCode">
+		      p.ORG_CODE = #orgCode#
+	    </isNotEmpty>
+	</select>
+	
+		<select id="queryPaymentChannelItemConfig2" parameterClass="java.util.Map" resultMap="paymentChannelItemResult2">
+	    SELECT 
+		p.ID,
+		p.CODE,
+		p.NAME,
+		p.ORG_CODE,
+		p.ALIAS,
+		p.BANK_CODE,
+		p.RATE,
+		p.PROTOCOL_TYPE,
+		p.PRE_SERVER_URL,
+		p.LABEL_CLASS,
+		p.STATUS,
+		p.PAYMENT_CATEGORY_CODE,
+		p.PAYMENT_CHANNEL_CODE,
+		p.ROUTE_AMOUNT,
+		p.SINGLE_AMOUNT,
+		p.ORG_MERCHANT_CODE,
+		p.FRONT_CALLBACK_URL,
+		p.BACKGROUND_CALLBACK_URL,
+		p.SIGN_FLAG,
+		p.OPERATOR,
+		p.CREATE_DATE,
+		p.UPDATE_DATE,
+		p.SERIAL_NO,
+		p.CARD_TYPE,
+		p.DESCRIPTION,
+		p.SETTLEMENT,
+		p.PATTERN,
+		p.CURRENCY_CODE,
+		p.TERMINAL_CODE,
+		p.ACCESS_CODE,
+		p.ACCESS_CODE,
+		p.ORG_KEY,
+		p.MERCHANT_BILL_NAME,
+		p.trans_type,
+		pc.MEMBER_CODE,
+		pc.PAYMENT_TYPE,
+		pc.ID,
+		pc.CHANNEL_PRIORITY
+		FROM PAYMENT_CHANNEL_ITEM_CONFIG pc, PAYMENT_CHANNEL_ITEM p
+	    where  1=1
+	    and
+		    pc.payment_channel_item_id = p.id
+	    <isNotNull prepend="and" property="memberCode">
+		    pc.member_code = #memberCode#
+	    </isNotNull>
+	    <isNotNull prepend="and" property="paymentType">
+		    pc.payment_type = #paymentType#
+	    </isNotNull>
+	    <isNotNull prepend="and" property="orgCode">
+		      p.ORG_CODE = #orgCode#
+	    </isNotNull>
+	    <isNotNull prepend="and" property="cardOrg">
+	          p.PAYMENT_CATEGORY_CODE=#cardOrg#
+	    </isNotNull>
+	</select>
+	
+		
+	<select id="queryPartnerSecondChannel" parameterClass="java.util.Map" resultMap="paymentChannelItemResult3">
+	    select sc.*,pci.* from 
+		(select cc.*,csr.MEMBER_CODE,csr.payment_channel_item_id from 
+		(select * from CHANNEL_CONFIG where ORG_CODE=#orgCode#) cc,CHANNEL_SECOND_RELATION csr 
+		where cc.org_merchant_code=csr.ORG_MERCHANT_CODE and csr.MEMBER_CODE=#memberCode# and 
+		csr.ORG_CODE=#orgCode#) sc,payment_channel_item pci where pci.id=sc.payment_channel_item_id 
+		and pci.PAYMENT_CATEGORY_CODE=#cardOrg# 
+	</select>
+	
+	
+</sqlMap>

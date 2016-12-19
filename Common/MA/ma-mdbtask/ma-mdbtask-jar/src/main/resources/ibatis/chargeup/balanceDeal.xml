@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="chargeup-balanceDeal">
+	<typeAlias alias="BalanceDeal"
+		type="com.pay.ma.chargeup.model.BalanceDeal" />
+	<!-- 更新记账状态 -->
+	<update id="updateChargeUpStatus"  parameterClass="java.util.Map">
+		<![CDATA[
+			update 
+					T_BALANCE_DEAL
+			set
+					CHARGEUP_STATUS		=	#chargeUpStatus#,
+					
+					UPDATE_DATE			=    sysdate
+			where
+					ORDER_ID			=	#serialNo#
+			and	
+					DEAL_CODE			=	#dealCode#		
+		
+		 ]]>
+	
+	</update>
+	
+	<!-- 查询记账失败的交易信息 
+		注意：有2种情况：
+		1.发mq失败
+		2.调用pe记账失败
+		chargeup_status	=	#chargeUpStatus#	
+		根据这2种情况，我们以第二种情况为准（也就是说，我们充分相信mq不会失败）
+		为了保证记账或者补账能成功where的查询条件为：charge_status exist (0,2)或者 charge_status in (0,2) 或者 charge_status <> #chargeUpStatus#
+		
+	
+	
+	-->
+	<select id="queryBalanceDealWithChargeUpStatus" parameterClass="java.lang.Integer" resultClass="BalanceDeal">
+		<![CDATA[
+			select
+					bdeal_id								as id,
+					order_id								as orderId,
+					order_amount							as orderAmount,
+					submit_acct_code						as submitAcctCode,
+					amount									as amount,
+					payment_service_code					as paymentServicePkgCode,
+					order_code								as orderCode,
+					deal_code								as dealCode,
+					pay_method								as payMethod,
+					terminal_type							as terminalType,
+					request_date							as requestDate,
+					payer									as payer,
+					payer_member_acctcode					as payerMemberAcctCode,
+					PAYER_ACCTTYPE							as payerAcctType,
+					PAYER_FULL_MEM_ACCTCODE					as payerFullMemberAcctCode,
+					PAYER_ORG_TYPE							as payerOrgType,
+					PAYER_ORG_CODE							as payerOrgCode,
+					PAYER_SERVICE_LEVEL						as payerServiceLevel,
+					PAYER_CURREN_CODE						as payerCurrencyCode,
+					payee									as payee,
+					payee_org_code							as payeeOrgCode,
+					payee_org_type							as payeeOrgType,
+					payee_member_acctcode					as payeeMemberAcctCode,
+					payee_accttype							as payeeAcctType,
+					payee_full_mem_acctcode					as payeeFullMemberAcctCode,
+					payee_service_level						as payeeServiceLevel,
+					payee_currency_code						as payeeCurrencyCode,
+					exchange_rate							as exchangeRate,
+					caculate_price							as hasCaculatedPrice,
+					payee_fee								as payeeFee,
+					payer_fee								as payerFee,
+					chargeup_status							as chargeUpStatus,
+					deal_type								as dealType	,
+					VOUCHER_CODE                              as voucherCode
+			from
+					T_BALANCE_DEAL
+			where
+					chargeup_status	 =	#chargeUpStatus#				
+							
+		 ]]>
+	
+	</select>
+	<select id="queryBalanceDealInfo" parameterClass="java.util.Map" resultClass="BalanceDeal">	
+		<![CDATA[
+			select
+					bdeal_id								as id,
+					order_id								as orderId,
+					order_amount							as orderAmount,
+					submit_acct_code						as submitAcctCode,
+					amount									as amount,
+					payment_service_code					as paymentServicePkgCode,
+					order_code								as orderCode,
+					deal_code								as dealCode,
+					pay_method								as payMethod,
+					terminal_type							as terminalType,
+					request_date							as requestDate,
+					payer									as payer,
+					payer_member_acctcode					as payerMemberAcctCode,
+					PAYER_ACCTTYPE							as payerAcctType,
+					PAYER_FULL_MEM_ACCTCODE					as payerFullMemberAcctCode,
+					PAYER_ORG_TYPE							as payerOrgType,
+					PAYER_ORG_CODE							as payerOrgCode,
+					PAYER_SERVICE_LEVEL						as payerServiceLevel,
+					PAYER_CURREN_CODE						as payerCurrencyCode,
+					payee									as payee,
+					payee_org_code							as payeeOrgCode,
+					payee_org_type							as payeeOrgType,
+					payee_member_acctcode					as payeeMemberAcctCode,
+					payee_accttype							as payeeAcctType,
+					payee_full_mem_acctcode					as payeeFullMemberAcctCode,
+					payee_service_level						as payeeServiceLevel,
+					payee_currency_code						as payeeCurrencyCode,
+					exchange_rate							as exchangeRate,
+					caculate_price							as hasCaculatedPrice,
+					payee_fee								as payeeFee,
+					payer_fee								as payerFee,
+					chargeup_status							as chargeUpStatus,
+					deal_type								as dealType	,
+					VOUCHER_CODE                              as voucherCode
+			from
+					T_BALANCE_DEAL
+			where
+					order_id = #serialNo# and deal_code = #dealCode# and amount=#amount#		
+							
+		 ]]>
+	
+	
+	</select>
+	  
+	<select id="queryBalanceDealInfoByVo" parameterClass="java.util.Map" resultClass="BalanceDeal">	
+		<![CDATA[
+			select
+					bdeal_id								as id,
+					order_id								as orderId,
+					order_amount							as orderAmount,
+					submit_acct_code						as submitAcctCode,
+					amount									as amount,
+					payment_service_code					as paymentServicePkgCode,
+					order_code								as orderCode,
+					deal_code								as dealCode,
+					pay_method								as payMethod,
+					terminal_type							as terminalType,
+					request_date							as requestDate,
+					payer									as payer,
+					payer_member_acctcode					as payerMemberAcctCode,
+					PAYER_ACCTTYPE							as payerAcctType,
+					PAYER_FULL_MEM_ACCTCODE					as payerFullMemberAcctCode,
+					PAYER_ORG_TYPE							as payerOrgType,
+					PAYER_ORG_CODE							as payerOrgCode,
+					PAYER_SERVICE_LEVEL						as payerServiceLevel,
+					PAYER_CURREN_CODE						as payerCurrencyCode,
+					payee									as payee,
+					payee_org_code							as payeeOrgCode,
+					payee_org_type							as payeeOrgType,
+					payee_member_acctcode					as payeeMemberAcctCode,
+					payee_accttype							as payeeAcctType,
+					payee_full_mem_acctcode					as payeeFullMemberAcctCode,
+					payee_service_level						as payeeServiceLevel,
+					payee_currency_code						as payeeCurrencyCode,
+					exchange_rate							as exchangeRate,
+					caculate_price							as hasCaculatedPrice,
+					payee_fee								as payeeFee,
+					payer_fee								as payerFee,
+					chargeup_status							as chargeUpStatus,
+					deal_type								as dealType	,
+					VOUCHER_CODE                              as voucherCode
+			from
+					T_BALANCE_DEAL
+			where
+					VOUCHER_CODE = #voucherCode# and deal_type !=34	
+							
+		 ]]>
+	
+	
+	</select>
+	
+	
+	</sqlMap>

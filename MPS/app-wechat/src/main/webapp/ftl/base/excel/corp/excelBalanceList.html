@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>gcpayment支付账户余额明细导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="7" style="text-align: middle;">#==============gcpayment支付收支汇总==============</td>
+		   </tr>
+		   <#--
+		   <tr>
+		      <td>总收入: +#{sum.incomeSumNo?default(0);m2}元     </td>
+		      <td colspan="6">总支出: -#{sum.expensesSumNo?default(0);m2}元  </td> 
+		   </tr>
+		   -->
+		   <tr>
+		      <td colspan="7"><#if sDate?exists >从${sDate?string('yyyy-MM-dd HH:mm:ss')}</#if>  <#if eDate?exists >到${eDate?string('yyyy-MM-dd HH:mm:ss')}的余额明细</#if></td>
+		   </tr> 
+		   <tr>
+		       <td colspan="7">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+		   <tr><td colspan="7">#------------余额明细列表--------------</td></tr>
+			<tr>
+				<td  width="150">日 期</td>
+				<td width="450">交易流水账号</td>
+				<td >交易类型</td>
+				<td  >收入（元）</td>
+				<td  >支出(元)</td>
+				<td  >余额(元)</td>
+			</tr>
+		</thead>
+		<tbody>
+			<#if qbdList?has_content>
+			<#list qbdList as qs>
+			<tr>
+				<td class="excel_txt"><em>${qs.balanceDate?default("")}</em></td>
+				<td class="excel_txt">${qs.payNo?default("")}</td>
+				<td>${qs.fundTrace?default("")}</td>
+				<td class="excel_txt"><strong style="color:#fb7701 !important;font-size:12px !important;" >#{qs.revenue?default(0);m2}</strong></td>
+				<td class="excel_txt"><strong style="color:#fb7701 !important;font-size:12px !important;" >#{qs.pay?default(0);m2}</strong></td>
+				<td class="excel_txt"><strong style="color:#fb7701 !important;font-size:12px !important;" >#{qs.balance?default(0);m2}</strong></td>
+			</tr>
+			</#list>
+		  </#if>
+		   <tr><td colspan="6">#------------余额明细列表--------------</td></tr>
+		</tbody>
+	</table>
+	
+	
+</body>
+</html>

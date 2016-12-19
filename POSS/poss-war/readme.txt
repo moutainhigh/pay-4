@@ -1,0 +1,10 @@
+杂记：
+交易日报表：
+url->report/tranDailyReprt.do
+servlet->/ca-report/src/main/resources/servlet/poss/context-financialreport-servlet.xml
+controller->com.pay.poss.report.controller.FinancialReportController
+sqlMap->/ca-report/src/main/resources/sqlmap/fi/mapping/tranDailyReport.xml
+上传对账：
+url->queryReconcile.do?method=initReconcileFileUpload
+servlet->/poss-war/src/main/resources/servlet/reconile/context-reconcile-fileservice-servlet.xml
+controller->com.pay.poss.controller.reconcile.ReconcileFileServiceController

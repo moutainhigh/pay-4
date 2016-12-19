@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="riskmanager">
+
+	<typeAlias alias="rmRuleDefDTO"
+		type="com.pay.fundout.withdraw.dto.autorisk.RmRuleDefDTO" />
+
+	<select id="queryrmruledefdto" resultClass="rmRuleDefDTO">
+		SELECT
+		rule_code ruleCode,
+		rule_value ruleValue,
+		rule_desc ruleDesc
+		FROM RM_RULE_DEF
+	</select>
+
+	<insert id="createriskmanager" parameterClass="rmRuleDefDTO">
+		INSERT into
+		RM_RULE_DEF
+		(rule_code,
+		rule_value,
+		rule_desc
+		)
+		VALUES
+		(
+		#ruleCode#,
+		#ruleValue#,
+		#ruleDesc#
+		)
+	</insert>
+	
+	<delete id="delete">
+        DELETE FROM RM_RULE_DEF        
+        WHERE 1=1
+    </delete>
+    
+    <select id="findrulebyrulecode" resultClass="rmRuleDefDTO" parameterClass="java.lang.String">
+    	SELECT rule_code ruleCode, rule_value ruleValue, rule_desc ruleDesc
+		FROM rm_rule_def
+		WHERE rule_code = #ruleCode#
+    </select>
+
+</sqlMap>

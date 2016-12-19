@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>送礼金预览</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/gift.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+
+
+<#if errorMsg?has_content>
+<body>
+<!--个人导航 str-->
+<@sp.ebillheader pagename="送礼金"/>
+<!--个人导航 end-->
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box paysuccess"><span class="corners c_topleft"></span>
+<span class="corners c_topright"></span>
+<div class="popup">
+<div class="popup_box">
+<div class="popup_content"><br />
+<p><strong><#if errorMsg?exists><font color="red">${errorMsg?default('')}</font></#if></strong></p>
+<span class="pop_war"></span></div>
+</div>
+<ul class="pop_link">
+	<li>您可能需要：</li>
+	<li><a
+		href="${rc.contextPath}/app/queryHistoryTradeList.htm?method=queryHistoryTrade">查询交易记录</a><span>|</span>
+	</li>
+	<li><a href="${rc.contextPath}/app/myAccount.htm">返回账户首页</a><span>|</span>
+	</li>
+	<li><a href="${rc.contextPath}/index.htm">返回gcpayment支付首页</a></li>
+</ul>
+</div>
+</div>
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+
+<#else>
+
+<body class="gift_${style?default('t01')}">
+<!--导航 str-->
+<@sp.ebillheader pagename="送礼金"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="gift_main">
+<div class="main_w820">
+<div class="c1">
+<div class="gift_status"><#if status==101||status==111>
+<p class="tips"><span><strong>&yen;<em>#{amount?default(0);m2}</em></strong>元</span>礼金订单处理中</p>
+</#if> <#if status==113> <!-- p class="tips"><span><strong>&yen;<em>#{amount?default(0);m2}</em></strong>元</span>已经于2010年11月16日存入您的账户</p-->
+<p class="tips"><span>礼金金额：<strong>&yen;<em>#{amount?default(0);m2}</em></strong>元</span></p>
+</#if> <#if status==112>
+<p class="tips"><span><strong>&yen;<em>订单失败</em></strong></span></p>
+</#if>
+<p class="link"><a class="red"
+	href="${rc.contextPath}/app/myAccount.htm"
+	style="text-decoration: underline;">返gcpayment支付支付查询余额</a><a class="red ml20"
+	href="${rc.contextPath}/lifemanage.htm?method=present"
+	style="text-decoration: underline;">发红包</a></p>
+</div>
+<#if status!=112>
+<div class="letter">
+<p class="tit">亲爱的${payeeName?default('')}:</p>
+<p class="con">${presentWords?default('')}</p>
+<p class="autograph">${payerName?default('')}</p>
+<p class="date">${creatDate?default('')}</p>
+<!--  <p class="link_btn"><a class="btn_yel btn_go" href="#"><span>感谢TA</span></a> <a class="btn_yel btn_go" href="#"><span>我要发红包</span></a></p>-->
+</div>
+</#if></div>
+<div class="c2">
+<h3>您可能感兴趣的便民服务：</h3>
+<ul class="life_s">
+	<li><a class="red" href="javascript:void(0)" style="cursor:auto"><i class="b_electricity"></i></a>
+	<p><strong class="c_000">彩票大卖场</strong> - 足不出户中大奖，2元博取500万！</p>
+	<a class="red ml10" href="http://caipiao.payay.com/">立即体验>></a></li>
+	<li><a class="red" href="javascript:void(0)" style="cursor:auto"><i class="s_credit_card"></i></a>
+	<p><strong class="c_000">为您的信用卡还款</strong> - 跨银行，跨地区，手续费全免！</p>
+	<a class="red ml10" href="${rc.contextPath}/ebpp/creditCardPaymentController.htm">立即体验>></a>
+	</li>
+	<li><a class="red" href="javascript:void(0)" style="cursor:auto"><i class="b_living"></i></a>
+	<p><strong class="c_000">折扣街</strong> - 只提供最优惠的商品，每周更新！</p>
+	<a class="red ml10" href="http://malpayapay.com/">立即体验>></a>
+	</li>
+</ul>
+<div class="active_tips">
+<p class="tit_pic"><img alt="" src="<@sp.static/>/img/pay/sample/170x130.jpg"></p>
+<div class="txtC">
+<p>活动时间：</p>
+<p>即日起--2010年11月20日</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</#if>
+</html>

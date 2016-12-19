@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="settlementCurrencyConfig">
+
+	<typeAlias alias="settltmentCc" type="com.pay.channel.model.SettlementCurrencyConfig" />
+	<resultMap id="settltmentCcMap" class="settltmentCc">
+		<result column="CONFIG_ID" property="configId" jdbcType="DECIMAL" />
+		<result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL" />
+		<result column="PAY_TYPE" property="payType" jdbcType="VARCHAR" />
+		<result column="TRADE_CURRENCY_CODE" property="tradeCurrencyCode" jdbcType="VARCHAR" />
+		<result column="PAY_CURRENCY_CODE" property="payCurrencyCode" jdbcType="VARCHAR" />
+		<result column="SETTLEMENT_CURRENCY_CODE" property="settlementCurrencyCode" jdbcType="VARCHAR" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="MARK" property="mark" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" jdbcType="TimeStamp" />
+		<result column="UPDATE_TIME" property="updateTime" jdbcType="TimeStamp" />
+		<result column="GRADE" property="grade" jdbcType="DECIMAL"/>
+	</resultMap>
+
+	<insert id="create" parameterClass="settltmentCc">
+		<selectKey resultClass="java.lang.Long" keyProperty="configId">
+			SELECT
+			SETTLEMENT_CURRENCY_CONFIG_SEQ.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO SETTLEMENT_CURRENCY_CONFIG(
+		CONFIG_ID,MEMBER_CODE,PAY_TYPE,TRADE_CURRENCY_CODE,PAY_CURRENCY_CODE,SETTLEMENT_CURRENCY_CODE,OPERATOR,MARK,CREATE_TIME,UPDATE_TIME,GRADE)
+		VALUES(
+		#configId#,#memberCode#,#payType#,#tradeCurrencyCode#,#payCurrencyCode#,#settlementCurrencyCode#,#operator#,#mark#,sysdate,sysdate,#grade#
+		)
+	</insert>
+
+	<delete id="delete" parameterClass="settltmentCc">
+		DELETE FROM SETTLEMENT_CURRENCY_CONFIG where 1=1 AND CONFIG_ID = #configId#
+	</delete>
+
+	<update id="update" parameterClass="settltmentCc">
+		UPDATE SETTLEMENT_CURRENCY_CONFIG SET UPDATE_TIME = sysdate
+		<isNotEmpty property="memberCode" prepend=",">
+			MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payType" prepend=",">
+			PAY_TYPE = #payType#
+		</isNotEmpty>
+		<isNotEmpty property="tradeCurrencyCode" prepend=",">
+			TRADE_CURRENCY_CODE = #tradeCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="payCurrencyCode" prepend=",">
+			PAY_CURRENCY_CODE =#payCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="settlementCurrencyCode" prepend=",">
+			SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="operator" prepend=",">
+			OPERATOR =#operator#
+		</isNotEmpty>
+		<isNotEmpty property="mark" prepend=",">
+			MARK =#mark#
+		</isNotEmpty>
+		<isNotEmpty property="grade" prepend=",">
+			GRADE =#grade#
+		</isNotEmpty>
+		where 1=1 AND CONFIG_ID = #configId#
+	</update>
+
+	<!-- 根据条件查询直连渠道 -->
+	<select id="findByCriteria" resultMap="settltmentCcMap" parameterClass="settltmentCc">
+		SELECT * FROM SETTLEMENT_CURRENCY_CONFIG
+		WHERE 1=1
+		<isNotEmpty property="memberCode" prepend="AND">
+			MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payType" prepend="AND">
+			PAY_TYPE = #payType#
+		</isNotEmpty>
+		<!--
+		<isNotEmpty property="tradeCurrencyCode" prepend="AND">
+			TRADE_CURRENCY_CODE = #tradeCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="payCurrencyCode" prepend="AND">
+			PAY_CURRENCY_CODE =#payCurrencyCode#
+		</isNotEmpty>
+		 -->
+		<isNotEmpty property="tradeCurrencyCode" prepend="AND">
+			<isEqual compareProperty="tradeCurrencyCode" compareValue="*">TRADE_CURRENCY_CODE = #tradeCurrencyCode#</isEqual>
+			<isNotEqual compareProperty="tradeCurrencyCode" compareValue="*">
+				(TRADE_CURRENCY_CODE = #tradeCurrencyCode# OR TRADE_CURRENCY_CODE = '*')
+			</isNotEqual>
+		</isNotEmpty>
+		<isNotEmpty property="payCurrencyCode" prepend="AND">
+			<isEqual compareProperty="payCurrencyCode" compareValue="*">PAY_CURRENCY_CODE =#payCurrencyCode#</isEqual>
+			<isNotEqual compareProperty="payCurrencyCode" compareValue="*">
+				(PAY_CURRENCY_CODE =#payCurrencyCode# OR PAY_CURRENCY_CODE ='*')
+			</isNotEqual>
+		</isNotEmpty>
+		 
+		<isNotEmpty property="settlementCurrencyCode" prepend="AND">
+			SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+		</isNotEmpty>
+		order by GRADE desc,CREATE_TIME desc
+	</select>
+
+	<select id="countByCriteria" resultClass="java.lang.Integer" parameterClass="settltmentCc">
+		SELECT count(*) FROM SETTLEMENT_CURRENCY_CONFIG
+		WHERE 1=1
+		<isNotEmpty property="memberCode" prepend="AND">
+			MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payType" prepend="AND">
+			PAY_TYPE = #payType#
+		</isNotEmpty>
+		<!--
+		<isNotEmpty property="tradeCurrencyCode" prepend="AND">
+			TRADE_CURRENCY_CODE = #tradeCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="payCurrencyCode" prepend="AND">
+			PAY_CURRENCY_CODE =#payCurrencyCode#
+		</isNotEmpty>
+		-->
+		 
+		<isNotEmpty property="tradeCurrencyCode" prepend="AND">
+			<isEqual compareProperty="tradeCurrencyCode" compareValue="*">TRADE_CURRENCY_CODE = #tradeCurrencyCode#</isEqual>
+			<isNotEqual compareProperty="tradeCurrencyCode" compareValue="*">
+				(TRADE_CURRENCY_CODE = #tradeCurrencyCode# OR TRADE_CURRENCY_CODE = '*')
+			</isNotEqual>
+		</isNotEmpty>
+		<isNotEmpty property="payCurrencyCode" prepend="AND">
+			<isEqual compareProperty="payCurrencyCode" compareValue="*">PAY_CURRENCY_CODE =#payCurrencyCode#</isEqual>
+			<isNotEqual compareProperty="payCurrencyCode" compareValue="*">
+				(PAY_CURRENCY_CODE =#payCurrencyCode# OR PAY_CURRENCY_CODE ='*')
+			</isNotEqual>
+		</isNotEmpty>
+		<isNotEmpty property="settlementCurrencyCode" prepend="AND">
+			SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+		</isNotEmpty>
+	</select>
+
+	<!-- 根据条件查询直连渠道 -->
+	<select id="findIsOnly" resultMap="settltmentCcMap" parameterClass="settltmentCc">
+		SELECT * FROM SETTLEMENT_CURRENCY_CONFIG
+		WHERE 1=1
+		<isNotEmpty property="memberCode" prepend="AND">
+			MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="payType" prepend="AND">
+			PAY_TYPE = #payType#
+		</isNotEmpty>
+		<isNotEmpty property="tradeCurrencyCode" prepend="AND">
+			TRADE_CURRENCY_CODE = #tradeCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="payCurrencyCode" prepend="AND">
+			PAY_CURRENCY_CODE =#payCurrencyCode#
+		</isNotEmpty>
+		<isNotEmpty property="settlementCurrencyCode" prepend="AND">
+			SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+		</isNotEmpty>
+		order by GRADE desc,CREATE_TIME desc
+	</select>
+</sqlMap>

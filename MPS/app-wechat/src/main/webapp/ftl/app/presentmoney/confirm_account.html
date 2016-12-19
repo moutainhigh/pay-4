@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>确认礼金信息</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/gift.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript">
+
+function goBack(){
+
+	document.forms[0].action = '${rc.contextPath}/app/presentAccount.htm?method=goBack';
+	document.forms[0].submit();
+}
+</script>
+<#if errorMsg?exists>
+<script type="text/javascript">	
+		$(function(){	
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+		});
+	</script>
+</#if>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="送礼金"/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container"><!--侧导航 str --> <@sp.ebillmenu
+channel="1_6"/> <!--侧导航 end -->
+<div class="box_w815">
+<div class="content">
+<div class="gift_tit">
+<h3 class="cur">确认信息</h3>
+</div>
+<div class="gift_box verify_box"><!--表单str -->
+<form class="mod_form" action="${rc.contextPath}/ebpp/presentAccountSubmit.htm?method=presentRequest"
+	name="presentAccountForm" id="presentAccountForm" method="post">
+<ul class="form_list mar_1">
+	<li class="verify_top"><label class="form_side">我要送礼金给：</label>
+	<p class="thead"><span class="ver_name">对方姓名/昵称</span> <span
+		class="ver_id">对方的gcpayment支付号</span> <span class="ver_no">金额(元)</span></p>
+	<p class="tbody"><span class="ver_name">${recInfoCommand.payeeName?default('')}</span>
+	<span class="ver_id">${recInfoCommand.accountName?default('')}</span> <span
+		class="ver_no">${recInfoCommand.amount?default('')}</span></p>
+	</li>
+	<li><label class="form_side">应付金额：</label> <span class="red f16">${recInfoCommand.amount?default('')}</span>元
+	</li>
+	<!-- li><label class="form_side"gcpayment支付支付账户名：</label> <span
+		class="c_000 font14">${recInfoCommand.payerAcct?default('')}</span></li>
+	<li><label class="form_side2">请输入支付密码：</label> <input
+		type="password" class="inp_normal blod w120" name="pwd" id="pwd">
+	</li-->
+	<li><span class="btn_yel botton_yel v_b">
+	<button type="submit">确认并付款</button>
+	</span><a class="red ml20" href="javascript:goBack();" id="back">返回上一步</a></li>
+</ul>
+<div class="blessing">
+<p class="tit">亲爱的${recInfoCommand.payeeName?default('')}:</p>
+<p class="blessing_content">${recInfoCommand.remark?default('')}</p>
+<p class="autograph">${recInfoCommand.payerSign?default('')}</p>
+<p class="i_date" id="date"></p>
+<div class="show_gift_mid"><img src="${recInfoCommand.selCardStyle}mid.jpg" /></div>
+</div>
+<input type="hidden" name="payeeName" value="${recInfoCommand.payeeName?default('')}" /> 
+<input type="hidden" name="accountName"	value="${recInfoCommand.accountName?default('')}" /> 
+<input type="hidden" name="amount"	value="${recInfoCommand.amount?default('')}" />
+<input type="hidden" name="remark" value="${recInfoCommand.remark?default('')}" />
+<input type="hidden" name="mobile" value="${recInfoCommand.mobile?default('')}" /> 
+<input type="hidden" name="memberCode" value="${recInfoCommand.memberCode}" />
+<input type="hidden" name="selCardStyle" value="${recInfoCommand.selCardStyle}" />
+<input type="hidden" name="payerSign" value="${recInfoCommand.payerSign}" />
+</form>
+<!--表单end --></div>
+<i class="corner_b"></i></div>
+<p class="bot"></p>
+</div>
+</div>
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+<script type="text/javascript">
+	$(document).ready(function() {
+		var a = new Date().toLocaleDateString();
+		$("#date").html(a);
+	});
+</script>
+</html>

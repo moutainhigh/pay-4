@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="BANK_CHANNEL_ORDER" >
+  <resultMap id="BaseResultMap" class="com.pay.fo.bankcorp.model.BankChannelOrder" >
+    <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+    <result column="ORDER_STATUS" property="orderStatus" jdbcType="DECIMAL" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="TRADE_ORDER_ID" property="tradeOrderId" jdbcType="DECIMAL" />
+    <result column="TRADE_DATE" property="tradeDate" jdbcType="TIMESTAMP" />
+    <result column="TRADE_ORDER_TYPE" property="tradeOrderType" jdbcType="DECIMAL" />
+    <result column="TRADE_ORDER_SMALL_TYPE" property="tradeOrderSmallType" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANK_ACC" property="payeeBankAcc" jdbcType="VARCHAR" />
+    <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR" />
+    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+    <result column="CHANNEL_CODE" property="channelCode" jdbcType="VARCHAR" />
+    <result column="FUNDOUT_BANK_CODE" property="fundoutBankCode" jdbcType="DECIMAL" />
+    <result column="CUSTOM_SEQUENCE_ID" property="customSequenceId" jdbcType="VARCHAR" />
+    <result column="BANK_SEQUENCE_ID" property="bankSequenceId" jdbcType="VARCHAR" />
+    <result column="FAILED_REASON" property="failedReason" jdbcType="VARCHAR" />
+    <result column="PAYER_BANK_ACC" property="payerBankAcc" jdbcType="VARCHAR" />
+    <result column="PAYER_BANK_ACC_NAME" property="payerBankAccName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Criteria_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$
+            #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <select id="selectByCriteria" resultMap="BaseResultMap" parameterClass="com.pay.fo.bankcorp.model.BankChannelOrderCriteria" >
+    select ORDER_ID, ORDER_STATUS, CREATE_DATE, UPDATE_DATE, TRADE_ORDER_ID, TRADE_DATE,
+      TRADE_ORDER_TYPE, TRADE_ORDER_SMALL_TYPE, PAYEE_BANK_ACC, PAYEE_NAME, AMOUNT, CHANNEL_CODE,
+      FUNDOUT_BANK_CODE, CUSTOM_SEQUENCE_ID, BANK_SEQUENCE_ID, FAILED_REASON, PAYER_BANK_ACC,
+      PAYER_BANK_ACC_NAME
+    from BANK_CHANNEL_ORDER
+    <isParameterPresent >
+      <include refid="BANK_CHANNEL_ORDER.Criteria_Where_Clause" />
+      <isNotNull property="orderByClause" >
+        order by $orderByClause$
+      </isNotNull>
+    </isParameterPresent>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select ORDER_ID, ORDER_STATUS, CREATE_DATE, UPDATE_DATE, TRADE_ORDER_ID, TRADE_DATE,
+      TRADE_ORDER_TYPE, TRADE_ORDER_SMALL_TYPE, PAYEE_BANK_ACC, PAYEE_NAME, AMOUNT, CHANNEL_CODE,
+      FUNDOUT_BANK_CODE, CUSTOM_SEQUENCE_ID, BANK_SEQUENCE_ID, FAILED_REASON, PAYER_BANK_ACC,
+      PAYER_BANK_ACC_NAME
+    from BANK_CHANNEL_ORDER
+    where ORDER_ID = #orderId:DECIMAL#
+  </select>
+  <insert id="insert" parameterClass="com.pay.fo.bankcorp.model.BankChannelOrder" >
+  	<selectKey resultClass="java.lang.Long" keyProperty="orderId">
+		SELECT 261 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||
+		       LPAD(SEQ_FO_BANK_CHANNEL.nextval, 6, 0) AS ID
+		  FROM DUAL
+	</selectKey>
+    insert into BANK_CHANNEL_ORDER (ORDER_ID, ORDER_STATUS, CREATE_DATE, UPDATE_DATE,
+      TRADE_ORDER_ID, TRADE_DATE, TRADE_ORDER_TYPE, TRADE_ORDER_SMALL_TYPE, PAYEE_BANK_ACC,
+      PAYEE_NAME, AMOUNT, CHANNEL_CODE, FUNDOUT_BANK_CODE, CUSTOM_SEQUENCE_ID, BANK_SEQUENCE_ID,
+      FAILED_REASON, PAYER_BANK_ACC, PAYER_BANK_ACC_NAME)
+    values (#orderId:DECIMAL#, #orderStatus:DECIMAL#, #createDate:TIMESTAMP#,
+      #updateDate:TIMESTAMP#, #tradeOrderId:DECIMAL#, #tradeDate:TIMESTAMP#,
+      #tradeOrderType:DECIMAL#, #tradeOrderSmallType:VARCHAR#, #payeeBankAcc:VARCHAR#,
+      #payeeName:VARCHAR#, #amount:DECIMAL#, #channelCode:VARCHAR#, #fundoutBankCode:VARCHAR#,
+      #customSequenceId:VARCHAR#, #bankSequenceId:VARCHAR#, #failedReason:VARCHAR#,
+      #payerBankAcc:VARCHAR#, #payerBankAccName:VARCHAR#)
+  </insert>
+  <insert id="insertSelective" parameterClass="com.pay.fo.bankcorp.model.BankChannelOrder" >
+  	<selectKey resultClass="java.lang.Long" keyProperty="orderId">
+		SELECT 261 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||
+		       LPAD(SEQ_FO_BANK_CHANNEL.nextval, 6, 0) AS ID
+		  FROM DUAL
+	</selectKey>
+    insert into BANK_CHANNEL_ORDER
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="orderId" >
+        ORDER_ID
+      </isNotNull>
+      <isNotNull prepend="," property="orderStatus" >
+        ORDER_STATUS
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderId" >
+        TRADE_ORDER_ID
+      </isNotNull>
+      <isNotNull prepend="," property="tradeDate" >
+        TRADE_DATE
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderType" >
+        TRADE_ORDER_TYPE
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderSmallType" >
+        TRADE_ORDER_SMALL_TYPE
+      </isNotNull>
+      <isNotNull prepend="," property="payeeBankAcc" >
+        PAYEE_BANK_ACC
+      </isNotNull>
+      <isNotNull prepend="," property="payeeName" >
+        PAYEE_NAME
+      </isNotNull>
+      <isNotNull prepend="," property="amount" >
+        AMOUNT
+      </isNotNull>
+      <isNotNull prepend="," property="channelCode" >
+        CHANNEL_CODE
+      </isNotNull>
+      <isNotNull prepend="," property="fundoutBankCode" >
+        FUNDOUT_BANK_CODE
+      </isNotNull>
+      <isNotNull prepend="," property="customSequenceId" >
+        CUSTOM_SEQUENCE_ID
+      </isNotNull>
+      <isNotNull prepend="," property="bankSequenceId" >
+        BANK_SEQUENCE_ID
+      </isNotNull>
+      <isNotNull prepend="," property="failedReason" >
+        FAILED_REASON
+      </isNotNull>
+      <isNotNull prepend="," property="payerBankAcc" >
+        PAYER_BANK_ACC
+      </isNotNull>
+      <isNotNull prepend="," property="payerBankAccName" >
+        PAYER_BANK_ACC_NAME
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="orderId" >
+        #orderId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="orderStatus" >
+        #orderStatus:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderId" >
+        #tradeOrderId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeDate" >
+        #tradeDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderType" >
+        #tradeOrderType:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderSmallType" >
+        #tradeOrderSmallType:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payeeBankAcc" >
+        #payeeBankAcc:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payeeName" >
+        #payeeName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="amount" >
+        #amount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="channelCode" >
+        #channelCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="fundoutBankCode" >
+        #fundoutBankCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="customSequenceId" >
+        #customSequenceId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="bankSequenceId" >
+        #bankSequenceId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="failedReason" >
+        #failedReason:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payerBankAcc" >
+        #payerBankAcc:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payerBankAccName" >
+        #payerBankAccName:VARCHAR#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  <select id="countByCriteria" parameterClass="com.pay.fo.bankcorp.model.BankChannelOrderCriteria" resultClass="java.lang.Integer" >
+    select count(*) from BANK_CHANNEL_ORDER
+    <include refid="BANK_CHANNEL_ORDER.Criteria_Where_Clause" />
+  </select>
+  <update id="updateByCriteriaSelective" >
+    update BANK_CHANNEL_ORDER
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="record.orderId" >
+        ORDER_ID = #record.orderId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.orderStatus" >
+        ORDER_STATUS = #record.orderStatus:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.createDate" >
+        CREATE_DATE = #record.createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.updateDate" >
+        UPDATE_DATE = #record.updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.tradeOrderId" >
+        TRADE_ORDER_ID = #record.tradeOrderId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.tradeDate" >
+        TRADE_DATE = #record.tradeDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.tradeOrderType" >
+        TRADE_ORDER_TYPE = #record.tradeOrderType:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.tradeOrderSmallType" >
+        TRADE_ORDER_SMALL_TYPE = #record.tradeOrderSmallType:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.payeeBankAcc" >
+        PAYEE_BANK_ACC = #record.payeeBankAcc:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.payeeName" >
+        PAYEE_NAME = #record.payeeName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.amount" >
+        AMOUNT = #record.amount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.channelCode" >
+        CHANNEL_CODE = #record.channelCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.fundoutBankCode" >
+        FUNDOUT_BANK_CODE = #record.fundoutBankCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.customSequenceId" >
+        CUSTOM_SEQUENCE_ID = #record.customSequenceId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.bankSequenceId" >
+        BANK_SEQUENCE_ID = #record.bankSequenceId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.failedReason" >
+        FAILED_REASON = #record.failedReason:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.payerBankAcc" >
+        PAYER_BANK_ACC = #record.payerBankAcc:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.payerBankAccName" >
+        PAYER_BANK_ACC_NAME = #record.payerBankAccName:VARCHAR#
+      </isNotNull>
+    </dynamic>
+    <isParameterPresent >
+      <include refid="BANK_CHANNEL_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByCriteria" >
+    update BANK_CHANNEL_ORDER
+    set ORDER_ID = #record.orderId:DECIMAL#,
+      ORDER_STATUS = #record.orderStatus:DECIMAL#,
+      CREATE_DATE = #record.createDate:TIMESTAMP#,
+      UPDATE_DATE = #record.updateDate:TIMESTAMP#,
+      TRADE_ORDER_ID = #record.tradeOrderId:DECIMAL#,
+      TRADE_DATE = #record.tradeDate:TIMESTAMP#,
+      TRADE_ORDER_TYPE = #record.tradeOrderType:DECIMAL#,
+      TRADE_ORDER_SMALL_TYPE = #record.tradeOrderSmallType:VARCHAR#,
+      PAYEE_BANK_ACC = #record.payeeBankAcc:VARCHAR#,
+      PAYEE_NAME = #record.payeeName:VARCHAR#,
+      AMOUNT = #record.amount:DECIMAL#,
+      CHANNEL_CODE = #record.channelCode:VARCHAR#,
+      FUNDOUT_BANK_CODE = #record.fundoutBankCode:VARCHAR#,
+      CUSTOM_SEQUENCE_ID = #record.customSequenceId:VARCHAR#,
+      BANK_SEQUENCE_ID = #record.bankSequenceId:VARCHAR#,
+      FAILED_REASON = #record.failedReason:VARCHAR#,
+      PAYER_BANK_ACC = #record.payerBankAcc:VARCHAR#,
+      PAYER_BANK_ACC_NAME = #record.payerBankAccName:VARCHAR#
+    <isParameterPresent >
+      <include refid="BANK_CHANNEL_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterClass="com.pay.fo.bankcorp.model.BankChannelOrder" >
+    update BANK_CHANNEL_ORDER
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="orderStatus" >
+        ORDER_STATUS = #orderStatus:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderId" >
+        TRADE_ORDER_ID = #tradeOrderId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeDate" >
+        TRADE_DATE = #tradeDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderType" >
+        TRADE_ORDER_TYPE = #tradeOrderType:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderSmallType" >
+        TRADE_ORDER_SMALL_TYPE = #tradeOrderSmallType:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payeeBankAcc" >
+        PAYEE_BANK_ACC = #payeeBankAcc:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payeeName" >
+        PAYEE_NAME = #payeeName:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="amount" >
+        AMOUNT = #amount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="channelCode" >
+        CHANNEL_CODE = #channelCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="fundoutBankCode" >
+        FUNDOUT_BANK_CODE = #fundoutBankCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="customSequenceId" >
+        CUSTOM_SEQUENCE_ID = #customSequenceId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="bankSequenceId" >
+        BANK_SEQUENCE_ID = #bankSequenceId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="failedReason" >
+        FAILED_REASON = #failedReason:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payerBankAcc" >
+        PAYER_BANK_ACC = #payerBankAcc:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="payerBankAccName" >
+        PAYER_BANK_ACC_NAME = #payerBankAccName:VARCHAR#
+      </isNotNull>
+    </dynamic>
+    where ORDER_ID = #orderId:DECIMAL#
+  </update>
+  <update id="updateByPrimaryKey" parameterClass="com.pay.fo.bankcorp.model.BankChannelOrder" >
+    update BANK_CHANNEL_ORDER
+    set ORDER_STATUS = #orderStatus:DECIMAL#,
+      CREATE_DATE = #createDate:TIMESTAMP#,
+      UPDATE_DATE = #updateDate:TIMESTAMP#,
+      TRADE_ORDER_ID = #tradeOrderId:DECIMAL#,
+      TRADE_DATE = #tradeDate:TIMESTAMP#,
+      TRADE_ORDER_TYPE = #tradeOrderType:DECIMAL#,
+      TRADE_ORDER_SMALL_TYPE = #tradeOrderSmallType:VARCHAR#,
+      PAYEE_BANK_ACC = #payeeBankAcc:VARCHAR#,
+      PAYEE_NAME = #payeeName:VARCHAR#,
+      AMOUNT = #amount:DECIMAL#,
+      CHANNEL_CODE = #channelCode:VARCHAR#,
+      FUNDOUT_BANK_CODE = #fundoutBankCode:VARCHAR#,
+      CUSTOM_SEQUENCE_ID = #customSequenceId:VARCHAR#,
+      BANK_SEQUENCE_ID = #bankSequenceId:VARCHAR#,
+      FAILED_REASON = #failedReason:VARCHAR#,
+      PAYER_BANK_ACC = #payerBankAcc:VARCHAR#,
+      PAYER_BANK_ACC_NAME = #payerBankAccName:VARCHAR#
+    where ORDER_ID = #orderId:DECIMAL#
+  </update>
+</sqlMap>

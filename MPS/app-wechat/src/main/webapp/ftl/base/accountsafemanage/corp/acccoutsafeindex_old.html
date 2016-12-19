@@ -1,0 +1,258 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${security_set}${title}</title>
+<meta name="Keywords" content="${security_set_Keywords}" />
+<meta name="Description" content="${security_set_Description}" />
+<link href="
+<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet"
+type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript">
+	var payWin;
+	$(function() {
+		$("#updatepwd").click(
+				function() {
+					$("#acccoutsafeform").attr("action",
+							"${rc.contextPath}/corp/toupdatepaypwdpage.htm");
+					$("#acccoutsafeform").submit();
+				});
+		$("#updatesafequestion")
+				.click(
+						function() {
+							$("#acccoutsafeform")
+									.attr("action",
+											"${rc.contextPath}/corp/toupdatesafequestionpage.htm");
+							$("#acccoutsafeform").submit();
+						});
+		$("#updatesafeq")
+				.click(
+						function() {
+							$("#acccoutsafeform")
+									.attr("action",
+											"${rc.contextPath}/corp/toupdatesafequestionpage.htm");
+							$("#acccoutsafeform").submit();
+						});
+		$("#findselect").click(function() {
+			payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+		});
+
+		$("#matrixcardBind").click(function(){
+			 		 var url ="${rc.contextPath}/corp/matrixCardBind.htm?method=showBindView";
+					 $("#acccoutsafeform").attr("action",url);
+					 $("#acccoutsafeform").submit();
+			});
+		
+		$("#findCount").click(function(){
+                    $("#countDiv").show();
+			});
+
+		$("#close").click(function(){
+                  $("#countDiv").hide();
+			});
+		
+		$("#modifyBindMobile").click(function(){
+			 $.pay.confirm("您确定需要修改绑定手机吗？<br /><div class=\"c_666 f12\">修改后相关短信通知将发送到新手机上!</div> ",{title:"修改绑定手机",h:200,t:'3',
+				 confirm:function(){
+					 window.location.href = "${rc.contextPath}/corp/bindNewMobile.htm"; 
+				}
+			});
+		});
+		
+		var isCertUser = "${isCertUser?default('')}";
+		$("#unBindMobile").click(function(){
+			 if(isCertUser == 'Y'){
+				 $.pay.alert("您是数字证书用户，取消手机绑定必须先取消数字证书！<br /><div class=\"c_666 f12\">请取消数字证书后再取消手机绑定，取消数字证书后您的账户将不再受到gcpayment数字证书的保护，如果需要,您也可以再次申请绑定手机和数字证书，</div>",
+						 {title:"取消手机绑定",h:300,w:520}
+				 );
+				 return false;
+			 }
+
+			 var htmlAlert = "您确定需要取消手机绑定吗？<div class=\"c_666 f12\">取消手机绑定将不能使用与之相关的产品</div><div class=\"c_666 f12\">如：数字证书等</div>";
+			 $.pay.confirm(htmlAlert,{title:"取消手机绑定",h:200,w:400,t:'3',
+				 confirm:function(){
+					 window.location.href = "${rc.contextPath}/corp/unbindMobile.htm?install=1"; 
+				}
+			});
+		});
+
+	});
+	
+	//密钥下载
+	function downloadKey(){
+		payWin = $.pay.window("${rc.contextPath}/corp/keydownload.htm",{title:"下载密钥",w:600,h:300,url:true,iframe:true,close : function() {}});
+	}
+</script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_account_safe,bsp_account_safe"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="box_w720 fl"> 
+		<!--主内容 str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box secure_i">
+				<div> <span class="more">上次登录时间：${dateLine?default("")}</span> <span class="greetings"><strong>问候语：</strong><#if greeting?has_content><span class="blue">${greeting?default("")}</span><#else><a href="${rc.contextPath}/corp/toupdategreetingpage.htm" class="ml20 blue">设置</a></#if></span></div>
+			</div>
+			<p class="bot"><i></i></p>
+			<div class="ico_txtBox blod mt10"><i class="warn_ico"></i>为保障您的账户安全，建议您完整设置安全产品</div>
+			<div class="safe_table mt10">
+				<table class="table">
+					<thead>
+						<tr>
+							<th width="17%">安全产品</th>
+							<th width="51%">描述</th>
+							<th width="16%">当前状态</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody>
+		<tr>
+			<td class="blod" >登录密码</td>
+			<td>登录时使用，建议设置8位以上字母数字组合密码。</td>
+			<td  class="txtC green">已设置</td>
+			<td><a class="blues" href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2" id="updateloginpwd">修改</a></td>
+		</tr>
+		<#if isAdmin?has_content>
+		<tr>
+			<td class="blod" >支付密码</td>
+			<td>在付款、提现等影响账户资金变动的操作中使用，不能与登录密码相同。</td>
+			<#if paypwdState?default('')=='未设置'>
+			<td class="txtC red2">${paypwdState?default('')}</td>
+			<#else>
+			<td class="txtC green">${paypwdState?default('')}</td>
+			</#if>
+			<td><a class="blues" href="${rc.contextPath}/corp/toupdatepaypwdpage.htm" >${paypwdState1?default('')}</a><#if found?has_content && isAdmin?has_content><a class="ml20 blues"
+				href="javascript:void(0)" id="findselect">${found?default('')}</a></#if></td>
+		</tr>
+		<input type="hidden" name="paypwdurl" value="${paypwdurl?default('')}"
+			id="paypwdurl" />
+	
+		<tr>
+			<td class="blod">问候语</td>
+			<td>可用于防范钓鱼网站，付款时，如发现问候语不同，请停止支付并联系客服。</td>
+			<#if greetingState?default('')=='未设置'>
+			<td class="txtC red2">${greetingState?default('')}</td>
+			<#else>
+			<td class="txtC green">${greetingState?default('')}</td>
+			</#if>
+			<td><a class="blues" href="${rc.contextPath}/corp/toupdategreetingpage.htm"
+				id="updategreeting">${greetingState1?default('')}</a></td>
+		</tr>
+		<tr>
+			<td class="blod">安全问题</td>
+			<td>请牢记您的安全问题答案，它将在您找回支付密码时使用。</td>
+			<#if questionState?default('')=='未设置'>
+			<td class="txtC red2">${questionState?default('')}</td>
+			<#else>
+			<td class="txtC green">${questionState?default('')}</td>
+			</#if>
+			<td><a class="blues" href="${rc.contextPath}/corp/toupdatesafequestionpage.htm" >${questionState1?default('')}</a></td>
+			<input type="hidden" name="safequestion"
+				value="${safequestion?default('')}" id="safequestion" />
+		</tr>
+		<tr>
+			<td class="blod">手机绑定</td>
+			<td>手机绑定后 ，可享用丰富的手机服务，如短信通知、验证等。</td>
+			<#if isBindMobile?default('') == "Y">
+			<td class="txtC green">已设置</td>
+			<td><a class="blues" href="javascript:void(0)" id="modifyBindMobile" >修改</a><a  class="ml20 blues" href="javascript:void(0)" id="unBindMobile">取消 </a></td>
+			<#else>
+			<td class="txtC red2">未设置</td>
+			<td><a class="blues" href="${rc.contextPath}/corp/bindMobile.htm" >申请绑定</a></td>
+			</#if>
+		</tr>
+		<#if isHasProduct?default('') == "Y">
+		<tr>
+			<td class="blod">密钥下载</td>
+			<td>用于加密支付服务接口的数据串，下载后请妥善保管。</td>
+			<#if isDownload?default('') == "Y">
+			<td class="txtC green">已下载</td>
+				<td><a class="ml20 blues" href="javascript:downloadKey();" id="updateKey">更新</a></td>
+			<#else>
+			<td class="txtC red2">未下载</td>
+				<td><a class="blues" href="javascript:downloadKey();" >下载</a></td>
+			</#if>
+		</tr>
+		</#if>
+		</#if>
+		
+		<#--
+		<tr>
+			<th>邮箱绑定</th>
+			<td>绑定后 ，可免费开通多重账号安全服务，如手机找回密码、支付动态口令。</td>
+			<td>未设置</td>
+			<td><a href="javascript:void(0);" >设置</a></td>
+		</tr>
+		-->
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	<!--主内容 end --> 
+	<!--侧栏 str -->
+	<div class="box_w230 fr"> 
+		<!--安全小贴士 -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><strong>安全小贴士</strong></h3>
+				</div>
+				<ul class="list_square">
+					<li>1、安装一款杀毒软件，定期更新</li>
+					<li>2、不要向他人泄露密码</li>
+					<li>3、定期更换登录密码、支付密码</li>
+					<li>4、警惕陌生人传输的链接、文件</li>
+					<li>5、操作完毕，及时退出</li>
+				</ul>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--/安全小贴士 --> 
+		<!--常见问题 -->
+		<div class="mod_box_a mt10">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14"><strong>常见问题</strong></h3>
+				</div>
+				<ul class="list_square">
+						<li><a href="<@sp.contextPath/>/help/b/trademanage.htm#qa2" target="_blank">到哪里查询我的订单记录？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/trademanage.htm#qa1" target="_blank">能否查询当天的对账单？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/serviceswitch.htm#qa1" target="_blank">如何调试服务接口？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/accsafe.htm#qa2" target="_blank">遗忘了支付密码怎么办？</a></li>
+						<li><a href="<@sp.contextPath/>/help/b/fundsmanage.htm#qa2" target="_blank">提现为什么失败？</a></li>
+				</ul>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--/常见问题 --> 
+	</div>
+	<!--侧栏 end --> 
+</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+
+</body>
+</html>

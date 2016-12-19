@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="poss_userlog">
+
+	<typeAlias alias="userLogDto" type="com.pay.poss.personmanager.dto.UserLogDto" />
+	
+	<sql id="DETAIL_SELECT_USER_LOG">
+	   	<![CDATA[
+		    select t.log_id logId,
+		           t.operator_id operatorId,
+		           t.login_name loginName,
+		           t.login_date loginDate,
+		           t.login_ip loginIp,
+		           t.browser_ver browserVer,
+		           t.action_url actionUrl,
+		           t.member_code memberCode,
+		           t.name ,
+		           t.create_date createDate,
+		           t.update_date updateDate,
+		           t.log_type logType    
+		    from t_user_log t
+			where 1=1
+	   	 ]]>
+	</sql>
+
+	<sql id="COMMON_CONDITION_SELECT_DETAIL">
+		<isNotEmpty prepend="and" property="memberCode">
+			t.member_code=#memberCode#
+	   </isNotEmpty>
+		<isNotEmpty prepend="and" property="logType">
+			t.log_type=#logType#
+	   </isNotEmpty>
+	   	<isNotEmpty prepend="and" property="loginName">
+			t.login_name=#loginName#
+	   </isNotEmpty>
+	   	<isNotEmpty property="loginStartDate" prepend="and">
+		<![CDATA[
+            t.login_date  >= #loginStartDate#
+        ]]>
+		</isNotEmpty>
+		<isNotEmpty property="loginEndDate" prepend="and">
+        <![CDATA[
+            t.login_date < #loginEndDate#
+        ]]>
+		</isNotEmpty>
+	</sql>
+
+
+	
+	<sql id="COMMON.ORDER">
+       	<![CDATA[
+			  order by t.create_date desc
+       	]]>
+	</sql>
+
+	<select id="selectPossUserLog" resultClass="userLogDto"	parameterClass="userLogDto">
+		
+		<include refid="DETAIL_SELECT_USER_LOG" />
+		<include refid="COMMON_CONDITION_SELECT_DETAIL"/>
+		<include refid="COMMON.ORDER"/>
+	</select>
+	
+</sqlMap>

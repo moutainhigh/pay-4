@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="preController">
+
+	<typeAlias alias="preController" type="com.pay.txncore.model.PreController"/>
+    <resultMap id="preControllerResult" class="preController">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_ORDER_NO" property="channelOrderNo" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_RESPONSE_NO" property="channelResponseNo" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="EXCHANGE_RATE" property="exchangeRate" jdbcType="DECIMAL"/>
+        <result column="PRE_AUTHOR_AMOUNT" property="preAuthorAmount" jdbcType="DECIMAL"/>
+        <result column="PRE_CURRENCY_CODE" property="preCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="ACT_AUTHOR_AMOUNT" property="actAuthorAmount" jdbcType="DECIMAL"/>
+        <result column="ACT_CURRENCY_CODE" property="actCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="CAPTURE_AMOUNT_TOTAL" property="captureAmountTotal" jdbcType="DECIMAL"/>
+        <result column="ACT_CAP_AMOUNT_TOTAL" property="actCapAmountTotal" jdbcType="DECIMAL"/>
+        <result column="AUTHOR_STATUS" property="authorStatus" jdbcType="VARCHAR"/>
+        <result column="CAPTURE_STATUS" property="captureStatus" jdbcType="VARCHAR"/>
+        <result column="AUTHOR_VOID_STATUS" property="authorVoidStatus" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_CHANNEL_ITEM_ID" property="paymentChannelItemId" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_CONFIG_ID" property="channelConfigId" jdbcType="DECIMAL"/>
+        <result column="LASTEST_UPDATE_DATE" property="lastestUpdateDate" jdbcType="TIMESTAMP"/>
+        <result column="LASTEST_UPDATE_TYPE" property="lastestUpdateType" jdbcType="VARCHAR"/>
+        <result column="LASTEST_UPDATE_NO" property="lastestUpdateNo" jdbcType="DECIMAL"/>
+
+        <result column="CARD_ORD" property="cardOrg" jdbcType="VARCHAR"/>
+        <result column="MCC" property="mcc" jdbcType="VARCHAR"/>
+        <result column="TERMINAL_CODE" property="terminalCode" jdbcType="VARCHAR"/>
+        <result column="MEMBER_CURRENT_ID" property="memberCurrentId" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="preController">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+    		SELECT '101' || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_PRE_CONTROLLER.nextval, 6, 0)  FROM DUAL
+        </selectKey>
+        INSERT INTO PRE_CONTROLLER(
+            ID,MEMBER_CODE,ORDER_ID,TRADE_ORDER_NO,PAYMENT_ORDER_NO,
+            CHANNEL_ORDER_NO,CHANNEL_RESPONSE_NO,CREATE_DATE,ORG_CODE,EXCHANGE_RATE,
+        PRE_AUTHOR_AMOUNT,PRE_CURRENCY_CODE,ACT_AUTHOR_AMOUNT,ACT_CURRENCY_CODE,CAPTURE_AMOUNT_TOTAL,ACT_CAP_AMOUNT_TOTAL,AUTHOR_STATUS,CAPTURE_STATUS
+			,AUTHOR_VOID_STATUS,PAYMENT_CHANNEL_ITEM_ID,CHANNEL_CONFIG_ID,LASTEST_UPDATE_DATE,LASTEST_UPDATE_TYPE,LASTEST_UPDATE_NO
+        )
+        VALUES(
+            #id#,#memberCode#,#orderId#,null,null,
+			null,null,sysdate,null,null,
+			#preAuthorAmount#,#preCurrencyCode#,null,null,0,0,'0','0','0'
+			,null,null,sysdate,'0',null
+		)
+    </insert>
+    
+    <update id="update" parameterClass="preController">
+        UPDATE PRE_CONTROLLER SET LASTEST_UPDATE_DATE = sysdate
+          <isNotNull prepend="," property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="channelOrderNo">
+            CHANNEL_ORDER_NO = #channelOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="channelResponseNo">
+            CHANNEL_RESPONSE_NO = #channelResponseNo#
+        </isNotNull>
+        <isNotNull prepend="," property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate#
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="actAuthorAmount">
+            ACT_AUTHOR_AMOUNT = #actAuthorAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="actCurrencyCode">
+            ACT_CURRENCY_CODE = #actCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="captureAmountTotal">
+            CAPTURE_AMOUNT_TOTAL = #captureAmountTotal#
+        </isNotNull>
+        <isNotNull prepend="," property="actCapAmountTotal">
+            ACT_CAP_AMOUNT_TOTAL = #actCapAmountTotal#
+        </isNotNull>
+        <isNotNull prepend="," property="authorStatus">
+            AUTHOR_STATUS = #authorStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="captureStatus">
+            CAPTURE_STATUS = #captureStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="authorVoidStatus">
+            AUTHOR_VOID_STATUS = #authorVoidStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentChannelItemId">
+            PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+        </isNotNull>
+        <isNotNull prepend="," property="channelConfigId">
+            CHANNEL_CONFIG_ID = #channelConfigId#
+        </isNotNull>
+        <isNotNull prepend="," property="lastestUpdateType">
+            LASTEST_UPDATE_TYPE = #lastestUpdateType#
+        </isNotNull>
+        <isNotNull prepend="," property="lastestUpdateNo">
+            LASTEST_UPDATE_NO = #lastestUpdateNo#
+        </isNotNull>
+        <isNotNull prepend="," property="cardOrg">
+            CARD_ORD = #cardOrg#
+        </isNotNull>
+        <isNotNull prepend="," property="terminalCode">
+            TERMINAL_CODE = #terminalCode#
+        </isNotNull>
+        <isNotNull prepend="," property="memberCurrentId">
+            MEMBER_CURRENT_ID = #memberCurrentId#
+        </isNotNull>
+        <isNotNull prepend="," property="mcc">
+            MCC = #mcc#
+        </isNotNull>
+        WHERE id = #id#
+    </update>
+    
+	<select id="findById" resultMap="preControllerResult" parameterClass="java.lang.Long">
+        SELECT * FROM PRE_CONTROLLER WHERE ID = #id#
+	</select>
+
+    <select id="findByPreAuthTraderNo" resultMap="preControllerResult" parameterClass="java.lang.Long">
+        SELECT * FROM PRE_CONTROLLER WHERE TRADE_ORDER_NO = #preAuthTradeNo#
+    </select>
+
+    <select id="findByMemberAndOrderId" resultMap="preControllerResult" parameterClass="preController">
+        SELECT * FROM PRE_CONTROLLER WHERE MEMBER_CODE = #memberCode# and ORDER_ID = #orderId#
+    </select>
+
+</sqlMap>

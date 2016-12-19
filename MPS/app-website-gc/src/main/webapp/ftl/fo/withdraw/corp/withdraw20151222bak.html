@@ -1,0 +1,456 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<meta http-equiv="Cache-Control" content="no-store">
+<meta http-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<title>提现记录</title>
+<script type="text/javascript" charset="utf-8">
+
+	var supportWithdraw = "0";
+	
+	var singleAmount = parseFloat('${(command.singleLimitAmount?default(0))}');
+	var dayLimitAmount = parseFloat('${command.dayLimitAmount?default(0)}');
+	var monthLimitAmount = parseFloat('${command.monthLimitAmount?default(0)}');
+	var currentDayAmount = parseFloat('${command.TodayPaymentAmount?default(0)}');
+	var currentMonthAmount = parseFloat('${command.currentMonthPaymnetAmount?default(0)}');
+
+	function validate(){
+		if($("#memberAcctCode").val() == ""){
+			$("#tipAcctDiv").show();
+			$("#tipAcct").html("请选择提现账户");
+			return false;
+		}
+		if($("#payeeBankAcctCode").val() == ""){
+			$("#tipDate").show();
+			$("#tipBank").html("请选择提现银行账户");
+			return false;
+		}
+		if(supportWithdraw == "0") {
+			return false;
+		}
+		if($("#requestAmount").val() == ''){
+			$("#requestAmountTip").text("请输入提现金额");
+			return false;
+		}
+
+		var re = /^[0-9]+.?[0-9]*$/;
+		var re2 = /^\d+\.\d{1,2}$/;
+		if (!re.test($("#requestAmount").val()) || parseFloat($("#requestAmount").val())=='0') {    
+			$("#requestAmountTip").text("请输入正确的提现金额");
+			return false;
+		}
+		if($("#requestAmount").val().indexOf('.')>0) {
+			if (!re2.test($("#requestAmount").val())) {    
+				$("#requestAmountTip").text("请输入正确的提现金额");
+				return false;
+			}
+		}
+		if($("#requestAmount").val().indexOf('0')==0) {
+			if($("#requestAmount").val().indexOf('.') != 1) {
+					$("#requestAmountTip").text("请输入正确的提现金额");
+					return false;
+			} 
+		}
+
+		
+		var paymentAmount =parseFloat($("#requestAmount").val());
+		
+		var maxlimitStr = $("#maxLimitStr").val();
+
+		
+		if (paymentAmount > singleAmount) {
+			$("#requestAmountTip").text('单笔最多付款'+maxlimitStr+'元');
+			return false;
+		}
+
+	    var _currentDayAmount =	currentDayAmount+ paymentAmount;
+		var _currentMonthAmount = currentMonthAmount+ paymentAmount;
+		if(monthLimitAmount-currentMonthAmount>dayLimitAmount-currentDayAmount){
+			if(_currentDayAmount>dayLimitAmount){
+				$("#requestAmountTip").text('每日最多付款'+$("#dayLimitAmountStr").val()+'元，您今天最多还可以付款'+$("#allowPaymentAmountStr").val()+'元');
+				return false;
+			}
+		}else{
+		
+			if(_currentMonthAmount>monthLimitAmount){
+				$("#requestAmountTip").text('每月最多付款'+$("#monthLimitAmountStr").val()+'元，您今天最多还可以付款'+$("#allowPaymentAmountStr").val()+'元');
+				return false;
+			}
+		}
+
+		var balance = $("#memberAcctCode").find("option:selected").attr("b");
+		if (paymentAmount> balance) {
+			document.getElementById("requestAmountTip").innerHTML="超过当前可用余额";
+			return false;
+		}
+		return true;
+	}
+	
+	function applyWithdraw(){
+
+		$.ajaxSetup({ 
+			async: false 
+		}); 
+		
+		if(!validate())
+			return false;
+
+		//增加出款渠道网银限额约束
+		var city = $("#payeeBankAcctCode").find("option:selected").attr("data-city");
+		var bankName = $("#payeeBankAcctCode").find("option:selected").attr("data-l");
+		var payerAcctType = $("#memberAcctCode").find("option:selected").attr("t");
+		var currencyCode = $("#memberAcctCode").find("option:selected").attr("c");
+		
+		var url="${rc.contextPath}/corp/withdraw.htm";
+		var passStatus = true;
+		var data="method=checkFundAmountLimit&bankCode="+$("#payeeBankCode").val()+"&requestAmount="+$("#requestAmount").val()+"&city="+city + "&payerAcctType=" + payerAcctType;
+		$.post(url, data, function(res){
+			if(res != ""){
+				$("#requestAmountTip").html(bankName + "付款限额为" + res + "元，您已超过单笔付款限额");
+				passStatus = false;
+			}
+		});
+		if(!passStatus){
+			return false;
+		}
+		//结束
+		
+		$("#withdraw_submit").attr("disabled", true);
+		$('#payerAcctType').val(payerAcctType);
+		$('#currencyCode').val(currencyCode);
+		$('#applyWithdrawForm').submit();
+		
+	}
+	
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3'
+	      });
+	}
+
+	$(function(){
+		
+		//计算手续费
+		$("#requestAmount").blur(function(){
+			
+			if($("#requestAmount").val() == ''){
+				return;
+			}
+			
+			var _requestAmount = parseFloat($("#requestAmount").val());
+			var currencyCode = $("#memberAcctCode").find("option:selected").attr("c");
+			var payerAcctType = $("#memberAcctCode").find("option:selected").attr("t");
+			var payeeBankCode = $("#payeeBankCode").val();
+			var data = {"method":"caculateFee","requestAmount":_requestAmount,"payerAcctType":payerAcctType,"currencyCode":currencyCode,"payeeBankCode":payeeBankCode};
+			$("#requestAmountTip").html("");
+			jQuery.post("${rc.contextPath}/corp/withdraw.htm?date="+new Date(),data,function(response){
+				var obj;
+				if(""!=response){
+					obj = eval("("+response+")");
+					if(obj.error != ''){
+						var msg = getMessage(obj.error);
+						$("#requestAmountTip").html(msg);
+						return;
+					}
+					$("#requestFee").html(obj.feeStr);
+					$("#fee").val(obj.fee);
+					if(obj.balance<0){
+						$("#requestAmountTip").html("超过当前可用余额");
+					}
+				}
+				
+			});
+		});
+		
+		$('#requestAmount').keypress(function(e){
+			if(e.which == 8 ||e.which == 0 )return true;
+			if(((e.which >= 45 && e.which <= 57) && e.ctrlKey == false && e.shiftKey == false) || e.which == 0 || e.which == 8) {
+				if(e.which == 45){
+					return false;
+				} else if(e.which == 46){
+					if($(this).val().indexOf(".") == -1 && $(this).val().length !=0) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+				return true;
+			} 
+			return false;
+		}).bind("paste",function(){return false;}).css({'imeMode':"disabled",'-moz-user-select':"none"}).blur(function(){
+			if(!validate())
+				return false;
+		});
+		
+		$("#memberAcctCode").change(function(e) {
+			if($("#memberAcctCode").val() !=""){
+				$("#tipAcctDiv").hide();
+			}
+		});
+	
+		$("#payeeBankAcctCode").change(function(e) {
+			if($("#payeeBankAcctCode").val() !=""){
+				$("#tipDate").show();
+				$.ajax({
+					type:"GET",
+					url:"${rc.contextPath}/corp/withdraw.htm?method=getWithdrawChannel&targetBankId=" + $("#payeeBankAcctCode option:selected").attr("data-c") + "&date=" + new Date(),
+					dataType:"JSON",
+					success:function(data){
+			           if(data == "1") {
+							supportWithdraw = "1";
+							$("#tipBank").text("到账日期一般在2-5个工作日");
+							$("#payeeBankName").val($("#payeeBankAcctCode option:selected").attr("data-l"));
+							$("#payeeBankCode").val($("#payeeBankAcctCode option:selected").attr("data-c"));
+							$("#payeeOpeningBankName").val($("#payeeBankAcctCode option:selected").attr("data-o"));
+							$("#payeeBankProvince").val($("#payeeBankAcctCode option:selected").attr("data-p"));
+							$("#payeeBankCity").val($("#payeeBankAcctCode option:selected").attr("data-city"));
+							$("#payeeName").val($("#payeeBankAcctCode option:selected").attr("data-name"));
+							$("#validateCode").val($("#payeeBankAcctCode option:selected").attr("data-h"));
+							
+			           }else {
+							supportWithdraw = "0";
+							$("#tipBank").text("暂不支持提现到" + $("#payeeBankAcctCode option:selected").attr("data-l"));
+			           }
+					}
+				}); 
+			}else {
+				$("#tipDate").hide();
+			}
+			
+		});
+
+		$("#requestAmount").hover(
+		  function () {
+		    $(this).addClass("inp_hover");
+		  },
+		  function () {
+		    $(this).removeClass("inp_hover");
+		  }
+		).focus(function () {
+		    $(this).addClass("inp_select");
+		}).blur(function(){ 
+			$(this).removeClass("inp_select");
+		});
+	
+	});
+	
+	
+</script>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+    	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+
+				<img src="<@sp.static/>/mps/images/logo.png"
+
+				alt="" title="" width="230" height="50" />
+
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a>
+				</li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+				<ul class="mainmenu clearfix">
+
+					<li id="topmenu_5"><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a>
+					</li>
+
+					<li id="topmenu_3"><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a>
+					</li>
+
+					<li id="topmenu_1"><a href="javascript:void(0)">操作员列表</a>
+					</li>
+
+					<li id="topmenu_2"><a href="javascript:void(0)">安全中心</a>
+					</li>
+					<li id="topmenu_6"><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a>
+					</li>
+
+				</ul>
+
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+
+					<li id="secmenu_5_51" class="current">
+						<a href="${rc.contextPath}/corp/myAccount.htm">基本信息</a>
+					</li>
+
+					<li id="secmenu_5_52" class="other">
+						<a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">账户余额明细</a>
+					</li>
+					<li id="secmenu_5_52" class="other">
+						<a href="${rc.contextPath}/corp/batchpay2bank.htm">批量付款</a>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<span class="current"><a href="${rc.contextPath}/corp/withdraw.htm">手工提现</a></span>
+			</div>
+				<input name="pageNo" id="pageNo" type="hidden" value="">
+				<input name="pageSize" id="pageSize" type="hidden" value="">
+				<div class="seccon">
+					<div class="bgbox">
+					    <form class="mod_form pad_center" action="${rc.contextPath}/corp/withdraw.htm" method="post" name="applyWithdrawForm" id="applyWithdrawForm">
+						<table class="tab01" style="line-height: 30px;">
+							<tbody>
+								<tr>
+									<td style="width:20%"><div align="right">提现账户</div></td>
+									<td style="width: 20%"> 
+										<select name="memberAcctCode" id="memberAcctCode">
+											<option value="">请选择账户</option>
+											<#if accts?exists>
+												<#list accts as acct>
+												<#assign endIndex = acct.acctName?index_of("基本")>
+												<option value="acct.memberAcctCode" b="${acct.balance/1000}" c="${acct.currencyCode}" t="${acct.acctType}">${acct.acctName},${acct.balance/1000?default("0.00")}${acct.acctName?substring(0,endIndex)}</option>
+												</#list>
+											</#if>
+										</select>
+									</td>
+									<td colspan="2" align="left">
+									    （您今日还可以提现 <strong class="red">${command.allowPaymentTimes?default(0)}</strong> 次）
+									</td>
+								</tr>
+								
+								<tr>
+									<td><div align="right">提现到银行 </div></td>
+									<td style="width: 20%">
+                                          <select class="inp_normal" id="payeeBankAcctCode" name="payeeBankAcctCode" >
+											<option value="" id="de">请选择</option>
+											<#list bankList as bl>
+												<#assign startIndex = (bl.bankAcctId?length)-4>
+												<#assign endIndex = bl.bankAcctId?length>
+												<option id="${bl.id}" 
+												 	data-l="${bl.bankName}" 
+												 	data-c="${bl.bankId}" 
+												 	data-o="${bl.branchBankName!''}"
+												 	data-p="${bl.province}"
+												 	data-city="${bl.city}"
+												 	data-name="${bl.name}"
+												 	data-h="${bl.validateCode}"
+												 	<#if bl.isPrimaryBankacct==1>selected="selected"</#if>
+												 	value="${bl.bankAcctId}">${bl.bankName}（****${bl.bankAcctId?substring(startIndex,endIndex)}）</option>
+											</#list>
+										</select>
+									</td>
+									<td colspan="2" align="left">
+									 <a class="red ml10" href="${rc.contextPath}/corp/editCorpBankCard.htm">添加银行账户</a> <span>（您还可以添加 <strong class="red">${10-bankList?size}</strong> 个）</span>
+									 	<input type="hidden" id="payeeBankCode" name="payeeBankCode" value="${command.payeeBankCode?default('')}">
+										<input type="hidden" id="payeeBankName" name="payeeBankName" value="${command.payeeBankName?default('')}">
+									    <input type="hidden" id="payeeOpeningBankName" name="payeeOpeningBankName" value="${command.payeeOpeningBankName?default('')}">
+									    <input type="hidden" id="payeeBankProvince" name="payeeBankProvince" value="${command.payeeBankProvince?default('')}">
+									    <input type="hidden" id="payeeBankCity" name="payeeBankCity" value="${command.payeeBankCity?default('')}">
+									    <input type="hidden" id="validateCode" name="validateCode" value="${command.validateCode?default('')}">
+									    <input type="hidden" id="payeeName" name="payeeName" value="${command.payeeName?default('')}">
+									    <input type="hidden" id="payerAcctType" name="payerAcctType" value="">
+									    <input type="hidden" id="currencyCode" name="currencyCode" value="">
+									</td>
+								</tr>
+								<tr>
+								  <td style="width:20%"><div align="right">提现金额</div></td>
+									<td style="width: 20%" colspan="2"> 
+                                          <input type="text" class="inp_normal" name="requestAmount" id="requestAmount" value="${requestAmount?default('')}"> 元  &nbsp;&nbsp;&nbsp;
+							              <span id="requestAmountTip" class="red"></span>
+									</td>
+									<td align="left" style="color: red">
+							<div id="tipDate"  style="display:none;" class="bank_tips">
+								<p id="tipBank">到账日期一般在2-5个工作日</p>
+								<span class="arrow_t"></span> <span class="arrow_t_inner"></span>
+							</div>
+									</td>
+								</tr>
+								<tr>
+								  <td style="width:20%"><div align="right">手续费</div></td>
+									<td style="width: 20%"> 
+									   <strong id="requestFee" class="red font14">0.00</strong> 元
+									</td>
+									<td colspan="2" align="left">
+									</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td colspan="3">
+										<input type="button"  onclick="return applyWithdraw();" id="withdraw_submit" name="withdraw_submit" alt="下一步" value="下一步">
+									</td>
+								</tr>
+							</tbody>
+						</table>
+											<input type="hidden" id="method" name="method" value="confirm">
+	    			<input type="hidden" id="singleLimitAmount" name="singleLimitAmount" value="${command.singleLimitAmount?default(0)}" >
+	    			<input type="hidden" id="maxLimitStr" name="maxLimitStr" value="${command.singleLimitAmountStr?default('0.00')}" >
+	    			<input type="hidden" id="dayLimitAmountStr" name="dayLimitAmountStr" value="${command.dayLimitAmountStr?default('0.00')}"  >
+	    			<input type="hidden" id="monthLimitAmountStr" name="monthLimitAmountStr" value="${command.monthLimitAmountStr?default('0.00')}"  >
+	    			<input type="hidden" id="allowPaymentAmountStr" name="allowPaymentAmountStr" value="${command.allowPaymentAmount?default('0.00')}"  >
+	    			<input type="hidden" id="currentBanlance" name="currentBanlance" value="${command.currentBanlance?default(0)}" >
+	                 <input type="hidden" id="token" name="token" value="${token?default('')}">
+					<input type="hidden" id="fee" name="fee">
+						</form>
+					</div>
+				<div><font color="red"></font></div>
+					<div class="listFence" id="resultListDiv">
+					</div>	
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--footer -->
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		$("#payeeBankAcctCode").change();
+	});
+
+<#if message?exists>
+	var message = '${message}';
+	if(''!=message&&null!=message){
+		$.pay.alert(message, {
+			h : 160,
+			w : 450,
+			t : '3',
+			close:function(){
+			$("#withdraw_submit").focus();
+			$("#withdraw_submit").attr("disabled", false);
+		}});
+		
+		alert(message);
+	}
+</#if>
+</script>
+<#include "/include/myfoot.html">
+</body></html>

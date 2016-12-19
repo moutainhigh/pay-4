@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>file:/opt/pay/config/inf/notification/notification-jms.properties</value>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	
+	<bean id="pooledConnectionFactory"
+        class="org.springframework.jms.connection.CachingConnectionFactory">
+        <property name="targetConnectionFactory" ref="connectionFactory01" />
+    </bean>
+    
+	<bean id="connectionFactory01" class="org.apache.activemq.spring.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="${notification.brokerURL}" />
+		<property name="sendTimeout" value="1000"/>
+	</bean>
+	
+	<bean id="destination01" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- Set the Queue Name -->
+		<constructor-arg index="0" value="notify.forpay" />
+	</bean>
+	
+	<bean id="destination02" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- Set the Queue Name -->
+		<constructor-arg index="0" value="notify.forpay.blacklist" />
+	</bean>
+	<bean id="destination03" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- Set the Queue Name -->
+		<constructor-arg index="0" value="notify.forpay.ordercredit" />
+	</bean>
+
+	<bean id="destination04" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- Set the Queue Name -->
+		<constructor-arg index="0" value="notify.freeAuto" />
+	</bean>
+	<bean id="destination05" class="org.apache.activemq.command.ActiveMQQueue">
+		<!-- Set the Queue Name -->
+		<constructor-arg index="0" value="notify.cancelPreAuthApply" />
+	</bean>
+	
+
+	<bean id="mqMessageListener" class="com.pay.jms.listener.MQMessageListener">
+		<property name="procContext">
+			<map>
+				<entry key="RECURRING" value-ref="recurringService" />
+				<entry key="CHANNEL_MID_AMT" value-ref="channelMidAmtService" />
+
+				<entry key="MERCHANT_WEBSITE_CHECK" value-ref="merchantWebsiteCheckService" />
+				<!-- 异常卡 -->
+				<entry key="EXCEPTIONP_CARD" value-ref="exceptionCardSender" />
+				<!-- 交易日报表数据更新 -->
+				<entry key="TRAN_DAILY_REPORT" value-ref="tranDailyReportSender" />
+				
+			</map>
+		</property>
+	</bean>
+	<bean id="BlacklistMessageListener" class="com.pay.jms.listener.BlacklistMessageListener">
+	<property name="blacklistCheckService" ref="blacklistCheckService"></property>
+	<property name="redisClient" ref="redisClient"></property>
+	<property name="orderThreholdService" ref="orderThreholdService"></property>
+	<property name="jmsSender" ref="jmsSender" />
+	<property name="orderMonitorService" ref="orderMonitorService"></property>
+	
+	</bean>
+	
+	
+	<bean id="orderCreditLiquidationListener" class="com.pay.jms.listener.OrderCreditLiquidationListener">
+	<property name="settleClientService" ref="settleClientService" />
+	</bean>
+
+	<bean id="channelFreeConnectMessageListener" class="com.pay.jms.listener.ChannelFreeConnectMessageListener">
+		<property name="channelClientService" ref="channelClientService" />
+	</bean>
+	
+	<bean id="cancelPreAuthMessageListener" class="com.pay.jms.listener.CancelPreAuthMessageListener">
+		<property name="invokeService" ref="client-txncoreService" />
+	</bean>
+	
+	<bean id="jmsContainer01"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory01" />
+		<property name="destination" ref="destination01" />
+		<property name="messageListener" ref="mqMessageListener" />
+		<property name="maxConcurrentConsumers" value="10" />
+	</bean>
+	
+	<bean id="jmsContainer02"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory01" />
+		<property name="destination" ref="destination02" />
+		<property name="messageListener" ref="BlacklistMessageListener" />
+		<property name="maxConcurrentConsumers" value="10" />
+	</bean>
+	
+	
+	
+	<bean id="jmsContainer03"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory01" />
+		<property name="destination" ref="destination03" />
+		<property name="messageListener" ref="orderCreditLiquidationListener" />
+		<property name="maxConcurrentConsumers" value="10" />
+	</bean>
+
+	<bean id="jmsContainer04"
+		  class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory01" />
+		<property name="destination" ref="destination04" />
+		<property name="messageListener" ref="channelFreeConnectMessageListener" />
+		<property name="maxConcurrentConsumers" value="10" />
+	</bean>
+	
+	<bean id="jmsContainer05"
+		  class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="connectionFactory01" />
+		<property name="destination" ref="destination05" />
+		<property name="messageListener" ref="cancelPreAuthMessageListener" />
+		<property name="maxConcurrentConsumers" value="10" />
+	</bean>
+</beans>

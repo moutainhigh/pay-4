@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<bean id="fundout-timeconfig-BatchTimeConfigService"
+		class="com.pay.fundout.withdraw.service.timeconfig.impl.BatchTimeConfigServiceImpl">
+		<property name="batchTimeConfigDAO" ref="fundout-timeconfig-BatchTimeConfigDao"></property>
+	</bean>
+	<bean id="fundout_wihtdraw_batchTimeSchedule"
+		class="com.pay.fundout.withdraw.schedule.impl.BatchTimeScheduleImpl" >
+		<property name="batchTimeTaskExecutor">
+			<ref bean="fundout_wihtdraw_batchTimeTaskExecutor"/>
+		</property>	
+	</bean>
+	
+	<bean id="fundout_wihtdraw_batchTimeTaskExecutor" class="com.pay.fundout.withdraw.task.impl.BatchTimeTaskExecutorImpl">
+		<property name="batchTimeConfigService">
+			<ref bean="fundout-timeconfig-BatchTimeConfigService"/>
+		</property>
+		<property name="quartzRunInfoService">
+			<ref bean="fundout_withdraw_quartzRunInfoService"/>
+		</property>
+		<property name="batchTimeGenerationService">
+			<ref bean="fundout_wihtdraw_batchTimeGenerationService"/>
+		</property>
+		<property name="taskExecutor">
+			<ref bean="fundout_wihtdraw_taskExecutor"/>
+		</property>
+		<property name="quartzRunSpan">
+			<value>5</value>
+		</property>
+	</bean>
+	
+	<bean id="fundout_wihtdraw_batchTimeGenerationService" class="com.pay.fundout.withdraw.quartz.batch.impl.BatchTimeGenerationServiceImpl">
+		<property name="batchRuleConfigService">
+			<ref bean="fundout-ruleconfig-BatchRuleConfigService"/>
+		</property>
+	</bean>
+	
+	<bean class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" id="fundout_wihtdraw_taskExecutor">
+        <property value="25" name="corePoolSize"/>
+        <property value="50" name="maxPoolSize"/>
+        <property value="1000" name="queueCapacity"/>
+    </bean>
+</beans>

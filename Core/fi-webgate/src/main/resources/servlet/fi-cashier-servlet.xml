@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="webgateCashierHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/zsyPay.htm">zsyCashierAcquireController</prop>
+				<prop key="/pay.htm">cashierAcquireController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="zsyCashierAcquireController"
+		class="com.pay.gateway.controller.cashier.ZsyCashierAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="failRedirectUrl" value="http://chaoyue-pc/gateway/cashierFail.htm" />
+		<property name="successRedirectUrl" value="http://chaoyue-pc/gateway/zsyCashier.htm" />
+	</bean>
+	
+	<bean id="cashierAcquireController"
+		class="com.pay.gateway.controller.cashier.CashierAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="failRedirectUrl" value="http://chaoyue-pc/gateway/cashierFail.htm" />
+		<property name="successRedirectUrl" value="http://chaoyue-pc/gateway/cashier.htm" />
+	</bean>
+
+</beans>

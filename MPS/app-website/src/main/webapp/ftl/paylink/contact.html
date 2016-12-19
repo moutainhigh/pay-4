@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>售后联系方式</title>
+<style type="text/css">
+	a{text-decoration:underline;}
+	.border0{border:0px;}
+</style>
+<script type="text/javascript">
+	function contactNullCheck() {
+		var contact = $("#contact").val() ;
+		if(null == contact || "" == contact){
+			alert("联系方式不能为空！") ;
+			return false ;
+		}
+		if(contact.length > 25){
+			alert("长度超出最大值!") ;
+			return false ;
+		}
+	}
+</script>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+<@sp.head  mCode="corp_paylink_basicinfo"/>
+	
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+			<div class="seccon">
+				<div class="tit">
+					<span ><a href="${rc.contextPath}/corp/paylink.htm?method=payLinkBasicInfoMaintain">商户logo</a></span>
+					<span ><a href="${rc.contextPath}/corp/paylink.htm?method=payShopTerm">购物条款</a></span>
+					<span class="current"><a href="#">售后联系方式</a></span>
+				</div>
+				<form class="form" action="${rc.contextPath}/corp/paylink.htm?method=doContactUorS" method="post" name="" id="">
+					<#if baseInfo.infoId ? has_content><!--  && baseInfo.contact ? has_content -->
+						<input type="hidden" value="doUpdate" id="doUpdate" name="doUpdate"/>
+						<input type="hidden" value="${baseInfo.infoId?default('')}" id="infoId" name="infoId"/>
+					</#if>
+					<table class="tab03">
+						<tbody>
+							<tr>
+								<td colspan="7" style="border:0px;">
+									<div align="left" style="padding-left:30px;">
+										请添加售后联系方式，可以为邮箱或者电话等联系方式。售后联系方式将显示在买家支付成功后发送的邮件中。
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td width="250" style="border:0px;">
+									<div style="padding-left:30px;">
+										<input type="text" name="contact" id="contact" value="${baseInfo.contact?default('')}" class="base-input"/>
+									</div>
+								</td>
+								<td style="border:0px;" colspan="6">
+									<div align="left">
+										<#if baseInfo.infoId ? has_content && baseInfo.contact ? exists>
+											<input type="submit" id="" onclick="javascript:var f = window.confirm('确认修改吗？');if(f){return contactNullCheck() ;}" value="保  存" class="btn_blue2"/>
+											<#else>
+												<input type="submit" onclick="javascript:return contactNullCheck() ;" id="" value="保  存" class="btn_blue2"/>
+										</#if>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

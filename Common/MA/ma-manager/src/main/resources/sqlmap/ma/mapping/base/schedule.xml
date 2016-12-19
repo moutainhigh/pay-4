@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="schedulet">
+	<typeAlias alias="task" type="com.pay.poss.base.model.Task" />
+	<typeAlias alias="batch" type="com.pay.poss.base.model.BatchInfo" />
+	<typeAlias alias="baseBatchFileInfo" type="com.pay.poss.base.model.BatchFileInfo" />
+	
+	<insert id="insertTask" parameterClass="task">
+		<selectKey resultClass="Long" keyProperty="scheduleKY">
+			SELECT SEQ_SCHEDULE_SCHEDULEKY.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO 
+        	SCHEDULE_STATUS 
+        	(
+        	  SCHEDULE_KY,   
+			  CALL_SEQ,      
+			  CALL_TIME,     
+			  CALL_TYPE,     
+			  EXEC_DATE,     
+			  EXEC_WEEK,     
+			  EXEC_TIME,     
+			  BUSI_CODE,     
+			  BUSI_PRIORITY, 
+			  BUSI_PARAMS,   
+			  STATUS        
+            )
+       VALUES 
+        	(
+        		#scheduleKY#,
+        		#callSeq#,
+        		#callTime#,
+        		#callType#,
+        		#execDate#,
+        		#execWeek#,
+        		#execTime#,
+        		#busiCode#,
+        		#busiPriority#,
+        		#busiParam#,
+        		#status#
+        	)
+	</insert>
+	
+	<insert id="insertBatch" parameterClass="batch">
+		<selectKey resultClass="Long" keyProperty="batchKy">
+			SELECT SEQ_BATCH_KEY.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO 
+        	BATCH_INFO 
+        	(
+				BATCH_KY, 
+				RULE_KY, 
+				BATCH_NUM,
+				BATCH_TYPE,
+				OPERATORS,
+				UPDATE_TIME,  
+				RULE_NAME
+            )
+       VALUES 
+        	(
+				#batchKy#,
+				#ruleKy#,
+				#batchNum#,
+				#batchType#,
+				#operators#,
+				#updatetime#,
+				#ruleName#
+        	)
+	</insert>	
+	
+	<update id="updateScheduleStatus">
+		UPDATE SCHEDULE_STATUS
+			SET STATUS=#execStatus# 
+		WHERE SCHEDULE_KY=#scheduleKY#
+	</update>
+	
+	<insert id="insertBatchRelation">
+        INSERT INTO 
+        	BATCH_RELATION 
+        	(
+				OLD_BATCHNUM, 
+				NEW_BATCHNUM
+            )
+       VALUES 
+        	(
+				#oldBatchNum#,
+				#newBatchNum#
+        	)
+	</insert>	
+	
+	
+	
+	<update id="fo-UpdateBatchInfo" parameterClass="batch">
+        UPDATE 	BATCH_INFO	
+        	SET UPDATE_TIME = sysdate 
+        	<isNotEmpty property="ruleName"  prepend=",">
+        		RULE_NAME = #ruleName#
+        	</isNotEmpty>
+        	<isNotEmpty property="status" prepend=",">
+        		STATUS = #status#
+        	</isNotEmpty>
+        	<isNotEmpty property="batchName" prepend=",">
+        		BATCH_NAME = #batchName#
+        	</isNotEmpty>
+      	  <dynamic prepend="WHERE"> 
+	       		 <isNotEmpty property="batchKy" prepend="AND">
+	        		BATCH_KY = #batchKy#
+	        	</isNotEmpty>
+	       		 <isNotEmpty property="ruleKy" prepend="and">
+	        		RULE_KY = #ruleKy#
+	        	</isNotEmpty>
+	       		 <isNotEmpty property="batchNum" prepend="and">
+	        		BATCH_NUM = #batchNum#
+	        	</isNotEmpty>
+       	 </dynamic>
+    </update>
+    
+	<update id="fo-UpdateBatchFileInfo" parameterClass="baseBatchFileInfo">
+        UPDATE 	BATCH_FILE_INFO	
+        
+        	SET UPDATE_TIME = sysdate 
+        
+        	<isNotEmpty property="dlBatchCount"  prepend=",">
+        		DL_BATCH_COUNT = #dlBatchCount#
+        	</isNotEmpty>
+        	<isNotEmpty property="batchFileStatus"  prepend=",">
+        		BATCH_FILE_STATUS = #batchFileStatus#
+        	</isNotEmpty>
+        	<isNotEmpty property="dlBatchBusiCount" prepend=",">
+        		DL_BATCH_BUSI_COUNT = dlBatchBusiCount
+        	</isNotEmpty>
+        	<isNotEmpty property="dlBankCount" prepend=",">
+        		DL_BANK_COUNT = #dlBankCount#
+        	</isNotEmpty>
+        	<isNotEmpty property="dlBankBusiCount" prepend=",">
+        		DL_BANK_BUSI_COUNT = #dlBankBusiCount#
+        	</isNotEmpty>
+        	<isNotEmpty property="generateTime" prepend=",">
+        		GENERATE_TIME = #generateTime#
+        	</isNotEmpty>
+        	<isNotEmpty property="downloadTime" prepend=",">
+        		DOWNLOAD_TIME = #downloadTime#
+        	</isNotEmpty>
+        	<isNotEmpty property="importTime" prepend=",">
+        		IMPORT_TIME = #importTime#
+        	</isNotEmpty>
+        	<isNotEmpty property="sureimportTime" prepend=",">
+        		SUREIMPORT_TIME = #sureimportTime#
+        	</isNotEmpty>
+        <dynamic prepend=" WHERE ">  
+       		 <isNotEmpty property="fileType" prepend="AND">
+        		FILE_TYPE = #fileType#
+        	</isNotEmpty>
+       		 <isNotEmpty property="fileKy" prepend="and">
+        		FILE_KY = #fileKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="batchNum" prepend="and">
+        		BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+        </dynamic>
+    </update>
+	
+		
+	 <select id="fo-QueryBatchInfo" parameterClass="batch" resultClass="batch">
+       	 SELECT 
+		       	   BATCH_KY      			batchKy    ,
+		           RULE_NAME      			ruleName    ,
+		           RULE_KY        			ruleKy      ,
+		           BATCH_NUM     		 	batchNum    ,
+		           BATCH_TYPE      			batchType    ,
+		           STATUS				  	status		,
+		       	   decode(STATUS,1,'批次未生成',2,'批次已生成',3,'已废除批次文件',4,'已出批次文件',5,'未出批次文件',STATUS)	statusDesc	
+  		FROM BATCH_INFO  
+  		 <dynamic prepend=" WHERE ">  
+       		 <isNotEmpty property="batchNum" prepend="AND">
+        		 BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+       		 <isNotEmpty property="batchKy" prepend="and">
+        		BATCH_KY = #batchKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="ruleKy" prepend="and">
+        		RULE_KY = #ruleKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="batchType" prepend="and">
+        		BATCH_TYPE = #batchType#
+        	</isNotEmpty>
+        </dynamic>
+	</select>
+	
+	
+	
+    <!-- 新增文件信息 -->
+    <insert id="insertBatchFileInfo" parameterClass="baseBatchFileInfo">
+    	<selectKey resultClass="Long" keyProperty="fileKy">
+			SELECT SEQ_FILE_KY.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO BATCH_FILE_INFO (
+        	file_ky, batch_num, file_path, file_name, file_type, all_amount, all_count, 
+        	bank_code, operators, update_time, generate_time,batch_file_status
+        )values (
+        	#fileKy#, 
+        	#batchNum#, 
+        	#filePath#, 
+        	#fileName#, 
+        	#fileType#, 
+        	#allAmount#, 
+        	#allCount#,
+            #bankCode#, 
+            #operators#, 
+            #updateTime#,
+            sysdate	,
+            #batchFileStatus# 
+            
+        )
+    </insert>
+	
+	 <select id="fo-QueryBatchFileInfo" parameterClass="baseBatchFileInfo" resultClass="baseBatchFileInfo">
+      	 SELECT 	FILE_KY					fileKy			, 
+      	 			BATCH_NUM				batchNum		, 
+      	 			FILE_PATH				filePath		, 
+      	 			FILE_NAME				fileName		, 
+      	 			FILE_TYPE				fileType		, 
+      	 			ALL_AMOUNT				allAmount		, 
+      	 			ALL_COUNT				allCount		, 
+      	 			BANK_CODE				bankCode		, 
+      	 			OPERATORS				operators		, 
+      	 			UPDATE_TIME				updateTime		, 
+      	 			DL_BATCH_COUNT			dlBatchCount	, 
+      	 			DL_BATCH_BUSI_COUNT		dlBatchBusiCount, 
+      	 			DL_BANK_COUNT			dlBankCount		, 
+      	 			DL_BANK_BUSI_COUNT		dlBankBusiCount , 
+      	 			GENERATE_TIME			generateTime	, 
+      	 			DOWNLOAD_TIME			downloadTime	, 
+      	 			IMPORT_TIME				importTime		, 
+      	 			BATCH_FILE_STATUS		batchFileStatus	, 
+      	 			SUREIMPORT_TIME			sureimportTime 
+      	 FROM BATCH_FILE_INFO
+  		 <dynamic prepend=" WHERE ">  
+       		 <isNotEmpty property="batchNum" prepend="AND">
+        		 BATCH_NUM = #batchNum#
+        	</isNotEmpty>
+       		 <isNotEmpty property="batchKy" prepend="and">
+        		BATCH_KY = #batchKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="fileKy" prepend="and">
+        		FILE_KY = #fileKy#
+        	</isNotEmpty>
+       		 <isNotEmpty property="fileType" prepend="and">
+        		FILE_TYPE = #fileType#
+        	</isNotEmpty>
+        </dynamic>
+	</select>
+	
+	
+</sqlMap>

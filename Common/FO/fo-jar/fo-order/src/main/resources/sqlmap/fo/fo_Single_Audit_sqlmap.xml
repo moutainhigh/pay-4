@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatisfin.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="SingleAuditQuery">
+	<typeAlias alias="SingleAuditQueryInfo" type="com.pay.fo.order.model.audit.SingleAuditQueryInfo"/>
+	<resultMap id="SingleAuditQueryInfoResult" class="com.pay.fo.order.model.audit.SingleAuditQueryInfo" >
+    <result column="SEQUENCE_ID" property="workOrderId" jdbcType="DECIMAL"/>
+    <result column="STATUS" property="workOrderStatus" jdbcType="DECIMAL"/>
+    <result column="CREATE_MEMBER_CODE" property="createMemberCode" jdbcType="DECIMAL"/>
+    <result column="CREATE_OPERATOR" property="createOperator" jdbcType="VARCHAR"/>
+    <result column="AUDIT_MEMBER_CODE" property="auditMemberCode" jdbcType="DECIMAL"/>
+    <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+    <result column="AUDIT_REMARK" property="auditRemark" jdbcType="VARCHAR"/>
+    <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+    <result column="ORDER_TYPE" property="orderType" jdbcType="DECIMAL" />
+     <result column="ORDER_SMALLTYPE" property="orderSmallType" jdbcType="VARCHAR" />
+    <result column="ORDER_STATUS" property="orderStatus" jdbcType="DECIMAL" />
+    <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+    <result column="IS_PAYERPAYFEE" property="isPayerPayFee" jdbcType="DECIMAL" />
+    <result column="FEE" property="fee" jdbcType="DECIMAL" />
+    <result column="REALPAY_AMOUNT" property="realpayAmount" jdbcType="DECIMAL" />
+    <result column="REALOUT_AMOUNT" property="realoutAmount" jdbcType="DECIMAL" />
+    <result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR" />
+    <result column="PAYER_LOGINNAME" property="payerLoginName" jdbcType="VARCHAR" />
+    <result column="PAYER_MEMBERCODE" property="payerMemberCode" jdbcType="DECIMAL" />
+    <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR" />
+    <result column="PAYEE_LOGINNAME" property="payeeLoginName" jdbcType="VARCHAR" />
+    <result column="PAYEE_MEMBERCODE" property="payeeMemberCode" jdbcType="DECIMAL" />
+    <result column="PAYMENT_REASON" property="paymentReason" jdbcType="VARCHAR" />
+    <result column="FAILED_REASON" property="failedReason" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="TRADE_ALIAS" property="tradeAlias" jdbcType="VARCHAR" />
+    <result column="TRADE_TYPE" property="tradeType" jdbcType="DECIMAL" />
+  </resultMap>
+	
+	<select id="queryAuditList" parameterClass="SingleAuditQueryInfo" resultMap="SingleAuditQueryInfoResult">
+		select 
+		  wo.sequence_id,
+		  wo.STATUS,
+		  wo.CREATE_MEMBER_CODE,
+		  wo.CREATE_OPERATOR,
+		  wo.AUDIT_MEMBER_CODE,
+		  wo.AUDIT_OPERATOR,
+		  wo.AUDIT_REMARK,
+		  wo.CREATE_DATE,
+		  oi.ORDER_ID,
+		  wo.ORDER_TYPE,
+		  wo.ORDER_SMALLTYPE,
+		  oi.ORDER_STATUS,
+		  oi.ORDER_AMOUNT,
+		  oi.IS_PAYERPAYFEE,
+		  oi.FEE,
+		  oi.REALPAY_AMOUNT,
+		  oi.REALOUT_AMOUNT,
+		  oi.PAYER_NAME,
+		  oi.PAYER_LOGINNAME,
+		  oi.PAYER_MEMBERCODE,
+		  oi.PAYEE_NAME,
+		  oi.PAYEE_LOGINNAME,
+		  oi.PAYEE_MEMBERCODE,
+		  oi.PAYMENT_REASON,
+		  oi.FAILED_REASON,
+		  oi.UPDATE_DATE,
+		  oi.TRADE_ALIAS,
+		  oi.TRADE_TYPE
+		FROM fo.order_info oi,fo.work_order wo 
+		WHERE oi.order_id=wo.order_seq AND
+		      wo.ORDER_SMALLTYPE = #orderSmallType# AND
+		      wo.CREATE_MEMBER_CODE = #createMemberCode#
+		<isNotNull prepend="AND" property="workOrderStatus">
+			  wo.STATUS = #workOrderStatus# 
+		</isNotNull>
+		<isNotEmpty prepend="AND" property="beginDate">
+			<![CDATA[
+		 		wo.CREATE_DATE >=  #beginDate#
+		 	]]>
+		</isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+         	<![CDATA[
+		 		wo.CREATE_DATE <=  #endDate#
+		 	]]>
+		</isNotEmpty>
+		 ORDER BY wo.CREATE_DATE DESC
+	</select>
+	
+	<select id="queryAuditList_COUNT" parameterClass="SingleAuditQueryInfo" resultClass="java.lang.Integer">
+		SELECT 
+			COUNT(1)
+  		FROM fo.order_info oi,fo.work_order wo 
+		WHERE oi.order_id=wo.order_seq AND
+		      wo.ORDER_SMALLTYPE = #orderSmallType# AND
+		      wo.CREATE_MEMBER_CODE = #createMemberCode#
+		<isNotNull prepend="AND" property="workOrderStatus">
+			  wo.STATUS = #workOrderStatus# 
+		</isNotNull>
+		<isNotEmpty prepend="AND" property="beginDate">
+			<![CDATA[
+		 		wo.CREATE_DATE >=  #beginDate#
+		 	]]>
+		</isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+         	<![CDATA[
+		 		wo.CREATE_DATE <=  #endDate#
+		 	]]>
+		</isNotEmpty>
+	</select>
+</sqlMap>

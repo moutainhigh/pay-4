@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcuserlevel">
+	<typeAlias alias="rcUserLevel" type="com.pay.rm.service.model.rmlimit.userlevel.RcUserLevel"/>
+    <resultMap id="rcUserLevel" class="com.pay.rm.service.model.rmlimit.userlevel.RcUserLevel">
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="USER_LEVEL" property="userLevel" jdbcType="DECIMAL"/>
+        <result column="LEVEL_NAME" property="levelName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		STATUS,USER_LEVEL,LEVEL_NAME
+    </sql>
+    <insert id="create" parameterClass="rcUserLevel">
+        INSERT INTO RC_USER_LEVEL(
+			STATUS,USER_LEVEL,LEVEL_NAME
+        )
+        VALUES(
+            #status#,#userLevel#,#levelName#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcUserLevel">
+        UPDATE RC_USER_LEVEL
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="userLevel">
+            USER_LEVEL = #userLevel#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="levelName">
+            LEVEL_NAME = #levelName#
+        </isNotEmpty>
+        </dynamic>
+        WHERE USER_LEVEL = #userLevel# 
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+       DELETE FROM RC_USER_LEVEL        
+       WHERE USER_LEVEL = #userLevel# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcUserLevel">
+        DELETE FROM RC_USER_LEVEL        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="userLevel">
+            USER_LEVEL = #userLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="levelName">
+            LEVEL_NAME = #levelName# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcUserLevel"
+        parameterClass="java.lang.Long">
+        SELECT 
+			STATUS,USER_LEVEL,LEVEL_NAME
+        FROM RC_USER_LEVEL
+        WHERE  USER_LEVEL = #userLevel# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcUserLevel">
+        SELECT 
+			STATUS,USER_LEVEL,LEVEL_NAME
+        FROM RC_USER_LEVEL
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="userLevel">
+            USER_LEVEL = #userLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="levelName">
+            LEVEL_NAME = #levelName# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT COUNT(*) FROM RC_USER_LEVEL
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="userLevel">
+            USER_LEVEL = #userLevel# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="levelName">
+            LEVEL_NAME = #levelName# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta charset="utf-8">
+<title>gcpayment支付交易记录导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="6" style="text-align: middle;">#==============gcpayment支付交易记录==============</td>
+		   </tr>
+			<tr>
+				<th width="15%">创建时间</th>
+				<th width="20%">交易流水号</th>
+				<th width="15%">交易内容</th>
+				<th width="15%">交易对方</th>
+				<th width="5%">收/支</th>
+				<th width="10%">交易状态</th>
+				<th width="10%">交易金额(元)</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if incomeDetailList?exists>
+				<#list incomeDetailList as ts>
+				<tr>
+					<td class="excel_txt">${ts.createDate!''}</td>
+					<td class="excel_txt" align="center">${ts.sequenceId!('')}</td>
+					<td class="excel_txt" align="center">
+						<#if ts.orderType?has_content>
+							<#if ts.orderType='3'>
+								付款到银行
+							<#else>
+								${ts.remarks!('')}
+							</#if>
+						<#else>
+							${ts.remarks!('')}
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">
+						<#if ts.payerMember?exists>
+							<#if memberCode?string = ts.payerMember?string>
+								${ts.payeeName!('')}
+							<#else>
+								${ts.payerName!('')}
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">
+						<#if ts.payerMember?exists>
+							<#if memberCode?string = ts.payerMember?string>
+								支
+							<#else>
+								收
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">
+						<#if ts.busiType = '0'>
+							<#if ts.status = 2>
+								支付成功
+							<#elseif ts.status= 7>
+								支付失败
+							<#else>
+								支付中
+							</#if>
+						<#else>
+							<#if ts.status=100>
+								初始状态
+							<#elseif ts.status=101>
+								正在交易
+							<#elseif ts.status=111>
+								付款完成
+							<#elseif ts.status=112>
+								付款失败
+							<#else>
+								未知
+							</#if>
+						</#if>
+					</td>
+					<td class="excel_txt" align="center">${((ts.amount!(0)?number)* 0.001)?string(",##0.00")}</td>
+				</tr>
+			</#list>
+		  </#if>
+		</tbody>
+	</table>
+</body>
+</html>

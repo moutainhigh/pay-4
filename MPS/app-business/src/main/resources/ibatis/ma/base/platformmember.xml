@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-platformmember">
+	<typeAlias alias="accplatforMember" type="com.pay.base.model.PlatformMember" />
+	<typeAlias alias="hashMap" type="java.util.HashMap" />
+	<sql id="accplatformmember">
+		ID id,
+		FATHER_MEMBER_CODE father_member_code,
+		FATHER_OPERATOR_ID father_operator_id,
+		SON_MEMBER_CODE son_member_code,
+		SON_OPERATOR_ID son_operator_id,
+		STATUS status,
+		CREATE_DATE create_date,
+		UPDATE_DATE update_date
+	</sql>
+
+	<sql id="accplatformmemberByInsert">
+		ID,
+		FATHER_MEMBER_CODE,
+		FATHER_OPERATOR_ID,
+		SON_MEMBER_CODE,
+		SON_OPERATOR_ID,
+		STATUS,
+		CREATE_DATE,
+		UPDATE_DATE
+	</sql>
+	<sql id="accPlatformMemberSelect">
+		SELECT
+		<include refid="accplatformmember" />
+		FROM T_PLATFORM_MEMBERS platformmembers
+	</sql>
+
+	<sql id="accPlatformMemberCondition">
+		<dynamic prepend="where">
+			<isNotEmpty property="id" prepend="and">
+				platformmembers.ID = #id#
+			</isNotEmpty>
+			<isNotEmpty property="father_member_code" prepend="and">
+				platformmembers.FATHER_MEMBER_CODE = #father_member_code#
+			</isNotEmpty>
+			<isNotEmpty property="father_operator_id" prepend="and">
+				platformmembers.FATHER_OPERATOR_ID = #father_operator_id#
+			</isNotEmpty>
+			<isNotEmpty property="son_member_code" prepend="and">
+				platformmembers.SON_MEMBER_CODE = #son_member_code#
+			</isNotEmpty>
+			<isNotEmpty property="son_operator_id" prepend="and">
+				platformmembers.SON_OPERATOR_ID = #son_operator_id#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend="and">
+				platformmembers.STATUS = #status#
+			</isNotEmpty>
+			<isNotEmpty property="create_date" prepend="and">
+				platformmembers.CREATE_DATE = #create_date#
+			</isNotEmpty>
+			<isNotEmpty property="update_date" prepend="and">
+				platformmembers.UPDATE_DATE = #update_date#
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+
+	<select id="getSonInfoByFatherCode" resultClass="accplatforMember"
+		parameterClass="accplatforMember">
+		<include refid="accPlatformMemberSelect" />
+		<include refid="accPlatformMemberCondition" />
+		order by platformmembers.CREATE_DATE desc
+	</select>
+
+	<select id="queryConditionsMap" resultClass="accplatforMember"
+		parameterClass="accplatforMember">
+		<include refid="accPlatformMemberSelect" />
+		<include refid="accPlatformMemberSelect" />
+	</select>
+
+	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer"
+		parameterClass="hashMap">
+		select count(1) from T_PLATFORM_MEMBERS platformmembers
+		<include refid="accPlatformMemberCondition" />
+	</select>
+
+	<insert id="create" parameterClass="accplatforMember">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			seq_t_platform_members_id.Nextval from DUAL
+		</selectKey>
+		insert into T_PLATFORM_MEMBERS(
+		<include refid="accplatformmemberByInsert" />
+		)
+		<![CDATA[
+			values(
+					#id#,
+					#father_member_code#,
+					#father_operator_id#,
+					#son_member_code#,
+					#son_operator_id#,
+					#status#,
+					#create_date#,
+					#update_date#
+			)
+		  ]]>
+	</insert>
+
+	<!-- <update id="updatestatus" resultClass="java.lang.Integer" parameterClass="hashMap"> 
+		update T_PLATFORM_MEMBERS SET STATUS= #status# where platformmembers.SON_MEMBER_CODE 
+		= #son_member_code# </update> -->
+
+</sqlMap>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 联系人定义映射-->
+	<bean id="BankAcctHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<!-- 添加银行卡绑定 -->
+				<prop key="/app/addBankCard.htm">bankAcctController</prop>
+				<!-- 银行卡绑定信息验证 -->
+				<prop key="/app/checkBankCard.htm">bankAcctController</prop>
+				<prop key="/app/removeBankCard.htm">bankAcctController</prop>
+				<prop key="/app/getBanks.htm">bankAcctController</prop>
+				<prop key="/corp/getBanks.htm">bankAcctController</prop>
+				<prop key="/app/bankAcct.htm">bankAcctController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="bankAcctController"
+		class="com.pay.app.controller.base.bankacct.BankAcctController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="bankAcctService">
+			<ref bean="app-bankAcctServiceFacade"/>
+		</property>
+		
+		<property name="cidVerify2GovService">
+			<ref bean="app-cidVerify2GovServiceFacadeImpl"/>
+		</property>	
+		
+		<property name="bankAcctServiceBussiness">
+			<ref bean="app-bankAcctService"/>
+		</property>
+		<property name="bankBrancheInfoService" ref="fundout-bankBrancheInfoService" />
+		
+		<property name="bankCardExitsFail">
+			<value>/base/bankcard/bankCardExits</value>
+		</property>
+		<property name="removeForward">
+			<value>/app/accountInfo.htm</value>
+		</property>
+				
+		<property name="editSuccess">
+			<value>/base/bankcard/editSuccessPage</value>
+		</property>
+		
+		<property name="editFail">
+			<value>/base/bankcard/editFailPage</value>
+		</property>
+		
+		<property name="removeFail">
+			<value>/base/bankcard/removeFailPage</value>
+		</property>
+		<property name="editBankAcctPage">
+			<value>/base/bankcard/bankcard</value>
+		</property>
+		<property name="bankCodeFail">
+			<value>/base/bankcard/bankCodeFail</value>
+		</property>
+		<property name="success">
+			<value>/base/bankcard/success</value>
+		</property>
+		<property name="fail">
+			<value>/base/bankcard/fail</value>
+		</property>
+		<property name="addBankAcctPage">
+			<value>/base/bankcard/bankcard</value>
+		</property>
+		
+		<property name="bankAcctNumErrorPage">
+			<value>/base/bankcard/bankcardNumFail</value>
+		</property>
+		
+		<property name="notCheckErrorPage">
+			<value>/base/bankcard/bankcardCheckFail</value>
+		</property>
+		<property name="editCardExits">
+			<value>/base/bankcard/editCardExits</value>
+		</property>
+		<property name="bankListFO">
+			<value>/base/bankcard/bankListFO</value>
+		</property>
+		<property name="searchBanksFO">
+			<value>/base/bankcard/searchBanksFO</value>
+		</property>
+		<property name="bankSelect">
+			<value>/base/bankcard/bank</value>
+		</property>
+		
+	</bean>
+	
+</beans>

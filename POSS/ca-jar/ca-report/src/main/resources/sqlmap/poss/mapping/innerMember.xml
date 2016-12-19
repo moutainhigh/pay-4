@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tinnermember">
+	<typeAlias alias="tInnerMember" type="com.pay.poss.report.dto.InnerMemberDTO"/>
+    <resultMap id="tInnerMember" class="com.pay.poss.report.dto.InnerMemberDTO">
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="MEMBER_NAME" property="memberName" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+		MEMBER_CODE
+    </sql>
+    <insert id="create" parameterClass="tInnerMember">
+    	<selectKey resultClass="Long" keyProperty="sequenceId">
+			SELECT SEQ_INNER_MEMBER_ID.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO T_INNER_MEMBER(
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+			MEMBER_CODE
+        )
+        VALUES(
+            #createTime#,#updateTime#,#sequenceId#,#memberName#,#operator#,
+			#memberCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="tInnerMember">
+        UPDATE T_INNER_MEMBER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="createTime">
+            CREATE_TIME = #createTime#
+        </isNotNull>
+        <isNotNull prepend="," property="updateTime">
+            UPDATE_TIME = #updateTime#
+        </isNotNull>
+        <isNotNull prepend="," property="memberName">
+            MEMBER_NAME = #memberName#
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+        <isNotNull prepend="," property="memberCode">
+            MEMBER_CODE = #memberCode#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM T_INNER_MEMBER        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM T_INNER_MEMBER        
+        WHERE
+            SEQUENCE_ID = #sequenceId# 
+    </delete>
+ 
+    <delete id="deleteBySelective" parameterClass="tInnerMember">
+        DELETE FROM T_INNER_MEMBER        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="createTime">
+            CREATE_TIME = #createTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateTime">
+            UPDATE_TIME = #updateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="tInnerMember"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+			MEMBER_CODE
+        FROM T_INNER_MEMBER
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findByParentId" resultMap="tInnerMember"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+			MEMBER_CODE
+        FROM T_INNER_MEMBER
+        WHERE 
+            MEMBER_CODE = #memberCode# 
+    </select>
+   
+    <select id="findBySelective" resultMap="tInnerMember">
+        SELECT 
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+			MEMBER_CODE
+        FROM T_INNER_MEMBER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="createTime">
+            CREATE_TIME = #createTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateTime">
+            UPDATE_TIME = #updateTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="queryInnerMember" resultMap="tInnerMember">
+        SELECT 
+			CREATE_TIME,UPDATE_TIME,SEQUENCE_ID,MEMBER_NAME,OPERATOR,
+			MEMBER_CODE
+        FROM T_INNER_MEMBER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="memberName">
+            <!-- MEMBER_NAME = #memberName# -->   
+		    MEMBER_NAME like  '%'||#memberName#||'%'
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="queryInnerMember_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(1) FROM T_INNER_MEMBER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="memberName">
+            MEMBER_NAME like  '%'||#memberName#||'%'
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+</sqlMap>

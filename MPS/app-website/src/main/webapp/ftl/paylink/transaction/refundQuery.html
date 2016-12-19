@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>支付交易退款查询</title>
+<style type="text/css">
+	a{text-decoration:underline;}
+	.tab03 input[type='text']{width:100px;}
+	.tab03 input[type='button']{width:40px;}
+	.border0{border:0px;}
+</style>
+<script type="text/javascript">
+	function  downwExcel() {
+		$("#exports").val("1") ;
+		$("#refundQueryForm").submit() ;
+		$("#exports").val("") ;
+	} ;
+</script>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+<@sp.head  mCode="corp_paylink_transaction"/>
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span><a href="${rc.contextPath}/corp/paylinkTransaction.htm">支付链交易查询</a></span>
+					<span class="current"><a href="#">退款查询</a></span>
+				</div>
+			<form class="form" action="${rc.contextPath}/corp/paylinkTransaction.htm?method=refundQuery" method="post" name="refundQueryForm" id="refundQueryForm" >
+				<input type="hidden" name="queryFlag" value="queryFlag" />
+				<input type="hidden" name="exports" id="exports" value="" />
+				<div class="seccon">
+					<div class="bgbox">
+						<table class="tab01">
+							<tbody>
+								<tr>
+									<td><div align="right">退款交易号：</div></td>
+									<td><input type="text" name="refundOrderNo" id="refundOrderNo" value="${refundOrderNo?default('')}" class="base-input"/></td>
+									<td><div align="right">支付链ID：</div></td>
+									<td><input type="text" name="payLinkNo" id="payLinkNo" value="${payLinkNo?default('')}" class="base-input"/></td>
+								</tr>
+								<tr>
+									<td><div align="right">原订单交易号：</div></td>
+									<td>
+										<input type="text" name="tradeOrderNo" id="tradeOrderNo" value="${tradeOrderNo?default('')}" class="base-input"/>
+									</td>
+									<td><div align="right">币种：</div></td>
+									<td>
+										<select name="currencyCode" id="currencyCode">
+											<option value="">--全部--</option>
+											<#if currencyCodes?has_content>
+												<#list currencyCodes as currency>
+													<option value="${currency.code}" <#if (((currencyCode)!'') == currency.code)>selected="selected"</#if>>${currency.desc}</option>
+												</#list>
+											</#if>
+										</select>
+									</td>
+									
+								</tr>
+								<tr>
+									<td>
+										<div align="right">退款状态：</div>
+									</td>
+									<td>
+										<select name="status" id="status">
+											<option value="">全部</option>
+											<option value="0" <#if (((status)!'') == '0')>selected="selected"</#if> >处理中</option>
+											<option value="2" <#if (((status)!'') == '2')>selected="selected"</#if> >成功</option>
+											<option value="3,6" <#if (((status)!'') == '3,6')>selected="selected"</#if> >处理失败</option>
+										</select>
+									</td>
+									<td><div align="right">原交易时间：</div></td>
+									<td>
+										<input  type="text" class="Wdate inp_normal w380" name="startCompleteDate"  readonly="readonly" id="startCompleteDate" 
+												gtbfieldid="109" value="<#if startCompleteDate?has_content>${startCompleteDate?date}</#if>" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+										<span>~</span>
+										<input  type="text" class="Wdate inp_normal w380" name="endCompleteDate"  readonly="readonly" id="endCompleteDate" 
+												gtbfieldid="109" value="<#if endCompleteDate?has_content>${endCompleteDate?date}</#if>" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+									</td>
+								</tr>
+								<tr>
+									<td><div align="right">创建时间：</div></td>
+									<td>
+										<input  type="text" class="Wdate inp_normal w380" name="startCreateDate"  readonly="readonly" id="startCreateDate" 
+												gtbfieldid="109" value="<#if startCreateDate?has_content>${startCreateDate?date}</#if>" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+										<span>~</span>
+										<input  type="text" class="Wdate inp_normal w380" name="endCreateDate"  readonly="readonly" id="endCreateDate" 
+												gtbfieldid="109" value="<#if endCreateDate?has_content>${endCreateDate?date}</#if>" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+									</td>
+									<td>
+										<div align="right">账单邮箱：</div>
+									</td>
+									<td>
+										<input type="text" name="billEmail" id="billEmail" value="${billEmail?default('')}" class="base-input" />
+									</td>
+								</tr>
+								<!-- <tr>
+									<td></td>
+									<td>
+										<input type="submit" id="submitId" class="btn_blue" value="查  询" alt="查  询"/>
+									</td>
+									<td>
+										<div align="right"><input type="button" id="exportExcel" class="btn_blue" value="下  载" alt="下  载" onclick="downwExcel() ;"/></div>
+									</td>
+									<td>&nbsp;</td>
+								</tr> -->
+								<tr >
+									<td colspan="4" style="">
+										<div class="divquery">
+											<input type="submit" id="submitId" class="btn_blue2" value="查  询" alt="查  询"/>
+										</div>
+										<div class="divdown">
+											 <input type="button" id="exportExcel" class="btn_blue2" value="下  载" alt="下  载" onclick="downwExcel() ;"/>
+										</div>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						
+					</div>	
+					<div id="resultListDiv" class="listFence" ></div>	
+				</div>
+			</form>
+				<div class="seccon" style="padding-top:0px;padding-bottom:0px;">
+					<table id="incomeTable" class="tab03" border="1">
+						<thead>
+							<tr>
+								<th width="12%">创建时间</th>						
+								<th width="15%">账单邮箱</th>
+								<th width="8%">退款交易号</th>
+								<th width="8%">原订单交易号</th>
+								<th width="8%">原交易时间</th>
+								<th width="10%">退款币种</th>
+								<th width="10%">退款金额</th>
+								<th width="10%">状态</th>
+							</tr>
+						</thead>
+						<tbody>
+							
+							<#if listMap?has_content>
+								<#list listMap as list>
+									<tr>
+										<td align="center"><#if list.createDate?has_content>${list.createDate?date}</#if></td>
+										<td align="center">${list.billEmail?default('')}</td>
+										<td align="center">${list.refundOrderNo?default('')}</td>
+										<td align="center">${list.tradeOrderNo?default('')}</td>
+										<td align="center"><#if list.completeDate?has_content>${list.completeDate?date}</#if></td>
+										<td>${list.currencyCode?default('')}</td>
+										<td>${(list.refundAmount?default(0)?number/1000)?string("#,##0.000")}</td>
+										<td>
+											<#if list.status?has_content>
+													<#if list.status == 0>
+														<!-- 待审核 -->处理中
+													<#elseif list.status == 1>
+														<!-- 退款中 -->处理中
+													<#elseif list.status == 2>
+														<!-- 处理成功 -->成功
+													<#elseif list.status == 3>
+														<!-- 退款中 --><!-- 处理中 --><!-- poss后台状态为3的显示为处理失败 -->处理失败
+													<#elseif list.status == 4>
+														<!-- 退款中 -->处理中
+													<#elseif list.status == 5>
+														<!-- 退款中 -->处理中
+													<#elseif list.status == 6>
+														<!-- 退款失败 -->处理失败
+													</#if>
+													<#else>
+														未退款
+												</#if>
+										</td>
+									</tr>
+								</#list>
+							</#if>
+						</tbody>
+					</table>
+				</div>
+				</div>
+				<div align="right">
+					<#if listMap?has_content>
+						<@sp.pagination pu=pu/>
+					</#if>
+				</div>
+				</div>
+		</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>跨境付款</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link href="<@sp.static/>/css/pay/public.css?v=20101230.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=20101230.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=20101230.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script src="<@sp.static/>/mps/js/tool/formJson.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+<style type="text/css"> 
+.log { 
+	position:absolute; /*绝对定位*/ 
+	top:50%; /*距顶部50%*/ 
+	left:50%; 
+	margin:-100px 0 0 -150px; /*设定这个div的margin-top的负值为自身的高度的一半,margin-left的值也是自身的宽度的一半的负值.(感觉在绕口令)*/ 
+	width:300px; /*宽为400,那么margin-top为-200px*/ 
+	height:200px; /*高为200那么margin-left为-100px;*/ 
+	z-index:160000; /*浮动在最上层 */ 
+} 
+</style> 
+<script>
+	$(function() {
+		$("#tabs").tabs({
+			collapsible : true
+		});
+	});
+</script>
+</head>
+<body>
+	<#include "/include/topbar.html"> <@sp.head mCode="corp_CrossBorerPayController"/>
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"> <a href="${rc.contextPath}/corp/CrossBorerPayController/into.do">跨境付款</a></span> 
+					<span ><a href="${rc.contextPath}/corp/CrossBorerQueryController/into.do">跨境付款查询</a></span> 
+			     	<span> <a href="${rc.contextPath}/corp/CrossBorerQueryDetailController/into.do">跨境付款明细查询</a></span>
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="seccon">
+							<div id="buyParities_bgbox" class="bgbox">
+								<form id="cbp_form" class="form single" action="#" method="post"  enctype="multipart/form-data">
+									<table class="tab01 formtable">
+									<colgroup>
+							                <col width="100px;"/>
+							                <col/>
+							                <col width="100px;"/>
+							                <col/>
+							            </colgroup>
+											<tr height="40px" >
+												<td width="30%" style="text-align: right;">
+													<label>选择汇款币种：</label>
+												</td>
+												<td>
+													<select id="select_remitCurrency" style="width: 150px">
+														<option value="外币">外币</option>
+														<option value="人民币">人民币</option>
+													</select>
+												</td>
+											</tr>
+											<tr height="40px" >
+												<td width="30%" style="text-align: right;">
+													<label>购汇币种账户：</label>
+												</td>
+												<td>
+													<select id="select_buyAccount" style="width: 150px">
+														<option value="CNY">人民币</option>
+													</select>
+													<label  style="color: red;	">收款币种支持：美元、欧元、英镑、港币、澳元、加元、日元、新西兰元</label>
+													
+												</td>
+											</tr>								
+											<tr height="40px" >
+												<td width="30%" style="text-align: right;">
+													<label>可用余额：</label>
+												</td>
+												<td>
+													<label style="color: red;font-weight: 700;"> ${((data.balance?default(0)/1000))?string(",##0.00")} CNY</label>
+												</td>
+											</tr>								
+											<tr height="40px" >
+												<td width="30%" style="text-align: right;">
+													<label>业务类型：</label>
+												</td>
+												<td>
+													<select id="select_businessType"  style="width: 150px">
+														<option value="-1">--选择业务类型--</option>
+														<option value="1">货物贸易</option>
+														<option value="2">机票旅游</option>
+														<option value="3">酒店住宿</option>
+														<option value="4">留学教育</option>
+													</select>
+													<label id="select_businessType_tip" style="color: red" hidden="hidden">请选择业务类型！</label>
+												</td>
+											</tr>								
+											<tr height="40px" >
+												<td width="30%" style="text-align: right;" valign="top">
+													<label>上传批量付款文件：</label>
+												</td>
+												<td>
+													<input type="file" id="payFile" name="payFile">
+													<br>
+													<label id="cbp_payFile_tip" style="color: red"></label>
+													<br>
+													<label id="cbp_payFile_laber" hidden="hidden"><img alt="" src="<@sp.static/>/img/icon/excel.png" style="width: 20px;height: 20px;">&nbsp;Excel &nbsp; <a href="#" hidden="hidden" id="a_businessModel" style="color: red;"></a></label>
+												</td>
+											</tr>								
+											<tr id="tr_education_input" height="40px" hidden="hidden">
+												<td width="30%" style="text-align: right;" valign="top">
+													<label>上传入学通知书：</label>
+												</td>
+												<td>
+													<input type="file" id="accessoryFile" name="accessoryFile">
+													<br>
+													<label hidden="hidden" id="cbp_accessoryFile_tip" style="color: red"></label>
+												</td>
+											</tr>	
+											<tr height="40px" >
+												<td width="30%" style="text-align: right;">
+												</td>
+												<td>
+													<input id="crossBorerPay_from_submit" type="button"  style="width: 80px;"  class="btn_blue" value="下一步"/>
+													<label id="buyParities_from_tip_check" hidden="hidden" style="color: red;"></label>
+												</td>
+											</tr>								
+									</table>
+								</form>
+								<#include "/base/crossBorerPay/crossBorerPayAffirm.html">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="cbp_dialog-payTip" title="" style="display: none;">
+	  	<div id="div_dialog-payTip" style="text-align: center;">
+			<div style="margin-top: 30px">
+				<label id="div_laber_dialog-payTip">文件解析中</label>
+			</div>
+		</div>
+	</div>
+	<div id="pay_dialog-payTip" title="" style="display: none;">
+	  	<div id="div_dialog-payTip" style="text-align: center;">
+			<div style="margin-top: 30px">
+				<label id="pay_div_laber_dialog-payTip" style="font-size: x-large;"></label>
+				<br>
+				<label id="pay_div_laber_remark" style="color: red"></label>
+			</div>
+			<div style="margin-top: 20px">
+		  		<input id="pay_dialog_confirm" type="button" class="btn_blue" value="确定"/>
+			</div>
+		</div>
+	</div>
+	<div id="TANGRAM__PSP_3__" style="display:none;top: 0px; left: 0px; position: fixed; width: 100%; height: 100%; opacity: 0.15; z-index: 60000; background-color: rgb(0, 0, 0);">
+		<!-- <iframe frameborder="0" style="filter:progid:DXImageTransform.Microsoft.Alpha(opacity:0);position:absolute;top:0px;left:0px;width:100%;height:100%;z-index:-1" src="https://passport.baidu.com/passApi/html/_blank.html"></iframe> -->
+		<div style="position:absolute;top:0px;left:0px;width:100%;height:100%;z-index:-1;">
+			&nbsp;
+		</div>
+	</div>
+	<!-- style="top: 0px; left: 0px; position: fixed; width: 100%; height: 1000px; z-index: 160000;text-align:center;line-height:1000px;" -->
+	<div id="TANGRAM__PSP_3__2" class="log" style="display:none;color:red;">
+		<img src="<@sp.static/>/mps/images/loadding.gif"/>
+	</div>
+<#include "/include/myfoot.html">
+<script type="text/javascript">
+
+	$(function(){
+		initDilog();
+		pay_initDilog();
+	})
+	//初始化支付提示弹窗
+	function pay_initDilog(){
+		applyOpenDialog=$("#pay_dialog-payTip" ).dialog({
+		      autoOpen: false,
+		      height: 150,
+		      width: 300,
+		      modal: true
+		    }); 
+		$('div .ui-dialog-titlebar-close').hide();
+	}
+	//初始化文件解析中弹窗
+	function initDilog(){
+		applyOpenDialog=$("#cbp_dialog-payTip" ).dialog({
+		      autoOpen: false,
+		      height: 150,
+		      width: 300,
+		      modal: true
+		    }); 
+		$('div .ui-dialog-titlebar-close').hide();
+	}
+	$("#pay_dialog_confirm").click(function(){
+		$("#pay_dialog-payTip" ).dialog( "close");
+		$("#cbp_form").show();
+		$("#crossBorerPayAffirm_form").hide();
+		window.location.href="${rc.contextPath}/corp/CrossBorerPayController/into.do";
+	})
+	//支付输入界面提交
+	$("#crossBorerPay_from_submit").click(function(){
+		submitVerify();
+	})
+	//支付输入界面验证
+	function submitVerify(){
+		$("#select_businessType_tip").hide();
+		$("#cbp_payFile_tip").hide();
+		$("#cbp_accessoryFile_tip").hide();
+		if($("#select_businessType").val()!=4){
+			var file = $("#accessoryFile") 
+			file.after(file.clone().val("")); 
+			file.remove(); 
+		}
+		var op=-1;
+		if($("#select_businessType").val()==-1&&op==-1){
+			op=1;
+			$("#select_businessType_tip").show();
+		}
+		if($("#select_businessType").val()==4){
+			if($("#accessoryFile")[0].files[0]==null&&op==-1){
+				op=1;
+				$("#cbp_accessoryFile_tip").text("请选择要上传的文件!");
+				$("#cbp_accessoryFile_tip").show();
+			}	
+		}
+		if($("#payFile")[0].files[0]==null&&op==-1){
+			op=1;
+			$("#cbp_payFile_tip").text("请选择要上传的Excel文件!");
+			$("#cbp_payFile_tip").show();
+		}else if(op==-1){
+			fileVerify(op);
+		}
+		if($("#select_businessType").val()==4){
+			$("#TANGRAM__PSP_3__").hide();
+			$("#TANGRAM__PSP_3__2").hide();
+		}
+	}
+	//下载模版
+	$("#select_businessType").change(function(){
+		var select_businessType=$("#select_businessType").val();
+		if(select_businessType!=-1){
+			$.ajax({
+				url : '${rc.contextPath}/CrossBorerPayController/downloadModel.do',//文件解析，验证
+				type : 'POST',
+				dataType : 'json',
+				data : {
+					type:select_businessType
+				},
+				success: function(data){
+					$("#cbp_payFile_laber").show();
+					$("#a_businessModel").text(data.fileName);
+					$("#a_businessModel").attr("href",data.downloadUrl);
+				},
+				error:function(XMLHttpRequest, textStatus, errorThrown){
+					
+				},
+				beforeSend:function(){
+					$("#TANGRAM__PSP_3__").show();
+					$("#TANGRAM__PSP_3__2").show();
+				},
+				complete:function(){
+					$("#TANGRAM__PSP_3__").hide();
+					$("#TANGRAM__PSP_3__2").hide();
+				}
+			})
+		}
+		if(select_businessType=="-1"){
+			$("#tr_education_input").hide();
+			$("#a_businessModel").hide();
+		}else if(select_businessType=="1"){
+			$("#a_businessModel").show();
+			$("#tr_education_input").hide();
+		}else if(select_businessType=="2"){
+			$("#a_businessModel").show();	
+			$("#tr_education_input").hide();
+		}else if(select_businessType=="3"){
+			$("#a_businessModel").show();
+			$("#tr_education_input").hide();
+		}else if(select_businessType=="4"){
+			$("#a_businessModel").show();
+			$("#tr_education_input").show();
+		}
+	})
+	//文件验证
+	function fileVerify(op){
+		$("#cbp_dialog-payTip").dialog( "open");
+		$.ajaxFileUpload({
+			url:'${rc.contextPath}/CrossBorerPayController/fileVerify.do',//文件解析，验证
+			secureuri:false,                       //是否启用安全提交,默认为false 
+			fileElementId:['payFile','accessoryFile'],//文件选择框的id属性
+			dataType:'json',                       //服务器返回的格式,可以是json或xml等
+			data:{
+				type:$("#select_businessType").val(),
+				remitCurrency:$("#select_remitCurrency").val(),
+				buyAccount:$("#select_buyAccount").val()
+			},
+			success:function(data, status){        //服务器响应成功时的处理函数
+				fileVerifyRepCode=data.repCode;
+				if(fileVerifyRepCode==-1){
+					$("#cbp_payFile_tip").text("上传付款文件格式不正确，请重新上传!");
+					$("#cbp_payFile_tip").show();
+					op=1;
+				}else if(fileVerifyRepCode==-3){
+					op=-3;
+					$("#cbp_accessoryFile_tip").text("文件大小不正确，大小限制为10M");
+					$("#cbp_accessoryFile_tip").show();
+				}else if(fileVerifyRepCode==-4){
+					op=-4;
+					$("#cbp_accessoryFile_tip").text("文件类型不正确，请选择扩展名为.jpg、.png、.pdf、.zip 或.rar 的文件重新上传");
+					$("#cbp_accessoryFile_tip").show();
+				}else if(fileVerifyRepCode==-5){
+					op=-5;
+					$("#cbp_payFile_tip").text("一次最多只能上传100笔，请分批上传!");
+					$("#cbp_payFile_tip").show();
+					
+				}else{
+					op=-1;
+					$("#cbp_payFile_tip").hide();
+				}
+				if(op==-1){
+					$("#cbp_payFile_tip").hide();
+					$("#select_businessType_tip").hide();
+				}
+				if(fileVerifyRepCode==0){
+					crossBorerPayAffirmLoad(data);
+					fileAnalysisSuccess();
+				}
+				$("#cbp_dialog-payTip").dialog( "close");
+			},
+			error:function(data, status, e){ //服务器响应失败时的处理函数
+				$("#cbp_dialog-payTip").dialog( "close");
+				console.log(e);
+				console.log(data);
+			}
+		});
+	}
+
+	var payAmount=0;
+	//支付确认界面初始化
+	function crossBorerPayAffirmLoad(data){
+		$("#cbp_fileAnalysis_erorr_count").text(" "+data.analysisResult[2]);
+		$("#cbp_fileAnalysis_success_count").text(" "+data.analysisResult[1]);
+		$("#cbp_fileAnalysis_pay_count").text(" "+data.analysisResult[1]);
+		$("#cbp_business_batchNo").text(" "+data.batchNo);
+		$("#cbp_detail_table").append("<tr><td>序号</td><td>汇款金额</td><td>汇率</td><td>付款金额</td><td>手续费</td><td>小额服务费</td><td>收款人</td></tr>");
+		$.each(data.saveTradeOrderDetailList,function(index,val){
+				var num=Number(index)+1;
+				$("#cbp_detail_table").append("<tr>"+
+			 	"<td>"+num+"</td>"+
+			 	"<td>"+val.remitAmount/1000+" "+val.remitCurrencyCode+"</td>"+
+			 	"<td>"+val.rate+"</td>"+
+			 	"<td>"+val.payAmount/1000+" CNY</td>"+
+			 	"<td>"+val.fee/1000+" CNY</td>"+
+			 	"<td>"+val.smallServiceFee/1000+" CNY</td>"+
+			 	"<td>"+val.cheques+"</td></tr>")
+		})
+		payAmount=data.payAmount/1000;
+		$("#cbp_reality_accout").text(formatCurrency(payAmount)+" CNY");
+		$("#succesFilePath_a").attr("href",data.successFilePath);
+	}
+	//文件解析成功调用方法
+	function fileAnalysisSuccess(){
+		$("#cbp_dialog-payTip" ).dialog( "close" );
+		$("#cbp_form").hide();
+		$("#crossBorerPayAffirm_form").show();
+	}
+	//确认付款
+	$("#cbp_Affirm_from_submit").click(function(){
+		if(payAmount>${data.balance/1000}){
+			$("#pay_div_laber_dialog-payTip").text("可用余额不足，请充值!");
+			$("#pay_div_laber_remark").text("");
+			$("#pay_dialog-payTip" ).dialog( "open" );
+			return;
+		}
+		$.ajax({
+			url : '${rc.contextPath}/CrossBorerPayController/crossBorerPay.do',//支付
+			type : 'POST',
+			dataType : 'json',
+			data : {
+				payPassword:$("#bp_input_applyAffirm_pwd").val(),
+				batchNo:$("#cbp_business_batchNo").text()
+			},
+			success: function(data){
+				$("#tip_applyAffirm_pwd").text("");
+				if(data.repCode==0){
+					$("#pay_div_laber_dialog-payTip").text("付款信息提交成功!");
+					$("#pay_div_laber_remark").text("最终付款结果，以银行审核通过为准!");
+					$("#pay_dialog-payTip" ).dialog( "open" );
+				}else if(data.repCode==-2){
+					$("#tip_applyAffirm_pwd").text(data.message);
+				}
+			},
+			error:function(XMLHttpRequest, textStatus, errorThrown){
+				console.log(e);
+				console.log(data);
+			},
+			beforeSend:function(){
+				$("#TANGRAM__PSP_3__").show();
+				$("#TANGRAM__PSP_3__2").show();
+			},
+			complete:function(){
+				$("#TANGRAM__PSP_3__").hide();
+				$("#TANGRAM__PSP_3__2").hide();
+			}
+		})
+	})
+	//支付确认界面 返回
+	$("#cbp_Affirm_from_return").click(function(){
+		$("#cbp_detail_table").html("");
+		$("#cbp_form").show();
+		$("#crossBorerPayAffirm_form").hide();
+		
+	})
+	//格式化金额四舍五入 保留小数点后2位
+	function formatCurrency(num){    
+	    num = num.toString().replace(/\$|\,/g,'');    
+	    if(isNaN(num))    
+	    num = "0";    
+	    sign = (num == (num = Math.abs(num)));    
+	    num = Math.floor(num*100+0.50000000001);    
+	    cents = num%100;    
+	    num = Math.floor(num/100).toString();    
+	    if(cents<10)    
+	    cents = "0" + cents;    
+	    for (var i = 0; i < Math.floor((num.length-(1+i))/3); i++)    
+	    num = num.substring(0,num.length-(4*i+3))+','+    
+	    num.substring(num.length-(4*i+3));    
+	    return (((sign)?'':'-') + num + '.' + cents);
+	}
+</script>
+</body>
+</html>

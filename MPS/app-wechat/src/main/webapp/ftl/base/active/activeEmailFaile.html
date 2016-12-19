@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${register_active_mail}${title}</title>
+<meta name="Keywords" content="${register_active_mail_Keywords}" />
+<meta name="Description" content="${register_active_mail_Description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/email-dn.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#refush").click(function(){
+    		var d = new Date();
+    		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+			$("#code").attr("src",src);
+			return false;
+    	});
+
+        //startRemainTime('重新获取激活邮件','seconds');
+        
+    	$("#mobileForm").submit(function(){
+			if($("#randCode").val()==""){
+				$("#errtips").show().html("请输入验证码");
+				return false;
+			}
+			
+			});
+    });  
+</script>
+<#if errMsg?has_content>
+<script>
+$(function(){
+	$("#errtips").show().html("${errMsg?default('')}");
+});
+</script>
+</#if> 
+</head>
+<body>
+<!--header-->
+<@sp.headCommonV2 title="用户注册" class="ver_reg"/>
+<!--/header--> 
+
+<!--主内容-->
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-2">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1 s3">第一步：填写注册信息<i></i></li>
+				<li class="li-2 s3">第二步：激活帐号<i></i></li>
+				<li class="li-3 s3">第三步：注册成功<i></i></li>
+			</ol>
+		</div>
+		<!--表单 -->
+		<div class="reg_info">
+			<form action="${rc.contextPath}/reSendEmail.htm" name="mobileForm" id="mobileForm">
+				<input type="hidden" name="method" value="retoEmail"/> 
+				<div class="activate">
+					<p class="tit"><img src="<@sp.static/>/img/v2/pay/reg/reg_mail_err.png" class="reg_suc_ico" />${errMsg?default("邮件发送失败，请确认您是否已经激活！")}<#if errMsg?has_content && errMsg?index_of("!") lt 0>！</#if></p>
+					<p class="f14">您的邮箱地址：<span class="blue">${email?default('')}</span></p>
+					<p class="f14">请您收到邮件后，点击信中的链接，激活您的gcpayment账户</p>
+					<p class="mt20 txtC"></p>
+				</div>
+				<div class="activate_tips">
+					<p>未收到激活邮件？</p>
+					<p>1.请检查您输入的邮箱是否正确；或自动过滤成了垃圾邮件</p>
+					<p class="mt5">2.如长时间没有收到邮件，您可以重新获取激活邮件 </p>
+					<p class="mt5">验证码：<input id="randCode" disableautocomplete autocomplete="off" name="randCode" type="text" class="inp_normal w80" maxlength="4"> <img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />  <a href="javascript:void(0);" class="refush" id="refush">看不清？换一张</a></p>
+					<p id="errtips" class="re_code_err" style="display: none;">验证码错误，请重新输入！</p>
+					<p class="re_mail_btn"><input type="submit" value="重新获取激活邮件" class="c_666"></p>
+				</div>
+			</form>
+		</div>
+		<!--/表单 --> 
+	</div>
+</div>
+<!--/主内容--> 
+<!--footer -->
+<#include "/common/include/footerV2.html">
+</body>
+</html>

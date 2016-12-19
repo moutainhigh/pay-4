@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>gcpayment支付委托提现</title>
+		<#include "/common/macro/seoPerson.ftl">
+		<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/autofundout/autoFundout_2.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				$("#btn").click(function(){
+					if(checkInfo()){
+						$("#frm").submit();
+					}
+				});
+
+				$("#findselect").click(function() {
+					payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm", {
+						title : "选择找回方式",
+						w : 600,
+						h : 300,
+						url : true,
+						iframe : true,
+						close : function() {
+						}
+					});
+				});
+			});
+		</script>
+	</head>
+	
+	<body>
+		<!--导航 str-->
+		<@sp.head mCode="corp_withdraw,bsp_corp_withdraw"/>
+		
+		<!--导航 end--> 
+		<!--主内容 str -->
+		<div class="container">
+		<div style="width: auto;">
+		<!--自适应box str -->
+        <div class="mod_box_a">
+        <p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3">
+					<a href="${rc.contextPath}/corp/withdraw.htm">手工提现</a><span>|</span>
+					<a href="${rc.contextPath}/corp/autoFundout.htm" class="cur">委托提现</a>
+				</div>
+			</div>
+						<div class="ico_txtBox mt10"><i class="warn_ico"></i>
+							<p>提现银行户名必须与您的企业名称相同。您已接受
+							<a class="red" href="https://www.pay.com/website/help.htm?method=helpCorpDetail" target="_blagcpayment支付">《gcpayment支付委托提现协议》</a>，请遵守。</p>
+						</div>
+						<form class="mod_form pad_center" id="frm" method="post" action="${rc.contextPath}/corp/autoFundout.htm?method=cancelConfig">
+							<input type="hidden" name="uuid" value="${Session['uuid']?default('')}"/>
+							<input type="text" name="testtxt" style="display: none;"/>
+							<input  type="hidden" name="configId" value="${common.sequenceid?default(0)}"/>
+							<ul class="form_list c_000">
+								<li>
+									<label class="form_side">委托提现申请时间：</label>
+									<span>${common.createDate?string("yyyy-MM-dd HH:mm:ss")}</span></li>
+								<li>
+									<label class="form_side">提现银行账户：</label>
+									<span class="blod c_000">${common.bankName}(****${common.bankAccCode[common.bankAccCode?length-4..common.bankAccCode?length-1]})</span>
+									<p class="gray_tips">到账日期一般在2-5个工作日</p>
+								</li>
+								<li>
+									<label class="form_side">委托提现方式：</label>
+									<span>
+										<#if common.autoType==1>
+											定期委托提现
+										</#if>
+										<#if common.autoType==2>	
+											定额委托提现
+										</#if>
+									</span>
+									<p class="gray_tips"></p>
+								</li>
+								<li id="retained">
+									<label class="form_side">最低留存金额：</label>
+									<span>${(common.retainedAmount?default(0)/1000)?string("#,##0.00")}元</span>
+								</li>
+								<#if common.autoType==2>	
+								<li>
+									<label class="form_side">基本提现金额：</label>
+									<span>${(common.baseAmount?default(0)/1000)?string("#,##0.00")}元</span>
+								</li>
+								</#if>
+								<#if common.autoType==1>	
+								<li>
+									<label class="form_side">委托提现频度：</label>
+									<#if common.timeType==4>
+										<#if common.timeSources?exists>
+					   						<#list common.timeSources as ts>
+												<span>每天${ts}</span>提现一次</span><br/>
+											</#list>
+										</#if>
+									<#else>
+										<span>每${common.timeDesc?default('')}</span><span class="ml10">提现一次</span>
+									</#if>
+								</li>
+								</#if>
+								<#if common?exists && common.settleFlag?exists && common.settleFlag == 1>
+								<li>
+									<p class="mt5">
+									 <label class="form_side">期结提现：</label>
+									  <input type="checkbox" name="settleFlag" id="settleFlag" disabled="disabled" checked="checked" value="1"> 
+									</p>
+								</li>
+								</#if>
+								<!--<li class="s_space"><input type="checkbox" name="isRemark" id="isRemark"> 添加备注</li>
+								<li id="showRemarks" style="display: none;">
+									<label class="form_side">备注：</label>
+									<textarea class="inp_normal w250 v_b" name="remarks" id="remarks">${common.remark?default('')}</textarea>
+									<span class="c_999">最多50个汉字/100个字符</span>
+									<p class="red" id="remarksTips"></p>
+								</li>
+								--><li class="pwd">
+									<label class="form_side2"><strong class="c_000">支付密码：</strong></label>
+									<@sp.password cid="paySafeEdit" id="passWord" name="passWord" width="205px" height="24px" style="margin-bottom: 0px;" class="inp_txt"/>
+									<span class="gray_tips">支付密码如果连续输错3次，账户将被锁定</span>
+									<p class="red" id="passWorkTips">${pwdError?default('')}</p>
+								</li>
+								<li class="btn"><span class="btn_yel botton_yel">
+									<button type="button" id="btn">确定终止</button>
+									</span> <a class="ml20" href="${rc.contextPath}/corp/autoFundout.htm?method=viewPage">取消终止</a> | 
+									<a href="javascript:void(0);" id="findselect">忘记密码？</a>
+								</li>
+							</ul>
+						</form>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				</div>
+				<!--end --> 
+		</div>
+		<!--主内容 end --> 
+		<#if common?exists && common.settleFlag?exists && common.settleFlag == 1>
+			<script type="text/javascript" charset="utf-8">
+				$(function(){
+					$("#retained").css("display", "none");
+					});
+			</script>
+		</#if>
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean id="peLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"	lazy-init="true" />
+
+
+	<bean id="pePossTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="peDs" />
+		</property>
+	</bean>
+	
+	<bean id="peSqlMapClientDS" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocations">
+			<value>classpath*:sqlmap/pe/sqlmap-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<value>classpath*:sqlmap/pe/mapping/**/*.xml</value>
+		</property>
+
+		<property name="dataSource">
+			<ref bean="peDs" />
+		</property>
+		<property name="lobHandler" ref="peLobHandler"></property>
+	</bean>
+
+	<bean id="peBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="peSqlMapClientDS"/>
+	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="pePossServiceMethod"
+			expression="execution(* com.pay.pe.manualbooking.service.VouchService.*(..))" />
+		<aop:advisor advice-ref="pePossTxAdvice" pointcut-ref="pePossServiceMethod" />
+	</aop:config>
+
+	<tx:advice id="pePossTxAdvice" transaction-manager="pePossTransactionManager">
+		<tx:attributes>
+			<tx:method name="*VouchData" propagation="REQUIRES_NEW"
+				rollback-for="java.lang.Exception"/>
+		</tx:attributes>
+	</tx:advice>
+	
+
+</beans>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/channelCurrency.do">channelCurrencyController</prop>
+				<prop key="/channelCurrencyReviewed.do">channelCurrencyReviewedController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 非即时网关渠道配置 -->
+	<bean id="channelCurrencyController"
+		class="com.pay.poss.controller.fi.channel.ChannelCurrencyController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="index">
+			<value>channel/channelcurrency/index</value>
+		</property>
+		<property name="list">
+			<value>channel/channelcurrency/resultList</value>
+		</property>
+		<property name="add">
+			<value>channel/channelcurrency/add</value>
+		</property>
+		<property name="update">
+			<value>channel/channelcurrency/update</value>
+		</property>
+		<property name="countryCurrencyService" ref="if-countryCurrencyService"/>
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="memberService" ref="acc-memberService"/>
+	</bean>
+
+	<bean id="channelCurrencyReviewedController"
+		class="com.pay.poss.controller.fi.channel.ChannelCurrencyReviewedController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="index">
+			<value>channel/channelcurrency/reviewed/index</value>
+		</property>
+		<property name="list">
+			<value>channel/channelcurrency/reviewed/resultList</value>
+		</property>
+		<!-- <property name="add">
+			<value>channel/channelcurrency/add</value>
+		</property>
+		<property name="update">
+			<value>channel/channelcurrency/update</value>
+		</property> -->
+		<!-- <property name="countryCurrencyService" ref="if-countryCurrencyService"/> -->
+		<property name="channelClientService" ref="channelClientService"/>
+	</bean>
+</beans>

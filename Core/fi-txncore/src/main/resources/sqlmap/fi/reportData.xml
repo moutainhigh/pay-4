@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="reportData">
+
+	<resultMap id="resultMap" class="java.util.HashMap">
+		<result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL"/>
+		<result column="ORDERTIME" property="orderTime" jdbcType="VARCHAR"/>
+		<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+		<result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+		<result column="PAYMENT_AMOUNT" property="paymentAmount" jdbcType="DECIMAL"/>
+		<result column="PAY_TYPE" property="payType" jdbcType="VARCHAR"/>
+		<result column="COUPON_NUMBER" property="couponNumber" jdbcType="VARCHAR"/>
+		<result column="COUPON_VALUE" property="couponValue" jdbcType="DECIMAL"/>
+		<result column="ORDERSTATUS" property="orderStatus" jdbcType="DECIMAL"/>
+		<result column="PAYMENTSTATUS" property="paymentStatus" jdbcType="DECIMAL"/>
+	</resultMap>
+	
+	<select id="queryPartnerReport" parameterClass="java.util.Map" resultMap="resultMap">
+		select
+			T.PARTNER_ID,
+			to_char(t.create_date,'yyyy-MM-dd HH24:MI:SS') orderTime,
+			t.trade_order_no order_id,
+			t.order_amount,
+			p.payment_amount,
+			pay_type,
+			nvl(coupon_value,0) coupon_value,
+			coupon_number,
+			T.STATUS orderStatus,
+			p.status paymentStatus
+			from trade_order t,payment_order p
+		where 1=1
+		and t.trade_order_no = p.trade_order_no
+		<isNotEmpty property="tradeOrderNo" prepend="and">
+			t.trade_order_no = #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="partnerId" prepend="and">
+			t.PARTNER_ID = #partnerId#
+		</isNotEmpty>
+		<isNotEmpty property="paymentStatus" prepend="and">
+			p.status = #paymentStatus#
+		</isNotEmpty>
+		<isNotEmpty property="orderStatus" prepend="and">
+			t.status = #orderStatus#
+		</isNotEmpty>
+		<isNotEmpty property="payType" prepend="and">
+			p.pay_type = #payType#
+		</isNotEmpty>
+		<isNotEmpty property="startTime" prepend="and">
+			t.create_date &gt;= to_date(#startTime#,'yyyy-MM-dd HH24:MI:SS')
+		</isNotEmpty>
+		<isNotEmpty property="endTime" prepend="and">
+			t.create_date &lt;= to_date(#endTime#,'yyyy-MM-dd HH24:MI:SS')
+		</isNotEmpty>
+	</select>
+</sqlMap>

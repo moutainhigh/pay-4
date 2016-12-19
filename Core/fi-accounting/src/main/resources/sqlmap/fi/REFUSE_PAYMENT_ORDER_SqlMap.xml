@@ -1,0 +1,877 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+  <sqlMap namespace="REFUSE_PAYMENT_ORDER" >
+    <resultMap id="BaseResultMap" class="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      <result column="ID" property="id" jdbcType="DECIMAL" />
+      <result column="TRADE_BASE_NO" property="tradeBaseNo" jdbcType="DECIMAL" />
+      <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL" />
+      <result column="REQUEST_SERIAL_ID" property="requestSerialId" jdbcType="VARCHAR" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+      <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+      <result column="CURRENCY" property="currency" jdbcType="VARCHAR" />
+      <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+      <result column="PARTNER_DISPLAY_NAME" property="partnerDisplayName" jdbcType="VARCHAR" />
+      <result column="GOODS_NAME" property="goodsName" jdbcType="VARCHAR" />
+      <result column="GOODS_COUNT" property="goodsCount" jdbcType="DECIMAL" />
+      <result column="STATUS" property="status" jdbcType="DECIMAL" />
+      <result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL" />
+      <result column="TRADE_TYPE" property="tradeType" jdbcType="VARCHAR" />
+      <result column="PAY_TYPE" property="payType" jdbcType="VARCHAR" />
+      <result column="PAYER_MARK" property="payerMark" jdbcType="VARCHAR" />
+      <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR" />
+      <result column="DIRECT_FLG" property="directFlg" jdbcType="CHAR" />
+      <result column="DEBIT_FLG" property="debitFlg" jdbcType="CHAR" />
+      <result column="PLATFORM_ID" property="platformId" jdbcType="VARCHAR" />
+      <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+      <result column="ARB_FEE" property="arbFee" jdbcType="DECIMAL" />
+      <result column="ARB_FILE" property="arbFile" jdbcType="VARCHAR" />
+      <result column="ARB_FILE1" property="arbFile1" jdbcType="VARCHAR" />
+      <result column="ARB_FILE2" property="arbFile2" jdbcType="VARCHAR" />
+      <result column="ARB_FILE3" property="arbFile3" jdbcType="VARCHAR" />
+      <result column="ARB_FILE4" property="arbFile4" jdbcType="VARCHAR" />
+      <result column="REFUSE_STATUS" property="refuseStatus" jdbcType="CHAR" />
+      <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+      <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <resultMap id="BaseResultMapWebSite" class="com.pay.txncore.dto.RefusePaymentOrderDTO" >
+      <result column="ID" property="id" jdbcType="Long" />
+      <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL" />
+      <result column="TRACKING_NO" property="trackingNo" jdbcType="VARCHAR" />
+      <result column="TRADE_URL" property="tradeUrl" jdbcType="VARCHAR" />
+      <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+      <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP" />
+      <result column="CHECK_DATE" property="checkDate" jdbcType="TIMESTAMP" />
+      <result column="TRADE_DATE" property="tradeDate" jdbcType="TIMESTAMP" />
+      <result column="ARB_FEE" property="arbFee" jdbcType="DECIMAL" />
+      <result column="REFUSE_STATUS" property="refuseStatus" jdbcType="CHAR" />
+    </resultMap>
+    <sql id="REFUSE_PAYMENT_ORDER.Example_Where_Clause" >
+      <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+        <isEqual property="oredCriteria[].valid" compareValue="true" >
+          (
+          <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithoutValue[]$ ]]>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value# ]]>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithListValue[].condition$ ]]>
+            <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+              <![CDATA[ #oredCriteria[].criteriaWithListValue[].values[]# ]]>
+            </iterate>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+            <![CDATA[
+            $oredCriteria[].criteriaWithBetweenValue[].condition$
+            #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+            #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+            ]]>
+          </iterate>
+          )
+        </isEqual>
+      </iterate>
+    </sql>
+    <sql id="REFUSE_PAYMENT_ORDER.oracle_Pagination_Head" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ select * from ( select row_.*, rownum rownum_ from ( ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="REFUSE_PAYMENT_ORDER.oracle_Pagination_Tail" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ ) row_ where rownum <= #oracleEnd# ) where rownum_ > #oracleStart# ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="REFUSE_PAYMENT_ORDER.Base_Column_List" >
+      ID, TRADE_BASE_NO, TRADE_ORDER_NO, REQUEST_SERIAL_ID, PARTNER_ID, ORDER_ID, CURRENCY, 
+      ORDER_AMOUNT, PARTNER_DISPLAY_NAME, GOODS_NAME, GOODS_COUNT, STATUS, REFUND_AMOUNT, 
+      TRADE_TYPE, PAY_TYPE, PAYER_MARK, ORG_CODE, DIRECT_FLG, DEBIT_FLG, PLATFORM_ID, OPERATOR, 
+      ARB_FEE, ARB_FILE, ARB_FILE1, ARB_FILE2, ARB_FILE3, ARB_FILE4, REFUSE_STATUS, REMARK, 
+      CREATE_DATE, UPDATE_DATE
+    </sql>
+    <select id="selectByCriteria" resultMap="BaseResultMap" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrderCriteria" >
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Head" />
+      select
+      <isParameterPresent >
+        <isEqual property="distinct" compareValue="true" >
+          distinct
+        </isEqual>
+      </isParameterPresent>
+      <include refid="REFUSE_PAYMENT_ORDER.Base_Column_List" />
+      from REFUSE_PAYMENT_ORDER
+      <isParameterPresent >
+        <include refid="REFUSE_PAYMENT_ORDER.Example_Where_Clause" />
+        <isNotNull property="orderByClause" >
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="selectRefusePamentOrderWebSite" resultMap="BaseResultMapWebSite" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrderCriteria" >
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Head" />
+      select a.id,a.trade_order_no,
+       b.TRACKING_NO,
+       b.TRADE_URL,
+       a.ORDER_ID,
+       a.create_date APPLY_DATE,
+       a.update_date CHECK_DATE,
+       c.update_date TRADE_DATE,
+       a.ARB_FEE,
+       a.REFUSE_STATUS
+	  from REFUSE_PAYMENT_ORDER a
+	  left join EXPRESS_TRACKING b 
+	    on a.trade_order_no = b.trade_order_no left join trade_order c on a.TRADE_ORDER_NO = c.TRADE_ORDER_NO
+	   <isParameterPresent >
+        <include refid="REFUSE_PAYMENT_ORDER.Example_Where_Clause" />
+        <isNotNull property="orderByClause" >
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="selectRefusePamentOrderCountWebSite" resultClass="Integer" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrderCriteria" >
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Head" />
+      select count(1)
+	  from REFUSE_PAYMENT_ORDER a
+	  left join EXPRESS_TRACKING b 
+	    on a.trade_order_no = b.trade_order_no left join trade_order c on a.TRADE_ORDER_NO = c.TRADE_ORDER_NO
+	    <isParameterPresent >
+        <include refid="REFUSE_PAYMENT_ORDER.Example_Where_Clause" />
+        <isNotNull property="orderByClause" >
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterClass="long" >
+      select 
+      <include refid="REFUSE_PAYMENT_ORDER.Base_Column_List" />
+      <![CDATA[
+      from REFUSE_PAYMENT_ORDER
+      where ID = #id#
+      ]]>
+    </select>
+    
+    
+    <insert id="REFUSE_PAYMENT_ORDER.insert" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      <![CDATA[
+      insert into REFUSE_PAYMENT_ORDER (ID, TRADE_BASE_NO, TRADE_ORDER_NO, REQUEST_SERIAL_ID, 
+        PARTNER_ID, ORDER_ID, CURRENCY, ORDER_AMOUNT, 
+        PARTNER_DISPLAY_NAME, GOODS_NAME, GOODS_COUNT, STATUS, 
+        REFUND_AMOUNT, TRADE_TYPE, PAY_TYPE, PAYER_MARK, 
+        ORG_CODE, DIRECT_FLG, DEBIT_FLG, PLATFORM_ID, OPERATOR, 
+        ARB_FEE, ARB_FILE, ARB_FILE1, ARB_FILE2, ARB_FILE3, 
+        ARB_FILE4, REFUSE_STATUS, REMARK, CREATE_DATE, 
+        UPDATE_DATE)
+      values (#id#, #tradeBaseNo#, #tradeOrderNo#, #requestSerialId#, 
+        #partnerId#, #orderId#, #currency#, #orderAmount#, 
+        #partnerDisplayName#, #goodsName#, #goodsCount#, #status#, 
+        #refundAmount#, #tradeType#, #payType#, #payerMark#, 
+        #orgCode#, #directFlg#, #debitFlg#, #platformId#, #operator#, 
+        #arbFee#, #arbFile#, #arbFile1#, #arbFile2#, #arbFile3#, 
+        #arbFile4#, #refuseStatus#, #remark#, #createDate#, 
+        #updateDate#)
+      ]]>
+    </insert>
+    <insert id="create" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      <selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT
+		151 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+		||LPAD(S_REFUSE_PAYMENT_ORDER.nextval, 6, 0) FROM DUAL
+	  </selectKey>
+      insert into REFUSE_PAYMENT_ORDER
+      <dynamic prepend="(" >
+          ID,
+        <isNotNull prepend="," property="tradeBaseNo" >
+          TRADE_BASE_NO
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo" >
+          TRADE_ORDER_NO
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId" >
+          REQUEST_SERIAL_ID
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId" >
+          PARTNER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="orderId" >
+          ORDER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="currency" >
+          CURRENCY
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount" >
+          ORDER_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName" >
+          PARTNER_DISPLAY_NAME
+        </isNotNull>
+        <isNotNull prepend="," property="goodsName" >
+          GOODS_NAME
+        </isNotNull>
+        <isNotNull prepend="," property="goodsCount" >
+          GOODS_COUNT
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          STATUS
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount" >
+          REFUND_AMOUNT
+        </isNotNull>
+        <isNotNull prepend="," property="tradeType" >
+          TRADE_TYPE
+        </isNotNull>
+        <isNotNull prepend="," property="payType" >
+          PAY_TYPE
+        </isNotNull>
+        <isNotNull prepend="," property="payerMark" >
+          PAYER_MARK
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode" >
+          ORG_CODE
+        </isNotNull>
+        <isNotNull prepend="," property="directFlg" >
+          DIRECT_FLG
+        </isNotNull>
+        <isNotNull prepend="," property="debitFlg" >
+          DEBIT_FLG
+        </isNotNull>
+        <isNotNull prepend="," property="platformId" >
+          PLATFORM_ID
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          OPERATOR
+        </isNotNull>
+        <isNotNull prepend="," property="arbFee" >
+          ARB_FEE
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile" >
+          ARB_FILE
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile1" >
+          ARB_FILE1
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile2" >
+          ARB_FILE2
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile3" >
+          ARB_FILE3
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile4" >
+          ARB_FILE4
+        </isNotNull>
+        <isNotNull prepend="," property="refuseStatus" >
+          REFUSE_STATUS
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          REMARK
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          CREATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate" >
+          UPDATE_DATE
+        </isNotNull>
+        )
+      </dynamic>
+      values
+      <dynamic prepend="(" >
+          <![CDATA[ #id#, ]]>
+        <isNotNull prepend="," property="tradeBaseNo" >
+          <![CDATA[ #tradeBaseNo# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo" >
+          <![CDATA[ #tradeOrderNo# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId" >
+          <![CDATA[ #requestSerialId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId" >
+          <![CDATA[ #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orderId" >
+          <![CDATA[ #orderId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="currency" >
+          <![CDATA[ #currency# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount" >
+          <![CDATA[ #orderAmount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName" >
+          <![CDATA[ #partnerDisplayName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="goodsName" >
+          <![CDATA[ #goodsName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="goodsCount" >
+          <![CDATA[ #goodsCount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          <![CDATA[ #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount" >
+          <![CDATA[ #refundAmount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeType" >
+          <![CDATA[ #tradeType# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="payType" >
+          <![CDATA[ #payType# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="payerMark" >
+          <![CDATA[ #payerMark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode" >
+          <![CDATA[ #orgCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="directFlg" >
+          <![CDATA[ #directFlg# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="debitFlg" >
+          <![CDATA[ #debitFlg# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="platformId" >
+          <![CDATA[ #platformId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFee" >
+          <![CDATA[ #arbFee# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile" >
+          <![CDATA[ #arbFile# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile1" >
+          <![CDATA[ #arbFile1# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile2" >
+          <![CDATA[ #arbFile2# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile3" >
+          <![CDATA[ #arbFile3# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile4" >
+          <![CDATA[ #arbFile4# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refuseStatus" >
+          <![CDATA[ #refuseStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          <![CDATA[ #remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          <![CDATA[ #createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate" >
+          <![CDATA[ #updateDate# ]]>
+        </isNotNull>
+        )
+      </dynamic>
+    </insert>
+    <select id="countByCriteria" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrderCriteria" resultClass="java.lang.Integer" >
+      select count(*) from REFUSE_PAYMENT_ORDER
+      <include refid="REFUSE_PAYMENT_ORDER.Example_Where_Clause" />
+    </select>
+    <update id="REFUSE_PAYMENT_ORDER.updateByExampleSelective" >
+      update REFUSE_PAYMENT_ORDER
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="record.id" >
+          <![CDATA[ ID = #record.id# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.tradeBaseNo" >
+          <![CDATA[ TRADE_BASE_NO = #record.tradeBaseNo# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.tradeOrderNo" >
+          <![CDATA[ TRADE_ORDER_NO = #record.tradeOrderNo# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.requestSerialId" >
+          <![CDATA[ REQUEST_SERIAL_ID = #record.requestSerialId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerId" >
+          <![CDATA[ PARTNER_ID = #record.partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.orderId" >
+          <![CDATA[ ORDER_ID = #record.orderId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.currency" >
+          <![CDATA[ CURRENCY = #record.currency# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.orderAmount" >
+          <![CDATA[ ORDER_AMOUNT = #record.orderAmount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerDisplayName" >
+          <![CDATA[ PARTNER_DISPLAY_NAME = #record.partnerDisplayName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.goodsName" >
+          <![CDATA[ GOODS_NAME = #record.goodsName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.goodsCount" >
+          <![CDATA[ GOODS_COUNT = #record.goodsCount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.status" >
+          <![CDATA[ STATUS = #record.status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.refundAmount" >
+          <![CDATA[ REFUND_AMOUNT = #record.refundAmount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.tradeType" >
+          <![CDATA[ TRADE_TYPE = #record.tradeType# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.payType" >
+          <![CDATA[ PAY_TYPE = #record.payType# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.payerMark" >
+          <![CDATA[ PAYER_MARK = #record.payerMark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.orgCode" >
+          <![CDATA[ ORG_CODE = #record.orgCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.directFlg" >
+          <![CDATA[ DIRECT_FLG = #record.directFlg# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.debitFlg" >
+          <![CDATA[ DEBIT_FLG = #record.debitFlg# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.platformId" >
+          <![CDATA[ PLATFORM_ID = #record.platformId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.operator" >
+          <![CDATA[ OPERATOR = #record.operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.arbFee" >
+          <![CDATA[ ARB_FEE = #record.arbFee# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.arbFile" >
+          <![CDATA[ ARB_FILE = #record.arbFile# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.arbFile1" >
+          <![CDATA[ ARB_FILE1 = #record.arbFile1# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.arbFile2" >
+          <![CDATA[ ARB_FILE2 = #record.arbFile2# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.arbFile3" >
+          <![CDATA[ ARB_FILE3 = #record.arbFile3# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.arbFile4" >
+          <![CDATA[ ARB_FILE4 = #record.arbFile4# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.refuseStatus" >
+          <![CDATA[ REFUSE_STATUS = #record.refuseStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.remark" >
+          <![CDATA[ REMARK = #record.remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.createDate" >
+          <![CDATA[ CREATE_DATE = #record.createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.updateDate" >
+          <![CDATA[ UPDATE_DATE = #record.updateDate# ]]>
+        </isNotNull>
+      </dynamic>
+      <isParameterPresent >
+        <include refid="REFUSE_PAYMENT_ORDER.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="REFUSE_PAYMENT_ORDER.updateByExample" >
+      <![CDATA[
+      update REFUSE_PAYMENT_ORDER
+      set ID = #record.id#,
+        TRADE_BASE_NO = #record.tradeBaseNo#,
+        TRADE_ORDER_NO = #record.tradeOrderNo#,
+        REQUEST_SERIAL_ID = #record.requestSerialId#,
+        PARTNER_ID = #record.partnerId#,
+        ORDER_ID = #record.orderId#,
+        CURRENCY = #record.currency#,
+        ORDER_AMOUNT = #record.orderAmount#,
+        PARTNER_DISPLAY_NAME = #record.partnerDisplayName#,
+        GOODS_NAME = #record.goodsName#,
+        GOODS_COUNT = #record.goodsCount#,
+        STATUS = #record.status#,
+        REFUND_AMOUNT = #record.refundAmount#,
+        TRADE_TYPE = #record.tradeType#,
+        PAY_TYPE = #record.payType#,
+        PAYER_MARK = #record.payerMark#,
+        ORG_CODE = #record.orgCode#,
+        DIRECT_FLG = #record.directFlg#,
+        DEBIT_FLG = #record.debitFlg#,
+        PLATFORM_ID = #record.platformId#,
+        OPERATOR = #record.operator#,
+        ARB_FEE = #record.arbFee#,
+        ARB_FILE = #record.arbFile#,
+        ARB_FILE1 = #record.arbFile1#,
+        ARB_FILE2 = #record.arbFile2#,
+        ARB_FILE3 = #record.arbFile3#,
+        ARB_FILE4 = #record.arbFile4#,
+        REFUSE_STATUS = #record.refuseStatus#,
+        REMARK = #record.remark#,
+        CREATE_DATE = #record.createDate#,
+        UPDATE_DATE = #record.updateDate#
+      ]]>
+      <isParameterPresent >
+        <include refid="REFUSE_PAYMENT_ORDER.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    <update id="update" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      update REFUSE_PAYMENT_ORDER
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="tradeBaseNo" >
+          <![CDATA[ TRADE_BASE_NO = #tradeBaseNo# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo" >
+          <![CDATA[ TRADE_ORDER_NO = #tradeOrderNo# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="requestSerialId" >
+          <![CDATA[ REQUEST_SERIAL_ID = #requestSerialId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId" >
+          <![CDATA[ PARTNER_ID = #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orderId" >
+          <![CDATA[ ORDER_ID = #orderId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="currency" >
+          <![CDATA[ CURRENCY = #currency# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount" >
+          <![CDATA[ ORDER_AMOUNT = #orderAmount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName" >
+          <![CDATA[ PARTNER_DISPLAY_NAME = #partnerDisplayName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="goodsName" >
+          <![CDATA[ GOODS_NAME = #goodsName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="goodsCount" >
+          <![CDATA[ GOODS_COUNT = #goodsCount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          <![CDATA[ STATUS = #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount" >
+          <![CDATA[ REFUND_AMOUNT = #refundAmount# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="tradeType" >
+          <![CDATA[ TRADE_TYPE = #tradeType# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="payType" >
+          <![CDATA[ PAY_TYPE = #payType# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="payerMark" >
+          <![CDATA[ PAYER_MARK = #payerMark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode" >
+          <![CDATA[ ORG_CODE = #orgCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="directFlg" >
+          <![CDATA[ DIRECT_FLG = #directFlg# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="debitFlg" >
+          <![CDATA[ DEBIT_FLG = #debitFlg# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="platformId" >
+          <![CDATA[ PLATFORM_ID = #platformId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFee" >
+          <![CDATA[ ARB_FEE = #arbFee# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile" >
+          <![CDATA[ ARB_FILE = #arbFile# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile1" >
+          <![CDATA[ ARB_FILE1 = #arbFile1# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile2" >
+          <![CDATA[ ARB_FILE2 = #arbFile2# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile3" >
+          <![CDATA[ ARB_FILE3 = #arbFile3# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="arbFile4" >
+          <![CDATA[ ARB_FILE4 = #arbFile4# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="refuseStatus" >
+          <![CDATA[ REFUSE_STATUS = #refuseStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          <![CDATA[ REMARK = #remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          <![CDATA[ CREATE_DATE = #createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate" >
+          <![CDATA[ UPDATE_DATE = #updateDate# ]]>
+        </isNotNull>
+      </dynamic>
+      <![CDATA[
+      where ID = #id#
+      ]]>
+    </update>
+    <update id="REFUSE_PAYMENT_ORDER.updateByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      <![CDATA[
+      update REFUSE_PAYMENT_ORDER
+      set TRADE_BASE_NO = #tradeBaseNo#,
+        TRADE_ORDER_NO = #tradeOrderNo#,
+        REQUEST_SERIAL_ID = #requestSerialId#,
+        PARTNER_ID = #partnerId#,
+        ORDER_ID = #orderId#,
+        CURRENCY = #currency#,
+        ORDER_AMOUNT = #orderAmount#,
+        PARTNER_DISPLAY_NAME = #partnerDisplayName#,
+        GOODS_NAME = #goodsName#,
+        GOODS_COUNT = #goodsCount#,
+        STATUS = #status#,
+        REFUND_AMOUNT = #refundAmount#,
+        TRADE_TYPE = #tradeType#,
+        PAY_TYPE = #payType#,
+        PAYER_MARK = #payerMark#,
+        ORG_CODE = #orgCode#,
+        DIRECT_FLG = #directFlg#,
+        DEBIT_FLG = #debitFlg#,
+        PLATFORM_ID = #platformId#,
+        OPERATOR = #operator#,
+        ARB_FEE = #arbFee#,
+        ARB_FILE = #arbFile#,
+        ARB_FILE1 = #arbFile1#,
+        ARB_FILE2 = #arbFile2#,
+        ARB_FILE3 = #arbFile3#,
+        ARB_FILE4 = #arbFile4#,
+        REFUSE_STATUS = #refuseStatus#,
+        REMARK = #remark#,
+        CREATE_DATE = #createDate#,
+        UPDATE_DATE = #updateDate#
+      where ID = #id#
+      ]]>
+    </update>
+    
+    <resultMap id="selectTradeOrdersResultMap" class="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="Long" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+      <result column="CREATE_DATE" property="orderTime" jdbcType="TIMESTAMP" />
+      <result column="URL" property="url" jdbcType="VARCHAR" />
+      <result column="STATUS" property="status" jdbcType="DECIMAL" />
+      <result column="EXT_ORDER_INFO_3" property="clearStatus" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <select id="selectTradeOrders" resultMap="selectTradeOrdersResultMap" parameterClass="java.util.HashMap">
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Head" />
+	      select O.TRADE_ORDER_NO,
+		       O.PARTNER_ID,
+		       O.CREATE_DATE,
+		       (SELECT  MAX(C.URL) FROM PARTNER_WEBSITE_CONFIG C WHERE C.PARTNER_ID = O.PARTNER_ID AND C.STATUS = '1') AS URL,
+		       O.STATUS,
+		       E.EXT_ORDER_INFO_3,
+		       B.TRADE_TYPE
+		  from TRADE_ORDER O, TRADE_BASE B, TRADE_EXTENDS E
+		 WHERE 
+		       O.TRADE_BASE_NO = B.TRADE_BASE_NO
+		       AND B.TRADE_TYPE = '3001'
+		       AND O.STATUS = 3
+		       AND O.TRADE_ORDER_NO = E.TRADE_ORDER_NO(+)
+		       <isNotNull prepend=" and " property="tradeOrderNo" >
+	          		<![CDATA[ O.TRADE_ORDER_NO = #tradeOrderNo# ]]>
+	           </isNotNull>
+	           <isNotNull prepend=" and " property="partnerId" >
+	          		<![CDATA[ O.PARTNER_ID = #partnerId# ]]>
+	           </isNotNull>
+		 ORDER BY O.CREATE_DATE DESC
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="count_selectTradeOrders" parameterClass="java.util.HashMap" resultClass="java.lang.Integer" >
+      select count(*) 
+      from TRADE_ORDER O, TRADE_BASE B, TRADE_EXTENDS E
+		 WHERE 
+		       O.TRADE_BASE_NO = B.TRADE_BASE_NO
+		       AND B.TRADE_TYPE = '3001'
+		       AND O.STATUS = 3
+		       AND O.TRADE_ORDER_NO = E.TRADE_ORDER_NO(+)
+		       <isNotNull prepend=" and " property="tradeOrderNo" >
+	          		<![CDATA[ O.TRADE_ORDER_NO = #tradeOrderNo# ]]>
+	           </isNotNull>
+	           <isNotNull prepend=" and " property="partnerId" >
+	          		<![CDATA[ O.PARTNER_ID = #partnerId# ]]>
+	           </isNotNull>
+    </select>
+    
+    <select id="lockTradeOrder" resultClass="java.lang.Long" parameterClass="java.util.HashMap">
+	     select O.TRADE_ORDER_NO 
+		 from TRADE_ORDER O
+		 WHERE 
+		 	  1=1
+		 	  and O.TRADE_ORDER_NO = #tradeOrderNo#
+		 for update nowait
+    </select>
+    
+    <update id="frozenTrade" parameterClass="java.util.HashMap">
+         update TRADE_ORDER O
+         set O.STATUS = 6
+		 WHERE 
+		 	  1=1
+		 	  and O.STATUS = 3
+		 	  and O.TRADE_ORDER_NO = #tradeOrderNo#
+    </update>
+    
+    <insert id="createRefuseOrder" parameterClass="java.util.HashMap" >
+   	  <selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT
+		151 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+		||LPAD(S_REFUSE_PAYMENT_ORDER.nextval, 6, 0) FROM DUAL
+	  </selectKey>
+      insert into FROZEN_ORDER(
+      	ID, TRADE_BASE_NO, TRADE_ORDER_NO, REQUEST_SERIAL_ID, PARTNER_ID,
+      	ORDER_ID, CURRENCY, ORDER_AMOUNT, PARTNER_DISPLAY_NAME, GOODS_NAME,
+      	GOODS_COUNT, STATUS, REFUND_AMOUNT, TRADE_TYPE, PAY_TYPE, PAYER_MARK, 
+      	ORG_CODE, DIRECT_FLG, DEBIT_FLG, PLATFORM_ID, OPERATOR, REFUSE_STATUS, 
+      	CREATE_DATE, UPDATE_DATE
+      )
+      SELECT
+	    #id#,
+	    B.TRADE_BASE_NO,
+	    O.TRADE_ORDER_NO,
+	    O.REQUEST_SERIAL_ID,
+	    O.PARTNER_ID,
+	    O.ORDER_ID,
+	    B.CURRENCY,
+	    O.ORDER_AMOUNT,
+	    O.PARTNER_DISPLAY_NAME,
+	    O.GOODS_NAME,
+	    O.GOODS_COUNT,
+	    O.STATUS,
+	    O.REFUND_AMOUNT,
+	    B.TRADE_TYPE,
+	    B.PAY_TYPE,
+	    B.PAYER_MARK,
+	    B.ORG_CODE,
+	    B.DIRECT_FLG,
+	    B.DEBIT_FLG,
+	    B.PLATFORM_ID,
+	    #operator#,
+	    '0',
+	    sysdate,
+	    sysdate
+	FROM
+	    TRADE_BASE B,
+	    TRADE_ORDER O
+	WHERE
+	    O.TRADE_BASE_NO = B.TRADE_BASE_NO
+	    AND O.TRADE_ORDER_NO = #tradeOrderNo#
+    </insert>
+    
+    <resultMap id="selectRefuseOrdersResultMap" class="com.pay.txncore.crosspay.model.RefusePaymentOrder" >
+      <result column="CREATE_DATE" property="orderTime" jdbcType="TIMESTAMP" />
+      <result column="ID" property="id" jdbcType="Long" />
+      <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="Long" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+      <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+    </resultMap>
+    
+    <select id="selectRefuseOrders" resultMap="selectRefuseOrdersResultMap" parameterClass="java.util.HashMap">
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Head" />
+	       SELECT
+			    O.CREATE_DATE,
+			    R.ID,
+			    O.TRADE_ORDER_NO,
+			    R.PARTNER_ID,
+			    O.ORDER_AMOUNT
+			FROM
+			    FI.TRADE_ORDER O,
+			    FI.REFUSE_PAYMENT_ORDER R
+			WHERE
+			    R.TRADE_ORDER_NO = O.TRADE_ORDER_NO
+			    AND R.STATUS = 0
+			   <isNotNull prepend=" and " property="id" >
+	          		<![CDATA[ R.ID = #id# ]]>
+	           </isNotNull>
+		       <isNotNull prepend=" and " property="tradeOrderNo" >
+	          		<![CDATA[ O.TRADE_ORDER_NO = #tradeOrderNo# ]]>
+	           </isNotNull>
+	           <isNotNull prepend=" and " property="orderTime" >
+	          		<![CDATA[ TO_CHAR(O.CREATE_DATE, 'yyyy-MM-dd') =  #orderTime# ]]>
+	           </isNotNull>
+		 ORDER BY O.CREATE_DATE DESC
+      <include refid="REFUSE_PAYMENT_ORDER.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="count_selectRefuseOrders" parameterClass="java.util.HashMap" resultClass="java.lang.Integer" >
+		    select count(*) 
+		    FROM
+			    FI.TRADE_ORDER O,
+			    FI.REFUSE_PAYMENT_ORDER R
+			WHERE
+			    R.TRADE_ORDER_NO = O.TRADE_ORDER_NO
+			    AND R.STATUS = 0
+		       <isNotNull prepend=" and " property="id" >
+	          		<![CDATA[ R.ID = #id# ]]>
+	           </isNotNull>
+		       <isNotNull prepend=" and " property="tradeOrderNo" >
+	          		<![CDATA[ O.TRADE_ORDER_NO = #tradeOrderNo# ]]>
+	           </isNotNull>
+	           <isNotNull prepend=" and " property="orderTime" >
+	          		<![CDATA[ TO_CHAR(O.CREATE_DATE, 'yyyy-MM-dd') =  #orderTime# ]]>
+	           </isNotNull>
+    </select>
+    
+    <update id="unFrozenTrade" parameterClass="java.util.HashMap">
+         update TRADE_ORDER O
+         set O.STATUS = 3
+		 WHERE 
+		 	  1=1
+		 	  and O.STATUS = 6
+		 	  and O.TRADE_ORDER_NO = #tradeOrderNo#
+    </update>
+    
+    <update id="updateRefuseOrderStatus" parameterClass="java.util.HashMap">
+         update FI.REFUSE_PAYMENT_ORDER R
+         set R.REFUSE_STATUS = #refuseStatus#,
+         	 R.REMARK = #refuseReason#
+		 WHERE 
+		 	  1=1
+		 	  and R.ID = #id#
+    </update>
+    
+    <resultMap id="getRefuseOrderResultMap" class="java.util.HashMap" >
+      <result column="ORDER_DATE" property="orderTime" jdbcType="TIMESTAMP" />
+      <result column="ID" property="id" jdbcType="Long" />
+      <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="Long" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="Long" />
+      <result column="REFUSE_STATUS" property="refuseStatus" jdbcType="VARCHAR" />
+      <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+      <result column="CREATE_DATE" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+    
+    <select id="getRefuseOrder" resultMap="getRefuseOrderResultMap" parameterClass="java.util.HashMap">
+	       SELECT
+			    O.CREATE_DATE AS ORDER_DATE,
+			    R.ID,
+			    O.TRADE_ORDER_NO,
+			    R.PARTNER_ID,
+			    O.REFUSE_STATUS,
+			    O.ORDER_AMOUNT,
+			    R.CREATE_DATE 
+			FROM
+			    FI.TRADE_ORDER O,
+			    FI.REFUSE_PAYMENT_ORDER R
+			WHERE
+			    R.TRADE_ORDER_NO = O.TRADE_ORDER_NO
+			    AND R.STATUS = 0
+	          	AND R.ID = #id#
+    </select>
+  </sqlMap>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fo-order-withdrawOrderService"
+		class="com.pay.fo.order.service.withdraw.impl.WithdrawOrderServiceImpl">
+		<property name="fundoutOrderProcessService" ref="fo-order-fundoutOrderProcessService" />
+		<property name="orderAfterProcessService" ref="fo-order-orderAfterProcessService"></property>
+		<property name="orderCallbackService" ref="fo-order-withdrawOrderCallbackService"></property>
+		<property name="reqAccountingService" ref="fundout-withdrawFirstAccounting" />
+		<property name="successAccountingService" ref="fundout-withdrawSuccessAccounting" />
+		<property name="failAccountingService" ref="fundout-withdrawFailAccounting" />
+		<property name="refundAccountingService" ref="fundout-withdrawReturnAccounting"></property>
+	</bean>
+	<bean id="fo-order-withdrawOrderValidateService"
+		class="com.pay.fo.order.service.withdraw.impl.WithdrawOrderValidateServiceImpl">
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"></property>
+	</bean>
+	<!-- 提现订单回调处理 -->
+	<bean id="fo-order-withdrawOrderCallbackService"
+		class="com.pay.fo.order.service.withdraw.callback.WithdrawOrderCallbackServiceImpl"
+		parent="fo-order-abstractOrderCallbackService">
+		<property name="fundoutOrderProcessService" ref="fo-order-fundoutOrderProcessService"/>
+		<property name="payerSmsTemplateMap">
+			<map>
+				<entry key="101">
+					<value>${withdraw.request.sms}</value>
+				</entry>
+				<entry key="112">
+					<value>${withdraw.fail.sms}</value>
+				</entry>
+				<entry key="111">
+					<value>${withdraw.success.sms}</value>
+				</entry>
+			</map>
+		</property>
+		<property name="payerEmailTemplateMap">
+			<map>
+				<entry key="101">
+					<value>${withdraw.request.email}</value>
+				</entry>
+				<entry key="112">
+					<value>${withdraw.fail.email}</value>
+				</entry>
+				<entry key="111">
+					<value>${withdraw.success.email}</value>
+				</entry>
+			</map>
+		</property>
+		<property name="queueName" value="fundout.withdraw.request.active"></property>
+	</bean>
+</beans>

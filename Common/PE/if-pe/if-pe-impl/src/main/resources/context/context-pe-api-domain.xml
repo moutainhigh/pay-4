@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean id="peService" class="com.pay.pe.service.impl.PEServiceImpl">
+		<property name="dealService">
+			<ref bean="dealService" />
+		</property>
+		<property name="paymentOrderService">
+			<ref bean="paymentOrderService" />
+		</property>
+		<property name="calFeeService">
+			<ref bean="calFeeService" />
+		</property>
+		<property name="entryService">
+			<ref bean="accountEntryService" />
+		</property>
+		<property name="defaultDao">
+			<ref bean="defaultDao" />
+		</property>
+	</bean>
+
+	<bean id="calFeeService" class="com.pay.pe.service.impl.CalFeeServiceImpl">
+		<property name="currencyService">
+			<ref bean="currencyService" />
+		</property>
+		<property name="payment">
+			<ref bean="payment" />
+		</property>
+		<property name="dealService">
+			<ref bean="dealService" />
+		</property>
+		<property name="paymentServiceService">
+			<ref bean="paymentServiceService" />
+		</property>
+		<property name="pricingService">
+			<ref bean="pricingStrategyService" />
+		</property>
+		<property name="infMaJdbcTemplate">
+			<ref bean="infMaJdbcTemplate" />
+		</property>
+		<property name="acctSpecService" ref="acctSpecService"/>
+	</bean>
+
+	<!-- account specification bean definition -->
+	<bean id="acctSpecService" class="com.pay.pe.service.account.impl.AcctSpecServiceImpl">
+		<property name="acctSpecDAO">
+			<ref bean="acctSpecDAOImpl" />
+		</property>
+	</bean>
+
+	<bean id="paymentServiceService"
+		class="com.pay.pe.service.paymentservice.impl.PaymentServiceServiceImpl">
+		<property name="paymentServiceDAO">
+			<ref bean="paymentServiceDAOImpl" />
+		</property>
+		<property name="paymentServicePKGDAO">
+			<ref bean="paymentServicePKGDAOImpl" />
+		</property>
+		<property name="paymentSrvPkgAssignmentDAO">
+			<ref bean="paymentSrvPkgAssignmentDAOImpl" />
+		</property>
+
+		<property name="postingRuleDAO">
+			<ref bean="postingRuleDAOImpl" />
+		</property>
+
+		<property name="pymtsrvPkgMatrixDAO">
+			<ref bean="pymtsrvPkgMatrixDAOImpl" />
+		</property>
+	</bean>
+
+	<!-- Deal Service Bean Definition -->
+	<bean id="dealService" class="com.pay.pe.service.order.impl.DealServiceImpl">
+		<property name="mainDao">
+			<ref bean="dealDao" />
+		</property>
+		<property name="orderDao">
+			<ref bean="paymentOrderDao" />
+		</property>
+		<property name="paymentOrderService">
+			<ref bean="paymentOrderService" />
+		</property>
+		<property name="mainDtoUtil">
+			<ref bean="dealDtoUtil" />
+		</property>
+
+		<property name="paymentService">
+			<ref bean="paymentServiceService" />
+		</property>
+
+	</bean>
+
+	<!-- Deal Dto Util Bean Definition -->
+	<bean id="dealDtoUtil" class="com.pay.pe.dto.DealDtoUtil" />
+
+	<!-- PaymentOrder Service Bean Definition -->
+	<bean id="paymentOrderService" class="com.pay.pe.service.order.impl.PaymentOrderServiceImpl">
+		<property name="mainDao">
+			<ref bean="paymentOrderDao" />
+		</property>
+		<property name="mainDtoUtil">
+			<ref bean="paymentOrderDtoUtil" />
+		</property>
+	</bean>
+
+	<!-- PaymentOrder Dto Util Bean Definition -->
+	<bean id="paymentOrderDtoUtil" class="com.pay.pe.dto.PaymentOrderDtoUtil" />
+
+	<bean id="utilRegisterDeal"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="dtoUtilFactory" />
+		</property>
+		<property name="targetMethod">
+			<value>addDtoUtil</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<ref bean="dealDtoUtil" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="utilRegisterPaymentOrder"
+		class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+		<property name="targetObject">
+			<ref bean="dtoUtilFactory" />
+		</property>
+		<property name="targetMethod">
+			<value>addDtoUtil</value>
+		</property>
+		<property name="arguments">
+			<list>
+				<ref bean="paymentOrderDtoUtil" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="paymentOrderUtil" class="com.pay.pe.dao.PaymentOrderUtil">
+		<property name="defaultDao">
+			<ref bean="defaultDao" />
+		</property>
+	</bean>
+
+	<!-- payment package bean definition -->
+	<bean id="payment" class="com.pay.pe.service.payment.impl.PaymentImpl">
+		<property name="pricingService">
+			<ref bean="pricingStrategyService" />
+		</property>
+		<property name="paymentService">
+			<ref bean="paymentServiceService" />
+		</property>
+		<property name="exchangeRateService">
+			<ref bean="exchangeRateService" />
+		</property>
+		<property name="currencyService">
+			<ref bean="currencyService" />
+		</property>
+		<property name="bankOrgCodeMappingDAO" ref="bankOrgCodeMappingDAO"/>
+	</bean>
+
+	<!-- 分录服务 -->
+	<bean id="accountEntryService"
+		class="com.pay.pe.service.accounting.impl.AccountEntryServiceImpl">
+		<property name="accountEntryDAO">
+			<ref bean="accountEntryDAO" />
+		</property>
+		<property name="accountDiaryEntryDAO">
+			<ref bean="accountDiaryEntryDAO" />
+		</property>
+		<property name="accountDairyDao">
+			<ref bean="accountDairyDao" />
+		</property>
+	</bean>
+
+	<bean id="currencyService" class="com.pay.pe.service.currency.impl.CurrencyServiceImpl">
+		<property name="currencyDAO">
+			<ref bean="currencyDAO" />
+		</property>
+	</bean>
+
+	<bean id="exchangeRateService"
+		class="com.pay.pe.service.exchangerate.impl.ExchangeRateServiceImpl">
+		<property name="exchangeRateDAO">
+			<ref bean="exchangeRateDAO" />
+		</property>
+	</bean>
+
+</beans>

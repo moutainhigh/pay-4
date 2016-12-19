@@ -1,0 +1,70 @@
+<!--修改IE下弹出页面后，银行列表显示位置偏移问题。因为此页面是alert出的，已经在父页面中赋予此弹出页面的属性值，所以会导致页面部分元素错误 -->
+<!-- tips -->
+<#if errorMsg?exists> 
+	 <div class="tip_page" >
+		<div class="con_box tips_cont">
+			<div class="popup_content">
+				<h3>出错啦！！！</h3>
+				<p class="other_condition">${errorMsg?default('')}。</p>
+				<span class="pop_war"></span>
+			</div>
+				
+		</div>
+	</div>
+<#else>
+   <div class="tip_page" >
+		<div class="con_box tips_cont">
+			<div class="popup_content">
+				<h3>订单支付中，请等待...</h3>
+				<p class="other_condition">充值完成前请不要关闭此窗口。</p>
+				<span class="pop_war"></span>
+			</div>
+				<p class="ml30"><img src="<@sp.static/>/img/pay/loading3.gif" /></p>
+		</div>
+	</div>
+</#if>
+<script type="text/javascript">
+
+var intervalId = '';
+var flag = 0;
+var	otherMoney = '${otherMoney?default('')}';
+var	conOrderNO = '${conOrderNO?default('')}'; 
+var	totalAmount = '${totalAmount?default('')}'; 
+
+(function($){
+	$.refreshBankPay={
+		queryDepositStatus:function(orderNo){
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/conCardPay.htm?method=queryStatus",
+				data: "orderNo="+orderNo,
+				success: function(msg){
+					//alert(msg);
+					//如果发现充值成功刷新
+					flag++;
+					if (msg == 'true') {
+						//$("#finishDeposit").click();
+						//操作成功
+						window.location.href='${rc.contextPath}/conCardPay.htm?method=successView&totalAmount='+totalAmount+"&conOrderNO="+conOrderNO; 
+						return;
+						/*if (intervalId != '') {
+							clearInterval(intervalId);
+						}*/
+					}else if(msg == 'false'){
+						//支付失败
+						window.location.href='${rc.contextPath}/conCardPay.htm?method=fail&errorFlag='+"error";  
+						return;
+					}
+					//60秒后支付超时
+					if(flag==12){
+						window.location.href='${rc.contextPath}/conCardPay.htm?method=fail&errorFlag='+"overtime";
+					}
+				}
+			});
+		}
+	}
+})(jQuery);
+
+var intervalId = setInterval("$.refreshBankPay.queryDepositStatus('${orderNo?default('')}')",5000);
+
+</script>

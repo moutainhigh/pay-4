@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射 -->
+	<bean id="EnterpriseRegisterHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<!-- property name="interceptors">
+			<list>
+				<ref bean="operatPermInterceptor" />
+			</list>
+		</property-->
+		<property name="mappings">
+			<props>
+				<prop key="/registerNav.htm">enterpriseRegisterController</prop>
+				<prop key="/enterpriseRegister.htm">enterpriseRegisterController</prop>
+				<prop key="/GCPaymentEnterpriseRegister.htm">GCPaymentEnterpriseRegisterController</prop>
+				<prop key="/openning/pay2bank.htm">enterpriseRegisterController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="enterpriseRegisterController" class="com.pay.ma.register.EnterpriseRegisterController">
+		
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="cooperation">
+			<value>/wechat/cooperation</value>
+		</property>
+		<property name="enterpriseRegisterNav">
+			<value>/wechat/enterpriseRegisterNav</value>
+		</property>
+		<property name="indexView">
+			<value>/wechat/enterpriseRegister</value>
+		</property>
+		<property name="resultView">
+			<value>/wechat/completedRegister</value>
+		</property>
+		<property name="bankService" ref="bankService"/>
+		<property name="provinceService" ref="provinceService"/>
+		<property name="cityService" ref="cityService"/>
+		<property name="memberService" ref="acc-memberService"/>
+		<property name="registerService" ref="acc-registerService"/>
+		<property name="configBankService" ref="context_fundout_configbank_service"/>
+		<property name="luceneService" ref="fundout-lucene-service"/>
+		<property name="merchantCodePrefix" value="500"/>
+	</bean>
+	
+	<bean id="GCPaymentEnterpriseRegisterController" class="com.pay.ma.register.EnterpriseRegisterController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>/gcpayment/register</value>
+		</property>
+		<property name="resultView">
+			<value>/gcpayment/registerResult</value>
+		</property>
+		<property name="bankService" ref="bankService"/>
+		<property name="provinceService" ref="provinceService"/>
+		<property name="cityService" ref="cityService"/>
+		<property name="memberService" ref="acc-memberService"/>
+		<property name="registerService" ref="acc-registerService"/>
+		<property name="configBankService" ref="context_fundout_configbank_service"/>
+		<property name="luceneService" ref="fundout-lucene-service"/>
+		<property name="merchantCodePrefix" value="500"/>
+	</bean>
+
+</beans>

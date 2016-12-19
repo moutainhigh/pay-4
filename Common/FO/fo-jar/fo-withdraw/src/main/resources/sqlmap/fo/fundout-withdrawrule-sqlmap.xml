@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="withdrawrule">
+	<typeAlias alias="withdrawRule" type="com.pay.fundout.withdraw.model.rule.WithdrawRule"/>
+    <resultMap id="withdrawRule" class="com.pay.fundout.withdraw.model.rule.WithdrawRule">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="WITHDRAW_TYPE" property="withdrawType" jdbcType="DECIMAL"/>
+        <result column="BANK_ACCT_TYPE" property="bankAcctType" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PRIORITY" property="priority" jdbcType="DECIMAL"/>
+        <result column="TO_BANK_CODE" property="toBankCode" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="WITHDRAW_BANK_ID" property="withdrawBankId" jdbcType="DECIMAL"/>
+        <result column="SIN_MAX_VALUE" property="sinMaxValue" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="SIN_MIN_VALUE" property="sinMinValue" jdbcType="DECIMAL"/>
+    </resultMap>
+<typeAlias alias="withdrawRuleDTO" type="com.pay.fundout.withdraw.dto.rule.WithdrawRuleDTO"/>
+    <resultMap id="withdrawRuleDTO" class="com.pay.fundout.withdraw.dto.rule.WithdrawRuleDTO">
+        <result column="CREATION_DATE" property="creationDate" jdbcType="TIMESTAMP"/>
+        <result column="WITHDRAW_TYPE" property="withdrawType" jdbcType="DECIMAL"/>
+        <result column="BANK_ACCT_TYPE" property="bankAcctType" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PRIORITY" property="priority" jdbcType="DECIMAL"/>
+        <result column="TO_BANK_CODE" property="toBankCode" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="WITHDRAW_BANK_ID" property="withdrawBankId" jdbcType="DECIMAL"/>
+        <result column="SIN_MAX_VALUE" property="sinMaxValue" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="TO_BANK_NAME" property="toBankName" jdbcType="VARCHAR"/>
+        <result column="WITHDRAW_BANK_NAME" property="withdrawBankName" jdbcType="VARCHAR"/>
+         <result column="BUSINESS_NAME" property="businessName" jdbcType="VARCHAR"/>
+          <result column="SIN_MIN_VALUE" property="sinMinValue" jdbcType="DECIMAL"/>
+    </resultMap>
+    <sql id="Column_List">
+		CREATION_DATE,WITHDRAW_TYPE,BANK_ACCT_TYPE,STATUS,PRIORITY,
+		TO_BANK_CODE,SEQUENCE_ID,WITHDRAW_BANK_ID,SIN_MAX_VALUE,UPDATE_DATE,SIN_MIN_VALUE
+		
+    </sql>
+    <select id="getWithdrawType" parameterClass="Map" resultClass="java.lang.Integer">
+    	select  WITHDRAW_TYPE_ID from 	(
+	    	select 		k.WITHDRAW_TYPE_ID
+			from withdraw_rule r,withdraw_bank_config k
+			where 
+				r.TO_BANK_CODE = k.SEQUENCE_ID
+				and r.STATUS = 1
+				and r.WITHDRAW_TYPE=#WITHDRAW_TYPE#
+				and r.BANK_ACCT_TYPE = #BANK_ACCT_TYPE#
+				and r.TO_BANK_CODE = #TO_BANK_CODE#
+				and r.SIN_MAX_VALUE >=#SIN_MAX_VALUE#
+				and r.SIN_MIN_VALUE &lt;=#SIN_MAX_VALUE#
+				order by r.PRIORITY 
+		)
+		where rownum=1
+    </select>
+    <select id="getRule" parameterClass="Map" resultMap="withdrawRule">
+    	select  * from 	(
+	    	select 		CREATION_DATE,WITHDRAW_TYPE,BANK_ACCT_TYPE,STATUS,PRIORITY,
+			TO_BANK_CODE,SEQUENCE_ID,WITHDRAW_BANK_ID,SIN_MAX_VALUE,UPDATE_DATE,SIN_MIN_VALUE
+			from withdraw_rule 
+			where 
+				STATUS = 1
+				and WITHDRAW_TYPE=#WITHDRAW_TYPE#
+				and BANK_ACCT_TYPE = #BANK_ACCT_TYPE#
+				and TO_BANK_CODE = #TO_BANK_CODE#
+				and SIN_MAX_VALUE >=#SIN_MAX_VALUE#
+				and SIN_MIN_VALUE &lt;=#SIN_MAX_VALUE#
+				order by PRIORITY 
+		)
+		where rownum=1
+    </select>
+    <insert id="create" parameterClass="withdrawRule">
+        INSERT INTO WITHDRAW_RULE(
+			CREATION_DATE,WITHDRAW_TYPE,BANK_ACCT_TYPE,STATUS,PRIORITY,
+			TO_BANK_CODE,SEQUENCE_ID,WITHDRAW_BANK_ID,SIN_MAX_VALUE,SIN_MIN_VALUE
+			
+        )
+        VALUES(
+            sysdate,#withdrawType#,#bankAcctType#,#status#,#priority#,
+			#toBankCode#,SEQ_WD_RULE_ID.NEXTVAL,#withdrawBankId#,#sinMaxValue#,#sinMinValue#
+			
+		)
+    </insert>
+    
+    
+
+  
+
+    <select id="findById" resultMap="withdrawRule"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CREATION_DATE,WITHDRAW_TYPE,BANK_ACCT_TYPE,STATUS,PRIORITY,
+			TO_BANK_CODE,SEQUENCE_ID,WITHDRAW_BANK_ID,SIN_MAX_VALUE,UPDATE_DATE,SIN_MIN_VALUE
+			
+        FROM WITHDRAW_RULE
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="search" resultMap="withdrawRuleDTO">
+		SELECT 
+			CREATION_DATE,WITHDRAW_TYPE,BANK_ACCT_TYPE,STATUS,PRIORITY,
+			TO_BANK_CODE,SEQUENCE_ID,WITHDRAW_BANK_ID,SIN_MAX_VALUE,UPDATE_DATE,
+			WITHDRAW_TYPE,SIN_MIN_VALUE,
+			(select BUSINESS_NAME from withdraw_BUSINESS where sequence_id=r.Bank_Acct_Type) as BUSINESS_NAME,
+			(SELECT BANK_NAME FROM WITHDRAW_BANK_CONFIG WHERE sequence_id = r.TO_BANK_CODE) AS TO_BANK_NAME,
+			(SELECT BANK_NAME FROM WITHDRAW_BANK_CONFIG WHERE sequence_id = r.withdraw_bank_id) AS WITHDRAW_BANK_NAME
+      
+		from WITHDRAW_RULE r
+        <dynamic prepend="WHERE"> 
+
+        <isNotEmpty prepend="AND" property="withdrawType">
+            WITHDRAW_TYPE = #withdrawType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="bankAcctType">
+            BANK_ACCT_TYPE = #bankAcctType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="priority">
+            PRIORITY = #priority# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="toBankCode">
+            TO_BANK_CODE = #toBankCode# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="search_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM WITHDRAW_RULE
+        <dynamic prepend="WHERE">
+          <isNotEmpty prepend="AND" property="withdrawType">
+            WITHDRAW_TYPE = #withdrawType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="bankAcctType">
+            BANK_ACCT_TYPE = #bankAcctType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="priority">
+            PRIORITY = #priority# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="toBankCode">
+            TO_BANK_CODE = #toBankCode# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

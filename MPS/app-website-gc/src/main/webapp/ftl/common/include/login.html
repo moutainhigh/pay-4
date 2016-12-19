@@ -1,0 +1,170 @@
+<#-- 单独登录页面，登录面板 -->
+<link rel="stylesheet" href="css/global.css">
+<link rel="stylesheet" href="css/website2.css">
+<script type="text/javascript" src="<@sp.static/>/js/v2/pay/common/cookie.js"></script>
+<script	type="text/javascript" src="<@sp.static/>/js/v2/pay/login/login.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/v2/pay/common/login-check.js"></script>
+<script type="text/javascript">
+$(function(){
+	<#if curpage == '2'>
+		<#if msgStr?has_content>
+			$("#corp_errtips").html("${msgStr}");
+			$("#corp_errtipDiv").show();
+		</#if>
+	<#else>
+		<#if msgStr?has_content>
+			$("#app_errtips").html("${msgStr}");
+			$("#app_errtipDiv").show();
+		</#if>
+	</#if>
+	<#if curpage?exists && curpage == '2'>
+		//登录页面切换
+			$("#app_loginDiv").hide();
+			$("#corp_loginDiv").show();
+			$("#app_tit").removeClass("cur");
+			$("#corp_tit").addClass("cur");
+	<#else>
+			$("#corp_loginDiv").hide();
+			$("#app_loginDiv").show();
+			$("#corp_tit").removeClass("cur");
+			$("#app_tit").addClass("cur");
+	</#if>
+});
+</script>
+
+		<div class="mt10">
+        <div class="wrap980 login_banner">
+            <div class="login_bx br_ddd w280">
+                <div class="jq_login_banner f14 br_999">
+                    <div class="tabTitle">
+                 <ul class="clearfix">
+                 	<#if curpage == '2'>
+						<li class="cur" id="corp_tit">
+                         	商户登录
+                    	 </li>
+					<#else>
+						<li id="corp_tit">商户登录</li>
+					</#if>
+                 	<#if curpage == '1'>
+						<li class="cur" id="app_tit">
+                         		个人登录
+                    	 </li>
+					<#else>
+						<li id="app_tit">个人登录</li>
+					</#if>
+                 </ul>
+             </div>
+                    <div class="tabContent" id="corp_loginDiv">
+						<form id="corp_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+						<input type="hidden" name="memberType" value="2"/>
+						<input id="corp_randCode" name="randCode" type="hidden">
+						<input type="hidden" id="corop_relationlogin" name="relationlogin" value="publiclogin"/>
+						<input type="hidden" name="hascode" value="1"/>
+                        <ul>
+                            <li>
+                                
+                                <div class="p20 f14">
+                                    <div>
+                                        <input type="text" id="corp_loginName" name="loginName" class="w210 c1" placeholder="请输入您的账户名称">
+                                    </div>
+                                    <div class="mt10">
+                                        <input type="text" name="operatorName" id="corp_operatorName" class="w210 c2" placeholder="操作员">
+                                    </div>
+                                    <div class="mt10">
+                                    	<#if Session["hascode"]?has_content>
+											<@sp.password placeholder="请输入密码" cid="corp_HnSafeEdit" id="corp_passWord"  nextTabid="corp_rand_Code" from="login" form="corp_loginForm" name="passWord" class="w210 c3"  />
+										<#else>
+											<@sp.password placeholder="请输入密码" cid="corp_HnSafeEdit" id="corp_passWord"  nextTabid="corp_loginbtn" from="login" form="corp_loginForm" name="passWord" class="w210 c3"  />
+										</#if>
+                                    </div>
+                                    <#if Session["hascode"]?has_content>
+										<div class="mt10">
+                                        <input type="text" class="w80" tabindex=4 name="rand_Code" id="corp_rand_Code" maxlength="4">
+                                        <#if curpage == '2'>
+	                                        <img class="h24" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" id="code" >
+	                                        <a class="abtn_refresh" href="javascript:void(0)" id="corp_refush" title="点击刷新"></a>
+										</#if>
+                                    </div>
+									</#if>
+									<div class="mt10" id="corp_errtipDiv" style="display:none;">
+										<div id="corp_errtips"></div>
+									</div>
+                                   <div class="mt20">
+                                        <input type="button" id="corp_loginbtn" class="button btn_big btn_y07 w240 yahei" value="立即登录">
+                                    </div>
+
+                                    <div class="mt5">
+                                        <a class="blue" href="${rc.contextPath}/help/b/accmanage.htm#qa4">忘记密码</a>
+                                        <a class="blue ml30" href="${rc.contextPath}/register.htm?method=select">个人注册&raquo;</a>
+                                        <a class="blue ml20" href="#">安全控件</a>
+                                    </div>
+
+                                </div>
+                                
+                            </li>
+                        </ul>
+                        <ul class="hide">
+                            <li></li>
+                        </ul>
+                        </form>
+                    </div>
+                    
+                    
+                    <#-- 首页页面，登录面板中的个人登录页面 -->
+					<div class="tabContent" id="app_loginDiv" <#if curpage != '1'>style="display: none"</#if>>
+						<form id="app_loginForm" method="post" action="${rc.contextPath}/login.htm" >
+						<input type="hidden" name="memberType" value="1"/>
+						<input id="app_randCode" name="randCode" type="hidden">
+						<input type="hidden" id="app_relationlogin" name="relationlogin" value="publiclogin"/>
+						<input type="hidden" name="hascode" value="1"/>
+						<input type="hidden" name="curpage" value="1"/>
+                        <ul>
+                            <li>
+                                <div class="p20 f14">
+                                    <div>
+                                        <input type="text" id="app_loginName" name="loginName" class="w210 c1" placeholder="请输入您的账户名称">
+                                    </div>
+                                    <div class="mt10">
+                                    	<#if Session["hascode"]?has_content>
+											<@sp.password placeholder="请输入密码" cid="app_HnSafeEdit" id="app_passWord" nextTabid="app_rand_Code" from="login" form="app_loginForm" name="passWord" class="w210 c3"  />
+										<#else>
+											<@sp.password placeholder="请输入密码" cid="app_HnSafeEdit" id="app_passWord" nextTabid="app_loginbtn" from="login" form="app_loginForm" name="passWord" class="w210 c3"  />
+										</#if>
+                                    </div>
+                                    <#if Session["hascode"]?has_content>
+										<div class="mt10">
+                                        <input type="text" class="w80" tabindex=4 name="rand_Code" id="app_rand_Code" maxlength="4">
+                                        <img class="h24" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" id="code" >
+                                        <a class="abtn_refresh" href="javascript:void(0)" id="app_refush" title="点击刷新"></a>
+                                    </div>
+									</#if>
+									<div class="mt10" id="app_errtipDiv" style="display:none;">
+										<div id="app_errtips"></div>
+									</div>
+                                   <div class="mt20">
+                                        <input type="button" id="app_loginbtn" class="button btn_big btn_y07 w240 yahei" value="立即登录">
+                                    </div>
+
+                                    <div class="mt5">
+                                        <a class="blue" href="${rc.contextPath}/loginpwd.htm">忘记密码</a>
+                                        <a class="blue ml30" href="${rc.contextPath}/register.htm?method=select"">个人注册&raquo;</a>
+                                        <a class="blue ml20" href="#">安全控件</a>
+                                    </div>
+
+                                </div>
+                                
+                            </li>
+                        </ul>
+                        <ul class="hide">
+                            <li></li>
+                        </ul>
+                        </form>
+                    </div>
+                    
+                    
+                    
+                </div>
+            </div>
+            
+        </div>
+    </div>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="autofundoutresult">
+	<typeAlias alias="autoFundoutResult" type="com.pay.fundout.autofundout.custom.model.AutoFundoutResult"/>
+   
+    <resultMap id="autoFundoutTimeResultMap" class="autoFundoutResult">
+        <result column="SEQUENCEID" property="autoFundoutConfig.sequenceid" jdbcType="DECIMAL"/>
+        <result column="RETAINED_AMOUNT" property="autoFundoutConfig.retainedAmount" jdbcType="DECIMAL"/>
+        <result column="BANK_ACC_CODE" property="autoFundoutConfig.bankAccCode" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="autoFundoutConfig.status" jdbcType="DECIMAL"/>
+        <result column="MEMBER_TYPE" property="autoFundoutConfig.memberType" jdbcType="DECIMAL"/>
+        <result column="BANK_NAME" property="autoFundoutConfig.bankName" jdbcType="VARCHAR"/>
+        <result column="BANK_CODE" property="autoFundoutConfig.bankCode" jdbcType="VARCHAR"/>
+        <result column="BUSI_TYPE" property="autoFundoutConfig.busiType" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="autoFundoutConfig.memberCode" jdbcType="DECIMAL"/>
+        <result column="ACC_TYPE" property="autoFundoutConfig.accType" jdbcType="DECIMAL"/>
+        <result column="AUTO_TYPE" property="autoFundoutConfig.autoType" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="autoFundoutConfig.updateDate" jdbcType="DATE"/>
+        <result column="TIME_TYPE" property="autoTimeConfig.timeType" jdbcType="DECIMAL"/>
+        <result column="TIME_SOURCE" property="autoTimeConfig.timeSource" jdbcType="VARCHAR"/>
+    	<result column="REMARK" property="autoFundoutConfig.remark" jdbcType="VARCHAR"/>
+    	<result column="SETTLE_FLAG" property="autoTimeConfig.settleFlag" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <resultMap id="autoFundoutQuotaResultMap" class="autoFundoutResult">
+        <result column="SEQUENCEID" property="autoFundoutConfig.sequenceid" jdbcType="DECIMAL"/>
+        <result column="RETAINED_AMOUNT" property="autoFundoutConfig.retainedAmount" jdbcType="DECIMAL"/>
+        <result column="BANK_ACC_CODE" property="autoFundoutConfig.bankAccCode" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="autoFundoutConfig.status" jdbcType="DECIMAL"/>
+        <result column="MEMBER_TYPE" property="autoFundoutConfig.memberType" jdbcType="DECIMAL"/>
+        <result column="BANK_NAME" property="autoFundoutConfig.bankName" jdbcType="VARCHAR"/>
+        <result column="BANK_CODE" property="autoFundoutConfig.bankCode" jdbcType="VARCHAR"/>
+        <result column="BUSI_TYPE" property="autoFundoutConfig.busiType" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="autoFundoutConfig.updateDate" jdbcType="DATE"/>
+        <result column="ACC_TYPE" property="autoFundoutConfig.accType" jdbcType="DECIMAL"/>
+        <result column="AUTO_TYPE" property="autoFundoutConfig.autoType" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="autoFundoutConfig.memberCode" jdbcType="DECIMAL"/>
+        <result column="BASE_AMOUNT" property="autoQuotaConfig.baseAmount" jdbcType="DECIMAL"/>
+        <result column="REMARK" property="autoFundoutConfig.remark" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryAutoTimeFundoutResult"  resultMap="autoFundoutTimeResultMap">
+        SELECT 			
+        		A.SEQUENCEID		,
+        		A.RETAINED_AMOUNT	,
+        		A.BANK_ACC_CODE		,
+        		A.BUSI_TYPE			,
+        		A.BANK_CODE			,
+        		A.BANK_NAME			,
+        		A.MEMBER_TYPE		,
+        		A.MEMBER_CODE		,
+        		A.STATUS			,
+        		B.TIME_TYPE			,
+        		B.TIME_SOURCE		,
+        		B.SETTLE_FLAG		,
+        		A.UPDATE_DATE		,
+        		A.ACC_TYPE			,
+        		A.AUTO_TYPE			,
+        		A.REMARK
+ 		FROM    AUTO_FUNDOUT_CONFIG A INNER JOIN AUTO_TIME_CONFIG  B
+		ON		A.SEQUENCEID = B.CONFIG_ID 
+		AND A.AUTO_TYPE = 1 
+		AND b.time_type in (1,2,3)
+		AND A.MEMBER_TYPE = 2
+		AND A.STATUS=0
+    </select>
+    
+    <select id="queryAutoMoreTimeFundoutResult"  resultMap="autoFundoutTimeResultMap">
+        SELECT 			
+        		A.SEQUENCEID		,
+        		A.RETAINED_AMOUNT	,
+        		A.BANK_ACC_CODE		,
+        		A.BUSI_TYPE			,
+        		A.BANK_CODE			,
+        		A.BANK_NAME			,
+        		A.MEMBER_TYPE		,
+        		A.MEMBER_CODE		,
+        		A.STATUS			,
+        		B.TIME_TYPE			,
+        		B.TIME_SOURCE		,
+        		B.SETTLE_FLAG		,
+        		A.UPDATE_DATE		,
+        		A.ACC_TYPE			,
+        		A.AUTO_TYPE			,
+        		A.REMARK
+ 		FROM    AUTO_FUNDOUT_CONFIG A INNER JOIN AUTO_TIME_CONFIG  B
+		ON		A.SEQUENCEID = B.CONFIG_ID 
+		AND A.AUTO_TYPE = 1 
+		AND b.time_type in (4)
+		AND A.MEMBER_TYPE = 2
+		AND A.STATUS=0
+    </select>
+    
+    <select id="queryAutoQuotaFundoutResult"  resultMap="autoFundoutQuotaResultMap">
+        SELECT 			
+        		A.SEQUENCEID		,
+        		A.RETAINED_AMOUNT	,
+        		A.BANK_ACC_CODE		,
+        		A.BUSI_TYPE			,
+        		A.BANK_CODE			,
+        		A.BANK_NAME			,
+        		A.MEMBER_TYPE		,
+        		A.MEMBER_CODE		,
+        		A.STATUS			,
+        		B.BASE_AMOUNT		,
+        		A.ACC_TYPE			,
+        		A.AUTO_TYPE			,
+        		A.UPDATE_DATE		,
+        		A.REMARK
+ 		FROM    AUTO_FUNDOUT_CONFIG A INNER JOIN AUTO_QUOTA_CONFIG  B
+		ON		A.SEQUENCEID = B.CONFIG_ID 
+		AND A.AUTO_TYPE = 2 
+		AND A.MEMBER_TYPE = 2
+		AND A.STATUS=0
+    </select>
+
+</sqlMap>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="memberRelationParamResolver"
+                class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+                <property name="paramName" value="method" />
+                <property name="defaultMethodName"><value>init</value></property>
+        </bean>
+        
+        
+        
+	<bean id="memberRelationHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+			<prop key="/memberrelation/relationDataUpload.do">relationDataUploadController</prop>
+			<prop key="/memberrelation/uploadRelationTemplate.do">uploadRelationTemplateDataController</prop>
+			<prop key="/memberrelation/memberRelationQuery.do">memberRelationQueryController</prop>	
+			<prop key="/platformMembersQuery.do">platformMembersQueryController</prop>	
+						
+			</props>
+		</property>
+	</bean>
+	
+	  <bean id="uploadRelationTemplateDataController" 
+    	class="com.pay.poss.memberrelation.controller.UploadMemberRelationTemplateDataController">
+        <property name="commandClass" value="com.pay.poss.memberrelation.controller.RelationDataFileUploadBean"/>
+        <property name="failureView" value="/memberrelation/memberRelationUpload"/>
+        <property name="successView" value="/memberrelation/memberRelationUpload"/>
+        <property name="memberRelationService"> <ref bean="poss-MemberRelationService"/> </property>
+        
+        <property name="vouchValidators">
+        	<list>
+        		<ref bean="relationValidator" />
+        	</list>
+        </property>
+    </bean>
+	
+	<bean id="relationDataUploadController"
+		class="com.pay.poss.memberrelation.controller.RelationDataUploadController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="mainUploadPage" value="/memberrelation/memberRelationUpload"/>
+		<property name="memberRelationService"> <ref bean="poss-MemberRelationService"/> </property>
+	</bean>
+
+  	<bean id="memberRelationQueryController"
+		class="com.pay.poss.memberrelation.controller.MemberRelationQueryController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="queryView">
+			<value>/memberrelation/memberRelationManagerQueryView</value>
+		</property>
+		<property name="listView">
+			<value>/memberrelation/memberRelationManagerQueryViewResult</value>
+		</property>	
+		<property name="memberRelationService"> <ref bean="poss-MemberRelationService"/> </property>
+	</bean>
+	
+	<bean id="platformMembersQueryController"
+		class="com.pay.poss.platformmembers.controller.PlatformMembersController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="queryView">
+			<value>/platformmembers/platformMembersQueryView</value>
+		</property>
+		<property name="listView">
+			<value>/platformmembers/platformMembersQueryViewResult</value>
+		</property>	
+		<property name="platformMembrsService"> <ref bean="poss-platformMembersService"/> </property>
+	</bean>
+  
+</beans>

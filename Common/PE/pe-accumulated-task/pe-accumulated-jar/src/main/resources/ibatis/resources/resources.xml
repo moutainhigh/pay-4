@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="accumulated-resources">
+    <typeAlias alias="accumulatedResourcesDto" type="com.pay.pe.accumulated.resources.dto.AccumulatedResourcesDto"/>
+    
+    
+    <sql id="SELECT_ACCUMULATED_RESOURCES">
+	select r.order_type orderType,
+	       r.deal_code dealCode,
+	       r.deal_type dealType,
+	       r.payment_service_code paymentServiceCode,
+	       r.take_on takeOn,
+	       r.id 
+	       from accumulated_resources r
+	 where 1=1
+    </sql>
+    
+   
+    <sql id="ACCUMULATED_RESOURCES_CONDITION">
+  	    <isNotNull prepend="AND" property="paymentServiceCode">
+            r.payment_service_code=#paymentServiceCode#
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            r.deal_code=#dealCode#
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealType">
+            r.deal_type=#dealType#
+        </isNotNull>
+         <isNotNull prepend="AND" property="takeOn">
+            r.take_on=#takeOn#
+        </isNotNull>
+  	</sql>
+  	
+  	<select id="selectAccumulatedResources" parameterClass="java.util.Map" resultClass="accumulatedResourcesDto">
+  		<include refid="SELECT_ACCUMULATED_RESOURCES"/>
+  		<include refid="ACCUMULATED_RESOURCES_CONDITION"/>
+  	</select>
+  	
+
+	
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+
+	<bean id="peLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"
+		lazy-init="true" />
+
+	<!-- Transaction manager for a single JDBC DataSource -->
+	<bean id="peTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="peDs" />
+		</property>
+	</bean>
+
+	<bean id="peSqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation">
+			<value>classpath:sqlmap/pe/sqlmap-config.xml</value>
+		</property>
+		<property name="mappingLocations">
+			<value>classpath*:sqlmap/pe/**/*.xml</value>
+		</property>
+		<property name="dataSource">
+			<ref bean="peDs" />
+		</property>
+		<property name="lobHandler" ref="peLobHandler"/>
+	</bean>
+	
+	<bean id="peIbatisDAOSupport" class="com.pay.inf.dao.impl.IbatisDAOSupport"
+		abstract="true">
+		<property name="sqlMapClient" ref="peSqlMapClient"/>
+		<property name="noProxyDataSource" ref="peDs"/>
+	</bean>
+
+	<bean id="defaultDao" class="com.pay.inf.dao.impl.DefaultDAO"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="default" />
+	</bean>
+
+	<aop:config>
+		<aop:pointcut id="peServiceMethod"
+			expression="execution(* com.pay.pe.service.PEService.*(..))" />
+		<aop:advisor advice-ref="peTxAdvice" pointcut-ref="peServiceMethod" />
+	</aop:config>
+
+	<aop:config>
+		<aop:pointcut id="dealServiceMethod"
+			expression="execution(* com.pay.pe.service.order.DealService.*(..))" />
+		<aop:advisor advice-ref="peTxAdvice" pointcut-ref="dealServiceMethod" />
+	</aop:config>
+
+	<tx:advice id="peTxAdvice" transaction-manager="peTransactionManager">
+		<tx:attributes>
+			<tx:method name="accounting" propagation="REQUIRES_NEW"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="saveDealInIsolatedTx" propagation="REQUIRES_NEW"
+				rollback-for="java.lang.Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+</beans>

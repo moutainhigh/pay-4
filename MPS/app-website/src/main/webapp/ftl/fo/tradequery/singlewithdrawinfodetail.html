@@ -1,0 +1,118 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>iPayLinks支付-交易管理</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+	$("#closeDetail").click(function(){
+		window.close();
+	});
+});
+</script>
+</head>
+<body>
+<@sp.headCommon txt="" />
+<div class="container">
+		<div class="mod_box_a">
+				<p class="top"><i></i></p>
+				<div class="con_box has_bg">
+						<div class="tit_box">
+								<h3 class="title font14"><strong>提现详情</strong></h3>
+						</div>
+						<#if date?has_content>
+						<table class="verify_table set_width">
+								<tbody>
+										<tr>
+											<td class="type">交易流水号：</td>
+											<td>
+												${date.orderId!('')}
+											</td>
+										</tr>
+										<tr>
+											<td class="type">创建时间：</td>
+											<td>
+											 	${date.createDate}
+											</td>
+										</tr>
+										<#if date.status?has_content>
+											<#if date.status=111 || date.status=112>
+											<tr>
+												<td class="type">结束时间：</td>
+												<td>
+												 	${date.updateDate}
+												</td>
+											</tr>
+											</#if>
+										</#if>
+										<tr>
+											<td class="type">交易类型：</td>
+											<td>
+											 	提现
+											</td>
+										</tr>
+										<tr>
+											<td class="type">收/支：</td>
+											<td>支</td>
+										</tr>
+										<tr>
+											<td class="type">提现渠道：</td>
+											<td>${date.bankName!('')}  尾号${date.bankAcctCode?substring((date.bankAcctCode?length)-4)}</td>
+										</tr>
+										<tr>
+											<td class="type">支付状态：</td>
+											<td>
+											<#if date.status?has_content>
+												<#if date.status=100>
+													初始状态
+												<#elseif date.status=101>
+													正在交易
+												<#elseif date.status=111>
+													付款完成
+												<#elseif date.status=112  || date.status=113>
+													付款失败
+												<#else>
+													未知
+												</#if>
+											</#if>
+										</td>
+										</tr>
+										<tr>
+											<td class="type">申请金额：</td>
+											<td>${(date.orderAmount*0.001)?string(",##0.00")} 元</td>
+										</tr>
+										<tr>
+											<td class="type">备注：</td>
+											<td>${date.paymentReason!''}</td>
+										</tr>
+								</tbody>
+						</table>
+						<#else>
+							<div class="content txtC">
+							<div class="result_tips">
+								<div class="set_height clearfix">
+									<span class="pop_fail"></span>
+									<p class="words f14"><strong>无效订单</strong></p>
+									<p class="link">您可能需要：<a href="${rc.contextPath}/app/myAccount.htm">返回我的账户</a>|<a href="${rc.contextPath}/index.htm">返回iPayLinks支付首页</a></p>
+								</div>
+							</div>
+							</div>
+						</#if>
+					<p class="btn_box"><span class="btn_yel"><button id="closeDetail">关闭</button></span></p>
+				</div>
+				<p class="bot"><i></i></p>
+		</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

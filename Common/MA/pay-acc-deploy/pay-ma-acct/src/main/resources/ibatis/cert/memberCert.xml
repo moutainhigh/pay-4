@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="memberCert">
+	<typeAlias alias="memberCert" type="com.pay.acc.cert.model.MemberCert"/>
+	
+    <resultMap id="memberCertMap" class="com.pay.acc.cert.model.MemberCert">
+        <result column="ID"                 property="id"          jdbcType="NUMBER"/>
+        <result column="MEMBER_CODE"        property="memberCode"  jdbcType="NUMBER"/>
+        <result column="OPERATOR_ID"        property="operatorId"  jdbcType="NUMBER"/>
+        <result column="USER_DN"            property="userDn"      jdbcType="VARCHAR"/>
+        <result column="REF_NO" 			property="refNo"       jdbcType="VARCHAR"/>
+        <result column="AUTH_CODE"          property="authCode"    jdbcType="VARCHAR"/>
+		<result column="STATUS"             property="status"      jdbcType="NUMBER"/>
+		<result column="CREATE_DATE"        property="createDate"  jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE"        property="updateDate"  jdbcType="TIMESTAMP"/>
+        <result column="CERT_CODE"          property="certCode"    jdbcType="VARCHAR"/>
+    </resultMap>
+  
+    <insert id="create" parameterClass="memberCert">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">			
+		select SEQ_MEMBER_CERT_ID.NEXTVAL from DUAL
+		</selectKey>
+		insert into T_MEMBER_CERT
+		    (ID,
+		     MEMBER_CODE,
+		     OPERATOR_ID,
+		     USER_DN,
+		     REF_NO,
+		     AUTH_CODE,
+		     STATUS,
+		     CREATE_DATE,
+		     UPDATE_DATE,
+		     CERT_CODE)
+		values
+		  (#id#, #memberCode#, #operatorId#, #userDn#, #refNo#, #authCode#, #status#, sysdate, sysdate, #certCode#)
+    </insert>
+
+
+    <update id="update" parameterClass="memberCert">
+		update T_MEMBER_CERT
+        	set UPDATE_DATE = sysdate
+        <isNotNull prepend="," property="memberCode">
+            MEMBER_CODE = #memberCode#
+        </isNotNull>
+        <isNotNull prepend="," property="operatorId">
+            OPERATOR_ID = #operatorId#
+        </isNotNull>
+        <isNotNull prepend="," property="userDn">
+            USER_DN = #userDn#
+        </isNotNull>
+        <isNotNull prepend="," property="refNo">
+            REF_NO = #refNo#
+        </isNotNull>
+        <isNotNull prepend="," property="authCode">
+            AUTH_CODE = #authCode#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="certCode">
+            CERT_CODE = #certCode#
+        </isNotNull>
+
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="id">
+            ID = #id#
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+	<update id="updateStatus" parameterClass="map">
+        update T_MEMBER_CERT set
+        	STATUS = #status#,
+        	UPDATE_DATE = sysdate        	
+        <dynamic prepend="WHERE">
+	        <isNotNull prepend="AND" property="id">
+	         ID = #id#
+	        </isNotNull>
+            <isNotNull prepend="AND" property="memberCode">
+             MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="AND" property="operatorId">
+             OPERATOR_ID = #operatorId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="userDn">
+             USER_DN = #userDn#
+            </isNotNull>
+            <isNotNull prepend="AND" property="refNo">
+             REF_NO = #refNo#
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        delete from T_MEMBER_CERT where ID = #id#
+    </delete>
+    
+    <select id="findById" resultMap="memberCertMap" parameterClass="java.lang.Long">
+		select ID,
+		       MEMBER_CODE,
+		       OPERATOR_ID,
+		       USER_DN,
+		       REF_NO,
+		       AUTH_CODE,
+		       STATUS,
+		       CREATE_DATE,
+		       UPDATE_DATE,
+		       CERT_CODE
+		  from T_MEMBER_CERT
+	      WHERE ID = #id# 
+    </select>
+    
+    <select id="findBySelective" resultMap="memberCertMap" parameterClass="map">
+		select ID,
+		       MEMBER_CODE,
+		       OPERATOR_ID,
+		       USER_DN,
+		       REF_NO,
+		       AUTH_CODE,
+		       STATUS,
+		       CREATE_DATE,
+		       UPDATE_DATE,
+		       CERT_CODE
+		  from T_MEMBER_CERT
+        <dynamic prepend="WHERE"> 
+      		<isNotNull prepend="AND" property="memberCode">
+             MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="AND" property="operatorId">
+             OPERATOR_ID = #operatorId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="userDn">
+             USER_DN = #userDn#
+            </isNotNull>
+            <isNotNull prepend="AND" property="refNo">
+             REF_NO = #refNo#
+            </isNotNull>
+            <isNotNull prepend="AND" property="status">
+             STATUS = #status#
+        	</isNotNull>
+        </dynamic>
+        order by CREATE_DATE desc
+    </select>
+
+</sqlMap>

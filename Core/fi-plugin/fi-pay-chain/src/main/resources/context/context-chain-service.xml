@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="3" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/env/fstoken.properties</value>
+			</list>
+		</property>
+	</bean>
+	<bean id="imgFileUploadAndDownLoadService" class="com.pay.fi.chain.service.impl.ImgFileUploadAndDownLoadServiceImpl" />
+	<bean id="logoPicService" class="com.pay.fi.chain.service.impl.LogoPictureServiceImpl">
+		<property name="logoPictureDao" ref="logoPictureDao" />
+	</bean>	
+	<bean id="uploadFileService" class="com.pay.fi.chain.service.impl.ImgFileUploadAndDownLoadServiceImpl">
+		<property name="ossKey" value="${mpsposs.oss.key}" />
+		<property name="ossRootDir" value="mpsposs" />
+		<property name="ossSubDir" value="logo" />
+	</bean>
+	<bean id="payLinkUploadService" class="com.pay.fi.chain.service.impl.PayLinkUploadServiceImpl">
+		<property name="uploadFileService" ref="uploadFileService" />
+		<property name="logoPicService" ref="logoPicService" />
+	</bean>
+	
+	<!-- 支付链基本信息维护 -->
+	<bean id="payLinkService" class="com.pay.fi.chain.service.impl.PayLinkServiceImpl">
+		<property name="payLinkDao" ref="payLinkDao" />
+	</bean>
+	
+	<!-- 购物条款文件服务 -->
+	<bean id="shoptermFileService" class="com.pay.fi.chain.service.ShoptermFileService" />
+	
+</beans> 

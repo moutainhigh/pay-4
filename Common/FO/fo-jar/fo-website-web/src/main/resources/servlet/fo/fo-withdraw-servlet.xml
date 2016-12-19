@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+<!-- 定义映射-->
+	<bean id="WithdrawHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/app/withdraw.htm">withdrawController</prop>
+				<prop key="/corp/withdraw.htm">EwithdrawController</prop>
+				<prop key="/extern/withdraw.htm">externWithdrawForwardController</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="withdrawController"
+		class="com.pay.controller.fo.withdraw.WithdrawController" parent="abstractWithdrawController">
+		<property name="indexView">
+			<value>/fo/withdraw/withdraw</value>
+		</property>
+		<property name="confirmView">
+			<value>/fo/withdraw/confirm</value>
+		</property>
+		<property name="successView">
+			<value>/fo/withdraw/success</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/withdraw/error</value>
+		</property>
+			<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="accountQueryService" ref="acc-accountQueryService"/>
+		<!-- <property name="enterpriseBaseService" ref="acc-enterpriseBaseService" /> -->
+		<property name="currencyRateService" ref="currencyRateService"/>
+		<property name="acctService" ref="acc-acctService" />
+		
+	</bean>
+	
+	<bean id="EwithdrawController"
+		class="com.pay.controller.fo.withdraw.WithdrawController" parent="abstractWithdrawController">
+		<property name="indexView">
+			<value>/fo/withdraw/corp/withdraw</value>
+		</property>
+		<property name="confirmView">
+			<value>/fo/withdraw/corp/confirm</value>
+		</property>
+		<property name="successView">
+			<value>/fo/withdraw/corp/success</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/withdraw/corp/error</value>
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="accountQueryService" ref="acc-accountQueryService"/>
+		<!-- <property name="enterpriseBaseService" ref="acc-enterpriseBaseService" /> -->
+		<property name="currencyRateService" ref="currencyRateService"/> 
+		<property name="acctService" ref="acc-acctService" />
+		
+	</bean>
+	
+	<bean id="abstractWithdrawController"
+		class="com.pay.controller.fo.withdraw.AbstractWithdrawController" abstract="true">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService"></property>
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"></property>
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService"/>
+		<property name="accountQueryFacadeService" ref="fo-maapi-accountQueryFacadeService"></property>
+		<property name="bankCardBindFacadeService" ref="fo-maapi-bankCardBindFacadeService"></property>
+		<property name="accountingService" ref="fundout-withdrawFirstAccounting"></property>
+		<property name="withdrawOrderValidateService" ref="fo-order-withdrawOrderValidateService"></property>
+		<property name="memberProductService" ref="acc-memberProductService" />
+		<property name="withdrawOrderService" ref="fo-order-withdrawOrderService" />
+	</bean>
+	
+	<bean id="externWithdrawForwardController"
+		class="com.pay.controller.fo.withdraw.ExternWithdrawForwardController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView">
+			<value>redirect:/app/withdraw.htm</value>
+		</property>
+		<property name="memberService" ref="acc-memberService"/>
+		<property name="memberQueryService" ref="acc-memberQueryService"/>
+	</bean>
+	
+</beans>

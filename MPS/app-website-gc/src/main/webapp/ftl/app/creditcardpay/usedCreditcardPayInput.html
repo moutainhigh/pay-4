@@ -1,0 +1,413 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付信用卡还款</title>   
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<!-- <link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css"> -->
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+
+<script type="text/javascript">
+
+	$(function() {
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+		})
+		
+		$.formValidator.initConfig( {
+			formid : "form",
+			onerror : function(msg, obj) {
+				$.pay.alert(msg);
+			}
+		});
+		
+		$("#billAmount").formValidator( {
+			tipid : "billAmountTip",
+			onshow : "",
+			onfocus : "请输入还款金额",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "还款金额不能为空"
+		});
+		$("#usedcard").formValidator( {
+			tipid : "usedcardTip",
+			onshow : "",
+			onfocus : "",
+			oncorrect : " "
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "信用卡不能为空"
+		});
+		$("#payerBankCode").formValidator( {
+			tipid : "payerBankCodeTip",
+			onshow : "",
+			onfocus : "请选择付款银行",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "付款银行不能为空"
+		});
+
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : "",
+			onfocus : "请输入验证码",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "验证码不能为空"
+		});
+		$("#sms").click(function() {
+				if ($("#sms").attr("checked") == true) {
+					$("#mid").show();
+					$("#middate").show();
+					$("#midday").show();
+				} else {
+					$("#mid").hide();
+					$("#middate").hide();
+					$("#payerMobile").val("");
+					$("#billNotifyDay").val(""); 
+				}
+			/*
+			if($("#billAmount").val()>=1){
+			}else{
+				$("#sms").attr("checked",false);
+				$("#mid").hide();
+				$("#middate").hide();
+				$("#payerMobile").val("");
+				$("#billNotifyDay").val("");
+			}
+		   */
+		});
+
+
+		
+
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?d="+ Math.random());
+		});
+		$("#changeImg").click(function(){$(".security_code").click()});
+		$("#billAmount").keyup(function(){InputValid.numberOnly($("#billAmount")[0])});
+		$("#payerMobile").keyup(function(){InputValid.numberOnly($("#payerMobile")[0])});
+		
+
+		$("#btnSumbit").click(function() {
+			if ($("#sms").attr("checked") == true) {
+				var mobile = $("#payerMobile").val();
+				if (mobile == '') {
+					$("#payerMobileTip").show().html("<span style='color:red'>请填写收款人手机号码才能发送短信通知</span>");
+					$("#payerMobileTip").show();
+					$("#payerMobile").focus();
+					return false;
+				}else{
+					$("#payerMobileTip").html("");
+				}
+				var billNotifyDay = $("#billNotifyDay").val();
+				if (billNotifyDay == '') {
+					$("#billNotifyDayTip").show().html("<span style='color:red'>请选择日期才能发送短信通知</span>");
+					$("#billNotifyDayTip").show();
+					$("#billNotifyDay").focus();
+					return false;
+				}else{
+					$("#billNotifyDayTip").html("");
+				}
+			}else{
+				$("#payerMobile").val('');
+				$("#billNotifyDay").val("");
+			}
+			if (null != $("#usedcard").val()&& $("#usedcard").val() != "") {
+				$("#payeeAcctKaiHu").val($("#"+"payeeAcctKaiHu_"+$("#usedcard").val()).val());
+				$("#payeeAccountNo").val($("#"+"payeeAccountNo_"+$("#usedcard").val()).val());
+				$("#payeeName").val($("#"+"payeeName_"+$("#usedcard").val()).val());
+				$("#billOrgCode").val($("#"+"billOrgCode_"+$("#usedcard").val()).val());
+				$("#sequenceId").val($("#usedcard").val());
+			}
+			if(isNaN($("#billAmount").val())){
+				$("#billAmount").val("");
+			}
+			if (null != $("#payerBankCode").val() && $("#payerBankCode").val() != "") {
+				$("#payerBankName").val($("#payerBankCode").find("option:selected").text());
+			}
+		});
+
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : "",
+			onfocus : "输入上图中的文字",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "验证码不能为空"
+		});
+		$("#payerBankCode").blur(function(){
+    		var payerBankCode = $("#payerBankCode").val();
+    		if(payerBankCode==null||payerBankCode==""){
+    			$("#payerBankCodeTip").show().html("<span style='color:red'>请选择还款银行</span>");
+            }
+    	});	
+
+		$("#randCode").blur(function(){
+    		var randCode = $("#randCode").val();
+    		if(randCode==null||randCode==""){
+    			$("#randCodeTip").show().html("<span style='color:red'>请输入验证码</span>");
+            }
+    	});	
+$("#billAmount").blur(
+				
+				function(){
+					
+					InputValid.formatScale($("#billAmount")[0],2);
+					if(isNaN($("#billAmount").val())){
+						$("#billAmount").val("0");
+					}
+					/*
+					if($("#billAmount").val()<1){
+						$("#sms").attr("checked",false);
+						$("#mid").hide();
+						$("#middate").hide();
+					}*/
+					var billAmount = $("#billAmount").val();
+					if(billAmount==null||billAmount==""){
+		    			$("#billAmountTip").show().html("<span style='color:red'>请输入还款金额</span>");
+		            }
+		            /*
+					var charge = $("#billAmount").val();
+					if (charge != '') {
+						$.ajax( {
+							type : "POST",
+							url : "${rc.contextPath}/charge.htm?billType=11&catalogType=3&acctType=0&rented=" + charge+"&date="+new Date(),
+							dataType : "json",
+							success : function(msg) {
+								if(parseFloat(eval(msg).amount) >= 0) {
+									$("#billFeeAmount").val(eval(msg).amount);
+								} else {
+									$("#billAmountTip").html( "<font color=red>金额不能超过20000元</font>");
+								}
+							}
+						});
+					}
+					*/
+			    }
+		);
+
+		<#if cmmand.billNotifyDay?exists>
+			$("#sms").attr("checked",true);
+			$("#mid").show();
+			$("#middate").show();
+		</#if>
+	});
+
+	function keyupValue(obj){
+		obj.value = obj.value.replace(/[^\d]/g,'')
+	}
+
+-->
+</script>
+<#if errorMsg?exists>
+	<script type="text/javascript">	
+		$(function(){	
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+		});
+	</script>
+</#if>
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="信用卡还款"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container"> 
+	<!--侧导航 str -->
+	 <@sp.ebillmenu channel="1_2"/>
+	<!--侧导航 end -->
+	<div class="box_main">
+		<!--<div class="banner_focus"><img alt="" src="<@sp.static/>/img/pay/sample/banner_credit_card.jpg"></div>-->
+		<div class="form_box">
+			<div class="form_tit">
+				<h3><i>信用卡还款</i></h3>
+				<em class="step_cur_tips"></em> </div>
+			<div class="content"> 
+				<!--表单str -->
+				<form action="${rc.contextPath}/ebpp/creditCardPaymentController.htm?method=saveRequest"
+						method="post" name="form" id="form" >
+				    <input type="hidden" name="billName" id="billName" value="信用卡还款">
+				    <input type="hidden" name="tempcardNo" id="tempcardNo" value="">
+				    <!-- 
+				    <input	type="hidden" name="billCatalogId" id="billCatalogId" value="1">
+				     -->
+				    <input	type="hidden" name="payeeAcctKaiHu" id="payeeAcctKaiHu" value="${cmmand.payeeAcctKaiHu?default('')}">
+					<input type="hidden" name="billAmountString" id="billAmountString" value="3">
+					<input type="hidden"  id="payeeAccountNo" name="payeeAccountNo" value="${cmmand.payeeAccountNo?default('')}"  size="35" maxlength="25" >
+					<input type="hidden" id="payeeName" name="payeeName" value="${cmmand.payeeName?default('')}" size="35" >
+					<input type="hidden" id="billOrgCode" name="billOrgCode" value="${cmmand.billOrgCode?default('')}" size="35" >
+					<input	type="hidden" name="billFeeAmount" id="billFeeAmount" value="${cmmand.billFeeAmount?default('0')}">
+					<input	type="hidden" name="payerBankName" id="payerBankName" value="">
+					<input	type="hidden" name="sequenceId" id="sequenceId" value="">
+					
+					<#if itemOrderList?exists>
+						<#list itemOrderList as itemOrder>
+							<input type="hidden" id="payeeAcctKaiHu_${itemOrder.payeeAcctNo}" name="payeeAcctKaiHu_${itemOrder.payeeAcctNo}" value="${itemOrder.payeeAcctKaiHu?default('')}" size="35" >
+							<input type="hidden" id="payeeName_${itemOrder.payeeAcctNo}" name="payeeName_${itemOrder.payeeAcctNo}" value="${itemOrder.payeeName?default('')}" size="35" >
+							<input type="hidden" id="payeeAccountNo_${itemOrder.payeeAcctNo}" name="payeeAccountNo_${itemOrder.payeeAcctNo}" value="${itemOrder.payeeAcctNo?default('')}" size="35" >
+							<input type="hidden" id="billOrgCode_${itemOrder.payeeAcctNo}" name="billOrgCode_${itemOrder.payeeAcctNo}" value="${itemOrder.billOrgCode?default('')}" size="35" >
+						</#list>
+					</#if>	
+					<div class="mod_form2 mt10"> 
+						<!--左str -->
+							<div class="form_list_l">
+							<ul class="form_list bold_input">
+								<li class="sort_tit">填写信用卡信息</li>
+									<li class="my_card_box">
+								<label class="form_side">信用卡：</label>
+								<select class="select2 w170" name="usedcard" id="usedcard">
+									       <option value="" >请选择信用卡</option> 
+								<#if cardInfoMap?exists>
+									<#list cardInfoMap?keys as seqid> 
+									<#if cmmand.payeeAccountNo?default('')==seqid>
+									       <option value="${seqid}" selected>${cardInfoMap[seqid]}</option> 
+									<#else>
+									       <option value="${seqid}" >${cardInfoMap[seqid]}</option> 
+									</#if>
+									</#list>
+								</#if>
+								</select><span id="usedcardTip"></span>
+										<p><a href="${rc.contextPath}/ebpp/creditCardPaymentController.htm?isFirst=1" class="red bk_pf">为新信用卡还款</a></p>
+								</li>
+								<li>
+									<label class="form_side2">还款金额：</label> 
+									<input type="text" class="input_txt2 w170" id="billAmount" name="billAmount" value="${cmmand.billAmount?default('')}" maxlength="10" size="20"> 元<p id="billAmountTip"></p>
+							    </li>
+									<!-- 
+								<li>
+									<label class="form_side">信用卡号：</label>
+									<strong><span id="payeeAccountNoTip">${cmmand.payeeAccountNo?default('')}</span></strong>
+									<div class="zoom_box">
+									<p class="zoom_win"><span id="payeeAccountNoTip" class="tip" >${cmmand.payeeAccountNo?default('')}</span></p>
+									</div>
+							    </li>
+							    <li>
+									<label class="form_side">手续费：</label>
+									<strong class="red"><span id="chargeAmount">${cmmand.billFeeAmountString?default('0')}</span></strong> 元
+								</li>
+									 -->
+							</ul>
+						</div>
+						<!--左end --> 
+						<!--右str -->
+						<div class="form_list_r">
+							<ul class="form_list bold_input">
+								<li class="sort_tit">填写借记卡信息</li>
+								<li>
+									<label class="form_side">选择付款银行：</label>
+									<!--str -->
+									<div class="relative z9"><!-- <span class="user_s_box"></span> -->
+										 <select class="select2 w170" name="payerBankCode" id="payerBankCode">
+												<option value="">请选择付款银行</option>
+												<#if cmmBankList?exists>
+													<#list cmmBankList as bank>
+														<#if cmmand.payerBankCode?default('')==bank.bankCode>
+															<option value="${bank.bankCode}" selected>${bank.bankName}</option>
+														<#else>
+															<option value="${bank.bankCode}">${bank.bankName}</option>
+														</#if>
+													</#list> 
+												</#if>
+											</select><p id="payerBankCodeTip"></p>
+									</div>
+								</li>
+							<li>
+								<label class="form_side2"></label>
+								<input id="sms" type="checkbox">免费短信提醒：
+							</li>
+							</ul>
+							<ul class="form_list bold_input">
+								<li id="mid" style="display: none;">
+									<label class="form_side">付款人手机号码：</span></label>
+								     <input type="text" name="payerMobile" id="payerMobile" value="${cmmand.payerMobile?default('')}" class="input_txt2 w170"
+												size="17" maxlength="11" onkeyup="keyupValue(this);"> <p id="payerMobileTip" style='color:red'></p> <span class="gray_txt">&nbsp;</span>
+								</li>
+								<li id="middate" style="display: none;">
+									<label class="form_side2">提醒日期：</span></label>
+										每月 <select name="billNotifyDay" id="billNotifyDay" class="select2 w80">
+										<option value="">请选择</option>
+										<#list 1..28 as x> 
+											<option value="${x}" <#if cmmand.billNotifyDay?default(0)==x> selected</#if>>${x}</option>
+										</#list> 
+									</select>日自动短信提醒
+									<span id="billNotifyDayTip"></span>
+								</li>
+								<li>
+									<label class="form_side">验证码：</label> 
+									<input type="text" id="randCode" name="randCode" size="8"  class="input_txt2" maxlength="6">
+							<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张"><p id="randCodeTip"></p>
+								</li>
+							</ul>
+							<!-- 
+							<div class="card_tips"><em class="tips_tit">招商银行相关信息：</em>2010年11月08日 星期一
+								每笔还款额最高5000元 , 以还款当日开始计算30天
+								内最多可还款5笔
+						    </div>
+							 -->
+						</div>
+								<!-- 
+							<div class="card_tips"><em class="tips_tit">招商银行相关信息：</em>2010年11月08日 星期一
+								每笔还款额最高5000元 , 以还款当日开始计算30天
+								内最多可还款5笔 </div>
+								 -->
+						<!--右end --> 
+					</div>
+					<div class="bottom_border">
+						<p></p>
+						<p></p>
+					</div>
+					<div class="btn_box mt10 txtC">
+						<p class="mt10">
+							<span class="btn_yel botton_yel">
+								<button type="submit" id="btnSumbit"/>下一步</button>
+							</span>
+						 </p>
+					</div>
+				</form>
+				<!--表单end --> 
+			</div>
+		</div>
+			<!--问答 str-->
+				<div class="mod_box_a q_a">
+					<div class="con_box">
+						<div class="mod_tit">
+							<h3 class="title font14"> <strong>有问题 我帮您</strong> </h3>
+							<a class="more red" href="${rc.contextPath}/centerhelp.htm">更多帮助</a> </div>
+							<dl class="ico_txtBox">
+								<dt><i class="q_ico"></i>使用信用卡还款服务，要收手续费吗？</dt>
+								<dd><i class="a_ico"></i>答：目前该服务在推广期间，暂时免费。如需收费，时间和收费方式将以网站公告的方式另行通知。</dd>
+								<dt><i class="q_ico"></i>问信用卡还款一天可以使用多次吗？</dt>
+								<dd><i class="a_ico"></i>答：信用卡还款服务允许单日多次使用，其中招行同一个信用卡号每月还款金额不得超过25000元，每月还款笔数不得超过5笔。当天所有渠道累计最大还款额度不能超过40000元。 其中借记卡支付渠道：支付金额最高为人民币40000元；卡通、可提现余额支付渠道：认证用户一天内累计5000元；证书用户一天内累计10000元，（可提现余额无法为他人进行还款）。</dd>
+								<dt><i class="q_ico"></i>可以购汇还款吗？</dt>
+								<dd><i class="a_ico"></i>答：如需购汇还款，请在还款前致电银行信用卡中心客服电话确认。</dd>
+							</dl>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				<!--问答 end--> 
+	</div>
+</div>
+<!--主内容 end --> 
+			<!--footer -->
+			<#include "/common/include/footer.html">
+			</body>
+</html>

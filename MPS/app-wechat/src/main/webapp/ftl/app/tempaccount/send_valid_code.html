@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付/title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+</head>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript">
+$(function() {
+	$("#login_div").mouseover(function(){
+		$(this).removeClass("login_other");
+		$(this).addClass("login_current");
+	}).mouseout(function(){
+		$(this).addClass("login_other");
+		$(this).removeClass("login_current");
+	});
+
+	$("#validatecode").click(function(){
+		$("#validatecode").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+	})
+});
+	function sendCode(){
+		$("#mobileerror").html("&nbsp;");
+		$("#randCodeerror").html("&nbsp;");
+		var mobileNo = $("#mobileNo").val();
+		var randCode = $("#randCode").val();
+		var v=/^(13|14|15|18)[0-9]{9}$/;
+		if(mobileNo==''){
+			$("#mobileerror").html("手机号码不能为空");
+			return false;
+		}
+		else if(!v.test(mobileNo)){
+			$("#mobileerror").html("请输入正确手机号码");
+			return false;
+		}
+		else if(randCode==''){
+			$("#randCodeerror").html("验证码不能为空");
+			return false;
+		}
+		else if(randCode.length!=4){
+			$("#randCodeerror").html("请输入四位验证码");
+			return false;
+		}else{
+			$("#mobileerror").html("&nbsp;");
+			$("#randCodeerror").html("&nbsp;");
+		}
+		
+		$.post("${rc.contextPath}/memberExists.htm?method=validateAccount", {"accountName" : $("#mobileNo").val()}, function(str) {
+			if(str.length > 0){
+				if(str=="N1"){
+					$("#mobileerror").html("该手机号码已注册但是未激活,请<a href='javascript:void(0)' onclick='toActive();'><font color=blue>立即激活</font></a>");
+					return false;
+				}
+				if(str=="N"){
+					$("#mobileerror").html("该手机号码已注册,请登录");
+					return false;
+				}
+				if(str=="N2"){
+					$("#mobileerror").html("系统正忙，请稍候再试");
+					return false;
+				}
+			}else{
+				$("#sendCodeform").submit();
+			}
+		});
+	}
+	function toActive(){
+		var win = window;
+		win = window.parent || window;
+		win.parent.location.href="${rc.contextPath}/toActiveMember.htm?loginName="+$("#mobileNo").val();
+	}
+	function goback(){
+		var backurl=window.parent.document.getElementById("back").value;
+		window.parent.location = backurl;
+		//window.parent.document.forms[0].method = 'get';
+		//window.parent.document.forms[0].submit();
+	}
+	
+</script>
+<body>
+<div id="login_div" class="login_other">
+	<div class="login_live">
+		<div class="bd" id="login_form_panel">
+			<div class="login_form_cont">
+				<form action="${rc.contextPath}/ebpp/tpSendMsg.htm" method="post" id="sendCodeform">
+				<div class="bt">
+						<span class="blod font14 c_000">支付方式二：gcpayment支付支付会员支付</span><em class="reg_a"><a href="${rc.contextPath}/register.htm" target="_bank">注册账号</a></em></div>
+				  <div class="ht5">
+						<!--  <i class="warn_ico"></igcpayment支付生支付会员支付单笔和日累计限额都是2000元-->
+				  </div>
+				  <div class="h120">
+					<div class="field">
+						<label><span class="font14 c_000 width_l">您的手机号码：</span></label>
+						<input type="text" class="input_txt2 w120" id="mobileNo" name="mobileNo" maxlength="11" autocomplete="off"/><!--鼠标点击到输入框会高亮显示，input_cur为高亮，input_nor为普通 -->
+						<p class="from_txt3" id="mobileerror" style="color: red;">&nbsp;</p>
+					</div>
+				  <div class="field">
+						<label><span class="font14 c_000 width_l">验证码：</span></label>
+						<input type="text" name="randCode" id="randCode" class="input_txt2" maxlength="4"/> &nbsp;
+						<img src="${rc.contextPath}/validatecode/validatecode.htm" alt="" name="验证码"	width="66" height="28" align="absmiddle" id="validatecode">
+						<p class="from_txt3" id="randCodeerror" style="color: red;">${errorMsg?default('')}</p>
+						</div>
+					  </div>
+					  <div class="field">
+						<label><span class="width_l">　</span></label><span class="btn_yel botton_yel">
+							<button type="button" onclick="sendCode();">发送校验码</button>
+					  </span><a href="javascript:void(0);" class="red bk_pf" onclick="goback();">返回修改</a></div>
+			  </form>
+			</div>
+		</div>
+		</div>
+		</div>
+</body>
+</html>

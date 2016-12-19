@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="repairOrder" >
+
+	<typeAlias alias="repairOrder" type="com.pay.txncore.dto.RepairOrderDTO"/>
+	<resultMap id="BaseResultMap" class="repairOrder" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="CHANNEL_ORDER_NO" property="channelOrderNo" jdbcType="VARCHAR" />
+	    <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="VARCHAR" />
+	    <result column="PAYMEN_ORDER_NO" property="paymentOrderNo" jdbcType="VARCHAR" />
+	    <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR"/>
+	    <result column="REF_NO" property="refNo" jdbcType="VARCHAR"/>
+	    <result column="AUTH_CODE" property="authCode" jdbcType="VARCHAR" />
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+        <result column="CREATE_DATE"   property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE"   property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="STATUS"   property="status" jdbcType="VARCHAR"/>
+	</resultMap>
+  
+  <sql id="Criteria_Where_Clause">
+  	<isNotNull prepend="and" property="channelOrderNo" >
+        CHANNEL_ORDER_NO = #channelOrderNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="tradeOrderNo" >
+        TRADE_ORDER_NO = #tradeOrderNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="paymentOrderNo" >
+        PAYMEN_ORDER_NO = #paymentOrderNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="refNo" >
+        REF_NO = #refNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="authCode" >
+        AUTH_CODE= #authCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="autoRefund" >
+        AUTO_REFUND= #autoRefund:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+  </sql>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="repairOrder" >
+    select *
+    from REPAIR_ORDER where 1=1
+    <isParameterPresent >
+      <include refid="repairOrder.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </select>
+  
+  <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM REPAIR_ORDER where 1=1 
+        <isParameterPresent >
+         <include refid="repairOrder.Criteria_Where_Clause" />
+      </isParameterPresent>
+    </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select *
+    from REPAIR_ORDER
+    where ID = #id:DECIMAL#
+  </select>
+  
+  <insert id="create" parameterClass="repairOrder" >
+  	<selectKey keyProperty="id">
+  		SELECT SEQ_REPAIR_ORDER_ID.NEXTVAL FROM DUAL
+  	</selectKey>
+    insert into REPAIR_ORDER (ID,MEMBER_CODE,CHANNEL_ORDER_NO,TRADE_ORDER_NO,PAYMENT_ORDER_NO,REF_NO,AUTH_CODE,
+      CREATE_DATE,UPDATE_DATE,STATUS, OPERATOR)
+    values (#id:DECIMAL#,#memberCode:VARCHAR#, #channelOrderNo:VARCHAR#, #tradeOrderNo:VARCHAR#, #paymentOrderNo:VARCHAR#,
+      #refNo:VARCHAR#,#authCode:VARCHAR#,
+      #createDate:TIMESTAMP#, #updateDate:TIMESTAMP#, #status:VARCHAR#,#operator:VARCHAR#)
+  </insert>
+  
+  <delete id="delete">
+  	delete from REPAIR_ORDER where id=#id#
+  </delete>
+  
+  <select id="countByCriteria" parameterClass="repairOrder" resultClass="java.lang.Integer" >
+    select count(*) from REPAIR_ORDER where 1=1
+    <include refid="repairOrder.Criteria_Where_Clause" />
+  </select>
+  
+  <update id="update" parameterClass="repairOrder" >
+    update REPAIR_ORDER
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="channelOrderNo" >
+        CHANNEL_ORDER_NO = #channelOrderNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="tradeOrderNo" >
+        TRADE_ORDER_NO = #tradeOrderNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="paymentOrderNo" >
+        PAYMEN_ORDER_NO = #paymentOrderNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="refNo" >
+        REF_NO = #refNo:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="authCode" >
+        AUTH_CODE= #authCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="autoRefund" >
+        AUTO_REFUND= #autoRefund:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        STATUS = #status:CHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+</sqlMap>

@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="depositOrder">
+   
+	<typeAlias alias="depositOrder" type="com.pay.txncore.model.DepositOrder"/>
+	<resultMap id="depositOrder" class="depositOrder">
+        <result column="DEPOSIT_AMOUNT" property="depositAmount" jdbcType="DECIMAL"/>
+        <result column="FEE" property="fee" jdbcType="DECIMAL"/>
+        <result column="CUSTOMER_TYPE" property="customerType" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_ORDER_NO" property="depositOrderNo" jdbcType="DECIMAL"/>
+        <result column="CUSTOMER" property="customer" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="DEPOSIT_BACK_AMOUNT" property="depositBackAmount" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="DEBIT_FLAG" property="debitFlag" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap id="depositOrderDetail" class="com.pay.txncore.model.DepositOrderDetail">
+        <result column="DEPOSIT_AMOUNT" property="depositAmount"/>
+        <result column="FEE" property="fee"/>
+        <result column="CUSTOMER_TYPE" property="customerType"/>
+        <result column="STATUS" property="status"/>
+        <result column="ORG_CODE" property="orgCode"/>
+        <result column="ERROR_CODE" property="errorCode"/>
+        <result column="DEPOSIT_ORDER_NO" property="depositOrderNo"/>
+        <result column="CUSTOMER" property="customer"/>
+        <result column="CREATE_DATE" property="createDate"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo"/>
+        <result column="DEPOSIT_BACK_AMOUNT" property="depositBackAmount"/>
+        <result column="UPDATE_DATE" property="updateDate"/>
+        <result column="ITEM_NAME" property="itemName"/>
+        <result column="DEPOSIT_PROTOCOL_NO" property="depositProtocolNo"/>
+    </resultMap>
+
+	<insert id="create" parameterClass="depositOrder">
+		<selectKey resultClass="java.lang.Long" keyProperty="depositOrderNo">
+			SELECT 107 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_DEPOSIT_ORDER_NO.nextval, 6, 0) FROM DUAL
+		</selectKey>
+	    INSERT INTO DEPOSIT_ORDER(
+			DEPOSIT_ORDER_NO,DEPOSIT_AMOUNT,FEE,CUSTOMER_TYPE,STATUS,ORG_CODE,
+			ERROR_CODE,CUSTOMER,CREATE_DATE,PAYMENT_ORDER_NO,
+			DEPOSIT_BACK_AMOUNT,UPDATE_DATE
+        )
+        VALUES(
+            #depositOrderNo#,#depositAmount#,#fee#,#customerType#,#status#,#orgCode#,
+			#errorCode#,#customer#,SYSDATE,#paymentOrderNo#,
+			#depositBackAmount#,SYSDATE
+		)
+	</insert>
+	
+	<update id="update" parameterClass="depositOrder">
+        UPDATE DEPOSIT_ORDER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="depositAmount">
+            DEPOSIT_AMOUNT = #depositAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="fee">
+            FEE = #fee#
+        </isNotNull>
+        <isNotNull prepend="," property="customerType">
+            CUSTOMER_TYPE = #customerType#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="debitFlag">
+            DEBIT_FLAG = #debitFlag#
+        </isNotNull>
+        <isNotNull prepend="," property="errorCode">
+            ERROR_CODE = #errorCode#
+        </isNotNull>
+        <isNotNull prepend="," property="customer">
+            CUSTOMER = #customer#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="depositAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysDate
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="and" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo#
+        </isNotNull>
+        </dynamic>
+    </update>
+    
+     <update id="updateAddBackAmount" parameterClass="java.util.HashMap">
+		UPDATE DEPOSIT_ORDER 
+			set UPDATE_DATE = sysdate,DEPOSIT_BACK_AMOUNT = DEPOSIT_BACK_AMOUNT + #amount#
+		where 
+			DEPOSIT_ORDER_NO = #depositOrderNo# and STATUS = 1
+	</update>
+	
+	<update id="updateSubBackAmount" parameterClass="java.util.HashMap">
+		UPDATE DEPOSIT_ORDER 
+			set UPDATE_DATE = sysdate,DEPOSIT_BACK_AMOUNT = DEPOSIT_BACK_AMOUNT - #amount#
+		where 
+			DEPOSIT_ORDER_NO = #depositOrderNo# and STATUS = 1
+	</update>
+	
+	<update id="updateDepositOrder" parameterClass="java.util.HashMap">
+		UPDATE DEPOSIT_ORDER 
+			set UPDATE_DATE = sysdate,STATUS = #status#
+		where 
+			DEPOSIT_ORDER_NO = #depositOrderNo#
+	</update>
+	
+    <update id="updateOrgCode" parameterClass="java.util.HashMap">
+		update DEPOSIT_ORDER set ORG_CODE = #orgCode#, CREATE_DATE = sysdate where DEPOSIT_ORDER_NO = #depositOrderNo#
+	</update>
+	
+    <select id="findById" resultMap="depositOrder" parameterClass="java.lang.Long">
+        SELECT * FROM DEPOSIT_ORDER
+        WHERE DEPOSIT_ORDER_NO = #depositOrderNo#
+    </select>
+    
+    <select id="findAndLockByOrderId" resultMap="depositOrder" parameterClass="java.lang.Long">
+        SELECT * FROM DEPOSIT_ORDER
+        WHERE DEPOSIT_ORDER_NO = #depositOrderNo# for update wait 10
+    </select>
+    
+     <select id="findByPaymentOrderNo" resultMap="depositOrder" parameterClass="java.lang.Long">
+        SELECT * FROM DEPOSIT_ORDER
+        WHERE PAYMENT_ORDER_NO = #paymentOrderNo#
+    </select>
+    
+     <select id="findByPaymentOrderNoForUpdate" resultMap="depositOrder" parameterClass="java.lang.Long">
+        SELECT * FROM DEPOSIT_ORDER
+        WHERE PAYMENT_ORDER_NO = #paymentOrderNo# for update wait 6
+    </select>
+    
+    <select id="findBySelective" resultMap="depositOrder">
+        SELECT 
+			DEPOSIT_AMOUNT,FEE,CUSTOMER_TYPE,STATUS,ORG_CODE,
+			ERROR_CODE,DEPOSIT_ORDER_NO,CUSTOMER,CREATE_DATE,PAYMENT_ORDER_NO,
+			DEPOSIT_BACK_AMOUNT,UPDATE_DATE, DEBIT_FLAG
+        FROM DEPOSIT_ORDER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="depositAmount">
+            DEPOSIT_AMOUNT = #depositAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fee">
+            FEE = #fee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="customerType">
+            CUSTOMER_TYPE = #customerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="customer">
+            CUSTOMER = #customer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM DEPOSIT_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="depositAmount">
+            DEPOSIT_AMOUNT = #depositAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fee">
+            FEE = #fee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="customerType">
+            CUSTOMER_TYPE = #customerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="customer">
+            CUSTOMER = #customer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+    <select id="queryDepositOrder" resultMap="depositOrderDetail"
+        parameterClass="java.util.Map">
+        
+	       SELECT d_order.DEPOSIT_AMOUNT,
+             d_order.FEE,
+             d_order.CUSTOMER_TYPE,
+             d_order.STATUS,
+             d_order.ORG_CODE,
+             d_order.ERROR_CODE,
+             d_order.DEPOSIT_ORDER_NO,
+             d_order.CUSTOMER,
+             d_order.CREATE_DATE, 
+             d_order.PAYMENT_ORDER_NO,
+             d_order.DEPOSIT_BACK_AMOUNT,
+             d_order.UPDATE_DATE,
+             (select nvl(d_protocol.DEPOSIT_PROTOCOL_NO, '')
+          	    from fi.DEPOSIT_PROTOCOL d_protocol
+               where d_order.DEPOSIT_ORDER_NO = d_protocol.DEPOSIT_ORDER_NO) DEPOSIT_PROTOCOL_NO,
+             decode(pci.payment_catagory, '11', '充值卡', '银行') as ITEM_NAME
+        FROM DEPOSIT_ORDER d_order, payment_channel_item pci
+        WHERE pci.orgcode = d_order.org_code
+         and d_order.payment_order_no = 0
+      	  and  d_order.CUSTOMER = #memberCode#
+        <dynamic>
+            <isEqual prepend="and" property="status" compareValue="0">
+				d_order.STATUS=0
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="1">
+				d_order.STATUS=1
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="2">
+				d_order.STATUS=2
+			</isEqual>
+			<isNotNull prepend="and" property="startTime">
+				d_order.CREATE_DATE <![CDATA[>=]]>
+				to_date(#startTime#,'yyyy/mm/dd hh24:mi:ss')
+			</isNotNull>
+			<isNotNull prepend="and" property="endTime">
+				d_order.CREATE_DATE <![CDATA[<=]]>
+				to_date(#endTime#,'yyyy/mm/dd hh24:mi:ss')
+			</isNotNull>
+		</dynamic>
+			order by d_order.CREATE_DATE desc
+    </select>
+    
+     <select id="queryDepositOrderCount" resultClass="java.util.HashMap"
+        parameterClass="java.util.Map">
+        SELECT COUNT(DEPOSIT_ORDER_NO) AS TOTAL_NUM 
+      	,NVL(SUM(DEPOSIT_AMOUNT),0) AS DEPOSIT_AMOUNT 
+        FROM DEPOSIT_ORDER d
+        WHERE 
+        d.payment_order_no = 0 and 
+        d.CUSTOMER = #memberCode#
+        <dynamic>
+            <isEqual prepend="and" property="status" compareValue="0">
+				d.STATUS=0
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="1">
+				d.STATUS=1
+			</isEqual>
+			<isEqual prepend="and" property="status" compareValue="2">
+				d.STATUS=2
+			</isEqual>
+			<isNotNull prepend="and" property="startTime">
+				d.CREATE_DATE <![CDATA[>=]]>
+				to_date(#startTime#,'yyyy/mm/dd hh24:mi:ss')
+			</isNotNull>
+			<isNotNull prepend="and" property="endTime">
+				d.CREATE_DATE <![CDATA[<=]]>
+				to_date(#endTime#,'yyyy/mm/dd hh24:mi:ss')
+			</isNotNull>
+		</dynamic>
+    </select>
+    
+    <select id="queryDepositOrderDetail" resultMap="depositOrderDetail"
+        parameterClass="java.util.Map">
+        SELECT 
+			a.DEPOSIT_AMOUNT,a.FEE,a.CUSTOMER_TYPE,a.STATUS,a.ORG_CODE,
+			a.ERROR_CODE,a.DEPOSIT_ORDER_NO,a.CUSTOMER,a.CREATE_DATE,a.PAYMENT_ORDER_NO,
+			a.DEPOSIT_BACK_AMOUNT,a.UPDATE_DATE,b.ITEM_NAME,(select nvl(d_protocol.DEPOSIT_PROTOCOL_NO, '')
+          	    from fi.DEPOSIT_PROTOCOL d_protocol
+               where a.DEPOSIT_ORDER_NO = d_protocol.DEPOSIT_ORDER_NO) DEPOSIT_PROTOCOL_NO
+        FROM DEPOSIT_ORDER a,payment_channel_item b 
+        WHERE 
+        a.org_code = b.orgcode and 
+        a.DEPOSIT_ORDER_NO = #depositOrderNo# and
+        a.CUSTOMER = #memberCode#
+    </select>
+ 
+	<select id="queryByCustomerAndOrgcode" resultMap="depositOrder"
+        parameterClass="java.util.Map">
+        SELECT 
+			do.DEPOSIT_AMOUNT,do.CUSTOMER_TYPE,do.STATUS,do.ORG_CODE,do.DEPOSIT_ORDER_NO,
+			do.CUSTOMER,do.CREATE_DATE,do.PAYMENT_ORDER_NO,do.UPDATE_DATE,pci.ORGCODE,pci.PAYMENT_CATAGORY
+        FROM 
+        	DEPOSIT_ORDER do,PAYMENT_CHANNEL_ITEM pci
+        WHERE 
+        	do.ORG_CODE=pci.ORGCODE 
+        	and
+        	do.CUSTOMER=#memberCode# 
+        	AND  
+        	pci.PAYMENT_CATAGORY = #orgCode#
+        	AND do.STATUS = 1
+    </select>
+</sqlMap>

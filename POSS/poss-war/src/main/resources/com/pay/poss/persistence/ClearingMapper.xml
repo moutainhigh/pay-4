@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.pay.poss.persistence.ClearingMapper">
+
+    <sql id="Pagination_Head">
+        <if test="startIndex != null and endIndex != null">
+            <![CDATA[ SELECT * FROM ( SELECT ROW_.*, ROWNUM RN FROM ( ]]>
+        </if>
+    </sql>
+    <sql id="Pagination_Foot">
+        <if test="startIndex != null and endIndex != null">
+            <![CDATA[ ) ROW_ WHERE ROWNUM <= #{endIndex} ) WHERE RN > #{startIndex} ]]>
+        </if>
+    </sql>
+    <sql id="orderbySql">
+        <if test="orderByColList != null">
+            ORDER BY
+            <foreach collection="orderByColList" item="obj" index="index"
+                     open="" close="" separator=",">
+                ${obj}
+            </foreach>
+            <if test="orderType != null">
+                ${orderType}
+            </if>
+        </if>
+    </sql>
+
+    <!-- 已清算及未清算记录, 每日交易数据 -->
+    <select id="selectSettleOrder" resultType="com.pay.poss.domain.ClearingOrderSettle"
+            parameterType="com.pay.poss.param.SettlementTradeParam">
+        <include refid="Pagination_Head" />
+        SELECT EO.PARTNER_ID as partnerId,
+        EO.ORDER_ID as orderId,
+        TO_CHAR(EO.TRADE_ORDER_NO) as tradeOrderNo,
+        TO_CHAR(CO.PAYMENT_ORDER_NO) as paymentOrderNo,
+        TO_CHAR(CO.CHANNEL_ORDER_NO) as channelOrderNo,
+        CO.ORG_CODE as orgCode,
+        CO.AMOUNT / 1000 as amount,
+        CO.CURRENCY_CODE as currencyCode,
+        CO.TRANSFER_RATE as transferRate,
+        CO.STATUS as channelStatus,
+        EO.STATUS as gatewayStatus,
+        CO.CREATE_DATE as tradeDate,
+        CO.PAY_AMOUNT / 1000 as payAmount,
+        CO.TRANSFER_CURRENCY_CODE as transferCurrencyCode,
+        SO.SETTLEMENT_CURRENCY_CODE as settlementCurrencyCode,
+        SO.SETTLEMENT_RATE as settlementRate,
+        SO.FEE_RATE as feeRate,
+        TO_CHAR(CO.MERCHANT_NO) as merchantNo,
+        NVL(CO.AUTHORISATION, '') as authorisation,
+        SO.SETTLEMENT_DATE as settlementDate,
+        SO.CREATE_DATE as settlementCreatedate,
+        CO.CARD_ORG AS cardType,
+        CASE SO.SETTLEMENT_FLG WHEN 0 THEN  '未清算' WHEN 1 THEN '已清算' WHEN 2 THEN '清算失败' END  as settlementFlg,
+        <![CDATA[(SELECT ISSUER_COUNTRY from INF.CARD_BIN_INF CBI WHERE CBI.CARD_BIN =SUBSTR(POE.CARD_NO,1,6) AND ROWNUM < 2) as area]]>
+        FROM FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND POE
+        WHERE EO.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = SO.PAYMENT_ORDER_NO
+        AND POE.PAYMENT_ORDER_NO = PO.PAYMENT_ORDER_NO
+
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <=  #{endDate}]]>
+        </if>
+        <if test="settlementStatus != null">
+            AND SO.SETTLEMENT_FLG = #{settlementStatus}
+        </if>
+        <if test="orderByColList != null">
+            ORDER BY
+            <foreach collection="orderByColList" item="obj" index="index"
+                     open="" close="" separator=",">
+                ${obj}
+            </foreach>
+            <if test="orderType != null">
+                ${orderType}
+            </if>
+        </if>
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countSettleOrder" resultType="java.lang.Integer"
+            parameterType="com.pay.poss.param.SettlementTradeParam">
+        SELECT COUNT(*)
+        FROM FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND POE
+        WHERE EO.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = SO.PAYMENT_ORDER_NO
+        AND POE.PAYMENT_ORDER_NO = PO.PAYMENT_ORDER_NO
+
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <=  #{endDate}]]>
+        </if>
+        <if test="settlementStatus != null">
+            AND SO.SETTLEMENT_FLG = #{settlementStatus}
+        </if>
+    </select>
+
+
+
+    <select id="selectRefuseOrder" parameterType="com.pay.poss.param.RefuseOrderTradeParam"
+            resultType="com.pay.poss.domain.ClearingRefuseOrder">
+        <include refid="Pagination_Head" />
+        SELECT T.PARTNER_ID AS partnerId,
+        T.ORDER_ID AS orderId,
+        T.TRADE_ORDER_NO AS tradeOrderNo,
+        C.ORG_CODE AS orgCode,
+        C.CHANNEL_ORDER_NO AS channelOrderNo,
+        C.MERCHANT_NO AS merchantNo,
+        T.ORDER_AMOUNT / 1000 AS amount,
+        T.CURRENCY_CODE AS currencyCode,
+        C.PAY_AMOUNT / 1000 AS payAmount,
+        C.TRANSFER_RATE AS transferRate,
+        C.TRANSFER_CURRENCY_CODE AS transferCurrencyCode,
+        (T.ORDER_AMOUNT - T.REFUND_AMOUNT) / 1000 AS refundAmount,
+        S.SETTLEMENT_CURRENCY_CODE AS settlementCurrencyCode,
+        S.AMOUNT AS settlementAmount,
+        S.CURRENCY_CODE AS currencyCode,
+        <![CDATA[(SELECT ISSUER_COUNTRY
+        from INF.CARD_BIN_INF CBI
+        WHERE CBI.CARD_BIN = SUBSTR(POE.CARD_NO, 1, 6)
+        AND ROWNUM < 2) as area]]>
+        FROM FI.CHANNEL_ORDER            C,
+        FI.TRADE_ORDER              T,
+        FI.PAYMENT_ORDER            P,
+        FI.PARTNER_SETTLEMENT_ORDER S,
+        FI.charge_back_order     B,
+        FI.PAYMENT_ORDER_EXPAND     POE
+        WHERE T.TRADE_ORDER_NO = P.TRADE_ORDER_NO
+        AND P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND T.TRADE_ORDER_NO = S.TRADE_ORDER_NO
+        AND POE.PAYMENT_ORDER_NO = P.PAYMENT_ORDER_NO
+        AND T.TRADE_ORDER_NO =  B.TRADE_ORDER_NO
+        AND C.CHANNEL_ORDER_NO = B.CHANNEL_ORDER_ID
+        AND C.STATUS = 1
+        <if test="startDate != null">
+            AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+
+    <select id="countRefuseOrder" parameterType="com.pay.poss.param.RefuseOrderTradeParam"
+            resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM FI.CHANNEL_ORDER            C,
+        FI.TRADE_ORDER              T,
+        FI.PAYMENT_ORDER            P,
+        FI.PARTNER_SETTLEMENT_ORDER S,
+        FI.charge_back_order     B,
+        FI.PAYMENT_ORDER_EXPAND     POE
+        WHERE T.TRADE_ORDER_NO = P.TRADE_ORDER_NO
+        AND P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND T.TRADE_ORDER_NO = S.TRADE_ORDER_NO
+        AND POE.PAYMENT_ORDER_NO = P.PAYMENT_ORDER_NO
+        AND T.TRADE_ORDER_NO =  B.TRADE_ORDER_NO
+        AND C.CHANNEL_ORDER_NO = B.CHANNEL_ORDER_ID
+        AND C.STATUS = 1
+        <if test="startDate != null">
+            AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(B.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+    </select>
+
+
+    <select id="selectRefundOrder" parameterType="com.pay.poss.param.RefundOrderTradeParam"
+            resultType="com.pay.poss.domain.ClearingRefundOrder">
+        <include refid="Pagination_Head" />
+        SELECT
+        R.REFUND_ORDER_NO AS refundOrder, --退款流水号
+        R.TRADE_ORDER_NO AS tradeOrderNo, --网关
+        P.PAYMENT_ORDER_NO AS paymentOrderNo,
+        T.PARTNER_ID AS partnerId,
+        T.ORDER_ID AS orderId,
+        C.TRANSFER_RATE AS payRate,
+        R.REFUND_AMOUNT/1000 AS refundAmount,
+        T.CURRENCY_CODE AS currencyCode,
+        DECODE (R.REFUND_TYPE, 1,'全额',2,'部分','比例') AS refundType,
+        DECODE(C.RECONCILIATION_FLG,0 ,'未对账',1,'已对账',C.RECONCILIATION_FLG ) AS reconciliationFlg,
+        TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') AS createDate,
+        C.CHANNEL_ORDER_NO AS tradeOrderNo,
+        C.TRANSFER_CURRENCY_CODE AS transferCurrencyCode,
+        C.SETTLEMENT_RATE AS settlementRate,
+        C.SETTLEMENT_CURRENCY_CODE AS settlementCurrencyCode,
+        C.MERCHANT_NO AS merchantNo,
+        C.PAY_AMOUNT AS payAmount,
+        T.ORDER_AMOUNT AS amount,
+        R.STATUS AS refundStatus,
+        <![CDATA[(SELECT ISSUER_COUNTRY from INF.CARD_BIN_INF CBI WHERE CBI.CARD_BIN =SUBSTR(POE.CARD_NO,1,6) AND ROWNUM < 2) AS area]]>
+        FROM FI.TRADE_ORDER T,
+        FI.CHANNEL_ORDER C,
+        FI.PAYMENT_ORDER P,
+        FI.REFUND_ORDER R,
+        FI.PAYMENT_ORDER_EXPAND POE
+        WHERE P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND P.TRADE_ORDER_NO = T.TRADE_ORDER_NO
+        AND P.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+        AND POE.PAYMENT_ORDER_NO = P.PAYMENT_ORDER_NO
+        AND C.STATUS = 1
+        <if test="status != null">
+            AND R.STATUS = #{status}
+        </if>
+        <if test="startDate != null">
+            AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countRefundOrder" parameterType="com.pay.poss.param.RefundOrderTradeParam"
+            resultType="java.lang.Integer">
+        SELECT
+          COUNT(*)
+        FROM FI.TRADE_ORDER T,
+        FI.CHANNEL_ORDER C,
+        FI.PAYMENT_ORDER P,
+        FI.REFUND_ORDER R,
+        FI.PAYMENT_ORDER_EXPAND POE
+        WHERE P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND P.TRADE_ORDER_NO = T.TRADE_ORDER_NO
+        AND P.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+        AND POE.PAYMENT_ORDER_NO = P.PAYMENT_ORDER_NO
+        AND C.STATUS = 1
+        <if test="status != null">
+            AND R.STATUS = #{status}
+        </if>
+        <if test="startDate != null">
+            AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+    </select>
+
+
+    <select id="selectMigsRefundOrder" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="com.pay.poss.domain.ClearingMigsRefundOrder">
+        <include refid="Pagination_Head" />
+        SELECT
+        R.REFUND_ORDER_NO AS refundOrderNo,
+        R.TRADE_ORDER_NO AS tradeOrderNo,
+        P.PAYMENT_ORDER_NO AS paymentOrderNo,
+        T.PARTNER_ID AS partnerId,
+        T.ORDER_ID AS orderId,
+        C.TRANSFER_RATE AS transferRate,
+        C.CHANNEL_ORDER_NO AS channelOrderNo,
+        T.ORDER_AMOUNT/1000 AS preAmount,
+        R.REFUND_AMOUNT/1000 AS refundAmount,
+        T.CURRENCY_CODE AS currencyCode,
+        DECODE (R.REFUND_TYPE, 1,'全额',2,'部分','比例') AS refundType,
+        DECODE(C.RECONCILIATION_FLG,0 ,'未对账',1,'已对账',C.RECONCILIATION_FLG ) AS reconciliationFlg,
+        C.AUTHORISATION AS authorisation,
+        R.CHANNEL_RETURN_NO AS channelReturnNo,
+        TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') AS createDate,
+        TO_CHAR(R.COMPLATE_DATE, 'YYYY-MM-DD') AS completeDate,
+        R.STATUS AS refundStatus,
+        <![CDATA[(SELECT ISSUER_COUNTRY from INF.CARD_BIN_INF CBI WHERE CBI.CARD_BIN =SUBSTR(POE.CARD_NO,1,6) AND ROWNUM < 2) AS area]]>
+        FROM FI.TRADE_ORDER T,
+        FI.CHANNEL_ORDER C,
+        FI.PAYMENT_ORDER P,
+        FI.REFUND_ORDER R,
+        FI.PAYMENT_ORDER_EXPAND POE
+        WHERE P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND P.TRADE_ORDER_NO = T.TRADE_ORDER_NO
+        AND P.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+        AND C.ORG_CODE = R.REFUND_ORG_CODE
+        AND POE.PAYMENT_ORDER_NO = P.PAYMENT_ORDER_NO
+        AND C.ORG_CODE = '10080001'
+        AND C.STATUS = 1
+        <if test="status != null">
+            AND R.STATUS = #{status}
+        </if>
+        <if test="startDate != null">
+            AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+         <![CDATA[AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+        <include refid="orderbySql" />
+        <include refid="Pagination_Foot" />
+    </select>
+
+
+    <select id="countMigsRefundOrder" parameterType="com.pay.poss.param.BaseTradeParam"
+            resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM FI.TRADE_ORDER T,
+        FI.CHANNEL_ORDER C,
+        FI.PAYMENT_ORDER P,
+        FI.REFUND_ORDER R,
+        FI.PAYMENT_ORDER_EXPAND POE
+        WHERE P.PAYMENT_ORDER_NO = C.PAYMENT_ORDER_NO
+        AND P.TRADE_ORDER_NO = T.TRADE_ORDER_NO
+        AND P.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+        AND C.ORG_CODE = R.REFUND_ORG_CODE
+        AND POE.PAYMENT_ORDER_NO = P.PAYMENT_ORDER_NO
+        AND C.ORG_CODE = '10080001'
+        AND C.STATUS = 1
+        <if test="status != null">
+            AND R.STATUS = #{status}
+        </if>
+        <if test="startDate != null">
+            AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(R.CREATE_DATE, 'YYYY-MM-DD') <= #{endDate}]]>
+        </if>
+    </select>
+
+
+
+
+    <select id="selectOrderDetail" parameterType="com.pay.poss.param.SettlementTradeParam"
+            resultType="com.pay.poss.domain.RiskOrderDetail">
+        <include refid="Pagination_Head" />
+        SELECT EO.PARTNER_ID as partnerId,
+        EO.ORDER_ID as orderId,
+        EO.TRADE_ORDER_NO as tradeOrderNo,
+        CO.PAYMENT_ORDER_NO as paymentOrderNo,
+        CO.CHANNEL_ORDER_NO as channelOrderNo,
+        CO.ORG_CODE as orgCode,
+        CO.AMOUNT / 1000 as amount,
+        CO.CURRENCY_CODE as currencyCode,
+        CO.TRANSFER_RATE as transferRate,
+        CO.STATUS as channelStatus,
+        EO.STATUS as gatewayStatus,
+        CO.CREATE_DATE as createDate,
+        CO.PAY_AMOUNT / 1000 as payAmount,
+        CO.SETTLEMENT_CURRENCY_CODE as settlementCurrencyCode,
+        SO.SETTLEMENT_RATE as settlementRate,
+        CO.MERCHANT_NO as merchantNo,
+        CO.AUTHORISATION as authorisation,
+        JO.CARD_TYPE as cardType,
+        <![CDATA[(SELECT ISSUER_COUNTRY from INF.CARD_BIN_INF CBI WHERE CBI.CARD_BIN = SUBSTR(JO.CARD_NO, 1, 6) AND ROWNUM < 2) as area]]>
+        FROM FI.CHANNEL_ORDER            CO,
+        FI.TRADE_ORDER              EO,
+        FI.PAYMENT_ORDER            PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND     JO,
+        FI.TRADE_EXTENDS            EX
+        WHERE EO.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = SO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO = JO.PAYMENT_ORDER_NO
+        AND EX.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <=  #{endDate}]]>
+        </if>
+        <if test="settlementStatus != null">
+            AND SO.SETTLEMENT_FLG = #{settlementStatus}
+        </if>
+        <if test="orderByColList != null">
+            ORDER BY
+            <foreach collection="orderByColList" item="obj" index="index"
+                     open="" close="" separator=",">
+                ${obj}
+            </foreach>
+            <if test="orderType != null">
+                ${orderType}
+            </if>
+        </if>
+        <include refid="Pagination_Foot" />
+    </select>
+
+    <select id="countOrderDetail" parameterType="com.pay.poss.param.SettlementTradeParam"
+            resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM
+        FI.CHANNEL_ORDER CO,
+        FI.TRADE_ORDER EO,
+        FI.PAYMENT_ORDER PO,
+        FI.PARTNER_SETTLEMENT_ORDER SO,
+        FI.PAYMENT_ORDER_EXPAND JO,
+        FI.TRADE_EXTENDS EX
+        WHERE
+        EO.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=CO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=SO.PAYMENT_ORDER_NO
+        AND PO.PAYMENT_ORDER_NO=JO.PAYMENT_ORDER_NO
+        AND EX.TRADE_ORDER_NO=PO.TRADE_ORDER_NO
+        <if test="startDate != null">
+            AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') >= #{startDate}
+        </if>
+        <if test="endDate != null">
+            <![CDATA[AND TO_CHAR(CO.CREATE_DATE, 'YYYY-MM-DD') <=  #{endDate}]]>
+        </if>
+        <if test="settlementStatus != null">
+            AND SO.SETTLEMENT_FLG = #{settlementStatus}
+        </if>
+    </select>
+
+</mapper>

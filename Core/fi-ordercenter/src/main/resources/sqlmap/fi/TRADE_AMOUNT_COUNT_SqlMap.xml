@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="TRADE_AMOUNT_COUNT">
+	<typeAlias alias="tradeAmountCount" type="com.pay.txncore.model.TradeAmountCount"/>
+	<resultMap class="tradeAmountCount" id="tradeAmountCountResult">
+		<result column="ID" property="id" jdbcType="DECIMAL"/>
+		<result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+		<result column="COUNT_MONTH" property="countMonth" jdbcType="VARCHAR"/>
+		<result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL"/>
+		<result column="TOTAL_CURRENCY_CODE" property="totalCurrencyCode" jdbcType="VARCHAR"/>
+		<result column="CREATE_DATE" property="createDate" jdbcType="DATE"/>
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="DATE"/>
+	</resultMap>
+	
+	<insert id="create" parameterClass="tradeAmountCount">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select seq_trade_amount_count_id.nextval from dual
+		</selectKey>
+		INSERT INTO TRADE_AMOUNT_COUNT (ID,PARTNER_ID,COUNT_MONTH,TOTAL_AMOUNT,
+		TOTAL_CURRENCY_CODE,CREATE_DATE) VALUES 
+		(#id#,#partnerId#,#countMonth#,#totalAmount#,#totalCurrencyCode#,sysdate)
+	</insert>
+	
+	<update id="update" parameterClass="tradeAmountCount">
+		UPDATE TRADE_AMOUNT_COUNT
+        <dynamic prepend="SET"> 
+        	<isNotNull prepend="," property="partnerId">
+        		PARTNER_ID = #partnerId#
+        	</isNotNull>
+        	<isNotNull prepend="," property="countMonth">
+        		COUNT_MONTH = #countMonth#
+        	</isNotNull>
+        	<isNotNull prepend="," property="totalAmount">
+        		TOTAL_AMOUNT = #totalAmount#
+        	</isNotNull>
+        	<isNotNull prepend="," property="totalCurrencyCode">
+        		TOTAL_CURRENCY_CODE = #totalCurrencyCode#
+        	</isNotNull>
+        	<isNotNull prepend="," property="createDate">
+        		CREATE_DATE = #createDate#
+        	</isNotNull>
+        	<isNotNull prepend="," property="updateDate">
+        		UPDATE_DATE = #updateDate#
+        	</isNotNull>
+        </dynamic>
+        where ID = #id#
+	</update>
+	
+	<select id="findByCriteria" resultMap="tradeAmountCountResult" parameterClass="tradeAmountCount">
+		SELECT * FROM TRADE_AMOUNT_COUNT
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				ID = #id#
+			</isNotNull>
+			<isNotNull prepend="AND" property="partnerId">
+				PARTNER_ID = #partnerId#
+			</isNotNull>
+			<isNotNull prepend="AND" property="countMonth">
+				COUNT_MONTH = #countMonth#
+			</isNotNull>
+			<isNotNull prepend="AND" property="totalAmount">
+				TOTAL_AMOUNT = #totalAmount#
+			</isNotNull>
+			<isNotNull prepend="AND" property="totalCurrencyCode">
+				TOTAL_CURRENCY_CODE = #totalCurrencyCode#
+			</isNotNull>
+		</dynamic>
+	</select>
+	
+</sqlMap>

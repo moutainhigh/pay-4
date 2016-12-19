@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bfwithdraw">
+	<typeAlias alias="bfwithdrawFileSummaryModel" type="com.pay.fundout.bankfile.generator.model.FileSummaryModel"/>
+	<typeAlias alias="bfwithdrawInnerDetailModel" type="com.pay.fundout.bankfile.generator.model.FileDetailMode"/>
+	<typeAlias alias="bfwithdrawWithdrawImportRecordModel" type="com.pay.fundout.bankfile.parser.model.WithdrawImportRecordModel"/>
+	<typeAlias alias="bfwithdrawFileParserMode" type="com.pay.fundout.bankfile.parser.model.FileParserMode"/>
+	
+	<resultMap class="com.pay.fundout.bankfile.generator.model.FileSummaryModel" id="bfwithdrawFileSummaryModelResult">
+   		<result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR"/>
+        <result column="PAYEE_BANKACCTCODE" property="payeeBankAcctCode" jdbcType="VARCHAR"/>
+        <result column="PAYEE_OPENINGBANKNAME" property="payeeOpeningBankName" jdbcType="VARCHAR"/>
+        <result column="FUNDOUT_BANKCODE" property="bankCode" jdbcType="NUMBER"/>
+        <result column="totalCount" property="totalCount" jdbcType="NUMBER"/>
+        <result column="amount" property="totalAmount" jdbcType="NUMBER"/>
+        <result column="orderSeq" property="orderSeq" jdbcType="NUMBER"/>
+        <result column="PAYER_ACCTTYPE" property="acctType" jdbcType="NUMBER"/>
+	</resultMap>
+	<!-- 计算概要信息  payerName PAYER_NAME --> 
+     <select id="fundout-withdraw-queryWithdrawMasterinfoList" resultMap="bfwithdrawFileSummaryModelResult" parameterClass="java.lang.String">
+     
+     	SELECT B.PAYER_NAME ,B.PAYEE_BANKACCTCODE ,B.PAYEE_OPENINGBANKNAME ,B.PAYER_ACCTTYPE,B.FUNDOUT_BANKCODE ,B.realout_amount amount,COUNT(B.PAYEE_BANKCODE) totalCount,A.ORDER_SEQ orderSeq FROM(
+             (SELECT ORDER_SEQ FROM WITHDRAW_WORKORDER WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND status in (4,14)) A 
+          INNER JOIN
+              FUNDOUT_ORDER B
+          ON A.ORDER_SEQ = B.ORDER_ID)
+             GROUP BY B.FUNDOUT_BANKCODE,B.PAYER_NAME,B.PAYEE_BANKACCTCODE,B.PAYEE_OPENINGBANKNAME,B.realout_amount,A.ORDER_SEQ,B.PAYER_ACCTTYPE
+
+     </select>
+       <select id="fundout-withdraw-queryWithdrawMasterinfo" resultClass="bfwithdrawFileSummaryModel" parameterClass="java.lang.String">
+     	SELECT B.PAYER_NAME  payerName,B.PAYEE_BANKACCTCODE payeeBankAcctCode,B.PAYEE_BANKNAME payeeBankName,B.FUNDOUT_BANKCODE bankCode,SUM(B.realout_amount) totalAmount,COUNT(B.PAYEE_BANKCODE) totalCount FROM(
+             (SELECT ORDER_SEQ FROM WITHDRAW_WORKORDER WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND status in (4,14)) A 
+          INNER JOIN
+              FUNDOUT_ORDER B
+          ON A.ORDER_SEQ = B.ORDER_ID)
+             GROUP BY B.FUNDOUT_BANKCODE,B.PAYER_NAME,B.PAYEE_BANKACCTCODE,B.PAYEE_BANKNAME
+     </select>
+	<!-- 获取联行号信息-->
+     <select id="fundout_query_unionbankcode" resultClass="java.lang.String" parameterClass="java.lang.String">
+     	SELECT ORG_CODE FROM BANK_ORG_INFO WHERE ORG_NAME = #value# and rownum = 1
+     </select>
+     
+     <!-- 计算概要信息 -->
+     <select id="fundout-withdraw-queryWithdrawSummaryinfo" resultClass="bfwithdrawFileSummaryModel" parameterClass="java.util.Map">
+     	SELECT SUM(B.realout_amount) totalAmount,COUNT(1) totalCount FROM(
+             (SELECT ORDER_SEQ FROM WITHDRAW_WORKORDER WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND status in (4,14)) A 
+          INNER JOIN
+              (SELECT realout_amount,ORDER_ID 
+                 FROM FUNDOUT_ORDER 
+                WHERE ORDER_TYPE IN($busiTypes$) 
+                  AND FUNDOUT_BANKCODE = #BANK_KY#
+                  <dynamic>
+                  	<isNotEmpty property="ACCTTYPE">
+	                  	<isEqual prepend="and" property="ACCTTYPE" compareValue="0">
+							TRADE_TYPE = #ACCTTYPE# and FUNDOUT_BANKCODE = PAYEE_BANKCODE
+						</isEqual>
+						<isEqual prepend="and" property="ACCTTYPE" compareValue="3">
+							TRADE_TYPE = 1	and FUNDOUT_BANKCODE = PAYEE_BANKCODE  
+						</isEqual>
+						<isEqual prepend="and" property="ACCTTYPE" compareValue="1">
+							(
+								(FUNDOUT_BANKCODE = PAYEE_BANKCODE and TRADE_TYPE = #ACCTTYPE#) 
+								or
+		       					(FUNDOUT_BANKCODE != PAYEE_BANKCODE)
+		       				)
+						</isEqual>
+						<isEqual prepend="and" property="ACCTTYPE" compareValue="4">
+							FUNDOUT_BANKCODE != PAYEE_BANKCODE  
+						</isEqual>
+						<isEqual prepend="and" property="ACCTTYPE" compareValue="5">
+							TRADE_TYPE = 0 and FUNDOUT_BANKCODE = PAYEE_BANKCODE and payee_bankcity = 2900
+						</isEqual>
+						<isEqual prepend="and" property="ACCTTYPE" compareValue="6">
+							TRADE_TYPE = 0 and FUNDOUT_BANKCODE = PAYEE_BANKCODE and payee_bankcity != 2900
+						</isEqual>
+					</isNotEmpty>
+                  </dynamic>
+                  ) B
+          ON A.ORDER_SEQ = B.ORDER_ID)
+     </select>
+     
+     <!-- 计算概要信息 广发 10015001 -->
+     <select id="fundout-withdraw-queryWithdrawSummaryinfo-10015001" resultClass="bfwithdrawFileSummaryModel" parameterClass="java.util.Map">
+     	SELECT SUM(B.realout_amount) totalAmount,COUNT(1) totalCount FROM(
+             (SELECT ORDER_SEQ FROM WITHDRAW_WORKORDER WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND status in (4,14)) A 
+          INNER JOIN
+              (SELECT realout_amount,ORDER_ID 
+                 FROM FUNDOUT_ORDER 
+                WHERE ORDER_TYPE IN($busiTypes$) 
+                  AND FUNDOUT_BANKCODE = #BANK_KY#
+                  <dynamic>
+                  	<isNotEmpty property="ACCTTYPE">
+	                  	<isEqual prepend="and" property="ACCTTYPE" compareValue="0">
+							FUNDOUT_BANKCODE = PAYEE_BANKCODE
+						</isEqual>
+						<isEqual prepend="and" property="ACCTTYPE" compareValue="1">
+		       				FUNDOUT_BANKCODE != PAYEE_BANKCODE
+						</isEqual>
+					</isNotEmpty>
+                  </dynamic>
+                  ) B
+          ON A.ORDER_SEQ = B.ORDER_ID)
+     </select>
+     
+     <!-- 详细信息 -->
+     <select id="fundout-withdraw-queryWithdrawDetailinfo" resultClass="bfwithdrawInnerDetailModel" parameterClass="java.util.Map">
+     	SELECT 
+     		A.rechargeOrderSeq workorderKy,
+     		A.orderSeq orderSeq,
+     		A.batchNum batchNum,
+     		B.PAYER_MEMBERCODE   memberCode,   
+     		B.rechargeBankSeq rechargeBankSeq,
+     		B.bankBranch bankBranch,
+     		B.bankNumber,
+     		nvl(B.unionBankCode,'0') unionBankCode,
+     		B.bankKy bankKy,
+     		B.bankAcct bankAcct,
+     		B.amount amount,
+     		B.accountName accountName,
+     		B.bankProvince bankProvince,
+     		B.provinceName provinceName,
+         	B.cityName cityName,
+     		B.bankCity bankCity,
+     		B.orderRemarks orderRemarks,
+     		B.orderRemarks bankRemarks,
+     		B.orderRemarks bankPurpose,
+     		B.orderRemarks errorMessage,
+     		B.createTime createTime,
+     	    B.withdrawBankCode withdrawBankCode,
+     	    B.busiType busiType,
+     	    B.tradeType tradeType,
+     	    B.acctType  acctType
+     	FROM 
+		(SELECT WORKORDER_KY rechargeOrderSeq,
+				ORDER_SEQ orderSeq,
+		  		BATCH_NUM batchNum
+		   	FROM WITHDRAW_WORKORDER  WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND status in (4,14)) A
+		INNER JOIN 
+		(SELECT ORDER_ID orderSeq,
+				BANK_ORDERID rechargeBankSeq,
+				PAYER_MEMBERCODE, 
+				PAYEE_OPENINGBANKNAME bankBranch,
+				BANK_NUMBER bankNumber,
+				PAYEE_BANKCODE unionBankCode,
+				PAYEE_BANKCODE bankKy,
+				PAYER_ACCTTYPE acctType,
+				PAYEE_BANKACCTCODE bankAcct,
+				realout_amount amount,
+				PAYEE_NAME accountName,
+				PAYEE_BANKPROVINCE bankProvince,
+				PAYEE_BANKPROVINCENAME provinceName, 
+				PAYEE_BANKCITY bankCity,
+				PAYEE_BANKCITYNAME cityName,
+				PAYMENT_REASON orderRemarks,
+				CREATE_DATE createTime,
+				FUNDOUT_BANKCODE withdrawBankCode,
+				ORDER_TYPE busiType,
+				TRADE_TYPE tradeType
+		   FROM FUNDOUT_ORDER
+		<dynamic prepend=" WHERE " >
+			<isNotEmpty prepend="and" property="BANK_KY">
+				 FUNDOUT_BANKCODE = #BANK_KY# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="busiTypes">
+				 ORDER_TYPE in ($busiTypes$) 
+			</isNotEmpty>
+			<isNotEmpty property="ACCTTYPE">
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="0">
+					TRADE_TYPE = #ACCTTYPE# and FUNDOUT_BANKCODE = PAYEE_BANKCODE
+				</isEqual>
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="3">
+					TRADE_TYPE = 1	and FUNDOUT_BANKCODE = PAYEE_BANKCODE  
+				</isEqual>
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="1">
+					(
+						(FUNDOUT_BANKCODE = PAYEE_BANKCODE and TRADE_TYPE = #ACCTTYPE#) 
+						or
+       					(FUNDOUT_BANKCODE != PAYEE_BANKCODE)
+       				)
+				</isEqual>
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="4">
+					FUNDOUT_BANKCODE != PAYEE_BANKCODE  
+				</isEqual>
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="5">
+					TRADE_TYPE = 0 and FUNDOUT_BANKCODE = PAYEE_BANKCODE and payee_bankcity = 2900
+				</isEqual>
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="6">
+					TRADE_TYPE = 0 and FUNDOUT_BANKCODE = PAYEE_BANKCODE and payee_bankcity != 2900
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+		) B 
+		ON A.orderSeq = B.orderSeq
+		order by B.withdrawBankCode,B.bankKy,B.createTime
+     </select>
+     
+     <!-- 详细信息 广发 10015001  -->
+     <select id="fundout-withdraw-queryWithdrawDetailinfo-10015001" resultClass="bfwithdrawInnerDetailModel" parameterClass="java.util.Map">
+     	SELECT 
+     		A.rechargeOrderSeq rechargeOrderSeq,
+     		A.orderSeq orderSeq,
+     		A.batchNum batchNum,
+     		B.rechargeBankSeq rechargeBankSeq,
+     		B.bankBranch bankBranch,
+     		B.bankNumber,
+     		B.PAYER_MEMBERCODE   memberCode,   
+     		nvl(B.unionBankCode,'0') unionBankCode,
+     		B.bankKy bankKy,
+     		B.bankAcct bankAcct,
+     		B.amount amount,
+     		B.accountName accountName,
+     		B.bankProvince bankProvince,
+     		B.provinceName provinceName,
+         	B.cityName cityName,
+     		B.bankCity bankCity,
+     		B.orderRemarks orderRemarks,
+     		B.orderRemarks bankRemarks,
+     		B.orderRemarks bankPurpose,
+     		B.orderRemarks errorMessage,
+     		B.createTime createTime,
+     	    B.withdrawBankCode withdrawBankCode,
+     	    B.busiType busiType,
+     	    B.tradeType tradeType
+     	FROM 
+		(SELECT WORKORDER_KY rechargeOrderSeq,
+				ORDER_SEQ orderSeq,
+		  		BATCH_NUM batchNum
+		   FROM WITHDRAW_WORKORDER  WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND status in (4,14)) A
+		INNER JOIN 
+		(SELECT ORDER_ID orderSeq,
+				BANK_ORDERID rechargeBankSeq,
+				PAYER_MEMBERCODE, 
+				PAYEE_OPENINGBANKNAME bankBranch,
+				BANK_NUMBER bankNumber,
+				PAYEE_BANKCODE unionBankCode,
+				PAYEE_BANKCODE bankKy,
+				PAYEE_BANKACCTCODE bankAcct,
+				realout_amount amount,
+				PAYEE_NAME accountName,
+				PAYEE_BANKPROVINCE bankProvince,
+				PAYEE_BANKPROVINCENAME provinceName, 
+				PAYEE_BANKCITY bankCity,
+				PAYEE_BANKCITYNAME cityName,
+				PAYMENT_REASON orderRemarks,
+				CREATE_DATE createTime,
+				FUNDOUT_BANKCODE withdrawBankCode,
+				ORDER_TYPE busiType,
+				TRADE_TYPE tradeType
+		   FROM FUNDOUT_ORDER
+		<dynamic prepend=" WHERE " >
+			<isNotEmpty prepend="and" property="BANK_KY">
+				 FUNDOUT_BANKCODE = #BANK_KY# 
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="busiTypes">
+				 ORDER_TYPE in ($busiTypes$) 
+			</isNotEmpty>
+			<isNotEmpty property="ACCTTYPE">
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="0">
+					FUNDOUT_BANKCODE = PAYEE_BANKCODE
+				</isEqual>
+				<isEqual prepend="and" property="ACCTTYPE" compareValue="1">
+       				FUNDOUT_BANKCODE != PAYEE_BANKCODE
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+		) B 
+		ON A.orderSeq = B.orderSeq
+		order by B.withdrawBankCode,B.bankKy,B.createTime
+     </select>
+     
+     <!-- 更新工单状态 -->
+    <update id="updateWithdrawWorkOrderStatus" parameterClass="bfwithdrawInnerDetailModel">
+    	update WITHDRAW_WORKORDER
+    	   set BATCH_STATUS=#status:NUMERIC#
+    	 WHERE BATCH_NUM=#batchNum:VARCHAR#
+    </update>
+     
+    <!-- 找到对应的解析器 -->
+     <select id="fundout-withdraw-queryChannels" resultClass="java.lang.String">
+		select distinct (VALUE)
+		  from code_mapping
+		 where CODE in(select to_char(a.CHANNEL_KY) 
+		                 from BATCH_RULE_CHANNEL_RES a,
+		                      batch_info b
+		                where a.rule_ky=b.rule_ky
+		                  and b.batch_num=#value# AND A.STATE = 1)
+		  and FAMILY='GENERATOR'
+	      and CATEGORY='BANK_FILE'
+		  and STATUS=0
+     </select>
+     
+     <!-- 插入明细表 -->
+	 <insert id="fundout-withdraw-createImportRecord" parameterClass="bfwithdrawWithdrawImportRecordModel">
+		<selectKey resultClass="Long" keyProperty="importKy">
+			SELECT SEQ_WD_IMPORT_RECORD_IMPORTKY.NEXTVAL FROM DUAL
+		</selectKey>
+        INSERT INTO WITHDRAW_IMPORT_RECORD(
+        	FILE_KY				, 
+        	G_FILE_KY			,
+        	BATCH_NUM			, 
+        	BANK_CODE			, 
+        	BANK_SEQ			, 
+        	BANK_AMOUNT			, 
+        	BANK_STATUS			, 
+        	BUSI_TIME			, 
+        	STATUS				, 
+        	IMPORT_KY			, 
+        	ORDER_SEQ			, 
+        	BANK_ACCT_NAME		, 
+        	BANK_ACCT			, 
+        	BANK_BRANCH			, 
+        	BANK_REMARK			, 
+        	BANK_FAILURE_REASON)
+		VALUES(
+			#fileKy#			,
+			#gFileKy#			,
+			#batchNum#			,
+			#bankCode#			,
+			#bankSeq#			,
+			#bankAmount#		,
+			#bankStatus#		,
+			sysdate				,
+			#status#			,
+			#importKy#			,
+			#orderSeq#			,
+			#bankAcctName#		,
+			#bankAcct#			,
+			#bankBranch#		,
+			#bankRemark#		,
+			#bankFailureReason#		
+		)
+    </insert>
+    
+    <update id="updateWithdrawImportFileStatus" parameterClass="bfwithdrawFileParserMode">
+    	update withdraw_import_file 
+	 	   set status=#status#
+	 	 where FILE_KY=#fileNo#
+    </update> 
+    
+    <!-- 根据金额，收款账号，收款名称找到对应的生成文件中的交易记录 -->
+     <select id="fundout-withdraw-queryFileInfoRecord" resultClass="java.lang.Long" parameterClass="bfwithdrawWithdrawImportRecordModel">
+		select trade_seq from batch_file_record
+		where g_file_ky = #gFileKy#
+		and trade_amount = #bankAmount#
+		and account_no = #bankAcct#
+		and account_name = #bankAcctName#
+		and status = 1
+		and rownum = 1
+     </select>
+     
+     <!-- 更新文件生成明细表状态 -->
+     <update id="updateWithdrawFileRecordStatus" parameterClass="java.util.Map">
+    	update batch_file_record 
+	 	   set status=#newStatus#
+	 	where status = #oldStatus#
+	 	<isNotEmpty prepend="and" property="tradeSeq">
+	 		trade_seq = #tradeSeq#
+	 	</isNotEmpty>
+		<isNotEmpty prepend="and" property="gFileKy">
+	 		g_file_ky = #gFileKy#
+	 	</isNotEmpty>
+    </update>
+</sqlMap>

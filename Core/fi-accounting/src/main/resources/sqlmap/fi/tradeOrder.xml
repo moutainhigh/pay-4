@@ -1,0 +1,830 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tradeOrder">
+
+	<typeAlias alias="autoQueryTradeOrder" type="com.pay.txncore.dto.AutoTradeOrderDTO"/>
+	<typeAlias alias="incomeDetailParaDto" type="com.pay.txncore.model.QueryDetailPara"/>
+	<typeAlias alias="tradeOrderDetailMps" type="com.pay.txncore.dto.TradeOrderDetailMpsDTO"/>
+	<typeAlias alias="tradeOrder" type="com.pay.txncore.model.TradeOrder"/>
+    <resultMap id="tradeOrderResult" class="tradeOrder">
+        <result column="TRADE_BASE_NO" property="tradeBaseNo" jdbcType="DECIMAL"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL"/>
+        <result column="GOODS_COUNT" property="goodsCount" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="PARTNER_DISPLAY_NAME" property="partnerDisplayName" jdbcType="VARCHAR"/>
+        <result column="LOCK_FLG" property="lockFlg" jdbcType="DECIMAL"/>
+        <result column="SETTLEMENT_FLG" property="settlementFlg" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="COMPLETE_DATE" property="completeDate" jdbcType="TIMESTAMP"/>
+        <result column="GOODS_NAME" property="goodsName" jdbcType="VARCHAR"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+        <result column="TRADE_TYPE" property="tradeType" jdbcType="VARCHAR"/>
+        <result column="RATE" property="rate" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="RESP_CODE" property="respCode" jdbcType="VARCHAR"/>
+        <result column="RESP_MSG" property="respMsg" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_WAY" property="paymentWay" jdbcType="VARCHAR"/>
+        <result column="PAY_LINK_NO" property="payLinkNo" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <resultMap class="tradeOrder" id="tradeOrderResult01" extends="tradeOrderResult">
+        <result column="MERCHANT_BILL_NAME" property="merchantBillName" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap class="tradeOrder" id="tradeOrderResult02" extends="tradeOrderResult01">
+        <result column="ORIGINAL_RATE" property="originalRate" jdbcType="VARCHAR"/>
+        <result column="FLOAT_VALUE" property="floatValue" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap class="com.pay.txncore.dto.TradeOrderDetailDTO" id="tradeOrderDetailResult">
+    	<result column="ORDER_AMOUNT" property="paymentAmount" jdbcType="DECIMAL"/>
+    	<result column="CURRENCY_CODE" property="orderCurrencyCode" jdbcType="VARCHAR"/>
+    	<result column="TRADE_STATUS" property="tradeStatus" jdbcType="DECIMAL"/>
+    	<result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+    	<result column="CAN_REFUND_AMOUNT" property="canRefundAmount" jdbcType="DECIMAL"/>
+    	<result column="BG_URL" property="notifyMerchantUrl" jdbcType="VARCHAR"/>
+    	<result column="SETTLEMENT_CURRENCY_CODE" property="settleCurrencyCode" jdbcType="VARCHAR"/>
+    	<result column="CREATE_DATE" property="tradeCreateDate" jdbcType="TIMESTAMP"/>
+    	<result column="UPDATE_DATE" property="tradeUpdateDate" jdbcType="TIMESTAMP"/>
+    	<result column="IP" property="customerIP" jdbcType="VARCHAR"/>
+    	<result column="REFUND_STATUS" property="refundStatus" jdbcType="VARCHAR"/>
+    	<result column="REQUEST_CONTEXT" property="requestContext" jdbcType="CLOB" javaType="java.lang.String" typeHandler="com.ibatis.sqlmap.engine.type.ClobTypeHandlerCallback"/>
+    	<result column="CHANNEL_ORDER_NO" property="channelOrderNo" jdbcType="DECIMAL"/>
+    	<result column="MERCHANT_NO" property="orgMerchantCode" jdbcType="VARCHAR"/>
+    	<result column="PAYMENT_AMOUNT" property="payAmount" jdbcType="DECIMAL"/>
+    	<result column="PAY_CURRENCY_CODE" property="payCurrencyCode" jdbcType="VARCHAR"/>
+    	<result column="TRANSFER_RATE" property="tradeRate" jdbcType="VARCHAR"/>
+    	<result column="CHN_STATUS" property="chnOrderStatus" jdbcType="DECIMAL"/>
+    	<result column="TRANSFER_CURRENCY_CODE" property="transferCurrencyCode" jdbcType="VARCHAR"/>
+    	<result column="CARD_NO" property="cardNo" jdbcType="VARCHAR"/>
+<!--     	<result column="" property="issuingCardCountry" jdbcType=""/> -->
+    	<result column="RETURN_NO" property="orgReturnNo" jdbcType="VARCHAR"/>
+    	<result column="AUTHORISATION" property="authCode" jdbcType="VARCHAR"/>
+    	<result column="CHN_CREATE_DATE" property="chnOrderCreateDate" jdbcType="TIMESTAMP"/>
+    	<result column="CHN_UPDATE_DATE" property="chnOrderUpdateDate" jdbcType="TIMESTAMP"/>
+    	<result column="ORG_CODE" property="channelCode" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap class="com.pay.txncore.dto.PayLinkDetailDTO" id="payLinkDetailResult">
+    	<result column="CREATE_DATE" property="tradeCreateDate" jdbcType="TIMESTAMP"/>
+    	<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+    	<result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+    	<result column="GOODS_NAME" property="goodsName" jdbcType="VARCHAR"/>
+    	<result column="CURRENCY_CODE" property="orderCurrencyCode" jdbcType="VARCHAR"/>
+    	<result column="ORDER_AMOUNT" property="paymentAmount" jdbcType="DECIMAL"/>
+    	<result column="STATUS" property="tradeStatus" jdbcType="DECIMAL"/>
+    	<result column="CHN_CREATE_DATE" property="chnOrderCreateDate" jdbcType="TIMESTAMP"/>
+    	<result column="ERROR_MSG" property="errorMsg" jdbcType="VARCHAR"/>
+    	<result column="SETTLEMENT_FLG" property="settlementStatus" jdbcType="DECIMAL"/>
+    	<result column="SETTLEMENT_RATE" property="settlementRate" jdbcType="VARCHAR"/>
+    	<result column="BILL_NAME" property="billName" jdbcType="VARCHAR"/>
+    	<result column="BILL_PHONENUMBER" property="billPhone" jdbcType="VARCHAR"/>
+    	<result column="BILL_EMAIL" property="billEmail" jdbcType="VARCHAR"/>
+    	<result column="BILL_COUNTRYCODE" property="billCountry" jdbcType="VARCHAR"/>
+    	<result column="BILL_STATE" property="billState" jdbcType="VARCHAR"/>
+    	<result column="BILL_CITY" property="billCity" jdbcType="VARCHAR"/>
+    	<result column="BILL_ADRESS" property="billAddress" jdbcType="VARCHAR"/>
+    	<result column="BILL_POSTALCODE" property="billPostCode" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_NAME" property="shippingName" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_COMPANY" property="shippingCompany" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_PHONENUMBER" property="shippingPhone" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_MAIL" property="shippingEmail" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_COUNTRYCODE" property="shippingCountry" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_STATE" property="shippingState" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_CITY" property="shippingCity" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_ADDRESS" property="shippingAddress" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_POSTALCODE" property="shippingPostCode" jdbcType="VARCHAR"/>
+    	<result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+    	<result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap class="com.pay.txncore.dto.PayLinkDTO" id="payLinkResult">
+    	<result column="CREATE_DATE" property="tradeDate" jdbcType="DATE"/>
+    	<result column="BILL_EMAIL" property="billEmail" jdbcType="VARCHAR"/>
+    	<result column="PAY_LINK_NO" property="payLinkNo" jdbcType="DECIMAL"/>
+    	<result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+    	<result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+    	<result column="ORDER_AMOUNT" property="tradeAmout" jdbcType="DECIMAL"/>
+    	<result column="STATUS" property="tradeStatus" jdbcType="DECIMAL"/>
+    	<result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+    	<result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <resultMap class="com.pay.txncore.dto.PayLinkTemplateDTO" id="payLinkTemplateResult">
+    	<result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+    	<result column="PRODUCTAMOUNT" property="subTotalAmount" jdbcType="DECIMAL"/>
+    	<result column="FEE" property="fee" jdbcType="DECIMAL"/>
+    	<result column="TOTALAMOUNT" property="totalAmount" jdbcType="DECIMAL"/>
+    	<result column="PRODUCTNAME" property="productName" jdbcType="VARCHAR"/>
+    	<result column="PRICE" property="price" jdbcType="DECIMAL"/>
+    	<result column="SITE" property="url" jdbcType="VARCHAR"/>
+    	<result column="CARD_NO" property="cardNo" jdbcType="VARCHAR"/>
+    	<result column="BILL_NAME" property="billName" jdbcType="VARCHAR"/>
+    	<result column="BILL_ADRESS" property="billAddress" jdbcType="VARCHAR"/>
+    	<result column="BILL_POSTALCODE" property="billPostCode" jdbcType="VARCHAR"/>
+    	<result column="BILL_COUNTRYCODE" property="billCountry" jdbcType="VARCHAR"/>
+    	<result column="BILL_STATE" property="billState" jdbcType="VARCHAR"/>
+    	<result column="BILL_CITY" property="billCity" jdbcType="VARCHAR"/>
+    	<result column="BILL_PHONENUMBER" property="billPhone" jdbcType="VARCHAR"/>
+    	<result column="BILL_EMAIL" property="billEmail" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_NAME" property="shippingName" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_ADDRESS" property="shippingAddress" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_POSTALCODE" property="shippingPostCode" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_COUNTRYCODE" property="shippingCountry" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_STATE" property="shippingState" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_CITY" property="shippingCity" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_PHONENUMBER" property="shippingPhone" jdbcType="VARCHAR"/>
+    	<result column="SHIPPING_MAIL" property="shippingEmail" jdbcType="VARCHAR"/>
+    	<result column="STATUS" property="status" jdbcType="DECIMAL"/>
+    	<result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="VARCHAR"/>
+    	<result column="PRODUCTSPEC" property="productSpec" jdbcType="VARCHAR"/>
+    	<result column="PRODUCTNUM" property="productNum" jdbcType="DECIMAL"/>
+    	<result column="CONTACT" property="contact" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <insert id="create" parameterClass="tradeOrder">
+    	<selectKey resultClass="java.lang.Long" keyProperty="tradeOrderNo">
+    		SELECT 102 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_TRADE_ORDER_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO TRADE_ORDER(
+			TRADE_BASE_NO,TRADE_ORDER_NO,STATUS,PARTNER_ID,TRADE_TYPE,
+			GOODS_COUNT,UPDATE_DATE,REFUND_AMOUNT,ORDER_AMOUNT,PARTNER_DISPLAY_NAME,
+			LOCK_FLG,CREATE_DATE,GOODS_NAME,ORDER_ID,SETTLEMENT_FLG,RATE,CURRENCY_CODE,MERCHANT_BILL_NAME
+			,ORIGINAL_RATE,FLOAT_VALUE,RESP_CODE,RESP_MSG,PAY_LINK_NO
+        )
+        VALUES(
+            #tradeBaseNo#,#tradeOrderNo#,#status#,#partnerId#,#tradeType#,
+			#goodsCount#,#updateDate#,#refundAmount#,#orderAmount#,#partnerDisplayName#,
+			#lockFlg#,#createDate#,#goodsName#,#orderId#,#settlementFlg#,#rate#,#currencyCode#,#merchantBillName#
+			,#originalRate#,#floatValue#,#respCode#,#respMsg#,#payLinkNo#
+		)
+    </insert>
+    
+    <update id="update" parameterClass="tradeOrder">
+        UPDATE TRADE_ORDER
+        <dynamic prepend="SET">
+        <isNotNull prepend="," property="tradeBaseNo">
+            TRADE_BASE_NO = #tradeBaseNo#
+        </isNotNull>
+        <isNotNull prepend="," property="tradeType">
+            TRADE_TYPE = #tradeType#
+        </isNotNull>
+        <isNotNull prepend="," property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="rate">
+            RATE = #rate#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+            PARTNER_ID = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="," property="goodsCount">
+            GOODS_COUNT = #goodsCount#
+        </isNotNull>
+        <isNotNull prepend="," property="refundAmount">
+            REFUND_AMOUNT = #refundAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount">
+            ORDER_AMOUNT = #orderAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerDisplayName">
+            PARTNER_DISPLAY_NAME = #partnerDisplayName#
+        </isNotNull>
+        <isNotNull prepend="," property="lockFlg">
+            LOCK_FLG = #lockFlg#
+        </isNotNull>
+        <isNotNull prepend="," property="settlementFlg">
+            SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+        <isNotNull prepend="," property="completeDate">
+            COMPLETE_DATE = #completeDate#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysdate
+        </isNotNull>
+        <isNotNull prepend="," property="goodsName">
+            GOODS_NAME = #goodsName#
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+            ORDER_ID = #orderId#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="respCode">
+            RESP_CODE = #respCode#
+        </isNotNull>
+        <isNotNull prepend="," property="respMsg">
+            RESP_MSG = #respMsg#
+        </isNotNull>
+         <isNotNull prepend="," property="paymentWay">
+        	PAYMENT_WAY = #paymentWay#
+        </isNotNull>
+        <isNotNull prepend="," property="merchantBillName">
+        	MERCHANT_BILL_NAME = #merchantBillName#
+        </isNotNull>
+        <isNotEmpty prepend="," property="floatValue">
+            FLOAT_VALUE = #floatValue#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="originalRate">
+            ORIGINAL_RATE = #originalRate#
+        </isNotEmpty>
+        <isNotNull prepend="," property="payLinkNo">
+        	PAY_LINK_NO = #payLinkNo#
+        </isNotNull> 
+        </dynamic>
+        WHERE TRADE_ORDER_NO = #tradeOrderNo#
+        <isNotNull prepend="and" property="oldStatus">
+        	status = #oldStatus#
+        </isNotNull>
+    </update>
+    
+	<select id="findById" resultMap="tradeOrderResult02" parameterClass="java.lang.Long">
+        SELECT * FROM TRADE_ORDER WHERE TRADE_ORDER_NO = #tradeOrderNo#
+	</select>
+    
+	<select id="lockedByTradeOrderNo"  parameterClass="java.lang.Long" resultMap="tradeOrderResult">
+        SELECT * FROM TRADE_ORDER WHERE TRADE_ORDER_NO = #tradeOrderNo# for update wait 10
+	</select>
+    
+    <!--返回退款余额可能是已经完成退款的订单，所以状态位里需要加入3，4的状态位-->
+    <update id="updateAddRefundAmountAndStatus" parameterClass="java.util.HashMap">
+		UPDATE TRADE_ORDER 
+		set 
+		UPDATE_DATE = sysdate,REFUND_AMOUNT = REFUND_AMOUNT + #refundAmount#
+		<isNotNull prepend="," property="status">
+        	STATUS = #status#
+       	</isNotNull>
+		where TRADE_ORDER_NO = #tradeOrderNo# AND STATUS IN (3,4)
+	</update>
+	
+	<update id="updateSubRefundAmountAndStatus" parameterClass="java.util.HashMap">
+		UPDATE TRADE_ORDER 
+		set 
+		UPDATE_DATE = sysdate,REFUND_AMOUNT = REFUND_AMOUNT - #refundAmount#
+		<isNotNull prepend="," property="status">
+        	STATUS = #status#
+       	</isNotNull>
+		where TRADE_ORDER_NO = #tradeOrderNo# AND STATUS = 4
+	</update>
+	
+	<update id="updateRefundAmountAndStatus" parameterClass="java.util.HashMap">
+		UPDATE TRADE_ORDER 
+		set 
+		UPDATE_DATE = sysdate,REFUND_AMOUNT = REFUND_AMOUNT + #refundAmount#
+		<isNotNull prepend="," property="status">
+        	STATUS = #status#
+       	</isNotNull>
+		where TRADE_ORDER_NO = #tradeOrderNo# AND REFUND_AMOUNT &gt;= REFUND_AMOUNT + #refundAmount#
+	</update>
+	
+	<update id="updateStatus" parameterClass="java.util.HashMap">
+		UPDATE TRADE_ORDER 
+			set UPDATE_DATE = sysdate,STATUS = #status#
+		where 
+			TRADE_ORDER_NO = #tradeOrderNo#
+			and status = #oldStatus#
+	</update>
+   
+	<update id="updateForTradeLock">
+		UPDATE TRADE_ORDER 
+		set 
+		UPDATE_DATE = sysdate,LOCK_FLG = 1
+		where TRADE_ORDER_NO = #tradeOrderNo# AND LOCK_FLG = 0
+	</update>
+    
+    <update id="updateForTradeUNLock">
+		UPDATE TRADE_ORDER 
+		set 
+		UPDATE_DATE = sysdate,LOCK_FLG = 0
+		where TRADE_ORDER_NO = #tradeOrderNo# AND LOCK_FLG = 1
+	</update>
+	
+    <select id="queryTradeOrderByPIdAndOrderId" resultMap="tradeOrderResult02" parameterClass="java.util.HashMap">
+        SELECT * FROM TRADE_ORDER
+        <dynamic prepend="WHERE">
+        	<isNotNull prepend="and" property="partnerId">
+            PARTNER_ID = #partnerId#
+            </isNotNull>
+        	<isNotNull prepend="and" property="orderId">
+            ORDER_ID = #orderId#
+            </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="findAndLockByOrderIdAndStatus" resultMap="tradeOrderResult02" parameterClass="java.util.HashMap">
+        SELECT * FROM TRADE_ORDER WHERE TRADE_ORDER_NO = #tradeOrderNO# and STATUS = #status# for update wait 10
+    </select>
+    
+    <select id="findAndLockById" resultMap="tradeOrderResult02" parameterClass="java.util.HashMap">
+        SELECT * FROM TRADE_ORDER
+        WHERE TRADE_ORDER_NO = #tradeOrderNO# for update wait 10
+    </select>
+    
+    <select id="getCompletedOrder" resultMap="tradeOrderResult02">
+        SELECT * FROM TRADE_ORDER
+        WHERE PARTNER_ID=#memberCode# and ORDER_ID=#orderId# 
+        <isNotNull prepend="AND" property="tradeOrderNo">
+          trade_Order_No = #tradeOrderNo#
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           status in($status$)
+        </isNotNull>
+        
+    </select>
+    
+
+    <select id="findByCriteria" resultMap="tradeOrderResult02">
+        SELECT * FROM TRADE_ORDER A left join acc.t_enterprise_contract B on B.MEMBER_CODE = A.PARTNER_ID 
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="tradeBaseNo">
+           A.TRADE_BASE_NO = #tradeBaseNo# 
+        </isNotNull>
+		 <isNotNull prepend="AND" property="signLoginIdS">
+           B.SIGN_LOGINID IN ($signLoginIdS$)
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeOrderNo">
+           A.TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusList">
+          A.STATUS in ($statusList$) 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+          A.PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="goodsCount">
+          A.GOODS_COUNT = #goodsCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+          A.UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundAmount">
+          A.REFUND_AMOUNT = #refundAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+           A.ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerDisplayName">
+           A.PARTNER_DISPLAY_NAME = #partnerDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lockFlg">
+           A.LOCK_FLG = #lockFlg# 
+        </isNotNull>
+        <isNotNull prepend="," property="settlementFlg">
+           A.SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+        <isNotNull prepend="AND" property="goodsName">
+           A.GOODS_NAME = #goodsName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+          A.ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeType">
+           A.TRADE_TYPE = #tradeType# 
+        </isNotNull>        
+        </dynamic>
+        order by A.CREATE_DATE desc
+    </select>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM TRADE_ORDER A left join acc.t_enterprise_contract B on B.MEMBER_CODE = A.PARTNER_ID 
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="tradeBaseNo">
+           A.TRADE_BASE_NO = #tradeBaseNo# 
+        </isNotNull>
+		 <isNotNull prepend="AND" property="signLoginIdS">
+           B.SIGN_LOGINID IN ($signLoginIdS$)
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeOrderNo">
+           A.TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusList">
+          A.STATUS in ($statusList$) 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+          A.PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="goodsCount">
+          A.GOODS_COUNT = #goodsCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+          A.UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundAmount">
+          A.REFUND_AMOUNT = #refundAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+           A.ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerDisplayName">
+           A.PARTNER_DISPLAY_NAME = #partnerDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lockFlg">
+           A.LOCK_FLG = #lockFlg# 
+        </isNotNull>
+        <isNotNull prepend="," property="settlementFlg">
+           A.SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+        <isNotNull prepend="AND" property="goodsName">
+           A.GOODS_NAME = #goodsName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+          A.ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeType">
+           A.TRADE_TYPE = #tradeType# 
+        </isNotNull>        
+        </dynamic>
+    </select>
+    
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM TRADE_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="tradeBaseNo">
+            TRADE_BASE_NO = #tradeBaseNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="goodsCount">
+            GOODS_COUNT = #goodsCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundAmount">
+            REFUND_AMOUNT = #refundAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerDisplayName">
+            PARTNER_DISPLAY_NAME = #partnerDisplayName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lockFlg">
+            LOCK_FLG = #lockFlg# 
+        </isNotNull>
+        <isNotNull prepend="," property="settlementFlg">
+            SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>
+        <isNotEmpty prepend="AND" property="goodsName">
+            GOODS_NAME = #goodsName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotEmpty>
+        <isNotNull prepend="AND" property="tradeType">
+            TRADE_TYPE = #tradeType# 
+        </isNotNull>        
+        </dynamic>
+    </select>
+    
+    <select id="findByOrderInfo" resultMap="tradeOrderResult02"
+        parameterClass="java.util.Map">
+        SELECT 
+			* FROM TRADE_ORDER
+        WHERE 1=1
+        <isNotNull prepend="AND" property="orderID">
+            ORDER_ID = #orderID# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+         <isEmpty prepend="AND" property="beginTime">
+				CREATE_DATE <![CDATA[>=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '00:00:00','yyyy-MM-dd hh24:mi:ss')
+				<isEmpty prepend="AND" property="endTime">
+					CREATE_DATE <![CDATA[<=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '23:59:59','yyyy-MM-dd hh24:mi:ss')
+				</isEmpty>
+		</isEmpty>
+         <isNotEmpty prepend="AND" property="beginTime">
+				CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		 </isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+           	    CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+    </select>
+    
+    <select id="findByOrderListInfo" resultMap="tradeOrderResult02" parameterClass="java.util.Map">
+        SELECT * FROM TRADE_ORDER
+        WHERE 1=1
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+          <isEmpty prepend="AND" property="beginTime">
+				CREATE_DATE <![CDATA[>=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '00:00:00','yyyy-MM-dd hh24:mi:ss')
+				<isEmpty prepend="AND" property="endTime">
+					CREATE_DATE <![CDATA[<=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '23:59:59','yyyy-MM-dd hh24:mi:ss')
+				</isEmpty>
+		</isEmpty>
+         <isNotEmpty prepend="AND" property="beginTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		 </isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+           	   CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+    </select>
+    
+    <select id="getTradeOrderDetail" resultMap="tradeOrderDetailResult" parameterClass="java.util.Map">
+    	select t.ORDER_AMOUNT,t.CURRENCY_CODE,p.PAYMENT_AMOUNT,t.STATUS as trade_status,t.TRADE_ORDER_NO,r.REFUND_AMOUNT,t.REFUND_AMOUNT as CAN_REFUND_AMOUNT,r.BG_URL,
+    	pso.SETTLEMENT_CURRENCY_CODE,t.CREATE_DATE,t.COMPLETE_DATE as UPDATE_DATE,e.ip,gr.REQUEST_CONTEXT,r.STATUS,c.CHANNEL_ORDER_NO,c.ORG_CODE,r.STATUS as REFUND_STATUS,
+		c.MERCHANT_NO,c.TRANSFER_RATE,c.STATUS as CHN_STATUS,c.TRANSFER_CURRENCY_CODE,e.CARD_NO,c.RETURN_NO,c.AUTHORISATION,c.CREATE_DATE as CHN_CREATE_DATE,
+		c.UPDATE_DATE as CHN_UPDATE_DATE,p.CURRENCY_CODE as PAY_CURRENCY_CODE
+		from TRADE_ORDER t left join PAYMENT_ORDER p on t.TRADE_ORDER_NO=p.TRADE_ORDER_NO left join CHANNEL_ORDER c on p.PAYMENT_ORDER_NO=c.PAYMENT_ORDER_NO
+		left join PAYMENT_ORDER_EXPAND e on p.PAYMENT_ORDER_NO=e.PAYMENT_ORDER_NO left join REFUND_ORDER r on t.TRADE_ORDER_NO=r.TRADE_ORDER_NO 
+		left join GATEWAY_REQUEST gr on t.ORDER_ID=gr.ORDER_ID left join PARTNER_SETTLEMENT_ORDER pso on t.TRADE_ORDER_NO=pso.TRADE_ORDER_NO where 1=1
+		<isNotEmpty prepend="AND" property="tradeOrderNo">
+			t.TRADE_ORDER_NO = #tradeOrderNo#
+		</isNotEmpty>
+		order by r.refund_order_no desc
+    </select>
+    
+    <select id="countByMonth" resultClass="java.lang.Integer">
+    	select count(1) from trade_order
+    	where 1=1
+    	and status in(3,4)
+    	and partner_id = #partnerId#
+    	and COMPLETE_DATE <![CDATA[>=]]> to_date(#startDate#, 'yyyy-MM-dd')
+    	and COMPLETE_DATE <![CDATA[<]]> to_date(#endDate#, 'yyyy-MM-dd') + 1
+    </select>
+   
+   
+  	<select id="queryAutoTradeOrder_COUNT" parameterClass="autoQueryTradeOrder" resultClass="java.lang.Integer">
+  	SELECT 
+  	count(1)
+  	FROM 
+ 		TRADE_ORDER T
+ 			left join
+ 				PAYMENT_ORDER PO
+ 			ON T.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+ 			LEFT JOIN 
+ 				PAYMENT_ORDER_EXPAND  P ON
+ 			PO.PAYMENT_ORDER_NO =  P.PAYMENT_ORDER_NO
+ 			LEFT JOIN
+ 				AUTO_TRAN_RELA ATR ON
+ 				PO.TRADE_ORDER_NO = ATR.TRADE_ORDER_NO
+ 			WHERE 
+   po.PAYMENT_ORDER_NO=(select max(TT.PAYMENT_ORDER_NO) from PAYMENT_ORDER tt where po.TRADE_ORDER_NO=TT.TRADE_ORDER_NO)
+  	<isNotEmpty prepend="AND" property="beginTime">
+			T.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	T.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+	</isNotEmpty>
+  	<isNotNull prepend="AND" property="statusList">
+          T.STATUS in ($statusList$) 
+    </isNotNull>
+  	<isNotNull prepend="AND" property="tradeOrderNos">
+          T.TRADE_ORDER_NO = #tradeOrderNos# 
+    </isNotNull>
+  	<isNotNull prepend="AND" property="batchNumber">
+          ATR.BATCH_NUMBER = #batchNumber# 
+    </isNotNull>
+  	</select>
+  	
+  	<select id="queryAutoTradeOrder" parameterClass="autoQueryTradeOrder" resultClass="autoQueryTradeOrder">
+  	SELECT 
+  	T.TRADE_ORDER_NO tradeOrderNo,
+  	T.PARTNER_ID  partnerId,
+  	T.ORDER_ID  orderId,
+  	T.ORDER_AMOUNT orderAmount,
+  	T.STATUS  statusList,
+  	T.CREATE_DATE createDate,
+  	T.COMPLETE_DATE   completeDate,
+  	T.REFUND_AMOUNT  refundAmount,
+  	T.CURRENCY_CODE currencyCode,
+  	T.RESP_CODE  respCode,
+  	T.RESP_MSG  respMsg,
+  	P.CARD_NO   cardCode,
+  	ATR.BATCH_NUMBER batchNumber
+  	FROM 
+ 		TRADE_ORDER T
+ 			left join
+ 				PAYMENT_ORDER PO
+ 			ON T.TRADE_ORDER_NO = PO.TRADE_ORDER_NO
+ 			LEFT JOIN 
+ 				PAYMENT_ORDER_EXPAND  P ON
+ 			PO.PAYMENT_ORDER_NO =  P.PAYMENT_ORDER_NO
+ 			LEFT JOIN
+ 				AUTO_TRAN_RELA ATR ON
+ 				PO.TRADE_ORDER_NO = ATR.TRADE_ORDER_NO
+ 			WHERE 
+   po.PAYMENT_ORDER_NO=(select max(TT.PAYMENT_ORDER_NO) from PAYMENT_ORDER tt where po.TRADE_ORDER_NO=TT.TRADE_ORDER_NO)
+  	<isNotEmpty prepend="AND" property="beginTime">
+			T.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	T.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+	</isNotEmpty>
+  	<isNotNull prepend="AND" property="statusList">
+          T.STATUS in ($statusList$) 
+    </isNotNull>
+  	<isNotNull prepend="AND" property="tradeOrderNos">
+          T.TRADE_ORDER_NO = #tradeOrderNos# 
+    </isNotNull>
+  	<isNotNull prepend="AND" property="batchNumber">
+          ATR.BATCH_NUMBER = #batchNumber# 
+    </isNotNull>
+    order by T.CREATE_DATE desc
+  	</select>
+  	
+ 	
+  	<select id="getTradeOrderDetailMps" parameterClass="tradeOrderDetailMps" resultClass="tradeOrderDetailMps">
+			select 
+			t.trade_order_no   tradeOrderNo,
+			t.order_Id       orderId,
+			t.STATUS        tradeStatus,
+			t.CURRENCY_CODE  currencyCode,
+			t.CREATE_DATE 	tradeCreateDate,
+			t.COMPLETE_DATE tradeCompleteDate,
+			gr.REQUEST_IP   customerIP,
+			t.TRADE_TYPE    tradeType,
+			et.SITE_ID      tradeWebSite,
+			t.ORDER_AMOUNT  orderAmount,
+			pso.SETTLEMENT_FLG  settlementFlg,
+			poe.CARD_NO     cardNo,
+			poe.CARD_TYPE   cardType,
+			co.AUTHORISATION  authorRiskAtion,
+			po.CREATE_DATE    paymentCreateDate,
+			po.STATUS         paymentStatus,
+			t.RESP_MSG       tradeRespMsg,
+			t.REFUND_AMOUNT   refundAmount,
+			et.BILL_NAME     billName,
+			et.BILL_POSTALCODE  billPostCode,
+			et.BILL_PHONENUMBER  billPhone,
+			et.BILL_EMAIL        billEmail,
+			et.BILL_COUNTRYCODE  billCountry,
+			et.BILL_STATE        billState,
+			et.BILL_CITY        billCity,
+			et.BILL_STREET       billStreet,
+			et.BILL_ADRESS      billAddress,
+			et.SHIPPING_NAME     shippingName,
+			et.SHIPPING_POSTALCODE   shippingPostCode,
+			et.SHIPPING_PHONENUMBER  shippingPhone,
+			et.SHIPPING_MAIL		shippingEmail,
+			et. SHIPPING_COUNTRYCODE shippingCountry,
+			et.SHIPPING_STATE      shippingState,
+			et.SHIPPING_CITY        shippingCity,
+			et.SHIPPING_STREET     shippingStreet,
+			et.SHIPPING_ADDRESS    shippingAddress,
+			et.SHIPPING_COMPANY    shippingCompany,
+			gr.REQUEST_CONTEXT    requestContext,
+            co.org_code     orgCode
+			from 
+			trade_order  t
+			left join 
+			payment_order po
+			on
+			t.trade_order_no = po.trade_order_no
+			left join
+			PAYMENT_ORDER_EXPAND poe
+			on
+			po.payment_order_no = poe.payment_order_no
+			left join
+			PARTNER_SETTLEMENT_ORDER pso
+			on
+			t.trade_order_no = pso.trade_order_no
+			left join
+			express_tracking et
+			on
+			t.trade_order_no = et.trade_order_no
+			left join
+			gateway_request gr
+			on
+			t.order_id = gr.order_id
+			left join
+			channel_order co
+			on
+			po.payment_order_no =co.payment_order_no
+			where  1=1
+			<isNotEmpty prepend="AND" property="tradeOrderNo">
+				t.trade_order_no=#tradeOrderNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="tradeOrderNo">
+				 PO.PAYMENT_ORDER_NO=(SELECT MAX(PAYMENT_ORDER_NO) FROM PAYMENT_ORDER WHERE TRADE_ORDER_NO=#tradeOrderNo#)
+			</isNotEmpty>
+  	</select>
+  	
+  	<select id="queryPayLink" resultMap="payLinkResult" parameterClass="java.util.Map">
+    	select t.create_date,e.bill_email,p.pay_link_no,t.trade_order_no,t.currency_code,t.order_amount,t.status,
+	    t.refund_amount,t.partner_id From pay_link p left join trade_order t on p.pay_link_no=t.pay_link_no left join
+	    express_tracking e on t.order_id=e.order_id where 1=1
+	    and e.id=(select MAX(ee.id) from fi.express_tracking ee where t.trade_order_no=ee.trade_order_no)
+		<isNotEmpty prepend="AND" property="payLinkNo">
+			p.PAY_LINK_NO = #payLinkNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="tradeOrderNo">
+			t.TRADE_ORDER_NO = #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+			t.STATUS in ($status$)
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="currencyCode">
+			t.CURRENCY_CODE = #currencyCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="startTime">
+			p.CREATETIME <![CDATA[>=]]> to_date(#startTime#,'yyyy-mm-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           p.CREATETIME <![CDATA[<=]]> to_date(#endTime#,'yyyy-mm-dd hh24:mi:ss')+1
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="billEmail">
+           e.BILL_EMAIL = #billEmail#
+		</isNotEmpty>
+		<isNotNull prepend="AND" property="partnerId">
+            t.PARTNER_ID = #partnerId#
+        </isNotNull>
+        order by t.create_date desc
+    </select>
+    
+    <select id="queryPayLink_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+    	select count(*) from pay_link p left join trade_order t on p.pay_link_no=t.pay_link_no left join
+	    express_tracking e on t.order_id=e.order_id where 1=1
+	    and e.id=(select MAX(ee.id) from fi.express_tracking ee where t.trade_order_no=ee.trade_order_no)
+		<isNotEmpty prepend="AND" property="payLinkNo">
+			p.PAY_LINK_NO = #payLinkNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="tradeOrderNo">
+			t.TRADE_ORDER_NO = #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+			t.STATUS in ($status$)
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="currencyCode">
+			t.CURRENCY_CODE = #currencyCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="startTime">
+			p.CREATETIME <![CDATA[>=]]> to_date(#startTime#,'yyyy-mm-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           p.CREATETIME <![CDATA[<=]]> to_date(#endTime#,'yyyy-mm-dd hh24:mi:ss')+1
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="billEmail">
+           e.BILL_EMAIL = #billEmail#
+		</isNotEmpty>
+		<isNotNull prepend="AND" property="partnerId">
+            t.PARTNER_ID = #partnerId#
+        </isNotNull>
+    </select>
+    
+    <select id="getPayLinkDetail" resultMap="payLinkDetailResult" parameterClass="java.util.Map">
+		select t.create_date,t.order_id,t.trade_order_no,t.goods_name,t.currency_code,t.order_amount,t.status,p.create_date as chn_create_date,
+		t.resp_msg as error_msg,o.settlement_flg,o.settlement_rate,e.bill_name,e.bill_phonenumber,e.bill_email,e.bill_countrycode,
+    	e.bill_state,e.bill_city,e.bill_adress,e.bill_postalcode,e.shipping_name,e.shipping_company,e.shipping_phonenumber,
+    	e.shipping_mail,e.shipping_countrycode,e.shipping_state,e.shipping_city,e.shipping_address,e.shipping_postalcode,c.org_code, t.resp_code as error_code
+		from trade_order t left join express_tracking e on t.order_id=e.order_id left join payment_order p on 
+		t.trade_order_no=p.trade_order_no left join channel_order c on p.payment_order_no=c.payment_order_no 
+		left join partner_settlement_order o on p.trade_order_no=o.trade_order_no where t.trade_order_no = #tradeOrderNo# and rownum <![CDATA[<=]]> 1
+    </select>
+    
+    <select id="payLinkTemplateDownload" resultMap="payLinkTemplateResult" parameterClass="java.util.Map">
+    	select t.currency_code,p.productamount,p.fee,p.totalamount,a.productname,a.price,a.site,poe.card_no,e.bill_name,
+		e.bill_adress,e.bill_postalcode,e.bill_countrycode,e.bill_state,e.bill_city,e.bill_phonenumber,e.bill_email,
+		e.shipping_name,e.shipping_address,e.shipping_postalcode,e.shipping_countrycode,e.shipping_state,e.shipping_city,
+		e.shipping_phonenumber,e.shipping_mail,op.status,t.trade_order_no,A.PRODUCTSPEC,A.PRODUCTNUM,PLB.CONTACT from trade_order t 
+		left join express_tracking e on  t.order_id=e.order_id
+		left join payment_order op on t.trade_order_no=op.trade_order_no
+		left join payment_order_expand poe on op.payment_order_no=poe.payment_order_no
+		left join pay_link p on t.pay_link_no=p.pay_link_no left join pay_link_attrib a on
+		p.pay_link_no=a.pay_link_no left join pay_link_base_info plb on t.partner_id=plb.membercode where 1=1
+		<isNotEmpty prepend="AND" property="payLinkNo">
+           p.pay_link_no = #payLinkNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="tradeOrderNo">
+           t.trade_order_no = #tradeOrderNo#
+		</isNotEmpty>
+    </select>
+</sqlMap>

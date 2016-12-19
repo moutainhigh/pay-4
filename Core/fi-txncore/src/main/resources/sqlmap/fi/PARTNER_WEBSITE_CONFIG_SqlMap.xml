@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+  <sqlMap namespace="PARTNER_WEBSITE_CONFIG" >
+    <resultMap id="BaseResultMap" class="com.pay.txncore.crosspay.model.PartnerWebsiteConfig" >
+      <result column="ID" property="id" jdbcType="Long" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR" />
+      <result column="URL" property="url" jdbcType="VARCHAR" />
+      <result column="IP" property="ip" jdbcType="VARCHAR" />
+      <result column="STATUS" property="status" jdbcType="CHAR" />
+      <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+      <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+      <result column="SEND_CREDORAX" property="sendCredorax" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="PARTNER_WEBSITE_CONFIG.Example_Where_Clause" >
+      <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+        <isEqual property="oredCriteria[].valid" compareValue="true" >
+          (
+          <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithoutValue[]$ ]]>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithSingleValue[].condition$ #oredCriteria[].criteriaWithSingleValue[].value# ]]>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+            <![CDATA[ $oredCriteria[].criteriaWithListValue[].condition$ ]]>
+            <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+              <![CDATA[ #oredCriteria[].criteriaWithListValue[].values[]# ]]>
+            </iterate>
+          </iterate>
+          <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+            <![CDATA[
+            $oredCriteria[].criteriaWithBetweenValue[].condition$
+            #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+            #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+            ]]>
+          </iterate>
+          )
+        </isEqual>
+      </iterate>
+    </sql>
+    <sql id="PARTNER_WEBSITE_CONFIG.oracle_Pagination_Head" >
+     <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ select * from ( select row_.*, rownum rownum_ from ( ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="PARTNER_WEBSITE_CONFIG.oracle_Pagination_Tail" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ ) row_ where rownum <= #oracleEnd# ) where rownum_ > #oracleStart# ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="PARTNER_WEBSITE_CONFIG.Base_Column_List" >
+      ID, PARTNER_ID, URL, IP, STATUS, OPERATOR, REMARK, CREATE_DATE,SEND_CREDORAX
+    </sql>
+    
+    <select id="findByCriteria_" resultMap="BaseResultMap" parameterClass="com.pay.txncore.crosspay.model.PartnerWebsiteConfigCriteria" >
+      <include refid="PARTNER_WEBSITE_CONFIG.oracle_Pagination_Head" />
+      select
+      <isParameterPresent >
+        <isEqual property="distinct" compareValue="true" >
+          distinct
+        </isEqual>
+      </isParameterPresent>
+      <include refid="PARTNER_WEBSITE_CONFIG.Base_Column_List" />
+      from PARTNER_WEBSITE_CONFIG
+      <isParameterPresent >
+        <include refid="PARTNER_WEBSITE_CONFIG.Example_Where_Clause" />
+        <isNotNull property="orderByClause" >
+          <![CDATA[ order by $orderByClause$ ]]>
+        </isNotNull>
+      </isParameterPresent>
+      <include refid="PARTNER_WEBSITE_CONFIG.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="findById" resultMap="BaseResultMap" parameterClass="Long" >
+      select 
+      <include refid="PARTNER_WEBSITE_CONFIG.Base_Column_List" />
+      <![CDATA[
+      from PARTNER_WEBSITE_CONFIG
+      where ID = #id#
+      ]]>
+    </select>
+    
+     <delete id="delete">
+    	delete from 
+    		PARTNER_WEBSITE_CONFIG  config
+        where 
+        	config.id = #id# 
+    </delete>
+    
+    <insert id="PARTNER_WEBSITE_CONFIG.insert" parameterClass="com.pay.txncore.crosspay.model.PartnerWebsiteConfig" >
+      <![CDATA[
+      insert into PARTNER_WEBSITE_CONFIG (ID, PARTNER_ID, URL, IP, STATUS, 
+        OPERATOR, REMARK, CREATE_DATE,SEND_CREDORAX)
+      values (#id#, #partnerId#, #url#, #ip#, #status#, 
+        #operator#, #remark#, #createDate#,#sendCredorax#)
+      ]]>
+    </insert>
+    
+    <insert id="create" parameterClass="com.pay.txncore.crosspay.model.PartnerWebsiteConfig" >
+     <selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT SEQ_PARTNER_WEBSITE_CONFIG_ID.nextval FROM DUAL
+	  </selectKey>
+      insert into PARTNER_WEBSITE_CONFIG
+      <dynamic prepend="(" >
+          ID,
+        <isNotNull prepend="," property="partnerId" >
+          PARTNER_ID
+        </isNotNull>
+        <isNotNull prepend="," property="url" >
+          URL
+        </isNotNull>
+        <isNotNull prepend="," property="ip" >
+          IP
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          STATUS
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          OPERATOR
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          REMARK
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          CREATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="sendCredorax" >
+          SEND_CREDORAX
+        </isNotNull>
+        )
+      </dynamic>
+      values
+      <dynamic prepend="(" >
+          <![CDATA[ #id# ,]]>
+        <isNotNull prepend="," property="partnerId" >
+          <![CDATA[ #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="url" >
+          <![CDATA[ #url# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="ip" >
+          <![CDATA[ #ip# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          <![CDATA[ #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          <![CDATA[ #remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          <![CDATA[ #createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="sendCredorax" >
+          <![CDATA[ #sendCredorax# ]]>
+        </isNotNull>
+        )
+      </dynamic>
+    </insert>
+    
+    <select id="countByCriteria_" parameterClass="com.pay.txncore.crosspay.model.PartnerWebsiteConfigCriteria" resultClass="java.lang.Integer" >
+      select count(*) from PARTNER_WEBSITE_CONFIG
+      <include refid="PARTNER_WEBSITE_CONFIG.Example_Where_Clause" />
+    </select>
+    
+    <update id="PARTNER_WEBSITE_CONFIG.updateByExampleSelective" >
+      update PARTNER_WEBSITE_CONFIG
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="record.id" >
+          <![CDATA[ ID = #record.id# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.partnerId" >
+          <![CDATA[ PARTNER_ID = #record.partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.url" >
+          <![CDATA[ URL = #record.url# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.ip" >
+          <![CDATA[ IP = #record.ip# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.status" >
+          <![CDATA[ STATUS = #record.status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.operator" >
+          <![CDATA[ OPERATOR = #record.operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.remark" >
+          <![CDATA[ REMARK = #record.remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.createDate" >
+          <![CDATA[ CREATE_DATE = #record.createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="record.sendCredorax" >
+          <![CDATA[ SEND_CREDORAX = #record.sendCredorax# ]]>
+        </isNotNull>
+      </dynamic>
+      <isParameterPresent >
+        <include refid="PARTNER_WEBSITE_CONFIG.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    
+    <update id="PARTNER_WEBSITE_CONFIG.updateByExample" >
+      <![CDATA[
+      update PARTNER_WEBSITE_CONFIG
+      set ID = #record.id#,
+        PARTNER_ID = #record.partnerId#,
+        URL = #record.url#,
+        IP = #record.ip#,
+        STATUS = #record.status#,
+        OPERATOR = #record.operator#,
+        REMARK = #record.remark#,
+        CREATE_DATE = #record.createDate#,
+        SEND_CREDORAX = #record.sendCredorax#
+      ]]>
+      <isParameterPresent >
+        <include refid="PARTNER_WEBSITE_CONFIG.Example_Where_Clause" />
+      </isParameterPresent>
+    </update>
+    
+    <update id="update" parameterClass="com.pay.txncore.crosspay.model.PartnerWebsiteConfig" >
+      update PARTNER_WEBSITE_CONFIG
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="partnerId" >
+          <![CDATA[ PARTNER_ID = #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="url" >
+          <![CDATA[ URL = #url# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="ip" >
+          <![CDATA[ IP = #ip# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="status" >
+          <![CDATA[ STATUS = #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="remark" >
+          <![CDATA[ REMARK = #remark# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="sendCredorax" >
+          <![CDATA[ SEND_CREDORAX = #sendCredorax# ]]>
+        </isNotNull>
+      </dynamic>
+      <![CDATA[
+      where ID = #id#
+      ]]>
+    </update>
+    
+    <update id="PARTNER_WEBSITE_CONFIG.updateByPrimaryKey" parameterClass="com.pay.txncore.crosspay.model.PartnerWebsiteConfig" >
+      <![CDATA[
+      update PARTNER_WEBSITE_CONFIG
+      set PARTNER_ID = #partnerId#,
+        URL = #url#,
+        IP = #ip#,
+        STATUS = #status#,
+        OPERATOR = #operator#,
+        REMARK = #remark#,
+        CREATE_DATE = #createDate#,
+        SEND_CREDORAX = #sendCredorax#
+      where ID = #id#
+      ]]>
+    </update>
+    
+    <select id="findByCriteria" resultMap="BaseResultMap">
+    	select * from PARTNER_WEBSITE_CONFIG where 1=1
+    	<isNotNull prepend="and" property="partnerId" >
+          <![CDATA[ PARTNER_ID = #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="url" >
+          <![CDATA[ URL=#url#]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="ip" >
+          <![CDATA[ IP = #ip# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="status" >
+          <![CDATA[ STATUS = #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="remark" >
+          <![CDATA[ REMARK like '%' || #remark# || '%']]>
+        </isNotNull>
+        <isNotNull prepend="and" property="sendCredorax" >
+          <![CDATA[ SEND_CREDORAX = #sendCredorax# ]]>
+        </isNotNull>
+          <isNotEmpty prepend="and" property="statusIn">
+        	status in ($statusIn$)
+        </isNotEmpty>
+        order by id desc
+    </select>
+    
+    <select id="countByCriteria" resultClass="int">
+    	select count(1) from PARTNER_WEBSITE_CONFIG where 1=1
+    	<isNotNull prepend="and" property="partnerId" >
+          <![CDATA[ PARTNER_ID = #partnerId# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="url" >
+          <![CDATA[ URL=#url#]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="ip" >
+          <![CDATA[ IP = #ip# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="status" >
+          <![CDATA[ STATUS = #status# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="remark" >
+          <![CDATA[ REMARK like '%' || #remark# || '%']]>
+        </isNotNull>
+        <isNotNull prepend="and" property="sendCredorax" >
+          <![CDATA[ SEND_CREDORAX = #sendCredorax# ]]>
+        </isNotNull>
+          <isNotEmpty prepend="and" property="statusIn">
+        	status in ($statusIn$)
+        </isNotEmpty>
+    </select>
+    
+  </sqlMap>

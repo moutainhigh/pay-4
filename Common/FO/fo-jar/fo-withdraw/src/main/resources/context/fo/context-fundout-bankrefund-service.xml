@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout_bankrefund_BankRefundOrderService"
+		class="com.pay.fundout.withdraw.service.bankrefund.impl.BankRefundOrderServiceImpl">
+		<property name="bankRefundOrderDAO" ref="fundout_bankrefund_BankRefundOrderDAO"/>
+	</bean>
+	
+	<bean id="fundout_bankrefund_BankRefundProcessService"
+	class="com.pay.fundout.withdraw.service.bankrefund.impl.BankRefundProcessServiceImpl">
+		<property name="bankRefundOrderService" ref="fundout_bankrefund_BankRefundOrderService"></property>
+		<property name="orderCallBackService" ref="fundout_withdraw_BankRefundOrderCallBack" />
+		<property name="bankRefundReqAccountingServices">
+			<map>
+				<entry key="0" value-ref="fundout-withdrawFailAccounting"/>
+				<entry key="3" value-ref="fundout-pay2bankFailAccounting"/>
+				<entry key="4" value-ref="fundout-batchPay2bankFailAccounting"/>
+				<entry key="2" value-ref="fundout-pay2bankFailAccounting"/>
+			</map>
+		</property>
+		<property name="bankRefundSuccAccountingServices">
+			<map>
+				<entry key="0" value-ref="fundout-withdrawReturnAccounting"/>
+				<entry key="3" value-ref="fundout-pay2bankReturnAccounting"/>
+				<entry key="4" value-ref="fundout-batchPay2bankReturnAccounting"/>
+				<entry key="2" value-ref="fundout-pay2bankFailAccounting"/>
+			</map>
+		</property>
+		<property name="bankRefundFailAccountingServices">
+			<map>
+				<entry key="0" value-ref="fundout-withdrawFailAccounting"/>
+				<entry key="3" value-ref="fundout-pay2bankFailAccounting"/>
+				<entry key="4" value-ref="fundout-batchPay2bankFailAccounting"/>
+				<entry key="2" value-ref="fundout-pay2bankFailAccounting"/>
+			</map>
+		</property>			
+		<property name="orderAfterProcService" ref="fundout-orderchandler-orderAfterProcService"></property>
+		<property name="orderDaoService" ref="fundout-withdraw-backFundingOrderDaoService" />
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+	</bean>
+	
+	<bean id="fundout_withdraw_BankRefundOrderCallBack" class="com.pay.fundout.withdraw.service.bankrefund.ordercallback.BankRefundOrderCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+		<property name="bankRefundOrderService" ref="fundout_bankrefund_BankRefundOrderService"></property>
+		<property name="withdrawOrderDao" ref="fundout-withraw-withdrawOrderDao"></property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"></property>
+		<property name="queueName" value="ebpp.fundoutSuccess2failed.notity"></property>
+		
+	</bean>
+</beans>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/app/commonconfigure.properties</value>
+				<value>file:/opt/pay/env/fstoken.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+	
+	<bean id="bankaccountHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/withdrawAccountAduit.do">bankAccountController</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="bankAccountController"
+		class="com.pay.poss.bankaccount.controller.BankAccountController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView" value="/withdraw/accountapply/accountAudit/bankAccountInit" />
+		<property name="listView" value="/withdraw/accountapply/accountAudit/bankAccountList" />
+		
+		<property name="liquidateInfoService" ref="acc-liquidateInfoService" />
+		<property name="downLoadPathPrefix" value="${downLoadPathPrefix}"></property>
+		<property name="ossKey" value="${mpsposs.oss.key}" />
+		<property name="ossSubDir" value="auth" />
+		<property name="ossRootDir" value="mpsposs" />
+	</bean>
+	
+</beans>
+

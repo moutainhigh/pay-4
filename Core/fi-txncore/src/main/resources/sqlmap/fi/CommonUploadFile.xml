@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="commonUploadFile">
+	<typeAlias alias="commonUploadFile" type="com.pay.txncore.model.CommonUploadFile"/>
+    <resultMap id="commonUploadFile" class="com.pay.txncore.model.CommonUploadFile">
+        <result column="FILE_SIZE" property="fileSize" jdbcType="DECIMAL"/>
+        <result column="FILE_NAME" property="fileName" jdbcType="VARCHAR"/>
+        <result column="FILE_NO" property="fileNo" jdbcType="DECIMAL"/>
+        <result column="UPLOAD_TIME" property="uploadTime" jdbcType="TIMESTAMP"/>
+        <result  column="FILE_CONTENT"   property="fileContent" typeHandler="org.springframework.orm.ibatis.support.BlobByteArrayTypeHandler"/> 
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="FILE_FORMAT" property="fileFormat" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="queryFile" resultMap="commonUploadFile"
+        parameterClass="java.util.HashMap">
+            select c_file.*
+          from COMMON_UPLOAD_FILE c_file, BATCH_REFUND b_refund
+         where c_file.FILE_NO = b_refund.FILE_NO
+           and c_file.FILE_NO = #fileNo# and b_refund.PARTNER_ID = #memberCode#
+    </select>
+    
+    <insert id="create" parameterClass="commonUploadFile">
+    	<selectKey resultClass="java.lang.Long" keyProperty="fileNo">
+   		  SELECT 184 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_FILE_NO.nextval, 6, 0) FROM DUAL
+		</selectKey>
+        INSERT INTO COMMON_UPLOAD_FILE(
+			FILE_SIZE,FILE_NAME,FILE_NO,UPLOAD_TIME,FILE_CONTENT,
+			OPERATOR,FILE_FORMAT
+        )
+        VALUES(
+            #fileSize#,#fileName#,#fileNo#,#uploadTime#,#fileContent,handler=org.springframework.orm.ibatis.support.BlobByteArrayTypeHandler#,
+			#operator#,#fileFormat#
+		)
+    </insert>
+
+    <update id="update" parameterClass="commonUploadFile">
+        UPDATE COMMON_UPLOAD_FILE
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="fileSize">
+            FILE_SIZE = #fileSize#
+        </isNotNull>
+        <isNotNull prepend="," property="fileName">
+            FILE_NAME = #fileName#
+        </isNotNull>
+        <isNotNull prepend="," property="fileNo">
+            FILE_NO = #fileNo#
+        </isNotNull>
+        <isNotNull prepend="," property="uploadTime">
+            UPLOAD_TIME = #uploadTime#
+        </isNotNull>
+        <isNotNull prepend="," property="fileContent">
+            FILE_CONTENT = #fileContent#
+        </isNotNull>
+        <isNotNull prepend="," property="operator">
+            OPERATOR = #operator#
+        </isNotNull>
+        <isNotNull prepend="," property="fileFormat">
+            FILE_FORMAT = #fileFormat#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="commonUploadFile"
+        parameterClass="java.lang.Long">
+        SELECT 
+			FILE_SIZE,FILE_NAME,FILE_NO,UPLOAD_TIME,FILE_CONTENT,
+			OPERATOR,FILE_FORMAT
+        FROM COMMON_UPLOAD_FILE
+        WHERE 
+         FILE_NO = #fileNo# 
+    </select>
+    
+    <select id="findBySelective" resultMap="commonUploadFile">
+        SELECT 
+			FILE_SIZE,FILE_NAME,FILE_NO,UPLOAD_TIME,FILE_CONTENT,
+			OPERATOR,FILE_FORMAT
+        FROM COMMON_UPLOAD_FILE
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="fileSize">
+            FILE_SIZE = #fileSize# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileName">
+            FILE_NAME = #fileName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileNo">
+            FILE_NO = #fileNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="uploadTime">
+            UPLOAD_TIME = #uploadTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileContent">
+            FILE_CONTENT = #fileContent# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileFormat">
+            FILE_FORMAT = #fileFormat# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM COMMON_UPLOAD_FILE
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="fileSize">
+            FILE_SIZE = #fileSize# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileName">
+            FILE_NAME = #fileName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileNo">
+            FILE_NO = #fileNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="uploadTime">
+            UPLOAD_TIME = #uploadTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileContent">
+            FILE_CONTENT = #fileContent# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fileFormat">
+            FILE_FORMAT = #fileFormat# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

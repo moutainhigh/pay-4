@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;  
+}
+</style> 
+<meta charset="utf-8">
+<title>提现查询导出excel表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="10" style="text-align: middle;">#==============提现查询明细==============</td>
+		   </tr>
+		  
+		  <!--  <tr>
+		      <td colspan="7"><#if sDate?exists >从${sDate?string('yyyy-MM-dd HH:mm:ss')}</#if>  <#if eDate?exists >到${eDate?string('yyyy-MM-dd HH:mm:ss')}的余额明细</#if></td>
+		   </tr>  -->
+		   <tr>
+		       <td colspan="10">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+		   <tr>
+		       <td colspan="10">提现账户：<#if payerAcctName?exists>${payerAcctName?default("")}</#if> </td>
+		   </tr>
+		   <tr><td colspan="10">#------------提现查询明细列表--------------</td></tr>
+			<tr>
+				<th>交易流水号</th>
+				<th  align="center">提现时间</th>
+				<th>交易名称</th>
+				<th >提现状态</th>
+				<th >提现金额</th>
+				<th >提现币种</th>
+				<th >提现手续费</th>
+				<th >提现手续费币种</th>
+				<th >账户可用余额</th>
+				<th >账户可用余额币种</th>
+			</tr>
+		</thead>
+		<tbody>
+			<#if listRsult?exists && listRsult?has_content> <#list listRsult as bs>
+			<tr
+				<#if bs_index%2==0>class="gray"</#if>>
+						<td class="excel_txt">${bs.dealId?default("")}</span></div>
+						<td><span class="time">
+							<span class="time">${bs.orderTime[0..10]?default("")} ${bs.orderTime[10..18]?default("")}</span></span>
+						</td>
+						<td><#if bs.dealType == 1>提现<#else>充值</#if></span></div>
+						</td>
+						<td>
+							<#if bs.dealStatus == 100>提现中
+							<#elseif bs.dealStatus == 101>提现中
+							<#elseif bs.dealStatus == 102>申请失败
+							<#elseif bs.dealStatus == 111>提现成功
+							<#elseif bs.dealStatus == 112>提现失败
+							<#elseif bs.dealStatus == 113>提现失败
+							</#if>
+						</td>
+						<td><em class="num_price">#{bs.realoutAmount/1000?default(0);m3}</em></td>
+						<td><span> ${bs.currencyCode?default("")}</span></td>
+						<td><em class="num_price">#{bs.dealFee/1000?default(0);m3}</em></td>
+						<td><span> ${bs.currencyCode?default("")}</span></td>
+						<td>
+							<#if bs.balanceStr?has_content>
+											${bs.balanceStr?default("")}
+							</#if>
+							
+						</td>
+							<td><span> ${bs.currencyCode?default("")}</span></td>
+				</tr>
+			</#list>
+			</#if>
+		   <tr><td colspan="10">#------------提现查询明细列表--------------</td></tr>
+		</tbody>
+	</table>
+	
+	
+</body>
+</html>

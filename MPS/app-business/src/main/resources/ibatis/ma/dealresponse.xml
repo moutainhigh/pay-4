@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dealresponse">
+    <typeAlias alias="dealresponse" type="com.pay.app.model.DealResponse"/>
+    
+    <insert id="create" parameterClass="dealresponse">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_dealresponse_ID.nextval as ID from dual 
+		</selectKey>
+        insert into 
+        	dealresponse 
+        	(
+        		id, 	
+        		requestId, 
+        		payResult, 
+        		content, 
+        		creationTime,
+        		dealAmount
+            )
+        values 
+        	(
+        		#id#, 	
+        		#requestId#, 
+        		#payResult#, 
+        		#content#, 
+        		#creationTime#,
+        		#dealAmount#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		dealresponse
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		dealresponse
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="dealresponse">
+        update 
+        	dealresponse
+        set 
+        		requestId = #requestId#, 
+        		payResult = #payResult#, 
+        		content = #content#, 
+        		creationTime = #creationTime#,
+        		dealAmount = #dealAmount#
+        where 
+        	id 	= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		dealresponse
+    </select>
+    
+    
+    <select id="findById" resultClass="dealresponse" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		requestId, 
+        		payResult, 
+        		content, 
+        		creationTime,
+        		dealAmount
+        from 
+        	dealresponse
+        where 
+        	ID 	= #id#
+    </select>
+    <select id="read" resultClass="dealresponse" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	dealresponse
+        where 
+        	ID 	= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="dealresponse" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		requestId, 
+        		payResult, 
+        		content, 
+        		creationTime,
+        		dealAmount
+        from 
+        	dealresponse
+    </select>    
+    
+</sqlMap>

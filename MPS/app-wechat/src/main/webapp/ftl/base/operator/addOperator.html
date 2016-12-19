@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#if isSuccess?exists || errorMsg?exists>
+<meta http-equiv="refresh" content="5;URL=${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">
+</#if>
+<#include "/common/macro/seoCorpNew.ftl">
+<title>${add_operator}</title>
+<meta name="Keywords" content="${add_operator_Keywords}" />
+<meta name="Description" content="${add_operator_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/b_rights.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/operator/operatorValidator.js"></script>
+<script type="text/javascript">
+var winPerm ;
+var inputTxt;
+var chechBoxTxt;
+	$(function(){	
+	inputTxt=$("#selectVal");
+	chechBoxTxt = $("#selectTxt");
+	$("#selectPerm").click(function(){
+		var val = $("#selectVal").val();
+		winPerm=$.pay.window("${rc.contextPath}/corp/operatorManage.htm?method=selectPermission&selectVal="+val,{title:"添加功能权限",w:800,h:550,url:true,iframe:true,draggable:true,close:function(){$("#note").focus()}});
+	});
+	});
+</script>
+
+</head>
+<body>
+<#include "/include/topbar.html">
+<!--导航 str-->
+	<div class="header">
+		<div class="wrap clearfix">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50"  style="float:left;"/>
+						<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a>
+				</li>
+			</ul>
+		</div>
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+							<li id="topmenu_2" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                            <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="mainbox" style="padding-top: 15px;">
+
+		<div class="wrap">
+			<p class="top"><i></i></p>
+			<div class="section01 ">
+				<div class="tit ">
+					<h3 class="title font14">
+					<!--<span class="ico_dot2"></span><strong>添加操作员</strong>-->
+					<span><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView"><strong>操作员管理</strong></a></span>
+    				<span><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorAdd"><strong>添加操作员</strong></a></span>
+    				<span><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorLogin"><strong>查看登录记录</strong></a></span>
+    				</h3>
+				</div>
+				
+					<#if isSuccess?exists>
+					<div class="txtC">
+					<div class="result_tips"> 
+					<!--set_height根据设计稿情况来变化，更改名字后，定高度-->
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class=" pop_s"></span>
+						<div class="words"> <strong class="col_black">添加操作员 <span class="col_b10000">${operatorName?default('')}</span> 成功！</strong><br />
+							<span class="col_b10000" id="UE">5</span> 秒钟之后将自动返回…… <a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView" class="col_b10000">立即返回</a>
+							<p class="link">您可能需要：<a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorAdd">继续添加操作员</a>|
+							<a href="${rc.contextPath}/corp/myAccount.htm">返回企业账户</a>|<a href="${rc.contextPath}/index.htm">返回gcpayment支付首页</a></p>
+						</div>
+					</div>
+					</div>
+					</div>
+					<#elseif errorMsg?exists>
+					<div class="txtC">
+					<div class="result_tips"> 
+					<!--set_height根据设计稿情况来变化，更改名字后，定高度-->
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class="pop_war"></span>
+						<div class="words"> <strong class="col_black">添加操作员 <span class="col_b10000">${operatorName?default('')}</span> 失败！</strong><br />
+						<strong class="col_black">${errorMsg}</strong><br />
+						<span id="sp_time" name="sp_time">5</span> 秒钟之后将自动返回…… <a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView" class="col_b10000">立即返回</a>
+						<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回企业账户</a>|<a href="${rc.contextPath}/index.htm">返回gcpayment支付首页</a></p>
+						</div>
+					</div>
+					</div>
+					</div>
+					<#else>
+					<div class="pay_info">
+						<form class="mod_form" id="operatorForm" method="post" action="${rc.contextPath}/corp/operatorAction.htm"  onsubmit="javascript:return false;">
+						<input type="hidden" name="method" value="addOperator">
+						<input id="memberCode" name="memberCode" type="hidden" value="${operator.memberCode?default('')}">
+							<ul class="form_list mt20 addpf">
+								<li>
+									<label class="form_side col000"><span>*</span>登录账号：</label>
+									<input type="text" class="inp_normal" id="identity" name="identity" size="32" maxlength="32" value="${operator.identity?default('')}">
+									<span id="identityTip"></span></li>
+								</li>
+				
+								<li>
+								   <label class="form_side col000"><span>*</span>登录密码：</label>
+									<input id="password" name="password" type="password" size="32" class="inp_normal" maxlength="20" value="${operator.password?default('')}"/>
+									<span id="passwordTip"></span> 
+								</li>
+								
+								
+								<li id="passwordpstrengli" style="display: none;" ><label class="form_side col000" for="">密码强度：</label>
+								     <span id="passwordimagePstreng" class="pwd_level_1" style="width: 205px;"></span>
+								   	<span id="passwordPstreng" style="padding-left: 6px;"></span>  
+					
+								</li>
+								<li>
+								<label class="form_side col000"><span>*</span>确认登录密码：</label>
+				                  <input id="passwordConfirm" name="passwordConfirm" size="32" type="password" class="inp_normal" maxlength="20" value="">
+								<span id="passwordConfirmTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>真实姓名：</label>
+									<input type="text" class="inp_normal" id="name" name="name" maxlength="32" size="32" value="${operator.name?default('')}">
+									<span id="nameTip"></span>
+								</li>
+								<li>
+								   <label class="form_side col000"><span>*</span>支付密码：</label>
+									<input id="payPassWord" name="payPassWord" type="password" size="32" class="inp_normal" maxlength="32" value="${operator.payPassWord?default('')}"/>
+									<span id="payPassWordTip"></span> 
+								</li>
+								<li id="payPassWordpstrengli" style="display: none;"><label class="form_side col000" for="">密码强度：</label>
+								    <span id="payPassWordimagePstreng" class="pwd_level_1" style="width: 205px;"></span>
+								   	<span id="payPassWordPstreng"></span>  
+								</li>
+								<li>
+								<label class="form_side col000"><span>*</span>确认支付密码：</label>
+				                  <input id="payPassWordConfirm" name="payPassWordConfirm" size="32" type="password" class="inp_normal" maxlength="32">
+								<span id="payPassWordConfirmTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">证件号码：</label>
+									<input type="text" class="inp_normal" id="certCode" name="certCode" size="32" maxlength="20" value="${operator.certCode?default('')}">
+									<span id="certCodeTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>部门：</label>
+									<input type="text" class="inp_normal" id="depart" name="depart" size="32" maxlength="64" value="${operator.depart?default('')}">
+									<span id="departTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">电子邮件：</label>
+									<input type="text" class="inp_normal" id="email" name="email" size="32" maxlength="64" value="${operator.email?default('')}">
+									<span id="emailTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>手机号码：</label>
+									<input type="text" class="inp_normal" id="mobile" name="mobile" size="32" maxlength="11" value="${operator.mobile?default('')}">
+									<span id="mobileTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">电话号码：</label>
+									<input type="text" class="inp_normal" id="phone" name="phone" size="32" maxlength="16" value="${operator.phone?default('')}">
+									<span id="phoneTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>功能权限：</label>
+									<input type="hidden" id="selectVal" name="selectVal" value=""/>
+									<div id="selectTxt"></div>
+									<a id="selectPerm" href="javascript:void(0);" class="red" >  添加权限</a>
+									<span id="selectValTip"></span><#if chErrorMsg?exists> <span class="red">功能权限至少添加一个 </span></#if>
+								</li>
+								<li>
+									<label class="form_side col000">备注：</label>
+									<textarea cols="40" id="note" name="note" rows="5" class="inp_normal">${operator.note?default('')}</textarea>
+									<span id="noteTip"></span>
+								</li>
+							
+							<li>
+							<button type="submit" id="btnSubmit" align="center" class="btn_blue">保  存</button>
+								 </li>
+								 </ul>
+						</form>
+					</div>
+					</#if>
+			</div>
+
+	</div>
+<p class="bot"><i></i></p>
+</div>
+<!--footer -->
+<#include "/include/myfoot.html">
+</body>
+</html>

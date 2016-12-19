@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="userRelation">
+	<typeAlias alias="userRelation" type="com.pay.poss.userrelation.dto.UserRelationDto"/>
+	<typeAlias alias="nodes" type="com.pay.poss.userrelation.dto.NodesDto"/>
+	<!-- 新增-->
+	<insert id="create" parameterClass="userRelation">
+	 <![CDATA[
+			insert into userrelation (
+				   id,
+				  login_id ,
+				  name ,
+				  p_login_id ,
+				  p_name,
+				  lv,
+				  rv ,
+				  layer ,
+				  createdate
+			)values(
+				SEQ_userrelation.nextval,
+				#loginId#,
+				#name#,
+				#ploginId#,
+				#pname#,
+				#lv#,
+				#rv#,
+				#layer#,
+				#createDate#
+			)
+		 ]]>
+	</insert>
+	
+	<!-- 得到最大右值 -->
+	<select id="getMaxRv"  resultClass="int">
+		<![CDATA[
+			SELECT MAX(u.rv) FROM userrelation u
+		]]>
+	</select>
+	
+	<!-- 根据Id查询一条数据对象 -->
+	<select id="findById"  parameterClass="java.lang.Long" resultClass="userRelation">
+		<![CDATA[
+			SELECT id,login_id as loginId,name as name,p_login_id as ploginId,p_name as pname
+				,lv as lv ,rv as rv,layer as layer,createdate as createDate
+			 FROM userrelation u where id = #id#
+		]]>
+	</select>
+	
+	<!-- 得到当前节点层级 -->
+	 <select id="countLayer"  parameterClass="java.util.Map"  resultClass="int">
+		 <![CDATA[ 
+   		       select  count(*) from userrelation where lv <= #lv# and rv >= #rv# 
+		]]>
+    </select>
+    
+    <!-- 根据登录id 得到该条对象 -->
+	 <select id="findUserRDtoByLoginId"  parameterClass="java.lang.String"  resultClass="userRelation">
+		 <![CDATA[ 
+   		       select id,login_id as loginId,name as name,p_login_id as ploginId,p_name as pname
+				,lv as lv ,rv as rv,layer as layer,createdate as createDate from userrelation where  login_id = #loginId#
+		]]>
+    </select>
+    
+        <!-- 得到当前登录人的所有子节点 -->
+	<select id="findAllUserRDtoByLoginId"  parameterClass="java.util.Map" resultClass="nodes">
+		 <![CDATA[ 
+   		      select name as name,login_id as loginId from userrelation where lv >= #lv#  and rv <= #rv# order by lv ASC  
+		]]>
+    </select>
+    
+         <!-- 新增前更新左值 -->
+	<update id="insert_updateLV"  parameterClass="java.lang.Integer">
+		 <![CDATA[ 
+   		    update userrelation set lv = lv + 2 where lv >= #rv# 
+		]]>
+    </update>
+    
+       <!-- 新增前更新右值-->
+	<update id="insert_updateRV"  parameterClass="java.lang.Integer">
+		 <![CDATA[ 
+   		    update userrelation set rv = rv + 2 where rv >= #rv#  
+		]]>
+    </update>
+   	
+   	<!-- 删除选节点并且删除所有子节点 -->
+   	<delete id="delete" parameterClass="java.util.Map" >
+   		 <![CDATA[ 
+   		    delete from userrelation where lv >= #lv# and rv <= #rv#  
+		]]>
+   	</delete>
+   
+    <!-- 删除后更新左值 -->
+	<update id="delete_updateLV"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+			 update userrelation set lv=lv-#lv# where lv>#rv# 
+   		 	
+		]]>
+    </update>
+    
+       <!-- 删除后更新右值-->
+	<update id="delete_updateRV"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+   		    update userrelation set rv=rv-#lv# where rv>#rv#
+		]]>
+		
+    </update>
+    
+    
+     <!-- 更新节点 -->
+    <update id="update_updateLvAndRv"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+   		   update userrelation set lv=lv-#rv#, rv=rv-#rv# where lv>=#lv# and rv<=#rv#
+		]]>
+    </update>
+    
+     <update id="update_updateLv"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+			 update userrelation set lv=lv-#lv# where lv>#rv# 
+   		 	
+		]]>
+    </update>
+    
+     <update id="update_updateRv"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+		 	update userrelation set rv=rv-#lv# where rv>#rv#
+		]]>
+    </update>
+    
+     <update id="changeNodeUpdateLVForNP"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+   		 	update userrelation set lv=lv + #offset# where lv>#newLv#
+		]]>
+    </update>
+    
+    <update id="changeNodeUpdateRVForNP"  parameterClass="java.util.Map">
+		 <![CDATA[ 
+   		 	update userrelation set rv=rv+#offset# where rv>=#newLv#
+		]]>
+    </update>
+    
+       <update id="changeNodeUpdateLV"  parameterClass="java.lang.Integer">
+		 <![CDATA[ 
+   		 	update userrelation set lv=lv+#offset# where lv<=0
+		]]>
+    </update>
+    
+    <update id="changeNodeUpdateRV"  parameterClass="java.lang.Integer">
+		 <![CDATA[ 
+   		 	update userrelation set rv=rv+#offset# where rv<=0
+		]]>
+    </update>
+    
+    
+    
+    
+     <update id="update"  parameterClass="userRelation">
+		 <![CDATA[ 
+   		 	update userrelation set name=#name# ,p_login_id = #ploginId#,p_name=#pname#,layer=#layer#
+				where id = #id#
+		]]>
+    </update>
+    
+    <!-- 分页查询 -->
+    
+     <sql id="CONDITION.PAGING_START1">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="CONDITION.PAGING_END1">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 WHERE (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+   
+   <sql id="QUERY_RECORD_CONDITION1">
+		<isNotEmpty prepend="and" property="name">			
+           name=trim(#name#)            
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="loginId">			
+           	login_id=trim(#loginId#)            
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="ploginId">			
+           	p_login_id=trim(#ploginId#)            
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="pname">			
+           	p_name=trim(#pname#)            
+		</isNotEmpty>
+	</sql>
+     
+    <select id="queryUserRelationByCondition"  parameterClass="userRelation"  resultClass="userRelation">
+   	 	<include refid="CONDITION.PAGING_START1" />
+		    select id,login_id as loginId,name as name,p_login_id as ploginId,p_name as pname
+				,lv as lv ,rv as rv,layer as layer,createdate as createDate
+			from userrelation  where layer > 0 	
+		<include refid="QUERY_RECORD_CONDITION1"/>				
+			order by lv asc         
+		<include refid="CONDITION.PAGING_END1" />
+   </select>
+   
+    <select id="countUserRelationByCondition"  parameterClass="userRelation"  resultClass="int">
+   		        select count(1)
+		 	from userrelation where layer > 0 	
+		<include refid="QUERY_RECORD_CONDITION1"/>
+   </select>
+   <!-- 到用户表中查询该登录用户名是否存在 -->
+   <select id="isExistUser" parameterClass="java.lang.String" resultClass="int">
+   			select count(1) from users u where u.STATUS = 1 and login_id = trim(#loginId#)
+   </select>
+   
+   <select id="queryUserRelationByLayer" parameterClass="java.lang.Long" resultClass="userRelation">
+   				SELECT id,login_id as loginId,name as name,p_login_id as ploginId,p_name as pname
+				,lv as lv ,rv as rv,layer as layer,createdate as createDate
+				 FROM userrelation u where layer = #id#
+   </select>
+   <!-- 
+   <select id="queryUserRelationByCondition" resultClass="userRelation">
+   			SELECT id,login_id as loginId,name as name,p_login_id as ploginId,p_name as pname
+				,lv as lv ,rv as rv,layer as layer,createdate as createDate
+				 FROM userrelation u 
+   </select> -->
+   
+      <select id="findAll" resultClass="nodes">
+   			select 
+   			LOGIN_ID	loginId,
+   			NAME	name
+   			from 
+   			USERRELATION
+   </select>
+   
+   
+</sqlMap>

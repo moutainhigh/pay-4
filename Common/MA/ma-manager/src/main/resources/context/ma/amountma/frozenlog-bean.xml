@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="frozenLogService"
+		class="com.pay.poss.amountma.service.impl.FrozenLogServiceImpl">
+		<property name="frozenLogDao" ref="frozenLogDao" />	
+		<property name="memberQueryService" ref="acc-memberQueryService" />	
+		<property name="accountQueryService" ref="acc-accountQueryService" />	
+		<property name="accounting_900_900" ref="accounting-900-900" />	
+		<property name="accounting_900_902" ref="accounting-900-902" />	
+		<property name="accounting_900_901" ref="accounting-900-901" />	
+		<property name="accounting_900_903" ref="accounting-900-903" />	
+	</bean>
+
+	
+	<bean id="frozenLogDao"
+		class="com.pay.poss.amountma.dao.impl.FrozenLogDaoImpl"
+		parent="baseDAO">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>	
+		<property name="pageDaoCommon" ref="ma-commonDao" />
+		<property name="namespace" value="frozenLog"></property>
+	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="frozenLogServiceMethod" expression="execution(* com.pay.poss.amountma.service.*.*(..))" />
+		<aop:advisor advice-ref="txFrozenLogAdvice" pointcut-ref="frozenLogServiceMethod" />
+	</aop:config>
+	
+	<tx:advice id="txFrozenLogAdvice" transaction-manager="maBase-transactionManager">
+		<tx:attributes>
+	  <tx:method name="*" propagation="SUPPORTS" rollback-for="Exception" />
+      <tx:method name="*RnTx" propagation="REQUIRES_NEW"  rollback-for="Exception"  />
+	</tx:attributes>
+	</tx:advice>
+
+</beans>

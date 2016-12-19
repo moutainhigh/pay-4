@@ -1,0 +1,151 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl"><title>${person_login}${title}</title>
+<meta name="Keywords" content="${person_login_Keywords}" />
+<meta name="Description" content="${person_login_Description}" />
+<link href="<@sp.static/>/img/favicon.ico" rel="SHORTCUT ICON">
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/login-check.js"></script>
+<script type="text/javascript">
+$(function(){
+	var t="Email地址或者手机号码";
+	$("#loginName").focus(function(){
+	    if($(this).val()==t)
+	        $(this).val("");
+	    $("#errtips").hide();
+	    }).blur(function(){
+	      if($(this).val()!=t && $(this).val()=="")
+	        $(this).val(t);
+	  });
+
+	  $("#loginForm").submit(function(){
+	    var pwd = "";
+	    if($("#payaySafeEdit").length>0){
+	      var v = getPwdCtrlValpayapaySafeEdit");
+	      if(v=='error'){
+	        return false;
+	      }
+	      pwd = $("#passWord");
+	      pwd.val(v);
+	    }else{
+	      pwd = $("#passWord").val();
+	    }
+	    var ln=$("#loginName");
+	    if(ln.val()==t || ln.val()=="" ){
+	      $("#errtips").show().html("用户名不能为空");
+	      return false;
+	    }
+	    if(paypaySafeEdit").length>0){
+	      if(getPwdCtrlStrLepay("paySafeEdit")<=0){
+	        $("#errtips").show().html("密码不能为空");
+	        return false;
+	      }
+	    }else{
+	      if(pwd==""){
+	        $("#errtips").show().html("密码不能为空");
+	        return false;
+	      }
+	    }
+	    $("#randCode").val($("#rand_Code").val());
+	  });
+	  
+	  $("#refush").click(function(){
+	    var d = new Date();
+	    var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+	    $("#code").attr("src",src);
+	    return false;
+	  });
+
+	  $("#passWord").val("");
+
+	 
+});
+
+function goback(){
+	var backurl=window.parent.document.getElementById("back").value;
+	window.parent.document.forms[0].action=backurl;
+	window.parent.document.forms[0].submit();
+}
+
+
+
+
+</script>
+
+ <#if msgStr?has_content>
+<script>
+$(function(){
+$("#errtips").show().html("${msgStr?html}");
+});
+</script>
+</#if>
+</head>
+
+<body>
+
+    <div class="login_l">
+		<div class="login_other" id="login_div"><!-- 当前状态DIV，非当前为<div class="login_other"> -->
+		<div class="login_live">
+			  <div class="bd" id="login_form_panel">
+			<div class="login_form_cont">
+				<form id="loginForm" method="post" action="${rc.contextPath}/login.htm">
+				<div class="bt">
+						<span class="blod font14 c_000">支付方式一：gcpayment支付会员支付</span></div>
+						<div class="ht5">
+				  </div>
+					<div class="field">
+						<label><span class="font14 c_000 width_l"><span class="font14 c_000">用户名</span>：</span></label>
+												<input type="text" class="input_txt2 w170"  name="loginName" id="loginName" value="Email地址或者手机号码" autocomplete="off"/><!--鼠标点击到输入框会高亮显示，input_curr为高亮，input_nor为普通 -->
+						<p id="errtips" class="from_error" style="display: none; padding-left: 112px;"></p>
+						<p id="mobileLoginNameTip" class="from_error"></p>
+					</div>
+					<div class="field">
+						<label><span class="font14 c_000 width_l"><span class="font14 c_000">登录密码</span>：</span></label>
+						<@sp.passwopayid="paySafeEdit" id="passWord" name="passWord" from="login" form="loginForm" width="200px" height="24px" style="" class="input_txt2"/>
+		</div>
+		<#if Session["hascode"]?has_content>
+          <div class="field">
+            <label><span class="font14 c_000 width_l">验证码：</span></label>
+          <input name="randCode" disableautocomplete autocomplete="off" type="text" class="input_txt2 inp_placeholder" maxlength="4" style="width:60px;">
+          <input type="hidden" name="hascode" value="1"/>
+          <a id="refush" href="javascript:void(0);" title="换一张">
+          <img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" width="68" height="28" id="code" style="vertical-align: top" align="absmiddle"/>
+            </a>
+          </div>
+          </#if>
+				  <div class="field">
+						<label><span class="width_l">　</span></label><span class="btn_yel botton_yel">
+							<button type="submit">确认支付</button>
+						 <input type="hidden" name="relationlogin" value="iframelogin">
+            			 <input type="hidden" name="returnUrl" value="${returnUrl}">
+					  </span><a href="javascript:void(0);" class="red bk_pf" onclick="goback();">返回修改</a></div>
+					  <div class="ht10"></div>
+			  </form>
+			</div>
+		</div>
+		</div>
+		</div>
+		</div>
+    </body>
+    <script type="text/javascript">
+    $(function() {
+		$("#login_div").mouseover(function(){
+			$(this).removeClass("login_other");
+			$(this).addClass("login_current");
+		}).mouseout(function(){
+			$(this).addClass("login_other");
+			$(this).removeClass("login_current");
+		});
+});
+
+    </script>
+</html>

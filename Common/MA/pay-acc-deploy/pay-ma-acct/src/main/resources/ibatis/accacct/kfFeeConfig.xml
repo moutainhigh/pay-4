@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-kfFeeConfig">
+    <typeAlias alias="kfFeeConfig" type="com.pay.acct.crossBorderPay.model.KfFeeConfig"/>
+    <typeAlias alias="hashMap" type="java.util.HashMap"/>
+    <sql id="kfFeeConfigFeild">
+    	FEE_CONFIG_NO feeConfigNo ,
+    	PARTNER_ID partnerId,
+    	CAP_VALUE capValue,
+    	MINIMUM_VALUE minimumValue,
+    	FIXED_FEE fixedFee,
+    	PERCENTAGE_FEE percentageFee,
+    	SMALL_BASELIN smallBaselin,
+    	SMALL_SERVICE_FEE  smallServiceFee,
+    	operator,
+    	CREATE_DATE createDate,
+    	UPDATE_DATE updateDate
+    </sql>
+    
+   	 <sql id="kfFeeConfigFeildByInsert">
+    	FEE_CONFIG_NO,
+    	PARTNER_ID,
+    	CAP_VALUE,
+    	MINIMUM_VALUE,
+    	FIXED_FEE,
+    	PERCENTAGE_FEE,
+    	SMALL_BASELIN,
+    	SMALL_SERVICE_FEE,
+    	operator,
+    	CREATE_DATE,
+    	UPDATE_DATE
+    </sql>
+   	<sql id="kfFeeConfigSelect">
+		SELECT
+		<include refid="kfFeeConfigFeild" />
+		FROM KF_FEE_CONFIG kfFeeConfig
+	</sql>
+	
+	<sql id="kfFeeConfigConditions">
+	    <dynamic prepend="where">
+		    <isNotEmpty property="feeConfigNo" prepend="and">
+		      	kfFeeConfig.FEE_CONFIG_NO = #feeConfigNo#
+		    </isNotEmpty>
+		    <isNotEmpty property="partnerId" prepend="and">
+		      	kfFeeConfig.PARTNER_ID = #partnerId#
+		    </isNotEmpty>
+		    <isNotEmpty property="capValue" prepend="and">
+		      	kfFeeConfig.CAP_VALUE = #capValue#
+		    </isNotEmpty>
+		    <isNotEmpty property="minimumValue" prepend="and">
+		      	kfFeeConfig.MINIMUM_VALUE = #minimumValue#
+		    </isNotEmpty>
+		    <isNotEmpty property="fixedFee" prepend="and">
+		      	kfFeeConfig.FIXED_FEE = #fixedFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="percentageFee" prepend="and">
+		      	kfFeeConfig.PERCENTAGE_FEE = #percentageFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="smallBaselin" prepend="and">
+		      	kfFeeConfig.SMALL_BASELIN = #smallBaselin#
+		    </isNotEmpty>
+		    <isNotEmpty property="smallServiceFee" prepend="and">
+		      	kfFeeConfig.SMALL_SERVICE_FEE = #smallServiceFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="operator" prepend="and">
+		      	kfFeeConfig.operator = #operator#
+		    </isNotEmpty>
+		    <isNotEmpty property="beginCreateDate" prepend="and">
+		      	kfFeeConfig.CREATE_DATE >=  to_date(#beginCreateDate#, 'yyyy-MM-dd')
+		    </isNotEmpty>
+		    <isNotEmpty property="endCreateDate" prepend="and">
+		      	kfFeeConfig.CREATE_DATE &lt;=  to_date(#endCreateDate#, 'yyyy-MM-dd')
+		    </isNotEmpty>
+		    <isNotEmpty property="beginUpdateDate" prepend="and">
+		      	kfFeeConfig.UPDATE_DATE >=  to_date(#beginUpdateDate#, 'yyyy-MM-dd')
+		    </isNotEmpty>
+		    <isNotEmpty property="endUpdateDate" prepend="and">
+		      	kfFeeConfig.UPDATE_DATE &lt;=to_date(#endUpdateDate#, 'yyyy-MM-dd')
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	
+	<select id="queryConditions" resultClass="kfFeeConfig" parameterClass="kfFeeConfig">
+   		<include refid="kfFeeConfigSelect"/>
+   		<include refid="kfFeeConfigConditions"/>
+   		order by CREATE_DATE desc
+   	</select>
+   	
+	<select id="queryConditionsMap" resultClass="kfFeeConfig" parameterClass="hashMap">
+   		<include refid="kfFeeConfigSelect"/>
+   		<include refid="kfFeeConfigConditions"/>
+   	</select>
+   	
+	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer" parameterClass="hashMap">
+		select count(1) from  KF_FEE_CONFIG kfFeeConfig
+   		<include refid="kfFeeConfigConditions"/>
+   	</select>
+   	
+   	<insert id="create" parameterClass="kfFeeConfig">
+		 <selectKey resultClass="java.lang.Long" keyProperty="feeConfigNo">
+			select SEQ_KF_FEE_CONFIG.Nextval from DUAL
+		</selectKey>
+			insert into KF_FEE_CONFIG(
+				<include refid="kfFeeConfigFeildByInsert"/>			
+				)
+		<![CDATA[
+			values(
+					#feeConfigNo#,
+					#partnerId#,
+					#capValue#,
+					#minimumValue#,
+					#fixedFee#,
+					#percentageFee#,
+					#smallBaselin#,
+					#smallServiceFee#,
+					#operator#,
+					#createDate#,
+					#updateDate#
+			)
+		  ]]>
+	</insert>
+	
+	<delete id="delete" parameterClass="java.lang.String">
+			delete 	 from KF_FEE_CONFIG where   FEE_CONFIG_NO = #feeConfigNo#
+	</delete>
+	
+	<update id="update" parameterClass="kfFeeConfig">
+			update	 KF_FEE_CONFIG
+				SET
+					MINIMUM_VALUE=#minimumValue#, 
+					FIXED_FEE    =#fixedFee#,          
+					PERCENTAGE_FEE=#percentageFee#,  
+					CAP_VALUE      =#capValue#,   
+					SMALL_BASELIN   =#smallBaselin#,   
+					SMALL_SERVICE_FEE=#smallServiceFee#, 
+					UPDATE_DATE          = #updateDate#,
+					OPERATOR                = #operator#
+				WHERE
+						FEE_CONFIG_NO = #feeConfigNo#
+		</update>
+</sqlMap>

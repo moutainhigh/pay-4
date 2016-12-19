@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms" xmlns:amq="http://activemq.apache.org/schema/core"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd   
+   http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd   
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<!-- 查询余额接口 -->
+	<bean id="acc-accountQueryService"
+		class="com.pay.acc.service.account.impl.AccountQueryServiceImpl">
+		<property name="balanceDealService" ref="acc-balanceDealService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="balanceEntryService" ref="acc-balanceEntryService" />
+		<property name="withdrawalsRuleService" ref="acc-withdrawalsRuleService" />
+		<property name="blackWhiteListService" ref="blackWhiteListService"/>
+	</bean>
+
+	<!-- acc 验证支付密码 重置支付密码 -->
+	<bean id="acc-accountVerifyService"
+		class="com.pay.acc.service.account.impl.AccountVerifyServiceImpl">
+		<property name="acctService" ref="acc-acctService" />
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+	</bean>
+
+	<bean id="acc-accountUpdateService"
+		class="com.pay.acc.service.account.impl.AccountUpdateServiceImpl">
+		<property name="acctService" ref="acc-acctService" />
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+	</bean>
+
+	<!-- acc 验证支付密码 重置支付密码 支付安全问题验证 -->
+	<bean id="acc-accountInfoService" class="com.pay.acc.service.account.impl.AccountInfoServiceImpl">
+		<property name="acctService" ref="acc-acctService" />
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+		<!-- property name="pfxFile" value="${private.Key.Of.Pfx}" />
+		<property name="pfxPwd" value="${private.Pass}" /-->
+	</bean>
+
+	<!-- 更新余额 -->
+	<bean id="acc-accountBalanceService"
+		class="com.pay.acc.service.account.impl.AccountBalanceServiceImpl">
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="transLogService" ref="acc-transLogService" />
+		<property name="balanceLogService" ref="acc-balanceLogService" />
+		<property name="peDealInfoService" ref="acc-peDealInfoService" />
+	</bean>
+
+	<bean id="acc-accountBalanceHandlerService"
+		class="com.pay.acc.service.account.impl.AccountBalanceHandlerServiceImpl">
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="balanceDealService" ref="acc-balanceDealService" />
+		<property name="balanceEntryService" ref="acc-balanceEntryService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="negativeBalanceService" ref="acc-negativeBalanceService" />
+		<property name="acctSpecService" ref="acctSpecService"/>
+	</bean>
+	
+	<!-- 冲正接口 -->
+	<bean id="acc-flushesBalanceService"
+		class="com.pay.acc.service.account.impl.FlushesBalanceServiceImpl">
+		<property name="accountBalanceHandlerService" ref="acc-accountBalanceHandlerService" />
+		<property name="flushesLogService" ref="acc-flushesLogService" />
+		<property name="balanceDealService" ref="acc-balanceDealService" />
+		<property name="balanceEntryService" ref="acc-balanceEntryService" />
+	</bean>
+
+	<!-- 冻结金额接口 -->
+	<bean id="acc-frozenAmountService"
+		class="com.pay.acc.service.account.impl.FrozenAmountServiceImpl">
+		<property name="accountBalanceHandlerService" ref="acc-accountBalanceHandlerService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="flushesBalanceService" ref="acc-flushesBalanceService" />
+	</bean>
+
+	<bean id="acc-negativeBalanceService"
+		class="com.pay.acc.service.account.impl.NegativeBalanceServiceImpl">
+		<property name="acctService" ref="acc-acctService" />
+	</bean>
+
+	<!-- 账户冻结 -->
+	<bean id="acc-accountLockService" class="com.pay.acc.service.account.impl.AccountLockServiceImpl">
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+	</bean>
+
+	<!-- 支付密码解除止出 -->
+	<bean id="acc-accountUnlockService"
+		class="com.pay.acc.service.account.impl.AccountUnlockServiceImpl">
+		<property name="acctAttribService" ref="acc-acctAttribService" />
+		<property name="memberOperateService" ref="acc-memberOperateService" />
+		<property name="operateLogService" ref="acc-operateLogService" />
+		<property name="acctService" ref="acc-acctService" />
+	</bean>
+
+	<!-- 记账查询 -->
+	<bean id="acc-bookkeepingService" class="com.pay.acc.service.account.impl.BookkeepingServiceImpl">
+		<property name="balanceDealDAO" ref="acc-balanceDealDAO"></property>
+	</bean>
+
+	<!-- 查询收支汇总 -->
+	<bean id="acc-queryBalanceService"
+		class="com.pay.acc.service.querybalance.impl.QueryBalanceServiceImpl">
+		<property name="queryBalanceDAO" ref="acc-queryBalanceDAO" />
+		<property name="acctService" ref="acc-acctService" />
+	</bean>
+
+	<!-- 分账相关 -->
+	<bean id="acc-accountSplitHandlerService"
+		class="com.pay.acc.service.account.impl.AccountSplitHandlerServiceImpl">
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="accountBalanceHandlerService" ref="acc-accountBalanceHandlerService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="frozenOperatorLogService" ref="acc-frozenOperatorLogService" />
+	</bean>
+	<bean id="frozenLogDao-fi"
+		class="com.pay.poss.amountma.dao.impl.FrozenDaoImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="frozenLog"></property>
+	</bean>
+</beans>

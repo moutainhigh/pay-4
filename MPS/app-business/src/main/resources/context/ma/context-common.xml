@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="app-messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>classpath:properties\messages</value>
+				<value>classpath:properties\config</value>
+			</list>
+		</property>
+		<property name="defaultEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+
+	<bean id="app-messageConvertFactory" class="com.pay.app.common.helper.MessageConvertFactory">
+		<property name="messageSource">
+			<ref bean="app-messageSource" />
+		</property>
+	</bean>
+
+	<bean id="app-appConf" class="com.pay.app.common.helper.AppConf">
+		<property name="messageSource">
+			<ref bean="app-messageSource" />
+		</property>
+	</bean>
+
+	<!-- 银行排序 -->
+	<bean id="bankSortList" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="CBC"><!-- 建设银行 -->
+					<value>1</value>
+				</entry>
+				<entry key="BC"><!-- 中国银行 -->
+					<value>2</value>
+				</entry>
+				<entry key="ICBC">
+					<value>3</value>
+				</entry>
+				<entry key="BCOM"><!-- 交通银行 -->
+					<value>4</value>
+				</entry>
+				<entry key="ABC">
+					<value>5</value>
+				</entry>
+				<entry key="CMB">
+					<value>6</value>
+				</entry>
+				<entry key="bea001">
+					<value>7</value>
+				</entry>
+				<entry key="SPDB">
+					<value>8</value>
+				</entry>
+
+				<entry key="ECITIC"><!-- 中信银行 -->
+					<value>9</value>
+				</entry>
+				<entry key="CEB"><!-- 光大银行 -->
+					<value>10</value>
+				</entry>
+
+				<entry key="CMBC"><!-- 民生 -->
+					<value>11</value>
+				</entry>
+				<entry key="CIB"><!-- 兴业 -->
+					<value>12</value>
+				</entry>
+				<entry key="GDB"><!-- 广东发展 -->
+					<value>13</value>
+				</entry>
+				<entry key="SDB"><!-- 深圳发展 -->
+					<value>14</value>
+				</entry>
+				<entry key="HXB"><!-- 华夏银行 -->
+					<value>15</value>
+				</entry>
+
+
+				<!-- 上海农村商业银行 -->
+				<!-- entry key="SRCB">
+					<value>china_citic</value>
+				</entry-->
+
+				<entry key="POST"><!-- 邮政储蓄 -->
+					<value>16</value>
+				</entry>
+				<entry key="CBHB"><!-- 渤海银行 -->
+					<value>17</value>
+				</entry>
+				<entry key="JCCBANK"><!-- 晋城市商业银行 -->
+					<value>18</value>
+				</entry>
+				<entry key="WZCB"><!-- 温州市商业银行 -->
+					<value>19</value>
+				</entry>
+				<entry key="NBCB"><!-- 宁波银行 -->
+					<value>20</value>
+				</entry>
+				<entry key="DZB"><!-- 德州市商业银行 -->
+					<value>21</value>
+				</entry>
+				<entry key="YDXH"><!-- 尧都信用合作联社 -->
+					<value>22</value>
+				</entry>
+
+				<!-- 广州市农村信用社合作联合社 -->
+				<!-- entry key="GZNCXYS">
+					<value>gzb</value>
+				</entry-->
+
+				<entry key="SDEBANK"><!-- 顺德农村信用合作社 -->
+					<value>23</value>
+				</entry>
+				<entry key="GZCB"><!-- 广州市商业银行 -->
+					<value>24</value>
+				</entry>
+				<entry key="HKB"><!-- 汉口银行 -->
+					<value>25</value>
+				</entry>
+				<entry key="ZHNX"><!-- 珠海市农村信用合作社 -->
+					<value>26</value>
+				</entry>
+				<entry key="mock001">
+					<value>27</value>
+				</entry>
+				<entry key="mock002">
+					<value>28</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+
+
+
+	<!-- 设置银联支持银行 -->
+	<bean id="chinaPayBankCodeConvert" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="BC"><!-- 中国银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="ICBC"><!-- 中国工商行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="ABC"><!-- 中国农行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="CBC"><!-- 建设银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="BCOM"><!-- 交通银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="CMB"><!-- 招商银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="SPDB"><!-- 浦发银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="CMBC"><!-- 民生 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="CIB"><!-- 兴业 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="GDB"><!-- 广东发展 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="SDB"><!-- 深圳发展 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="HXB"><!-- 华夏银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="CEB"><!-- 光大银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="ECITIC"><!-- 中信银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="POST"><!-- 邮政储蓄 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="CBHB"><!-- 渤海银行 -->
+					<value>cnpy001</value>
+				</entry>
+
+				<!-- 上海农村商业银行 -->
+				<!-- entry key="SRCB">
+					<value>cnpy001</value>
+				</entry-->
+
+				<entry key="SDEBANK"><!-- 顺德农村信用合作社 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="GZCB"><!-- 广州市商业银行 -->
+					<value>cnpy001</value>
+				</entry>
+
+				<!-- 广州市农村信用社合作联合社 -->
+				<!-- entry key="GZNCXYS">
+					<value>cnpy001</value>
+				</entry-->
+
+				<entry key="WZCB"><!-- 温州市商业银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="ZHNX"><!-- 珠海市农村信用合作社 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="JCCBANK"><!-- 晋城市商业银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="YDXH"><!-- 尧都信用合作联社 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="HKB"><!-- 汉口银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="DZB"><!-- 德州市商业银行 -->
+					<value>cnpy001</value>
+				</entry>
+				<entry key="NBCB"><!-- 宁波银行 -->
+					<value>cnpy001</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<!-- 设置银行图片 -->
+	<bean id="bankLabelClassConvert" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="bea001">
+					<value>bea</value>
+				</entry>
+				<entry key="BC">
+					<value>china</value>
+				</entry>
+				<entry key="ICBC">
+					<value>icbc</value>
+				</entry>
+				<entry key="ABC">
+					<value>agricultural</value>
+				</entry>
+				<entry key="CBC">
+					<value>construction</value>
+				</entry>
+				<entry key="BCOM">
+					<value>communications</value>
+				</entry>
+				<entry key="CMB">
+					<value>merchants</value>
+				</entry>
+				<entry key="SPDB">
+					<value>spd</value>
+				</entry>
+				<entry key="CMBC"><!-- 民生 -->
+					<value>minsheng</value>
+				</entry>
+				<entry key="CIB"><!-- 兴业 -->
+					<value>industrial</value>
+				</entry>
+				<entry key="GDB"><!-- 广东发展 -->
+					<value>guangfa</value>
+				</entry>
+				<entry key="SDB"><!-- 深圳发展 -->
+					<value>development</value>
+				</entry>
+				<entry key="HXB"><!-- 华夏银行 -->
+					<value>huaxia</value>
+				</entry>
+				<entry key="CEB"><!-- 光大银行 -->
+					<value>everbright</value>
+				</entry>
+				<entry key="ECITIC"><!-- 中信银行 -->
+					<value>china_citic</value>
+				</entry>
+
+				<!-- 上海农村商业银行 -->
+				<!-- entry key="SRCB">
+					<value>china_citic</value>
+				</entry-->
+
+				<entry key="POST"><!-- 邮政储蓄 -->
+					<value>post</value>
+				</entry>
+				<entry key="CBHB"><!-- 渤海银行 -->
+					<value>bohai</value>
+				</entry>
+				<entry key="BEA"><!-- 东亚银行 -->
+					<value>bea</value>
+				</entry>
+				<entry key="JCCBANK"><!-- 晋城市商业银行 -->
+					<value>jcb</value>
+				</entry>
+				<entry key="WZCB"><!-- 温州市商业银行 -->
+					<value>wzb</value>
+				</entry>
+				<entry key="NBCB"><!-- 宁波银行 -->
+					<value>nbb</value>
+				</entry>
+				<entry key="DZB"><!-- 德州市商业银行 -->
+					<value>dzb</value>
+				</entry>
+				<entry key="YDXH"><!-- 尧都信用合作联社 -->
+					<value>ydb</value>
+				</entry>
+
+				<!-- 广州市农村信用社合作联合社 -->
+				<!-- entry key="GZNCXYS">
+					<value>gzb</value>
+				</entry-->
+
+				<entry key="SDEBANK"><!-- 顺德农村信用合作社 -->
+					<value>sdb</value>
+				</entry>
+				<entry key="GZCB"><!-- 广州市商业银行 -->
+					<value>gzb</value>
+				</entry>
+				<entry key="HKB"><!-- 汉口银行 -->
+					<value>hkb</value>
+				</entry>
+				<entry key="ZHNX"><!-- 珠海市农村信用合作社 -->
+					<value>zhb</value>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+</beans>

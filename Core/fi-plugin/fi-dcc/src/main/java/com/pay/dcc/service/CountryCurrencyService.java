@@ -1,0 +1,11 @@
+package com.pay.dcc.service;
+
+import java.util.List;
+
+import com.pay.dcc.model.CountryCurrency;
+
+public interface CountryCurrencyService {
+	
+	List<CountryCurrency> getCountryCurrencys(String countryCode);
+
+}

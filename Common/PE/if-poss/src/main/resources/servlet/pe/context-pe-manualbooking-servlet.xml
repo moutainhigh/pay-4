@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="manualbookingParamResolver"
+                class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+                <property name="paramName" value="method" />
+                <property name="defaultMethodName"><value>init</value></property>
+        </bean>
+        
+        
+        
+	<bean id="manualbookingHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/manualbooking/vouchDataUpload.do">vouchDataUploadController</prop>
+				<prop key="/manualbooking/vouchDataUploadquery.do">vouchDataUploadController</prop>
+				<prop key="/manualbooking/uploadVouchTemplate.do">uploadVouchTemplateDataController</prop>				
+				<prop key="/manualbooking/vouchDatailInit.do">vouchDatailController</prop>				
+				<prop key="/manualbooking/viewVouch.do">vouchViewController</prop>
+				<prop key="/manualbooking/operateVouch.do">vouchOperationController</prop>
+				<prop key="/manualbooking/misController.do">misController</prop>
+				
+			</props>
+		</property>
+	</bean>
+	
+	
+	 <bean name="misController" class="com.pay.pe.manualbooking.controller.MisController">
+    	<property name="methodNameResolver" ref="paraMethodResolver"/>
+		<property name="urlMap">
+			<map>
+				<entry key="vouchqueryinit" value="/manualbooking/vouchqueryinit" />
+				<entry key="vouchquerylist" value="/manualbooking/vouchquerylist" />
+				<entry key="misinfo" value="/manualbooking/misinfo" />
+				<entry key="bothInfo" value="/manualbooking/misInfoBoth" />
+			</map>
+		</property>
+		<property name="misService" ref="misService"/>	
+	</bean> 
+
+	
+	  <bean id="uploadVouchTemplateDataController" 
+    	class="com.pay.pe.manualbooking.controller.UploadVouchTemplateDataController">
+        <property name="commandClass" value="com.pay.pe.manualbooking.controller.VouchDataFileUploadBean"/>
+        <property name="failureView" value="/manualbooking/mainVouchUpload"/>
+        <property name="successView" value="/manualbooking/vouchConfirmPage"/>
+        <property name="vouchValidators">
+        	<list>
+        		<ref bean="vouchValidator" />
+        	</list>
+        </property>
+    </bean>
+    
+    <bean id="vouchValidator" class="com.pay.pe.manualbooking.dao.impl.VouchValidatorImpl">
+    	<property name="accService">
+			<ref bean="accService"/>
+		</property>
+		   <property name="subjectService">
+			<ref bean="subjectService"/>
+		</property>
+		   <property name="memberQueryService">
+			<ref bean="acc-memberQueryService"/>
+		</property>
+	</bean>
+	
+	<bean id="vouchDataUploadController"
+		class="com.pay.pe.manualbooking.controller.VouchDataUploadController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="vouchService">
+			<ref bean="vouchService"/>
+		</property>
+		<property name="vouchLogService">
+			<ref bean="vouchLogService"/>
+		</property>
+		<property name="mainUploadPage" value="/manualbooking/mainVouchUpload"/>
+		<property name="afterUploadPage" value="/manualbooking/vouchConfirmResultPage"/>
+	</bean>
+	
+	
+	<bean id="vouchViewController"
+		class="com.pay.pe.manualbooking.controller.VouchViewController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="vouchService">
+			<ref bean="vouchService"/>
+		</property>
+		<property name="vouchUserService">
+			<ref bean="vouchUserService"/>
+		</property>
+		<property name="auditVouchPage" value="/manualbooking/auditVouch"/>
+		<property name="batchAuditVouchPage" value="/manualbooking/batchAuditVouch"/>
+		<property name="cancelVouchPage" value="/manualbooking/cancelVouch"/>
+		<property name="viewVouchPage" value="/manualbooking/viewVouch"/>
+	</bean>
+	
+	<bean id="vouchOperationController"
+		class="com.pay.pe.manualbooking.controller.VouchOperationController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="vouchService">
+			<ref bean="vouchService"/>
+		</property>
+		<property name="vouchUserService">
+			<ref bean="vouchUserService"/>
+		</property>
+		<property name="vouchLogService">
+			<ref bean="vouchLogService"/>
+		</property>
+		<property name="vouchValidator">
+			<ref bean="vouchValidator"/>
+		</property>
+		<property name="auditResultPage" value="/manualbooking/auditVouch"/>
+		<property name="cancelResultPage" value="/manualbooking/cancelVouch"/>
+		<property name="batchAuditVouchPage" value="/manualbooking/batchAuditVouch"/>		
+	</bean>
+	
+	
+	
+	
+	
+	
+	
+	
+	<bean id="vouchDatailController"
+		class="com.pay.pe.manualbooking.controller.VouchDatailController">
+		<property name="methodNameResolver">
+			<ref bean="manualbookingParamResolver"/>
+		</property>
+		<property name="vouchService">
+			<ref bean="vouchService"/>
+		</property>
+		<property name="vouchLogService">
+			<ref bean="vouchLogService"/>
+		</property>
+		 <property name="mainUploadPage" value="/manualbooking/mainVouchDatailinit"/>
+		 <property name="mainUploadList" value="/manualbooking/mainVouchDataillist"/>
+		 <property name="vouchDataillogin" value="/manualbooking/vouchDataillogin"/>
+		 <property name="misInfoBoth" value="/manualbooking/misInfoBoth"/>
+	</bean>
+
+
+
+
+  
+</beans>

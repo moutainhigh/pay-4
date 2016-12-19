@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pymtsrvpkgmatrix">
+	<typeAlias alias="pymtSrvPkgMatrix" type="com.pay.pe.model.PymtsrvPkgMatrix"/>
+    <resultMap id="pymtSrvPkgMatrix" class="com.pay.pe.model.PymtsrvPkgMatrix">
+        <result column="ORDER_TYPE" property="orderType" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_SERVICE_PKG_CODE" property="paymentServicePkgCode" jdbcType="DECIMAL"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="DEAL_CODE" property="dealCode" jdbcType="DECIMAL"/>
+        <result column="ORDER_PAY_METHOD" property="orderPayMethod" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		ORDER_TYPE,PAYMENT_SERVICE_PKG_CODE,DESCRIPTION,DEAL_CODE,ORDER_PAY_METHOD
+		
+    </sql>
+    <insert id="create" parameterClass="pymtSrvPkgMatrix">
+        INSERT INTO PYMT_SRV_PKG_MATRIX(
+			ORDER_TYPE,PAYMENT_SERVICE_PKG_CODE,DESCRIPTION,DEAL_CODE,ORDER_PAY_METHOD
+			
+        )
+        VALUES(
+            #orderType#,#paymentServicePkgCode#,#description#,#dealCode#,#orderPayMethod#
+			
+		)
+    </insert>
+
+    <update id="update" parameterClass="pymtSrvPkgMatrix">
+        UPDATE PYMT_SRV_PKG_MATRIX
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="description">
+            DESCRIPTION = #description#
+        </isNotNull>
+        <isNotNull prepend="," property="orderPayMethod">
+            ORDER_PAY_METHOD = #orderPayMethod#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="orderType">
+            ORDER_TYPE = #orderType# 
+            </isNotNull>
+            <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    
+    <delete id="deleteBySelective" parameterClass="pymtSrvPkgMatrix">
+        DELETE FROM PYMT_SRV_PKG_MATRIX        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="orderType">
+            ORDER_TYPE = #orderType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderPayMethod">
+            ORDER_PAY_METHOD = #orderPayMethod# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    
+    <select id="findBySelective" resultMap="pymtSrvPkgMatrix">
+        SELECT 
+			ORDER_TYPE,PAYMENT_SERVICE_PKG_CODE,DESCRIPTION,DEAL_CODE,ORDER_PAY_METHOD
+			
+        FROM PYMT_SRV_PKG_MATRIX
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="orderType">
+            ORDER_TYPE = #orderType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderPayMethod">
+            ORDER_PAY_METHOD = #orderPayMethod# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PYMT_SRV_PKG_MATRIX
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="orderType">
+            ORDER_TYPE = #orderType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderPayMethod">
+            ORDER_PAY_METHOD = #orderPayMethod# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

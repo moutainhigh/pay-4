@@ -1,0 +1,375 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>商户交易查询</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$("#clickGoBack").click(function(){
+			window.history.go(-1) ;
+		}) ;
+	}) ;
+</script>
+</head>
+
+<body>
+	<div id="pagewrap" style="margin-bottom:20px;">
+    
+    	<div id="content" style="text-align:left;">
+        
+            <!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:72px;float:left;" id="clickGoBack">
+                    	<div class="go_back" style="float:left;padding-top:9px;">
+                           <!--  <img src="images/jt.png"/> -->
+                        </div>
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">商户交易查询</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+            <div class="clear"></div>
+            <!-- 商户交易查询 -->
+            <div class="trading_num_show" >
+            	<div class="num_show_left" >
+                	<span><!-- 总成功数： -->&nbsp;&nbsp;</span>
+                </div>
+                <div class="num_show_right" >
+                	<span>总交易笔数：&nbsp;&nbsp;
+                		<#if incomeDetailList?has_content>
+							${listSize?default("")}
+						</#if>
+                	</span>
+                </div>
+            </div>
+          	
+            <!-- 交易记录 -->
+            <div class="trading_records" style="margin-bottom:20px;">
+            	<!-- 头信息 -->
+                <div class="trading_title">
+                	<div class="trading_des" >
+                		<span>订单号/创建时间</span>									
+                    </div>
+                    <div class="trading_statu" >
+                    	<span>订单状态</span>
+                    </div>
+                </div>
+			   
+			   <!-- 支付方式 -->
+			   <!-- 支付状态 -->
+			   
+                <#if incomeDetailList?exists>
+            		<#list incomeDetailList as ts>
+            			<!-- 单条记录信息 -->
+		                <div class="trading_every">
+		                	<div class="trading_every_des">
+		                    	<div class="trading_every_des_num" >
+		                        	<span>${ts.orderId?default("")}</span>      	 <!-- 商户订单号 -->
+		                        </div>
+		                        <div class="trading_every_des_time" >
+		                        	<span>${ts.createDate?default("")}</span>        <!-- 网关收单时间 -->
+		                        </div>
+		                    </div>
+		                    <div class="trading_every_statu">						 <!-- 订单状态 -->	
+		                    	<span>
+		                    		<#if ts.orderStatus?has_content>
+										<#if ts.orderStatus =="0">
+											未付款
+										<#elseif ts.orderStatus =="1">
+											交易关闭
+										<#elseif ts.orderStatus =="2">
+											已付款
+										<#elseif ts.orderStatus =="3">
+										
+										    <#if (ts.refundAmount?default("0")?number gt 0)>
+											         已部分退款
+											<#elseif (ts.refundAmount?default("0")?number lte 0)>
+											        已全部退款
+											</#if>
+											
+										<#elseif ts.orderStatus =="4">
+											交易成功
+										<#elseif ts.orderStatus =="6">
+											预授权成功
+										<#elseif ts.orderStatus =="8">
+											预授权申请中
+										<#elseif ts.orderStatus =="10">
+											预授权失败
+										</#if>
+									</#if>
+		                    	</span>
+		                    </div>
+		                </div>
+		                <div class="row_split"></div>
+		                <!-- 隐藏的可点击交易记录详情 -->
+		                <div class="trading_every_hide_detail">
+		                	<!-- <div class="hide_detail_block" >
+		                    	<span>商户号：</span>
+		                    </div>
+		                    <div class="hide_detail_block" >
+		                    	<span>商户名称：</span>
+		                    </div> -->
+		                    <div class="hide_detail_block" >
+		                    	<span>系统交易号：${ts.tradeOrderNo?default("")}</span>			<!-- 网关订单流水号 -->
+		                    </div>
+		                    <div class="hide_detail_block" >
+		                    	<span>支付币种：${ts.currencyCode?default("")}</span>			<!-- 交易币种 -->
+		                    </div>
+		                    <div class="hide_detail_block" >
+		                    	<span>支付金额：${(ts.orderAmount*0.001)?string(",##0.00")}&nbsp;&nbsp;元</span>	<!-- 订单金额 -->
+		                    </div>
+		                   <!--  <div class="hide_detail_block" >
+		                    	<span>支付网站：</span>
+		                    </div>
+		                    <div class="hide_detail_block" >
+		                    	<span>失败原因：</span>
+		                    </div> -->
+		                    <div class="hide_detail_block" >
+		                    	<span>交易完成时间：${ts.completeDate?default("")}</span>	<!-- 网关完成时间 -->	<!-- 2015-08-11&nbsp;&nbsp;&nbsp;&nbsp;15:23:14 -->
+		                    </div>
+		                </div>
+		                <!-- 隐藏的可点击交易记录详情结束 -->
+            		</#list>
+            	</#if>
+            	
+            	
+                <!-- 单条记录信息 -->
+                <!-- <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div>
+                <div class="row_split"></div> -->
+                <!-- 隐藏的可点击交易记录详情 -->
+                <!-- <div class="trading_every_hide_detail">
+                	<div class="hide_detail_block" >
+                    	<span>商户号：1021506261553085553</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>商户名称：南京雷贝教育信息咨询有限公司</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>商户订单号：1543138990899824</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>支付币种：美元</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>支付金额：18&nbsp;&nbsp;元</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>支付网站：www.ipaylinks.com</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>失败原因：***********</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>交易完成时间：2015-08-11&nbsp;&nbsp;&nbsp;&nbsp;15:23:14</span>
+                    </div>
+                </div> -->
+                <!-- 隐藏的可点击交易记录详情结束 -->
+                <!-- <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易已成功</span>
+                    </div>
+                </div>
+                <div class="row_split"></div> -->
+                <!-- 隐藏的可点击交易记录详情 -->
+                <!-- <div class="trading_every_hide_detail">
+                	<div class="hide_detail_block" >
+                    	<span>商户号：</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>商户名称：</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>商户订单号：</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>支付币种：美元</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>支付金额：18&nbsp;&nbsp;元</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>支付网站：www.ipaylinks.com</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>失败原因：***********</span>
+                    </div>
+                    <div class="hide_detail_block" >
+                    	<span>交易完成时间：2015-08-11&nbsp;&nbsp;&nbsp;&nbsp;15:23:14</span>
+                    </div>
+                </div> -->
+                <!-- 隐藏的可点击交易记录详情结束 -->
+                <!-- <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="trading_every">
+                	<div class="trading_every_des">
+                    	<div class="trading_every_des_num" >
+                        	<span>1021506261553085553</span>
+                        </div>
+                        <div class="trading_every_des_time" >
+                        	<span>2015-06-25 15:51:22</span>
+                        </div>
+                    </div>
+                    <div class="trading_every_statu">
+                    	<span>交易未付款</span>
+                    </div>
+                </div> -->
+                <!--<div class="row_split"></div>-->
+                
+            </div>    
+           <div align="right">
+			<#if incomeDetailList?has_content>
+				<@sp.pagination pu=pu/>
+			</#if>
+		   </div>
+           <!-- 页码提示信息 -->
+           <!-- <div class="page_num" >
+           
+           		<div id="page_num_des" >
+                	<span>第3页&nbsp;&nbsp;&nbsp;&nbsp;共19页&nbsp;&nbsp;&nbsp;&nbsp;至&nbsp;&nbsp;<input type="text" name="" id=""/>&nbsp;&nbsp;页&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </div>
+                
+           		<div id="page_num_a" >
+                	<a href="javascript:void(0);" class="" style="height:40px;width:80px;display:block;" >go</a>
+                </div>
+                
+           </div> -->
+        </div>
+    </div>
+	
+    
+    <script type="text/javascript">
+	
+    	//每单条记录详细信息的切换效果
+		$(function(){
+			
+			$("div.trading_every_des").click(function(){
+				var $trading_every_hide_detail = $(this).parent("div").next("div").next("div.trading_every_hide_detail") ;
+				var isVisible = $trading_every_hide_detail.is(":visible");
+				if(isVisible){
+					$trading_every_hide_detail.css("display","none");
+				}else{
+					//再显示对应的隐藏记录之前，先隐藏其它的显示记录
+					$("div.trading_every_hide_detail").css("display","none");
+					$trading_every_hide_detail.css("display","block");	
+				}
+			});
+		});
+		
+    </script>
+</body>
+</html>
+

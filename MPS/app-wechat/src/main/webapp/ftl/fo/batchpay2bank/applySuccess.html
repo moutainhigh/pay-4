@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>gcpayment支付-批量付款到银行-申请提交成功</title>
+		<#include "/common/macro/seoPerson.ftl">
+		<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+		<script type="text/javascript">
+		
+		function downloadRecord(){
+			window.location="${rc.contextPath}/corp/batchpay2bankdownload.htm?method=downloadErrorList&fileKy=${command.requestSeq?default(0)}&businessBatchNo=${command.businessBatchNo?default('')}";
+		}
+		</script>
+	</head>
+	<body>
+		<!--导航 str-->
+		<@sp.head mCode="corp_pay2account,bsp_corp_pay2account"/>
+		
+		<!--导航 end--> 
+		<!--主内容 str -->
+		<div class="container">
+			<div> 
+				<!--box str -->
+				<div class="mod_box_a">
+					<p class="top"><i></i></p>
+					<div class="con_box has_bg">
+						<div class="tit_box">
+							<div class="title sub_nav3">
+								<#if sp.hasProduct('PAY2ACCT')>
+									<a href="${rc.contextPath}/corp/pay2account.htm">单笔付款到账户</a><span>|</span>
+								<#else>
+								</#if>
+								<#if sp.hasProduct('PAY2BANK')>
+									<a href="${rc.contextPath}/corp/pay2bank.htm">单笔付款到银行</a><span>|</span>
+								<#else>
+								</#if>
+								<#if sp.hasProduct('BATCH2ACCT')>
+									<a href="${rc.contextPath}/corp/batchpay2acct.htm">批量付款到账户</a><span>|</span>
+								<#else>
+								</#if>
+								<a href="${rc.contextPath}/corp/batchpay2bank.htm" class="cur">批量付款到银行</a>
+							</div>
+						</div>
+						<div class="step">
+							<ol class="step-3">
+								<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+								<li class="li-1 last"><span><i>1</i>上传付款文件</span></li>
+								<li class="li-2 last"><i>2</i>确认付款信息</li>
+								<li class="li-3 last"><span><i>3</i>提交付款信息</span></li>
+							</ol>
+						</div>
+						<div class="txtC">
+							<div class="result_tips mt10">
+							<div class="set_height clearfix"> 
+								<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X --> 
+								<span class="pop_s"></span>
+								<p class="words"> <strong class="red2 f14">付款申请提交成功！</strong></p>
+								<p>系统正在处理您的申请。</p>
+								<p>所有付款处理完成后，gcpayment支付会将结果明细发送至您的电子邮箱，请注意查收！</p>
+							</div>
+						</div>
+						</div>
+						<div class="mod_l_tit">
+							<h3>批量付款信息</h3>
+						</div>
+						<div class="my_pay_info">
+							<ul class="form_list">
+								<li>
+									<label class="form_side">业务编号：</label>
+									${command.businessBatchNo} 
+								</li>
+								<li>
+									<label class="form_side">申请笔数：</label>
+									<strong class="c_000">${command.requestCount}</strong> 笔 </li>
+								<li>
+									<label class="form_side">正确笔数：</label>
+									<strong class="red">${command.validCount}</strong> 笔 
+								</li>
+							</ul>
+							<ul class="form_list pay_info_r">
+								<li>
+									<label class="form_side">错误笔数：</label>
+									<#assign errorCount = command.requestCount-command.validCount>
+									<strong class="c_000">${errorCount}</strong> 笔
+									<#if errorCount!=0>
+									<a style="font-weight: bold;color: black;" href="#"  onclick="downloadRecord();return flalse;">导出错误信息</a>
+									</#if>
+								</li>
+							</ul>
+						</div>
+						<div class="my_pay_out border_t pt10">
+						<ul class="form_list">
+							<li>
+								<label class="form_side">手续费：</label>
+								<strong class="red f14">${command.requestFee?default('0.00')}</strong> 元 
+							</li>
+							<li>
+								<label class="form_side">实付金额：</label>
+								<strong class="red f14">${command.realpayAmountStr?default('0.00')}</strong> 元 (申请支付：${command.requestAmountStr?default('0.00')} 元)
+							</li>
+						</ul>	
+						</div>
+						<div class="price_all2 border_t txtC">
+							您可能需要：
+							<a class="red" href="${rc.contextPath}/corp/paydetail.htm?method=queryPayBatchDetail">查询付款记录</a> |
+							<a class="red" href="${rc.contextPath}/corp/batchpay2bank.htm">继续付款</a> | 
+							<a class="red" href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a>
+						</div>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				<!--box end --> 
+			</div>
+		</div>
+		<!--主内容 end --> 
+		
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>

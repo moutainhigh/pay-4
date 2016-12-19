@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="checkCode">
+    <typeAlias alias="checkCode" type="com.pay.acc.checkcode.dao.model.CheckCode"/>
+    
+  <resultMap id="mapResult" class="checkCode" >
+    <result column="CHECK_ID" property="id" jdbcType="INT"/>
+    <result column="CHECK_CODE" property="checkCode" jdbcType="VARCHAR" columnIndex="2" />
+    <result column="STATUS" property="status" jdbcType="INT" columnIndex="3" />
+    <result column="MEMBER_CODE" property="memberCode" jdbcType="INT" columnIndex="4" />
+    <result column="ORIGIN" property="origin" jdbcType="VARCHAR" columnIndex="5"/>
+    <result column="EMAIL" property="email" jdbcType="VARCHAR" columnIndex="6" />
+    <result column="PHONE" property="phone" jdbcType="VARCHAR" columnIndex="7" />
+    <result column="CREATE_DATE" property="createTime" jdbcType="DATETIME" columnIndex="8" />
+    <result column="UPDATE_DATE" property="updateTime" jdbcType="DATETIME" columnIndex="9" />
+  </resultMap>
+    
+    <insert id="create" parameterClass="checkCode">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_CHECKCODE_ID.nextval as ID from dual 
+		</selectKey>
+        insert into 
+        	t_check_code 
+        	(
+        		check_id, 	
+        		check_code,
+        		status,
+        		create_date,
+        		update_date,
+        		member_code,
+        		origin,
+        		email,
+        		phone
+            )
+        values 
+        	(
+        		#id#,	
+        		#checkCode#,
+        		#status#,
+        		sysdate,
+        		sysdate,
+        		#memberCode#,
+        		#origin#,
+        		#email#,
+        		#phone#
+        	)
+    </insert>
+    
+    <select id="findstatusBycheckCode" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+    	select 
+    		status  
+    	from 
+    		t_check_code 
+    	where 
+    		check_code = #checkCode#
+    </select>
+    
+    <select id="getByCheckCode" resultClass="checkCode" parameterClass="java.lang.String">
+    	SELECT check_id as id,check_code as checkCode,status,create_date as createTime,member_code as memberCode,ORIGIN,EMAIL,PHONE FROM t_check_code  WHERE check_code = #checkCode#
+    </select>
+    
+    <select id="getByMemerCode" resultClass="checkCode" parameterClass="java.lang.String">
+    	SELECT check_id as id,check_code as checkCode,status,create_date as createTime,member_code as memberCode,ORIGIN,EMAIL,PHONE FROM t_check_code  WHERE member_code = #memberCode# AND status=1 ORDER BY create_date DESC
+    </select>
+    
+      <select id="getByMemerCodeCount" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+    	SELECT count(check_id) FROM t_check_code  WHERE member_code = #memberCode# AND status=2 
+    </select>
+    
+	<update id="updatecheckCodestatus" parameterClass="java.lang.String">
+        update 
+        	t_check_code
+        set 
+        	status = 2
+        where 
+        	check_code = #checkCode#
+    </update>
+    
+	<update id="update" parameterClass="checkCode">
+        update 
+        	t_check_code
+        set 
+        	update_date = sysdate,
+        	status = #status#
+        where 1=1
+        <isNotNull property="memberCode" prepend="and">
+        	member_code = #memberCode#
+        </isNotNull>
+        	and check_code=#checkCode#
+        	and phone = #phone#
+        	and ORIGIN=#origin#
+    </update>
+    
+	<update id="updateCreateTime" parameterClass="java.lang.String">
+        update 
+        	t_check_code
+        set 
+        	update_date = SYSDATE,
+        	create_date = SYSDATE
+        where 
+        	check_code = #checkCode#
+    </update>  
+    
+    <update id="updateCheckStateByMemCode" parameterClass="java.util.Map">
+        update 
+        	t_check_code
+        set 
+        	status = 2,
+        	update_date = SYSDATE
+        where 
+        	member_code = #memberCode# 
+        	and check_code = #checkCode#
+    </update> 
+    
+	<update id="updateStatus" parameterClass="java.lang.String">
+        update 
+        	t_check_code
+        set 
+        	status = 2,
+        	update_date = SYSDATE
+        where 
+        	check_code = #checkCode#
+    </update>    
+    
+     <update id="updateCheckCodeStates2Used" parameterClass="java.util.Map">
+    	update t_check_code set status = 2 where member_code = #memberCode# and origin=#origin# and status=1
+    </update>         
+    
+    <select id="getByMemberCodeAndOrigin" resultClass="checkCode" parameterClass="java.util.Map">
+    	select * from (
+    		SELECT check_id as id,check_code as checkCode,status,create_date as createTime,member_code as memberCode,ORIGIN,EMAIL,PHONE 
+    		FROM t_check_code  
+    	WHERE origin=#origin# 
+    	<isNotEmpty property="memberCode" prepend="and">
+        	member_code = #memberCode#
+        </isNotEmpty>
+        <isNotEmpty property="mobile" prepend="and">
+        	PHONE = #mobile#
+        </isNotEmpty>
+    	ORDER BY create_date DESC
+    	) where rownum=1
+    </select> 
+    
+     <select id="getByMemberCodeAndStatusOrigin" resultMap="mapResult" parameterClass="java.util.Map">
+    	 SELECT check_id, check_code, status, member_code, origin, email, phone, create_date, update_date FROM t_check_code WHERE origin=#origin# AND status=#status# AND member_code = #memberCode# ORDER BY create_date DESC
+    </select> 
+    
+   <select id="getOrderId" resultClass="java.lang.String" >
+    	SELECT 300 || TO_CHAR(SYSDATE, 'yymmddhh24mi') || LPAD(seq_acct_acct_id.nextVal, 6, 0)  FROM DUAL
+    </select> 
+    
+    <select id="getByCheckCodeAndOrigin" resultMap="mapResult" parameterClass="java.util.Map">
+    	SELECT check_id, check_code, status, member_code, origin, email, phone, create_date, update_date FROM t_check_code WHERE origin=#origin# AND check_code = #checkCode# ORDER BY create_date DESC
+    </select>
+    
+    <select id="getByMemerCodeAndStatus"  resultMap="mapResult" parameterClass="java.util.Map">
+    	SELECT check_id, check_code, status, member_code, origin, email, phone, create_date, update_date FROM t_check_code WHERE member_code = #memberCode# AND status=#status# ORDER BY create_date DESC
+    </select>
+ 
+    <select id="findStatesByCheckCode" resultClass="java.lang.Integer" parameterClass="java.lang.String">
+    	select 
+    		status  
+    	from 
+    		t_check_code 
+    	where 
+    		check_code = #checkCode#
+    </select>    
+                  
+</sqlMap>

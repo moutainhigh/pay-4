@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="financialReportUrlHandlerMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"> 
+       <property name="mappings">
+             <props>
+          	     <prop key="/report/tranDailyReprt.do">financialReportController</prop>
+             </props>
+       </property>
+   </bean>
+   
+    <!-- 会员日交易查询统计 -->
+     <bean id="financialReportController" class="com.pay.poss.report.controller.FinancialReportController">
+           <property name="methodNameResolver">
+                 <ref bean="paraMethodResolver"/>
+           </property>
+           <property name="detailListView">
+                 <value>/poss/report/financial/tranDailyReportDetailList</value>
+           </property>
+           <property name="sumListView">
+                 <value>/poss/report/financial/tranDailyReportSumList</value>
+           </property>
+           <property name="toView">
+                 <value>/poss/report/financial/tranDailyReportInit</value>
+           </property>
+           <property name="queryFinancialReportService" ref="queryFinancialReportService"/>
+           
+     </bean> 
+	
+	<bean id="queryFinancialReportService" class="com.pay.poss.report.service.impl.QueryFinancialReportServiceImpl">
+		<property name="tranDailyReportDAO" ref="poss-tranDailyReportDAO" />
+	</bean>
+	<bean id="poss-tranDailyReportDAO" class="com.pay.poss.report.dao.impl.TranDailyReportDAOImpl">
+		<property name="namespace" value="poss-trandailyreport" />
+		<property name="sqlMapClient">
+			<ref bean="sqlMapClientReport" />
+		</property>
+	</bean>
+	<bean id="sqlMapClientReport" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocations">
+		  <list>
+	        <value>classpath:sqlmap/fi/financialreport-sqlmap-config.xml</value>
+	     </list>
+		</property>
+		<property name="dataSource" ref="fiDs" />
+	</bean>
+</beans>
+
+

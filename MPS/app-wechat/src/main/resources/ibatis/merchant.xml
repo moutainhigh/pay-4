@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="merchant">
+
+	<typeAlias alias="merchantCooperation" type="com.pay.wechat.model.MerchantCooperation" />
+	<typeAlias alias="sysUserMapper" type="com.pay.wechat.model.SysUserMapper" />
+	<typeAlias alias="string" type="java.lang.String" />
+	<typeAlias alias="hMap" type="java.util.Map"/>
+	
+	<!-- 了解合作 -->
+	<resultMap id="merchantCooperation" class="merchantCooperation">
+		<result column="MEMBERNAME" property="memberName" jdbcType="VARCHAR2" />
+		<result column="COMPANYNAME" property="companyName" jdbcType="VARCHAR2" />
+		<result column="TEL" property="tel" jdbcType="VARCHAR2" />
+		<result column="OPERATESCOPE" property="operateScope" jdbcType="VARCHAR2" />
+	</resultMap>
+	<!-- 系统商户绑定 -->
+	<resultMap class="com.pay.wechat.model.SysUserMapper" id="sysUserMapper">
+		<result property="id" column="ID" jdbcType="NUMBER"/>
+		<result property="login_name" column="LOGIN_NAME" jdbcType="VARCHAR2" />
+		<result property="openID" column="OPENID" jdbcType="VARCHAR2" />
+		<result property="bindTime" column="BINDTIME" jdbcType="VARCHAR2" />
+		<result property="login_dpwd" column="LOGIN_PWD" jdbcType="VARCHAR2" />
+		<result property="statu" column="STATU" jdbcType="NUMBER" />
+		<result property="member_code" column="MEMBER_CODE" jdbcType="NUMBER"/>
+		<result property="scale_type" column="SCALE_TYPE" jdbcType="NUMBER"/>
+	</resultMap>
+	
+	<insert id="addMerchantCooperationInfo" parameterClass="merchantCooperation">
+
+		insert into
+		t_cooperation
+		(
+		MEMBERNAME,
+		COMPANYNAME,
+		TEL,
+		OPERATESCOPE
+		)
+		values
+		(
+		#memberName#,
+		#companyName#,
+		#tel#,
+		#operateScope#
+		)
+	</insert>
+	
+	<insert id="addSysUserMapperInfo" parameterClass="sysUserMapper">
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			select SEQ_SYS_USER_MAPPER_ID.nextval as ID from dual
+		</selectKey>
+		insert into sys_user_mapper
+		(
+			ID,
+			LOGIN_NAME,
+			OPENID,
+			BINDTIME,
+			LOGIN_DPWD,
+			STATU,
+			MEMBER_CODE,
+			SCALE_TYPE
+			
+		)
+		values
+		(
+			#id#,
+			#login_name#,
+			#openID#,
+			#bindTime#,
+			#login_dpwd#,
+			#statu#,
+			#member_code#,
+			#scale_type#
+		)
+	</insert>
+	
+	<select id="findSysUserMapperByOpenID" parameterClass="string" resultClass="sysUserMapper" >
+		select ID,LOGIN_NAME,OPENID,BINDTIME,LOGIN_DPWD,STATU,MEMBER_CODE,SCALE_TYPE from sys_user_mapper where OPENID = #openID#
+	</select>
+	
+	<select id="findSysUserMapByMemCodeAndOpenID" parameterClass="hMap" resultClass="sysUserMapper">
+		select ID,LOGIN_NAME,OPENID,BINDTIME,LOGIN_DPWD,STATU,MEMBER_CODE,SCALE_TYPE from sys_user_mapper where MEMBER_CODE = #member_code# and OPENID = #openID# 
+	</select>
+	
+	
+</sqlMap>

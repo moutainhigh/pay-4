@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境收单 -->
+	<bean id="crosspayValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="crosspay-api-acquireRule" />
+	</bean>
+
+	<bean id="crosspay-api-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="crosspay-api-RiskWhileListCheckRule" />
+		</property>
+	</bean>
+	
+	<bean id="crosspay-api-RiskWhileListCheckRule" class="com.pay.risk.validate.rule.RiskWhiteListCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-RiskBlackListCheckRule" />
+		</property>
+		<property name="riskBlackListService" ref="riskBlackListService" />
+		<property name="messageId" value="3200" />
+		<property name="message" value="白名单" />
+	</bean>
+
+	<bean id="crosspay-api-RiskBlackListCheckRule" class="com.pay.risk.validate.rule.RiskBlackListCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-OrderFilterCheckRule" />
+		</property>
+		<property name="riskBlackListService" ref="riskBlackListService" />
+		<property name="messageId" value="0052" />
+		<property name="message" value="Risk Order:风险订单" />
+	</bean>
+	
+	<bean id="crosspay-api-OrderFilterCheckRule" class="com.pay.risk.validate.rule.OrderFilterCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-BusinessTradeCheckRule" />
+		</property>
+		<property name="orderFilterService" ref="orderFilterService" />
+		<property name="clientService" ref="accountingClientService"/>
+		<property name="cardBinInfoService" ref="if-cardBinInfoService"/>
+		<property name="ipCountryInfoService" ref="inf-ipCountryInfoService"/>
+		<property name="messageId" value="3100" />
+		<property name="message" value="Do not honor:交易受限" />
+	</bean>
+	
+	<!-- 	限额限次过滤 -->
+	<bean id="crosspay-api-BusinessTradeCheckRule"
+		class="com.pay.risk.validate.rule.BusinessTradeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-RiskCybsCheckRule" />
+		</property>
+		<property name="clientService" ref="accountingClientService"/>
+		<property name="businessTradeCountService" ref="businessTradeCountService" />
+		<property name="rmBusinesslimitService" ref="rm_limit_businesslimitservice"/>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService"/>
+		<property name="rmBusinessLimitCustomService" ref="rm_limit_businesslimitcustomservice"/>
+		<property name="messageId" value="0071" />
+		<property name="message" value="The merchant transaction amount or the number of transactions to reach a limit:该商户交易额或交易次数达到限制" />
+		<property name="singleLimitMsg" value="Single order amount exceeds the maximum value:单笔订单金额超过最大值" />
+		<property name="monthLimitMsg" value="Monthly transaction amount has exceeded the maximum value:月交易金额已超过最大值" />
+		<property name="dayLimitMsg" value="Daily transaction amount has exceeded the maximum value:日交易金额已超过最大值" />
+		<property name="monthLCMsg" value="Month transaction has exceeded the maximum value:月交易次数已超过最大值" />
+		<property name="dayLCMsg" value="The number of daily transactions has exceeded the maximum value:日交易次数已超过最大值" />
+	</bean>
+
+	<bean id="crosspay-api-RiskCybsCheckRule" class="com.pay.risk.validate.rule.RiskCybsCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="preServerUrl" value="${hessian.cybsUrl}" />
+		<property name="readTimeOut" value="${cybs.readTimeOut}" />
+		<property name="memberProductService" ref="acc-memberProductService" />
+		<property name="memberQueryService"  ref="acc-memberQueryService"/>
+		<property name="messageId" value="0053" />
+		<property name="message" value="Risk Order:风险订单" />
+	</bean>
+
+</beans>

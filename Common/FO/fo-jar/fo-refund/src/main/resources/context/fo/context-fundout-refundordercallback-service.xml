@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<!-- 充退请求回调服务 -->
+	<bean id="fundout-withdraw-chargeRefundCallBack" class="com.pay.poss.refund.service.ordercallback.impl.RefundCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+		<property name="foRD4MaServiceApi" ref="foRD4MaService"></property>
+		<property name="refundManageService" ref="refundManageService"></property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"></property>
+		<property name="subjectMap" ref="fundout-subjectMap" />
+		<property name="successEmailTemplateId" value="${chargeRefund.sucess.email}"/>
+		<property name="failEmailTemplateId" value="${chargeRefund.fail.email}"/>
+		<property name="successSmsTemplateId" value="${chargeRefund.sucess.sms}"/>
+		<property name="failSmsTemplateId" value="${chargeRefund.fail.sms}"/>
+	</bean>
+
+	<!-- 出款科目配置 -->
+	<bean id="fundout-subjectMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<!-- 工商银行 -->
+				<entry key="mock001" value="000000001" />
+				<!-- 工商银行 -->
+				<entry key="icbc001" value="010310001" />
+				<!-- 农业银行 -->
+				<entry key="abc001" value="020310001" />
+				<!-- 交通银行 -->
+				<entry key="comm001" value="030310001" />
+				<!-- 建设银行 -->
+				<entry key="ccb001" value="040310001" />
+				<!-- 深圳发展银行 -->
+				<entry key="sdb001" value="050310001" />
+				<!-- 招商银行 -->
+				<entry key="cmb001" value="060310001" />
+				<!-- 北京银行 -->
+				<entry key="bccb001" value="070310001" />
+				<!-- 东亚银行 -->
+				<entry key="bea001" value="080310001" />
+				<!-- 兴业银行 -->
+				<entry key="cib001" value="090310001" />
+				<!-- 民生银行 -->
+				<entry key="cmbc001" value="100310001" />
+				<!-- 中国银行 -->
+				<entry key="bc001" value="110310001" />
+				<!-- 浦发银行 -->
+				<entry key="spdb001" value="120310001" />
+				<!-- 华夏银行 -->
+				<entry key="hxb001" value="130310001" />
+				<!-- 19Pay -->
+				<entry key="pay19001" value="990320001" />
+				<!-- 中信银行 -->
+				<entry key="ecitic001" value="140310001" />
+				<!-- 光大银行 -->
+				<entry key="ceb001" value="150310001" />
+				<!-- 银联 -->
+				<entry key="cnpy001" value="990310001" />
+			</map>
+		</constructor-arg>
+	</bean>	
+</beans>

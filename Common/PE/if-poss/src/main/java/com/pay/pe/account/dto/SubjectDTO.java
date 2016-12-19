@@ -1,0 +1,26 @@
+package com.pay.pe.account.dto;
+
+import java.io.Serializable;
+
+public class SubjectDTO implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	private String acctCode;//科目号
+	private String acctName;//科目名称
+	
+	public String getAcctCode() {
+		return acctCode;
+	}
+	public void setAcctCode(String acctCode) {
+		this.acctCode = acctCode;
+	}
+	public String getAcctName() {
+		return acctName;
+	}
+	public void setAcctName(String acctName) {
+		this.acctName = acctName;
+	}
+}

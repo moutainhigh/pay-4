@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tokenPay">
+	<typeAlias alias="tokenPayInfo" type="com.pay.txncore.model.TokenPayInfo"/>
+    <resultMap id="tokenPayResult" class="tokenPayInfo">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+        <result column="REGISTER_USER_ID" property="registerUserId" jdbcType="VARCHAR"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="BILL_FIRST_NAME" property="billFirstName" jdbcType="VARCHAR"/>
+        <result column="BILL_LAST_NAME" property="billLastName" jdbcType="VARCHAR"/>
+    	<result column="BILL_PHONE_NUMBER" property="billPhoneNumber" jdbcType="VARCHAR"/>
+    	<result column="BILL_EMAIL" property="billEmail" jdbcType="VARCHAR"/>
+    	<result column="BILL_COUNTRY_CODE" property="billCountryCode" jdbcType="VARCHAR"/>
+    	<result column="BILL_STATE" property="billState" jdbcType="VARCHAR"/>
+    	<result column="BILL_CITY" property="billCity" jdbcType="VARCHAR"/>
+    	<result column="BILL_STREET" property="billStreet" jdbcType="VARCHAR"/>
+    	<result column="BILL_ADDRESS" property="billAddress" jdbcType="VARCHAR"/>
+    	<result column="BILL_POSTAL_CODE" property="billPostalCode" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_CD" property="cardHolderNumber" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_FN" property="cardHolderFirstName" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_LN" property="cardHolderLastName" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_MH" property="cardExpirationMonth" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_YR" property="cardExpirationYear" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_CE" property="securityCode" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_EM" property="cardHolderEmail" jdbcType="VARCHAR"/>
+    	<result column="TOKEN_PAY_PN" property="cardHolderPhoneNumber" jdbcType="VARCHAR"/>
+    	<result column="TOKEN" property="token" jdbcType="VARCHAR"/>
+    	<result column="CARD_ORG" property="cardOrg" jdbcType="VARCHAR"/>      
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="PAY_MODE"  property="payMode" jdbcType="VARCHAR"/>
+        <result column="zh_name"  property="zhName" jdbcType="VARCHAR"/>
+        <result column="BORROWING_MARKED"  property="borrowingMarked" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <insert id="createToken" parameterClass="tokenPayInfo">
+        <selectKey resultClass="java.lang.Long" keyProperty="id">
+    		SELECT 104 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_TOKEN_PAY_INFO_ID.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO TOKEN_PAY_INFO(   
+                                ID,STATUS,
+                                PARTNER_ID,REGISTER_USER_ID,CURRENCY_CODE,BILL_FIRST_NAME,
+                                BILL_LAST_NAME,BILL_PHONE_NUMBER,BILL_EMAIL,
+                                BILL_COUNTRY_CODE,BILL_STATE,BILL_CITY,
+                                BILL_STREET,BILL_ADDRESS,BILL_POSTAL_CODE,TOKEN_PAY_CD,
+                                TOKEN_PAY_FN,TOKEN_PAY_LN,TOKEN_PAY_MH,TOKEN_PAY_YR,
+                                TOKEN_PAY_CE,TOKEN_PAY_EM,TOKEN_PAY_PN,TOKEN,CARD_ORG,CREATE_DATE,PAY_MODE,BORROWING_MARKED)
+        VALUES(#id#,#status#,#partnerId#,#registerUserId#,#currencyCode#,#billFirstName#,#billLastName#,
+                                #billPhoneNumber#,#billEmail#,
+                                #billCountryCode#,#billState#,#billCity#,#billStreet#,#billAddress#,
+                                #billPostalCode#,#cardHolderNumber#,#cardHolderFirstName#,
+                                #cardHolderLastName#,#cardExpirationMonth#,
+                                #cardExpirationYear#,#securityCode#,#cardHolderEmail#,
+                                #cardHolderPhoneNumber#,#token#,#cardOrg#,#createDate#,#payMode#,#borrowingMarked#)
+    </insert>
+    
+    <update id="update" parameterClass="tokenPayInfo">
+        UPDATE TOKEN_PAY_INFO
+        <dynamic prepend="SET">
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="billFirstName">
+            BILL_FIRST_NAME = #billFirstName#
+        </isNotNull>
+        <isNotNull prepend="," property="billLastName">
+            BILL_LAST_NAME = #billLastName#
+        </isNotNull>
+        <isNotNull prepend="," property="billPhoneNumber">
+            BILL_PHONE_NUMBER = #billPhoneNumber#
+        </isNotNull>
+        <isNotNull prepend="," property="billEmail">
+            BILL_EMAIL = #billEmail#
+        </isNotNull>
+        <isNotNull prepend="," property="billCountryCode">
+            BILL_COUNTRY_CODE = #billCountryCode#
+        </isNotNull>
+        <isNotNull prepend="," property="billState">
+            BILL_STATE = #billState#
+        </isNotNull>
+        <isNotNull prepend="," property="billCity">
+            BILL_CITY = #billCity#
+        </isNotNull>
+        <isNotNull prepend="," property="billStreet">
+            BILL_STREET = #billStreet#
+        </isNotNull>
+        <!-- 
+        <isNotNull prepend="," property="billAddress">
+            BILL_ADRESS = #billAddress#
+        </isNotNull>
+         -->
+        <isNotNull prepend="," property="billPostalCode">
+            BILL_POSTAL_CODE = #billPostalCode#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+         <isNotNull prepend="," property="updateDate">
+            BORROWING_MARKED = #borrowingMarked#
+        </isNotNull>
+        </dynamic>
+        WHERE 1=1
+        <isNotNull prepend="and" property="partnerId">
+        	partner_id = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="and" property="registerUserId">
+        	register_user_id = #registerUserId#
+        </isNotNull>
+        <isNotNull prepend="and" property="token">
+        	token = #token#
+        </isNotNull>
+    </update>
+
+    <select id="findByCriteria" resultMap="tokenPayResult">
+        SELECT A.*, eb.zh_name
+         FROM fi.token_pay_info A, acc.t_enterprise_base eb
+         where A.partner_id = eb.member_code
+        <isNotNull prepend="AND" property="id">
+           A.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+           A.partner_id = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardNo">
+           A.TOKEN_PAY_CD = #cardNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="registerUserId">
+          A.register_user_id=#registerUserId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="token">
+          A.token = #token# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardOrg">
+           A.card_org = #cardOrg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+           A.currency_code = #currencyCode# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>      
+        order by A.CREATE_DATE desc
+    </select>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*)
+         FROM fi.token_pay_info A, acc.t_enterprise_base eb
+         where A.partner_id = eb.member_code
+        <isNotNull prepend="AND" property="id">
+           A.id = #id# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+           A.partner_id = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+           A.STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardNo">
+           A.TOKEN_PAY_CD = #cardNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="registerUserId">
+          A.register_user_id=#registerUserId#
+        </isNotNull>
+        <isNotNull prepend="AND" property="token">
+          A.token = #token# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="cardOrg">
+           A.card_org = #cardOrg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+           A.currency_code = #currencyCode# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>        
+    </select>
+
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*)
+         FROM fi.token_pay_info A, acc.t_enterprise_base eb
+         where A.partner_id = eb.member_code
+	        <isNotNull prepend="AND" property="id">
+	           A.id = #id# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="partnerId">
+	           A.partner_id = #partnerId# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="status">
+	           A.STATUS = #status# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="cardNo">
+                A.TOKEN_PAY_CD = #cardNo# 
+            </isNotNull>
+	        <isNotNull prepend="AND" property="registerUserId">
+	          A.register_user_id=#registerUserId#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="token">
+	          A.token = #token# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="cardOrg">
+	           A.card_org = #cardOrg# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="currencyCode">
+	           A.currency_code = #currencyCode# 
+	        </isNotNull>
+			<isNotEmpty prepend="AND" property="beginTime">
+				A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+	           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>            
+    </select>
+    
+	<select id="findById" resultMap="tokenPayResult" parameterClass="java.lang.Long">
+        SELECT * FROM token_pay_info WHERE id = #id#
+	</select>
+    
+    <delete id="delete" parameterClass="tokenPayInfo">
+        delete from token_pay_info 
+        <dynamic prepend="where">
+            <isNotNull prepend="and" property="id">
+                 id=#id#
+            </isNotNull>
+           <isNotNull prepend="and" property="partnerId">
+                 partner_id=#partnerId#
+            </isNotNull>
+            <isNotNull prepend="and" property="registerUserId">
+                 register_user_id=#registerUserId#
+            </isNotNull>
+            <isNotNull prepend="and" property="token">
+                 token=#token#
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <select id="getPayIDByToken" resultClass="java.lang.Long" parameterClass="java.lang.String">
+    	select id from token_pay_info where token=#token#
+    </select>
+</sqlMap>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="fundout-lucene-service" class="com.pay.lucene.service.impl.LuceneServiceImpl">
+		<property name="generateService" ref="fundout-luceneGenerateService" />
+		<property name="searchService" ref="fundout-luceneSearchService" />
+	</bean>
+
+	<bean id="fundout-bankBrancheInfoService"
+		class="com.pay.lucene.service.impl.BankBrancheInfoServiceImpl">
+		<property name="bankBrancheInfoDao" ref="fundout-bankBrancheInfoDao" />
+	</bean>
+
+	<bean id="fundout-luceneCommon" abstract="true">
+		<property name="defaultIndexFilePath">
+			<value>/opt/pay/fo/lucene/index/common</value>
+		</property>
+		<property name="indexFilePaths">
+			<map>
+				<entry key="中国银行">
+					<value>/opt/pay/fo/lucene/index/boc</value>
+				</entry>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="fundout-luceneGenerateService" parent="fundout-luceneCommon"
+		class="com.pay.lucene.service.impl.LuceneGenerateServiceImpl">
+		<property name="bankBrancheInfoService" ref="fundout-bankBrancheInfoService" />
+		<property name="dataKeyFile">
+			<value>/opt/pay/fo/lucene/data/bankKeywords.txt</value>
+		</property>
+	</bean>
+
+	<bean id="fundout-luceneSearchService" parent="fundout-luceneCommon"
+		class="com.pay.lucene.service.impl.LuceneSearchServiceImpl">
+	</bean>
+
+</beans>

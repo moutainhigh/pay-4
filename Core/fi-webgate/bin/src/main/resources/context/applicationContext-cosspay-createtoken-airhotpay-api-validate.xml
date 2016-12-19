@@ -1,0 +1,701 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+   
+    <!-- 创建TOKEN并支付 航旅类API  createTokenPayAirHotApi简写createTpAhApi-->
+	<bean id="createTpAhApiValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="createTpAhApi-acquireRule" />
+	</bean>
+
+	<bean id="createTpAhApi-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="createTpAhApi-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="createTpAhApi-versionCheckRule" class="com.pay.gateway.validate.crosspay.rule.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+	
+	<bean id="createTpAhApi-partnerIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-registerUserIdCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+	
+	<bean id="createTpAhApi-registerUserIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.RegisterUserIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-mccCheckRule" />
+		</property>
+		<property name="messageId" value="0086" />
+		<property name="message" value="Invalid registerUserId:用户注册ID不正确" />
+	</bean>
+	<bean id="createTpAhApi-mccCheckRule" class="com.pay.gateway.validate.crosspay.rule.MccCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0055" />
+		<property name="message" value="Invalid MCC:MCC不合法" />
+	</bean>
+
+	<bean id="createTpAhApi-orderIdCheckRule" class="com.pay.gateway.validate.crosspay.rule.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-goodsNameCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="createTpAhApi-goodsNameCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.GoodsNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-goodsDescCheckRule" />
+		</property>
+		<property name="messageId" value="0004" />
+		<property name="message" value="Goods name is empty or too long:商品名称为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-goodsDescCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.GoodsDescCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="message" value="Goods description is empty or too long:商品描述为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-submitTimeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-siteIdCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Order submission time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-siteIdCheckRule" class="com.pay.gateway.validate.crosspay.rule.SiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-orderAmountCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="Unauthorized domain names:未授权的域名" />
+	</bean>
+
+	<bean id="createTpAhApi-orderAmountCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="Invalid Order Amount:订单金额不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-typeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="Unauthorized trade type:未授权交易类型" />
+	</bean>
+
+	<bean id="createTpAhApi-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-customerIPCheckRule" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+	
+	 <bean id="createTpAhApi-customerIPCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CustomerIPCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-payTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+
+    <bean id="createTpAhApi-payTypeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.PayTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-dccProductCheckRule" />
+		</property>
+		<property name="messageId" value="0010" />
+		<property name="message" value="Invalid payment type:支付方式不正确" />
+	</bean>
+	
+	<bean id="createTpAhApi-dccProductCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DCCProductCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-settlementCurrencyCodeCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-settlementCurrencyCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.SettlementCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-borrowingMarkedCheckRule" />
+		</property>
+		<property name="messageId" value="0012" />
+		<property name="message" value="Invalid settlement currency:结算币种不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-borrowingMarkedCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BorrowingMarkedCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0013" />
+		<property name="message" value="Invalid value for paramter borrowingMarked:资金来源借贷标识不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-noticeUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="createTpAhApi-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-merchantAcctCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+	<bean id="createTpAhApi-merchantAcctCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-billFirstNameCheckRule" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="message" value="Abnormal merchant account status:商户账户状态异常" />
+	</bean>
+	
+   	<bean id="createTpAhApi-billFirstNameCheckRule" class="com.pay.gateway.validate.crosspay.rule.BillFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-billLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="Billing first name is empty or too long:账单名为空或过长" />
+	</bean>
+	
+	<bean id="createTpAhApi-billLastNameCheckRule" class="com.pay.gateway.validate.crosspay.rule.BillLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="Billing last name is empty or too long:账单姓为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillAddressCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="message" value="Billing address is empty or too long:账单地址为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillEmailCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0020" />
+		<property name="message" value="Billing email is empty or too long:账单邮箱为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0021" />
+		<property name="message" value="Billing telephone is empty or too long:账单电话为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillPostalCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillCityCheckRule" />
+		</property>
+		<property name="messageId" value="0022" />
+		<property name="message" value="Billing postcode is empty or too long:账单邮编为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillCityCheckRule" class="com.pay.gateway.validate.crosspay.rule.BillCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillStateCheckRule" />
+		</property>
+		<property name="messageId" value="0024" />
+		<property name="message" value="Billing city is empty or too long:账单城市为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillStateCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-BillCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0025" />
+		<property name="message" value="Billing state is empty or too long:账单州为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-BillCountryCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.BillCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-PayModeCheckRule" />
+		</property>
+		<property name="messageId" value="0026" />
+		<property name="message" value="Invalid BillCountryCode:账单国家码不正确" />
+	</bean>
+
+
+	<bean id="createTpAhApi-PayModeCheckRule" class="com.pay.gateway.validate.crosspay.rule.PayModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardHolderNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0036" />
+		<property name="message" value="Payment method is empty or too long:支付方式为空或过长"/>
+	</bean>
+
+	<bean id="createTpAhApi-CardHolderNumberCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardHolderFirstNameCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0037" />
+		<property name="message" value="CardHolderNumber is empty or too long:持卡人卡号为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-CardHolderFirstNameCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardHolderFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardHolderLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0038" />
+		<property name="message" value="Cardholder's first name is empty or too long:持卡人名为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-CardHolderLastNameCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardHolderLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardExpirationMonthCheckRule" />
+		</property>
+		<property name="messageId" value="0038" />
+		<property name="message" value="Cardholder's last name is empty or too long:持卡人姓为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-CardExpirationMonthCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardExpirationMonthCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardExpirationYearCheckRule" />
+		</property>
+		<property name="messageId" value="0040" />
+		<property name="message" value="Cardholder's valid month is empty or incorrect:持卡人卡片有效月为空或不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-CardExpirationYearCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardExpirationYearCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-SecurityCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0041" />
+		<property name="message" value="The valid year is empty or wrong. Please input the last two numbers of it:持卡人卡片有效年为空或输入不正确、正确输入为年的后2位" />
+	</bean>
+
+	<bean id="createTpAhApi-SecurityCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.SecurityCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardHolderEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0042" />
+		<property name="message" value="Paramter securityCode of is empty or wrong:持卡人卡片安全码为空或格式不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-CardHolderEmailCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardHolderEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-CardHolderPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0043" />
+		<property name="message" value="Paramter cardHolderEmail is empty or wrong:持卡人邮箱不能为空或格式不正确" />
+	</bean>
+	
+	<bean id="createTpAhApi-CardHolderPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardHolderPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0092" />
+		<property name="message" value="Cardholder's phone number too long:持卡人手机号码过长" />
+	</bean>
+	
+	<bean id="createTpAhApi-remarkCheckRule"	class="com.pay.gateway.validate.crosspay.rule.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="Invalid remark:备注内容不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-charsetCheckRule" class="com.pay.gateway.validate.crosspay.rule.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="createTpAhApi-signTypeCheckRule" class="com.pay.gateway.validate.crosspay.rule.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-returnUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+	
+	<bean id="createTpAhApi-returnUrlCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.ReturnUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0069" />
+		<property name="message" value="Return url is empty or too long: 商户回调地址为空或过长" />
+	</bean>
+
+	<bean id="createTpAhApi-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="createTpAhApi-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-MerchantChannelCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="createTpAhApi-MerchantChannelCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-MerchantSettlementCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="messageId" value="0050" />
+		<property name="message" value="No avalible channel for the merchant:商户无可用渠道" />
+	</bean>
+	
+	<bean id="createTpAhApi-MerchantSettlementCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.MerchantSettlementCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-deviceFingerPrintIdCheckRule" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="0051" />
+		<property name="message" value="No merchant settlement info:商户未配置结算信息" />
+	</bean>
+	
+	
+	
+	<bean id="createTpAhApi-deviceFingerPrintIdCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DeviceFingerPrintIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-directFlagCheckRule" />
+		</property>
+		<property name="messageId" value="0068" />
+		<property name="message" value="Device Fingerprint ID is empty or too long:设备指纹ID为空或过长" />
+	</bean>
+	
+	<bean id="createTpAhApi-directFlagCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.DirectFlagCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-travDetailsSizeCheckRule" />
+		</property>
+		<property name="messageId" value="0054" />
+		<property name="message" value="Parameter directFlag is empty:是否直连为空" />
+	</bean>
+	
+	<bean id="createTpAhApi-travDetailsSizeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.TravDetailsSizeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-travDetailsCheckRule" />
+		</property>
+		<property name="messageId" value="0056" />
+		<property name="message" value="Length of the travDetail is empty or too long :旅客集长度为空或过长" />
+	</bean>
+	
+	<bean id="createTpAhApi-travDetailsCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.TravDetailsCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-languageCheckRule" />
+		</property>
+		<property name="messageId" value="0057" />
+		<property name="message" value="TravDetail is empyt or too long:旅客信息集为空或过长" />
+	</bean>
+	
+	
+	<bean id="createTpAhApi-languageCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.LanguageCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-cardLimitCheckRule" />
+		</property>
+		<property name="messageId" value="0058" />
+		<property name="message" value="Wrong display Language:显示语言不正确" />
+	</bean>
+	<bean id="createTpAhApi-cardLimitCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.CardLimitCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-ShippingPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0059" />
+		<property name="message" value="Wrong card limit type:支付卡种限制不正确" />
+	</bean>
+	
+	<bean id="createTpAhApi-ShippingPostalCodeCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.ShippingPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-orderTerminalCheckRule" />
+		</property>
+		<property name="messageId" value="0031" />
+		<property name="message" value="Shipping postcode is empty or too long:收货人邮编为空或过长" />
+	</bean>
+	
+	<bean id="createTpAhApi-orderTerminalCheckRule"
+		class="com.pay.gateway.validate.crosspay.rule.OrderTerminalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="createTpAhApi-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="createTpAhApi-gatewayRequestSaveAction" />
+		</property>
+		<property name="messageId" value="0045" />
+		<property name="message" value="Paramter orderTerminal is empty or too long:终端设备标识为空或过长" />
+	</bean>
+	
+	<bean id="createTpAhApi-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.crosspay.rule.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="createTpAhApi-exceptionAction" class="com.pay.gateway.validate.crosspay.rule.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

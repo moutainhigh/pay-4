@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="withdraw">
+
+	<typeAlias alias="hMap" type="java.util.HashMap" />
+	
+	<insert id="insertWithdrawWorkOrder" parameterClass="hMap">
+		insert all
+		<iterate conjunction=" " property="aList">
+			into WITHDRAW_WORKORDER(
+				WORKORDER_KY,
+				ORDER_SEQ,
+				CREATE_TIME
+			)
+			values(
+				get_withdraw_workorder_ky(),
+				#aList[].orderSeq#,
+				#aList[].createTime#
+			)	
+		</iterate>
+		select * from dual 
+	</insert>
+
+	<update id="updateBatchStatus" parameterClass="hMap">
+		update WITHDRAW_WORKORDER set BATCH_STATUS = #batchStatus# where ORDER_SEQ IN (
+		  select ORDER_SEQ from WITHDRAW_WORKORDER where ORDER_SEQ in (
+		  select ORDER_ID from fundout_order where BULKPAY_NO = (
+		  select bulkpay_no from T_BULKPAYMENT_ORDER where id = #id#)))
+	</update>
+
+</sqlMap>

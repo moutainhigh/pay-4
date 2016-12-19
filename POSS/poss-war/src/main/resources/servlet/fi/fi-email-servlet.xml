@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/orderEmailNotify.do">orderEmailNotifyController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="orderEmailNotifyController"
+		class="com.pay.poss.controller.fi.notify.AcctOrderEmailNotifyController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		
+		<property name="enterpriseService" ref="enterpriseService"/>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService" />
+		<property name="acctOrderEmailNotifyService" ref="acctOrderEmailNotifyService" />
+		
+		<property name="emailNotifyList">
+			<value>/notify/email/emailNotifyList</value>
+		</property>
+		<property name="index">
+			<value>/notify/email/emailNotify</value>
+		</property>
+	</bean>
+</beans>

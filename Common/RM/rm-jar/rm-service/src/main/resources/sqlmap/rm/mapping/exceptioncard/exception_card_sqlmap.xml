@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="exceptioncard">
+	
+	<typeAlias alias="exceptionCardDTO" type="com.pay.rm.exceptioncard.dto.ExceptionCardDTO"/>
+	<typeAlias alias="aweekCount" type="com.pay.rm.exceptioncard.dto.AweekCount"/>
+  	<typeAlias alias="hMap" type="java.util.HashMap"/>
+  	<typeAlias alias="long" type="java.lang.Long"/>
+  	
+  	<resultMap class="exceptionCardDTO" id="exceptionCardDTO_resultMap">
+  		<result property="id" 						column="ID" 							jdbcType="NUMBER" />
+  		<result property="memberCode" 				column="MEMBER_CODE" 					jdbcType="NUMBER" />
+  		<result property="time" 					column="TIME" 							jdbcType="TIMESTAMP" />
+  		<result property="timeZone" 				column="TIME_ZONE" 						jdbcType="VARCHAR2" />
+  		<result property="exceptionCardCount" 		column="EXCEPTION_CARD_COUNT" 			jdbcType="NUMBER" />
+  		<result property="failOrderCount" 			column="FAIL_ORDER_COUNT" 				jdbcType="NUMBER" />
+  		<result property="exceptionCardPercent" 	column="EXCEPTION_CARD_PERCENT" 		jdbcType="VARCHAR2" />
+  		<result property="aweekAgoTimeZonePercent" 	column="AWEEK_AGO_TIME_ZONE_PERCENT" 	jdbcType="VARCHAR2" />
+  		<result property="status" 					column="STATUS" 						jdbcType="VARCHAR2" />
+  		<result property="updateTime" 				column="UPDATE_TIME" 					jdbcType="TIMESTAMP" />
+  	</resultMap>
+  
+  	<!-- 创建 -->
+  	<insert id="create" parameterClass="exceptionCardDTO">
+  		<selectKey keyProperty="id" resultClass="long">
+  			select seq_exception_card_id.nextval from dual
+  		</selectKey>
+  		INSERT
+		INTO T_EXCEPTION_CARD
+		  (
+		    ID,
+		    MEMBER_CODE,
+		    TIME,
+		    TIME_ZONE,
+		    EXCEPTION_CARD_COUNT,
+		    FAIL_ORDER_COUNT,
+		    EXCEPTION_CARD_PERCENT,
+		    AWEEK_AGO_TIME_ZONE_PERCENT,
+		    STATUS,
+		    UPDATE_TIME
+		  )
+		  VALUES
+		  (
+		    #id#,
+		    #memberCode#,
+		    #time#,
+		    #timeZone#,
+		    #exceptionCardCount#,
+		    #failOrderCount#,
+		    #exceptionCardPercent#,
+		    #aweekAgoTimeZonePercent#,
+		    #status#,
+		    #updateTime#
+		  )
+  	</insert>
+  	
+  	<!-- 查询对象 -->
+  	<select id="findObjectByCriteria" parameterClass="hMap" resultMap="exceptionCardDTO_resultMap">
+  		SELECT ID,
+		  MEMBER_CODE,
+		  TIME,
+		  TIME_ZONE,
+		  EXCEPTION_CARD_COUNT,
+		  FAIL_ORDER_COUNT,
+		  EXCEPTION_CARD_PERCENT,
+		  AWEEK_AGO_TIME_ZONE_PERCENT,
+		  STATUS,
+		  UPDATE_TIME
+		FROM T_EXCEPTION_CARD 
+		WHERE 1 = 1
+		<isNotEmpty property="memberCode" prepend="and">
+			MEMBER_CODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="time" prepend="and">
+			TIME=to_date(#time#, 'yyyy-MM-dd')
+		</isNotEmpty>
+		<isNotEmpty property="timeBetween" prepend="and">
+			TIME between to_date(#dayStart#, 'yyyy-MM-dd hh24:mi:ss') and to_date(#dayEnd#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty property="timeZoneBetween" prepend="and">
+			TIME_ZONE between #hourStart# and #hourEnd#
+		</isNotEmpty> 
+		
+  	</select>
+  	
+  	<!-- 修改 -->
+  	<update id="update" parameterClass="exceptionCardDTO">
+		UPDATE T_EXCEPTION_CARD
+		SET UPDATE_TIME=#updateTime#
+		<dynamic prepend=",">
+			<isNotEmpty property="exceptionCardCount" prepend=",">
+				EXCEPTION_CARD_COUNT=#exceptionCardCount#
+			</isNotEmpty>
+			<isNotEmpty property="failOrderCount" prepend=",">
+				FAIL_ORDER_COUNT=#failOrderCount#
+			</isNotEmpty>
+			<isNotEmpty property="exceptionCardPercent" prepend=",">
+				EXCEPTION_CARD_PERCENT=#exceptionCardPercent#
+			</isNotEmpty>
+			<isNotEmpty property="aweekAgoTimeZonePercent" prepend=",">
+				AWEEK_AGO_TIME_ZONE_PERCENT=#aweekAgoTimeZonePercent#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend=",">
+				STATUS=#status#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="where">
+			<isNotEmpty property="id" prepend="and">
+				ID=#id#
+			</isNotEmpty>
+			<isNotEmpty property="memberCode" prepend="and">
+				MEMBER_CODE=#memberCode#
+			</isNotEmpty>
+			<isNotEmpty property="time" prepend="and">
+				TIME=#time#
+			</isNotEmpty>
+			<isNotEmpty property="timeZone" prepend="and">
+				TIME_ZONE=#timeZone#
+			</isNotEmpty>
+		</dynamic>
+  	</update>
+  	
+  	<!-- 异常卡列表查询 -->
+  	<select id="findByCriteria" parameterClass="hMap" resultMap="exceptionCardDTO_resultMap">
+  		SELECT ID,
+		  MEMBER_CODE,
+		  TIME,
+		  TIME_ZONE,
+		  EXCEPTION_CARD_COUNT,
+		  FAIL_ORDER_COUNT,
+		  EXCEPTION_CARD_PERCENT,
+		  AWEEK_AGO_TIME_ZONE_PERCENT,
+		  decode(STATUS,'E','预警','N','正常') as status,
+		  UPDATE_TIME
+		FROM T_EXCEPTION_CARD 
+		WHERE 1 = 1
+		<isNotEmpty property="memberCode" prepend="and">
+			MEMBER_CODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="time" prepend="and">
+			to_char(time, 'yyyy-MM-dd')=#time#
+		</isNotEmpty>
+		<isNotEmpty property="timeZone" prepend="and">
+			TIME_ZONE=#timeZone#
+		</isNotEmpty>
+		<isNotEmpty property="exceptionCardCount" prepend="and">
+			EXCEPTION_CARD_COUNT=#exceptionCardCount#
+		</isNotEmpty>
+		<isNotEmpty property="timeBetween" prepend="and">
+			TIME between to_date(#dayStart#, 'yyyy-MM-dd hh24:mi:ss') and to_date(#dayEnd#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty property="timeZoneBetween" prepend="and">
+			TIME_ZONE between #hourStart# and #hourEnd#
+		</isNotEmpty>
+		order by TIME DESC 
+  	</select>
+  	
+  	<!-- 按传入日期查询异常卡笔数， 失败订单笔数统计 -->
+  	<select id="queryAweekCount" parameterClass="hMap" resultClass="aweekCount">
+  		SELECT sum(t.exception_card_count) as aweekExceptionCardCount,
+		  sum(t.fail_order_count) as aweekFailOrderCount
+		FROM t_exception_card t
+		WHERE 1=1 
+		<isNotEmpty property="dayStart" prepend="and">
+			TO_CHAR(t.time, 'yyyy-MM-dd hh24:mi:ss') &gt;= #dayStart#
+		</isNotEmpty>
+		<isNotEmpty property="dayEnd" prepend="and">
+			TO_CHAR(t.time, 'yyyy-MM-dd hh24:mi:ss')    &lt; #dayEnd#
+		</isNotEmpty>
+		<isNotEmpty property="timeZone" prepend="and">
+			t.time_zone = #timeZone# 
+		</isNotEmpty>
+		<isNotEmpty property="memberCode" prepend="and">
+			t.member_code = #memberCode#
+		</isNotEmpty>
+  	</select>
+  	
+  	
+</sqlMap>

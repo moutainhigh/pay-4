@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.channel.dao.MemberSecondLimitMapper">
+
+  <resultMap id="BaseResultMap" class="com.pay.channel.model.MemberSecondLimit">
+    <result column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="PARTNER_ID" jdbcType="DECIMAL" property="partnerId" />
+    <result column="CARD_ORG" jdbcType="VARCHAR" property="cardOrg" />
+    <result column="LIMIT_TIMES" jdbcType="DECIMAL" property="limitTimes" />
+    <result column="LIMIT_AMOUNT" jdbcType="DECIMAL" property="limitAmount" />
+    <result column="LIMIT_DAY" jdbcType="DECIMAL" property="limitDay" />
+    <result column="SWITCH_FLAG" jdbcType="VARCHAR" property="switchFlag" />
+    <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="OPERATOR" jdbcType="VARCHAR" property="operator" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ID, PARTNER_ID, CARD_ORG, LIMIT_TIMES, LIMIT_AMOUNT, LIMIT_DAY, SWITCH_FLAG, CREATE_DATE, 
+    OPERATOR
+  </sql>
+
+  <select id="findById" parameterClass="java.math.BigDecimal" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from MEMBER_SECOND_LIMIT
+    where ID = #id#
+  </select>
+
+  <select id="findAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from MEMBER_SECOND_LIMIT
+  </select>
+
+  <delete id="delete" parameterClass="java.math.BigDecimal">
+    delete from MEMBER_SECOND_LIMIT
+    where ID = #id#
+  </delete>
+
+  <insert id="create" parameterClass="com.pay.channel.model.MemberSecondLimit">
+    <selectKey resultClass="java.math.BigDecimal" keyProperty="id">
+      SELECT SEQ_MEMBER_SECOND_LIMIT.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into MEMBER_SECOND_LIMIT (ID, PARTNER_ID, CARD_ORG, 
+      LIMIT_TIMES, LIMIT_AMOUNT, LIMIT_DAY, 
+      SWITCH_FLAG, CREATE_DATE, OPERATOR
+      )
+    values (#id#, #partnerId#, #cardOrg#,
+    #limitTimes#, #limitAmount#, #limitDay#,
+    #switchFlag#, sysdate, #operator#
+      )
+  </insert>
+
+  <update id="updateModelByModel" parameterClass="com.pay.channel.model.MemberSecondLimit">
+    update
+      MEMBER_SECOND_LIMIT
+    SET
+      LIMIT_TIMES = #limitTimes#,
+      LIMIT_AMOUNT = #limitAmount#,
+      LIMIT_DAY = #limitDay#,
+      SWITCH_FLAG = #switchFlag#,
+      OPERATOR = #operator#,
+      CREATE_DATE = #createDate#
+    where
+      ID = #id#
+  </update>
+
+  <select id="findByCriteria" parameterClass="com.pay.channel.model.MemberSecondLimit" resultMap="BaseResultMap">
+    SELECT
+      ID, PARTNER_ID, CARD_ORG,
+      LIMIT_TIMES, LIMIT_AMOUNT, LIMIT_DAY,
+      SWITCH_FLAG, CREATE_DATE, OPERATOR
+    FROM MEMBER_SECOND_LIMIT
+    WHERE 1=1
+    <isNotEmpty prepend="AND" property="partnerId">
+      PARTNER_ID = #partnerId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="cardOrg">
+      CARD_ORG = #cardOrg#
+    </isNotEmpty>
+    order by ID asc
+  </select>
+
+  <select id="countByCriteria" parameterClass="com.pay.channel.model.MemberSecondLimit" resultClass="java.lang.Integer">
+    SELECT
+      count(1)
+    FROM MEMBER_SECOND_LIMIT
+    WHERE 1=1
+    <isNotEmpty prepend="AND" property="partnerId">
+      PARTNER_ID = #partnerId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="cardOrg">
+      CARD_ORG = #cardOrg#
+    </isNotEmpty>
+  </select>
+
+</sqlMap>

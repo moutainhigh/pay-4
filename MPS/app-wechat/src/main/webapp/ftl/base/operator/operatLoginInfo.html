@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+
+<title>登录记录查询</title>
+<script type="text/javascript">
+$(document).ready(function(){
+
+	$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+
+});
+	function showDetail(opId)
+	{
+		document.getElementById("detailOperator"+opId).style.display = "";
+	}
+	function colseDetail(opId)
+	{
+		document.getElementById("detailOperator"+opId).style.display = "none";
+	}
+</script>
+</head>
+<body>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+							<li id="topmenu_2" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                            <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+<div class="mainbox" style="padding-top: 20px;">
+	<div class="wrap">
+		<div class="section01">
+			<div class="tit">
+    		<span><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员管理</a></span>
+    		<span><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorAdd">添加操作员</a></span>
+    		<span class="current"><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorLogin">查看登录记录</a></span>
+			</div>
+			<div class="seccon">
+				<div class="bgbox">
+					<form class="form single" action="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorLogin" method="post" name="operatorSerchForm">
+						<input name="pageNo" id="pageNo" type="hidden">
+						<table class="tab01">
+							<tbody><tr>
+								<td>时间</td>
+								<td>
+									<input type="text" name="startTime"  value="${startTime?default('')}" 
+									                   readonly="readonly"
+									                   class="Wdate" id="applyStart"
+									                   onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" 
+									                   gtbfieldid="109" value="${stValue?default('')}">
+								</td>
+								<td style="text-align: center;">至</td>
+								<td>
+								   <input type="text" name="endTime" readonly="readonly" 
+									                   value="${endTime?default('')}"id="endTime" 
+									                   class="Wdate" id="applyEnd" onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'applyStart\')}',maxDate:'#F{$dp.$D(\'applyStart\',{M:1})}'})"
+									                   gtbfieldid="110" value="${eValue?default('')}">
+								</td>
+								<td>操作员</td>
+								<td>
+								  <select class="inp_normal" name="sel_Name">
+								<option value="" <#if !sel_Name?has_content>selected </#if> >全部</option>
+								<#if nameList?exists>
+								<#list nameList as item>
+								<option value="${item}" <#if sel_Name?has_content && sel_Name == item>selected </#if> >${item}</option>
+								</#list></#if>
+							</select>
+								</td>
+								<td>用户状态</td>
+								<td>
+								<select  class="inp_normal" name="sel_status">
+								<option value="" <#if !sel_status?has_content>selected </#if> >全部</option>
+								<option value="1" <#if sel_status?has_content && sel_status=='1'>selected </#if> >正常</option>
+								<option value="2" <#if sel_status?has_content && sel_status=='2'>selected </#if> >关闭</option>
+								<#--<option value="0" <#if sel_status?has_content && sel_status=='0'>selected </#if> >创建</option>-->
+							</select>
+								</td>
+								<td><input class="btn_blue"  type="submit" alt="查 询" value="查 询"></td>
+							</tr>
+						</tbody></table>
+					</form>
+				</div>
+				<div class="listFence" id="resultListDiv">
+				
+<div><font color="red"></font></div>
+				<div>
+					<table class="tab03">
+						<thead>
+                              						<tr>
+							<th>登录账号</th>
+							<th>真实姓名</th>
+							<th>登录时间</th>
+							<th>登录IP</th>
+							<th>用户状态</th>
+							<th>操作</th>
+						</tr>
+						</thead>
+						<tbody>
+                           <#if infoList?exists>
+								<#list infoList as ls>
+								<tr>
+								<td>${ls.identity}</td>
+								<td>${ls.name?default('')}</td>
+								<td><#if ls.loginDate?exists> ${ls.loginDate?string('yyyy-MM-dd HH:mm:ss')}</#if></td>
+								<td>${ls.loginIP?default('')}</td>
+								<td>${ls.getStautsEnum().getMessage()}</td>
+								<td><div class="table_tigs"> <a href="javascript:showDetail(${ls.operatorId?default('')});">详细</a> 
+								       <#if ls.name?default('') != 'admin'>
+										<#if ls.status == 2 || ls.status == 0>
+										<a href="${rc.contextPath}/corp/operatorAction.htm?method=openOperator&view=login&operatorName=${ls.identity}&pager_offset=${pu.curPageNo}">开通</a>
+										<#else>
+										<a href="${rc.contextPath}/corp/operatorAction.htm?method=closeOperator&view=login&operatorName=${ls.identity}&pager_offset=${pu.curPageNo}">关闭</a>
+										</#if> 
+										</#if>
+										<div id="detailOperator${ls.operatorId?default('')}" class="table_tigs_pop" style="width:200;height:200;background-color:#FFF;display:none;position:absolute;">
+										<i class="close_ico" title="关闭" onClick="javascript:colseDetail(${ls.operatorId?default('')});"></i>
+											<p>部门： ${ls.depart?default('')}</p>
+											<p>电子邮箱： ${ls.email?default('')}</p>
+											<p>手机号码： ${ls.mobile?default('')}</p>
+											<p>证件类型：<#if ls.certType == 1 && ls.certCode?has_content> 身份证<#else> &nbsp;&nbsp; </#if></p>
+											<p>证件号码：${ls.certCode?default('')}</p>
+											<p>备注：${ls.note?default('')} </p>
+										</div>
+									</div></td>
+							     </tr>
+							</#list>
+							</#if>
+						<tbody>
+					</tbody></table>
+					
+					<div style="text-align: right">
+                    <!--分页 str -->
+					<@sp.pagination pu=pu/>
+					<input type="hidden" value="${pu.curPageNo}" id="curPage">
+					<!--分页 end --> 
+					</div>
+			        <br>
+				</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+</div>
+<#include "/include/myfoot.html">
+</body>
+</html>

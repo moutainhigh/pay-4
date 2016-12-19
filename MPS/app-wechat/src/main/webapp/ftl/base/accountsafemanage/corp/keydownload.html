@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment//css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+
+<title>账户余额</title>
+<style type="text/css">
+    .commonLink {
+		cursor: pointer;
+		text-decoration: none;
+    }
+    
+    .commonLink:hover {
+		cursor: pointer;
+		text-decoration: none;
+    }
+    
+    .blueHighlight {
+    	font-family:微软雅黑;
+		font-size:13px;
+		font-weight:normal;
+		font-style:normal;
+		text-decoration:none;
+		color:#00F;
+    }
+</style>
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+
+<title>密钥下载</title>
+<script type="text/javascript">
+function submitForm(){
+	if($("#merchantKeySettingForm").validate()){
+		if(confirm("请确认是否要保存新的商户密钥")){
+			$("#merchantKeySettingForm").submit();
+		}
+	}
+}
+function sendValidationCode(){
+	var total = 60;
+	$("#resend").attr("disabled","disabled");
+	$("#resend").val("重新获取请等  {0} 秒后".format(total));
+	var listener = null;
+	listener = window.setInterval(function(){
+		total--;
+		var s_total = total<10?("0"+total):(""+total);
+		$("#resend").val("重新获取请等  {0} 秒后".format(s_total));
+		if(total==0){
+			$("#resend").attr("disabled","");
+			$("#resend").val("获取验证码");
+			window.clearInterval(listener);
+		}
+	},1000);
+	$.ajax({
+		type : "POST",
+		url : "../keysetting/merchantSendValidationCode.htm",
+		success : function(result) {
+			/*
+			result = result.toString();
+			if(result=="true" || result==true){
+				$("#isSended").css("color","blue");
+				$("#isSended").html("发送成功!");
+			}else{
+				$("#isSended").css("color","red");
+				$("#isSended").html("发送失败!");
+			}
+			*/
+		}
+	});
+}
+
+//页面validate
+$(document).ready(function() {
+	//为userInfoFrom注册validate函数
+	$("#merchantKeySettingForm").validate({
+		rules : {
+			merchantKeyType : "required",
+			merchantKey : {
+				required :true,
+				maxlength:256
+			},
+			phoneCode:{
+				required:true
+			}
+		},
+		messages: {
+			merchantKeyType:{
+				required : "请选择密钥类型"
+			},
+			merchantKey:{
+				required : "请输入商户密钥"
+			},
+			phoneCode:{
+				required : "请输入验证码"
+			}
+		}
+	});
+	$("#description").html('验证码将以邮件的形式发送到您的 {0} 邮箱，请注意查收！输入正确验证码后方可保存。'.format("liuqiong@masapay.com"));
+});
+
+</script>
+<style type="text/css">
+	.tab_l_td{
+        text-align:right;
+        width:100px;
+    }
+</style>
+</head>
+
+<body>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                             <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="mainbox" style="padding-top: 20px;">
+		<div class="wrap">
+			<div class="section01">
+		    	<div class="tit">
+				<span><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">登录密码修改</a></span>
+				<span><a href="${rc.contextPath}/corp/toupdatepaypwdpage.htm">支付密码修改</a></span>
+				<span class="current"><a href="${rc.contextPath}/corp/keydownload.htm">密钥下载</a></span>
+		    	</div>
+		    	<div class="bgbox">
+				<div>
+					<div style="margin-left: 40px;">
+					   <table class="tab01">
+							   <#if success?default('')!='Y'>
+							   <form id="confirmDownload"  method="post" >
+							   <tbody>
+								<tr>
+									<td colspan="3">
+									  请确认是否下载密钥。如果非第一次下载，下载后原密钥将失效。
+									</td>
+								</tr>
+								<tr>
+									<td align="left" width="100">
+									 <input type="radio" name="mode" id="r1" value="RSA">RSA密钥
+									</td>
+									<td align="left" width="300">
+									 <input type="radio" name="mode" id="r2" value="MD5">MD5密钥</p>
+									</td>
+									<td></td>
+								</tr>
+								<tr>
+									<td>
+                                     <span class="btn_red botton_red">
+                                         <button id="btnOK"  class="btn_blue">下载</button>
+                                     </span>
+									</td>
+									<td>
+									</td>
+									<td></td>
+								</tr>
+								</tbody>
+								</form>
+								<#else>
+								<tbody>
+								<tr>
+									<td colspan="3">
+									  <i class="warn_ico"></i>密钥更新失败，请重新尝试！
+									</td>
+								</tr>
+								</tbody>
+								</#if>
+							
+						</table>
+					</div>
+				</div>
+				<br />
+				<br />
+		    </div>
+		    </div>
+		</div>
+    </div>
+    <#include "/include/myfoot.html">
+</body>
+</html>

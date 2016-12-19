@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="withdrawexception">
+	<typeAlias alias="queryWithdrawModelWE" type="com.pay.fundout.withdraw.model.flowprocess.WithdrawQueryOrder" />
+	
+	<resultMap id="queryOrderMapId" class="queryWithdrawModelWE">
+		<result property="orderDto.webAuditTime" column="webAuditTime" />
+	    <result property="orderDto.memberCode" column="memberCode" />
+	    <result property="orderDto.memberName" column="memberName" />
+	    <result property="orderDto.memberAccType" column="memberAccType" />
+	    <result property="orderDto.sequenceId" column="sequenceId" />
+	    <result property="orderDto.accountName" column="accountName" />
+	    <result property="orderDto.bankBranch" column="bankBranch" />
+	    <result property="orderDto.bankAcct" column="bankAcct" />
+	    <result property="orderDto.amount" column="amount" />
+	    <result property="orderDto.bankProvince" column="bankProvince" />
+	    <result property="orderDto.createTime" column="createTime" />
+	    <result property="workOrderDto.status" column="status" />
+	    <result property="orderDto.bankCity" column="bankCity" />
+	    <result property="orderDto.bankKy" column="bankKy" />
+	    <result property="orderDto.busiType" column="busiType" />
+	    <result property="workOrderDto.workOrderky" column="workOrderKy" />
+	    <result property="workOrderDto.workflowKy" column="workflowKy" />
+  	</resultMap>
+	
+	<select id="getWithDrawExceptionInfoList" parameterClass="java.util.Map" resultClass="com.pay.fundout.withdraw.model.flowprocess.WithdrawExceptionInfo">
+	    select * from(
+	      select a.PAYER_MEMBERCODE memberCode,
+	             a.PAYER_NAME memberName,
+	             a.ORDER_TYPE busiType,
+	             decode(a.ORDER_TYPE,0,'提现',1,'批量出款',2,'信用卡还款',3,'付款到银行',4,'批量付款到银行',a.ORDER_TYPE) busiTypeDesc,
+	             a.ORDER_ID sequenceId,
+	             a.PAYEE_BANKCODE bankKy,
+	             a.PAYEE_NAME accountName,
+	             a.PAYEE_BANKACCTCODE bankAcct,
+	             a.order_amount amount,
+	             a.CREATE_DATE createTime,
+	             b.STATUS status,
+	             b.WORKFLOW_KY workflowKy,
+	             b.workorder_ky workOrderKy
+	        from FUNDOUT_ORDER a,
+	             withdraw_workorder b
+	       where a.order_id=b.order_seq(+)
+	       and not exists (select 1 from work_order where order_seq = a.order_id and status = 0)
+		   <dynamic>
+			   	<isNotEmpty prepend="and" property="businessSeq">
+			   		a.order_id=#businessSeq#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="memberNo">
+			   		a.PAYER_MEMBERCODE=#memberNo#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="businessType">
+			   		a.ORDER_TYPE=#businessType#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="bankAcct">
+			   		a.PAYEE_BANKACCTCODE=#bankAcct#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="startTime">
+			   		a.CREATE_DATE>=#startTime#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="endTime">
+			   		#endTime#>=a.CREATE_DATE
+			   	</isNotEmpty>
+		   </dynamic>
+		   and a.ORDER_STATUS=101
+	     )
+	     where trim(workOrderKy) is null
+	     order by createTime
+  	</select>
+  	
+  	<select id="getWithDrawExceptionInfoList_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+ 		 	select count(*) from(
+	      select a.PAYER_MEMBERCODE,b.WORKFLOW_KY workflowKy,
+	             b.workorder_ky workOrderKy
+	        from FUNDOUT_ORDER a,
+	             withdraw_workorder b
+	       where a.order_id=b.order_seq(+)
+	       and not exists (select 1 from work_order where order_seq = a.order_id and status = 0)
+		   <dynamic>
+			   	<isNotEmpty prepend="and" property="businessSeq">
+			   		a.order_id=#businessSeq#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="memberNo">
+			   		a.PAYER_MEMBERCODE=#memberNo#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="businessType">
+			   		a.ORDER_TYPE=#businessType#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="bankAcct">
+			   		a.PAYEE_BANKACCTCODE=#bankAcct#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="startTime">
+			   		a.CREATE_DATE>=#startTime#
+			   	</isNotEmpty>
+			   	<isNotEmpty prepend="and" property="endTime">
+			   		#endTime#>=a.CREATE_DATE
+			   	</isNotEmpty>
+		   </dynamic>
+		   and a.ORDER_STATUS=101
+	     )
+	     where trim(workOrderKy) is null
+  	</select>
+  	
+  	<!-- add Jason_wang -->
+  	<!-- 统计风控未处理数据 -->
+  	<select id="queryNoDealWithdrawInfo_SUM" parameterClass="com.pay.fundout.withdraw.dto.flowprocess.WithdrawReportQueryDTO" resultClass="java.util.HashMap">
+  		select count(a.order_id) countData,
+		       sum(a.order_amount) amount     
+		  from FUNDOUT_ORDER a,
+		       withdraw_workorder b
+		 where a.order_id=b.order_seq
+		   <dynamic>
+		   	<isNotEmpty prepend="and" property="startTime">
+		   		b.CREATE_Time >= #startTime#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="endTime">
+		   		#endTime# >= b.CREATE_Time
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="busiType">
+		   		a.ORDER_TYPE=#busiType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="auditGrade">
+		   		a.PRIORITY=#auditGrade#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberCode">
+		   		a.PAYER_MEMBERCODE=#memberCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberType">
+		   		a.PAYER_MEMBERTYPE=#memberType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="acctType">
+		   		a.PAYER_ACCTTYPE=#acctType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankCode">
+		   		a.PAYEE_BANKCODE=#bankCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessNo">
+		   		a.order_id=#businessNo#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankAcct">
+		   		a.PAYEE_BANKACCTCODE=#bankAcct#
+		   	</isNotEmpty>
+		   </dynamic>
+		   and b.status=0
+		   and a.ORDER_STATUS=101
+  	</select>
+  	
+  	<!-- 查询分控未处理数据 -->
+  	<select id="queryNoDealWithdrawInfo" parameterClass="com.pay.fundout.withdraw.dto.flowprocess.WithdrawReportQueryDTO" resultMap="queryOrderMapId">
+  		select a.PAYER_MEMBERCODE memberCode,
+		       a.PAYER_NAME memberName,
+		       a.ORDER_TYPE busiType,
+		       a.PAYER_ACCTTYPE memberAccType,
+		       a.ORDER_ID sequenceId,
+		       a.PAYEE_BANKCODE bankKy,
+		       a.PAYEE_OPENINGBANKNAME bankBranch,
+		       a.PAYEE_NAME accountName,
+		       a.PAYEE_BANKACCTCODE bankAcct,
+		       a.ORDER_AMOUNT amount,
+		       a.PAYEE_BANKPROVINCE bankProvince,
+		       a.PAYEE_BANKCITY bankCity,
+		       a.CREATE_DATE createTime,
+		       b.CREATE_Time webAuditTime,
+		       b.STATUS status,
+		       b.WORKORDER_KY workOrderKy,
+		       b.workflow_ky workflowKy      
+		  from FUNDOUT_ORDER a,
+		       withdraw_workorder b
+		 where a.ORDER_ID=b.order_seq
+		   <dynamic>
+		   	<isNotEmpty prepend="and" property="startTime">
+		   		b.CREATE_Time >= #startTime#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="endTime">
+		   		#endTime# >= b.CREATE_Time
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="busiType">
+		   		a.ORDER_TYPE=#busiType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="auditGrade">
+		   		a.PRIORITY=#auditGrade#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberCode">
+		   		a.PAYER_MEMBERCODE=#memberCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberType">
+		   		a.PAYER_MEMBERTYPE=#memberType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="acctType">
+		   		a.PAYER_ACCTTYPE=#acctType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankCode">
+		   		a.PAYEE_BANKCODE=#bankCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessNo">
+		   		a.order_id=#businessNo#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankAcct">
+		   		a.PAYEE_BANKACCTCODE=#bankAcct#
+		   	</isNotEmpty>
+		   </dynamic>
+		   and b.status=0
+		   and a.ORDER_STATUS=101
+		   order by a.CREATE_DATE desc
+  	</select>
+  	<select id="queryNoDealWithdrawInfo_COUNT" parameterClass="com.pay.fundout.withdraw.dto.flowprocess.WithdrawReportQueryDTO" resultClass="java.lang.Integer">
+  		select count(a.ORDER_ID)      
+		  from FUNDOUT_ORDER a,
+		       withdraw_workorder b
+		 where a.ORDER_ID=b.order_seq
+		   <dynamic>
+		   	<isNotEmpty prepend="and" property="startTime">
+		   		b.CREATE_Time >= #startTime#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="endTime">
+		   		#endTime# >= b.CREATE_Time
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="busiType">
+		   		a.ORDER_TYPE=#busiType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="auditGrade">
+		   		a.PRIORITY=#auditGrade#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberCode">
+		   		a.PAYER_MEMBERCODE=#memberCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberType">
+		   		a.PAYER_MEMBERTYPE=#memberType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="acctType">
+		   		a.PAYER_ACCTTYPE=#acctType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankCode">
+		   		a.PAYEE_BANKCODE=#bankCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessNo">
+		   		a.order_id=#businessNo#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankAcct">
+		   		a.PAYEE_BANKACCTCODE=#bankAcct#
+		   	</isNotEmpty>
+		   </dynamic>
+		   and b.status=0
+		   and a.ORDER_STATUS=101
+  	</select>
+  	
+  	<!-- 统计风控已处理数据 -->
+  	<select id="queryDealedWithdrawInfo_SUM" parameterClass="com.pay.fundout.withdraw.dto.flowprocess.WithdrawReportQueryDTO" resultClass="java.util.HashMap">
+  		select count(a.order_id) countData,
+		       sum(a.order_amount) amount     
+		  from FUNDOUT_ORDER a,
+		       withdraw_workorder b
+		 where a.order_id=b.order_seq
+		   and b.status !=0
+		   <dynamic>
+		   <isNotEmpty prepend="and" property="auditUser">
+		   		exists(select distinct c.workorder_ky 
+	                    from withdraw_wf_log c
+	                   where c.workorder_ky=b.workorder_ky
+	                     and c.operator=#auditUser#
+	                     and c.node='audit')
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="reAuditUser">
+		   		exists(select distinct c.workorder_ky 
+	                    from withdraw_wf_log c
+	                   where c.workorder_ky=b.workorder_ky
+	                     and c.operator=#reAuditUser#
+	                     and c.node='reAudit')
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessStatus">
+		   		b.status in($businessStatus$)
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="liquidateFlag">
+		   		b.batch_status in($liquidateFlag$)
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="startTime">
+		   		b.CREATE_Time >= #startTime#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="endTime">
+		   		#endTime# >= b.CREATE_Time
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="busiType">
+		   		a.ORDER_TYPE=#busiType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="auditGrade">
+		   		a.PRIORITY=#auditGrade#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberCode">
+		   		a.PAYER_MEMBERCODE=#memberCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberType">
+		   		a.PAYER_MEMBERTYPE=#memberType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="acctType">
+		   		a.PAYER_ACCTTYPE=#acctType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankCode">
+		   		a.PAYEE_BANKCODE=#bankCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessNo">
+		   		a.order_id=#businessNo#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankAcct">
+		   		a.PAYEE_BANKACCTCODE=#bankAcct#
+		   	</isNotEmpty>
+		   </dynamic>
+  	</select>
+  	
+  	<!-- 查询分控已处理数据 -->
+  	<select id="queryDealedWithdrawInfo" parameterClass="com.pay.fundout.withdraw.dto.flowprocess.WithdrawReportQueryDTO" resultMap="queryOrderMapId">
+  		select a.PAYER_MEMBERCODE memberCode,
+		       a.PAYER_NAME memberName,
+		       a.ORDER_TYPE busiType,
+		       a.PAYER_ACCTTYPE memberAccType,
+		       a.ORDER_ID sequenceId,
+		       a.PAYEE_BANKCODE bankKy,
+		       a.PAYEE_OPENINGBANKNAME bankBranch,
+		       a.PAYEE_NAME accountName,
+		       a.PAYEE_BANKACCTCODE bankAcct,
+		       a.ORDER_AMOUNT amount,
+		       a.PAYEE_BANKPROVINCE bankProvince,
+		       a.PAYEE_BANKCITY bankCity,
+		       a.CREATE_DATE createTime,
+		       b.CREATE_Time webAuditTime,
+		       b.STATUS status,
+		       b.WORKORDER_KY workOrderKy,
+		       b.workflow_ky workflowKy      
+		  from FUNDOUT_ORDER a,
+		       withdraw_workorder b
+		 where a.ORDER_ID=b.order_seq
+		   and b.status !=0
+		   <dynamic>
+		   	<isNotEmpty prepend="and" property="auditUser">
+		   		exists(select distinct c.workorder_ky 
+	                    from withdraw_wf_log c
+	                   where c.workorder_ky=b.workorder_ky
+	                     and c.operator=#auditUser#
+	                     and c.node='audit')
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="reAuditUser">
+		   		exists(select distinct c.workorder_ky 
+	                    from withdraw_wf_log c
+	                   where c.workorder_ky=b.workorder_ky
+	                     and c.operator=#reAuditUser#
+	                     and c.node='reAudit')
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessStatus">
+		   		b.status in($businessStatus$)
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="liquidateFlag">
+		   		b.batch_status in($liquidateFlag$)
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="startTime">
+		   		b.CREATE_Time >= #startTime#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="endTime">
+		   		#endTime# >= b.CREATE_Time
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="busiType">
+		   		a.ORDER_TYPE=#busiType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="auditGrade">
+		   		a.PRIORITY=#auditGrade#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberCode">
+		   		a.PAYER_MEMBERCODE=#memberCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberType">
+		   		a.PAYER_MEMBERTYPE=#memberType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="acctType">
+		   		a.PAYER_ACCTTYPE=#acctType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankCode">
+		   		a.PAYEE_BANKCODE=#bankCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessNo">
+		   		a.order_id=#businessNo#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankAcct">
+		   		a.PAYEE_BANKACCTCODE=#bankAcct#
+		   	</isNotEmpty>
+		   </dynamic>
+		   order by a.CREATE_DATE desc
+  	</select>
+  	<select id="queryDealedWithdrawInfo_COUNT" parameterClass="com.pay.fundout.withdraw.dto.flowprocess.WithdrawReportQueryDTO" resultClass="java.lang.Integer">
+  		select count(a.ORDER_ID)      
+		  from FUNDOUT_ORDER a,
+		       withdraw_workorder b
+		 where a.ORDER_ID=b.order_seq
+		  and b.status !=0
+		   <dynamic>
+		   <isNotEmpty prepend="and" property="auditUser">
+		   		exists(select distinct c.workorder_ky 
+	                    from withdraw_wf_log c
+	                   where c.workorder_ky=b.workorder_ky
+	                     and c.operator=#auditUser#
+	                     and c.node='audit')
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="reAuditUser">
+		   		exists(select distinct c.workorder_ky 
+	                    from withdraw_wf_log c
+	                   where c.workorder_ky=b.workorder_ky
+	                     and c.operator=#reAuditUser#
+	                     and c.node='reAudit')
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessStatus">
+		   		b.status in($businessStatus$)
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="liquidateFlag">
+		   		b.batch_status in($liquidateFlag$)
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="startTime">
+		   		b.CREATE_Time >= #startTime#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="endTime">
+		   		#endTime# >= b.CREATE_Time
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="busiType">
+		   		a.ORDER_TYPE=#busiType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="auditGrade">
+		   		a.PRIORITY=#auditGrade#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberCode">
+		   		a.PAYER_MEMBERCODE=#memberCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="memberType">
+		   		a.PAYER_MEMBERTYPE=#memberType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="acctType">
+		   		a.PAYER_ACCTTYPE=#acctType#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankCode">
+		   		a.PAYEE_BANKCODE=#bankCode#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="businessNo">
+		   		a.order_id=#businessNo#
+		   	</isNotEmpty>
+		   	<isNotEmpty prepend="and" property="bankAcct">
+		   		a.PAYEE_BANKACCTCODE=#bankAcct#
+		   	</isNotEmpty>
+		   </dynamic>
+  	</select>
+  	 <!-- 查询审核与复核员 -->
+    <select id="queryAuditAndReAuditUserInfo" parameterClass="java.lang.Long" resultClass="java.util.HashMap">
+    	SELECT *
+		  FROM (SELECT NODE, OPERATOR
+		          FROM WITHDRAW_WF_LOG T
+		         WHERE NODE IN ('audit', 'reAudit')
+		           AND WORKORDER_KY = #workOrderKy#
+		         ORDER BY CREATEDATE DESC)
+		 WHERE ROWNUM &lt;= 2
+    </select>
+  	<!-- end Jason_wang -->
+</sqlMap>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentChannelCategory">
+
+	<typeAlias alias="paymentChannelCategory" type="com.pay.channel.model.PaymentChannelCategory" />
+	
+	<resultMap id="paymentChannelCategoryResult" class="paymentChannelCategory">
+		<result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="STATUS" property="status" jdbcType="DECIMAL" />
+		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<insert id="create" parameterClass="paymentChannelCategory">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT SEQ_PAYMENT_CATEGORY_ID.nextval FROM DUAL
+		</selectKey>
+		INSERT INTO PAYMENT_CHANNEL_CATEGORY(ID,STATUS,DESCRIPTION,CODE,NAME,CREATE_DATE,OPERATOR,UPDATE_DATE)
+		VALUES(#id#,#status#,#description#,#code#,#name#,#createDate#,#operator#,#updateDate#)
+	</insert>
+	
+	<delete id="delete" parameterClass="java.lang.Long">
+		delete from PAYMENT_CHANNEL_CATEGORY where id = #id#
+	</delete>
+
+	<update id="update" parameterClass="paymentChannelCategory">
+		UPDATE PAYMENT_CHANNEL_CATEGORY 
+			SET ID = #id#
+		<dynamic>
+			<isNotNull prepend="," property="code">
+				CODE = #code#
+	        </isNotNull>
+			<isNotNull prepend="," property="status">
+				STATUS = #status#
+	        </isNotNull>
+			<isNotNull prepend="," property="description">
+				DESCRIPTION = #description#
+	        </isNotNull>
+			<isNotNull prepend="," property="name">
+				NAME = #name#
+	        </isNotNull>
+			<isNotNull prepend="," property="operator">
+				OPERATOR = #operator#
+	        </isNotNull>
+			<isNotNull prepend="," property="updateDate">
+				UPDATE_DATE = #updateDate#
+	        </isNotNull>
+	    </dynamic>
+		WHERE ID = #id#
+	</update>
+	
+	<select id="findByCode" parameterClass="java.lang.String" resultMap="paymentChannelCategoryResult">
+		select * from PAYMENT_CHANNEL_CATEGORY where CODE = #code#
+	</select>
+	
+	<select id="loadAll" resultMap="paymentChannelCategoryResult">
+		select * from PAYMENT_CHANNEL_CATEGORY
+	</select>
+	
+	<select id="findByCriteria" parameterClass="paymentChannelCategory">
+		select * from PAYMENT_CHANNEL_CATEGORY where 1=1
+		<isNotNull prepend="and" property="code">
+				CODE = #code#
+        </isNotNull>
+		<isNotNull prepend="and" property="status">
+			STATUS = #status#
+        </isNotNull>
+		<isNotNull prepend="and" property="description">
+			DESCRIPTION = #description#
+        </isNotNull>
+		<isNotNull prepend="and" property="name">
+			NAME = #name#
+        </isNotNull>
+		<isNotNull prepend="and" property="operator">
+			OPERATOR = #operator#
+        </isNotNull>
+	</select>
+
+	<select id="queryPaymentChannelCategory" parameterClass="java.util.Map" resultMap="paymentChannelCategoryResult">
+		select * from PAYMENT_CHANNEL_CATEGORY where 1=1
+		<isNotNull prepend="and" property="code">
+				CODE = #code#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="id">
+				id = #id#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="status">
+			STATUS = #status#
+        </isNotNull>
+		<isNotNull prepend="and" property="description">
+			DESCRIPTION = #description#
+        </isNotNull>
+		<isNotEmpty prepend="and" property="name">
+			NAME = #name#
+        </isNotEmpty>
+		<isNotNull prepend="and" property="operator">
+			OPERATOR = #operator#
+        </isNotNull>
+	</select>
+
+</sqlMap>

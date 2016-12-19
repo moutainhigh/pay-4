@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orderfillbatch">
+
+	<typeAlias alias="orderFillBatch" type="com.pay.fi.fill.model.OrderFillBatch"/>
+	<typeAlias alias="orderFillBatchCondition" type="com.pay.fi.fill.condition.orderfillbatch.OrderFillBatchCondition"/>
+	<typeAlias alias="lang" type="java.lang.Long"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+
+	<resultMap class="orderFillBatch" id="orderFillBatchMap">
+		<result property="reqBatchNo" 		column="REQ_BATCH_NO" 			jdbcType="NUMBER"/>	
+		<result property="applicant" 		column="APPLICANT" 				jdbcType="VARCHAR2"/>	
+		<result property="createTime" 		column="CREATETIME" 			jdbcType="TIMESTAMP"/>	
+		<result property="fileName" 		column="FILENAME" 				jdbcType="VARCHAR2"/>	
+		<result property="orgCode" 			column="ORGCODE" 				jdbcType="VARCHAR2"/>	
+		<result property="applyAmount" 		column="APPLYAMOUNT" 			jdbcType="VARCHAR2"/>	
+		<result property="auditor" 			column="AUDITOR" 				jdbcType="VARCHAR2"/>	
+		<result property="auditStatus" 		column="AUDITSTATUS" 			jdbcType="NUMBER"/>	
+		<result property="auditTime" 		column="AUDITTIME" 				jdbcType="TIMESTAMP"/>	
+		<result property="remark" 			column="REMARK" 				jdbcType="VARCHAR2"/>	
+	</resultMap>
+
+	<insert id="fillBatchSave" parameterClass="orderFillBatch">
+		<selectKey resultClass="java.lang.Long" keyProperty="reqBatchNo">
+			SELECT	922 || TO_CHAR(SYSDATE, 'yymmddhh24mi')	|| LPAD(SEQ_FILL_COMMON_NO.nextval, 6, 0) FROM DUAL
+		</selectKey>
+		insert into FILL_BATCH(
+			REQ_BATCH_NO	,
+		
+			APPLICANT		,
+			CREATETIME		,
+			FILENAME		,
+			ORGCODE			,
+			APPLYAMOUNT		,
+			AUDITOR			,
+			AUDITSTATUS		,
+			AUDITTIME		,
+			REMARK
+		)
+		values(
+			#reqBatchNo#,
+			
+			#applicant#,
+			#createTime#,
+			#fileName#,
+			#orgCode#,
+			#applyAmount#,
+			#auditor#,
+			#auditStatus#,
+			#auditTime#,
+			#remark#
+		)
+	</insert>    
+   
+   <select id="findOrderFillBatchAll" resultMap="orderFillBatchMap">
+   		select REQ_BATCH_NO,APPLICANT,CREATETIME,FILENAME,ORGCODE,APPLYAMOUNT,AUDITOR,AUDITSTATUS,AUDITTIME,REMARK
+   		from FILL_BATCH order by CREATETIME desc
+   </select>
+      <select id="getOrderFillBatchById" resultMap="orderFillBatchMap" parameterClass="java.lang.Long">
+   		select REQ_BATCH_NO,APPLICANT,CREATETIME,FILENAME,ORGCODE,APPLYAMOUNT,AUDITOR,AUDITSTATUS,AUDITTIME,REMARK
+   		from FILL_BATCH where REQ_BATCH_NO=#reqBatchNo#
+   </select>
+   <!-- 条件查询、计总通用条件 -->
+   <sql id="sql_select_count">
+   		<dynamic prepend="where">
+   			<isNotEmpty property="startTime">
+   				<isEmpty prepend="and" property="endTime">
+   					to_char(createTime,'YYYY-MM-DD')=#startTime#
+   				</isEmpty>
+   			</isNotEmpty>
+   			<isNotEmpty property="endTime">
+   				<isEmpty prepend="and" property="startTime">
+   					to_char(createTime,'YYYY-MM-DD')=#endTime#
+   				</isEmpty>
+   			</isNotEmpty>
+   			<isEqual compareValue="true" prepend="and" property="timeBetween">
+   				<![CDATA[  to_char(createTime,'YYYY-MM-DD') >= #startTime# and to_char(createTime,'YYYY-MM-DD') <= #endTime# ]]>
+   			</isEqual>
+   			<isNotEmpty prepend="and" property="auditStatus">
+   				AUDITSTATUS=#auditStatus#
+   			</isNotEmpty>
+   			<isNotEmpty prepend="and" property="orgCode">
+   				ORGCODE=#orgCode#
+   			</isNotEmpty>
+   		</dynamic>
+   </sql>
+   <select id="findByCriteria" parameterClass="orderFillBatchCondition" resultMap="orderFillBatchMap">
+   		select REQ_BATCH_NO,APPLICANT,CREATETIME,FILENAME,ORGCODE,APPLYAMOUNT,AUDITOR,AUDITSTATUS,AUDITTIME,REMARK
+   		from FILL_BATCH 
+   		<include refid="sql_select_count"/>
+   		order by CREATETIME desc
+   </select>
+   
+   <select id="findByCriteria_COUNT" parameterClass="orderFillBatchCondition" resultClass="java.lang.Integer">
+   		select count(1)
+   		from FILL_BATCH 
+   		<include refid="sql_select_count"/>
+   </select>
+   
+   <update id="updateAuditStatusByReqBatchNo" parameterClass="hMap">
+   		update FILL_BATCH set AUDITOR=#auditor#, AUDITSTATUS=#auditStatus#, AUDITTIME=#auditTime#, REMARK=#remark#  
+   		where REQ_BATCH_NO=#reqBatchNo# 		
+   </update>
+   
+   <select id="findOrderFillBatchByReqBatchNo" parameterClass="lang" resultClass="orderFillBatch">
+   		select REQ_BATCH_NO,APPLICANT,CREATETIME,FILENAME,ORGCODE,APPLYAMOUNT,AUDITOR,AUDITSTATUS,AUDITTIME,REMARK
+   		from FILL_BATCH where REQ_BATCH_NO=#reqBatchNo#
+   </select>
+</sqlMap>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fiexceptioncard">
+	
+	<typeAlias alias="exceptionCardDetailMsgDTO" type="com.pay.txncore.dto.ExceptionCardDetailMsgDTO"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+
+	<select id="findByCriteria" parameterClass="hMap" resultClass="exceptionCardDetailMsgDTO">
+		select  t.partner_id  as memberCode,
+		        t.order_id  as orderId, 
+		        t.trade_order_no as tradeOrderNo,
+		        p.payment_order_no as paymentOrderNo,
+		        c.channel_order_no as channelOrderNo,
+		        c.org_code as orgCode,
+		        t.order_amount as orderAmount,
+		        t.currency_code as currencyCode,
+		        t.rate as currencyRate,
+		        '失败' as channelResult,
+		        '失败' as tradeResult,
+		       /* c.error_code,
+		        t.resp_code,*/
+		        t.create_date as createTime,
+		        c.pay_amount as payAmount,
+		        c.currency_code as payCurrencyCode,
+		        c.merchant_no as merchantNo,
+		        e.ext_order_info_1 as site,
+		        substr(e.cardholder_cardno,1,6)|| replace(lpad('X',length(e.cardholder_cardno)-10, '*'),'X','')|| substr(e.cardholder_cardno,length(e.cardholder_cardno)-4,4) as cardNo,
+		        e.cardholder_name as cardHolderName,
+		        e.ext_order_info_8 as ip,
+		         e.ext_order_info_7 as email,
+		         ex.SHIPPING_ADDRESS as shippingAddress,
+		         e.cardholder_mobile as cardHolderMobile,
+		         t.resp_code as tradeRespCode,
+		         t.resp_msg as tradeRespDesc,
+		         c.error_code as channelRespCode,
+		         c.error_msg as channelRespDesc
+		  from fi.trade_order t, fi.channel_order c, fi.payment_order p , fi.trade_extends e, fi.EXPRESS_TRACKING ex 
+		 where p.payment_order_no = c.payment_order_no
+		   and p.trade_order_no = t.trade_order_no
+		   and p.trade_order_no = e.trade_order_no
+		   and p.trade_order_no = ex.trade_order_no
+		   and c.status =2
+		   <isNotEmpty property="memberCode" prepend="and">
+		   	t.partner_id =#memberCode#
+		   </isNotEmpty>
+		   <isNotEmpty property="time" prepend="and">
+		   	to_char(t.create_date, 'yyyy-MM-dd')=#time#
+		   </isNotEmpty>
+		   
+		   <!-- <isNotNull property="channelRespCodes">
+				and c.error_code in
+				<iterate open="(" close=")" conjunction="," property="channelRespCodes">
+					#channelRespCodes[]#
+				</iterate>
+			</isNotNull>
+			<isNotNull property="channels">
+				and c.org_code in
+				<iterate open="(" close=")" conjunction="," property="channels">
+					#channels[]#
+				</iterate>
+			</isNotNull> -->
+			<!-- 这里以后换成动态sql -->
+			and (
+			(c.error_code in('202', '205', '33', '41', '54', '75','04','38','55','209','211','230') and c.org_code = 10002001) 
+			or(c.error_code in('33', '34', '41', '43', '54', '67', '78','79','81','62', '35', '37', '38', '55', '59', 'Q2', 'SK') and c.org_code = 10079001) 
+			or(c.error_code in('41', '44', '54', '59', '62','42','43','55','75','81','82','87','N7') and c.org_code = 10075001)
+			or(c.error_code in('202', '205', '209', '211', '230') and c.org_code = 10078001)
+			or(c.error_code in('4', 'I', 'U') and c.org_code = 10080001)
+			or(c.error_code in('9904', '9907', '9933', '9934', '9941', '9943', '9954', '9959', '4404', '9914', '9937', '9938', '9955', '9960', '9966', '9975', '9999', '99N7') and c.org_code = 10076001)
+			) 
+			<!-- 这里排除我们自己系统返回渠道错误码9999（否则会造成数据不准确），因为10076001里的异常卡返回码里有9999 -->
+			and c.ERROR_MSG != '（下单流程）连接银行前置异常！' and c.ERROR_MSG != '未知错误' 
+	</select>
+		
+</sqlMap>

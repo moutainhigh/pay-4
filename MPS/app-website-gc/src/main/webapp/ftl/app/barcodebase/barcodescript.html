@@ -1,0 +1,394 @@
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link rel="Bookmark" type="image/x-icon" href="<@sp.static/>/img/favicon.ico">
+<link href="<@sp.static/>/img/favicon.ico" type="image/x-icon" rel="SHORTCUT ICON"> 
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/imgbox.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.imgbox.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+
+<style type="text/css">
+<!--
+#am_label{margin: 0px;font-size: 18px;font-weight: bold;color: #000}
+-->
+</style>
+<script type="text/javascript">
+
+var mobileReg =  /^(13|15|18|14)[0-9]{9}$/; 
+$(function() {
+	$("#amount").blur(function() {
+		var fee_amount = this.value;
+		if(isNaN(fee_amount*1)){
+			$("#amountError").html("请输入数字");
+			return false;
+	    }	
+		if (!this.value.indexOf(".") == 0) {
+			if (parseFloat(this.value)) {
+				if (!isNaN(this.value)) {
+					this.value = parseFloat(this.value).toFixed(2);
+				}
+			}
+		}	
+	});
+});
+
+	function findOrgs(city,type,defaultCity){
+		$.getJSON(
+				  "${rc.contextPath}/ebillOrg.htm",
+				  {cityCode:city,ebillType:type} ,
+				  function(json){
+					  var len = json.length;
+					  var strs = "";
+					//  if(len>1){
+						  strs = "<option value=''>"+"--请选择缴费机构--"+"</option>";
+					//	}
+				    for(var i=0;i<len;i++){
+					    var obj = json[i];
+					    strs += "<option value='"+obj.orgCode+"'>"+obj.orgName+"</option>";
+					   }
+
+				  setTimeout(function(){ 
+					     $("#orgCode").empty();
+				    	$("#orgCode").append(strs);
+					   if(defaultCity){
+						  setTimeout(function() {
+							$("#orgCode>option[value="+defaultCity+"]").attr("selected",true);
+							$("#comName").text($("#orgCode>option:selected").text());
+						
+						},10);
+						}
+						},10);
+					$("#orgCode").click();
+				  }
+				); 
+		}
+	
+	function  submitForm(){
+
+
+		if($("#barCode").val().length==0){
+			$("#barCodeError").text("条形码不能为空");
+			$("#barCode").focus();
+			return ;
+		}
+		if($("#orgCode").val().length==0){
+			$("#orgCodeError").text("收费单位必须选择");
+			return ;
+		}
+		if($("#amount").val().length==0){
+			$("#amountError").text("条形码不正确，未得到条形码中的全额");
+			$("#amount").focus();
+			return ;
+		}
+		if($("#randCode").val().length==0){
+			$("#randCodeError").text("验证码不能为空");
+			$("#randCode").focus();
+			return ;
+		}
+		if($("#smsNotify").attr("checked")){
+			if($.trim($("#payerMobile").val()).length==0){
+				$("#payerMobileError").text("手机号必须输入");
+				$("#payerMobile").focus();
+				return ;
+			}
+			if(! mobileReg.test($("#payerMobile").val())){
+			$("#payerMobileError").text("手机号格式不正确");
+			$("#payerMobile").focus();
+			return ;
+			}
+		}else{
+			$("#payerMobile").val("");
+		}
+		$("#orgName").val($("#orgCode").find("option:selected").text());
+		/**if(! $("#agreeBox")[0].checked){
+			$.pay.alert("请选择 我已阅读并同意《安捷支付费协议》",{close:function(){$("#agreeBox").focus();}});
+			return ;
+		}*/
+		$("#waterForm").submit();
+		}
+
+	
+
+
+	$(document).ready(function() {
+		$("#mobileLable").hide();
+		$("#notifyDateLable").hide();
+
+	<#if errorCode?has_content >
+		<#if errorCode == '1001' >
+			$("#randCodeError").text("验证码输入不正确 ");
+			$("#randCode").focus();
+		</#if>
+		<#if errorCode == '1002' >
+		$("#amountError").text("提交金额不正确 ");
+		</#if>
+		<#if errorCode == '5002' || errorCode == '5005' || errorCode == '5006' >
+		$("#barodeError").text("输入的条形码不正确 ");
+		</#if>
+		<#if errorCode == '5007' || errorCode == '5008' || errorCode == '5009' >
+		$("#barCodeError").text("输入的条形码超过最大有效期 ");
+		</#if>
+		
+	</#if>
+	<#if Session.loginName?has_content >
+		var loginName = '${Session.loginName}';
+		if(IV_.isMobile(loginName))
+		$("#payerMobile").val(loginName);
+	</#if>
+		
+			setTimeout(function(){
+				var strDate = "";
+				var options = $("#notifyDate").attr('options');
+				for(var d=1; d<=28;d++){
+					options[options.length] = (new Option(d+"",d+""));
+					
+				};
+				setTimeout(function(){
+					$("#notifyDate").val('5');	
+					<#if command?has_content>
+						$("#notifyDate").val('${command.notifyDate}');
+					</#if>	
+					},1000);
+				
+				},10);
+			
+	
+		$("#barCode").keyup(function(){
+				//InputValid.digitOnly($("#barCode")[0]);
+				fmtNoTips(this);
+				})
+					.focus(function(){fmtNoTips(this)})
+					.blur(function(){
+					//	$(".zoom_win").hide();
+					this.value = this.value.replace(/\s/g,''); 
+						if(this.value.length<24){
+							$("#barCodeError").text("条形码编码位数不能小于24位");
+						}else{
+							$("#barCodeError").text("");
+							setAmount();
+						}
+					});
+
+		$(".pay_sort li a").click(function(){
+			//如果当前是选中的，那么直接返回
+			if($(this).attr("className")=='cur'){
+				return ;
+			}
+			var paValue =  $(this).text();
+			switch (paValue) {
+			case "水费":	 
+				billType = 7; 
+				break;
+			case "电费":
+				billType = 8; 			
+				break;
+			case "燃气费":
+				billType = 9; 		
+				break;
+			case "固话/宽带":
+				billType = 10; 		
+				break;	
+			} 
+			$("#ebillName").val(paValue);
+			$("#ebillType").val(billType);
+
+			//改变当前付费样式
+			$(".pay_sort li a").removeClass("cur");
+			$(this).addClass("cur");
+			findOrgs($("#cityCode").val(),billType);
+			})
+
+			$("#amount").keyup(function(){InputValid.numberOnly($("#amount")[0])}).blur(function(){
+				if(this.value.length>0){
+					$("#amountError").text("");
+				}
+				});
+			
+			
+			$(".security_code").click(function(){
+				$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?d="+ Math.random());
+			})
+			$("#changeImg").click(function(){$(".security_code").click()});
+			
+			$("#simpleImg").imgbox({
+				'speedIn'		: 0,
+				'speedOut'		: 0,
+				'alignment'		: 'center',
+				'overlayShow'	: true,
+				'allowMultiple'	: false
+				});
+
+			/**$("#agreeBox").click(function(){
+				$("#btnSumbit")[0].disabled  = ! ($("#agreeBox")[0].checked ) ;
+				if($.browser.mozilla && !($("#agreeBox")[0].checked) ){
+					$("#btnSumbit").css("color",'gray');
+				}else{
+					$("#btnSumbit").css("color",'');
+				}
+			});*/
+
+
+			$("#smsNotify").click(function(){
+				if(this.checked){
+					$("#mobileLable").show();
+					$("#notifyDateLable").show();
+				} else{
+					$("#mobileLable").hide();
+					$("#notifyDateLable").hide();
+				}
+			});
+		
+	
+			<#if remOrder?has_content>
+			$("#orgName").val('${command.orgName}');
+			$("#ebillPayWay").val('${command.ebillPayWay}');
+			$("#ebillPayWayName").val('${command.ebillPayWayName}');
+			$("#ebillName").val('${command.ebillName}');
+			$("#acctcity").val('${command.cityName}');
+			$("#cityCode").val('${command.cityCode}');
+			$("#barCode").val('${command.barCode}');
+			//$("#orgCode").val('${command.orgCode}');
+			$("#ebillType").val('${command.ebillType}');
+			$("#amount").val('${command.amount}');
+			$("#am_label").text('${command.amount}'+'元');
+		
+			
+			<!--  初始化选中状态  -->
+			$(".pay_sort li a").eq((${command.ebillType}-7)).click();
+			setTimeout(function(){
+				$("#orgCode").click();},500);
+		
+			<#if command.payerMobile?has_content>
+				$("#smsNotify").attr("checked",true);
+				$("#mobileLable").show();
+				$("#notifyDateLable").show();
+				$("#payerMobile").val('${command.payerMobile}');
+				<#else>
+				$("#smsNotify").attr("checked",false);
+				$("#mobileLable").hide();
+				$("#notifyDateLable").hide();
+			</#if>
+			
+			<#if errorMsg?has_content>
+			$.pay.alert('${errorMsg}');
+			</#if>
+			findOrgs('${command.cityCode}','${command.ebillType}','${command.orgCode}');
+			<#else>
+				$("#cityCode").val('2900');
+				findOrgs($("#cityCode").val(),$("#ebillType").val());
+			</#if>
+			<#if RequestParameters.btype?has_content >
+				$(".pay_sort li a").eq((${RequestParameters.btype}-7)).click();
+			</#if>
+			
+			$(":input[type=text]").addClass("input_txt2");
+			
+			$("#orgCode").click(function(){
+				if(this.value.length){
+					$("#comName").text($("#orgCode>option:selected").get(0).text);
+					$("#orgCodeError").text("");
+					var type = "t"+$("#ebillType").val();
+					var src = "<@sp.static/>/img/pay/sample/org/"+type+"/"+this.value+".png";
+					//加载图片
+					$("#simpleImg").attr("href",src);
+					$("#simpleImg > img").attr("src",src).error(function(){
+						setOrgImg("<@sp.static/>/img/pay/sample/org/nosample.jpg");
+						setImgboxShow(false);
+					});
+					setImgboxShow(true);
+				}else{
+					$("#comName").text("");
+					setOrgImg("<@sp.static/>/img/pay/sample/org/nosample.jpg");
+					setImgboxShow(false);
+				
+				}
+			}).change(function(){if($("#barCode").val().length>=24){setAmount()}});
+			$("#randCode").keyup(function(e){
+				   if(e && e.keyCode == 13) {
+					   submitForm();
+					}
+				}).blur(function(){
+					if(this.value.length>0){
+						$("#randCodeError").text("");
+					}
+				});
+
+			$("#payerMobile").blur(function(){
+				if(! mobileReg.test($("#payerMobile").val())){
+					$("#payerMobileError").text("手机号格式不正确");
+				}else{
+					$("#payerMobileError").text("");
+				}
+			});
+			$("#zoomLink").click(function(){
+				var imgSrc = $("#simpleImg > img").attr("src");
+				if(imgSrc.indexOf("nosample")==-1){
+					$("#simpleImg").click(); 
+				}
+			});
+
+			
+			
+	});
+	
+	function setImgboxShow(boolValue){
+		if(boolValue){
+			$("#imgboxHideP").hide()
+			$("#imgboxP").show();
+					
+		}
+		else{
+			$("#imgboxHideP").show()
+			$("#imgboxP").hide();
+		}
+		
+	}
+	function setOrgImg(src){
+		$("#simpleImg").attr("href",src);
+		$("#simpleImg > img ").attr("src",src);
+	}
+
+	function setAmount(){
+		var submitObj = {
+				barCode:$("#barCode").val(),
+				ebillType:$('#ebillType').val(),
+				orgCode:$('#orgCode').val(),									
+				amount:$('#amount').val(),
+				method:"valid" };
+			$.post( 
+						"${rc.contextPath}/barCode.htm",
+						submitObj,
+						function callback(msg){
+								if(IV_.isUnsignDouble(msg)){
+									$("#am_label").text(msg+"元");
+									$("#amount").val(msg);
+									$("#amountError").text("");
+								}else{
+									var  arr = msg.split(":");								
+									var code = arr[0];
+									var msgInfo = arr[1];
+									
+									if(code=="1001"){
+										$("#randCodeError").text(msgInfo);
+									}else if(code=="1003"){
+										alert(msg);
+									}
+									else{
+										$("#barCodeError").text(msgInfo);
+									}
+									$("#am_label").text("元");
+									$("#amount").val("");
+									return false;
+								}
+						}
+					
+					);
+	}
+	
+</script>
+
+ 

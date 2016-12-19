@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="announcement">
+	<typeAlias alias="websiteAnnouncement" type="com.pay.poss.featuremenu.model.Announcement" />
+	<typeAlias alias="announcementDto" type="com.pay.poss.featuremenu.dto.AnnouncementDto" />
+    
+    <sql id="ANNOUNCEMENT.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="ANNOUNCEMENT.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 where (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	 <insert id="create" parameterClass="websiteAnnouncement">
+		<selectKey resultClass="java.lang.Long" keyProperty="announcementId">
+			select SEQ_ANNOUNCEMENT_ID.nextval as announcementId from dual 
+    	</selectKey>
+				insert into
+				t_announcement
+				(
+				ID ,
+				STARTTIME ,
+				ENDTIME ,
+				AUTHOR ,
+				SUBJECT ,
+				DISPLAYSORT ,
+				MESSAGE 
+				)
+				values
+				(
+				#announcementId#,
+				sysdate,
+				sysdate,
+				#author#,
+				#subject#,
+				#displaysort#,
+				#message#
+				)
+		</insert>
+	    <delete id="deleteAnnouncementById" parameterClass="java.util.HashMap">
+	       DELETE FROM t_announcement WHERE ID=#announcementId#
+	    </delete>
+		<select id="findAnnouncementById" resultClass="announcementDto" parameterClass="announcementDto">
+				select 
+				ID  announcementId,
+				to_char(STARTTIME,'yyyy-mm-dd hh24:mi:ss')  startTime,
+				to_char(ENDTIME,'yyyy-mm-dd hh24:mi:ss')  endTime,
+				AUTHOR author,
+				SUBJECT subject,
+				DISPLAYSORT displaysort,
+				MESSAGE    message    
+				from t_announcement
+				where  ID= #announcementId#
+    	</select>
+    	
+		<select id="findAnnouncementByCondition" resultClass="announcementDto" parameterClass="java.util.HashMap">
+			<include refid="ANNOUNCEMENT.PAGING_START" />
+				select 
+				ID  announcementId,
+				to_char(STARTTIME,'yyyy-mm-dd hh24:mi:ss')  startTime,
+				to_char(ENDTIME,'yyyy-mm-dd hh24:mi:ss')  endTime,
+				AUTHOR author,
+				SUBJECT subject,
+				DISPLAYSORT displaysort,
+				MESSAGE    message    
+				from t_announcement
+				where  1=1
+				<isNotEmpty prepend="and" property="subject">
+					<![CDATA[  subject like #subject#||'%'  ]]>
+   				</isNotEmpty>
+   				<isNotEmpty prepend="and" property="message">
+					<![CDATA[ 	message like '%'|| #message#||'%'  ]]>
+   				</isNotEmpty>
+         		 order by DISPLAYSORT asc ,STARTTIME desc
+	         <include refid="ANNOUNCEMENT.PAGING_END" />
+    	</select>
+    	<select id="countAnnouncementByCondition" resultClass="java.lang.Integer" parameterClass="java.util.HashMap">
+		   select 
+				count(1)
+				from t_announcement
+				where  1=1
+				<isNotEmpty prepend="and" property="subject">
+					<![CDATA[  subject like #subject#||'%'  ]]>
+   				</isNotEmpty>
+   				<isNotEmpty prepend="and" property="message">
+					<![CDATA[ 	message like '%'|| #message#||'%'  ]]>
+   				</isNotEmpty>
+	    </select>
+		<update id="updateSorting" parameterClass="websiteAnnouncement">
+		    update
+	        t_announcement
+	        set
+	        DISPLAYSORT=#displaysort#,
+	       ENDTIME = sysdate
+	        where
+	        ID=#announcementId#
+		</update>
+		<update id="update" parameterClass="websiteAnnouncement">
+		    update
+	        t_announcement
+	        set
+	        DISPLAYSORT=#displaysort#,
+	        ENDTIME = sysdate,
+	        MESSAGE = #message# ,
+	        SUBJECT = #subject#,
+	        AUTHOR=#author#
+	        where
+	        ID=#announcementId#
+		</update>
+</sqlMap>

@@ -1,0 +1,199 @@
+<!DOCTYPE HTML> 
+<html>
+<head>
+	<meta charset="utf-8">
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="container"> 
+	 <div class="pay_cashier" id="conCardCashier" >
+	
+	 <form method="post" action="" id="conCardCashierForm" name="conCardCashierForm">
+				<input type="hidden" name="partner" id="partner" value="${partner?default('')}"/>
+				<input type="hidden" name="totalAmount" id="totalAmount" value="${totalAmount?default('')}"/>
+				<input type="hidden" name="conCardOrders" id="conCardOrders" value="${conCardOrders?default('')}"/>
+				<input type="hidden" name="ordersKey" id="ordersKey" value="${ordersKey?default('')}"/> 
+
+			<ul class="form_list">
+				<li>
+					<label class="form_side2">应付总额： </label>
+					<strong class="red f16">${totalAmount?default('')}</strong> 元
+					<span class="mod_tips red ml10" id="bigAmount" style="display:none;">支付金额已超过此卡种所支持的最大金额</span> 
+					</li>
+
+				<li>
+					<label class="form_side" style="margin-top:8px;">消费卡类型：</label>
+						<#if conCardList?exists> 
+							<#list conCardList as conCard> 
+								<span class="mr20">
+									<input type="radio" id="cardType" name="cardType" class="v_m" value="${conCard.alias?default('')};${conCard.orgcode?default('')}" onclick = "cardTypeChange();">
+									<label id="${conCard.alias}"  class="${conCard.labelClass?default('')}" title="${conCard.itemName?default('')}"></label>
+								</span>
+							</#list>
+				
+					    </#if>
+				</li>
+				<li>
+					<label class="form_side">卡面值：</label>
+					
+					<#if conMap.amountTypeA?exists && conMap.amountTypeA =="A" || conMap.smallFlag == "small"||
+					      conMap.bigFlag =="big500"|| conMap.bigFlag =="big100">
+						<span class="mr20"><input type="radio" id="amountType" name="amountType" class="v_m" value="30"> 30元</span>
+					</#if>
+					<#if  conMap.amountTypeB?exists &&  conMap.amountTypeB =="B" || conMap.smallFlag == "small"||
+					      conMap.bigFlag =="big500"|| conMap.bigFlag =="big100">
+						<span class="mr20"><input type="radio" id="amountType" name="amountType" class="v_m"  value="50"> 50元</span>
+					</#if>
+					<#if  conMap.amountTypeC?exists &&  conMap.amountTypeC =="C" || conMap.smallFlag == "small"||
+					      conMap.bigFlag =="big500"|| conMap.bigFlag =="big100">
+						<span class="mr20"><input type="radio" id="amountType" name="amountType" class="v_m"  value="100"> 100元</span>
+					</#if>
+
+					<#if  conMap.amountTypeD?exists &&  conMap.amountTypeD =="D" || conMap.smallFlag == "small"|| conMap.bigFlag =="big500">
+						<span class="mr20" id="id300"><input type="radio" id="amountType" name="amountType" class="v_m"  value="300"> 300元</span>
+					</#if>
+
+					<#if  conMap.amountTypeE?exists &&  conMap.amountTypeE =="E"  || conMap.smallFlag == "small"|| conMap.bigFlag =="big500"  >
+						<span class="mr20" id="id500"><input type="radio" id="amountType" name="amountType" class="v_m"  value="500"> 500元</span>
+					</#if>
+
+				</li>
+				<li>
+					<label class="form_side">联系方式：</label>
+					<input type="text" class="inp_normal w150" id="conLoginName" name="conLoginName"  maxlength="50" value="" />
+					<p class="g_tips c_999">温馨提示：为保证您的资金安全，请填写有效的联系手机或邮箱。此信息将用于领取支付结余资金，我们将确保您所填信息的保密性。</p>
+				</li>
+				</li>
+				
+				<#if  conMap.bigFlag =="big100" || conMap.bigFlag =="big500">
+					<li class="btn">
+							<button type="button" id="postSubmit1" name="postSubmit1" disabled ="disabled">下一步</button>
+					</li>
+				<#else>
+					<li class="btn">
+						<span class="btn_yel mt10">
+							<button type="button" id="postSubmit" name="postSubmit" onclick="next()">下一步</button>
+						</span>
+					</li>
+				</#if>
+
+			</ul>
+           <div class="safe_warning_tips2">
+				<p class="blod red">重要提示：</p>
+				<ol>
+					<li><span class="c_f60">请务必正确的选择您所使用的卡面额，以避免引起不必要的交易失败或交易金额损失。</span></li>
+					<li>
+						<p>神州行卡支付支持使用：全国通用的神州行卡（卡号17位，密码18位），面额：30、50、100、300、500</p>
+						<p>联通卡支付支持使用：联通全国充值卡（卡号15位，密码19位），面额：30、50、100、300、500</p>
+						<p>电信卡支付支持使用：电信全国充值卡（卡号19位，密码18位），面额：30、50、100</p>
+					</li>
+					<li>如果充值卡面额与应付订单金额不符，系统会将此次支付产生的结余扣除相应 <span class="pointer rel poundage">手续费<div class="poundage_pop hide">
+							<p class="blod">充值卡支付结余手续费率：</p>
+							<span >神州行充值卡：8%</span><br />
+							<span >联通充值卡：12%</span><br />
+							<span >电信充值卡：12%</span> </div></span> 后，自动充值并冻结在您所用安捷账户内。 </li>
+					<li>
+						<p class="">客服服务流程</p>
+						<p>如遇支付问题，可通过邮件或电话方式与我司联系，我们将竭诚为您服务。</p>
+						<span class="ml20">（1）邮箱方式：请发送充值卡号，商户订单号，联系方式，并说明所需解决内容，如“结余金额解冻申请”，至客服邮箱pay@hnair.com。</span><br />
+						<span class="ml20">（2）电话方式：请致电客服电话4006650719，并说明所需解决内容。</span> </li>
+					<li>支付完成后请记录本次交易订单号码，以便日后查询核对使用。</li>
+				</ol>
+			</div>
+		</form>		
+		</div>
+		<div id="conCardCashier_pay"> </div>
+
+</div>
+</body>
+<script type="text/javascript">
+
+$(function(){
+	$(".poundage").hover(
+		function(){
+			$(".poundage_pop").show();
+		},
+		function(){
+			$(".poundage_pop").hide();
+		})
+
+   //如果是电信隐藏卡面值300和500
+    <#if conMap.isTelecom =="dxin_card_tyxf">
+			  $("#id300").hide(); 
+			  $("#id500").hide(); 
+	</#if>
+	<#if conMap.bigFlag =="big100" || conMap.bigFlag =="big500">
+		$("input[name='amountType']").attr("disabled",true);
+		$("input[name='cardType']").attr("disabled",true);
+		$("input[name='conLoginName']").attr("disabled",true); 
+		document.getElementById('bigAmount').style.display = ''; 
+	</#if>
+
+	 $(this).keydown( function(e) {
+		var key = window.event?e.keyCode:e.which;
+	   //alert(key.toString());
+		if(key.toString() == "13"){
+					return false;
+		}
+	});
+
+});
+
+
+function cardTypeChange() {
+		$("#id300").show(); 
+	    $("#id500").show(); 
+		var cardType = $('input:radio[name="cardType"]:checked').val();
+		var aa = cardType.split(";");
+		//如果为电信，面额：30、50、100
+		if("dxin_card_tyxf" == aa[0]){
+			  $("#id300").hide(); 
+			  $("#id500").hide(); 
+			  $("input:radio[name='amountType']").attr("checked",false);
+		}
+}
+
+	function next() {
+		var cardType = $('input:radio[name="cardType"]:checked').val();
+		var amountType = $('input:radio[name="amountType"]:checked').val();
+		var conLoginName = $("#conLoginName").val();
+		var phoneMatch = "^(13|14|15|18)\\d{9}$" ;
+		var emailMatch = "^\\w+((-\\w+)|(\\.\\w+))*\\@[A-Za-z0-9]+((\\.|-)[A-Za-z0-9]+)*\\.[A-Za-z0-9]+$";
+		
+		if(cardType == null){
+               $.pay.alert('请选择消费卡类型',{h:160,t:'3'});  
+                return ;
+         }
+		 if(amountType == null){
+               $.pay.alert('请选择卡面值',{h:160,t:'3'});  
+                return ;
+         }
+		
+		if("" == conLoginName ){
+			$.pay.alert('请输入联系方式',{h:160,t:'3'});
+			return ;
+		}
+		if(!conLoginName.match(phoneMatch) && !conLoginName.match(emailMatch)){
+			$.pay.alert('联系方式输入不正确',{h:160,t:'3'});
+			return ;
+		}
+		var newxtFlag = "";
+		
+		$("#conCardCashier").addClass("hide");
+		$("#conCardCashier").removeClass("show");
+		var pars = $("#conCardCashierForm").serialize();
+		$.ajax({
+		type: "POST",
+		url: "${rc.contextPath}/consumeCardCashier.htm?method=payCashierView",
+		cache: false,
+		data: pars,
+			success: function(result) {
+				$('#conCardCashier_pay').html(result);
+			}
+		});
+	} 
+
+
+</script>
+</html>

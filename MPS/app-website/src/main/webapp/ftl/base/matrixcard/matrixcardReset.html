@@ -1,0 +1,162 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${pwd_card_reset}${title}</title>
+<meta name="Keywords" content="${pwd_card_reset_Keywords}" />
+<meta name="Description" content="${pwd_card_reset_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/password.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+
+<script type="text/javascript">
+	   $(function() {
+		   noAutoInput();
+		   $("#ResetForm").submit(function(){
+	              var num =  /^[0-9]*$/;
+	              if($("#serialNo").val().length<15){
+	            	  $("#sequenceTip").show();
+		              $("#sequenceTip").html("序列号不能为空且只能为15位长度的数字!");
+		              return false;
+	              }
+	              if(!num.test($("#serialNo").val())){
+	            	  $("#sequenceTip").show();
+	            	  $("#sequenceTip").html("序列号只能输入数字");
+	            	  return false;
+		          }
+	        	  if($("#posValue0").val()=='' || $("#posValue1").val()=='' || $("#posValue2").val()==''){
+	        		  $("#errMsg").show();
+	                  $("#errMsg").html("对应的坐标数字不能为空");
+	                  return false;
+		          }else if(!num.test($("#posValue0").val())){
+		        	  $("#errMsg").show();
+				      $("#errMsg").html("口令卡坐标只能输入数字");
+				      return false;
+			      }else if(!num.test($("#posValue1").val())){
+			    	  $("#errMsg").show();
+				      $("#errMsg").html("口令卡坐标只能输入数字");
+				      return false;
+			      }else if(!num.test($("#posValue2").val())){
+			    	  $("#errMsg").show();
+				      $("#errMsg").html("口令卡坐标只能输入数字");
+				      return false;
+			      }else{
+			    	  var url ="${rc.contextPath}/app/matrixCardReset.htm?method=resetMatrixCard";
+		        	  $("#ResetForm").attr("action",url);   
+			      }
+	       });
+	     $("#posValue0,#posValue1,#posValue2,#serialNo").focus(function(){
+	    	 $("#sequenceTip").hide();
+		     $("#errMsg").hide();
+		  });
+	       
+	    });
+
+	   var show = function(){
+	        if($("#serialNo").val()!='' && $("#serialNo").val().length>=1){
+	              var value =$("#serialNo").val();
+	              $("#num1,#num2,#num3,#num4,#num5").text("");
+	              $("#num1").text(value.substring(0,3));
+	              if($("#num1").text().length>=3){
+	                  $("#num2").text(value.substring(3,6));
+	              }
+	              if($("#num1").text().length>=3 && $("#num2").text().length>=3){
+	              	$("#num3").text(value.substring(6,9));
+	              }
+	              if($("#num1").text().length>=3 && $("#num2").text().length>=3 && $("#num3").text().length>=3){
+	              	$("#num4").text(value.substring(9,12));
+	              }
+	              if($("#num1").text().length>=3 && $("#num2").text().length>=3 && $("#num3").text().length>=3 && $("#num4").text().length>=3){
+	              	$("#num5").text(value.substring(12,15));
+	              }
+	              $("#serial").show();
+	        }else{
+	              $("#serial").hide();
+	        }
+	  }
+		  
+	   var  checkInput = function(inputNum){
+	 	  if($("#posValue"+inputNum).val().length>=3){
+	    	   $("input[id^='posValue']").blur();
+	    	   if(inputNum==2){
+		    	   inputNum=-1;
+	    	   }
+	           $("#posValue"+(inputNum+1)).focus();
+	       }
+	   }
+</script>
+
+<script type="text/javascript">
+	function noAutoInput(){
+	    var inputs = document.getElementsByTagName("input");
+	    var count = inputs.length;
+	    for(i=0;i<count;i++){
+	           inputs[i].setAttribute("autocomplete","off");
+	    }
+	}
+</script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=1 ismatrix=false/>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+<!--侧导航企业版 str -->
+<@sp.banner toptit="安全中心"
+toptit2="账户安全设置" glide=true/> <@sp.menu channel="5_1"/> 
+<!--侧导航企业版 end -->
+	<div class="box_w800 fr">
+		<!--自适应box str -->
+<div class="mod_box_a">
+	<p class="top"><i></i></p>
+	<div class="con_box has_bg pad20">
+		<div class="tit_box border_b">
+			<h3 class="title font14"><strong>口令卡重置</strong></h3>
+		</div>
+		<div class="card_content">
+			<p class="tips">为了提高您的账户安全级别，绑定口令卡后相关操作都需要您提供动态数字信息，请妥善保管您的口令卡，避免因遗失所造成的不必要的损失。</p>
+			<div class="psw_card_area">
+				<div><@sp.matrixcard type="pos" pos="${pos1},${pos2},${pos3}" /></div>
+				<h4>请输入您<span>新口令卡</span>的序列号以及对应动态位置。</h4>
+				<p class="apply_tips">还没有申请新的iPayLinks支付令卡？<a href="${rc.contextPath}/matrixCard.htm?method=applyCard" target="_blank">点击这里</a>快速获取。</p>
+				<form action="" id="ResetForm" method="post" name="ResetForm" onkeyup="show();">
+					<div class="frm_cont serial_num">
+						<p class="serial" id="serial" style="display: none"><span id="num1"></span><span id="num2"></span><span id="num3"></span><span id="num4"></span><span id="num5"></span></p>
+						<label>序列号：</label><input type="text" name="serialNo" id="serialNo" maxlength="15" />
+						<p class="err" id="sequenceTip" style="display: none;"></p>  
+					</div>
+					<div class="frm_cont coordinate">
+					 	<label>动态坐标：</label><span>${pos1}</span><span>${pos2}</span><span>${pos3}</span>
+					</div>
+					<div class="frm_cont num_input">
+						<label>对应数字：</label><input type="text" name="posValue0" id="posValue0" maxlength="3" onkeyup="checkInput(0)"/><input type="text" name="posValue1" id="posValue1" maxlength="3" onkeyup="checkInput(1)"/><input type="text"  name="posValue2" id="posValue2" maxlength="3" onkeyup="checkInput(2)"/>
+					    <p class="err" id="errMsg"></p>
+					</div>
+					<div class="btn_area">
+						<span class="btn_yel botton_yel"><button type="submit" id="ResetButton" name="ResetButton">确认重置</button></span>
+					</div>
+					<input type="hidden" name="tokenStr" value="${tokenStr}" />  
+				</form>
+			</div>
+		</div>
+	</div>
+	<p class="bot"><i></i></p>
+</div>
+<!--自适应box end --> 
+	</div>
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

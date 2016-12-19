@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css">
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style>
+<meta charset="utf-8">
+<title><!-- iPayLinks支付网关订单收款明细 -->交易查询下载</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		       <td colspan="13" style="text-align: middle;">#==============交易明细列表==============</td>
+		   </tr>
+		   <tr>
+		       <td colspan="13">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+			<tr>
+				<th >商户订单号</th>
+				<th >交易流水号</th>
+				<th >交易类型</th>
+				<th >订单状态</th>
+				<th >交易金额</th>
+				<th >交易币种</th>
+				<th >网关收单时间</th>
+				<th >网关完成时间</th>
+				<th >交易网址</th>
+				<th >账单邮箱</th>
+				<th >收货人邮箱</th>
+				<th >IP</th>
+				<!-- <th >操作</th> -->
+				<th >是否已退款</th>
+				<th>支付失败原因</th>
+			</tr>
+		</thead>
+		<tbody>
+			 <#if incomeDetailList?exists>
+		   				<#list incomeDetailList as ts>
+							<tr>
+								<td style="text-align: center;" class="excel_txt">${ts.orderId?default("")}</td>
+
+								<td style="text-align: center;" class="excel_txt">${ts.tradeOrderNo?default("")}</td>
+								<td>
+									<#if ts.tradeType?has_content>
+										<#if ts.tradeType =="5000">
+											循环代扣
+										<#elseif ts.tradeType =="1000">
+											即时交易
+										<#elseif ts.tradeType =="1001">
+											即时交易
+										<#elseif ts.tradeType =="1002">
+											即时交易
+										<#elseif ts.tradeType =="4001">
+											本地化交易
+										<#elseif ts.tradeType =="4002">
+											本地化交易
+										<#elseif ts.tradeType =="3000">
+											3D交易
+										<#elseif ts.tradeType =="6000">
+											企业虚拟卡
+										<#elseif ts.tradeType =="2000">
+											预授权
+										<#elseif ts.tradeType =="2001">
+											预授权
+										<#elseif ts.tradeType =="2100">
+											预授权完成
+										<#elseif ts.tradeType =="7000">
+											即时交易
+										<#elseif ts.tradeType =="7200">
+											预授权
+										<#elseif ts.tradeType =="7004">
+											即时交易
+										<#elseif ts.tradeType =="7005">
+											即时交易
+										<#elseif ts.tradeType =="7204">
+											预授权
+										<#elseif ts.tradeType =="7205">
+											预授权
+										<#else>
+											本地化交易
+										</#if>
+
+									</#if>
+								</td>
+								<!-- 订单状态 -->
+								<td align="center">
+									<#if ts.orderStatus?has_content>
+										<#if ts.orderStatus =="3">
+											支付成功
+										<#elseif ts.orderStatus =="4">
+											<#if ts.tradeType =="2000" || ts.tradeType =="2001">
+												交易成功
+											<#else>
+												支付成功
+											</#if>
+										<#elseif ts.orderStatus =="21">
+												交易成功
+										<#elseif ts.orderStatus =="22">
+												已撤销
+										<#elseif ts.orderStatus =="23">
+												交易完成
+										<#elseif ts.orderStatus =="24">
+												交易失败
+										<#elseif ts.orderStatus =="5" >
+											<#if ts.tradeType =="2000" || ts.tradeType =="2001">
+												交易失败
+											<#else>
+												支付失败
+											</#if>
+										</#if>
+									</#if>
+
+								</td>
+								<td style="text-align: right;" class="excel_txt">${(ts.orderAmount*0.001)?string(",##0.000")}</td>
+								<td align="center">${ts.currencyCode?default("")}</td>
+								<!-- 网关收单时间 -->
+								<td align="right">${ts.createDate?default("")}</td>
+								<!-- 网关完成时间 -->
+								<td align="right">
+									${ts.completeDate?default("")}
+								</td>
+
+								<td align="right">
+									${ts.siteId?default("")}
+								</td>
+								<td align="right">
+									${ts.billEmail?default("")}
+								</td>
+								<td align="right">
+									${ts.shippingEmail?default("")}
+								</td>
+								<td align="right">
+									${ts.customerIp?default("")}
+								</td>
+
+
+								<!-- 是否退款 -->
+								<td align="center">
+									<#if ts.orderStatus?has_content>
+										<#if ts.orderStatus =="3">
+											<#if (ts.refundAmount?default("0")?number gt 0)>
+												已部分退款
+												<#elseif ts.refundAmount?default("0")?number lte 0>
+													全额退款
+													<#else>
+														否
+											</#if>
+										</#if>
+									</#if>
+
+									<#if ts.orderStatus?has_content>
+										<#if ts.orderStatus =="4">
+											<#if (ts.refundAmount?default("0")?number lte 0) && ts.tradeType!="2000" && ts.tradeType!="2001">
+												全额退款
+												<#elseif ts.refundAmount?default("0")?number lt ts.orderAmount?default("0")?number && ts.tradeType!="2000" && ts.tradeType!="2001">
+													已部分退款
+													<#else>
+														否
+											</#if>
+										</#if>
+									</#if>
+									<#if ts.orderStatus?has_content>
+										<#if ts.orderStatus =="21" >
+											否
+										</#if>
+									</#if>
+									<#if ts.orderStatus?has_content>
+										<#if ts.orderStatus =="0" || ts.orderStatus =="1" || ts.orderStatus =="5">
+											否
+										</#if>
+									</#if>
+								</td>
+								<td>
+									<#if ts.orderStatus =="5">
+										${ts.respMsg!('')}
+									</#if>
+									<#if ts.orderStatus =="24">
+										${ts.respMsg!('')}
+									</#if>
+								</td>
+							</tr>
+							
+						</#list>
+		 			</#if>
+		 			<tr>
+		 				<td colspan="13">#------------交易明细列表--------------</td>
+		 			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

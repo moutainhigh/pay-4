@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 提现SQLMAp配置 -->
+<sqlMap namespace="RC_FS">
+	
+	 <typeAlias alias="webQueryFile" type="com.pay.fundout.reconcile.model.fileservice.WebQueryFile"/>
+	 
+	 <typeAlias alias="reconcileImportFile" type="com.pay.fundout.reconcile.model.fileservice.ReconcileImportFile"/>
+
+	 <typeAlias alias="reconcileImportRecord" type="com.pay.fundout.reconcile.model.fileservice.ReconcileImportRecord"/>
+	
+	<!-- 文件导入表操作 -->
+	
+	 <resultMap id="fo_rc_fileservice.reconcileImportFile" class="com.pay.fundout.reconcile.model.fileservice.ReconcileImportFile">
+        <result column="FILE_ID" property="fileId" 			/>
+        <result column="ERROR_TIPS" property="errorTips" />
+        <result column="STATUS" property="status" />
+        <result column="WITHDRAW_BANK_ID" property="withdrawBankId" />
+        <result column="FILE_NAME" property="fileName" />
+        <result column="BUSI_DATE" property="busiDate" />
+        <result column="UPLOAD_DATE" property="uploadDate" />
+        <result column="OPERATOR" property="operator" />
+    </resultMap>
+
+	<insert id="fo_rc_createImportFile" parameterClass="reconcileImportFile">
+		 <selectKey resultClass="java.lang.Long" keyProperty="fileId">
+			select  SEQ_RC_IMPORT_FILE_FILE_ID.NEXTVAL as id from DUAL 
+		</selectKey>
+        INSERT INTO RECONCILE_IMPORT_FILE(
+			FILE_ID,ERROR_TIPS,STATUS,WITHDRAW_BANK_ID,FILE_NAME,
+			BUSI_DATE,UPLOAD_DATE,OPERATOR
+        )
+        VALUES(
+            #fileId:NUMERIC#,#errorTips:VARCHAR#,#status:NUMERIC#,#withdrawBankId:VARCHAR#,#fileName:VARCHAR#,
+			#busiDate:DATE#,sysdate,#operator:VARCHAR#
+		)
+    </insert>
+    
+    <update id="fo_rc_updateImportFile" parameterClass="reconcileImportFile">
+        UPDATE RECONCILE_IMPORT_FILE
+        SET FILE_ID=#fileId:NUMERIC#
+        <isNotEmpty prepend="," property="errorTips">
+            ERROR_TIPS = #errorTips:VARCHAR#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status:NUMERIC#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="withdrawBankId">
+            WITHDRAW_BANK_ID = #withdrawBankId:VARCHAR#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="fileName">
+            FILE_NAME = #fileName:VARCHAR#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="busiDate">
+            BUSI_DATE = #busiDate:DATE#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="uploadDate">
+            UPLOAD_DATE = #uploadDate:DATE#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="operator">
+            OPERATOR = #operator:VARCHAR#
+        </isNotEmpty>
+        WHERE FILE_ID = #fileId:NUMERIC#
+    </update>
+    
+     <delete id="fo_rc_deleteImportFileById" parameterClass="java.lang.Long">
+        DELETE FROM RECONCILE_IMPORT_FILE        
+        WHERE 
+            <isNotEmpty prepend="AND" property="fileId">
+            FILE_ID = #fileId# 
+            </isNotEmpty>
+    </delete>
+    <!-- 根据主键查询FileImport信息 -->    
+    <select id="fo_rc_findImportFileById" resultClass="reconcileImportFile"
+        parameterClass="java.lang.Long">
+        SELECT 
+			FILE_ID				fileId			,
+			ERROR_TIPS			errorTips		,
+			STATUS				status			,
+			WITHDRAW_BANK_ID	withdrawBankId	,
+			FILE_NAME			fileName		,
+			BUSI_DATE			busiDate		,
+			UPLOAD_DATE			uploadDate		,
+			OPERATOR			operator
+        FROM RECONCILE_IMPORT_FILE
+        WHERE 
+            FILE_ID = #fileId# 
+    </select>
+	
+	<!-- 查看上传银行对账文件 列表 分页显示 -->    
+    <select id="fo_rc_findImportFile2List" parameterClass="webQueryFile" resultClass="reconcileImportFile">
+        SELECT 
+			FILE_ID				fileId			,
+			ERROR_TIPS			errorTips		,
+			STATUS				status			,
+			WITHDRAW_BANK_ID	withdrawBankId	,
+			FILE_NAME			fileName		,
+			BUSI_DATE			busiDate		,
+			UPLOAD_DATE			uploadDate		,
+			OPERATOR			operator,
+			decode(trunc(upload_date),trunc(sysdate),'Y','N') currFlag
+        FROM RECONCILE_IMPORT_FILE
+        <dynamic prepend=" WHERE ">
+        	<isNotEmpty prepend="AND" property="fileName">
+	            FILE_NAME like '%' || #fileName:VARCHAR# || '%' 
+	        </isNotEmpty>
+        	<isNotEmpty property="startDate" prepend="AND">
+            	<![CDATA[ BUSI_DATE >= #startDate:DATE# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endDate" prepend="AND">
+           		<![CDATA[ BUSI_DATE < #endDate:DATE# + 1]]>
+            </isNotEmpty>	        
+	        <isNotEmpty prepend="AND" property="busiStatus">
+	            STATUS = #busiStatus:NUMERIC# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="orgCode">
+	         	WITHDRAW_BANK_ID=#orgCode:VARCHAR#
+	        </isNotEmpty>
+	     </dynamic>
+    </select>
+    
+    <select id="fo_rc_findImportFile2List_COUNT"  parameterClass="webQueryFile"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM RECONCILE_IMPORT_FILE
+       <dynamic prepend=" WHERE "> 
+	       <isNotEmpty prepend="AND" property="fileName">
+	            FILE_NAME like '%' || #fileName:VARCHAR# || '%' 
+	        </isNotEmpty>
+        	<isNotEmpty property="startDate" prepend="AND">
+            	<![CDATA[ BUSI_DATE >= #startDate:DATE# ]]>
+     		</isNotEmpty>
+        	<isNotEmpty property="endDate" prepend="AND">
+           		<![CDATA[ BUSI_DATE < #endDate:DATE# + 1]]>
+            </isNotEmpty>	        
+	        <isNotEmpty prepend="AND" property="busiStatus">
+	            STATUS = #busiStatus:NUMERIC# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="orgCode">
+	         	WITHDRAW_BANK_ID=#orgCode:VARCHAR#
+	        </isNotEmpty>
+	    </dynamic>
+    </select>
+    <!-- 文件详情查询 -->
+     <insert id="fo_rc_createFileRecord" parameterClass="reconcileImportRecord">
+      	<selectKey resultClass="java.lang.Long" keyProperty="recordId">
+			select  SEQ_RC_IMPORT_RECORD_RECORD_ID.NEXTVAL as id from DUAL 
+		</selectKey>
+        INSERT INTO RECONCILE_IMPORT_RECORD(
+			RECORD_ID,FILE_ID,WITHDRAW_BUSI_TYPE,BANK_SEQ,BANK_AMOUNT,
+			TRADE_TIME,WITHDRAW_BANK_ID,BUSI_STATUS,TRADE_SEQ
+        )
+        VALUES(
+            #recordId:NUMERIC#,#fileId:NUMERIC#,#withdrawBusiType:NUMERIC#,#bankSeq:VARCHAR#,#bankAmount:NUMERIC#,
+			#tradeTime:DATE#,#withdrawBankId:VARCHAR#,#busiStatus:NUMERIC#,#tradeSeq:VARCHAR#
+		)
+    </insert>
+    
+      <select id="fo_rc_findImportRecord2List" resultClass="reconcileImportRecord"
+        parameterClass="java.util.Map">
+        SELECT 
+			RECORD_ID			recordId		,
+			FILE_ID				fileId			,
+			WITHDRAW_BUSI_TYPE	withdrawBusiType,
+			BANK_SEQ			bankSeq			,
+			BANK_AMOUNT			bankAmount		,
+			TRADE_TIME			tradeTime		,
+			WITHDRAW_BANK_ID	withdrawBankId  ,
+			BUSI_STATUS			busiStatus		,
+			TRADE_SEQ			tradeSeq
+        FROM RECONCILE_IMPORT_RECORD
+        WHERE FILE_ID = #fileId# 
+   	 </select>
+
+    <select id="fo_rc_findImportRecord2List_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+        SELECT 
+			COUNT(1)
+        FROM RECONCILE_IMPORT_RECORD
+        WHERE FILE_ID = #fileId# 
+    </select>
+    
+    <!-- 调用存储过程 -->
+       
+	<parameterMap id="fo_rc_param_ctl" class="java.util.HashMap" >
+		<parameter property="fileId" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="startTime" 	    mode="IN"  jdbcType="VARCHAR"  javaType="java.lang.String"	/>
+		<parameter property="endTime" 		    mode="IN"  jdbcType="VARCHAR"  javaType="java.lang.String"	/>
+		<parameter property="busiType" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="orgCode" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="busiDate" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="resVal"  		    mode="OUT" jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+	</parameterMap>
+	<procedure id="fo_rc_proc_ctl" parameterMap="fo_rc_param_ctl" >
+		{call PACKAGE_FO_RC_CTL.PROC_FO_RC_CTL(?,?,?,?,?,?,?)}
+	</procedure>
+    
+    <!-- 验证文件信息是否存在 -->
+    <select id="fo_rc_validFileInfoExist" parameterClass="reconcileImportFile"
+    		resultClass="java.lang.Integer">
+    	select count(FILE_ID)
+    	  from RECONCILE_IMPORT_FILE
+    	 WHERE STATUS in(5,7,8)
+    	  <dynamic>
+   	  		<isNotEmpty prepend="and" property="fileName">
+   	  			FILE_NAME=#fileName:VARCHAR#
+   	  		</isNotEmpty>
+   	  		<isNotEmpty prepend="and" property="withdrawBankId">
+   	  			WITHDRAW_BANK_ID=#withdrawBankId:VARCHAR#
+   	  		</isNotEmpty>
+   	  		<isNotEmpty prepend="and" property="busiDate">
+   	  			BUSI_DATE=#busiDate:DATE#
+   	  		</isNotEmpty>
+    	  </dynamic>
+    </select>
+    
+    <!-- 删除对账明细信息 -->
+    <delete id="fo_rc_deleteReconcileRecord" parameterClass="java.util.Map">
+    	delete from RECONCILE_IMPORT_RECORD where FILE_ID=#fileId:VARCHAR#
+    </delete>
+    
+    <!-- 删除对账结果信息 -->
+    <delete id="fo_rc_deleteReconcileResult" parameterClass="java.util.Map">
+    	delete from RECONCILE_RESULT where FILE_ID=#fileId:VARCHAR#
+    </delete>
+</sqlMap>

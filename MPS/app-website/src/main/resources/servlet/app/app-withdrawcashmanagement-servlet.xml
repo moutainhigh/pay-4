@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+	<bean id="withdrawCashManagementHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+
+		<property name="interceptors">
+			<list>
+				<ref bean="operatPermInterceptor" />
+			</list>
+		</property>
+
+
+		<property name="mappings">
+			<props>
+				<prop key="/corp/corp_withdrawcashmanagement.htm">withdrawCashManagement</prop>
+			</props>
+		</property>
+		
+
+	</bean>
+	<bean id="withdrawCashManagement"
+		class="com.pay.app.controller.base.withdrawcash.WithdrawCashManagement">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+
+		<property name="withdrawCashManagementView">
+			<value>/base/account/corp_withdrawcashmanagement</value>
+		</property>
+		<property name="bankAcctService" ref="app-bankAcctService" />
+		<property name="liquidateInfoService" ref="base-liquidateInfoService"/>
+		<property name="autoFundoutConfigService" ref="fundout-autoFundoutConfigService"/>
+	</bean>
+</beans>

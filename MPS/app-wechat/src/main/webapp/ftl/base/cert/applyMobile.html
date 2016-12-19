@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>申请数字证书_gcpayment支付</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/countdown.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$.formValidator.initConfig({formid:"mobileForm",onerror:function(msg,obj){}});
+		$("#checkCode").formValidator({tipid:"checkCodeTip",onshow:"请输入手机短信里的6位数字校验码",onfocus:"请输入手机短信里的6位数字校验码",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"请输入手机短信里的6位数字校验码,不可为空"})
+		.regexValidator({regexp:"zipcode",datatype:"enum",onerror:"手机校验码为6位数字"});
+
+	
+	});
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_cert_manager"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">申请数字证书</strong><span>|</span><a href="#">使用遇到问题?</a></div>
+			</div>
+			<div class="step">
+				<ol class="step-2">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写信息</li>
+					<li class="li-2">2.短信接收验证码</li>
+					<li class="li-3">3.安装证书</li>
+					<li class="li-4">4.成功</li>
+				</ol>
+			</div>
+			<div class="ico_txtBox mt10"><i class="warn_ico"></i> gcpayment支付已向<span class="blue">${mobile?default("")}</span>发送了校验短信，请注意查收。</div>
+			<form class="pad_center" name="mobileForm" id="mobileForm" action="${rc.contextPath}/corp/certManager.htm" method="post">
+				<input type="hidden" name="method" value="applyThird"/>
+				<ul class="form_list">
+					<li>
+						<label class="form_side">手机校验码：</label>
+						<input type="text" class="inp_normal"  name="checkCode" id="checkCode" maxlength="6"> <span class="c_999 ml10" id="checkCodeTip">请输入手机短信里的6位数字校验码</span>
+						<#if errMsg?has_content>
+						<p class="red">${errMsg?default("")}</p>
+						</#if>
+					</li>
+					<li>
+						<div class="clew_box"><span class="f12 f333">如果1分钟内没有收到校验码，请点击下方按钮再试获取!</span><br>
+							<button id="seconds" type="button" disabled>（60秒）后重新获取</button>
+						</div>
+					</li>
+					<li class="btn"><span class="btn_yel">
+						<button type="submit">提 交</button>
+						</span> <a class="blues ml30" href="${rc.contextPath}/corp/certManager.htm?method=apply">返 回</a></li>
+				</ul>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

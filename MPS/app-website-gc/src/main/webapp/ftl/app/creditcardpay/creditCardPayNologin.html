@@ -1,0 +1,583 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付信用卡还款</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<!-- <link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css"> -->
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/input-valid.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+<!--[if IE 6]>
+<script src="<@sp.static/>/js/pay/dd_belatedpng_0.0.8a-min.js"></script>
+<script>
+DD_belatedPNG.fix('.pop_war,.pop_s,.pop_fail,.ie6_png');
+</script>
+
+<script type="text/javascript">
+// <![CDATA[
+try{
+document.execCommand("BackgroundImageCache", false, true);
+}
+catch(e){}
+// ]]>
+</script>
+<![endif]-->
+<script type="text/javascript">
+var rentedErrorMsg = "";
+var isvalid = true;
+function formatBarCodeTips(obj){
+	var reg = /(\d{4})(\d{4})?(\d{4})?(\d{4})?(\d{4})?/;
+	var formatValue = obj.value.replace(reg,"$1 $2 $3 $4 $5");
+	//showTip(formatValue);
+}
+
+/*
+function showTip(value){
+	$(".tip").html(value);
+	$(".zoom_win").show();
+}
+*/
+
+	$(function() {
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?date="+ Math.random());
+		})
+		
+		$.formValidator.initConfig( {
+			formid : "form",
+			onerror : function(msg, obj) {
+				$.pay.alert(msg);
+			}
+		});
+		
+		
+		$("#billAmount").formValidator( {
+			tipid : "billAmountTip",
+			onshow : "",
+			onfocus : "请输入还款金额",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "还款金额不能为空"
+		});
+		
+		$("#payerMobile").formValidator( {
+			tipid : "payerMobileTip",
+			onshow : "",
+			onfocus : "请输入手机号码",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "手机号码不能为空"
+		});
+
+		
+		$("#payeeName").formValidator( {
+			tipid : "payeeNameTip",
+			onshow : "",
+			onfocus : "请输入信用卡开户名",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "信用卡开户名不能为空"
+		});
+		
+		$("#payeeAccountNo").formValidator( {
+			tipid : "payeeAccountNoTip",
+			onshow : "",
+			onfocus : "请输入信用卡卡号",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "信用卡卡号不能为空"
+		});
+		$("#billOrgCode").formValidator( {
+			tipid : "billOrgCodeTip",
+			onshow : "",
+			onfocus : "请选择信用卡发卡行",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "信用卡发卡行不能为空"
+		});
+		$("#payerBankCode").formValidator( {
+			tipid : "payerBankCodeTip",
+			onshow : "",
+			onfocus : "请选择付款银行",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "付款银行不能为空"
+		});
+
+		$("#randCode").formValidator( {
+			tipid : "randCodeTip",
+			onshow : "",
+			onfocus : "输入上图中的文字",
+			oncorrect : ""
+		}).inputValidator( {
+			min : 1,
+			empty : false,
+			onerror : "验证码不能为空"
+		});
+		
+		
+		$("#sms").click(function() {
+			if ($("#sms").attr("checked") == true) {
+				$("#mid").show();
+				$("#middate").show();
+				$("#midday").show();
+			} else {
+				$("#mid").hide();
+				$("#middate").hide();
+				$("#mobile").val("");
+				$("#billNotifyDay").val(""); 
+			}
+		});
+		$("#billOrgCode").blur(function(){
+    		var payeeAccountNo = $("#payeeAccountNo").val();
+    	    var billOrgCode    = $("#billOrgCode").val();
+						//url : "${rc.contextPath}/validate.htm?payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode,
+    	    if(payeeAccountNo==null||payeeAccountNo==""){
+    	    	$("#payeeAccountNoTip").show().html("<span style='color:red'>请输入信用卡卡号</span>");
+            }else if(payeeAccountNo.length<12||payeeAccountNo.length>25){
+      				$("#payeeAccountNoTip").show().html("<span style='color:red'>信用卡位数不正确！</span>");
+           	}
+    	    if(billOrgCode==null||billOrgCode==""){
+    	    	$("#billOrgCodeTip").show().html("<span style='color:red'>请选择信用卡发卡行</span>");
+            }
+    		if(payeeAccountNo!=''&&billOrgCode!=""){
+		    		$.ajax( {
+						type : "post",
+						url : "${rc.contextPath}/ebpp/creditCardPaymentController.htm?method=creditCardardNoValidator&payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode+"&date="+new Date(),
+						datatype : "json",
+						success : function(data) {
+							if (null != data && data != "") {
+						        $("#payeeAccountNoTip").show().html("<span style='color:red'>请确认您输入的银行卡号是否正确！</span>");
+						        isvalid = false;
+							}else{
+								 //$("#payeeAccountNoTip").html("请输入信用卡卡号");	
+								 $("#payeeAccountNoTip").html("");	
+								 isvalid = true;
+							}
+				     }
+					});   
+			} 
+    	});	
+		
+		$("#payeeAccountNo").blur(function(){
+			InputValid.digitOnly($("#payeeAccountNo")[0]);
+    		var payeeAccountNo = $("#payeeAccountNo").val();
+    		if(payeeAccountNo==null||payeeAccountNo==""){
+    			$("#payeeAccountNoTip").show().html("<span style='color:red'>请输入信用卡卡号</span>");
+            }else if(payeeAccountNo.length<12||payeeAccountNo.length>25){
+      			$("#payeeAccountNoTip").show().html("<span style='color:red'>信用卡位数不正确！</span>");
+           	}
+    	    var billOrgCode    = $("#billOrgCode").val();
+	        //url : "${rc.contextPath}/validate.htm?payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode,
+    	  //  $(".zoom_win").hide();
+   			
+    		if(payeeAccountNo!=''&&billOrgCode!=""){
+	        		$.ajax( {
+	    				type : "post",
+	    				url : "${rc.contextPath}/ebpp/creditCardPaymentController.htm?method=creditCardardNoValidator&payeeAccountNo="+payeeAccountNo+"&billOrgCode="+billOrgCode+"&date="+new Date(),
+	    				datatype : "json",
+	    				success : function(data) {
+	    					if (null != data && data != "") {
+	    				        $("#payeeAccountNoTip").show().html("<span style='color:red'>请确认您输入的银行卡号是否正确！</span>");
+	    				        isvalid = false;
+	    					}else{
+	    						 //$("#payeeAccountNoTip").show().html("请输入信用卡卡号");	
+	    						 $("#payeeAccountNoTip").show().html("");	
+	    						 isvalid = true;
+	    					}
+	    		     }
+	    			}); 
+            		  
+   			}else{
+   				if(payeeAccountNo==""){
+   					$("#payeeAccountNoTip").show().html("<span style='color:red'>请输入你的信用卡号！</span>");
+   				}
+   				if(billOrgCode==""){
+   					$("#billOrgCodeTip").css("color","red").html("信用卡发卡行不能为空");
+   				}
+           } 
+    	});	
+
+		$("#payerMobile").blur(function(){
+    		var payerMobile = $("#payerMobile").val();
+    		if(payerMobile==null||payerMobile==""){
+    			$("#payerMobileTip").show().html("<span style='color:red'>请输入手机号码</span>");
+            }else{
+            	$.ajax( {
+    				type : "post",
+    				url : "${rc.contextPath}/ebpp/creditCardBillNoLog.htm?method=logNameValidator&phoneNo="+payerMobile+"&date="+new Date(),
+    				datatype : "json",
+    				success : function(msg) {
+        				//alert(eval("(" + msg + ")").memberCode);
+        				var memberCode = eval("(" + msg + ")").memberCode;
+        				var errorMsg = eval("(" + msg + ")").errorMsg;
+        				var newmember = eval("(" + msg + ")").newmember;
+						if (null == msg || msg == "") {
+    				        $("#payerMobileTip").show().html("<span style='color:red'>请输入正确的手机号码！</span>");
+    					}else{
+    						if (null != errorMsg) {
+        				        $("#payerMobileTip").show().html("<span style='color:red'>请输入正确的手机号码！</span>");
+        					}else{
+	    						 $("#payerMemberCode").val(memberCode);
+	    						 $("#pwdput").show();
+	    						 if(newmember!=null&&newmember!=""){
+		    						 $("#payerMobileTip").show().html("请及时查看手机信息");	
+		    						 $("#loginpwdTip").show().html("请输入收到短信的登陆密码");	
+		    					 }else{
+		    						// $("#payerMobileTip").show().html("请输入手机号码");	
+		    					 }	
+        					} 
+    					}
+					}
+    			}); 
+
+
+            }
+    	});	
+
+		$("#loginpwd").blur(function(){
+    		var payerMobile = $("#payerMobile").val();
+    		var loginpwd = $("#loginpwd").val();
+    		if(payerMobile==null||payerMobile==""){
+    			$("#payerMobileTip").show().html("<font color=red>请输入手机号码</font>");
+            }else if(loginpwd==null||loginpwd==""){
+    			$("#loginpwdTip").show().html("<font color=red>请输入登录密码</font>");
+            }else{
+            	$.ajax( {
+    				type : "post",
+    				url : "${rc.contextPath}/ebpp/creditCardBillNoLog.htm?method=pwdValidator&phoneNo="+payerMobile+"&logpwd="+loginpwd+"&date="+new Date(),
+    				datatype : "json",
+    				success : function(msg) {
+        				//alert(msg);
+						if (null == msg || msg == "") {
+    				        $("#loginpwdTip").show().html("<span style='color:red'>请输入您的登陆密码！</span>");
+    					}if ('0' == msg ) {
+    				        $("#loginpwdTip").show().html("<span style='color:red'>请输入正确的登陆密码！</span>");
+    				        $("#islogin").val(msg);
+    					}else if('1' == msg ){
+    						 $("#loginpwdTip").text("");	
+    						 $("#islogin").val(msg);	
+    					}
+					}
+    			}); 
+
+
+            }
+    	});	
+
+    	
+		$("#payerBankCode").blur(function(){
+    		var payerBankCode = $("#payerBankCode").val();
+    		if(payerBankCode==null||payerBankCode==""){
+    			$("#payerBankCodeTip").show().html("<span style='color:red'>请选择还款银行</span>");
+            }
+    	});	
+    	
+		
+
+		$("#payeeName").blur(function(){
+    		var payeeName = $("#payeeName").val();
+    		if(payeeName==null||payeeName==""){
+    			$("#payeeNameTip").show().html("<span style='color:red'>请输入信用卡开户名</span>");
+            }
+    	});	
+		$("#randCode").blur(function(){
+    		var randCode = $("#randCode").val();
+    		if(randCode==null||randCode==""){
+    			$("#randCodeTip").show().html("<span style='color:red'>请输入验证码</span>");
+            }
+    	});	
+		$(".security_code").click(function(){
+			$(".security_code").attr("src","${rc.contextPath}/validatecode/validatecode.htm?d="+ Math.random());
+		});
+		$("#changeImg").click(function(){$(".security_code").click()});
+		$("#billAmount").keyup(function(){InputValid.numberOnly($("#billAmount")[0])});
+		$("#btnSumbit").click(function() {
+			if ($("#sms").attr("checked") == true) {
+				var billNotifyDay = $("#billNotifyDay").val();
+				if (billNotifyDay == '') {
+					$("#billNotifyDayTip").show().html("<span style='color:red'>请选择日期才能发送短信通知</span>");
+					$("#billNotifyDayTip").show();
+					$("#billNotifyDay").focus();
+					return false;
+				}else{
+					$("#billNotifyDayTip").html("");
+				}
+			}else{
+				$("#billNotifyDay").val("");
+			}
+			
+			if (null != $("#billOrgCode").val() && $("#billOrgCode").val() != "") {
+				$("#payeeAcctKaiHu").val($("#billOrgCode").find("option:selected").text());
+			}
+			if (null != $("#payerBankCode").val() && $("#payerBankCode").val() != "") {
+				$("#payerBankName").val($("#payerBankCode").find("option:selected").text());
+			}
+			if(isNaN($("#billAmount").val())){
+				$("#billAmount").val("");
+			}
+			var payeeAccountNo = $("#payeeAccountNo").val();
+    	    var billOrgCode    = $("#billOrgCode").val();
+    		if(payeeAccountNo!=''&&billOrgCode!=""){
+    			if(payeeAccountNo.length<12||payeeAccountNo.length>25){
+       				$("#payeeAccountNoTip").show().html("<span style='color:red'>信用卡位数不正确！</span>");
+            	}else{
+					if(!isvalid){
+						$(function(){	
+							$.pay.alert('请确认信用卡发卡行和信用卡号',{h:160,t:'3'});
+						});
+						$("#payeeAccountNoTip").show().html("<span style='color:red'>请输入正确的信用卡号</span>");
+						return isvalid;
+					}
+            	}	
+			} 
+			if($("#islogin").val()!=1){
+				$(function(){	
+					$.pay.alert('请输入手机号码和登录密码',{h:160,t:'3'});
+				});
+				return false;
+			}
+			//alert($("#payerBankName").val());
+		});
+
+		$("#payeeAccountNo").keyup(function(){fmtNoTips(this);})
+		.focus(function(){fmtNoTips(this);}).blur(function(){
+			this.value = this.value.replace(/\s/g,'');
+		});
+		$("#billAmount").blur(function(){
+					InputValid.formatScale($("#billAmount")[0],2);
+					var billAmount=$("#billAmount").val();
+					if (!billAmount.indexOf(".") == 0) {
+						if (parseFloat(billAmount)) {
+							if (!isNaN(billAmount)) {
+								$("#billAmount").val( parseFloat(billAmount).toFixed(2));
+							}
+						}
+					}
+					if(billAmount==null||billAmount==""){
+		    			$("#billAmountTip").show().html("<font color=red>请输入还款金额</font>");
+		            }
+			    }
+		);
+
+		
+    	
+		<#if cmmand.billNotifyDay?exists>
+			$("#sms").attr("checked",true);
+			$("#mid").show();
+			$("#middate").show();
+		</#if>
+		<#if islogin?exists>
+			 $("#pwdput").show();
+		</#if>
+	});
+
+	$(document).ready(function() {
+		if ($("#mobile").val() != '') {
+			$("#sms").attr("disabled", "");
+			$("#mid").show();
+		} 
+	});
+
+	function keyupValue(obj){
+		obj.value = obj.value.replace(/[^\d]/g,'');
+	}
+
+-->
+</script>
+<#if errorMsg?exists>
+	<script type="text/javascript">	
+		$(function(){	
+			$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+		});
+	</script>
+</#if>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="信用卡还款"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container"> 
+	<!--侧导航 str -->
+	 <@sp.ebillmenu channel="1_2"/>
+	<!--侧导航 end -->
+	<div class="box_main">
+		<!--<div class="banner_focus"><img alt="" src="<@sp.static/>/img/pay/sample/banner_credit_card.jpg"></div>-->
+		<div class="form_box">
+			<div class="form_tit">
+				<h3><i>信用卡还款</i></h3>
+				<em class="step_cur_tips"></em> </div>
+			<div class="content"> 
+				<!--表单str -->
+				<form action="${rc.contextPath}/ebpp/creditCardNoLogConfirm.htm?method=saveRequest"
+							method="post" name="form" id="form" >
+			    <input type="hidden" name="isFirst" id="isFirst" value="1">
+			    <input type="hidden" name="billName" id="billName" value="信用卡还款">
+			    <input	type="hidden" name="billFeeAmount" id="billFeeAmount" value="${cmmand.billFeeAmount?default('0')}">
+			    <input	type="hidden" name="payeeAcctKaiHu" id="payeeAcctKaiHu" value="">
+			    <input	type="hidden" name="payerBankName" id="payerBankName" value="">
+			    <input	type="hidden" name="islogin" id="islogin" value="${islogin?default('0')}">
+			    <input	type="hidden" name="payerMemberCode" id="payerMemberCode" value="${cmmand.payerMemberCode?default('0')}">
+					<div class="mod_form2 mt10"> 
+						<!--左str -->
+						<div class="form_list_l">
+							<ul class="form_list bold_input">
+								<li class="sort_tit">填写信用卡信息</li>
+									<li class="my_card_box">
+									<label class="form_side2">信用卡发卡行：</label>
+									<select class="select2 w170" name="billOrgCode" id="billOrgCode">
+												<option value="">--请选择信用卡发卡行--</option>
+												<#if cabankList?exists>
+													<#list cabankList as bank>
+														<#if cmmand.billOrgCode?default('')==bank.bankCode>
+															<option value="${bank.bankCode}" selected>${bank.bankName}</option>
+														<#else>
+															<option value="${bank.bankCode}">${bank.bankName}</option>
+														</#if>
+													</#list> 
+												</#if>
+											</select><p id="billOrgCodeTip"></p><p style="color:red"><#if Session["memberCode"]?exists><a href="${rc.contextPath}/ebpp/creditCardPaymentController.htm" class="red bk_pf">选择已还过的信用卡</a></#if></p>
+								</li>
+									<!--end -->
+								</li>
+								<li>
+									<label class="form_side2">信用卡卡号：</label>
+									<div class="zoom_box">
+									<input type="text" class="input_txt2 w170" id="payeeAccountNo" name="payeeAccountNo" value="${cmmand.payeeAccountNo?default('')}"  size="35" maxlength="25"  /><p id="payeeAccountNoTip"></p>
+									<!--  <p class="zoom_win" style="display:none"><span class="tip"></span></p>-->
+									</div>
+								</li>
+								<li>
+									<label class="form_side2">信用卡开户名：</label>
+									<input type="text" class="input_txt2 w170" id="payeeName" name="payeeName" value="${cmmand.payeeName?default('')}" size="35" maxlength="20" onkeyup="value=value.replace(/[^\a-zA-Z\u4E00-\u9FA5]/g,'')"><p id="payeeNameTip"></p>
+								</li>
+								<li>
+									<label class="form_side2">还款金额：</label>
+									<input type="text" class="input_txt2 w170" id="billAmount" name="billAmount" value="${cmmand.billAmount?default('')}" maxlength="10" size="20"> 元<p id="billAmountTip"></p>
+							    </li>
+							</ul>
+						</div>
+						<!--左end --> 
+						<!--右str -->
+						<div class="form_list_r">
+							<ul class="form_list bold_input">
+								<li class="sort_tit">填写借记卡信息</li>
+								<li>
+									<label class="form_side2">选择付款银行：</label>
+									<!--str -->
+									<div class="relative z9">
+										 <select class="select2 w170" name="payerBankCode" id="payerBankCode">
+												<option value="">--请选择开户行--</option>
+												<#if cmmBankList?exists>
+													<#list cmmBankList as bank>
+														<#if cmmand.payerBankCode?default('')==bank.bankCode>
+															<option value="${bank.bankCode}" selected>${bank.bankName}</option>
+														<#else>
+															<option value="${bank.bankCode}">${bank.bankName}</option>
+														</#if>
+													</#list> 
+												</#if>
+											</select><p id="payerBankCodeTip"></p>
+									</div>
+								</li>
+							<li>
+								<label class="form_side2">手机号码：</span></label>
+							     <input type="text" name="payerMobile" id="payerMobile" value="${cmmand.payerMobile?default('')}" class="input_txt2 w170"
+											size="17" maxlength="11" onkeyup="keyupValue(this);"> 
+								<p id="payerMobileTip"></p>
+							</li>
+							<li id="pwdput" style="display: none;">
+								<label class="form_side2">登录密码：</span></label>
+									<input type="password" name="loginpwd" id="loginpwd" class="input_txt2 w170" maxlength="16"></input>
+									<p id="loginpwdTip"></p>
+								</li>
+							<li>
+								<input  id="sms" type="checkbox" value="">
+								<label for="test">免费短信提醒：</label>
+							</li>
+								<li id="middate" style="display: none;">
+									<label class="form_side2">提醒日期：</span></label>
+										每月<select  name="billNotifyDay" id="billNotifyDay" class="select2">
+										<option value="">请选择</option>
+										<#list 1..28 as x> 
+											<option value="${x}" <#if cmmand.billNotifyDay?default(0)==x> selected</#if>>${x}</option>
+										</#list> 
+									</select>日自动短信提醒
+									<p id="billNotifyDayTip"></p>
+								</li>
+								
+								<li>
+									<label class="form_side2">验证码：</label>
+									<input type="text" id="randCode" name="randCode" size="8"  class="input_txt2" maxlength="6">
+							<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张"><p id="randCodeTip"></p>
+								</li>
+							</ul>
+							<!-- 
+							<div class="card_tips"><em class="tips_tit">招商银行相关信息：</em>2010年11月08日 星期一
+								每笔还款额最高5000元 , 以还款当日开始计算30天
+								内最多可还款5笔
+						    </div>
+							 -->
+						</div>
+						<!--右end --> 
+					</div>
+					<div class="bottom_border">
+						<p></p>
+						<p></p>
+					</div>
+					<div class="btn_box mt10 txtC">
+						<p class="mt10"><span class="btn_yel botton_yel">
+							<button type="submit" id="btnSumbit"/>下一步</button>
+							</span> </p>
+					</div>
+				</form>
+				<!--表单end -->   
+			</div>
+		</div>
+			<!--问答 str-->
+				<div class="mod_box_a q_a">
+					<div class="con_box">
+						<div class="mod_tit">
+							<h3 class="title font14"> <strong>有问题 我帮您</strong> </h3>
+							<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+							<dl class="ico_txtBox">
+								<dt><i class="q_ico"></i>使用信用卡还款服务，要收手续费吗？</dt>
+								<dd><i class="a_ico"></i>答：目前该服务在推广期间，暂时免费。如需收费，时间和收费方式将以网站公告的方式另行通知。</dd>
+								<dt><i class="q_ico"></i>问信用卡还款一天可以使用多次吗？</dt>
+								<dd><i class="a_ico"></i>答：信用卡还款服务允许单日多次使用，其中招行同一个信用卡号每月还款金额不得超过25000元，每月还款笔数不得超过5笔。当天所有渠道累计最大还款额度不能超过40000元。 其中借记卡支付渠道：支付金额最高为人民币40000元；卡通、可提现余额支付渠道：认证用户一天内累计5000元；证书用户一天内累计10000元，（可提现余额无法为他人进行还款）。</dd>
+								<dt><i class="q_ico"></i>可以购汇还款吗？</dt>
+								<dd><i class="a_ico"></i>答：如需购汇还款，请在还款前致电银行信用卡中心客服电话确认。</dd>
+							</dl>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				<!--问答 end--> 
+	</div>
+</div>
+<!--主内容 end -->
+			<!--footer -->
+			<#include "/common/include/footer.html">
+			</body>
+</html>

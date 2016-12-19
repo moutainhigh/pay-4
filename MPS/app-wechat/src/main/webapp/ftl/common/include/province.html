@@ -1,0 +1,152 @@
+<script type="text/javascript">
+var selectCity;
+
+$("#acctcity").click(function() {
+	$("#add_city").hide();
+	$("#add_provinces").show();
+	$("#acctcity").blur();
+	$('#billNotifyDay').hide();
+
+});
+function getOffsetTop(elm) {
+	var mOffsetTop = elm.offsetTop;
+	var mOffsetParent = elm.offsetParent;
+	return mOffsetTop;
+}
+function getOffsetLeft(elm) {
+	var mOffsetLeft = elm.offsetLeft;
+	var mOffsetParent = elm.offsetParent;
+	return mOffsetLeft;
+}
+function getCity(proviceCode, id, provinceName) {
+	$("#add_city").hide();
+	if (proviceCode != '') {
+		$.ajax( {
+			type : "POST",
+			url : "${rc.contextPath}/ebillProvince.htm?proviceCode="
+					+ proviceCode,
+			dataType : "html",
+			success : function(msg) {
+				$("#provinceCode").val(proviceCode);
+				$("#provinceName").val(provinceName);
+				$("#billProvince").val(provinceName);
+				$("#billProvinceCode").val(proviceCode);
+				$("#add_city").html(msg);
+				var city = $("#" + id)[0];
+				var left = getOffsetLeft(city);
+				var top = getOffsetTop(city);
+				var addCity = $("#add_city");
+				var cityHeight = $("#add_city").height();
+				var proHeight = $("#add_provinces").height();
+				if (top + cityHeight > proHeight + 5) {
+					top = top - cityHeight;
+				} else {
+					top += 15;
+				}
+
+				$(addCity).css( {
+					left : left + "px",
+					top : top + "px"
+				});
+				$("#add_city").show();
+				;
+			}
+		});
+	}
+}
+function setcity(city, cityCode) {
+
+	$("#add_city").hide();
+	$("#add_provinces").hide();
+	$("#billCity").val(city);
+	$("#acctcity").val(city);
+	$("#billCityCode").val(cityCode);
+	$("#cityCode").val(cityCode);
+	if (selectCity) {
+		selectCity();
+	}
+	$("#acctcity").focus();
+}
+</script>
+
+<div id="add_provinces" style="display: none; z-index: 99999"
+	onmouseover="$(this).show();$('#billNotifyDay').hide();" onmouseout="$(this).hide();$('#billNotifyDay').show();">
+	<span class="close" id="prvinceClose"
+		onclick="$('#add_city').hide();$('#add_provinces').hide();$('#billNotifyDay').show();"></span>
+	<dl>
+		<#if provinceList?has_content>
+		<dt>
+			华北
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="华北">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		<dt>
+			东北
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="东北">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		<dt>
+			华东
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="华东">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		<dt>
+			中南
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="中南">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		<dt>
+			西南
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="西南">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		<dt>
+			西北
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="西北">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		<dt>
+			港澳台
+		</dt>
+		<dd>
+			<#list provinceList as pl> <#if pl.area=="港澳台">
+			<span id="${pl_index}"><a attr="prov" title=""
+				href="javascript:void(0);"
+				onclick="getCity(${pl.provincecode},${pl_index},'${pl.provincename}');">${pl.provincename}</a>
+			</span> </#if> </#list>
+		</dd>
+		</#if>
+	</dl>
+	<div id="add_city" style="display: none;"></div>
+	<input type="hidden" name="provinceName" id="provinceName" />
+</div>

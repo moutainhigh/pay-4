@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html> 
+<head>
+	<meta charset="utf-8">
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="container"> 
+	<div class="pay_cashier " id="confirmPay">
+		<form method="post" action="" id="prepaidCardPayForm" name="prepaidCardPayForm">
+			<ul class="form_list">
+				<li>
+					<label class="form_side">应付总价：</label><strong class="red">${totalAmount?default('')}</strong> 元
+				</li>
+				<li>
+					<label class="form_side">预付卡号码：</label>
+					<span class="f14b">${cardNo?default('')}</span> 
+					<!-- <a href="javascript:updateCardNo();" class="ml30 blue">修改</a> -->
+					<p class=" mt5"><dd><label class="${item.alias?default('')}" ></label></dd></p>
+				</li>
+				<li>
+					<label class="form_side">请输入卡密码：</label>
+					<input class="inp_normal w150" type="password"  id="password" name="password" maxlength= "6" />
+				</li>
+				<li class="btn">
+					<span class="btn_yel mt10"><button id="postSubmit_span_1" type="button" onclick="postSubmit()">确认支付</button></span>&nbsp;&nbsp;&nbsp;&nbsp;
+					<span class="btn_yel mt10"><button type="button" onclick="returnBank()">返回上一页</button></span>
+				</li>
+			</ul>
+			<input type="hidden" name="loginName" id="loginName" value="${loginName?default('')}"/>
+			<input type="hidden" name="orderNo" id="orderNo" value="${orderNo?default('')}"/>
+			<input type="hidden" name="prepaidCardOrders" id="prepaidCardOrders" value="${prepaidCardOrders?default('')}"/>
+			<input type="hidden" name="ordersKey" id="ordersKey" value="${ordersKey?default('')}"/>
+			<input type="hidden" name="partner" id="partner" value="${partner?default('')}"/>
+			<input type="hidden" name="cardNo" id="cardNo" value="${cardNo?default('')}"/>
+			<input type="hidden" name="totalAmount" id="totalAmount" value="${totalAmount?default('')}"/>
+			<input type="hidden" name="cardType" id="cardType" value="${item.alias?default('')}"/>
+			<input type="hidden" name="prepaidShow" id="prepaidShow" value="YES"/>
+			<!-- 
+			<input type="hidden" name="testFlag" id="testFlag" value="1"/>
+			 -->
+		</form>
+	</div>
+	<div id="prepaidCardDiv" > </div> 
+	<div id="payReturnBank" style="display:none;"> </div>  <!-- 接收点击确认付款后回来的页面，后续逻辑会拿此中的值做业务逻辑-->
+</div>
+</body>
+<script type="text/javascript">
+	function returnBank() {
+		var totalAmount = '${totalAmount?default('')}';	
+		var partner = '${partner?default('')}';	
+		var pars = $("#prepaidCardPayForm").serialize();
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/prepaidCardCashier.htm?method=index",
+			cache: false,
+			data: pars,
+			success: function(result) {
+				$('#prepaidCardDiv').html(result);
+			}
+		});
+	}
+	function postSubmit() {
+			var password = $("#password").val();
+			var totalAmount = '${totalAmount?default('')}';	
+			var partner = '${partner?default('')}';	
+			var pars = $("#prepaidCardPayForm").serialize();
+			if("" == password ){
+				$.pay.alert('请输入卡密码',{h:160,t:'3'});
+				return ;
+			}
+			loadWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/preCardPay.htm?method=onSubmit",
+				cache: false,
+				data: pars,
+				success: function(result){
+						document.getElementById("payReturnBank").innerHTML = result;
+						var errorMsg = document.getElementById("errorMsg").value;
+						if(errorMsg != ""){
+							$.pay.alert(errorMsg,{h:160,t:'3'});
+						}else{
+							//$.pay.window(result,{title:'',w:550,h:300,url:false,isClose:false});
+							$("#notifyForm").submit();
+						}
+				   		$.pay.closeLoading(loadWin);
+				   		//$("#postSubmit_span").addClass("b_off");
+						$("#postSubmit_span_1").addClass("b_off");
+				   		//$("#bankForm").submit();
+				  	}
+
+			});
+		}
+
+</script>
+</html>

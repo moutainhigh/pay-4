@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-subscribetype">
+    <typeAlias alias="subscribetype" type="com.pay.app.model.SubscribeType"/>
+    <typeAlias alias="subscribetypedto" type="com.pay.app.dto.SubscribeTypeDto"/>
+
+  
+  
+      <sql id="DETAIL_SELECT_SUBSCRIBE_TYPE">
+    	<![CDATA[
+		select t.notify_id notifyId,
+		       t.name,
+		       t.description,
+		       t.create_date createDate,
+		       t.update_date updateDate
+		  from t_subscribe_type t
+		 where 1 = 1
+        ]]>
+    </sql>
+    
+   	<select id="findById" resultClass="subscribetype" parameterClass="java.lang.Long">
+		<include refid="DETAIL_SELECT_SUBSCRIBE_TYPE"/>
+		<![CDATA[
+		        AND  t.notify_id = #notifyId#
+		]]>
+    </select>
+   
+  	<sql id="COMMON.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="COMMON.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #endNum# )
+       		 where (linenum > #beginNum#)
+       	]]>
+	</sql>
+	 
+    <sql id="COMMON_CONDITION_SELECT_DETAIL">
+		<isNotEmpty prepend="and" property="notifyId">
+			t.notify_id=#notifyId#
+	   </isNotEmpty>
+	   <isNotEmpty prepend="and" property="name">
+			t.name=#name#
+	   </isNotEmpty>
+	</sql>
+    
+    <!-- 根据参数查询-->
+    <select id="selectSubscribeTypeByMap" resultClass="subscribetype" parameterClass="subscribetypedto">
+   			<include refid="COMMON.PAGING_START"/>
+			<include refid="DETAIL_SELECT_SUBSCRIBE_TYPE"/>
+			<include refid="COMMON_CONDITION_SELECT_DETAIL"/>
+			<include refid="COMMON.PAGING_END"/>
+    </select>
+    
+   
+    <select id="count" resultClass="java.lang.Integer" parameterClass="subscribetypedto">
+    	<![CDATA[	select count(1)
+					  from t_subscribe_type t
+					where 1 = 1
+    	]]>	
+    	<include refid="COMMON_CONDITION_SELECT_DETAIL"/>
+    </select>
+    
+    
+ 
+</sqlMap>

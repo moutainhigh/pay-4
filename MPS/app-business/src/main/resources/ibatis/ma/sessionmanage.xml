@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="sessionmanage">
+    <typeAlias alias="sessionmanage" type="com.pay.app.model.SessionManage"/>
+    
+    <insert id="create" parameterClass="sessionmanage">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_sessionmanage_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	sessionmanage 
+        	(
+        		id, 	
+        		userName, 
+        		rid, 
+        		lastVisit, 
+        		authenticated
+            )
+        values 
+        	(
+        		#id#,	
+        		#userName#, 
+        		#rid#, 
+        		#lastVisit#, 
+        		#authenticated#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		sessionmanage
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		sessionmanage
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="sessionmanage">
+        update 
+        	sessionmanage
+        set 
+        		userName = #userName#, 
+        		rid = #rid#, 
+        		lastVisit = #lastVisit#, 
+        		authenticated = #authenticated#
+        where 
+        	ID 				= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		sessionmanage
+    </select>
+    
+    
+    <select id="findById" resultClass="sessionmanage" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		userName, 
+        		rid, 
+        		lastVisit, 
+        		authenticated
+        from 
+        	sessionmanage
+        where 
+        	ID 			= #id#
+    </select>
+    <select id="read" resultClass="sessionmanage" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	sessionmanage
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="sessionmanage" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		userName, 
+        		rid, 
+        		lastVisit, 
+        		authenticated
+        from 
+        	sessionmanage
+    </select>    
+    
+</sqlMap>

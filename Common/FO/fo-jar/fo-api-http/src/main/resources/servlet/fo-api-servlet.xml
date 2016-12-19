@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<!-- 定义映射-->
+	<bean id="PaymentApiHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<!-- prop key="/SinglePay2Acct.htm">api-singlePay2AcctController</prop-->
+				<prop key="/BatchPay.htm">api-batchPaymentController</prop>
+				<prop key="/BatchPaymentQuery.htm">api-batchPaymentQueryController</prop>
+				<prop key="/BatchPaymentTotalQuery.htm">api-batchPaymentTotalQueryController</prop>
+			</props>
+		</property>
+		<property name="interceptors">
+			<list>
+				<ref bean="operatPermInterceptor" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="api-singlePay2AcctController" class="com.pay.api.single.Pay2AcctApiController">
+	</bean>
+
+	<bean id="api-batchPaymentController" class="com.pay.api.batch.BatchPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="messageHandleService" ref="api-httpMessageHandle" />
+	</bean>
+	
+	<bean id="api-batchPaymentQueryController" class="com.pay.api.batch.BatchPaymentQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="messageHandleService" ref="api-paymentQueryMessageHandle" />
+	</bean>
+
+	<bean id="api-batchPaymentTotalQueryController" class="com.pay.api.batch.BatchPaymentTotalQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="messageHandleService" ref="api-paymentTotalQueryMessageHandle" />
+	</bean>
+</beans>

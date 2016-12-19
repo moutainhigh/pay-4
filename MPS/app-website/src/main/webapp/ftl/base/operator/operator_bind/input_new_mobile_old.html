@@ -1,0 +1,135 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>绑定手机_iPayLinks支付</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_operator_manager"/>
+<!--主内容 str -->
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">操作员绑定手机</strong><span>|</span><a href="#">使用遇到问题?</a></div>
+
+			</div>
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写信息</li>
+					<li class="li-2">2.绑定手机成功  </li>
+				</ol>
+			</div>
+
+			<div class="ico_txtBox mt10"><i class="warn_ico"></i> 为操作员绑定手机可用于申请数字证书等产品！</div>
+			<form class="pad_center" id="form0" method="post" action="${rc.contextPath}/corp/operatorBind.htm">
+				<ul class="form_list mt20" id="form0">
+					<#if oldMobile?has_content>
+						<li><label class="form_side">原绑定手机号：</label><span class="blod">${oldMobileFmt}</span></li>
+					</#if>
+					<li>
+						<label class="form_side">需要绑定的手机号：</label>
+						<input type="text" class="inp_normal blod w200" name="mobile" id="mobile" maxlength="11" /><span class="ml20 c_999">请输入操作员的手机号</span>
+						<p class="red" id="mobileTip"></p>
+
+					</li>
+					<li>
+						<label class="form_side">请再次输入手机号码：</label>
+						<input type="text" class="inp_normal blod w200" name="mobileConfrim" id="mobileConfrim" maxlength="11"/><span class="ml20 c_999">请再次输入操作员手机号</span>
+						<p class="red" id="mobileConfrimTip" >二次输入不一致，请重新输入</p>
+					</li>
+					<li>
+						<label class="form_side">验证码：</label>
+						<input type="text" class="inp_normal w80" id="randCode" name="randCode" maxlength="4"/>
+						<img class="v_m pointer" src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="code" id="code" style="vertical-align: top;" height="23" width="68">
+						<span class="c_999 ml20">请输入左侧图片里的字符</span>
+						 <p class="red" id="randCodeTip"></p>
+					</li>
+					<li class="btn"><span class="btn_yel">
+						<button type="submit">提 交</button>
+
+						</span> <a class="blues ml30" href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">返 回</a></li>
+				</ul>
+				<#if oldMobile?has_content>
+						<input type="hidden" value="${oldMobile}" name="oldMobile" id="oldMobile" />
+					</#if>
+					<input type="hidden" value="exeBind" name="method" id="method" />
+					<input type="hidden" value="${operatorId}" name="operatorId" id="operatorId" />
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--主内容 end --> 
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+<script type="text/javascript">
+
+$.formValidator.initConfig({formid:"form0",onerror:function(msg,obj){}});
+
+$("input").blur(function(){
+	$(this).val($(this).val().trim());
+});
+
+$("#code").click(function(e){
+	e.preventDefault();
+	var d = new Date();
+	var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+	$("#code").attr("src",src);
+});
+
+$("#mobile").formValidator({tipid:"mobileTip",onshow:"请输入11位手机号码",onfocus:"请输入11位手机号码",oncorrect:"&nbsp;"})
+.inputValidator({min:11,empty:false,onerror:"手机号码必须是11位"})
+.regexValidator({regexp : "mobile",
+	datatype : "enum",
+	onerror : "手机号码错误，请重新输入"})
+	<#if oldMobile?has_content>
+		.compareValidator({desid:"oldMobile",operateor:"!=",onerror:"和原手机号码输入不能一样"})
+	</#if>
+	;
+
+$("#mobileConfrim").formValidator({tipid:"mobileConfrimTip",onshow:"请输入11位手机号码",onfocus:"请输入11位手机号码",oncorrect:"&nbsp;"})
+.inputValidator({min:11,empty:false,onerror:"手机号码必须是11位"})
+.regexValidator({regexp : "mobile",
+	datatype : "enum",
+	onerror : "手机号码错误，请重新输入"})
+	.compareValidator({desid:"mobile",operateor:"=",onerror:"2次手机号码输入不一致,请确认"});
+
+$("#randCode").formValidator({tipid:"randCodeTip",onshow:" ",onfocus:"请输入图片中的文字",oncorrect:"&nbsp;"})
+.inputValidator({min:4,empty:false,onerror:"验证码必须是4位"});
+
+
+
+
+<#if errorRandCode?has_content>
+$.formValidator.setFailState("randCodeTip","${errorRandCode?default('')}");
+</#if>
+
+<#if errorMobile?has_content>
+$.formValidator.setFailState("mobileTip","${errorMobile?default('')}");
+</#if>
+
+
+<#if errorPayPwd?has_content>
+$.formValidator.setFailState("payPwdTip","${errorPayPwd?default('')}");
+</#if>
+</script>
+</html>

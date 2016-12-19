@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ORDERCENTERRECHARGE">
+
+	<!-- 订单查询条件 -->
+	<typeAlias alias="fo_ordercenterquerydto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<typeAlias alias="fo_ordercenterresultdto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+    <typeAlias alias="fo_ordercenterdetaildto" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+	<typeAlias alias="fo_ordercenterrelationdto" type="com.pay.poss.service.ordercenter.dto.relationorder.OrderRelationDTO" />
+	
+	<!-- 网关充值 -->
+	<select id="recharge_ordercenter_query" resultClass="fo_ordercenterresultdto">
+	SELECT 
+         DO.DEPOSIT_ORDER_NO ORDERKY,
+         DP.DEPOSIT_PROTOCOL_NO BANKORDERKY,
+         1000 ORDERTYPE,
+         DP.DEPOSIT_AMOUNT ORDERAMOUNT,
+         DECODE(DP.STATUS, 0, 101, 1, 111, 2, 112) ORDERSTATUS,
+         '' PAYERACCOUNTNO,
+         DO.ORG_CODE PAYERBANKNO,
+         PCI.ITEM_NAME PAYERBANKNAME,
+         TO_CHAR(DO.CUSTOMER) PAYEEACCOUNTNO,
+         DP.SERIAL_NO PAYEEBANKNO,
+         PCI.ITEM_NAME PAYEEBANKNNAME,
+         PCI.PAYMENT_CATAGORY PAYMENTCATAGORY,
+         DP.CREATE_DATE ORDERDATE,
+         '' PAYERMEMBERCODE,
+         '' PAYERACCTYPE,
+         TO_CHAR(DO.CUSTOMER) PAYEEMEMBERCODE,
+         TO_CHAR(DO.CUSTOMER_TYPE) PAYEEACCTYPE,
+         DECODE(DO.DEBIT_FLAG, 00, '--', 01, '借记卡', 02, '贷记卡', 99, '--', '--') DEBITFLAG
+    FROM FI.DEPOSIT_PROTOCOL     DP,
+         FI.PAYMENT_CHANNEL_ITEM PCI,
+         FI.DEPOSIT_ORDER DO
+   WHERE DP.DEPOSIT_ORDER_NO = DO.DEPOSIT_ORDER_NO
+   AND PCI.ID = DP.CHANNEL_NO
+   AND DO.Payment_Order_No=0
+		<dynamic >
+			<isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(DO.CUSTOMER) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		DP.STATUS = 0
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		DP.STATUS = 1
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		DP.STATUS = 2
+	        	</isEqual>		        
+		    </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            DO.DEPOSIT_ORDER_NO = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            DP.DEPOSIT_PROTOCOL_NO = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ Do.Update_Date >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ Do.Update_Date <= #endTime#]]>
+		 	</isNotEmpty>
+		 </dynamic>
+		 order by Do.Update_Date desc
+	</select>
+    
+    <!-- 网关充值 -->
+	<select id="recharge_ordercenter_query_COUNT" resultClass="java.lang.Integer">
+    SELECT COUNT(1)
+    FROM FI.DEPOSIT_PROTOCOL     DP,
+         FI.PAYMENT_CHANNEL_ITEM PCI,
+         FI.DEPOSIT_ORDER DO
+   WHERE DP.DEPOSIT_ORDER_NO = DO.DEPOSIT_ORDER_NO
+   AND PCI.ID = DP.CHANNEL_NO
+   AND DO.Payment_Order_No=0
+		<dynamic >
+			<isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(DO.CUSTOMER) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	        	<isEqual property="orderStatus" compareValue="101">
+	        		DP.STATUS = 0
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="111">
+	        		DP.STATUS = 1
+	        	</isEqual>
+	        	<isEqual property="orderStatus" compareValue="112">
+	        		DP.STATUS = 2
+	        	</isEqual>		        
+		    </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            DO.DEPOSIT_ORDER_NO = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            DP.DEPOSIT_PROTOCOL_NO = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ DO.Update_Date >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ DO.Update_Date <= #endTime#]]>
+		 	</isNotEmpty>
+		 </dynamic>
+    </select>
+    
+	<!-- 网关充值详情 -->
+	<select id="detail_recharge_ordercenter_query" resultClass="fo_ordercenterdetaildto" parameterClass="java.lang.Long">
+		SELECT DO.CUSTOMER            PAYEEKY,
+		       DO.CUSTOMER_TYPE       PAYEEACCTTYPE,
+		       DO.DEPOSIT_ORDER_NO 		ORDERID,
+		       1001                   ORDERTYPE,
+		       DP.CREATE_DATE         ORDERCREATETIME,
+		       DP.UPDATE_DATE         ORDERENDTIME,
+		       ''                     PAYMENT,      
+		       DO.FEE                 FEE,
+		       DECODE(DP.STATUS, 0, 101, 1, 111, 2, 112) ORDERSTATUS,
+		       DP.DEPOSIT_AMOUNT      ORDERACCOUNT
+		 FROM FI.DEPOSIT_PROTOCOL DP,FI.DEPOSIT_ORDER DO
+     	 WHERE DP.DEPOSIT_ORDER_NO = DO.DEPOSIT_ORDER_NO
+		 AND DO.DEPOSIT_ORDER_NO = #orderKy#       
+	</select>
+	
+	<!-- 网关充值关联订单查询 关联的是 充退 -->
+	<select id="recharge_ordercenter_relation_query" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+      SELECT ROD.APPLY_AMOUNT       ORDERAMOUNT,
+             ROM.APPLY_TIME         ORDERDATE,
+             ROD.DETAIL_KY          ORDERKY,
+             DECODE(ROD.STATUS, 111, 111, 112, 112, 101)             
+                                    ORDERSTATUS,
+             1005                   ORDERTYPE
+        FROM REFUND_ORDER_D ROD,REFUND_ORDER_M ROM
+       WHERE ROD.MASTER_KY = ROM.ORDER_KY
+         AND ROD.RECHARGE_ORDER_SEQ = #orderKy#
+    </select>
+    
+</sqlMap>

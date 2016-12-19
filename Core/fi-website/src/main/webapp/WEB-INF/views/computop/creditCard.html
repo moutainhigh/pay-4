@@ -1,0 +1,129 @@
+<div  class="CreditCard_fromContext row " hidden="hidden" >
+	<div class=" small-12  medium-12  large-12 large-centered columns">
+		<!-- <div class="row">
+			<div class="small-offset-0 large-offset-3 small-12  medium-6 large-6  columns">
+				<h2 style="text-align:center;">Please fill in the credit card information</h2>
+			</div>
+		</div> -->
+		<form id="CreditCard_from">
+			<div class="row">
+				<div class="small-offset-0 large-offset-3 small-12  medium-6 large-8  columns"
+					style="margin-top: 10px">
+						<label for="accountHolderName" style="height: 30px">Card Number：</label>
+						<div class="row">
+							<div class="large-6 columns">
+								<input type="text" id="cardHolderNumber" name="cardHolderNumber" onchange="cardHolderNumberChange(this);">
+							</div>
+							<div class="large-6 columns">
+								<img id="creditCard_all_icon" alt="" src="${base}/static/icon/allblack.png" >
+								<img id="creditCard_vs_icon" alt="" src="${base}/static/icon/VS.png" hidden="hidden" >
+								<img id="creditCard_ae_icon" alt="" src="${base}/static/icon/AE.png" hidden="hidden"  >
+								<img id="creditCard_jcb_icon" alt="" src="${base}/static/icon/JCB.png" hidden="hidden" >
+								<img id="creditCard_mc_icon" alt="" src="${base}/static/icon/MC.png" hidden="hidden" >
+							</div>
+						</div>
+						<label for="accountHolderName" style="height: 30px">Expiration Date：</label>
+						<div class="row">
+							<div class="large-3 small-6 columns">
+								<select id="creditCard_month_select" name="cardExpirationMonth">
+								</select>
+							</div>
+							<div class="large-3 small-6 columns">
+								<select id="creditCard_year_select" name="cardExpirationYear">
+								</select>
+							</div>
+							<div class="large-6 columns">
+							</div>
+						</div>
+						<label for="accountHolderName" style="height: 30px">Security Code：</label>
+						<div class="row">
+							<div class="large-3 small-8 columns">
+								<input type="text" id="securityCode" name="securityCode" >
+							</div>
+							<div class="large-3 small-4 columns">
+								<img alt="" src="${base}/static/icon/CardIcon.png">
+							</div>
+							<div class="large-6 columns">
+							</div>
+						</div>
+						<label for="accountHolderName" style="height: 30px">Cardholder Name：</label>
+						<div class="row">
+							<div class="large-3 small-6 columns">
+								<input type="text" id="cardHolderFirstName" name="cardHolderFirstName" placeholder="First Name">
+							</div>
+							<div class="large-4 small-6 columns">
+								<input type="text" id="cardHolderLastName" name="cardHolderLastName" placeholder="Last Name">
+							</div>
+							<div class="large-5 columns">
+							</div>
+						</div>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		credit_init();
+		createMonth();
+		createyear();
+	})
+	function createyear(){
+		for(var i=2016;i<=2030;i++){
+			$("#creditCard_year_select").append("<option value="+i+">"+i+"</option>");	
+		}
+	}
+	function createMonth(){
+		for(var i=1;i<=12;i++){
+			var val=i+"";
+			if(val.length<2){
+				val="0"+val;
+			}
+			$("#creditCard_month_select").append("<option value="+val+">"+val+"</option>");	
+		}
+	}
+	function credit_init(){
+		$("#creditCard_all_icon").show();
+		$("#creditCard_vs_icon").hide();
+		$("#creditCard_mc_icon").hide();
+		$("#creditCard_jcb_icon").hide();
+		$("#creditCard_ae_icon").hide();
+	}
+	function cardHolderNumberChange(val){
+		var input=$(val);
+		var condition_A=input.val().substring(0,1);
+		var condition_B=input.val().substring(0,2);
+		if(condition_A=="4"){
+			$("#creditCard_vs_icon").show();
+			$("#creditCard_all_icon").hide();
+			$("#creditCard_mc_icon").hide();
+			$("#creditCard_jcb_icon").hide();
+			$("#creditCard_ae_icon").hide();
+		}else if(condition_A=="5"){
+			$("#creditCard_mc_icon").show();
+			$("#creditCard_all_icon").hide();
+			$("#creditCard_vs_icon").hide();
+			$("#creditCard_jcb_icon").hide();
+			$("#creditCard_ae_icon").hide();
+		}else if(condition_B=="35"){
+			$("#creditCard_jcb_icon").show();
+			$("#creditCard_all_icon").hide();
+			$("#creditCard_vs_icon").hide();
+			$("#creditCard_mc_icon").hide();
+			$("#creditCard_ae_icon").hide();
+		}else if(condition_B=="37"){
+			$("#creditCard_ae_icon").show();
+			$("#creditCard_all_icon").hide();
+			$("#creditCard_vs_icon").hide();
+			$("#creditCard_mc_icon").hide();
+			$("#creditCard_jcb_icon").hide();
+		}else{
+			$("#creditCard_all_icon").show();
+			$("#creditCard_vs_icon").hide();
+			$("#creditCard_mc_icon").hide();
+			$("#creditCard_jcb_icon").hide();
+			$("#creditCard_ae_icon").hide();
+		}
+	}
+</script>
+<script src="${base}/model/computop/valid/creditCardValid.js"></script>

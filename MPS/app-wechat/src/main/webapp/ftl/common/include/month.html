@@ -1,0 +1,281 @@
+<script type="text/javascript">
+var Cid="calendar_pf"
+$(document).click(function(event){
+    var obj=$(event.target);
+        if($(obj).attr("id")!="rentmonth"&&$(obj).attr("id") != Cid && $(obj).attr("id")!=Cid &&
+        $(obj).parent().attr("id")!=Cid && $(obj).parent().parent().attr("id")!=Cid
+        && $(obj).parent().parent().parent().attr("id")!=Cid  && $(obj).parent().parent().parent().parent().attr("id")!=Cid
+        && $(obj).parent().parent().parent().parent().parent().attr("id")!=Cid
+         ){
+        	$("#calendar_pf").hide();
+         }
+      });
+$("#rentmonth").click(
+		function() {
+			$("#rentmonthTip").removeClass();
+			$("#rentmonthTip").addClass("onShow").html(
+					null == $("#rentmonthTip font").html() ? $("#rentmonthTip")
+							.html() : $("#rentmonthTip font").html());
+			$("#rentmonth").blur();
+			
+			var rentmonth = $("#rentmonth")[0];
+			var left = getOffsetLeft(rentmonth);
+			var top = getOffsetTop(rentmonth);
+			var high = rentmonth.offsetHeight;
+			$("#calendar_pf").css( {
+				left : left + "px",
+				top : top + high + "px"
+			});
+			$("#calendar_pf li").removeClass("curr");
+			$("#year").html(new Date().getFullYear());
+			addMonClass(mon);
+			$("#calendar_pf").show();
+		});
+
+function preyear() {
+	var year = $("#year").html();
+	year = parseInt(year, 10) - 1;
+	$("#year").html(year);
+	$("#calendar_pf li").removeClass("curr");
+	addMonClass(mon);
+}
+function nextyear() {
+	var year = $("#year").html();
+	year = parseInt(year, 10) + 1;
+	$("#year").html(year);
+	$("#calendar_pf li").removeClass("curr");
+	addMonClass(mon);
+}
+function addMonClass(mon) {
+	var year = parseInt($("#year").html());
+	if (mon.length > 0) {
+		for ( var i = 0; i < mon.length; i++) {
+			if ((mon[i] - mon[i] % 100) / 100 == year) {
+				if (mon[i] % 100 < 10) {
+					$("#mon_0" + mon[i] % 100).addClass("curr");
+				}
+				if (mon[i] % 100 >= 10) {
+					$("#mon_" + mon[i] % 100).addClass("curr");
+				}
+			}
+		}
+	}
+}
+function monthsubmit() {
+	$("#monthArry").val(mon);
+	$("#calendar_pf").hide();
+}
+function addmonth(month) {
+	var curryear = $("#year").html();
+	var len = mon.length;
+	var isExists = false;
+	for ( var i = 0; i < mon.length; i++) {
+		if (mon[i] == parseInt(curryear + month)) {
+			isExists = true;
+			mon.removeArr(i);
+			break;
+		}
+	}
+	if (!isExists) {
+		if (len >= 1) {
+			mon[len] = curryear + month;
+		} else {
+			mon[0] = curryear + month;
+		}
+		var monthobj = $("#mon_" + month);
+		$(monthobj).addClass("curr");
+	} else {
+
+		var monthobj = $("#mon_" + month);
+		$(monthobj).removeClass("curr");
+	}
+
+	mon = mon.sort(function softRule(a, b) {
+		return a > b ? 1 : -1;
+	});
+	var sHtml = "";
+	if (mon.length > 0) {
+		var aMonth = formatMonth(mon + "");
+		for ( var year in aMonth) {
+			sHtml += '<span>' + year + '年</span>' + aMonth[year] + '<br/>';
+		}
+	}
+	$("#rentmonth").html(sHtml);
+	$("#rentmonth").css("width", "auto");
+	if ($("#rentmonth").width() <= 173) {
+		$("#rentmonth").css("width", "173px");
+	}
+	var rentmonth = $("#rentmonth")[0];
+	var left = getOffsetLeft(rentmonth);
+	var top = getOffsetTop(rentmonth);
+	var high = rentmonth.offsetHeight;
+	$("#calendar_pf").css( {
+		left : left + "px",
+		top : top + high + "px"
+	});
+
+	var outputMonth = "";
+	if (mon.length > 0) {
+		for ( var year in aMonth) {
+			outputMonth += year + '年' + aMonth[year] + '，';
+		}
+		outputMonth = outputMonth.substring(0, outputMonth.length - 1);
+		$("#month").val(outputMonth);
+	}
+
+}
+Array.prototype.removeArr = function(dx) {
+	if (isNaN(dx) || dx > this.length) {
+		return false;
+	}
+	this.splice(dx, 1);
+}
+
+function formatMonth(b) {
+	var t = b.split(",");
+	var g = "yyyy";
+	var a = "mm";
+	var m = "\u3001";
+	var c = {};
+	var k = "";
+	for ( var q = 0; q < t.length; q++) {
+		var s = t[q];
+		var l = s.substring(0, g.length);
+		var e = s.substring(g.length);
+		if (!c[l]) {
+			c[l] = [];
+		}
+		c[l].push(e);
+	}
+	var p = {};
+	for ( var year in c) {
+		var f = c[year];
+		var h = "";
+		if (f.length == 12) {
+			h = "\u5168\u5E74";
+		} else {
+			var j = 0;
+			while (j < f.length) {
+				var d = parseInt(f[j], 10);
+				if (j + 2 < f.length) {
+					var n = parseInt(f[j + 2], 10);
+					if (n - d > 2) {
+						h += d + m;
+						j++;
+					} else {
+						var o = j;
+						var r = "";
+						while (o < f.length - 1
+								&& parseInt(f[o], 10) + 1 == parseInt(f[o + 1],
+										10)) {
+							r = parseInt(f[o + 1], 10);
+							o++;
+						}
+						if (h.charAt(h.length - 1) == m
+								&& h.charAt(h.length - 2) != "\u6708") {
+							h = h.substring(0, h.length - 1) + ("\u6708" + m);
+						}
+						h += d + ("-" + r + "\u6708" + m);
+						j = o + 1;
+					}
+				} else {
+					h += d + m;
+					j++;
+				}
+			}
+			if (h.charAt(h.length - 1) == m
+					&& h.charAt(h.length - 2) != "\u6708") {
+				h = h.substring(0, h.length - 1) + "\u6708";
+			}
+			if (h.charAt(h.length - 1) == m) {
+				h = h.substring(0, h.length - 1);
+			}
+		}
+		p[year] = h;
+	}
+	return p;
+}
+
+function getOffsetTop(elm) {
+	var mOffsetTop = elm.offsetTop;
+	var mOffsetParent = elm.offsetParent;
+	return mOffsetTop;
+}
+
+function getOffsetLeft(elm) {
+	var mOffsetLeft = elm.offsetLeft;
+	var mOffsetParent = elm.offsetParent;
+	return mOffsetLeft;
+}
+function cleanCss() {
+	$("#rentmonth").attr("style","");
+	$("#calendar_pf li").removeClass("curr");
+	mon = new Array();
+	$("#rentmonth").html("&nbsp;");
+	$("#monthArry").val("");
+	$("#month").val("");
+}
+
+$(document).ready(function() {
+	var monthArray = $("#monthArry").val();
+	if (monthArray != '') {
+		var sHtml = "";
+		var aMonth = formatMonth(monthArray);
+		for ( var year in aMonth) {
+			sHtml += '<span>' + year + '年</span>' + aMonth[year] + '<br/>';
+		}
+		$("#rentmonth").html(sHtml);
+		mon= monthArray.split(",");
+	}
+	var outputMonth = "";
+	if (mon.length > 0) {
+		for ( var year in aMonth) {
+			outputMonth += year + '年' + aMonth[year] + '，';
+		}
+		outputMonth = outputMonth.substring(0, outputMonth.length - 1);
+		$("#month").val(outputMonth);
+	}
+
+	
+});
+//-->
+</script>
+<div id="calendar_pf" style="display: none; z-index: 999" tabindex="10"
+	name="monthdiv" onmouseover="$(this).show();"
+	onmouseout="$(this).hide();"><span class="close" id="monClose"
+	onclick="$('#calendar_pf').hide();"></span>
+<div class="ico_pf_cet"><a class="lf_arrow" id="preyear"
+	onclick=preyear();;>&nbsp;</a><span class="ye" id="year"></span> <a
+	class="rt_arrow" id="nextyear" onclick=nextyear();;>&nbsp;</a></div>
+<h3>选择月份，可以多选</h3>
+<ul>
+	<li id="mon_01"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('01');">1月</a></li>
+	<li id="mon_02"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('02');">2月</a></li>
+	<li id="mon_03"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('03');">3月</a></li>
+	<li id="mon_04"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('04');">4月</a></li>
+	<li id="mon_05"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('05');">5月</a></li>
+	<li id="mon_06"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('06');">6月</a></li>
+	<li id="mon_07"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('07');">7月</a></li>
+	<li id="mon_08"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('08');">8月</a></li>
+	<li id="mon_09"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('09');">9月</a></li>
+	<li id="mon_10"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('10');">10月</a></li>
+	<li id="mon_11"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('11');">11月</a></li>
+	<li id="mon_12"><a href="javascript:void(0)" class="tip"
+		onclick="addmonth('12');">12月</a></li>
+</ul>
+<br clear="left" />
+<button type="button" class="fh_btn" onclick="monthsubmit();">
+<span>完成</span></button>
+<a class="red" id="cleanC" href="javascript:void(0);"
+	onclick="cleanCss();">清 空</a></div>

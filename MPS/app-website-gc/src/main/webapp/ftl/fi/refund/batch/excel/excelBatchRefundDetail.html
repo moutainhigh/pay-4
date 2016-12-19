@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<#import "/spring.ftl" as sp />
+<html xmlns:x="urn:schemas-microsoft-com:office:excel">
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+
+}
+.spec_txt{
+	color:red;
+}
+</style> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>iPayLinks支付商户批量退款订单</title>
+</head>
+<body>
+	<table width="800" border="1">
+	  iPayLinks支付商户批量退款订单明细
+		<thead>
+		  <tr>
+		      <td colspan="8"><#if sDate?has_content>${sDate}</#if></td>
+		   </tr>
+		     <tr>
+		       <td colspan="8">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+	    <tr><td colspan="8">#----------iPayLinks支付商户批量退款订单明细列表----------</td></tr>
+		<tr>
+			<td style="width:20%" >批次号</td>
+			<td style="width:20%" >总笔数</td>
+			<td style="width:15%" >总金额</td>
+			<td style="width:20%" >成功笔数</td>
+			<td style="width:10%" >成功金额（元）</td>
+			<td style="width:10%" >退回手续费金额（元）</td>
+		</tr>
+		<tr>
+			<td x:str style="width:20%" >${batchOrder.batchRefundNo}</td>
+			<td style="width:20%" class="excel_txt">${batchOrder.refundCount?default('')}</td>
+			<td style="width:15%" class="excel_txt">${batchOrder.refundAmount?default('')}</td>
+			<td style="width:20%" class="excel_txt">${batchOrder.successCount?default('')}</td>
+			<td style="width:10%" class="excel_txt">${batchOrder.successAmount?default('')}</td>
+			<td style="width:10%" class="excel_txt">${batchOrder.payeeFeeAcount?default('')}</td>
+		</tr>	    
+		<tr>
+			<td style="width:20%" >商户订单号</td>
+			<td style="width:20%" >退款流水号</td>
+			<td style="width:15%" >订单金额</td>
+			<td style="width:20%" >退款金额</td>
+			<td style="width:20%" >退回手续费</td>
+			<td style="width:10%" >退款目的地</td>
+			<td style="width:15%" >退款状态</td>
+			<td style="width:15%" >处理说明</td>
+		</tr>
+	</thead>
+	<tbody>
+	<#if refundList?has_content>
+		<#list refundList as ls>
+			<tr <#if ls_index%2==0>
+					style="background-color:#f1f5fa;"
+				</#if> >
+				
+			<td x:str <#if orderid?has_content>
+					<#if orderid = ls.orderID>
+						style="background-color:red"
+					</#if>
+				</#if>
+			>		
+				${ls.orderID}
+			
+			</td>
+			<td x:str class="excel_txt">${ls.refundNo?default("")}</td>
+			<td class="excel_txt">${ls.orderAmount?default("")}</td>
+			<td class="excel_txt">
+				<#if ls.refundNo?has_content>
+					${ls.refundAmount?default("")}
+				<#else>
+					${ls.applyAmount?default("")}
+				</#if>
+			</td>
+			<td class="excel_txt">${ls.payeeFee?default("")}</td>
+			<td class="excel_txt">
+				<#if ls.depositBackNo !=0  && (ls.status=4 || ls.status=5)>
+					退银行
+				<#else>
+					退帐户
+				</#if>
+			</td>
+			<td>
+				<#if ls.refundNo?has_content>
+					<#if ls.status = 1>
+						退帐户处理中
+					<#elseif ls.status = 2>
+						退帐户成功
+					<#elseif ls.status = 3>
+						退帐户失败
+					<#elseif ls.status = 4>
+						退帐户成功,充退处理中
+					<#elseif ls.status = 5>
+						退帐户成功,充退成功
+					<#elseif ls.status = 6>
+						退帐户成功,充退失败
+					</#if>
+				<#else>
+					 退款失败
+				</#if>
+			</td>
+	
+			<td class="excel_txt">
+				${ls.errorMsg?default("")}
+			</td>
+		</tr>
+			</#list>
+		</#if>
+		<tr><td colspan="7">#----------iPayLinks支付商户批量退款订单明细列表----------</td></tr>
+			</tbody>
+		</table>
+</body>
+</html>

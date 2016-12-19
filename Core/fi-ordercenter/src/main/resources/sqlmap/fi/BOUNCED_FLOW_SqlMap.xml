@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="BOUNCED_FLOW">
+	
+	<typeAlias alias="bouncedFlow" type="com.pay.txncore.model.BouncedFlowVO"/>
+		
+	<select id="findByCriteria" parameterClass="bouncedFlow" resultClass="bouncedFlow">
+		select  
+			ORDER_ID orderId,
+			STATUS  status,
+			OPERATOR operator,	
+			REMARK 		remark,
+			BATCH_NO  batchNo,
+			CREATE_DATE  createDate
+		from
+			BOUNCED_FLOW
+		where  1=1
+		<isNotEmpty prepend="AND" property="orderId">
+			ORDER_ID = #orderId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+			STATUS = #status#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="batchNo">
+			BATCH_NO =#batchNo#
+		</isNotEmpty>
+		order by CREATE_DATE DESC
+	</select>
+	
+	<insert id="batchAddBouncedFlowOrder" parameterClass="bouncedFlow">
+		insert into BOUNCED_FLOW(
+			ORDER_ID,
+			STATUS,
+			OPERATOR,
+			REMARK,
+			BATCH_NO,
+			CREATE_DATE			
+		)
+		values(
+			#orderId#,
+			#status#,
+			#operator#,
+			#remark#,
+			#batchNo#,
+			sysdate
+		)
+	
+	</insert>
+	
+</sqlMap>

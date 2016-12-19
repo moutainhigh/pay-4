@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#if returnUrl?exists>
+<meta http-equiv="refresh" content="5;url=${returnUrl?default('')}">
+</#if>
+<title>付款成功</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<!--导航 str-->	
+<div class="header">
+	<h1 class="logo"><a href="${rc.contextPath}/index.htm"><img alt="安捷支付 src="<@sp.static/>/img/pay/logo.png"></a></h1>
+	<div class="header_bar"><span class="pad"><strong><#if memberInfo?exists>${memberInfo.name?default('')}</#if></strong> 您好！
+		<a class="pad" href="${rc.contextPath}/logout.htm">退出</a> | 
+		<a class="mall" href="">安捷商城</a> | 
+		<a class="help" href="${rc.contextPath}/baseHelp.htm">帮助中心</a>
+	</div>
+</div>
+<ul class="nav">
+	<li class="short"><a class="cur" href="${rc.contextPath}/index.htm"><strong>首 页</strong></a></li>
+	<li><a href="${rc.contextPath}/app/myAccount.htm"><strong>我的账户</strong></a></li>
+	<li><a href="${rc.contextPath}/app/pay2account.htm"><strong安捷支付支付款</strong></a></li>
+	<li><a href="${rc.contextPath}/app/queryHistoryTradeList.htm?method=queryHistoryTrade"><strong>交易管理</strong></a></li>
+	<li><a href="${rc.contextPath}/lifemanage.htm"><strong>生活管家</strong></a></li>
+	<li><a href="${rc.contextPath}/app/accountActive.htm?method=accountSafe"><strong>安全中心</strong></a></li>
+	<li class="last">
+		<a class="cur" href="${rc.contextPath}/index.htm?method=index">个人服务</a>
+	 	<a href="${rc.contextPath}/index.htm?method=indexConmpany">企业服务</a>
+	</li>
+</ul>
+<!--导航 end-->
+
+<!--主内容 start -->
+<div class="container">
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg pad20">
+			<div class="content">
+				<div class="result_tips result_tips_hack" style="margin:50px 0 80px 100px;">
+					<div class="set_height clearfix">
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+						<span class="pop_s"></span>
+						<div class="words"> 
+						<strong class="col_black">
+							<#if errorMsg?exists>
+								支付正在处理中！
+								<#else>
+								<script>
+									if (null != window.opener) {
+										try {
+											window.opener.document.getElementById("finishDeposit").click();
+											window.opener=null;  
+											window.open('','_self');  
+											window.close(); 
+										} catch (e) {
+											//resolve access is denied
+										}
+									}
+								</script>
+								支付成功！
+							</#if>
+						</strong><br>
+							本次支付金额： <strong class="red"><#if errorMsg?exists>0<#else>${orderAmount}</#if></strong>元</div>
+					</div>
+					<#if returnUrl?exists>
+						<span id="layer" style="font-size:15px;color:#FF0000;margin:5px">5</span>秒后跳转到商城页面，如果没有跳转请点击<a href="${returnUrl?default('')}" style="color:#FF0000;">这里</a>
+					</#if>
+					<p>您可能需要：
+						<a href="${rc.contextPath}/app/queryCompositionList.htm?method=queryComposition">查询充提记录</a>|
+						<a href="${rc.contextPath}/app/myAccount.htm">返回我的账户</a>|
+						<a href="${rc.contextPath}/index.htm">安捷支付生支付首页</a></p>
+				</div>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<#if returnUrl?exists>
+<script type="text/javascript">
+  <!--最初的时间-->
+  var time = 6;
+  returnUrlByTime();
+  <!--动态时间的显示函数-->
+  function returnUrlByTime(){
+   <!--每隔1秒调用该函数-->
+   window.setTimeout('returnUrlByTime()', 1000);
+   <!--时间递减-->
+   time = time - 1;
+   if(time == '0'){
+	   time = 1;
+	   document.getElementById("layer").innerHTML = 0;
+   } else {
+   <!--显示动态时间的层-->
+   		document.getElementById("layer").innerHTML = time;
+   }
+  }
+ </script>
+ </#if>
+<!--主内容 end -->
+</body>
+</html>

@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="PARTNER_SETTLEMENT_ORDER" >
+
+	<typeAlias alias="partnerSettlementOrder" type="com.pay.txncore.model.PartnerSettlementOrder"/>
+	<resultMap id="BaseResultMap" class="partnerSettlementOrder" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL" />
+	    <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL" />
+	    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+	    <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR" />
+	    <result column="SETTLEMENT_CURRENCY_CODE" property="settlementCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+	    <result column="RATE" property="rate" jdbcType="VARCHAR" />
+	    <result column="ASSURE_AMOUNT" property="assureAmount" jdbcType="DECIMAL" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="SETTLEMENT_DATE" property="settlementDate" jdbcType="TIMESTAMP" />
+	    <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL" />
+	    <result column="SETTLEMENT_FLG" property="settlementFlg" jdbcType="DECIMAL" />
+	    <result column="ASSURE_SETTLEMENT_FLG" property="assureSettlementFlg" jdbcType="DECIMAL" />
+	    <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+	    <result column="SETTLEMENT_RATE" property="settlementRate" jdbcType="VARCHAR" />
+	    <result column="FEE_RATE" property="feeRate" jdbcType="VARCHAR" />
+	    <result column="FEE" property="fee" jdbcType="DECIMAL" />
+	    <result column="ORDER_CODE" property="orderCode" jdbcType="DECIMAL" />
+	    <result column="RISK_FEE" property="riskFee" jdbcType="DECIMAL" />
+	    <result column="FIXED_FEE_CURRENCY" property="fixedFeeCurrency" jdbcType="VARCHAR"/>
+	    <result column="FIXED_FEE_SETTLEMENT_AMOUNT" property="fixedFeeSettlementAmount" jdbcType="VARCHAR"/>
+	    <result column="SETTLEMENT_AMOUNT" property="settlementAmount" jdbcType="DECIMAL"/>
+	    <result column="FIXED_FEE" property="fixedFee" jdbcType="VARCHAR"/>
+	    <result column="PER_FEE" property="perFee" jdbcType="DECIMAL"/>
+	    <result column="RECORDED_AMOUNT" property="recordedAmount" jdbcType="DECIMAL"/>
+		<result column="SMALLORDER_FIXEDFEE_AMOUNT"  property="smallOrderFixedFeeAmount" jdbcType="DECIMAL"/>
+	</resultMap>
+  
+  <sql id="Criteria_Where_Clause" >
+  	  <isNotNull prepend="AND" property="id" >
+        ID = #id:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="tradeOrderNo" >
+        TRADE_ORDER_NO = #tradeOrderNo:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="paymentOrderNo" >
+        PAYMENT_ORDER_NO = #paymentOrderNo:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="amount" >
+        AMOUNT = #amount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="currencyCode" >
+        CURRENCY_CODE = #currencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="settlementCurrencyCode" >
+        SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="orderAmount" >
+        ORDER_AMOUNT = #orderAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="rate" >
+        RATE = #rate:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="assureAmount" >
+        ASSURE_AMOUNT = #assureAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="AND" property="settlementDate" >
+        SETTLEMENT_DATE = #settlementDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="AND" property="partnerId" >
+        PARTNER_ID = #partnerId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="settlementFlg" >
+      	<isNull property="source">
+            <isEqual property="settlementFlg" compareValue="0">
+                    SETTLEMENT_FLG in(0,2)
+            </isEqual>
+         </isNull>
+         <isNotNull property="source">
+        	<isEqual property="settlementFlg" compareValue="0">
+                    SETTLEMENT_FLG in(0)
+            </isEqual>
+         </isNotNull>
+            <isEqual property="settlementFlg" compareValue="1">
+                    SETTLEMENT_FLG =#settlementFlg:DECIMAL#
+            </isEqual>
+            <isEqual property="settlementFlg" compareValue="2">
+                    SETTLEMENT_FLG =#settlementFlg:DECIMAL#
+            </isEqual>
+            <isEqual property="settlementFlg" compareValue="4">
+                    SETTLEMENT_FLG =#settlementFlg:DECIMAL#
+            </isEqual>
+      </isNotNull>
+      <isNotNull prepend="AND" property="assureSettlementFlg" >
+        ASSURE_SETTLEMENT_FLG = #assureSettlementFlg:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="orderId" >
+        ORDER_ID = #orderId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="feeRate" >
+        FEE_RATE = #feeRate:VARCHAR#
+      </isNotNull>
+  </sql>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="partnerSettlementOrder" >
+    select * from PARTNER_SETTLEMENT_ORDER WHERE 1=1
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleStart">
+			SETTLEMENT_DATE <![CDATA[>=]]> to_date(#settleStart#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleEnd">
+           	SETTLEMENT_DATE <![CDATA[<=]]> to_date(#settleEnd#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>  
+    <isParameterPresent >
+      <include refid="PARTNER_SETTLEMENT_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+    order by CREATE_DATE desc
+  </select>
+  
+     
+   <resultMap id="queryOrderInfoMap_" class="java.util.HashMap">
+        <result column="ORDERID" property="orderId"/>
+        <result column="ORDERAMOUNT" property="orderAmount"/>
+        <result column="PARTNERID" property="partnerId"/>
+        <result column="TRADEORDERNO" property="dealId"/>
+        <result column="CREATEDATE" property="createDate"/>
+        <result column="SETTLEMENTDATE" property="settlementDate"/>
+        <result column="CURRENCYCODE" property="currencyCode"/>
+        <result column="FEE" property="fee"/>
+        <result column="SETTLEMENTCURRENCYCODE" property="settlementCurrencyCode"/>
+        <result column="ASSUREAMOUNT" property="assureAmount"/>
+    </resultMap>
+  
+    <select id="findByCriteria_" resultMap="queryOrderInfoMap_" parameterClass="partnerSettlementOrder" >
+    select PARTNER_ID PARTNERID,ORDER_ID ORDERID,TRADE_ORDER_NO TRADEORDERNO,to_char(CREATE_DATE,'yyyyMMddhh24miss') CREATEDATE,
+    to_char(SETTLEMENT_DATE,'yyyyMMddhh24miss') SETTLEMENTDATE,ORDER_AMOUNT/1000 ORDERAMOUNT,CURRENCY_CODE CURRENCYCODE,
+    SETTLEMENT_CURRENCY_CODE SETTLEMENTCURRENCYCODE, fee/1000 FEE,ASSURE_AMOUNT/1000 ASSUREAMOUNT
+    from PARTNER_SETTLEMENT_ORDER WHERE 1=1
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleStart">
+			SETTLEMENT_DATE <![CDATA[>=]]> to_date(#settleStart#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleEnd">
+           	SETTLEMENT_DATE <![CDATA[<=]]> to_date(#settleEnd#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>  
+    <isParameterPresent >
+      <include refid="PARTNER_SETTLEMENT_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+    order by CREATE_DATE desc
+  </select>
+  
+    <select id="findSettlementList" resultMap="BaseResultMap" parameterClass="partnerSettlementOrder" >
+    select * from PARTNER_SETTLEMENT_ORDER WHERE 1=1
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleStart">
+			SETTLEMENT_DATE <![CDATA[>=]]> to_date(#settleStart#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleEnd">
+           	SETTLEMENT_DATE <![CDATA[<=]]> to_date(#settleEnd#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>  
+    <isParameterPresent >
+      <include refid="PARTNER_SETTLEMENT_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+    order by CREATE_DATE desc
+  </select>
+  
+  
+  <select id="findByCriteria_COUNT" resultClass="java.lang.Integer" parameterClass="partnerSettlementOrder" >
+    select count(1) from PARTNER_SETTLEMENT_ORDER WHERE 1=1 
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleStart">
+			SETTLEMENT_DATE <![CDATA[>=]]> to_date(#settleStart#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleEnd">
+           	SETTLEMENT_DATE <![CDATA[<=]]> to_date(#settleEnd#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>  
+    <isParameterPresent >
+      <include refid="PARTNER_SETTLEMENT_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </select>
+  
+    <select id="findByCriteriaListSize" resultMap="BaseResultMap" parameterClass="partnerSettlementOrder" >
+    select count(*) as listSize
+    from PARTNER_SETTLEMENT_ORDER WHERE 1=1 
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleStart">
+			SETTLEMENT_DATE <![CDATA[>=]]> to_date(#settleStart#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleEnd">
+           	SETTLEMENT_DATE <![CDATA[<=]]> to_date(#settleEnd#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>  
+    <isParameterPresent >
+      <include refid="PARTNER_SETTLEMENT_ORDER.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </select>
+  
+  <select id="querySettlementAmountCount" resultClass="partnerSettlementOrder" parameterClass="partnerSettlementOrder">		
+		select sum(amount) as amount,currencyCode,settlementFlg,settlementCurrencyCode,settlementRate  from (select amount,
+		SETTLEMENT_FLG as settlementFlg,CURRENCY_CODE as currencyCode,CREATE_DATE,SETTLEMENT_CURRENCY_CODE as settlementCurrencyCode,SETTLEMENT_RATE as settlementRate
+		,FEE_RATE feeRate 
+		from PARTNER_SETTLEMENT_ORDER 
+		where PARTNER_ID=#partnerId# and SETTLEMENT_FLG=0) t group by currencyCode,settlementFlg,settlementCurrencyCode,settlementRate
+		union 
+		select sum(amount) as amount,currencyCode,settlementFlg,settlementCurrencyCode,settlementRate from (select amount,
+		SETTLEMENT_FLG as settlementFlg,CURRENCY_CODE as currencyCode,CREATE_DATE,SETTLEMENT_CURRENCY_CODE as settlementCurrencyCode,SETTLEMENT_RATE as settlementRate
+		,FEE_RATE feeRate  
+		from PARTNER_SETTLEMENT_ORDER 
+		where PARTNER_ID=#partnerId# and SETTLEMENT_FLG=1) t group by currencyCode,settlementFlg,settlementCurrencyCode,settlementRate
+  </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select * from PARTNER_SETTLEMENT_ORDER
+    where ID = #id:DECIMAL#
+  </select>
+  
+  <insert id="create" parameterClass="partnerSettlementOrder" >
+  		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT	159 || TO_CHAR(SYSDATE, 'yymmddhh24mi')||LPAD(SEQ_PARTNERSETTLEMENTORDER_ID.nextval, 6, 0) FROM DUAL
+		</selectKey>
+    insert into PARTNER_SETTLEMENT_ORDER (ID, TRADE_ORDER_NO, AMOUNT, CURRENCY_CODE,PARTNER_ID,SETTLEMENT_FLG,ASSURE_SETTLEMENT_FLG,
+      SETTLEMENT_CURRENCY_CODE, ORDER_AMOUNT, RATE, ASSURE_AMOUNT, CREATE_DATE, SETTLEMENT_DATE,ORDER_ID,PAYMENT_ORDER_NO,SETTLEMENT_RATE,ORDER_CODE,FEE_RATE,RISK_FEE,FIXED_FEE_CURRENCY)
+    values (#id:DECIMAL#, #tradeOrderNo:DECIMAL#, #amount:DECIMAL#, #currencyCode:VARCHAR#,#partnerId#,#settlementFlg#,#assureSettlementFlg#,
+      #settlementCurrencyCode:VARCHAR#, #orderAmount:DECIMAL#, #rate:VARCHAR#,
+      #assureAmount:DECIMAL#, #createDate:TIMESTAMP#, #settlementDate:TIMESTAMP#,#orderId#,#paymentOrderNo#,#settlementRate#,#orderCode#,#feeRate#,#riskFee#,#fixedFeeCurrency#)
+  </insert>
+  
+  <select id="countByCriteria" resultClass="java.lang.Integer" parameterClass="partnerSettlementOrder">
+    select count(*) from PARTNER_SETTLEMENT_ORDER WHERE 1=1 
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleStart">
+			SETTLEMENT_DATE <![CDATA[>=]]> to_date(#settleStart#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="settleEnd">
+           	SETTLEMENT_DATE <![CDATA[<=]]> to_date(#settleEnd#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>   
+    <include refid="PARTNER_SETTLEMENT_ORDER.Criteria_Where_Clause" />
+  </select>
+  
+  <update id="update" parameterClass="partnerSettlementOrder" >
+    update PARTNER_SETTLEMENT_ORDER
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="tradeOrderNo" >
+        TRADE_ORDER_NO = #tradeOrderNo:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="paymentOrderNo" >
+        PAYMENT_ORDER_NO = #paymentOrderNo:DECIMAL#
+      </isNotNull>      
+      <isNotNull prepend="," property="amount" >
+        AMOUNT = #amount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="currencyCode" >
+        CURRENCY_CODE = #currencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="settlementCurrencyCode" >
+        SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="orderAmount" >
+        ORDER_AMOUNT = #orderAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="rate" >
+        RATE = #rate:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="fixedFeeSettlementAmount" >
+        FIXED_FEE_SETTLEMENT_AMOUNT = #fixedFeeSettlementAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="recordedAmount" >
+        RECORDED_AMOUNT = #recordedAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="fixedFeeCurrency" >
+        FIXED_FEE_CURRENCY = #fixedFeeCurrency:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="fixedFee">
+        FIXED_FEE = #fixedFee:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="perFee">
+        PER_FEE = #perFee:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="assureAmount" >
+        ASSURE_AMOUNT = #assureAmount:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="settlementDate" >
+        SETTLEMENT_DATE = #settlementDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="partnerId" >
+        PARTNER_ID = #partnerId:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="settlementFlg" >
+        SETTLEMENT_FLG = #settlementFlg:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="settlementAmount" >
+        SETTLEMENT_Amount = #settlementAmount:DECIMAL#
+      </isNotNull>      
+      <isNotNull prepend="," property="orderId" >
+        ORDER_ID = #orderId:VARCHAR#
+      </isNotNull>      
+      <isNotNull prepend="," property="settlementRate" >
+        SETTLEMENT_RATE = #settlementRate:VARCHAR#
+      </isNotNull> 
+      <isNotNull prepend="," property="assureSettlementFlg" >
+        ASSURE_SETTLEMENT_FLG = #assureSettlementFlg:DECIMAL#
+      </isNotNull>           
+      <isNotNull prepend="," property="fee" >
+        FEE = #fee:DECIMAL#
+      </isNotNull>           
+      <isNotNull prepend="," property="riskFee" >
+        RISK_FEE = #riskFee:DECIMAL#
+      </isNotNull>           
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+  
+  <select id="queryUnSettlementPartnerSettlementOrder" resultMap="BaseResultMap">
+		select pso.* from PARTNER_SETTLEMENT_ORDER pso
+		    where 1=1
+		    and PSO.SETTLEMENT_FLG = #settlementFlg#
+		    and order_code = 1
+		    and pso.amount &gt; 0
+		    <isEqual property="settlementFlg" compareValue="0">
+                    and trunc(pso.settlement_date) <![CDATA[ <= ]]> trunc(#settlementDate#)
+            </isEqual>
+            <isEqual property="settlementFlg" compareValue="2">
+                    and trunc(pso.settlement_date) <![CDATA[ <= ]]> trunc(#settlementDate#)
+            </isEqual>
+		    union all
+		select pso.* from PARTNER_SETTLEMENT_ORDER pso
+		    where 1=1
+		    and PSO.SETTLEMENT_FLG = #settlementFlg#
+		    and order_code = 2
+		    and pso.amount &gt; 0
+		   	<isEqual property="settlementFlg" compareValue="0">
+                    and trunc(pso.settlement_date) <![CDATA[ <= ]]> trunc(#settlementDate#)
+            </isEqual>
+            <isEqual property="settlementFlg" compareValue="2">
+                    and trunc(pso.settlement_date) <![CDATA[ <= ]]> trunc(#settlementDate#)
+            </isEqual>
+  </select>
+  
+  <select id="queryUnSettlementAssurePartnerSettlementOrder" resultMap="BaseResultMap">
+		select pso.* from PARTNER_SETTLEMENT_ORDER pso,channel_order co,acc.T_ENTERPRISE_BASE t
+	        where 1=1
+	        and PSO.PAYMENT_ORDER_NO = CO.PAYMENT_ORDER_NO
+	        and PSO.PARTNER_ID = t.member_code
+	        and (sysdate - pso.create_date) &gt;= ASSURE_SETTLEMENT_CYCLE
+	        and PSO.ASSURE_SETTLEMENT_FLG = #assureSettlementFlg#
+	        and PSO.SETTLEMENT_FLG = 1
+	        and pso.ASSURE_AMOUNT > 0
+	        and CO.RECONCILIATION_FLG = 1
+  </select>
+  
+</sqlMap>

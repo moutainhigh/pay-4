@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentOrderExpand">
+
+	<typeAlias alias="paymentOrderExpand" type="com.pay.txncore.model.PaymentOrderExpand" />
+	<resultMap id="paymentOrderExpandMap" class="paymentOrderExpand">
+        <result column="ID" property="id" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="CARD_NO" property="cardNo" jdbcType="VARCHAR"/>
+        <result column="CARD_TYPE" property="cardType" jdbcType="VARCHAR"/>
+        <result column="ID_TYPE" property="idType" jdbcType="VARCHAR"/>
+        <result column="ID_NO" property="idNo" jdbcType="VARCHAR"/>
+        <result column="NAME" property="name" jdbcType="VARCHAR"/>
+        <result column="MOBILE" property="mobile" jdbcType="VARCHAR"/>
+        <result column="VALIDATECODE" property="validateCode" jdbcType="VARCHAR"/>
+        <result column="PASSWORD" property="password" jdbcType="VARCHAR"/>
+        <result column="CVN2" property="cvn2" jdbcType="VARCHAR"/>
+        <result column="PROVINCE" property="province" jdbcType="VARCHAR"/>
+        <result column="CITY" property="city" jdbcType="VARCHAR"/>
+        <result column="TRAN_TYPE" property="tranType" jdbcType="VARCHAR"/>
+        <result column="TRAN_SUB_TYPE" property="tranSubType" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="ERROR_MESSAGE" property="errorMessage" jdbcType="VARCHAR"/>
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="AMOUNT" property="amount" jdbcType="DECIMAL"/>
+        <result column="IP" property="ip" jdbcType="VARCHAR"/>
+    </resultMap>
+
+	<insert id="create" parameterClass="com.pay.txncore.model.PaymentOrderExpand">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT 151 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_PAYMENT_ORDER_EXPAND.nextval, 6, 0)  FROM DUAL 
+		</selectKey>
+		INSERT INTO PAYMENT_ORDER_EXPAND
+		(
+			ID,CREATE_DATE,UPDATE_DATE,PAYMENT_ORDER_NO,ORG_CODE,CARD_NO,REMARK,ERROR_CODE,
+			ERROR_MESSAGE,CARD_TYPE,MOBILE,ID_NO,NAME,PROVINCE,CITY,tran_type,tran_sub_type,id_type,TRADE_ORDER_NO,AMOUNT,IP
+		)
+		VALUES(
+		#id#,SYSDATE,SYSDATE,#paymentOrderNo#,#orgCode#,#cardNo#,#remark#,#errorCode#,
+		#errorMessage#,#cardType#,#mobile#,#idNo#,#name#,#province#,#city#,#tranType#,#tranSubType#,#idType#,#tradeOrderNo#,#amount#,#ip#
+		)
+	</insert>
+
+	<update id="update"
+		parameterClass="com.pay.txncore.model.PaymentOrderExpand">
+		UPDATE PAYMENT_ORDER_EXPAND
+		SET
+			ID = #id#
+		<dynamic>
+			<isNotNull prepend="," property="updateDate">
+				UPDATE_DATE = #updateDate#
+	        </isNotNull>
+			<isNotNull prepend="," property="paymentOrderNo">
+				PAYMENT_ORDER_NO = #paymentOrderNo#
+	        </isNotNull>
+			<isNotNull prepend="," property="orgCode">
+				ORG_CODE = #orgCode#
+	        </isNotNull>
+			<isNotNull prepend="," property="cardNo">
+				CARD_NO = #cardNo#
+	        </isNotNull>
+			<isNotNull prepend="," property="remark">
+				REMARK = #remark#
+	        </isNotNull>
+			<isNotNull prepend="," property="errorCode">
+				ERROR_CODE = #errorCode#
+	        </isNotNull>
+	       <isNotNull prepend="," property="errorMessage">
+				ERROR_MESSAGE = #errorMessage#
+	        </isNotNull>
+	       <isNotNull prepend="," property="mobile">
+				mobile = #mobile#
+	        </isNotNull>
+	       <isNotNull prepend="," property="cardType">
+				card_type = #cardType#
+	        </isNotNull>
+	    </dynamic>
+		WHERE
+		<isNotNull property="id">
+			ID = #id# 
+        </isNotNull>
+	</update>
+	
+	<select id="findById" parameterClass="java.lang.Long" resultMap="paymentOrderExpandMap">
+		SELECT * FROM PAYMENT_ORDER_EXPAND WHERE id = #id#
+	</select>
+	
+ 	<select id="queryPayOrderExpandByPayNO" parameterClass="java.lang.Long" resultMap="paymentOrderExpandMap">
+    	SELECT * FROM PAYMENT_ORDER_EXPAND WHERE PAYMENT_ORDER_NO = #paymentOrderNo#
+    </select>
+	
+	 <update id="updatePayOrderExpandByPayNO" parameterClass="com.pay.txncore.model.PaymentOrderExpand">
+       update 
+       		PAYMENT_ORDER_EXPAND  poe 
+       set
+       		poe.UPDATE_DATE = SYSDATE
+        <isNotEmpty property="errorCode">
+    		  ,poe.ERROR_CODE = #errorCode#
+    	</isNotEmpty>
+    	<isNotEmpty property="errorMessage">
+    		  ,poe.ERROR_MESSAGE = #errorMessage#
+    	</isNotEmpty>
+       WHERE poe.PAYMENT_ORDER_NO = #paymentOrderNo#
+    </update>
+    
+</sqlMap>

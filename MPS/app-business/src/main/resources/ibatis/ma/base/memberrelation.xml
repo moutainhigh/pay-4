@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="memberRelation">
+	<typeAlias alias="memberRelation" type="com.pay.base.dto.MemberRelationDto" />
+
+	<insert id="create" parameterClass="memberRelation" >
+		
+		insert into T_MEMBER_RELATION
+		  (MEMBER_RELATION_ID,
+		   FATHER_MEMBER_CODE,
+		   FATHER_OPERATOR_ID,
+		    SON_ZH_NAME		,
+       		SON_EN_NAME		,
+		   SON_MEMBER_CODE,
+		   SON_OPERATOR_ID,
+		   SON_MERCHANT_CODE,
+		   SON_USTEEL_ID,
+       	   SON_USTEEL_NAME,
+		   RELATION_TYPE,
+		  <isNotNull property="status">
+   		 STATUS,
+   		</isNotNull>
+		  <isNotNull property="createDate">
+   		 CREATE_DATE,
+   		</isNotNull>
+   		  <isNotNull property="updateDate">
+   		 UPDATE_DATE,
+   		</isNotNull>
+   		  VALUE1,
+		  VALUE2
+		   )
+		values
+  		(
+  		SEQ_T_MEMBER_RELATION_ID.nextval, 
+  		#fatherMemberCode#, 
+  		#fatherOperatorId#,
+  		#sonZhName#,
+  		#sonEnName#,
+  		#sonMemberCode#, 
+  		#sonOperatorId#, 
+  		#sonMerchantCode#,
+  		#sonUsteelId#,
+  		#sonUsteelName#, 
+  		#relationType#, 
+  		<isNotNull property="status">
+   		#status#,
+   		</isNotNull>
+   		<isNotNull property="createDate">
+   		#createDate#, 
+   		</isNotNull>
+   		<isNotNull property="updateDate">
+   		#updateDate#,
+   		</isNotNull>
+   		#value1#, 
+   		#value2#
+   		)
+   		<!-- 返回的id -->
+   		<selectKey resultClass="long" keyProperty="memberRelationId">
+			select SEQ_T_MEMBER_RELATION_ID.currval as memberRelationId from dual 
+		</selectKey>
+  
+	</insert>
+	
+	<sql id="selectRelationColumns">
+		select
+		MEMBER_RELATION_ID  memberRelationId,                                      
+       	FATHER_MEMBER_CODE  fatherMemberCode,                                      
+       	FATHER_OPERATOR_ID  fatherOperatorId,
+       	son_zh_name			sonZhName		,
+		son_en_name			sonEnName		,
+       	SON_MEMBER_CODE     sonMemberCode   ,                                    
+       	SON_OPERATOR_ID     sonOperatorId   ,                                  
+       	SON_MERCHANT_CODE   sonMerchantCode ,
+       	SON_USTEEL_ID		sonUsteelId		,
+		SON_USTEEL_NAME		sonUsteelName	,
+       	RELATION_TYPE       relationType    ,                                 
+       	STATUS              status          ,                          
+       	VALUE1              value1          ,                          
+       	VALUE2              value2          ,                          
+       	CREATE_DATE         createDate      ,                               
+       	UPDATE_DATE         updateDate   
+       	from T_MEMBER_RELATION 
+	</sql>
+	
+	
+	<select id="selectRelationBySonMemberCode" resultClass="memberRelation" parameterClass="java.lang.Long">
+			<include refid="selectRelationColumns"/>
+			where SON_MEMBER_CODE=#sonMemberCode#
+	</select>
+	
+	<select id="selectCountByFatherAndSonMemberCode" resultClass="int" parameterClass="map">
+	   select count(1)
+        from T_MEMBER_RELATION t
+       where t.father_member_code = #fatherMemberCode#
+         and t.son_member_code = #sonMemberCode#
+         and t.status = 1
+	</select>
+	
+	<select id="findBySelective" resultClass="memberRelation" parameterClass="memberRelation">
+	  <include refid="selectRelationColumns"/>
+       where (1=1)
+  		<isNotNull property="fatherMemberCode">
+   			and FATHER_MEMBER_CODE = #fatherMemberCode#
+   		</isNotNull>
+   		<isNotNull property="sonMemberCode">
+   			and SON_MEMBER_CODE = #sonMemberCode#
+   		</isNotNull>
+   		<isNotEmpty property="sonZhName">
+   			and son_zh_name = #sonZhName#
+   		</isNotEmpty>
+   		<isNotEmpty property="sonEnName">
+   			and son_en_name = #sonEnName#
+   		</isNotEmpty>
+	</select>
+	
+</sqlMap>

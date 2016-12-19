@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="BOUNCED_REASON_MAPPING" >
+
+	<typeAlias alias="bouncedReasonMapping" type="com.pay.txncore.model.BouncedReasonMapping"/>
+
+	<select id="countByCriteria" parameterClass="bouncedReasonMapping" resultClass="java.lang.Integer">
+		SELECT 
+			count(1)
+		FROM  BOUNCED_REASON_MAPING	
+		WHERE 1=1
+		<isNotEmpty prepend="AND" property="orgCode">
+			ORG_CODE = #orgCode#
+		</isNotEmpty>	
+		<isNotEmpty prepend="AND" property="reasonCode">
+			REASON_CODE = #reasonCode#
+		</isNotEmpty>	
+		<isNotEmpty prepend="AND" property="visableCode">
+			VISABLE_CODE = #visableCode#
+		</isNotEmpty>	
+	</select>
+	
+	<select id="findByCriteria" parameterClass="bouncedReasonMapping" resultClass="bouncedReasonMapping">
+		SELECT 
+		BOUNCED_REASON  bouncedReason,
+		CREATE_DATE  createDate,
+		ID          id,
+		ORG_CODE   orgCode,
+		REASON_CODE   reasonCode,
+		STATUS     status,
+		VISABLE_CODE  visableCode,
+		VISABLE_NAME   visableName
+		FROM  BOUNCED_REASON_MAPING	
+		WHERE 1=1
+		<isNotEmpty prepend="AND" property="orgCode">
+			ORG_CODE = #orgCode#
+		</isNotEmpty>	
+		<isNotEmpty prepend="AND" property="reasonCode">
+			REASON_CODE like #reasonCode# ||'%'
+		</isNotEmpty>	
+		<isNotEmpty prepend="AND" property="visableCode">
+			VISABLE_CODE = #visableCode#
+		</isNotEmpty>	
+		order by	CREATE_DATE desc
+	</select>
+	
+	<insert id="create" parameterClass="bouncedReasonMapping">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_BOUNCED_REASON_MAPING_ID	.nextval as ID from dual 
+		</selectKey>
+	insert into BOUNCED_REASON_MAPING(
+			ID					,
+			BOUNCED_REASON		,
+			REASON_CODE			,
+			VISABLE_CODE		,
+			VISABLE_NAME		,
+			ORG_CODE			,
+			CREATE_DATE			,
+			STATUS
+		)
+		values(
+			#id#,
+			#bouncedReason#,
+			#reasonCode#,
+			#visableCode#,
+			#visableName#,
+			#orgCode#,
+			sysdate,
+			#status#
+		)
+	</insert>
+	
+</sqlMap>

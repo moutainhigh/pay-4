@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="PARTNER_RATE_FLOAT" >
+
+	<typeAlias alias="partnerRateFloat" type="com.pay.txncore.model.PartnerRateFloat"/>
+	<resultMap id="BaseResultMap" class="partnerRateFloat" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="START_POINT" property="startPoint" jdbcType="VARCHAR" />
+	    <result column="END_POINT" property="endPoint" jdbcType="VARCHAR" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="VARCHAR" />
+	    <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+	    <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+	</resultMap>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="partnerRateFloat" >
+    select ID, START_POINT,END_POINT,CREATE_DATE,PARTNER_ID, OPERATOR
+    from PARTNER_RATE_FLOAT where 1=1
+    <isNotNull prepend="AND" property="partnerId">
+         PARTNER_ID=#partnerId:VARCHAR#
+    </isNotNull>
+    <isNotNull prepend="AND" property="id">
+         ID=#id:DECIMAL#
+    </isNotNull>
+  </select>
+  
+    <select id="findByPartnerId" resultMap="BaseResultMap" parameterClass ="java.lang.String" >
+    select ID, START_POINT,END_POINT,CREATE_DATE,PARTNER_ID, OPERATOR
+    from PARTNER_RATE_FLOAT where 
+         PARTNER_ID=#partnerId:VARCHAR#
+  </select>
+  
+  <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PARTNER_RATE_FLOAT where 1=1 
+        <isNotNull prepend="AND" property="partnerId">
+         PARTNER_ID=#partnerId:VARCHAR#
+    </isNotNull>
+    </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+   select ID, START_POINT,END_POINT,CREATE_DATE,PARTNER_ID, OPERATOR
+    from PARTNER_RATE_FLOAT
+    where ID = #id:DECIMAL#
+  </select>
+  
+  <insert id="create" parameterClass="partnerRateFloat" >
+  	<selectKey keyProperty="id">
+  		SELECT SEQ_PARTNER_RATE_FLOAT_ID.NEXTVAL FROM DUAL
+  	</selectKey>
+    insert into PARTNER_RATE_FLOAT (ID, START_POINT,END_POINT,CREATE_DATE,PARTNER_ID, OPERATOR)
+    values (#id:DECIMAL#,#startPoint:VARCHAR#, #endPoint:VARCHAR#, #createDate:VARCHAR#, #partnerId:VARCHAR#,#operator:VARCHAR#)
+  </insert>
+  
+  <delete id="delete" parameterClass="partnerRateFloat">
+  	delete from PARTNER_RATE_FLOAT where id=#id#
+  </delete>
+  
+  <select id="countByCriteria" parameterClass="partnerRateFloat" resultClass="java.lang.Integer" >
+    select count(*) from TRANSACTION_RATE where 1=1
+    <isNotNull prepend="AND" property="partnerId">
+         PARTNER_ID=#partnerId:VARCHAR#
+    </isNotNull>
+  </select>
+  
+  <update id="update" parameterClass="partnerRateFloat" >
+    update PARTNER_RATE_FLOAT
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="startPoint" >
+        START_POINT = #startPoint:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="endPoint" >
+        END_POINT = #endPoint:VARCHAR#
+      </isNotNull>
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+</sqlMap>

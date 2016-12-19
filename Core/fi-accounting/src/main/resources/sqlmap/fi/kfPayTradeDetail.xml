@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fi-kfPayTradeDetail">
+    <typeAlias alias="kfPayTradeDetail" type="com.pay.txncore.model.KfPayTradeDetail"/>
+    <typeAlias alias="hashMap" type="java.util.HashMap"/>
+    <sql id="kfPayTradeDetailFeild">
+    	DETAIL_NO detailNo,
+    	BATCH_NO batchNo,
+    	PARTNER_ID partnerId,
+    	ORDER_ID orderId,
+    	PAY_AMOUNT payAmount,
+    	REMIT_AMOUNT remitAmount,
+    	REMIT_CURRENCY_CODE remitCurrencyCode,
+    	RATE rate,
+    	CHEQUES cheques,
+    	DRAWEE drawee,
+    	FAIL_DESC failDesc,
+    	OUT_STATUS outStatus,
+    	TYPE type,
+    	OPERATOR operator,
+    	COMPLETE_DATE completeDate,
+    	CREATE_DATE createDate,
+    	REMARK remark,
+    	REMIT_EXPENSE remitExpense,
+    	FEE fee,
+    	SMALLSERVICEFEE smallServiceFee,
+    	ORDER_AMOUNT orderAmount
+    </sql>
+   	<sql id="kfPayTradeDetailFeildByInsert">
+  	 	DETAIL_NO,
+    	BATCH_NO,
+    	PARTNER_ID,
+    	ORDER_ID,
+    	PAY_AMOUNT,
+    	REMIT_AMOUNT,
+    	REMIT_CURRENCY_CODE,
+    	RATE,
+    	CHEQUES,
+    	DRAWEE,
+    	FAIL_DESC,
+    	OUT_STATUS,
+    	TYPE,
+    	OPERATOR,
+    	COMPLETE_DATE,
+    	CREATE_DATE,
+    	REMARK,
+    	REMIT_EXPENSE,
+    	FEE,
+    	SMALLSERVICEFEE,
+		ORDER_AMOUNT
+    </sql>
+   	<sql id="kfPayTradeDetailSelect">
+		SELECT
+		<include refid="kfPayTradeDetailFeild" />
+		FROM KF_PAY_TRADE_DETAIL kfPayTradeDetail
+	</sql>
+	
+	<sql id="kfPayTradeDetailConditions">
+	    <dynamic prepend="where">
+		    <isNotEmpty  property="detailNo" prepend="and" >
+		      	kfPayTradeDetail.DETAIL_NO = #detailNo#
+		    </isNotEmpty>
+		    <isNotEmpty   property="batchNo" prepend="and" >
+		    	  	kfPayTradeDetail.BATCH_NO = #batchNo#
+		    </isNotEmpty>
+		    <isNotEqual compareValue="0"  property="partnerId" prepend="and" >
+		      	kfPayTradeDetail.PARTNER_ID = #partnerId#
+		    </isNotEqual>
+		    <isNotEmpty  property="orderId" prepend="and" >
+		      	kfPayTradeDetail.ORDER_ID = #orderId#
+		    </isNotEmpty>
+		    <isNotEqual compareValue="0"  property="payAmount" prepend="and" >
+		      	kfPayTradeDetail.PAY_AMOUNT = #payAmount#
+		    </isNotEqual>
+		    <isNotEqual compareValue="0"  property="remitAmount" prepend="and" >
+		      	kfPayTradeDetail.REMIT_AMOUNT = #remitAmount#
+		    </isNotEqual>
+		    <isNotEmpty   property="remitCurrencyCode" prepend="and" >
+		      	kfPayTradeDetail.REMIT_CURRENCY_CODE = #remitCurrencyCode#
+		    </isNotEmpty>
+		    <isNotEmpty  property="rate" prepend="and" >
+		      	kfPayTradeDetail.RATE = #rate#
+		    </isNotEmpty>
+		    <isNotEmpty   property="cheques" prepend="and" >
+		      	kfPayTradeDetail.CHEQUES = #cheques#
+		    </isNotEmpty>
+		    <isNotEmpty  property="drawee" prepend="and" >
+		      	kfPayTradeDetail.DRAWEE = #drawee#
+		    </isNotEmpty>
+		    <isNotEmpty  property="failDesc" prepend="and" >
+		      	kfPayTradeDetail.FAIL_DESC = #failDesc#
+		    </isNotEmpty>
+		    <isNotEmpty  property="outStatus" prepend="and" >
+		      	kfPayTradeDetail.OUT_STATUS in ($outStatus$)
+		    </isNotEmpty>
+		    <isNotEmpty  property="type" prepend="and" >
+		      	kfPayTradeDetail.TYPE = #type#
+		    </isNotEmpty>
+			    <isNotEmpty  property="beginCreateDate" prepend="and" >
+			      	kfPayTradeDetail.CREATE_DATE<![CDATA[>=]]> to_date(#beginCreateDate#, 'yyyy-mm-dd hh24:mi:ss')
+			    </isNotEmpty>
+			    <isNotEmpty  property="endCreateDate" prepend="and" >
+			      	kfPayTradeDetail.CREATE_DATE <![CDATA[<=]]> to_date(#endCreateDate#, 'yyyy-mm-dd hh24:mi:ss')
+			    </isNotEmpty>
+		    <isNotEmpty  property="remark" prepend="and" >
+		      	kfPayTradeDetail.REMARK = #remark#
+		    </isNotEmpty>
+		    <isNotEqual  compareValue="0"  property="remitExpense" prepend="and" >
+		      	kfPayTradeDetail.REMIT_EXPENSE = #remitExpense#
+		    </isNotEqual>
+		    <isNotEmpty  property="detailNos" prepend="and" >
+		      	kfPayTradeDetail.DETAIL_NO in ($detailNos$)
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	<select id="queryConditions" resultClass="kfPayTradeDetail" parameterClass="kfPayTradeDetail">
+   		<include refid="kfPayTradeDetailSelect"/>
+   		<include refid="kfPayTradeDetailConditions"/>
+   		order by CREATE_DATE desc
+   	</select>
+   	<select id="queryConditions_COUNT" resultClass="java.lang.Integer" parameterClass="kfPayTradeDetail">
+		select count(1) from KF_PAY_TRADE_DETAIL kfPayTradeDetail
+   		<include refid="kfPayTradeDetailConditions"/>
+   	</select>
+   	
+	<select id="queryConditionsMap" resultClass="kfPayTradeDetail" parameterClass="hashMap">
+   		<include refid="kfPayTradeDetailSelect"/>
+   		<include refid="kfPayTradeDetailConditions"/>
+   		order by CREATE_DATE desc
+   	</select>
+   	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer" parameterClass="hashMap">
+		select count(1) from KF_PAY_TRADE_DETAIL kfPayTradeDetail
+   		<include refid="kfPayTradeDetailConditions"/>
+   	</select>
+  
+   	<insert id="create" parameterClass="kfPayTradeDetail">
+			 <selectKey resultClass="java.lang.String" keyProperty="detailNo">
+			      	select  203|| to_char(sysdate,'yymmddHH24MISS') ||SEQ_KF_PAY_TRADE_DETAIL.nextval as detailNo from dual
+			</selectKey>
+			insert into KF_PAY_TRADE_DETAIL(
+				<include refid="kfPayTradeDetailFeildByInsert"/>			
+				)
+		<![CDATA[
+			values(
+				#detailNo#,
+				#batchNo#,
+				#partnerId#,
+				#orderId#,
+				#payAmount#,
+				#remitAmount#,
+				#remitCurrencyCode#,
+				#rate#,
+				#cheques#,
+				#drawee#,
+				#failDesc#,
+				#outStatus#,
+				#type#,
+				#operator#,
+				#completeDate#,
+				#createDate#,
+				#remark#,
+				#remitExpense#,
+				#fee#,
+				#smallServiceFee#,
+				#orderAmount#
+			)
+		  ]]>
+	</insert>
+	
+	<update id="update" parameterClass="java.util.Map">
+		update 	KF_PAY_TRADE_DETAIL set 
+		OUT_STATUS = #status# ,
+		COMPLETE_DATE = sysdate
+		<isNotEmpty property="remark"  prepend=",">
+			REMARK = #remark#
+		</isNotEmpty>
+		<isNotEmpty property="operator"  prepend=",">
+			OPERATOR = #operator#
+		</isNotEmpty>
+		where DETAIL_NO = #detailNo#
+	</update>
+
+</sqlMap>

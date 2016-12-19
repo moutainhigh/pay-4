@@ -1,0 +1,32 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!--启用注解事务  -->
+	<tx:annotation-driven transaction-manager="gatewayTransactionManager" />
+	<!--注解注入 service层-->
+	<context:component-scan base-package="com.pay.crossBorerPay.service.impl" />
+	<!--dao层  -->
+	<bean id="kfPayResourceDaoImpl"
+		class="com.pay.crossBorerPay.dao.impl.KfPayResourceDaoImpl">
+		<property name="sqlMapClient" ref="gatewaySqlMapClient" />
+		<property name="namespace" value="fi-kfPayResource" />
+	</bean>
+	<bean id="kfPayTradeDaoImpl"
+		class="com.pay.crossBorerPay.dao.impl.KfPayTradeDaoImpl">
+		<property name="sqlMapClient" ref="gatewaySqlMapClient" />
+		<property name="namespace" value="fi-kfPayTrade" />
+	</bean>
+	<bean id="kfPayTradeDetailDaoImpl"
+		class="com.pay.crossBorerPay.dao.impl.KfPayTradeDetailDaoImpl">
+		<property name="sqlMapClient" ref="gatewaySqlMapClient" />
+		<property name="namespace" value="fi-kfPayTradeDetail" />
+	</bean>
+	
+</beans>
+

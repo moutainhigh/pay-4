@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dayrate">
+	
+	<typeAlias alias="dayRateDTO" type="com.pay.txncore.dto.DayRateDTO"/>
+	<typeAlias alias="hMap" type="java.util.HashMap"/>
+	
+	<resultMap class="dayRateDTO" id="dayRate_resulMap">
+		<result property="id"								column="ID"							jdbcType="NUMBER"/>
+		<result property="partnerId"						column="PARTNER_ID"					jdbcType="VARCHAR2"/>
+		<result property="partnerName"						column="PARTNER_NAME"				jdbcType="VARCHAR2"/>
+		<result property="createDateStr"					column="CREATE_DATE"				jdbcType="DATE"/>
+		<result property="updateDateStr"					column="UPDATE_DATE"				jdbcType="DATE"/>
+		<result property="status"							column="STATUS"						jdbcType="CHAR"/>
+		<result property="operator"							column="OPERATOR"					jdbcType="VARCHAR2"/>
+		<result property="rate"								column="RATE"						jdbcType="VARCHAR2"/>
+	</resultMap>
+	
+	<!-- 新增 -->
+	<insert id="create">
+		<selectKey keyProperty="id" resultClass="java.lang.Long">
+			select SEQ_PARTNER_DAY_RATE_ID.nextval from dual 
+		</selectKey>
+		INSERT
+		INTO PARTNER_DAY_RATE
+		  (
+		    ID,
+		    PARTNER_ID,
+		    PARTNER_NAME,
+		    CREATE_DATE,
+		    UPDATE_DATE,
+		    STATUS,
+		    OPERATOR,
+		    RATE
+		  )
+		  VALUES
+		  (
+		    #id#,
+		    #partnerId#,
+		    #partnerName#,
+		    #createDate#,
+		    #updateDate#,
+		    #status#,
+		    #operator#,
+		    #rate#
+		  )
+	</insert>
+	
+	<!-- 删除 -->
+	<delete id="dayRate_deleteBatch" parameterClass="hMap">
+		DELETE
+		FROM PARTNER_DAY_RATE
+		WHERE 1=1
+		<dynamic prepend="and">
+			<isNotEmpty property="id" prepend="and">
+				ID=#id#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="createDate" prepend="and">
+				CREATE_DATE=#createDate#
+			</isNotEmpty>
+			<isNotEmpty property="updateDate" prepend="and">
+				UPDATE_DATE=#updateDate#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend="and">
+				STATUS=#status#
+			</isNotEmpty>
+			<isNotEmpty property="operator" prepend="and">
+				OPERATOR=#operator#
+			</isNotEmpty>
+			<isNotEmpty property="rate" prepend="and">
+				RATE=#rate#
+			</isNotEmpty>
+		</dynamic>
+		
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="update" parameterClass="dayRateDTO">
+		UPDATE PARTNER_DAY_RATE
+		<!-- SET STATUS=#status# -->
+		<dynamic prepend="set">
+			<isNotEmpty property="updateDate" prepend=",">
+				UPDATE_DATE=#updateDate#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend=",">
+				STATUS=#status#
+			</isNotEmpty>
+		</dynamic>
+		<dynamic prepend="where">
+			<isNotEmpty property="id" prepend="and">
+				ID=#id#
+			</isNotEmpty>
+			<isNotEmpty property="ids" prepend="and">
+				<!-- and ID in -->
+				ID in
+				<iterate open="(" close=")" conjunction="," property="ids">
+					#ids[]#
+				</iterate>
+				and PARTNER_ID != 0
+			</isNotEmpty>
+			<!-- <isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty> -->
+			
+		</dynamic>
+		
+	</update>  
+	
+	<!-- 查询日利率列表 -->
+	<select id="findByCriteria" parameterClass="hMap" resultMap="dayRate_resulMap">
+		SELECT ID,
+		  PARTNER_ID,
+		  PARTNER_NAME,
+		  to_char(CREATE_DATE, 'yyyy-MM-dd hh24:mi:ss') as CREATE_DATE,
+		  to_char(UPDATE_DATE, 'yyyy-MM-dd hh24:mi:ss') as UPDATE_DATE,
+		  STATUS,
+		  OPERATOR,
+		  RATE
+		FROM PARTNER_DAY_RATE where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty property="id" prepend="and">
+				ID=#id#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerName" prepend="and">
+				PARTNER_NAME=#partnerName#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend="and">
+				STATUS=#status#
+			</isNotEmpty>
+			<isNotEmpty property="operator" prepend="and">
+				OPERATOR=#operator#
+			</isNotEmpty>
+			<isNotEmpty property="rate" prepend="and">
+				RATE=#rate#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="startTime">
+				UPDATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+	           	UPDATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+			</isNotEmpty>
+		</dynamic>
+		order by CREATE_DATE desc
+	
+	</select>
+	<select id="findByCriteria_COUNT" parameterClass="hMap" resultMap="dayRate_resulMap">
+		SELECT count(1)
+		FROM PARTNER_DAY_RATE where 1=1
+		<dynamic prepend="and">
+			<isNotEmpty property="id" prepend="and">
+				ID=#id#
+			</isNotEmpty>
+			<isNotEmpty property="partnerId" prepend="and">
+				PARTNER_ID=#partnerId#
+			</isNotEmpty>
+			<isNotEmpty property="partnerName" prepend="and">
+				PARTNER_NAME=#partnerName#
+			</isNotEmpty>
+			<isNotEmpty property="createDate" prepend="and">
+				CREATE_DATE=#createDate#
+			</isNotEmpty>
+			<isNotEmpty property="updateDate" prepend="and">
+				UPDATE_DATE=#updateDate#
+			</isNotEmpty>
+			<isNotEmpty property="status" prepend="and">
+				STATUS=#status#
+			</isNotEmpty>
+			<isNotEmpty property="operator" prepend="and">
+				OPERATOR=#operator#
+			</isNotEmpty>
+			<isNotEmpty property="rate" prepend="and">
+				RATE=#rate#
+			</isNotEmpty>
+		</dynamic>
+	
+	</select>
+	
+	
+	
+	
+</sqlMap>

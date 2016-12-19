@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="autoriskinterface">
+	<typeAlias alias="memberDto" type="com.pay.fundout.withdraw.dto.autorisk.MemBerDto" />
+	<typeAlias alias="ipDto" type="com.pay.fundout.withdraw.dto.autorisk.IpDto" />
+	<typeAlias alias="transSumDto" type="com.pay.fundout.withdraw.dto.autorisk.TransSumDto" />
+	<typeAlias alias="transWebsiteDto" type="com.pay.fundout.withdraw.dto.autorisk.TransWebsiteDto" />
+	
+	<select id="queryFundInAmount" parameterClass="map" resultClass="java.math.BigDecimal">
+		SELECT SUM(po.payment_amount)/1000
+		FROM fi.payment_order po
+		WHERE po.status = 2
+		<isNotEmpty prepend="AND" property="memberCode">
+			po.payee = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginDate">
+			<![CDATA[po.update_date >= #beginDate#]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endDate">
+			<![CDATA[po.update_date <= #endDate#]]>
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryFundInMaxAmount" parameterClass="map" resultClass="java.math.BigDecimal">
+		SELECT MAX(po.payment_amount)/1000
+		FROM fi.payment_order po
+		WHERE po.status = 2
+		<isNotEmpty prepend="AND" property="memberCode">
+			po.payee = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginDate">
+			<![CDATA[po.update_date >= #beginDate#]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endDate">
+			<![CDATA[po.update_date <= #endDate#]]>
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryFundInNums" parameterClass="map" resultClass="java.lang.Integer">	
+		WITH a AS(
+			SELECT
+			(CASE WHEN INSTR(notify_url, '/', 1, 3) = 0
+			THEN notify_url
+			ELSE
+			SUBSTR(notify_url, 1, (INSTR(notify_url, '/', 1, 3)-1))
+			END
+			) url
+			FROM fi.trade_base tb, fi.payment_order po, fi.trade_order tor
+		    WHERE tb.trade_base_no = tor.trade_base_no
+		    AND tor.trade_order_no = po.trade_order_no
+		    AND po.status = 2
+		    <isNotEmpty prepend="AND" property="memberCode">
+				po.payee = #memberCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="beginDate">
+				<![CDATA[po.update_date >= #beginDate#]]>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endDate">
+				<![CDATA[po.update_date <= #endDate#]]>
+			</isNotEmpty>
+		)
+		SELECT COUNT(DISTINCT url) FROM a
+	</select>
+	
+	<select id="queryIndividualInfo" parameterClass="map" resultClass="memberDto">
+		SELECT t1.member_code memberCode, t2.name memberName, t1.create_date createDate, t3.balance / 1000 balance, t2.email email, t2.addr address, t2.tel mobile
+		FROM acc.t_member t1 LEFT JOIN acc.t_individual_info t2 ON t1.member_code = t2.member_code LEFT JOIN acc.t_acct t3 ON t1.member_code = t3.member_code
+		WHERE t1.status = '1' AND t3.status = '1' AND t3.ACCT_TYPE_ID = 10
+		<isNotEmpty prepend="AND" property="memberCode">
+			t1.member_code = #memberCode#
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryEnterpriseInfo" parameterClass="map" resultClass="memberDto">
+		SELECT t1.member_code memberCode, t2.zh_name memberName, t1.create_date createDate, t2.risk_leve_code riskLeveCode, t2.in_industry inIndustry,
+		t3.balance / 1000 balance, t2.website website, t4.email email, t4.address address, t4.tel mobile, t5.sign_name signName
+		FROM acc.t_member t1 LEFT JOIN acc.t_enterprise_base t2 ON t1.member_code = t2.member_code
+		LEFT JOIN acc.t_acct t3 ON t1.member_code = t3.member_code LEFT JOIN acc.t_enterprise_contact t4 ON t1.member_code = t4.member_code
+		LEFT JOIN acc.t_enterprise_contract t5 ON t1.member_code = t5.member_code
+		WHERE t1.status = '1' AND t3.status = '1' AND t3.ACCT_TYPE_ID = 10
+		<isNotEmpty prepend="AND" property="memberCode">
+			t1.member_code = #memberCode#
+		</isNotEmpty>
+	</select>
+	
+	<select id="isIpConnected" parameterClass="map" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM acc.t_user_log t 
+		WHERE t.log_type = '1' AND t.login_ip IN 
+		(SELECT login_ip FROM acc.t_user_log 
+		WHERE log_type = '1'
+		AND login_ip NOT IN('58.246.209.34', '220.248.79.150', '27.115.21.190')
+		<isNotEmpty prepend="AND" property="memberCode">
+			member_code = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginDate">
+			<![CDATA[create_date >= #beginDate#]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endDate">
+			<![CDATA[create_date <= #endDate#]]>
+		</isNotEmpty>
+		)
+		<isNotEmpty prepend="AND" property="memberCode">
+			t.member_code != #memberCode#
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryIpInfo" parameterClass="map" resultClass="ipDto">
+		SELECT DISTINCT t1.login_ip ip,
+		(SELECT country FROM inf.ip WHERE t1.login_ip BETWEEN start_ip AND end_ip AND ROWNUM = 1) city,
+		TO_CHAR((SELECT MAX(login_date) FROM acc.t_user_log WHERE login_ip = t1.login_ip AND member_code = #memberCode#), 'yyyy-mm-dd hh24:mi:ss') latestLoginTime,
+		t2.type memberType,
+		t1.member_code memberCode
+		FROM acc.t_user_log t1, acc.t_member t2
+		WHERE t1.member_code = t2.member_code
+		AND t1.log_type = 1
+		AND t1.login_ip NOT IN('58.246.209.34', '220.248.79.150', '27.115.21.190')
+		AND INSTR(t1.member_code, #memberCode#) = 0
+		AND EXISTS (
+			SELECT 1 FROM acc.t_user_log t2 WHERE t2.member_code = #memberCode# AND t2.log_type = 1 and t1.login_ip = t2.login_ip 
+		)
+		ORDER BY t1.member_code, t1.login_ip
+	</select>
+	
+	<select id="queryIpInfo_COUNT" parameterClass="map" resultClass="integer">
+		WITH a AS(
+			SELECT DISTINCT t1.login_ip ip,
+			(SELECT country FROM inf.ip WHERE t1.login_ip BETWEEN start_ip AND end_ip AND ROWNUM = 1) city,
+			TO_CHAR((SELECT MAX(login_date) FROM acc.t_user_log WHERE login_ip = t1.login_ip AND member_code = #memberCode#), 'yyyy-mm-dd hh24:mi:ss') latestLoginTime,
+			t2.type memberType,
+			t1.member_code memberCode
+			FROM acc.t_user_log t1, acc.t_member t2
+			WHERE t1.member_code = t2.member_code
+			AND t1.log_type = 1
+			AND t1.login_ip NOT IN('58.246.209.34', '220.248.79.150', '27.115.21.190')
+			AND INSTR(t1.member_code, #memberCode#) = 0
+			AND EXISTS (
+				SELECT 1 FROM acc.t_user_log t2 WHERE t2.member_code = #memberCode# AND t2.log_type = 1 and t1.login_ip = t2.login_ip 
+			)
+			ORDER BY t1.member_code, t1.login_ip
+		)
+		SELECT COUNT(1) FROM a
+	</select>
+	
+	<select id="queryFundOutTimes" parameterClass="map" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM fundout_order
+		WHERE 1 = 1
+		AND INSTR(order_type, '4') = 0
+		<isNotEmpty prepend="AND" property="memberCode">
+			payer_membercode = #memberCode#
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryBatchFundOutTimes" parameterClass="map" resultClass="java.lang.Integer">
+		SELECT COUNT(1) FROM fundout_order
+		WHERE 1 = 1
+		<isNotEmpty prepend="AND" property="memberCode">
+			payer_membercode = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="parentOrderid">
+			(INSTR(parent_orderid, #parentOrderid#) = 0
+			OR parent_orderid IS NULL)
+		</isNotEmpty>
+	</select>
+	
+	<select id="queryTransSumInfo" parameterClass="map" resultClass="transSumDto">
+		SELECT 
+		TO_CHAR(po.create_date,'yyyy-MM') time,
+		SUM(po.payment_amount)/1000 toalInAmount,
+		SUM(DECODE(ro.status, 1, ro.refund_amount, 0))/1000 totalOutAmount,
+		COUNT(1) totalInNums,
+		TRUNC((SUM(po.payment_amount)/1000)/COUNT(1), 2) averageInAmount
+		FROM fi.payment_order po, fi.refund_order ro
+		WHERE 1 = 1
+		AND po.payment_order_no = ro.payment_order_no(+)
+		AND po.status = 2
+		AND po.create_date > ADD_MONTHS(SYSDATE, -12)
+		<isNotEmpty prepend="AND" property="memberCode">
+			po.payee = #memberCode#
+		</isNotEmpty>
+		GROUP BY po.payee, TO_CHAR(po.create_date, 'yyyy-MM')
+		ORDER BY TO_CHAR(po.create_date,'yyyy-MM') DESC
+	</select>
+	
+	<select id="queryTransWebsiteInfo" parameterClass="map" resultClass="transWebsiteDto">
+		WITH a AS(
+			SELECT 
+			(CASE WHEN INSTR(return_url, '/', 1, 3)=0
+			  THEN return_url
+			  ELSE
+			  SUBSTR(return_url, 1, (INSTR(return_url, '/', 1, 3)-1))
+			  END
+			) url
+			FROM fi.trade_base t, fi.trade_order t1
+			WHERE 1 = 1
+			AND t.trade_base_no = t1.trade_base_no
+			AND t1.status IN (2, 3, 4)
+			<isNotEmpty prepend="AND" property="memberCode">
+				t1.partner_id = #memberCode#
+			</isNotEmpty>
+		)
+		SELECT url inTransWebsite, count(1) inTransNums FROM a
+		GROUP BY url
+	</select>
+</sqlMap>

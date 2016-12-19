@@ -1,0 +1,104 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付通信账单</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<!--[if IE 6]>
+<script src="<@sp.static/>/js/pay/dd_belatedpng_0.0.8a-min.js"></script>
+<script>
+DD_belatedPNG.fix('.pop_war,.pop_s,.pop_fail,.ie6_png');
+</script>
+ 
+<script type="text/javascript">
+// <![CDATA[
+try{
+document.execCommand("BackgroundImageCache", false, true);
+}
+catch(e){}
+// ]]>
+</script>
+<![endif]-->
+</head>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="通信账单"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="form_box">
+		<div class="form_tit">
+			<h3><i>通信账单</i></h3>
+			<em class="step_cur_2"></em> </div>
+		<div class="content verify_page"> 
+				<!--表单str -->
+				<!-- 
+				<form class="mod_form" 	action="${rc.contextPath}/app/txToPay.htm" 	name="payrentform" method="post">
+				 -->
+				<form class="mod_form" 	action="${rc.contextPath}/ebpp/txToPay.htm" 	name="payrentform" method="post">
+					<table class="verify_table">
+					<tbody>
+						<tr>
+								<td class="thead" colspan="2">通信账单</td>
+							</tr>
+						<tr>
+							<td class="type">交费项目：</td>
+							<td><strong class="col333">${command.ebillName}</strong></td>
+						</tr>
+						<tr>
+						<td class="type">缴费地区：</td>
+							<td>${command.cityName}</td>
+							</tr>
+						<tr><td class="type">收费单位：</td>
+							<td>${command.orgName}</td>
+							</tr>
+						<tr><td class="type">缴费方式：</td>
+							<td>${command.ebillPayWayName}</td>
+						</tr>
+						<tr><td class="type">${command.ebillPayWayName}：</td>
+							<td>${command.barCode}</td>
+						</tr>
+						<tr><td class="type">缴费总额：</td>
+							<td>${command.amount} 元</td>
+						</tr>
+						<tr><td class="type">每月提醒：</td>
+							<td>
+							<#if command.payerMobile?has_content>
+							gcpayment支付支付将于每月${command.notifyDate}日免费发送短信至${command.payerMobile}提醒您缴纳通信费。
+								<#else>
+								不提醒
+							</#if>
+							</td>
+						</tr>
+				</tbody>
+				</table>
+				<#if Session["userSession"]?exists>
+					<div class="btn_box txtC solid_t"> <span class="btn_yel botton_yel">
+						<button type="button" onclick="payrentform.submit();this.disabled=true" >确认付款</button>
+						</span> <a class="red bk_pf" href="${rc.contextPath}/ebpp/txbill.htm?${remOrder}">返回修改</a> </div>
+				</#if>
+				<input type="hidden" value="${rc.contextPath}/ebpp/txbill.htm?${remOrder}" id="back" ></input>
+					</form>
+		</div>
+	</div>
+		<#if Session["userSession"]?exists>
+		<#else>
+		<div class="login_bo" id="payDiv" tabindex="100">
+		<div class="login_l">
+		<!-- 当前状态DIV，非当前为<div class="login_other"> -->
+			<iframe name="iframe_l" frameborder="0" width="438px" height="256px" scrolling="no" src="${rc.contextPath}/individualLogin.htm?returnUrl=/ebpp/sdmToPay.htm" ></iframe>
+		</div>
+		<div class="login_r">
+			<iframe name="iframe_r" frameborder="0" scrolling="no" src="${rc.contextPath}/ebpp/tpAccount.htm" width="438px" height="256px"></iframe>
+		</div>
+		</div>
+		</#if>
+				<!--表单end --> 
+			</div>
+		
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

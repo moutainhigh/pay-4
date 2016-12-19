@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans default-lazy-init="true">
+
+	<bean class="com.pay.pe.dao.impl.BankOrgCodeMappingDAOImpl" id="bankOrgCodeMappingDAO">
+		<property name="namespace" value="bankOrgCodeMapping" />
+		<property name="sqlMapClient" ref="peSqlMapClient" />
+	</bean>
+
+	<!-- acctSpecDAOImpl -->
+	<bean class="com.pay.pe.dao.account.impl.AcctSpecDAOImpl" id="acctSpecDAOImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="accountSpecification" />
+	</bean>
+
+	<!-- Deal Dao Bean Definition -->
+	<bean id="dealDao" class="com.pay.pe.dao.order.impl.DealDaoImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="deal" />
+	</bean>
+
+	<!-- PaymentOrder Dao Bean Definition -->
+	<bean id="paymentOrderDao" class="com.pay.pe.dao.order.impl.PaymentOrderDaoImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="paymentorder" />
+	</bean>
+
+	<!--paymentServicePKGdao -->
+	<bean class="com.pay.pe.dao.paymentservice.impl.PaymentServicePKGDAOImpl"
+		id="paymentServicePKGDAOImpl" parent="peIbatisDAOSupport">
+		<property name="namespace" value="ppaymentservicepkg" />
+	</bean>
+
+	<!--paymentSrvPkgAssignmentDao -->
+	<bean
+		class="com.pay.pe.dao.paymentservice.impl.PaymentSrvPkgAssignmentDAOImpl"
+		id="paymentSrvPkgAssignmentDAOImpl" parent="peIbatisDAOSupport">
+		<property name="namespace" value="dPaymentspPayments" />
+		<property name="paymentSerDao" ref="paymentServiceDAOImpl" />
+		<property name="paymentServicePKGDao" ref="paymentServicePKGDAOImpl" />
+	</bean>
+
+	<!-- paymentServicedao -->
+	<bean class="com.pay.pe.dao.paymentservice.impl.PaymentServiceDAOImpl"
+		id="paymentServiceDAOImpl" parent="peIbatisDAOSupport">
+		<property name="namespace" value="paymentservice" />
+	</bean>
+	<!-- postingruledao -->
+	<bean class="com.pay.pe.dao.postingrule.impl.PostingRuleDAOImpl"
+		id="postingRuleDAOImpl" parent="peIbatisDAOSupport">
+		<property name="namespace" value="postingRule" />
+		<property name="paymentServiceDao" ref="paymentServiceDAOImpl" />
+	</bean>
+
+	<!-- postingruledao -->
+	<bean class="com.pay.pe.dao.paymentservice.impl.PymtsrvPkgMatrixDAOImpl"
+		id="pymtsrvPkgMatrixDAOImpl" parent="peIbatisDAOSupport">
+		<property name="namespace" value="pymtsrvpkgmatrix" />
+	</bean>
+
+	<!-- accountEntryDAO -->
+	<bean class="com.pay.pe.dao.accounting.impl.AccountEntryDAOImpl"
+		parent="peIbatisDAOSupport" id="accountEntryDAO">
+		<property name="namespace" value="entry" />
+	</bean>
+
+	<bean class="com.pay.pe.dao.accounting.impl.AccountDiaryEntryDAOImpl"
+		parent="peIbatisDAOSupport" id="accountDiaryEntryDAO">
+		<property name="namespace" value="acctdiaryentry" />
+	</bean>
+
+	<bean class="com.pay.pe.dao.account.impl.AccountDairyDaoImpl"
+		parent="peIbatisDAOSupport" id="accountDairyDao">
+		<property name="namespace" value="acctdiary" />
+	</bean>
+
+	<!-- closingRef dao implementation bean -->
+	<bean id="closingRefDAOImpl" class="com.pay.pe.dao.closing.impl.ClosingRefDAOImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="callproc" />
+		<property name="closingProcName" value="PRC_CLOSING" />
+		<property name="unClosingProcName" value="PRC_UNCLOSING" />
+	</bean>
+
+	<!-- AccountingExceptionLog Dao Bean Definition -->
+	<bean id="accountingExceptionLogDao" class="com.pay.pe.dao.log.impl.AccountingExceptionLogDAOImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="pricingstrategy" />
+	</bean>
+
+	<!-- positng dao implementation -->
+	<bean id="postingDao" class="com.pay.pe.dao.accounting.impl.PostingDaoImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="callproc" />
+		<property name="arr_acct">
+			<value>ARR_ACCT</value>
+		</property>
+		<property name="tab_acct">
+			<value>TAB_ACCT</value>
+		</property>
+		<property name="arr_entry">
+			<value>ARR_ENTRY_V20091020</value>
+		</property>
+		<property name="tab_entry">
+			<value>TAB_ENTRY_V20091020</value>
+		</property>
+		<property name="procName">
+			<value>PRC_POSTING_V3_20091225</value>
+		</property>
+	</bean>
+
+	<bean class="com.pay.pe.dao.account.impl.AcctDiaryPostingDAOImpl"
+		id="acctDiaryPostingDao" parent="peIbatisDAOSupport">
+		<property name="namespace" value="callproc" />
+		<property name="procName">
+			<value>PRC_ACCTDIARYPOSTING_20091020</value>
+		</property>
+	</bean>
+
+	<bean id="currencyDAO" class="com.pay.pe.dao.currency.impl.CurrencyDAOImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="currency" />
+	</bean>
+
+	<bean id="exchangeRateDAO" class="com.pay.pe.dao.exchangerate.impl.ExchangeRateDAOImpl"
+		parent="peIbatisDAOSupport">
+		<property name="namespace" value="exchangerate" />
+	</bean>
+
+	<bean id="infMaJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="accDs" />
+	</bean>
+
+</beans>

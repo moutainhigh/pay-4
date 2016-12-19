@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 银企直联 渠道选择 -->
+	<bean id="fundout-bankcorporateService" class="com.pay.fo.order.validate.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fundout-bankcorporateRule" />
+	</bean>
+
+	<bean id="fundout-bankcorporateRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fundout-channelCodeCheckRule" />
+		</property>
+	</bean>
+
+	<!-- 更新订单渠道编号 -->
+	<bean id="fundout-channelCodeCheckRule" class="com.pay.fundout.withdraw.validate.rule.ChannelCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-payerIsBankcorporateCheckRule" />
+		</property>
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"/>
+		<property name="channelService" ref="fo_channel_channelservice" />
+	</bean>
+
+	<!-- 商户是否开通银企直联产品 -->
+	<bean id="fundout-payerIsBankcorporateCheckRule" class="com.pay.fundout.withdraw.validate.rule.PayerIsBankcorporateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="fundout-withdrawOrderStatusSettingAction" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService" />
+	</bean>
+	
+	<!-- 更新工单状态为直联申请成功 -->
+	<bean id="fundout-withdrawOrderStatusSettingAction" class="com.pay.fundout.withdraw.validate.action.WithdrawOrderStatusSettingAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"/>
+		<property name="withdrawWorkDao" ref="fundout-withraw-withdrawWorkDao" />
+	</bean>
+
+</beans>

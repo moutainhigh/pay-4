@@ -1,0 +1,102 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/hessian/hessian.properties</value>
+				<value>classpath:properties/artificialTradeBase2Conf.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>	
+	<bean id="client-txnCoreService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${hessian.txncoreUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+	
+	
+	<bean id="automaticTradeHandler" class="com.pay.txncore.crosspay.handler.AutomaticTradeHandler">
+		<property name="manualTranSubService" ref="manualTranSubService" />
+			
+		<property name="redisClient" ref="redisClient" />
+		<property name="invokeService" ref="client-txnCoreService" />
+		
+		<property name="tradeOrderautoService" ref="tradeDataAutoDAO" />
+	</bean>
+	<bean id="propertiesMap" class="com.pay.task.PropertiesMap">
+	<property name="maps">
+            <map>
+                <entry key="sleepEndTime" value="${sleepEndTime}" />
+                 <entry key="currencyCode" value="${currencyCode}" />
+                  <entry key="sleepStartTime" value="${sleepStartTime}" />
+                   <entry key="amountMax" value="${amountMax}" />
+                    <entry key="amountMin" value="${amountMin}" />
+                     <entry key="memberCode1" value="${memberCode1}" />
+                      <entry key="memberCode2" value="${memberCode2}" />
+                      <entry key="memberCode3" value="${memberCode3}" />
+                      <entry key="memberCode4" value="${memberCode4}" />
+                      <entry key="memberCode5" value="${memberCode5}" />
+                      <entry key="memberCode6" value="${memberCode6}" />
+                      <entry key="startflag" value="${startflag}" />
+                      <entry key="startflag2" value="${startflag2}" />
+                      <entry key="startflag3" value="${startflag3}" />
+                      <entry key="startflag4" value="${startflag4}" />
+                      <entry key="startflag5" value="${startflag5}" />
+                      <entry key="startflag6" value="${startflag6}" />
+                      <entry key="picitotal" value="${picitotal}" />
+                      <entry key="cardOrg1" value="${cardOrg1}" />
+                      <entry key="cardOrg2" value="${cardOrg2}" />
+                      <entry key="cardOrg3" value="${cardOrg3}" />
+                      <entry key="cardOrg4" value="${cardOrg4}" />
+                      <entry key="cardOrg5" value="${cardOrg5}" />
+                      <entry key="cardOrg6" value="${cardOrg6}" />
+                      <entry key="batch1" value="${batch1}" />
+                      <entry key="batch2" value="${batch2}" />
+                      <entry key="batch3" value="${batch3}" />
+                      <entry key="batch4" value="${batch4}" />
+                      <entry key="batch5" value="${batch5}" />
+                      <entry key="batch6" value="${batch6}" />
+            </map>
+        </property>
+	
+	</bean>
+	
+	<bean id="task-automaticTradeService3" class="com.pay.task.AutomaticTradeService3">	 
+	 	<property name="redisClient" ref="redisClient"></property>		
+		<property name="automaticTradeHandler" ref="automaticTradeHandler" />
+	</bean>
+	 <bean id="task-automaticTradeService4" class="com.pay.task.AutomaticTradeService4">
+		<property name="redisClient" ref="redisClient"></property>		
+		<property name="automaticTradeHandler" ref="automaticTradeHandler" />
+	</bean>
+	<bean id="task-automaticTradeService5" class="com.pay.task.AutomaticTradeService5">
+		<property name="redisClient" ref="redisClient"></property>		
+		<property name="automaticTradeHandler" ref="automaticTradeHandler" />
+	</bean>
+	<bean id="task-automaticTradeService6" class="com.pay.task.AutomaticTradeService6">
+		<property name="redisClient" ref="redisClient"></property>		
+		<property name="automaticTradeHandler" ref="automaticTradeHandler" />
+	</bean>
+	<bean id="task-automaticTradeService7" class="com.pay.task.AutomaticTradeService7">
+		<property name="redisClient" ref="redisClient"></property>		
+		<property name="automaticTradeHandler" ref="automaticTradeHandler" />
+	</bean>
+	<bean id="task-automaticTradeService8" class="com.pay.task.AutomaticTradeService8">
+	<property name="redisClient" ref="redisClient"></property>		
+		<property name="automaticTradeHandler" ref="automaticTradeHandler" />
+	</bean> 
+</beans>

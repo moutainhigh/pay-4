@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="matrixcardtransinfo">
+    <typeAlias alias="matrixcardtransinfo" type="com.pay.base.model.matrixcard.MatrixCardTransInfo"/>
+    
+      <insert id="create" parameterClass="matrixcardtransinfo">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_MATRIXCARD_TRANSINFO_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	T_MATRIXCARD_TRANSINFO 
+        	(
+        		ID,
+        		TRANS_ID, 	
+        		TRANS_TYPE, 
+        		IP,   
+        		U_ID, 
+        		MEMBER_CODE, 
+        		SESSION_ID,
+        		MCID,
+        		SERIAL_NO,
+        		VALIDATE_CODE,
+        		WRONG_TIME,
+        		LAST_VALIDATE_TIME,
+        		VAL_STATUS,
+        		CREATION_DATE        		
+            )
+        values 
+        	(
+        		#id#,	
+        		#transId#, 
+        		#transType#, 
+        		#ip#, 
+        		#u_id#,
+        		#memberCode#,
+        		#sessionId#,
+        		#mcId#,        		
+        		#serialNo#,	
+        		#validateCode#, 
+        		#wrongTime#,
+        		#lastValidateTime#,
+        		#valStatus#,   	
+        		SYSDATE
+        	)
+    </insert>
+    
+ 	<!-- 更新口令卡操作信息表sql -->
+	<sql id="MATRIXCARD_TRANSINFO_UPDATE">
+		UPDATE T_MATRIXCARD_TRANSINFO SET TRANS_TYPE = #transType#
+		<isNotEmpty property="transId" prepend=",">
+			TRANS_ID = #transId#
+		</isNotEmpty>
+		<isNotEmpty property="ip" prepend=",">
+			IP = #ip#
+		</isNotEmpty>
+		<isNotEmpty property="u_id" prepend=",">
+			U_ID = #u_id#
+		</isNotEmpty>
+		<isNotEmpty property="memberCode" prepend=",">
+			MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="sessionId" prepend=",">
+			SESSION_ID = #sessionId#
+		</isNotEmpty>	
+		<isNotEmpty property="mcId" prepend=",">
+			MCID = #mcId#
+		</isNotEmpty>
+		<isNotEmpty property="serialNo" prepend=",">
+			SERIAL_NO = #serialNo#
+		</isNotEmpty>	
+		<isNotEmpty property="validateCode" prepend=",">
+			VALIDATE_CODE = #validateCode#
+		</isNotEmpty>		
+		<isNotEmpty property="wrongTime" prepend=",">
+			WRONG_TIME = #wrongTime#
+		</isNotEmpty>				
+		<isNotEmpty property="lastValidateTime" prepend=",">
+			LAST_VALIDATE_TIME = #lastValidateTime#
+		</isNotEmpty>
+		<isNotEmpty property="valStatus" prepend=",">
+			VAL_STATUS = #valStatus#
+		</isNotEmpty>		
+		WHERE id = #id#
+	</sql>   
+    
+    
+   <update id="update" parameterClass="matrixcardtransinfo">
+		<include refid="MATRIXCARD_TRANSINFO_UPDATE" />
+    </update>
+    
+    <sql id="COMMON_CONDITION_MATRIXCARD_TRANSINFO">
+       	<isNotEmpty property="ID" prepend="and">
+			t.ID = #id#
+		</isNotEmpty>
+    	<isNotEmpty property="transType" prepend="and">
+			t.TRANS_TYPE = #transType#
+		</isNotEmpty>
+		<isNotEmpty property="transId" prepend="and">
+			t.TRANS_ID = #transId#
+		</isNotEmpty>
+		<isNotEmpty property="ip" prepend="and">
+			t.IP = #ip#
+		</isNotEmpty>
+		<isNotEmpty property="u_id" prepend="and">
+			t.U_ID = #u_id#
+		</isNotEmpty>
+		<isNotEmpty property="memberCode" prepend="and">
+			t.MEMBER_CODE = #memberCode#
+		</isNotEmpty>
+		<isNotEmpty property="sessionId" prepend="and">
+			t.SESSION_ID = #sessionId#
+		</isNotEmpty>
+		<isNotEmpty property="mcId" prepend="and">
+			t.MCID = #mcId#
+		</isNotEmpty>
+		<isNotEmpty property="serialNo" prepend="and">
+			t.SERIAL_NO = #serialNo#
+		</isNotEmpty>	
+		<isNotEmpty property="validateCode" prepend="and">
+			t.VALIDATE_CODE = #validateCode#
+		</isNotEmpty>		
+		<isNotEmpty property="wrongTime" prepend="and">
+			t.WRONG_TIME = #wrongTime#
+		</isNotEmpty>				
+		<isNotEmpty property="lastValidateTime" prepend="and">
+			t.LAST_VALIDATE_TIME = #lastValidateTime#
+		</isNotEmpty>
+		<isNotEmpty property="valStatus" prepend="and">
+			t.VAL_STATUS = #valStatus#
+		</isNotEmpty>		   
+    </sql>  
+    
+      <sql id="DETAIL_SELECT_MATRIXCARD_TRANSINFO">
+    	<![CDATA[
+	    SELECT  t.ID,
+	            t.TRANS_ID AS transId,
+	            t.trans_type as transType,
+	            t.ip,
+	            t.u_id as u_id,
+	            t.member_code as memberCode,
+	            t.session_id as sessionId,
+	            t.mcid as mcId,
+	            t.serial_no as serialNo,
+	            t.validate_code as validateCode,
+	            t.wrong_time as wrongTime,
+	            t.last_validate_time as lastValidateTime,
+	            t.val_status as valStatus,
+	            t.creation_date as creationDate
+	    FROM T_MATRIXCARD_TRANSINFO T
+	          where 1=1
+        ]]>
+    </sql>
+    
+    <sql id="ORDER_CONDITION">
+    	ORDER BY t.creation_date desc
+    </sql>
+    
+   	<select id="findById" resultClass="matrixcardtransinfo" parameterClass="java.lang.Long">
+			<include refid="DETAIL_SELECT_MATRIXCARD_TRANSINFO"/>
+            <![CDATA[
+              and  t.id=#id#
+             ]]>
+    </select>
+    
+    
+    <!-- 根据参数查询-->
+    <select id="selectMatrixCardTransInfoByMap" resultClass="matrixcardtransinfo" parameterClass="map">
+			<include refid="DETAIL_SELECT_MATRIXCARD_TRANSINFO"/>
+			<include refid="COMMON_CONDITION_MATRIXCARD_TRANSINFO"/>
+			<include refid="ORDER_CONDITION"/>			
+    </select>
+    
+     <!-- 统计查询 -->     
+    <select id="count" resultClass="java.lang.Integer" parameterClass="map">
+    	<![CDATA[	select 
+    					count(1) 
+    				from 
+    				T_MATRIXCARD_TRANSINFO t
+    				where 1=1
+    	]]>	
+    	<include refid="COMMON_CONDITION_MATRIXCARD_TRANSINFO"/>
+    </select>
+    
+    
+ 
+</sqlMap>

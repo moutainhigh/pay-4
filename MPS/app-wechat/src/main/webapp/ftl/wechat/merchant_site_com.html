@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>商户登录--网站提交</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+
+<style type="text/css">
+	
+</style>
+
+<script type="text/javascript">
+	function reloadSite(){
+		location.reload();
+	}
+
+	function isUrl(url){    
+		
+	 	var regUrl=new RegExp("(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,4})*(/[a-zA-Z0-9\&%_\./-~-]*)?");  
+	    if(regUrl.test(url)){  
+	       return true;
+	    } else{  
+		   return false;
+	    }      
+	}    
+	
+	/* function delSiteSet(id, siteName) {
+		var opt={};
+		opt.close=reloadSite;
+		
+		var url = "${rc.contextPath}/corp/cross/siteset.htm?method=deleteSite";
+		var param = {
+				'id' : id
+			};
+		
+		var str = "是否要删除 " + siteName + "的网站吗？";
+		if(confirm(str)){
+			$.ajax({
+				type : "post",
+				url : url,
+				datatype : "json",
+				data:param,
+				success : function(data) {
+					var str = data;
+					var jsonStr = eval("("+str+")");
+					if (jsonStr.result === "success") {
+						alert("网站删除成功",opt);
+						return;
+					} else {
+						alert(jsonStr.message);
+						return;
+					}
+				}
+			});
+		}
+
+	} */
+	function saveSite() {
+		var opt={};
+		opt.close=reloadSite;
+		var url = "${rc.contextPath}/saveSite.htm";
+	
+		var siteUrl = $("#url").val();
+		var param = {
+			'url' : siteUrl
+		};
+	
+		if (siteUrl === "") {
+			alert('保存网址不能为空!');
+			//$.pay.alert("保存网址不能为空!");
+			return;
+		}
+		if (!isUrl(siteUrl)) {
+			alert("网址格式不正确!");
+			return;
+		}
+		$.ajax({
+			type : "post",
+			url : url,
+			datatype : "json",
+			data:param,
+			success : function(data) {
+				var str = data;
+				var jsonStr = eval("("+str+")");
+				if (jsonStr.result === "success") {
+					alert("网站添加成功",opt);
+					window.location.reload() ;
+					return;
+				} else {
+					alert(jsonStr.message);
+					return;
+				}
+			}
+		});
+	}
+</script>
+<script type="text/javascript">
+	$(function(){
+		$("#clickGoBack").click(function(){
+			window.history.go(-1) ;
+		}) ;
+	}) ;
+</script>
+</head>
+
+<body>
+	<div id="pagewrap" style="margin-bottom:20px;">
+    
+    	<div id="content" style="text-align:left;">
+        
+            <!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:72px;float:left;" id="clickGoBack">
+                    	<div class="go_back" style="float:left;padding-top:9px;">
+                            <!-- <img src="images/jt.png"/> -->
+                        </div>
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">网站提交</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+            <!-- 商户号查询 -->
+            <div class="cc_center" style="padding-bottom:20px;">
+            	<div class="row">
+                    <div class="row_r">
+                        <span >请输入网址：</span>
+                        <input type="url" name="url" id="url" value="" />
+                    </div>
+                </div>
+               <!-- <div class="row_split" ></div>-->
+                <div id="ttt" style="padding-left:20px;">
+               		<a href="javascript:void(0);" class="call_a" style="display:inline-block;" onclick="javascript:saveSite();">提交</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <!-- <a href="javascript:void(0);" class="call_a" style="display:inline-block;">查询</a> -->
+               </div>
+            </div>
+            
+           
+          	
+            <!-- 交易记录 -->
+            <div class="trading_records" style="margin-bottom:20px;">
+            	<!-- 头信息 -->
+                <div class="trading_title">
+                	<div class="trading_des" >
+                		<span>已提交网站</span>
+                    </div>
+                    <div class="trading_statu" >
+                    	<span>状态</span>
+                    </div>
+                </div>
+                <!-- 提交网战单条记录信息 -->
+                
+                
+                <!-- <#if result?exists> 
+										<#list result as site>
+										<tr class="even" align="center">
+											<td><em>${site.id?default('')}</em></td>
+											<td><span></span>${site.url?default('')}<span></span></td>
+											<td>
+												0：冻结1：正常2：待审核3：审核未通过4：已删除  <#if
+												site.status=='0'>冻结</#if> <#if site.status=='1'>正常</#if>
+												<#if site.status=='2'>待审核</#if> <#if
+												site.status=='3'>审核未通过</#if> <#if site.status=='4'>已删除</#if>
+											</td>
+											<td>${site.createDate?string("yyyy-MM-dd")}</strong></td>
+											<td align="left">${site.ip?default('')}</td>
+											<td align="left">${site.remark?default('')}</td>
+											<td><a href="javaScript:;"
+									onclick="delSiteSet('${site.id}','${site.url}')">删除</a></td>
+							  </tr>
+						</#list>
+				  </#if> -->
+				  <#if result?exists>
+				  	<#list result as site>
+
+		                <div class="new_site_every">
+		                	<div class="new_site_des">
+		                    	 <span>${site.url?default('')}</span>		<!-- 域名 -->
+		                    </div>
+		                    
+		                    <div class="new_site_statu_des">
+								<!--0：冻结1：正常2：待审核3：审核未通过4：已删除  -->
+	                    		<#if site.status=='0'>冻结</#if> 
+	                    		<#if site.status=='1'>正常</#if>
+								<#if site.status=='2'>待审核</#if> 
+								<#if site.status=='3'>审核未通过</#if>
+								<#if site.status=='4'>已删除</#if>
+	                    								<!-- 状态 -->
+		                    </div>
+		                	
+		                </div>
+		                <div class="row_split" style="clear:both;"></div>
+		                
+				  	</#list>
+				  </#if>
+                
+                
+                <!-- 静态测试页面
+                <div class="site_every">
+                	<div class="site_every_des">
+                    	<div class="site_every_statu">
+                            <span>http://www.baidu.com</span>
+                        </div>
+                    </div>
+                    <div class="site_every_statu">
+                    	<span>待审核</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="site_every">
+                	<div class="site_every_des">
+                    	<div class="site_every_statu">
+                            <span>http://www.baidu.com</span>
+                        </div>
+                    </div>
+                    <div class="site_every_statu">
+                    	<span>已删除</span>
+                    </div>
+                </div>
+                <div class="row_split"></div>
+                <div class="site_every">
+                	<div class="site_every_des">
+                    	<div class="site_every_statu">
+                            <span>http://www.baidu.com</span>
+                        </div>
+                    </div>
+                    <div class="site_every_statu">
+                    	<span>待审核</span>
+                    </div>
+                </div>
+                 -->
+                <!-- 单条网站记录信息 -->
+            </div>    
+            <div align="right">
+				<#if result?has_content>
+					<@sp.pagination pu=pu/>
+				</#if>
+  			</div>
+           <!-- 页码提示信息 -->
+           <!-- <div class="page_num" >
+           
+           		<div id="page_num_des" >
+                	<span>第3页&nbsp;&nbsp;&nbsp;&nbsp;共19页&nbsp;&nbsp;&nbsp;&nbsp;至&nbsp;&nbsp;<input type="text" name="" id=""/>&nbsp;&nbsp;页&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </div>
+                
+           		<div id="page_num_a" >
+                	<a href="javascript:void(0);" class="" style="height:40px;width:80px;display:block;" >go</a>
+                </div>
+                
+           </div> -->
+        </div>
+    </div>
+	
+    
+</body>
+</html>
+

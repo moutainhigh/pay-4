@@ -1,0 +1,161 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	<!-- DataSource -->
+
+	<bean id="matrixCardTransMgrService"
+		class="com.pay.base.service.matrixcard.transmgr.impl.MatrixCardTransMgrServiceImpl">
+		<property name="baseMatrixCardTransMgrDAO" ref="baseMatrixCardTransMgrDAO" />
+		<property name="matrixCardTransInfoService" ref="matrixCardTransInfoService" />
+	</bean>
+
+	<bean id="matrixCardTransInfoService"
+		class="com.pay.base.service.matrixcard.transmgr.impl.MatrixCardTransInfoServiceImpl">
+		<property name="matrixCardTransInfoDAO" ref="baseMatrixCardTransInfoDAO" />
+	</bean>
+
+	<bean id="matrixCardService"
+		class="com.pay.base.service.matrixcard.impl.MatrixCardServiceImpl">
+		<property name="matrixCardDAO" ref="baseMatrixCardDAO" />
+	</bean>
+
+
+	<bean id="matrixCardVfyService"
+		class="com.pay.base.service.matrixcard.vfy.impl.MatrixCardVfyServiceImpl">
+		<property name="matrixCardVfyDao" ref="baseMatrixCardVfyDao" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="matrixCardVfyTxService" ref="matrixCardVfyTxService" />
+		
+	</bean>
+	
+    <bean id="matrixCardVfyTxService"	class="com.pay.base.service.matrixcard.vfy.impl.MatrixCardVfyTxServiceImpl">
+		<property name="matrixCardVfyDao" ref="baseMatrixCardVfyDao" />
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="matrixCardService" ref="matrixCardService" />
+	</bean>
+	
+	<!-- 口令卡申请 -->
+	<bean id="matrixCardReqRuleService"
+		class="com.pay.base.service.matrixcard.request.rules.impl.MatrixCardReqRuleServiceImpl">
+		<property name="matrixCardTransMgrService" ref="matrixCardTransMgrService" />
+	</bean>
+
+	<bean id="matrixCardReqTxService"
+		class="com.pay.base.service.matrixcard.request.impl.MatrixCardReqTxServiceImpl">
+		<property name="matrixCardTransMgrService" ref="matrixCardTransMgrService" />
+		<property name="matrixCardReqRuleService" ref="matrixCardReqRuleService" />
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="matrixCardTransInfoService" ref="matrixCardTransInfoService" />
+	</bean>
+
+
+	<bean id="matrixCardReqService"
+		class="com.pay.base.service.matrixcard.request.impl.MatrixCardReqServiceImpl">
+		<property name="matrixCardReqTxService" ref="matrixCardReqTxService" />
+		<property name="matrixCardService" ref="matrixCardService" />
+	</bean>
+
+	<bean id="matrixCardReqNotifyService"
+		class="com.pay.base.service.matrixcard.request.impl.MatrixCardReqNotifyServiceImpl">
+		<property name="iMessageDigest" ref="iMessageDigest" />
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="mailService" ref="checkCodeService" />
+	</bean>
+	
+	<!--口令卡绑定 -->
+	<bean id="matrixCardBindTxService"
+		class="com.pay.base.service.matrixcard.bind.impl.MatrixCardBindTxServiceImpl">
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="matrixCardTransMgrService" ref="matrixCardTransMgrService" />
+		<property name="matrixCardVfyService" ref="matrixCardVfyService" />
+		<property name="matrixCardBindRuleService" ref="matrixCardBindRuleService" />
+		<property name="checkCodeEmailService" ref="checkCodeEmailService" />
+		<property name="matrixCardTransInfoService" ref="matrixCardTransInfoService" />				
+	</bean>
+
+	<bean id="matrixCardBindRuleService"
+		class="com.pay.base.service.matrixcard.bind.rules.impl.MatrixCardBindRuleService">
+		<property name="matrixCardService" ref="matrixCardService" />
+	</bean>
+
+	<bean id="matrixCardBindService"
+		class="com.pay.base.service.matrixcard.bind.impl.MatrixCardBindServiceImpl">
+		<property name="matrixCardBindTxService" ref="matrixCardBindTxService" />
+	</bean>
+
+	<!-- 更换口令卡 -->
+	<bean id="matrixCardChangeTxService"
+		class="com.pay.base.service.matrixcard.change.impl.MatrixCardChangeTxServiceImpl">
+		<property name="matrixCardTransMgrService" ref="matrixCardTransMgrService" />
+		<property name="matrixCardTransInfoService" ref="matrixCardTransInfoService" />
+		<property name="matrixCardVfyService" ref="matrixCardVfyService" />
+		<property name="matrixCardBindTxService" ref="matrixCardBindTxService" />
+	</bean>
+
+	<bean id="matrixCardChangeService"
+		class="com.pay.base.service.matrixcard.change.impl.MatrixCardChangeServiceImpl">
+		<property name="matrixCardChangeTxService" ref="matrixCardChangeTxService" />
+	</bean>
+	
+	<bean id="checkCodeEmailService"
+		class="com.pay.base.service.matrixcard.checkcode.impl.CheckCodeEmailServiceImpl">
+		<property name="checkCodeService" ref="checkCodeService" />
+	</bean>
+	
+
+	<!-- 口令卡重置 -->
+
+	<bean id="matrixCardResetTxService"
+		class="com.pay.base.service.matrixcard.reset.impl.MatrixCardResetTxServiceImpl">
+		<property name="matrixCardTransMgrService" ref="matrixCardTransMgrService" />
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="matrixCardTransInfoService" ref="matrixCardTransInfoService" />
+		<property name="matrixCardVfyService" ref="matrixCardVfyService" />
+		<property name="matrixCardBindTxService" ref="matrixCardBindTxService" />
+		<property name="checkCodeService" ref="app-mailService" />
+		<property name="checkCodeEmailService" ref="checkCodeEmailService" />		
+	</bean>
+
+
+
+	<bean id="matrixCardResetService"
+		class="com.pay.base.service.matrixcard.reset.impl.MatrixCardResetServiceImpl">
+		<property name="matrixCardResetTxService" ref="matrixCardResetTxService" />
+	</bean>
+
+	<!-- 口令卡解绑 -->
+	<bean id="matrixCardUnBindTxService"
+		class="com.pay.base.service.matrixcard.unbind.impl.MatrixCardUnBindTxServiceImpl">
+		<property name="matrixCardTransMgrService" ref="matrixCardTransMgrService" />
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="matrixCardBindTxService" ref="matrixCardBindTxService" />
+		<property name="matrixCardResetTxService" ref="matrixCardResetTxService" />
+		<property name="matrixCardTransInfoService" ref="matrixCardTransInfoService" />
+	</bean>
+
+	<bean id="matrixCardUnBindService"
+		class="com.pay.base.service.matrixcard.unbind.impl.MatrixCardUnBindServiceImpl">
+		<property name="matrixCardResetTxService" ref="matrixCardResetTxService" />
+		<property name="matrixCardUnBindTxService" ref="matrixCardUnBindTxService" />
+	</bean>
+
+
+	<!-- 口令卡登陆-->
+	<bean id="matrixCardLoginTxService"
+		class="com.pay.base.service.matrixcard.login.impl.MatrixCardLoginTxServiceImpl">
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="matrixCardVfyService" ref="matrixCardVfyService" />
+	</bean>
+
+	<bean id="matrixCardLoginService"
+		class="com.pay.base.service.matrixcard.login.impl.MatrixCardLoginServiceImpl">
+		<property name="matrixCardService" ref="matrixCardService" />
+		<property name="matrixCardLoginTxService" ref="matrixCardLoginTxService" />
+	</bean>
+	
+</beans> 

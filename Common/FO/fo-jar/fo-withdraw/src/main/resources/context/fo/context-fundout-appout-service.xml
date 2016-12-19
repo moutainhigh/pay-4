@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<bean id="fundout-withdraw-withDrawOrderFacadeService" class="com.pay.fundout.withdraw.service.app.output.impl.WithDrawOrderFacadeServiceImpl">
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+		<property name="orderAfterProcService">
+			<ref bean="fundout-orderchandler-orderAfterProcService" />
+		</property>
+		<property name="orderCallBackService">
+			<ref bean="fundout-withdraw-withDrawReqCallBack" />
+		</property>  
+		<property name="accountingService">
+			<ref bean="fundout-withdrawFirstAccounting" />
+		</property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="queueName" value="fundout.withdraw.request.active" />
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+		<property name="backfundOrderService" ref="fundout_bankrefund_BankRefundOrderService" />
+		<property name="orderAfterFailProcAlertHandler" ref="fundout-orderchandler-failProcHandler"></property>
+	</bean>
+	
+	<!-- 批量JMS发送 提现确认导入批量记账操作  henry_zeng add begin  -->
+	<bean id="fundout_withdraw_batchSendAccountFacadeService" class="com.pay.fundout.withdraw.service.accountmdp.impl.BatchSendAccountFacadeServiceImpl">
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="queueName" value="foundout.withdraw.batchaccount.request" />
+	</bean>
+	<!-- 批量JMS发送 提现确认导入批量记账操作  henry_zeng add end  -->
+	
+	
+</beans>

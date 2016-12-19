@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+			
+	<bean id="possTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="foDs" />
+		</property>
+	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="fundoutServiceMethod"
+			expression="execution(* com.pay.fundout.*.service..*Service.*(..))" />
+		<aop:advisor advice-ref="fundoutTxAdvice" pointcut-ref="fundoutServiceMethod" />
+	</aop:config>	
+	
+	<aop:config>
+		<aop:pointcut id="fundoutAutoWithdrawServiceMethod"
+			expression="execution(* com.pay.fundout.autofundout.custom.service..*Service.*(..))" />
+		<aop:advisor advice-ref="fundoutTxAdvice" pointcut-ref="fundoutAutoWithdrawServiceMethod" />
+	</aop:config>	
+	
+	<aop:config>
+		<aop:pointcut id="fundoutOrderServiceMethod"
+			expression="execution(* com.pay.fo.*.service..*Service.*(..))" />
+		<aop:advisor advice-ref="fundoutTxAdvice" pointcut-ref="fundoutOrderServiceMethod" />
+	</aop:config>
+	
+	<aop:config>
+		<aop:pointcut id="possServiceMethod"
+			expression="execution(* com.pay.poss.*.service..*Service.*(..))" />
+		<aop:advisor advice-ref="fundoutTxAdvice" pointcut-ref="possServiceMethod" />
+	</aop:config>	
+	
+	<tx:advice id="fundoutTxAdvice" transaction-manager="possTransactionManager">
+		<tx:attributes>
+			<tx:method name="*" propagation="SUPPORTS" rollback-for="com.pay.exception.AppException"  />
+			<tx:method name="*RdTx" propagation="REQUIRED" rollback-for="com.pay.exception.AppException"  />
+			<tx:method name="*SpTx" propagation="SUPPORTS" rollback-for="com.pay.exception.AppException"  />
+			<tx:method name="*NsTx" propagation="NOT_SUPPORTED" />
+			<tx:method name="*RnTx" propagation="REQUIRES_NEW" rollback-for="com.pay.exception.AppException" />
+			
+			<!-- 
+			
+			<tx:method name="saveUser" propagation="REQUIRED" rollback-for="com.pay.exception.AppException" />
+			<tx:method name="updateUser" propagation="REQUIRED" rollback-for="com.pay.exception.AppException"  />
+			<tx:method name="deleteUser" propagation="REQUIRED" rollback-for="com.pay.exception.AppException"  />
+			<tx:method name="deleteRole" propagation="REQUIRED" rollback-for="com.pay.exception.AppException" />
+			 -->
+		</tx:attributes>
+	</tx:advice>
+	 
+	
+	<bean id="accTransactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="accDs" />
+		</property>
+	</bean>
+	
+	<tx:advice id="accAdvice" transaction-manager="accTransactionManager">
+		<tx:attributes>
+			<tx:method name="*Trans" propagation="REQUIRED" rollback-for="PossException" no-rollback-for="AppException" />
+		</tx:attributes>
+	</tx:advice>
+
+</beans>

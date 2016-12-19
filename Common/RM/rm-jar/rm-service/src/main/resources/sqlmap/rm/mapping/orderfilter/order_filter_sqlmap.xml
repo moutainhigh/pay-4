@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="order_filter">
+	<typeAlias alias="orderFilter" type="com.pay.rm.orderfilter.dto.OrderFilterRuleDTO"/>
+	<resultMap id="BaseResultMap" class="orderFilter" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR" />
+	    <result column="CARD_CURRENCY_CODE" property="cardCurrencyCode" jdbcType="VARCHAR" />
+	    <result column="CARD_COUNTRY_CODE" property="cardCountryCode" jdbcType="VARCHAR" />
+	    <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+	    <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+	    <result column="START_AMOUNT" property="startAmount" jdbcType="DECIMAL" />
+	    <result column="END_AMOUNT" property="endAmount" jdbcType="DECIMAL" />
+	    <result column="IP_COUNTRY_CODE" property="ipCountryCode" jdbcType="VARCHAR" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	    <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+	    <result column="CARD_TYPE" property="cardType" jdbcType="VARCHAR"/>
+	</resultMap>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="orderFilter" >
+    select ID,MEMBER_CODE,CARD_CURRENCY_CODE,CARD_TYPE,CARD_COUNTRY_CODE,IP_COUNTRY_CODE,START_AMOUNT,END_AMOUNT,
+    START_DATE,END_DATE,CREATE_DATE,UPDATE_DATE,OPERATOR from T_ORDER_FILTER where 1=1
+	  <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHARL#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardType" >
+        (CARD_TYPE = #cardType:VARCHAR#
+        or CARD_TYPE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode" >
+        (CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+        or CARD_CURRENCY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountryCode" >
+        (CARD_COUNTRY_CODE = #cardCountryCode:VARCHAR#
+        or CARD_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="ipCountryCode" >
+        (IP_COUNTRY_CODE = #ipCountryCode:VARCHAR#
+        or IP_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[START_AMOUNT <= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[END_AMOUNT >= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[START_DATE <= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[END_DATE >= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	  </isNotEmpty>
+	  <isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+	  </isNotEmpty> 
+  </select>
+  
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+      select count(*) from T_ORDER_FILTER where 1=1
+	  <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHARL#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardType" >
+        (CARD_TYPE = #cardType:VARCHAR#
+        or CARD_TYPE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode" >
+        (CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+        or CARD_CURRENCY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountryCode" >
+        (CARD_COUNTRY_CODE = #cardCountryCode:VARCHAR#
+        or CARD_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="ipCountryCode" >
+        (IP_COUNTRY_CODE = #ipCountryCode:VARCHAR#
+        or IP_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[START_AMOUNT <= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[END_AMOUNT >= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[START_DATE <= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[END_DATE >= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	  </isNotEmpty>
+	  <isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+	  </isNotEmpty> 
+    </select>
+    
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+    select count(*) from T_ORDER_FILTER where 1=1
+	  <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHARL#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardType" >
+        (CARD_TYPE = #cardType:VARCHAR#
+        or CARD_TYPE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode" >
+        (CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+        or CARD_CURRENCY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountryCode" >
+        (CARD_COUNTRY_CODE = #cardCountryCode:VARCHAR#
+        or CARD_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="ipCountryCode" >
+        (IP_COUNTRY_CODE = #ipCountryCode:VARCHAR#
+        or IP_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[START_AMOUNT <= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[END_AMOUNT >= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[START_DATE <= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[END_DATE >= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	  </isNotEmpty>
+	  <isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+	  </isNotEmpty> 
+    </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Long" >
+    select ID,MEMBER_CODE,CARD_CURRENCY_CODE,CARD_TYPE,CARD_COUNTRY_CODE,IP_COUNTRY_CODE,START_AMOUNT,END_AMOUNT,
+    START_DATE,END_DATE,CREATE_DATE,UPDATE_DATE,OPERATOR
+    from T_ORDER_FILTER where ID = #id:DECIMAL#
+  </select>
+  
+   <delete id="deleteById" parameterClass="java.lang.Long" >
+   delete from T_ORDER_FILTER where ID = #id:DECIMAL#
+  </delete>
+  
+  <insert id="create" parameterClass="orderFilter" >
+  	<selectKey resultClass="java.lang.Long" keyProperty="id">
+    	 SELECT SEQ_ORDER_FILTER_ID.nextval FROM DUAL 
+    </selectKey>
+    insert into T_ORDER_FILTER (ID,MEMBER_CODE,CARD_CURRENCY_CODE,CARD_TYPE,CARD_COUNTRY_CODE,IP_COUNTRY_CODE,START_AMOUNT,END_AMOUNT,
+    START_DATE,END_DATE,CREATE_DATE,OPERATOR)
+    values (#id:DECIMAL#,#memberCode:VARCHAR#,#cardCurrencyCode:VARCHAR#,#cardType:VARCHAR#,#cardCountryCode:VARCHAR#,#ipCountryCode:VARCHAR#,
+    #startAmount:DECIMAL#,#endAmount:DECIMAL#,#startDate:TIMESTAMP#,#endDate:TIMESTAMP#,#createDate:TIMESTAMP#,#operator:VARCHAR#)
+  </insert>
+  
+  <update id="update" parameterClass="orderFilter" >
+    update T_ORDER_FILTER
+    <dynamic prepend="set" >
+	  <isNotNull prepend="," property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHARL#
+      </isNotNull>
+      <isNotNull prepend="," property="cardType" >
+        CARD_TYPE = #cardType:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cardCurrencyCode" >
+        CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="cardCountryCode" >
+        CARD_COUNTRY_CODE = #cardCountryCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="ipCountryCode" >
+        IP_COUNTRY_CODE = #ipCountryCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="startAmount">
+        <![CDATA[START_AMOUNT=#startAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="," property="endAmount">
+        <![CDATA[END_AMOUNT=#endAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="," property="startDate">
+        <![CDATA[START_DATE=#startDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotNull prepend="," property="endDate">
+        <![CDATA[END_DATE=#endDate:TIMESTAMP#]]>
+      </isNotNull>
+	  <isNotEmpty prepend="," property="updateDate">
+           	UPDATE_DATE=#updateDate:TIMESTAMP#
+	  </isNotEmpty> 
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+  
+    <select id="findByMap" resultMap="BaseResultMap">
+    select ID,MEMBER_CODE,CARD_CURRENCY_CODE,CARD_TYPE,CARD_COUNTRY_CODE,IP_COUNTRY_CODE,START_AMOUNT,END_AMOUNT,
+    START_DATE,END_DATE,CREATE_DATE,UPDATE_DATE,OPERATOR from T_ORDER_FILTER where 1=1
+	  <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode:VARCHARL#
+      </isNotNull>
+      <isNotNull prepend="and" property="cardType" >
+        (CARD_TYPE = #cardType:VARCHAR#
+        or CARD_TYPE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCurrencyCode" >
+        (CARD_CURRENCY_CODE = #cardCurrencyCode:VARCHAR#
+        or CARD_CURRENCY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="cardCountryCode" >
+        (CARD_COUNTRY_CODE = #cardCountryCode:VARCHAR#
+        or CARD_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="ipCountryCode" >
+        (IP_COUNTRY_CODE = #ipCountryCode:VARCHAR#
+        or IP_COUNTRY_CODE = '*')
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[START_AMOUNT <= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderAmount">
+        <![CDATA[END_AMOUNT >= #orderAmount:DECIMAL#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[START_DATE <= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotNull prepend="and" property="orderDate">
+        <![CDATA[END_DATE >= #orderDate:TIMESTAMP#]]>
+      </isNotNull>
+      <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	  </isNotEmpty>
+	  <isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+	  </isNotEmpty> 
+  </select>
+  
+</sqlMap>

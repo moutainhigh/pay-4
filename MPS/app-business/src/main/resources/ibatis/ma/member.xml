@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap  >
+  <typeAlias alias="member" type="com.pay.app.model.Member"/>
+    <resultMap id="memberTest" class="member" >
+    <result column="MEMBER_CODE" property="MEMBER_CODE" jdbcType="INT" columnIndex="1"/>
+    <result column="SERVICE_LEVEL_CODE" property="SERVICE_LEVEL_CODE" jdbcType="INT" columnIndex="2" />
+    <result column="MEMBER_TYPE" property="MEMBER_TYPE" jdbcType="INT" columnIndex="3" />
+    <result column="NAME" property="NAME" jdbcType="VARCHAR" columnIndex="4"/>
+    <result column="GREETING" property="GREETING" jdbcType="VARCHAR" columnIndex="5" />
+    <result column="STATUS" property="STATUS" jdbcType="INT" columnIndex="6" />
+    <result column="SECURITY_QUESTION" property="SECURITY_QUESTION" jdbcType="VARCHAR" columnIndex="7"/>
+    <result column="SECURITY_ANSWER" property="SECURITY_ANSWER" jdbcType="VARCHAR" columnIndex="8" />
+    <result column="CREATION_DATE" property="CREATION_DATE" jdbcType="DATE" columnIndex="9" />
+    <result column="UPDATE_DATE" property="UPDATE_DATE" jdbcType="DATE" columnIndex="10" />
+    <result column="PARNTER_USERID" property="PARNTER_USERID" jdbcType="VARCHAR" columnIndex="11" />
+  </resultMap>
+
+   <select id="getMemberById" parameterClass="String" resultClass="member">
+     select * from T_MEMBER where PARNTER_USERID=#value#
+  </select> 
+    
+   <select id="insertMember" parameterClass="member">
+     insert into T_MEMBER
+(SERVICE_LEVEL_CODE,MEMBER_TYPE,NAME,GREETING,STATUS,SECURITY_QUESTION,SECURITY_ANSWER,CREATION_DATE,UPDATE_DATE,PARNTER_USERID) values
+(#SERVICE_LEVEL_CODE#,#MEMBER_TYPE#,#NAME#,#GREETING#,#STATUS#,#SECURITY_QUESTION#,#SECURITY_ANSWER#,now(),now(),#PARNTER_USERID#)
+   </select>
+ 
+ </sqlMap>

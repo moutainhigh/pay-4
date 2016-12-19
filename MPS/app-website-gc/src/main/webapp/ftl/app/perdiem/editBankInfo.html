@@ -1,0 +1,364 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>iPayLinks支付生活费</title>
+		<link href="
+		<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+		<link href="
+		<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+		<link href="
+		<@sp.static/>/css/validator/validator.css" rel="stylesheet"
+		type="text/css">
+		<link href="
+		<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+		type="text/css">
+	</head>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/perdiem/perdiembank.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/app/appCommon.js" ></script>
+	<script type="text/javascript">	
+var staticCity;
+var mon=new Array();
+var years = new Array();
+var istrue;
+var contextPath="${rc.contextPath}";
+function formsubmit(){
+	$("#mobileTip").html("");
+	var regxM=/^(13|15|18)[0-9]{9}$/;
+	var mobile=$("#mobile").val();
+	if($("#sms").attr("checked")==true){
+		if(mobile==''){
+			$("#mobileTip").html("<font color=red>请填写收款方手机号码才能短信通知</font>");
+			$("#mobileTip").show();
+			return false;
+		}else{
+			if(!regxM.test(mobile)){
+				$("#mobileTip").html("<font color=red>手机号码格式不正确</font>");
+				$("#mobile").focus();
+				return false;
+			}
+		}
+	}
+	if($("#bankCode").val()==''||$("#bankCode").val()=="0"){
+		$("#bankCodeTip").html("<font color=red>请选择开户行</font>");
+		$("#bankCodeTip").show();
+		$("#bankCode").focus();
+		return false;
+	}
+	if(istrue==-1){
+		$("#rentedTip").html("<font color=red>请确认金额是否正确</font>");
+		$("#accountNameTip").show();
+		return false;
+	}
+}
+var st = '1';
+$().ready(function(){
+	<#if bankMap?has_content> 
+		<#assign keys = bankMap?keys>
+			<#list keys as key>
+				$("#bankCode").append("<option value='${bankMap[key]}'>" + "${bankMap[key]}".split(',')[1] + "</option>");
+			</#list> 
+	</#if>
+	$("#btnREM").bind('click', function() {
+		if (st == '1'){
+			st = '0';
+			$('#remarkli').show();
+			$("#btnREM").html("关闭备注");
+		}else{
+			st = '1';
+			$('#remarkli').hide();
+			$("#btnREM").html("添加备注");
+		}
+	});
+	<#if backCode?has_content>
+		$("#bankAccountName").val('${command.payeeName}');
+		$("#bankCode").attr("value",'${command.billOrgCode}');
+		$("#acctcity").val('${command.acctcity}');
+		$("#provinceCode").val('${command.provinceCode}');
+		$("#cityCode").val('${command.cityCode}');
+		$("#bankName").val('${command.payeeAcctKaiHu}');
+		$("#accountName").val('${command.payeeAccountNo}');
+		$("#cardNo").val('${command.payeeAccountNo}');
+		$("#cardNo1").val('${command.payeeAccountNo}');
+		//$("#rentmonth").val('${command.month}');
+		$('#month').val('${command.month}');
+		$("#monthArry").val('${command.monthArry}');
+		var amounts = "${command.billAmount}";
+		if(amounts != "" && amounts *1 > 1)
+			$("#sms").attr("disabled", "");
+		else
+			$("#sms").attr("disabled", "disabled");
+		
+		$("#rented").val('${command.billAmount}');
+		$("#rented").blur();
+		<#if command.charge?has_content>
+			$("#chargeDiv").show();
+			$("#chargeSpan").html('${command.charge} 元');
+			$("#charge").val('${command.charge}');
+		<#else>
+			$("#chargeDiv").hide();
+			$("#chargeSpan").html("");
+			$("#charge").val("");
+		</#if>
+		<#if command.billremarks?has_content>
+			st = '0';
+			$('#remarkli').show();
+			$("#btnREM").html("关闭备注");
+			$("#remark").html('${command.billremarks}');
+		<#else>
+			st = '1';
+			$('#remarkli').hide();
+			$("#btnREM").html("添加备注");
+		</#if>
+		<#if command.payeeMobile?has_content>
+			$("#sms").attr("checked", true); 
+			$("#mid").show();
+			$("#mobile").val('${command.payeeMobile}');
+		<#else>
+			$("#sms").attr("checked", false);
+			$("#mid").hide();
+			$("#mobile").val("");
+		</#if>
+	</#if>
+});
+</script>
+	<#if errorMsg?exists>
+	<script type="text/javascript">	
+$(function(){	
+$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+});
+</script>
+	</#if>
+	<body>
+		<!--导航 str-->
+		<@sp.ebillheader pagename="生活费"/>
+		<!--导航 end-->
+		<!--主内容 str -->
+		<div class="container">
+			<!--侧导航 str -->
+			<@sp.ebillmenu channel="1_6"/>
+			<!--侧导航 end -->
+			<div class="box_main">
+				<div class="form_box">
+					<div class="form_tit">
+						<h3 class="dotted_r"><a href="${rc.contextPath}/perdiem.htm?method=edit">付款iPayLinks支付支付账户</a></h3>
+						<h3 class="cur"><i>付款到银行卡</i></h3>
+						<em class="step_cur_1"></em> </div>
+					<div class="content">
+						<!--表单str -->
+						<form class="mod_form2"
+							action="${rc.contextPath}/perdiem.htm?method=submitBank"
+							name="payrentform" method="post" id="payrentForm"
+							onsubmit="return formsubmit();">
+							<!--左str -->
+							<div class="form_list_l">
+								<ul class="form_list">
+									<li class="sort_tit">
+										收款方银行卡信息
+									</li>
+									<li>
+										<label class="form_side2">
+											开户人姓名：
+										</label>
+										<input type="text" class="input_txt2 w170" size="20"
+											name="payeeName" tabindex="1" id="bankAccountName" maxlength="25"/>
+										<p class="onShow" id="accountNameTip"></p>
+									</li>
+									<li>
+										<label class="form_side2">
+											开户行：
+										</label>
+										<select id="bankCode" name="billOrgCode" tabindex="2" class="select2 w170">
+											<option value="0">
+												--请选择开户行--
+											</option>
+										</select>
+										<p class="onShow" id="bankCodeTip"></p>
+									</li>
+									<li id="get_add">
+										<label class="form_side2">
+											开户行所在地：
+										</label>
+										<input type="text" class="input_txt2 w170" size="35" id="acctcity"
+											name="acctcity" readonly="readonly" tabindex="3"/>
+										<input type="hidden" id="provinceCode" name="provinceCode">
+										<input type="hidden" id="cityCode" name="cityCode">
+										<p class="gray_txt onShow" id="acctcityTip"></p>
+										<!--弹出层 str-->
+										<!--自动完成地址
+										<div id="add_auto" style="display: none;">
+											<ul>
+												<li>
+													上海（
+													<span class="red">sh</span>anghai）
+												</li>
+												<li class="current">
+													上海（
+													<span class="red">sh</span>anghai）
+												</li>
+												<li>
+													上海（
+													<span class="red">sh</span>anghai）
+												</li>
+												<li>
+													上海（
+													<span class="red">sh</span>anghai）
+												</li>
+												<li>
+													上海（
+													<span class="red">sh</span>anghai）
+												</li>
+												<li>
+													上海（
+													<span class="red">sh</span>anghai）
+												</li>
+											</ul>
+										</div>-->
+										<!--/自动完成地址-->
+										<!--省份,直辖市-->
+										<div align="left">
+										<#include "/common/include/province.html">
+										</div>
+										<!--/省份,直辖市-->
+										<!--弹出层 end-->
+									</li>
+									<li>
+										<label class="form_side2">
+											开户行名称：
+										</label>
+										<input type="text" class="input_txt2 w170" size="35" id="bankName"
+											name="payeeAcctKaiHu" tabindex="4" maxlength="50"/>
+										<p id="bankNameTip" class="gray_txt onShow"></p>
+									</li>
+									<li>
+										<label class="form_side2">
+											银行卡号：
+										</label>
+										<input type="text" class="input_txt2 w170" size="35" id="cardNo" tabindex="5"
+											name="payeeAccountNo" maxlength="19" oncopy="return false"/>
+										<p class="onShow" id="cardNoTip"></p>
+									</li>
+									<li>
+										<label class="form_side2">
+											重复银行卡号：
+										</label>
+										<input type="text" class="input_txt2 w170" size="35" id="cardNo1" tabindex="6"
+											maxlength="19" name="rePayeeAccountNo" onpaste="return false"/>
+										<p class="onShow" id="cardNoTip1"></p>
+									</li>
+								</ul>
+							</div>
+							<!--左end --> 
+							<!--右str -->
+							<div class="form_list_r">
+								<ul class="form_list">
+									<li class="sort_tit">
+										生活费信息
+									</li>
+									<li class="relative z9">
+										<label class="form_side2">
+											生活费月份：
+										</label>
+										<div id="rentmonth" class="rentmonth">&nbsp;
+										</div>
+										<p id="rentmonthTip" class="pop_check onShow"></p>
+										<#include "/common/include/month.html">
+									</li> 
+									<li>
+										<label class="form_side2">
+											生活费金额：
+										</label>
+										<input type="text" class="input_txt2 w120" size="15" id="rented" maxlength="10"
+											name="billAmount" tabindex="9"/>
+										元<span id="remarkLink"> 
+											<a class="red ml20" href="javascript:void(0);" id="btnREM">添加备注</a> </span>
+										<p class="onShow" id="rentedTip" class="gray_txt"></p>
+									</li>
+									<li id="remarkli" style="display: none;">
+										<label class="form_side2">
+											备注：
+										</label>
+										<textarea cols="60" rows="1" class="textarea w170" name="billremarks"
+											tabindex="8" id="remark"></textarea><p class="onShow" id="remarkTip"></p>
+									</li>
+									<li class="commission" id="chargeDiv" style="display: none;">
+										<label class="form_side">手续费：</label><strong class="red" id="chargeSpan"></strong></li>
+									<li class="send_msg">
+										<input id="sms" type="checkbox" tabindex="10"/>
+										免费短信通知
+										<p class="onShow"></p>
+									</li>
+									<li id="mid" style="display: none;">
+										<label class="form_side2">
+											收款方手机号码：
+										</label>
+										<input type="text" class="input_txt2" size="25" maxlength="11"
+											id="mobile" name="payeeMobile" tabindex="11"/>
+										<p class="onShow" id="mobileTip"></p>
+									</li>
+									<li>
+										<label class="form_side2">
+											验证码：
+										</label>
+										<input name="randCode" type="text" class="input_txt2"
+											maxlength="4" id="randCode" tabindex="12" size="8"/>
+										<img src="${rc.contextPath}/validatecode/validatecode.htm"  height="23" class="security_code" alt="换一张">
+										<p class="onShow" id="randCodeTip"></p>
+									</li>
+									<li class="l_btn">
+										<span class="btn_yel botton_yel">
+											<button type="submit" tabindex="9">下一步 </button>
+										</span>			
+									</li>
+								</ul>
+							</div>
+							<!--右end -->
+										<input type="hidden" id="month" name="month" />
+										<input type="hidden" id="monthArry" name="monthArry"/>
+										<input type="hidden" name="charge" id="charge" />							
+						</form>
+						<div class="bottom_border"><p></p><p></p></div>
+						<!--表单end -->
+						<!--步骤str
+						<div class="step_mod">
+							<dl>
+								<dt>流程说明:</dt>
+								<dd class="cur"><i>1</i>填写信息</dd>
+								<dd><i>2</i>确认信息</dd>
+								<dd><i>3</i>付 款</dd>
+								<dd><i>4</i>成 功</dd>
+							</dl>
+						</div>-->
+						<!--步骤end-->
+					</div>
+				</div>
+				<!--问答 str-->
+				<div class="mod_box_a q_a">
+					<div class="con_box">
+						<div class="mod_tit">
+							<h3 class="title font14"><strong>有问题 我帮您</strong></h3>
+							<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+						<dl class="ico_txtBox">
+							<dt>
+								<i class="q_ico"></i>为什么最高只能给2000元，如何提高？
+							</dt>
+							<dd>
+								<i class="a_ico"></i>因为您还没有实名认证，申请实名认证之后，您的每日限额会提高到20000元。
+							</dd>
+						</dl>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				<!--问答 end--> 
+			</div>
+		</div>
+		<!--主内容 end -->
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>

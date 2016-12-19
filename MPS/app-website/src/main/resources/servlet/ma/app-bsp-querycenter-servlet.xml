@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射 -->
+	<bean id="bspQueryCenterHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bsp/accountquery.htm">bspAccountQueryController</prop>
+				<prop key="/corp/bsp/accountexcel.htm">bspAccountQueryController</prop>
+				<prop key="/corp/bsp/balancequery.htm">bspBalanceQueryController</prop>
+				<prop key="/corp/bsp/balaneexcel.htm">bspBalanceQueryController</prop>
+				<prop key="/corp/bsp/enabledaccountquery.htm">bspEnabledAccountQueryController</prop>
+				<prop key="/corp/bsp/enabledaccountexcel.htm">bspEnabledAccountQueryController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="bspQueryCenterParamResolver"
+		class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bsp/accountquery.htm">index</prop>
+				<prop key="/corp/bsp/accountexcel.htm">excel</prop>
+				<prop key="/corp/bsp/balancequery.htm">index</prop>
+				<prop key="/corp/bsp/balaneexcel.htm">excel</prop>
+				<prop key="/corp/bsp/enabledaccountquery.htm">index</prop>
+				<prop key="/corp/bsp/enabledaccountexcel.htm">excel</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="bspAccountQueryController" class="com.pay.app.controller.bsp.AccountQueryController">
+		<property name="methodNameResolver">
+			<ref bean="bspQueryCenterParamResolver" />
+		</property>
+
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+		
+		<property name="accountQueryService">
+			<ref bean="acc-accountQueryService" />
+		</property>
+		
+		<property name="querypage">
+			<value>/bsp/accountquery/query</value>
+		</property>
+		<property name="excelpage">
+			<value>/bsp/accountquery/excel</value>
+		</property>
+	</bean>
+	
+	<bean id="bspEnabledAccountQueryController" class="com.pay.app.controller.bsp.EnabledAccountQueryController">
+		<property name="methodNameResolver">
+			<ref bean="bspQueryCenterParamResolver" />
+		</property>
+
+		<property name="memberService">
+			<ref bean="base-memberService" />
+		</property>
+		
+		<property name="querypage">
+			<value>/bsp/reconciliation/reconcili</value>
+		</property>
+		<property name="excelpage">
+			<value>/bsp/reconciliation/accexcel</value>
+		</property>
+	</bean>
+	
+	<bean id="bspBalanceQueryController" class="com.pay.app.controller.bsp.BalanceQueryController">
+		<property name="methodNameResolver">
+			<ref bean="bspQueryCenterParamResolver" />
+		</property>
+
+		<property name="acctService">
+			<ref bean="base-acctService" />
+		</property>
+		
+		<property name="queryBalanceService">
+			<ref bean="base-queryBalanceService" />
+		</property>
+		
+		<property name="querypage">
+			<value>/bsp/balancequery/query</value>
+		</property>
+		
+		<property name="querycenterpage">
+			<value>/bsp/balancequery/querycenter</value>
+		</property>
+		
+		<property name="excelpage">
+			<value>/bsp/balancequery/excel</value>
+		</property>
+	</bean>
+</beans>

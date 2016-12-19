@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dealrequest">
+	<typeAlias alias="dealrequest" type="com.pay.app.model.DealRequest" />
+
+	<insert id="create" parameterClass="dealrequest">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select
+			seq_dealrequest_id.nextval as ID from dual 
+		</selectKey>
+		insert into
+		dealrequest
+		(
+		id,
+		serialNo,
+		partner,
+		creationTime,
+		content,
+		status,
+		orderCode,
+		updateTime,
+		dealAmount,
+		seqNo,
+		dealType
+		)
+		values
+		(
+		#id#,
+		#serialNo#,
+		#partner#,
+		#creationTime#,
+		#content#,
+		#status#,
+		#orderCode#,
+		#updateTime#,
+		#dealAmount#,
+		#seqNo#,
+		#dealType#
+		)
+	</insert>
+	<delete id="delete">
+		delete from
+		dealrequest
+		where
+		ID = #id#
+    </delete>
+
+	<delete id="deletes" parameterClass="java.util.List">
+		delete from
+		dealrequest
+		where
+		ID
+		in
+		<iterate open="(" close=")" conjunction=",">
+			#ids[]#
+            </iterate>
+	</delete>
+	<update id="update" parameterClass="dealrequest">
+		update
+		dealrequest
+		set
+		serialNo = #serialNo#,
+		partner = #partner#,
+		creationTime = #creationTime#,
+		content = #content#,
+		status = #status#,
+		orderCode = #orderCode#,
+		updateTime = #updateTime#,
+		dealAmount = #dealAmount#,
+		seqNo = #seqNo#,
+		dealType = #dealType#
+		where
+		id = #id#
+    </update>
+	<select id="count" resultClass="java.lang.Integer">
+		select
+		count(id)
+		from
+		dealrequest
+    </select>
+
+
+	<select id="findById" resultClass="dealrequest" parameterClass="java.lang.Long">
+		select
+		id,
+		serialNo,
+		partner,
+		creationTime,
+		content,
+		status,
+		orderCode,
+		updateTime,
+		dealAmount,
+		seqNo,
+		dealType
+		from
+		dealrequest
+		where
+		ID = #id#
+    </select>
+
+	<select id="read" resultClass="dealrequest" parameterClass="java.lang.Long">
+		select
+		id
+		from
+		dealrequest
+		where
+		id = #id#
+    </select>
+
+	<select id="loadAll" resultClass="dealrequest" parameterClass="java.util.List">
+		select
+		id,
+		serialNo,
+		partner,
+		creationTime,
+		content,
+		status,
+		orderCode,
+		updateTime,
+		dealAmount,
+		seqNo,
+		dealType
+		from
+		dealrequest
+    </select>
+
+	<select id="findBySerialNo" resultClass="dealrequest"
+		parameterClass="java.lang.String">
+		select
+		id,
+		serialNo,
+		partner,
+		creationTime,
+		content,
+		status,
+		orderCode,
+		updateTime,
+		dealAmount,
+		seqNo,
+		dealType
+		from
+		dealrequest
+		where
+		serialNo =
+		#serialNo#
+    </select>
+
+	<select id="findByMemberCode" resultClass="java.util.HashMap"
+		parameterClass="java.util.HashMap" remapResults="true">
+		select
+		count(1) totalCount,
+		nvl(sum(dealAmount),0) totalAmount
+		from
+		dealrequest
+		where
+		partner = #partner#
+		and orderCode = #orderCode#
+		and	status = 111
+		and creationtime>=trunc(sysdate)
+    </select>
+
+</sqlMap>

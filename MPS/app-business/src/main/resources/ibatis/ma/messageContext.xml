@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-messageContext">
+    <typeAlias alias="messageContext" type="com.pay.app.model.MessageContext"/>
+    
+    <insert id="create" parameterClass="messageContext">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_messageContext_ID.nextval as ID from dual 
+		</selectKey>     
+        insert into 
+       		 t_messagecontext 
+        	(
+        		id, 	
+        		context
+            )
+        values 
+        	(
+        		#id#, 	
+        		#context#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		t_messagecontext
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		t_messagecontext
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="messageContext">
+        update 
+        	t_messagecontext
+        set 
+        	context = #context#
+        where 
+        	ID 				= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		t_messagecontext
+    </select>
+    
+    
+    <select id="findById" resultClass="messageContext" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		context
+        from 
+        	t_messagecontext
+        where 
+        	ID 			= #id#
+    </select>
+    <select id="read" resultClass="messageContext" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	t_messagecontext
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="messageContext" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		context
+        from 
+        	t_messagecontext
+    </select>    
+    
+</sqlMap>

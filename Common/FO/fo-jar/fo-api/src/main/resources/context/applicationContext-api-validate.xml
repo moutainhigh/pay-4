@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fo-api-batchPaymentValidateService" class="com.pay.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fo-api-batchPaymentRule" />
+	</bean>
+
+	<bean id="fo-api-batchPaymentRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fo-api-batchPaymentPayerCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-batchPaymentPayerCheckRule" class="com.pay.api.validate.BatchPaymentPayerCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-merchantAcctCheckRule" />
+		</property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+	<bean id="fo-api-merchantAcctCheckRule" class="com.pay.api.validate.MerchantAcctCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-batchBusinessNoCheckRule" />
+		</property>
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+	</bean>
+
+	<bean id="fo-api-batchBusinessNoCheckRule" class="com.pay.api.validate.BatchBusinessNoCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-batchPaymentItemCheckRule" />
+		</property>
+		<property name="batchPaymentReqBaseInfoService" ref="fo-order-batchPaymentReqBaseInfoService" />
+	</bean>
+
+	<bean id="fo-api-batchPaymentItemCheckRule" class="com.pay.api.validate.BatchPaymentItemCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-batchPaymentTotalCheckRule" />
+		</property>
+		<property name="itemRequestValidateService" ref="fo-api-item-batchPaymentValidateService" />
+	</bean>
+	<bean id="fo-api-batchPaymentTotalCheckRule" class="com.pay.api.validate.BatchPaymentTotalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-batchPaymentRiskCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-batchPaymentRiskCheckRule" class="com.pay.api.validate.BatchPaymentRiskCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-merchantBalanceCheckRule" />
+		</property>
+		<property name="batchPay2BankOrderValidateService" ref="fo-order-batchPay2BankOrderValidateService" />
+	</bean>
+
+	<bean id="fo-api-merchantBalanceCheckRule" class="com.pay.api.validate.MerchantBalanceCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-batchPaymentInfoCheckFailAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+	</bean>
+
+	<!-- item request check -->
+	<bean id="fo-api-item-batchPaymentValidateService" class="com.pay.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fo-api-item-batchPaymentRule" />
+	</bean>
+
+	<bean id="fo-api-item-batchPaymentRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fo-api-item-batch2bankChannelCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-item-batch2bankChannelCheckRule" class="com.pay.api.validate.item.Batch2bankChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-item-batch2AcctPayeeCheckRule" />
+		</property>
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+	</bean>
+
+	<bean id="fo-api-item-batch2AcctPayeeCheckRule" class="com.pay.api.validate.item.Batch2AcctPayeeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-item-batch2AcctPayeeAcctCheckRule" />
+		</property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+	</bean>
+
+	<bean id="fo-api-item-batch2AcctPayeeAcctCheckRule"
+		class="com.pay.api.validate.item.Batch2AcctPayeeAcctCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-item-batchPaymentRiskCheckRule" />
+		</property>
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+	</bean>
+	<bean id="fo-api-item-batchPaymentRiskCheckRule" class="com.pay.api.validate.item.BatchPaymentRiskCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-item-caculateFeeAction" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+	</bean>
+	<bean id="fo-api-item-caculateFeeAction" class="com.pay.api.validate.item.CaculateFeeAction">
+		<property name="nextStep">
+			<ref bean="fo-api-item-PaymentRealoutAmountCheckRule" />
+		</property>
+		<property name="batchPay2bankAccountingService" ref="fundout-batchPay2bankFirstAccounting" />
+		<property name="batchPay2acctAccountingService" ref="fundout-batchPay2acctAccounting" />
+	</bean>
+	<bean id="fo-api-item-PaymentRealoutAmountCheckRule" class="com.pay.api.validate.item.PaymentRealoutAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-item-batchPayment2BankBrancheSettingAction" />
+		</property>
+	</bean>
+	<bean id="fo-api-item-batchPayment2BankBrancheSettingAction"
+		class="com.pay.api.validate.item.BatchPayment2BankBrancheSettingAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="luceneService" ref="fundout-lucene-service" />
+	</bean>
+
+	<bean id="fo-api-batchPaymentInfoCheckFailAction" class="com.pay.api.validate.BatchPaymentInfoCheckFailAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+</beans>

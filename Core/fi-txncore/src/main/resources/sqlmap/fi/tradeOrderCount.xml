@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tradeOrderCount">    
+    <resultMap class="com.pay.txncore.dto.TradeRespCount" id="tradeRespCount">
+    	<result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+    	<result column="RESP_CODE" property="respCode" jdbcType="VARCHAR"/>
+    	<result column="RESP_MSG" property="respMsg" jdbcType="VARCHAR"/>
+    	<result column="TOTAL" property="total" jdbcType="int"/>
+    </resultMap>
+    
+    <resultMap class="com.pay.txncore.dto.TradeCountMap" id="tradeCountMap">
+    	<result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+    	<result column="status" property="status" jdbcType="VARCHAR"/>
+    	<result column="AMOUNT" property="amount" jdbcType="int"/>
+    </resultMap>
+
+    <select id="getTradeRespCount" resultMap="tradeRespCount">
+        select count(*) TOTAL,A.PARTNER_ID,A.RESP_CODE,A.RESP_MSG from trade_order A  
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="partnerId">
+           A.PARTNER_ID = #partnerId# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+		   A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>  
+        </dynamic>
+        
+        group by A.PARTNER_ID,A.RESP_CODE,A.RESP_MSG
+    </select>
+    
+    <select id="getTradeCountMap" resultMap="tradeCountMap">
+        select count(*) AMOUNT,A.PARTNER_ID,A.status from trade_order A  
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="partnerId">
+           A.PARTNER_ID = #partnerId# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			A.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           A.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>  
+        </dynamic>
+        
+        group by A.PARTNER_ID,A.status
+    </select>
+</sqlMap>

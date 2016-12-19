@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="balanceNotEnough">
+<typeAlias alias="bouncedRateListVO" type="com.pay.txncore.model.BouncedRateListVO"/>
+	<resultMap class="java.util.HashMap" id="ruleAndRateMap">
+		<result property="id" column="ID" jdbcType="NUMBER" />
+		<result property="createDate" column="CREATE_DATE" jdbcType="DATE" />
+		<result property="partnerId" column="PARTNER_ID" jdbcType="NUMBER" />
+		<result property="partnerName" column="PARTNER_NAME" jdbcType="VARCHAR" />
+		<result property="cardOrg" column="CARD_ORG" jdbcType="VARCHAR" />
+		<result property="bouncedCount" column="BOUNCED_COUNT"
+			jdbcType="NUMBER" />
+		<result property="totalCount" column="TOTAL_COUNT" jdbcType="NUMBER" />
+		<result property="lastTotalCount" column="LAST_TOTAL_COUNT"
+			jdbcType="NUMBER" />
+		<result property="bouncedRate" column="BOUNCED_RATE" jdbcType="VARCHAR" />
+		<result property="fraudAmount" column="FRAUD_AMOUNT" jdbcType="NUMBER" />
+		<result property="totalAmount" column="TOTAL_AMOUNT" jdbcType="NUMBER" />
+		<result property="lastTotalAmount" column="LAST_TOTAL_AMOUNT"
+			jdbcType="NUMBER" />
+		<result property="fraudRate" column="FRAUD_RATE" jdbcType="VARCHAR" />
+		<result property="bouncedCurrencyCode" column="CHARGEBACK_FEE_CURCODE"
+			jdbcType="VARCHAR" />
+		<result property="ruleNo" column="RULE_NO" jdbcType="VARCHAR" />
+		<result property="countRate1" column="COUNT_RATE1" jdbcType="VARCHAR" />
+		<result property="fineAmount1" column="FINE_AMOUNT1" jdbcType="NUMBER" />
+		<result property="countRate2" column="COUNT_RATE2" jdbcType="VARCHAR" />
+		<result property="fineAmount2" column="FINE_AMOUNT2" jdbcType="NUMBER" />
+		<result property="countRate3" column="COUNT_RATE3" jdbcType="VARCHAR" />
+		<result property="status" column="status" jdbcType="VARCHAR" />
+		<result property="fineAmount3" column="FINE_AMOUNT3" jdbcType="NUMBER" />
+		<result property="bouncedDate" column="BOUNCED_DATE" jdbcType="VARCHAR" />
+	</resultMap>
+
+<resultMap class="bouncedRateListVO" id="bouncedRateListMap">
+	<result property="id" column="ID" jdbcType="BigDecimal" />
+	<result property="partnerid" column="PARTNER_ID"
+		jdbcType="BigDecimal" />
+	<result property="partnername" column="PARTNER_NAME"
+		jdbcType="VARCHAR" />
+	<result property="cardorg" column="CARD_ORG"
+		jdbcType="VARCHAR" />
+	<result property="createdate" column="CREATE_DATE"
+		jdbcType="TIMESTAMP" />
+	<result property="bouncedcount" column="BOUNCED_COUNT"
+		jdbcType="BigDecimal" />
+	<result property="totalcount" column="TOTAL_COUNT"
+		jdbcType="BigDecimal" />
+	<result property="lasttotalcount" column="LAST_TOTAL_COUNT"
+		jdbcType="BigDecimal" />
+	<result property="bouncedrate" column="BOUNCED_RATE"
+		jdbcType="BigDecimal" />
+	<result property="fraudamount" column="FRAUD_AMOUNT"
+		jdbcType="BigDecimal" />
+	<result property="totalamount" column="TOTAL_AMOUNT"
+		jdbcType="BigDecimal" />
+	<result property="lasttotalamount" column="LAST_TOTAL_AMOUNT"
+		jdbcType="BigDecimal" />
+	<result property="fraudrate" column="FRAUD_RATE"
+		jdbcType="VARCHAR" />
+</resultMap>
+
+<insert id="createRateList" parameterClass="bouncedRateListVO">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT TO_CHAR(SYSDATE, 'yymmdd')||SEQ_BOUNCED_RATE_LIST_TEMP.nextval FROM DUAL
+		</selectKey>
+	insert into BOUNCED_RATE_LIST_TEMP (ID
+	,PARTNER_ID
+	,PARTNER_NAME
+	,CARD_ORG
+	,CREATE_DATE
+	,BOUNCED_DATE
+	,BOUNCED_COUNT
+	,TOTAL_COUNT
+	,LAST_TOTAL_COUNT
+	,BOUNCED_RATE
+	,FRAUD_AMOUNT
+	,TOTAL_AMOUNT
+	,LAST_TOTAL_AMOUNT
+	,FRAUD_RATE )
+	values (
+ #id:NUMERIC#    			     
+,#partnerid:VARCHAR#    		
+,#partnername:VARCHAR#    	
+,#cardorg:VARCHAR#    			
+,sysdate
+,#bounceddate:VARCHAR#
+,#bouncedcount:NUMERIC#    
+,#totalcount:NUMERIC#    		
+,#lasttotalcount:NUMERIC# 
+,#bouncedrate:NUMERIC#    	
+,#fraudamount:NUMERIC#    	
+,#totalamount:NUMERIC#    	
+,#lasttotalamount:NUMERIC#
+,#fraudrate:NUMERIC#    		
+)
+	</insert>
+	<select id="queryFineRuleAndRate" resultMap="ruleAndRateMap">
+		select
+		br.ID,
+		br.CREATE_DATE,
+		br.PARTNER_ID,
+		br.PARTNER_NAME,
+		br.CARD_ORG,
+		br.BOUNCED_COUNT,
+		br.TOTAL_COUNT,
+		br.LAST_TOTAL_COUNT,
+		br.BOUNCED_RATE,
+		br.FRAUD_AMOUNT,
+		br.TOTAL_AMOUNT,
+		br.LAST_TOTAL_AMOUNT,
+		br.FRAUD_RATE,
+		br.status,
+		te.CHARGEBACK_FEE_CURCODE,
+		bf.RULE_NO,
+		bf.COUNT_RATE1,
+		bf.FINE_AMOUNT1,
+		bf.COUNT_RATE2,
+		bf.FINE_AMOUNT2,
+		bf.COUNT_RATE3,
+		bf.FINE_AMOUNT3,
+		br.BOUNCED_DATE
+		from
+		fi.BOUNCED_RATE_LIST_TEMP br
+		left join
+		ACC.T_ENTERPRISE_BASE te on BR.PARTNER_ID = TE.MEMBER_CODE
+		left join
+		ACC.BOUNCED_FINE_RULE bf
+		on BR.PARTNER_ID = bf.partner_id and BR.CARD_ORG = BF.CARD_ORG
+		where
+		to_char(br.CREATE_DATE,'yyyymm')=to_char(sysdate,'yyyymm')
+		and br.status = '0'
+	</select>
+	
+	<resultMap class="java.util.HashMap" id="bouncedFineOrderMap">
+		<result property="bouncedFineNo" column="ID" jdbcType="NUMBER" />
+		<result property="createDate" column="CREATE_DATE" jdbcType="DATE" />
+		<result property="partnerId" column="PARTNER_ID" jdbcType="NUMBER" />
+		<result property="partnerName" column="PARTNER_NAME" jdbcType="VARCHAR" />
+		<result property="cardOrg" column="CARD_ORG" jdbcType="VARCHAR" />
+		<result property="fineAmount" column="FINE_AMOUNT" jdbcType="NUMBER" />
+		<result property="currencyCode" column="CURRENCY_CODE" jdbcType="VARCHAR" />
+		<result property="settlementAmount" column="SETTLEMENT_AMOUNT" jdbcType="NUMBER" />
+		<result property="bouncedCurrencyCode" column="SETTLEMENT_CURRENCY_CODE" jdbcType="VARCHAR" />
+		<result property="status" column="STATUS" jdbcType="VARCHAR" />
+		<result property="executeDate" column="EXECUTE_DATE" jdbcType="DATE" />
+		<result property="remark" column="REMARK" jdbcType="VARCHAR" />
+		<result property="bouncedRate" column="BOUNCED_RATE" jdbcType="VARCHAR" />
+		<result property="fraudRate" column="FRAUD_RATE" jdbcType="VARCHAR" />
+		<result property="bouncedDate" column="BOUNCED_DATE" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="findBouncedFineOrder" parameterClass="java.util.Map"
+		resultMap="bouncedFineOrderMap">
+		SELECT
+			ID,
+			CREATE_DATE,
+			PARTNER_ID,
+			PARTNER_NAME,
+			CARD_ORG,
+			FINE_AMOUNT,
+			CURRENCY_CODE,
+			SETTLEMENT_AMOUNT,
+			SETTLEMENT_CURRENCY_CODE,
+			STATUS,
+			EXECUTE_DATE,
+			REMARK,
+			BOUNCED_RATE,
+			FRAUD_RATE,
+			BOUNCED_DATE
+		FROM
+			BOUNCED_FINE_ORDER_TEMP
+		WHERE 
+			STATUS = #status#
+	</select>
+
+
+	<update id="updateBouncedFine" parameterClass="java.util.Map">
+		update BOUNCED_FINE_ORDER_TEMP set STATUS = #status#,EXECUTE_DATE  = sysdate
+		where 	ID = #bouncedFineNo#
+	</update>
+
+
+	<resultMap class="java.util.HashMap" id="bouncedFineNoMap">
+			<result property="id" column="id" jdbcType="NUMBER" />	
+	</resultMap>
+	<select id="queryBouncedFineNo" resultMap="bouncedFineNoMap">
+		select 
+		165|| to_char(sysdate,'yymmddHH24MISS') || SEQ_BOUNCED_FINE_ORDER_TEMP_ID.nextval id
+		from dual
+	</select>
+
+	<insert id="create" parameterClass="java.util.Map">
+		insert into
+		BOUNCED_FINE_ORDER_TEMP(
+		ID,
+		CREATE_DATE,
+		PARTNER_ID,
+		PARTNER_NAME,
+		CARD_ORG,
+		FINE_AMOUNT,
+		CURRENCY_CODE,
+		SETTLEMENT_AMOUNT,
+		SETTLEMENT_CURRENCY_CODE,
+		STATUS,
+		EXECUTE_DATE,
+		REMARK,
+		BOUNCED_RATE,
+		FRAUD_RATE,
+		BOUNCED_DATE
+		) values(
+		#bouncedFineNo#,
+		sysdate,
+		#partnerId#,
+		#partnerName#,
+		#cardOrg#,
+		#fineAmount#,
+		#currencyCode#,
+		#settlementAmount#,
+		#bouncedCurrencyCode#,
+		#status#,
+		sysdate,
+		#remark#,
+		#bouncedRate#,
+		#fraudRate#,
+		#bouncedDate#
+		)
+	</insert>
+
+	<update id="updateFineRuleAndRate" parameterClass="java.util.Map">
+		update BOUNCED_RATE_LIST_TEMP set STATUS = '1'  where id = #id# 
+	</update>
+		
+	<delete id="delete">
+		delete from BOUNCED_RATE_LIST_TEMP
+	</delete>
+	<delete id="deleteBouncedRate">
+		delete from BOUNCED_FINE_ORDER_TEMP
+	</delete>
+</sqlMap>

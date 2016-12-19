@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="dayRate">
+	<typeAlias alias="dayRate" type="com.pay.credit.model.dayrate.DayRate" />
+	<typeAlias alias="dayRateDto" type="com.pay.credit.dto.dayrate.DayRateDTO" />
+
+	<update id="updateDayRate" parameterClass="dayRate">
+		UPDATE DAY_RATE SET
+		DAY_RATE=#dayRate#,
+		UPDATE_TIME=SYSDATE,
+		OPERATOR=#operator#
+		WHERE RATE_ID=#rateId#
+	</update>
+	
+	<select id="queryDayRate" resultClass="dayRate">
+	SELECT 
+		RATE_ID AS rateId,
+		DAY_RATE AS dayRate,
+		UPDATE_TIME AS updateTime,
+		OPERATOR AS operator 
+	FROM DAY_RATE ORDER BY RATE_ID DESC
+	</select>
+	 <select id="queryDayRateByData" resultClass="dayRate" parameterClass="dayRateDto">
+	SELECT 
+		RATE_ID AS rateId,
+		DAY_RATE AS dayRate,
+		UPDATE_TIME AS updateTime,
+		OPERATOR AS operator 
+	FROM DAY_RATE 
+	WHERE CREATE_TIME > #createTime# and CREATE_TIME &lt; (#createTime#)+1
+	 ORDER BY RATE_ID DESC
+	</select>
+</sqlMap>

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 付款到账户/批量付款到账户-->
+<sqlMap namespace="ORDERCENTERPAY2ACCOUNT">
+	<!-- 订单查询条件 -->
+	<typeAlias alias="fo_ordercenterquerydto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<typeAlias alias="fo_ordercenterresultdto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	<!-- 订单详情 -->
+	<typeAlias alias="context_fundout_batchpay2accountDTO" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+	
+	
+	<!-- 单笔付款到账户  订单详情 -->
+	<select id="context_fundout_ordercenter_pay2accountdetail" resultClass="context_fundout_batchpay2accountDTO" parameterClass="java.lang.Long">
+		SELECT
+			 ORDER_ID 			ORDERKY,
+			 PAYMENT_REASON 				REMARKS,
+			 UPDATE_DATE 			      ORDERENDTIME,
+			 TO_CHAR(PAYER_MEMBERCODE) 			PAYERKY,
+			 PAYER_LOGINNAME 			PAYERID,
+			 ORDER_STATUS 				ORDERSTATUS,
+			 ORDER_AMOUNT 				ORDERACCOUNT,
+			 TO_CHAR(PAYEE_ACCTTYPE) 		PAYEEACCTTYPE,
+			 TO_CHAR(PAYER_ACCTTYPE) 		PAYERACCTTYPE,
+			 CREATE_DATE 			ORDERCREATETIME,
+			 TO_CHAR(PAYEE_MEMBERCODE) 			PAYEEKY,
+			 PAYER_ACCTCODE 		PAYERACCT,
+			 PAYEE_ACCTCODE 		PAYEEACCT,
+			 PAYER_NAME 			PAYERNAME,
+			 PAYEE_NAME 			PAYEENAME,
+       PAYER_LOGINNAME PAYERID,
+       PAYEE_LOGINNAME PAYEEID,
+       (SELECT TO_CHAR(T.SERVICE_LEVEL_CODE) FROM ACC.T_MEMBER T WHERE MEMBER_CODE = P.PAYER_MEMBERCODE) PAYERLEVEL,
+       (SELECT TO_CHAR(T.SERVICE_LEVEL_CODE) FROM ACC.T_MEMBER T WHERE MEMBER_CODE = P.PAYEE_MEMBERCODE) PAYEELEVEL
+		FROM PAY_TOACCTORDER P
+		WHERE ORDER_ID = #orderKy#
+	</select>
+	
+	<!-- 批量付款到账户  订单详情 -->
+	<select id="context_fundout_ordercenter_batchpay2accountdetail" resultClass="context_fundout_batchpay2accountDTO" parameterClass="java.lang.Long">
+		SELECT
+			 ORDER_ID 			ORDERKY,
+			 PAYMENT_REASON 				REMARKS,
+			 UPDATE_DATE 			      ORDERENDTIME,
+			 TO_CHAR(PAYER_MEMBERCODE) 			PAYERKY,
+			 PAYER_LOGINNAME 			PAYERID,
+			 ORDER_STATUS 				ORDERSTATUS,
+			 ORDER_AMOUNT 				ORDERACCOUNT,
+			 TO_CHAR(PAYEE_ACCTTYPE) 		PAYEEACCTTYPE,
+			 TO_CHAR(PAYER_ACCTTYPE) 		PAYERACCTTYPE,
+			 CREATE_DATE 			ORDERCREATETIME,
+			 TO_CHAR(PAYEE_MEMBERCODE) 			PAYEEKY,
+			 PAYER_ACCTCODE 		PAYERACCT,
+			 PAYEE_ACCTCODE 		PAYEEACCT,
+			 PAYER_NAME 			PAYERNAME,
+			 PAYEE_NAME 			PAYEENAME,
+			 PARENT_ORDERID       LIQUIDATEBATCHKY,
+       PAYER_LOGINNAME PAYERID,
+       PAYEE_LOGINNAME PAYEEID,
+       (SELECT TO_CHAR(T.SERVICE_LEVEL_CODE) FROM ACC.T_MEMBER T WHERE MEMBER_CODE = P.PAYER_MEMBERCODE) PAYERLEVEL,
+       (SELECT TO_CHAR(T.SERVICE_LEVEL_CODE) FROM ACC.T_MEMBER T WHERE MEMBER_CODE = P.PAYEE_MEMBERCODE) PAYEELEVEL
+		FROM PAY_TOACCTORDER P
+		WHERE ORDER_ID = #orderKy#
+	</select>
+	
+	<!-- 单笔付款到账户 -->
+	<select id="pay2account_ordercenter_query" resultClass="fo_ordercenterresultdto" parameterClass="fo_ordercenterquerydto">
+		SELECT 
+		   	 ORDER_ID  	ORDERKY,
+	       	 ORDER_AMOUNT       	ORDERAMOUNT,
+	         ORDER_STATUS       	ORDERSTATUS,
+	         TO_CHAR(PAYER_MEMBERCODE)  PAYERACCOUNTNO ,
+	         TO_CHAR(PAYEE_MEMBERCODE)  PAYEEACCOUNTNO,
+	       	 UPDATE_DATE  	ORDERDATE,
+      		 TO_CHAR(PAYER_MEMBERCODE) PAYERMEMBERCODE,
+      		 TO_CHAR(PAYER_ACCTTYPE) PAYERACCTYPE,
+      		 TO_CHAR(PAYEE_MEMBERCODE) PAYEEMEMBERCODE,
+          	 TO_CHAR(PAYEE_ACCTTYPE) PAYEEACCTYPE
+		FROM PAY_TOACCTORDER 
+		WHERE PARENT_ORDERID IS NULL
+		AND ORDER_TYPE = 1
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (PAYER_MEMBERCODE = #memberCode#  OR PAYEE_MEMBERCODE = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(ORDER_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+		 	<isNotEmpty  property="loginName" prepend="AND">
+	            PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+    </select>
+    
+    <select id="pay2account_ordercenter_query_COUNT" resultClass="java.lang.Integer" parameterClass="fo_ordercenterquerydto">
+		SELECT 
+		   	 COUNT(1)
+		FROM PAY_TOACCTORDER 
+		WHERE PARENT_ORDERID IS NULL
+		AND ORDER_TYPE = 1
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (PAYER_MEMBERCODE = #memberCode#  OR PAYEE_MEMBERCODE = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(ORDER_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+    </select>
+    
+    <!-- 批量付款到账户 -->
+	<select id="batchpay2account_ordercenter_query" resultClass="fo_ordercenterresultdto" parameterClass="fo_ordercenterquerydto">
+			SELECT 
+		   	 p.ORDER_ID  	ORDERKY,
+	       	 p.ORDER_AMOUNT       	ORDERAMOUNT,
+	         p.ORDER_STATUS       	ORDERSTATUS,
+	         TO_CHAR(p.PAYER_MEMBERCODE)  PAYERACCOUNTNO ,
+	         TO_CHAR(p.PAYEE_MEMBERCODE)  PAYEEACCOUNTNO,
+	       	 p.UPDATE_DATE  	ORDERDATE,
+      		 TO_CHAR(p.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+      		 TO_CHAR(p.PAYER_ACCTTYPE) PAYERACCTYPE,
+      		 TO_CHAR(p.PAYEE_MEMBERCODE) PAYEEMEMBERCODE,
+          	 TO_CHAR(p.PAYEE_ACCTTYPE) PAYEEACCTYPE
+		FROM PAY_TOACCTORDER p, BATCH_PAYMENTORDER B
+		WHERE PARENT_ORDERID IS NOT NULL
+		AND p.ORDER_TYPE = 2
+		AND p.PARENT_ORDERID = B.ORDER_ID
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (p.PAYER_MEMBERCODE = #memberCode#  OR p.PAYEE_MEMBERCODE = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            p.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            p.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(p.ORDER_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ p.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ p.UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            p.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+		 	<isNotEmpty  property="loginName" prepend="AND">
+	            p.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="primaryOrderNo" prepend="AND">
+	            p.PARENT_ORDERID = #primaryOrderNo#
+	        </isNotEmpty>
+	        <isNotEmpty  property="batchNo" prepend="AND">
+	            b.BUSINESS_BATCH_NO = #batchNo#
+	        </isNotEmpty>
+    </select>
+    
+    <select id="batchpay2account_ordercenter_query_COUNT" resultClass="java.lang.Integer" parameterClass="fo_ordercenterquerydto">
+		SELECT 
+		   	 COUNT(1)
+		FROM PAY_TOACCTORDER p, BATCH_PAYMENTORDER B
+		WHERE PARENT_ORDERID IS NOT NULL
+		AND p.ORDER_TYPE = 2
+		AND p.PARENT_ORDERID = B.ORDER_ID
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            (p.PAYER_MEMBERCODE = #memberCode#  OR p.PAYEE_MEMBERCODE = #memberCode#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            p.PAYER_ACCTTYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            p.ORDER_STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(p.ORDER_ID) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ p.UPDATE_DATE >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ p.UPDATE_DATE <= #endTime# +1]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            p.FOREIGN_ORDERID = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            p.PAYER_LOGINNAME = LOWER(#loginName#)
+	        </isNotEmpty>
+	        <isNotEmpty  property="primaryOrderNo" prepend="AND">
+	            p.PARENT_ORDERID = #primaryOrderNo#
+	        </isNotEmpty>
+	        <isNotEmpty  property="batchNo" prepend="AND">
+	            b.BUSINESS_BATCH_NO = #batchNo#
+	        </isNotEmpty>
+    </select>
+    
+    <!-- 批量付款到账户 关联订单查询 关联的是单笔付款到账户-->
+	<select id="batchpay2account_ordercenter_relation_query" resultClass="java.util.HashMap" parameterClass="fo_ordercenterquerydto">
+		select 1 from dual
+    </select>
+</sqlMap>

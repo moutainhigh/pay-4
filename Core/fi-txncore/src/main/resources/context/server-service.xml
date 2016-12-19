@@ -1,0 +1,396 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="txncoreService" class="com.pay.txncore.hessian.HessianService">
+		<property name="eventHandlerMap" ref="eventHandlerMap" />
+	</bean>
+	<bean id="eventHandlerMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="30100" value-ref="sumeryPaymentHandler" />
+				<entry key="30101" value-ref="crosspayApiAcquireHandler" />
+				<entry key="30102" value-ref="crosspayCashierAcquireHandler" />
+				<entry key="30103" value-ref="crosspayCashierPayHandler" />
+				<entry key="30104" value-ref="crosspayRefundHandler" />
+				<entry key="30105" value-ref="crosspayOrderQueryHandler" />
+				<entry key="30212" value-ref="crosspay3DApiAcquireHandler" />
+				<entry key="30213" value-ref="crosspay3DApiCallbackHandler" />
+				<entry key="30241" value-ref="crosspayLocaleAcquireHandler" />
+				<entry key="30116" value-ref="expressTrackingQueryHandler" />
+				<!-- 配置商户域名 -->
+				<entry key="30106" value-ref="partnerWebsiteQueryHandler" />
+				<entry key="30171" value-ref="tradeOrderUpdateHandler" />
+				<entry key="30112" value-ref="partnerConfigQueryHandler" />
+				<!--回调通知使用 -->
+				<entry key="30231" value-ref="paymentCallbackHandler" />
+
+				<entry key="30115" value-ref="currencyExchangeRateQueryHandler" />
+
+				<entry key="30133" value-ref="orgExchangeRateQueryHandler" />
+				<entry key="30135" value-ref="partnerExchangeRateQueryHandler" />
+				<entry key="30183" value-ref="currencyBaseRateQueryHandler" />
+				<entry key="30139" value-ref="preauthRevokeApiAcquireHandler" />
+
+				<entry key="30140" value-ref="refundExecHandler" />
+				<entry key="30141" value-ref="preauthCompApiAcquireHandler" />
+				<entry key="30142" value-ref="preauthApiAcquireHandler" />
+
+				<entry key="30158" value-ref="orgRateQueryHandler" />
+				<entry key="30159" value-ref="completedOrderQueryHandler" />
+
+				<entry key="30163" value-ref="refundAplyOrderQueryHandler" />
+				<entry key="30164" value-ref="currencyRateQueryHandler" />
+				<entry key="30165" value-ref="systemDetectedHandler" />
+
+				<entry key="30184" value-ref="automaticTradeHandler" />
+				<entry key="30188" value-ref="automaticTradeHandler2" />
+				<entry key="30201" value-ref="blackWihteListRefreshHandler" />
+				
+
+				<entry key="10109" value-ref="frozenOrderQueryHandler" />
+				<entry key="10110" value-ref="queryOrderDetailHandler" />
+				<entry key="fi-txncore.updateTradeOrderADataHanlder" value-ref="updateTradeOrderADataHanlder" />
+				<entry key="fi-txncore.cashierAllPayHandler" value-ref="cashierAllPayHandler" />
+				<entry key="txncore.cardBindAndUnbindHandler" value-ref="cardBindAndUnbindHandler" />
+				<entry key="txncore.tokenPayInfoQueryHandler" value-ref="tokenPayInfoQueryHandler" />
+				<entry key="txncore.unbindCardByTokenHandler" value-ref="unbindCardByTokenHandler" />
+				<entry key="txncore.simpleTokenPayInfoQueryHandler" value-ref="simpleTokenPayInfoQueryHandler" />
+				<entry key="txncore.newSettlementRateHandler" value-ref="newSettlementRateHandler" />
+				<entry key="txncore.addErrorCardBindOrderHandler" value-ref="addErrorCardBindOrderHandler" />
+				<entry key="txncore.updateErrorCardBindOrderHandler" value-ref="updateErrorCardBindOrderHandler" />
+				<entry key="txncore.dccRateQuery" value-ref="dccRateQueryHandler"/>
+
+				<entry key="txncore.preAuth" value-ref="crosspayApiPreAuthHandler"/>
+
+				<entry key="txncore.preAuthProcess" value-ref="crosspayApiAuthProcessHandler"/>
+				<!-- add by zhaoyang at 20160919 token绑卡支付  start-->
+				<entry key="txncore.createTokenAndPayHandler" value-ref="createTokenAndPayHandler"></entry>
+				<!-- add by zhaoyang at 20160919 token绑卡支付 end -->
+
+				<entry key="txncore.tokenPayValidation" value-ref="tokenPayValidationHandler"/>
+				
+				<!-- 创建token及预授权API -->
+				<entry key="txncore.tokenPreauthAPI" value-ref="crosspayApiCreateTokenAndPreauthHandler" />
+				<entry key="txncore.cardBindHandler" value-ref="cardBindHandler"/>
+				<entry key="txncore.createTokenPreauthAPI" value-ref="crosspayApiCreateTokenAndPreauthHandler" />
+				<entry key="txncore.tokenPayHandler" value-ref="tokenPayHandler" />
+				<entry key="txncore.tokenPreAuthHandler" value-ref="tokenPreAuthHandler" />
+				<entry key="txncore.chinaLocalAcquireHandler" value-ref="chinaLocalAcquireHandler"/>
+				<entry key="txncore.cancelPreAuthHandler" value-ref="cancelPreAuthHandler"/>
+				<entry key="txncore.crosspayApiWftAcquireHandler" value-ref="crosspayApiWftAcquireHandler" />
+				
+				<entry key="txncore.autoRefundTaskHandler" value-ref="autoRefundTaskHandler" /> <!-- Refund 自动调用Task -->
+				<entry key="txncore.queryRefundStatusHandler" value-ref="queryRefundStatusHandler" /> <!-- Refund 查询状态 -->
+			</map>
+		</constructor-arg>
+	</bean>
+    
+    <bean id="cardBindAndUnbindHandler"
+		class="com.pay.txncore.handler.CardBindAndUnbindHandler">
+		<property name="cardBindService" ref="cardBindService" />
+	</bean>
+	
+	<bean id="addErrorCardBindOrderHandler"
+		class="com.pay.txncore.handler.AddErrorCardBindHandler">
+		<property name="cardBindService" ref="cardBindService" />
+	</bean>
+	
+	<bean id="updateErrorCardBindOrderHandler"
+		class="com.pay.txncore.handler.UpdateErrorCardBindHandler">
+		<property name="cardBindService" ref="cardBindService" />
+	</bean>
+	
+	<bean id="unbindCardByTokenHandler"
+		class="com.pay.txncore.handler.UnbindCardByTokenHandler">
+		<property name="cardBindService" ref="cardBindService" />
+	</bean>
+	
+	<bean id="tokenPayInfoQueryHandler"
+		class="com.pay.txncore.handler.TokenPayInfoQueryHandler">
+		<property name="tokenPayInfoService" ref="tokenPayInfoService" />
+		<property name="securityKey" value="${securityKey}"></property>
+	</bean>
+	
+	<bean id="simpleTokenPayInfoQueryHandler"
+		class="com.pay.txncore.handler.SimpleTokenPayInfoQueryHandler">
+		<property name="tokenPayInfoService" ref="tokenPayInfoService" />
+		<property name="securityKey" value="${securityKey}"></property>
+	</bean>
+
+	<bean id="expressTrackingQueryHandler"
+		class="com.pay.txncore.handler.expresstracking.ExpressTrackingQueryHandler">
+		<property name="expressTrackingService" ref="expressTrackingService" />
+	</bean>
+
+	<bean id="currencyBaseRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyBaseRateQueryHandler">
+		<property name="transBaseService" ref="transactionBaseRateService" />
+		<property name="settleBaseService" ref="settlementBaseRateService" />
+	</bean>
+	
+	<bean id="dccRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.DccRateQueryHandler">
+    	<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="transBaseService" ref="transactionBaseRateService" />
+	</bean>
+
+	<bean id="tradeOrderUpdateHandler"
+		class="com.pay.txncore.crosspay.handler.TradeOrderUpdateHandler">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+	</bean>
+	<bean id="sumeryPaymentHandler"
+		class="com.pay.txncore.crosspay.handler.PaymentSumerQueryHandler">
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="tradeOrderService" ref="tradeOrderService" />
+	</bean>
+
+	<bean id="crosspayApiAcquireHandler"
+		class="com.pay.txncore.crosspay.handler.CrosspayApiAcquireHandler">
+		<property name="apiPayService" ref="txncore-apiPayService" />
+	</bean>
+	
+	<bean id="chinaLocalAcquireHandler"
+		class="com.pay.txncore.crosspay.handler.ChinaLocalAcquireHandler">
+		<property name="localPayService" ref="txncore-chinaLocalPayService" />
+		<property name="channelClientService" ref="channelClientService"></property>
+	</bean>
+
+	<bean id="crosspay3DApiAcquireHandler"
+		class="com.pay.txncore.crosspay.handler.Crosspay3DApiAcquireHandler">
+		<property name="apiPayService" ref="txncore-apiPayService" />
+	</bean>
+
+	<bean id="crosspay3DApiCallbackHandler"
+		class="com.pay.txncore.crosspay.handler.Crosspay3DApiCallbackHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	<!--渠道支付完成回调处理 -->
+	<bean id="paymentCallbackHandler" class="com.pay.txncore.crosspay.handler.PaymentCallbackHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+
+	<bean id="systemDetectedHandler" class="com.pay.txncore.crosspay.handler.SystemDetectedHandler">
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="channelService" ref="channelService" />
+	</bean>
+
+	<bean id="preauthApiAcquireHandler" class="com.pay.txncore.preauth.handler.PreauthApiHandler">
+		<property name="preauthService" ref="txncore-preauthService" />
+	</bean>
+	<bean id="preauthCompApiAcquireHandler" class="com.pay.txncore.preauth.handler.PreauthCompApiHandler">
+		<property name="preauthCompService" ref="txncore-preauthCompService" />
+	</bean>
+	<bean id="preauthRevokeApiAcquireHandler" class="com.pay.txncore.preauth.handler.PreauthRevokeApiHandler">
+		<property name="preauthRevokeService" ref="txncore-preauthRevokeService" />
+	</bean>
+
+	<bean id="crosspayCashierAcquireHandler"
+		class="com.pay.txncore.crosspay.handler.CrosspayCashierAcquireHandler">
+		<property name="cashierPayService" ref="txncore-cashierPayService" />
+	</bean>
+
+	<bean id="crosspayCashierPayHandler"
+		class="com.pay.txncore.crosspay.handler.CrosspayCashierPayHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="cashierPayService" ref="txncore-cashierPayService" />
+		<property name="cardBindService" ref="cardBindService" />
+		
+	</bean>
+
+	<bean id="crosspayRefundHandler" class="com.pay.txncore.crosspay.handler.CrosspayRefundHandler">
+		<property name="refundService" ref="fi-refundService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+	</bean>
+
+	<bean id="refundAplyOrderQueryHandler"
+		class="com.pay.txncore.crosspay.handler.RefundAplyOrderQueryHandler">
+		<property name="refundService" ref="fi-refundService" />
+	</bean>
+
+	<bean id="crosspayOrderQueryHandler"
+		class="com.pay.txncore.crosspay.handler.CrosspayOrderQueryHandler">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="orderQueryService" ref="orderQueryService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="cardBindOrderService" ref="cardBindOrderService"/>
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="securityKey" value="${securityKey}"/>
+	</bean>
+
+	<bean id="completedOrderQueryHandler"
+		class="com.pay.txncore.crosspay.handler.CompletedOrderQueryHandler">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+	</bean>
+
+	<bean id="frozenOrderQueryHandler"
+		class="com.pay.txncore.crosspay.handler.FrozenOrderQueryHandler">
+		<property name="frozenOrderService" ref="frozenOrderService" />
+	</bean>
+
+	<bean id="queryOrderDetailHandler"
+		class="com.pay.txncore.crosspay.handler.QueryOrderDetailHandler">
+		<property name="frozenOrderService" ref="frozenOrderService" />
+	</bean>
+
+	<!-- 配置商户域名 -->
+
+	<bean id="partnerWebsiteQueryHandler"
+		class="com.pay.txncore.handler.websiteconfig.PartnerWebsiteQueryHandler">
+		<property name="partnerWebsiteConfigService" ref="partnerWebsiteConfigService" />
+	</bean>
+
+	<bean id="partnerConfigQueryHandler"
+		class="com.pay.txncore.handler.partnerconfig.PartnerConfigQueryHandler">
+		<property name="partnerConfigService" ref="partnerConfigService" />
+	</bean>
+
+	<bean id="currencyRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyRateQueryHandler">
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="transRateMarkupService" ref="transRateMarkupService" />
+		<property name="transBaseService" ref="transactionBaseRateService" />
+	</bean>
+
+	<bean id="currencyExchangeRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyExchangeRateQueryHandler">
+		<property name="currencyExchangeRateService" ref="currencyExchangeRateService" />
+	</bean>
+
+	<bean id="orgExchangeRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.OrgExchangeRateQueryHandler">
+		<property name="orgExchangeRateService" ref="orgExchangeRateService" />
+	</bean>
+	<!-- delin.dong 本地化 -->
+	<bean id="partnerExchangeRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerExchangeRateQueryHandler">
+		<property name="partnerExchangeRateService" ref="partnerExchangeRateService" />
+	</bean>
+
+	<bean id="crosspayLocaleAcquireHandler"
+		class="com.pay.txncore.crosspay.handler.CrosspayLocaleAcquireHandler">
+		<property name="localPayService" ref="txncore-localPayService" />
+	</bean>
+	<bean id="refundExecHandler" class="com.pay.txncore.handler.refund.RefundExecHandler">
+		<property name="refundService" ref="fi-refundService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="paymentOrderExpandDAO" ref="fi-paymentOrderExpandDAO" />
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeAmountCountService" ref="tradeAmountCountService" />
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="preControllerService" ref="preControllerService"/>
+	</bean>
+
+	<bean id="orgRateQueryHandler" class="com.pay.txncore.handler.rate.OrgRateQueryHandler">
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+
+	<bean id="automaticTradeHandler" class="com.pay.txncore.crosspay.handler.AutomaticTradeHandler">
+		<property name="manualTranSubService" ref="manualTranSubService" />
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="apiPayService" ref="txncore-apiPayService" />
+	</bean>
+
+	<bean id="automaticTradeHandler2" class="com.pay.txncore.crosspay.handler.AutomaticTradeHandler2">
+		<property name="manualTranSubService" ref="manualTranSubService" />
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="apiPayService" ref="txncore-apiPayService" />
+		<property name="redisClient" ref="redisClient" />
+	</bean>
+
+	<bean id="blackWihteListRefreshHandler" class="com.pay.txncore.handler.BlackWihteListRefreshHandler">
+		<property name="riskBlackListService" ref="riskBlackListService" />
+	</bean>
+
+	<bean id="updateTradeOrderADataHanlder" class="com.pay.txncore.handler.UpdateTradeOrderADataHanlder">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+	</bean>
+
+	<bean id="cashierAllPayHandler" class="com.pay.txncore.crosspay.handler.CashierAllPayHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="allChannelPayService" ref="txncore-allChannelPayService" />
+	</bean>
+	<!-- add 2016年8月15日17:41:45 delin  公布最新的清算汇率查询  -->
+	<bean id="newSettlementRateHandler" class="com.pay.txncore.handler.currencycode.NewSettlementRateHandler">
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+
+	<bean id="crosspayApiPreAuthHandler" class="com.pay.txncore.crosspay.handler.CrosspayApiPreAuthHandler">
+		<property name="preAuth2Service" ref="txncore-preAuth2Service"/>
+		<property name="createTokenPreauthService" ref="createTokenPreauthService" />
+	</bean>
+
+	<bean id="crosspayApiAuthProcessHandler" class="com.pay.txncore.crosspay.handler.CrosspayApiAuthProcessHandler">
+		<property name="preAuth2Service" ref="txncore-preAuth2Service"/>
+	</bean>
+	<bean id="createTokenAndPayHandler" class="com.pay.txncore.crosspay.handler.CreateTokenAndPayHandler">
+		<property name="cardBindService" ref="cardBindService"></property>
+	</bean>
+	<bean id="cardBindHandler" class="com.pay.txncore.handler.CardBindHandler">
+		<property name="bindCardService" ref="bindCardService"/>
+	</bean>
+
+	<bean id="cancelPreAuthHandler" class="com.pay.txncore.handler.CancelPreAuthHandler">
+		 <property name="preAuth2Service" ref="txncore-preAuth2Service"/> 
+	</bean>
+	
+	<bean id="tokenPayValidationHandler"
+		  class="com.pay.txncore.handler.TokenPayValidationHandler">
+		<property name="authChaneOrderDAO" ref="authChaneOrderDAO" />
+	</bean>
+	<!-- 创建token及预授权API -->
+	<bean id="crosspayApiCreateTokenAndPreauthHandler" class="com.pay.txncore.crosspay.handler.CrosspayApiCreateTokenAndPreauthHandler">
+		<property name="createTokenPreauthService" ref="createTokenPreauthService" />
+	</bean>
+	<!-- token预授权 -->
+	<bean id="crosspayApiTokenPreauthHandler" class="com.pay.txncore.crosspay.handler.CrosspayApiTokenPreauthHandler">
+		<property name="preAuth2Service" ref="txncore-preAuth2Service" />
+	</bean>
+	<bean id="tokenPayHandler"
+		  class="com.pay.txncore.handler.token.TokenPayHandler">
+		<property name="tokenPayInfoService" ref="tokenPayInfoService"></property>
+		<property name="apiPayService" ref="txncore-apiPayService"></property>
+		<property name="securityKey" value="${securityKey}"></property>
+	</bean>
+
+	<bean id="tokenPreAuthHandler"
+		  class="com.pay.txncore.handler.token.TokenPreAuthHandler">
+		<property name="tokenPayInfoService" ref="tokenPayInfoService"></property>
+		<property name="preAuth2Service" ref="txncore-preAuth2Service"></property>
+		<property name="securityKey" value="${securityKey}"></property>
+	</bean>
+	<!-- 威富通【微信｜支付宝】API -->
+	<bean id="crosspayApiWftAcquireHandler" class="com.pay.txncore.crosspay.handler.CrosspayApiWftAcquireHandler">
+		<property name="apiPayService" ref="txncore-apiPayService" />
+	</bean>
+	<!-- Refund 自动调用Task -->
+	<bean id="autoRefundTaskHandler" class="com.pay.txncore.handler.refund.AutoRefundTaskHandler">
+		<property name="refundService" ref="fi-refundService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+	</bean>
+	<!-- Refund 查询状态 -->
+	<bean id="queryRefundStatusHandler" class="com.pay.txncore.handler.refund.QueryRefundStatusHandler">
+		<property name="refundService" ref="fi-refundService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="paymentOrderExpandDAO" ref="fi-paymentOrderExpandDAO" />
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeAmountCountService" ref="tradeAmountCountService" />
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="preControllerService" ref="preControllerService"/>
+		<property name="refundOrderConfirmService" ref="refundOrderConfirmService"/>
+	</bean>
+
+</beans>

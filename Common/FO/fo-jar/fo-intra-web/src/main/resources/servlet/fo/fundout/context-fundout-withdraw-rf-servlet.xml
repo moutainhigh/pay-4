@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!-- 提现对账模块 Henry_Zeng 建立 -->	
+	<bean name="/fundout-withdraw-reviewfile.do" class="com.pay.fo.controller.fundout.fileservice.ReviewFileController" parent="withdrawBaseController">
+			<property name="fileHandlerService" ref="fundout-withdraw-foparserfilehandler" />
+			<property name="reconcileResultService" ref="fundout-withdraw-wdreconcileresultserviceimpl" />
+			<property name="queryBatchFileService" ref="fundout-withdraw-querybatchfileservice" />
+			<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+			<property name="urlMap">
+				<map>
+					<entry key="initImport" value="/withdraw/reviewfile/fileUpload" />
+					<entry key="reviewInit" value="/withdraw/reviewfile/reviewInit" />
+					<entry key="reviewScuess" value="/withdraw/reviewfile/reviewMatchOkList" />
+					<entry key="reviewNoMatch" value="/withdraw/reviewfile/reviewDisMatchList" />
+					<entry key="queryReviewInit" value="/withdraw/reviewfile/importedFileInit" />
+					<entry key="queryReviewList" value="/withdraw/reviewfile/importedFileList" />
+				</map>
+			</property>
+	</bean> 
+	
+</beans>

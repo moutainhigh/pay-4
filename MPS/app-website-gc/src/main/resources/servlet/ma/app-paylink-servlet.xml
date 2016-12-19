@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!-- Controller -->
+<beans>
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+<!--         <property name="order" value="2" /> -->
+        <property name="ignoreUnresolvablePlaceholders" value="true" />
+        <property name="locations">
+            <list>
+                <value>file:/opt/pay/config/app/commonconfigure.properties</value>
+                <value>file:/opt/pay/env/fstoken.properties</value>
+            </list>
+        </property>
+    </bean>
+	<!-- 支付链Controller url映射 -->
+	<bean id="payLinkUrlMapping"
+			class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/paylink.htm">payLinkController</prop>
+				<prop key="/corp/paylinkTransaction.htm">payLinkTransactionController</prop>
+				<prop key="/corp/payLinkUpload.htm">payLinkUploadController</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- 支付链支付Controller url映射 -->
+<!-- 	<bean id="payLinkPayUrlMapping" class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping"> -->
+<!-- 		<property name="mappings"> -->
+<!-- 			<props> -->
+<!-- 				<prop key="/paylinkGened.htm">payLinkPayController</prop> -->
+<!-- 			</props> -->
+<!-- 		</property> -->
+<!-- 	</bean> -->
+	
+	<bean id="payLinkController" class="com.pay.app.controller.base.paylink.PayLinkController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="indexView" value="/paylink/payLinkGenerate"/><!-- /paylink/payLinkGenerate -->
+		<property name="queryView" value="/paylink/payLinkQuery"/>
+		<property name="basicInfo" value="/paylink/payLinkBasicInfo"/>
+		<property name="shopTermView" value="/paylink/shopTerm"/>
+		<property name="contactView" value="/paylink/contact"/>
+		<property name="payLinkInvalidView" value="/paylink/payLinkInvalid"/>
+		
+		<property name="payLinkDetailView" value="/paylink/payLinkDetail"/>
+		<property name="cloneView" value="/paylink/clone"/>
+		<property name="excelView" value="/paylink/excelDown"/>
+		<property name="previewView" value="/paylink/payLinkPreview" />
+		
+		<property name="payLinkService" ref="payLinkService" />
+		<property name="shoptermFileService" ref="shoptermFileService" />
+		<property name="logoPicService" ref="logoPicService" />
+		<property name="basePath" value="${paylink.pay.basePath}" />
+		<property name="ossKey" value="${mpsposs.oss.key}" />
+		<property name="ossSubDir" value="logo" />
+		<property name="ossRootDir" value="mpsposs" />
+	</bean>
+	
+	<bean id="payLinkTransactionController" class="com.pay.app.controller.base.paylink.PayLinkTransactionController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="indexView" value="/paylink/transaction/transactionQuery"/>
+		<property name="detailView" value="/paylink/transaction/singleTransactionDetail"/>
+		<property name="refundQueryView" value="/paylink/transaction/refundQuery"/>
+		<property name="refundApply" value="/paylink/transaction/refundApply"/>
+		<property name="excelDownView" value="/paylink/transaction/transactionDown"/>
+		<property name="refundExcelDownView" value="/paylink/transaction/refundDown"/>
+		
+		<property name="payLinkTransactionService" ref="payLinkTransactionService"/>
+		<property name="orderQueryService" ref="fi-orderQueryService" />
+		
+	</bean>
+	
+   	<!-- <bean id="payChainUploadController" class="com.pay.app.controller.base.paychain.BaseUploadController">
+		<property name="payChainUploadService">
+			<ref bean="base-payChainUploadService"/>
+		</property>
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+   </bean> -->
+   <bean id="payLinkUploadController" class="com.pay.app.controller.base.paylink.PayLinkUploadController">
+   		<property name="methodNameResolver">
+   			<ref bean="paramResolver"/>
+   		</property>
+   		<property name="payLinkUploadService" ref="payLinkUploadService" />
+   		<property name="ossKey" value="${mpsposs.oss.key}" />
+		<property name="ossRootDir" value="mpsposs" />
+		<property name="ossSubDir" value="logo" />
+   </bean>
+  
+   <!-- 支付链支付Controller -->
+<!--    <bean id="payLinkPayController" class="com.pay.app.controller.base.paylink.PayLinkPayController"> -->
+<!--    		<property name="methodNameResolver"> -->
+<!--    			<ref bean="paramResolver"/> -->
+<!--    		</property> -->
+   		
+<!--    		<property name="indexView" value="/paylink/pay/payLinkPay" /> -->
+<!--    		<property name="invalidView" value="/paylink/pay/linkNumError" /> -->
+   		
+<!--    		<property name="payLinkService" ref="payLinkService" /> -->
+   		
+<!--    </bean> -->
+   
+</beans>

@@ -1,0 +1,844 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>Payment chain pay</title>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+<style type="text/css">
+	form input{padding:2px 5px;}
+</style>
+<script type="text/javascript">
+	$(function(){
+		$(".go").click(function(){
+			var _index = $(this).attr('index') ;
+			//if(null == _index )
+			var checkFlag = nullCheck(_index) ;
+			if(!checkFlag) return false ;
+			//当前tbody
+			var $thisTb = $(this).parent("div").parent("td").parent("tr").parent("tbody") ;
+			var $preTb = $thisTb.prev("tbody") ;
+			//下一个需要展示tbody
+			var $nextTargetTb = $thisTb.next("tbody").next("tbody").next("tbody") ;
+			$thisTb.css("display", "none") ;
+			$preTb.find("tr").find("td").find("a").css("display", "block") ;
+			$nextTargetTb.removeAttr("style") ;
+		}) ;
+		$(".updateA").click(function(){
+			//当前tbody
+			var $thisTb = $(this).parent("td").parent("tr").parent("tbody") ;
+			//额……干掉小辈兄弟a
+			var $prevUpdateA = $thisTb.nextAll("tbody").not(":last").has("a") ;
+			var $a = $prevUpdateA.find("a") ;
+			$a.css('display', 'none') ;
+			//下一个tbody
+			var $nextTb = $thisTb.next("tbody") ;
+			$(this).css('display', 'none') ;
+			var $thisTbPrevs = $thisTb.prevAll("tbody") ;
+			$thisTbPrevs.each(function(n, o){
+				if($(o).hasClass("show_or_hide")){
+					$(o).css('display', 'none') ;
+				}
+			}) ;
+			var $thisTbNexts = $thisTb.nextAll("tbody") ;
+			$thisTbNexts.each(function(n, o){
+				if($(o).hasClass("show_or_hide")){
+					$(o).css('display', 'none') ;
+				}
+			}) ;
+			$nextTb.removeAttr("style") ;
+		}) ;
+	}); 
+	//使用账单信息作为收货信息
+	$(function(){
+		$("#copyStep1").click(function(){
+			var val = $(this).attr("checked") ;
+			if(val == true || val == "checked"){
+				$("#shippingName").val($("#billName").val()) ;
+				$("#shippingAddress").val($("#billAddress").val()) ;
+				$("#shippingPostalCode").val($("#billPostalCode").val()) ;
+				$("#shippingCountryCode").val($("#billCountryCode").val()) ;
+				$("#shippingState").val($("#billState").val()) ;
+				$("#shippingCity").val($("#billCity").val()) ;
+				$("#shippingPhoneNumber").val($("#billPhoneNumber").val()) ;
+				$("#shippingMail").val($("#billEmail").val()) ;
+			}else{
+				$("#shippingName").val("") ;
+				$("#shippingAddress").val("") ;
+				$("#shippingPostalCode").val("") ;
+				$("#shippingCountryCode").val("") ;
+				$("#shippingState").val("") ;
+				$("#shippingCity").val("") ;
+				$("#shippingPhoneNumber").val("") ;
+				$("#shippingMail").val("") ;
+			}
+		}) ;
+	}) ;
+</script>
+</head>
+<body>
+<!--导航 str-->
+<div class="header" style="width:980px;margin:5px auto 20px;"><!-- margin-top:5px;margin-right:400px;margin-left:400px;margin-bottom:20px; -->
+		<div style="float:left;">
+			<!-- <img src="/static/mps/images/logo.png" alt=""> -->
+			<img src="/file${payLink.logoPath}" alt="image not found" style="width:120px; height:80px;"> 
+		</div>
+        <div style="flat:left;width:200px;margin-top: 13px;float: left;font-size: 20px;color: #333;margin-left:20px;font-weight:bold;">
+        	Payment chain pay
+        </div>
+        <div class="fr p5 c_999">
+            <label class="blue mr10">
+				<!-- admin
+			 您好！ -->
+		</label>
+        <!-- <a href="/website/logout.htm?mtype=2">退出</a> |  -->
+        </div>
+        <div style="clear:both;"></div>
+</div>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a mt5">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg orderScs">
+			
+			<div class="tit_box">
+				<h3 class="title f14">Payment chain pay</h3>
+			</div>
+
+			<form class="form" action="${rc.contextPath}/gcpaylinkapi.htm" method="post" name="" id="" enctype="multipart/form-data">
+				
+				<input type="hidden" name="version" id="version" value="1.0"/>
+				<input type="hidden" name="orderId" id="orderId" value="${orderId?default('')}"/>
+				<!-- 下单商品显示名 -->
+				<input type="hidden" name="displayName" id="displayName" value="${payLink.productName?default('')}"/>
+				<input type="hidden" name="goodsName" id="goodsName" value="${payLink.productName?default('')}"/>
+				<input type="hidden" name="goodsDesc" id="goodsDesc" value="${payLink.productName?default('')}"/>
+				<input type="hidden" name="submitTime" id="submitTime" value=""/>
+				<input type="hidden" name="failureTime" id="failureTime" value=""/>
+				<!-- <input type="hidden" name="customerIP" id="customerIP" value="45.56.85.146"/> -->
+				<input type="hidden" name="siteId" id="siteId" value="www.pay.com"/>
+				<input type="hidden" name="orderAmount" id="orderAmount" value="${(payLink.totalAmount?number?default(0))}"/>
+				<input type="hidden" name="payerAuth" id="payerAuth" value="0"/>
+				<!-- 支付链收款 -->
+				<input type="hidden" name="tradeType" id="tradeType" value="1000"/>
+				<input type="hidden" name="payType" id="payType" value="ALL"/>
+				<input type="hidden" name="currencyCode" id="currencyCode" value="${currencyCode?default('')}"/>
+				<!-- <input type="hidden" name="settlementCurrencyCode" id="settlementCurrencyCode" value="${currencyCode?default('')}"/> -->
+				<!-- 资金来源标识 -->
+				<input type="hidden" name="borrowingMarked " id="borrowingMarked " value="0"/>
+				<input type="hidden" name="couponFlag " id="couponFlag " value="1"/>
+				<!-- <input type="hidden" name="noticeUrl" id="noticeUrl" value="http://localhost/gatewayTest/notify"/> -->
+				<input type="hidden" name="partnerId" id="partnerId" value="${payLink.memberCode?default('')}"/>
+				<!-- 收单方式,后台处理 -->
+				<!-- <input type="hidden" name="paymentWay" id="paymentWay" value="C"/> -->
+				<!--  -->
+				<input type="hidden" name="payMode" id="payMode" value="10" />
+				<input type="hidden" name="deviceFingerprintId" id="deviceFingerprintId" value="dsfds" />
+				<input type="hidden" name="orderTerminal" id="orderTerminal" value="00"/>
+				<input type="hidden" name="charset" id="charset" value="1">
+				<input type="hidden" name="signType" id="signType" value="2">
+				
+				<!-- 支付链不存在的字段 -->
+				<!-- 账单街道 -->
+				<!-- 支付链ID -->
+				<input type="hidden" name="payLinkNo" id="payLinkNo" value="${payLink.paylinkNo?number?default(0)}"/>
+				<!-- logo网址 -->
+				<input type="hidden" name="merchantSite" value="${payLink.merchantSite?default('')}"/>
+				
+				<table class="tab03">
+					<tbody>
+						<br/>
+						<tr>
+							<td colspan="4" style="background-color:#F1F1F1;text-align:left;" >
+								Merchant Website：${payLink.merchantSite?default('')}<!-- 商户网址 -->
+							</td>
+							<td colspan="2" style="background-color:#F1F1F1;text-align:right;" >
+								<font style="color:red;font-size:18px;font-weight:bold;">${((payLink.productAmount?number?default(0))/100)?string("#,##0.00")}</font>&nbsp;
+							</td>
+						</tr>
+						<tr>
+							<td width="228px">Item</td>
+							<td width="216px">Model</td>
+							<td width="156px">Quantity</td>
+							<td width="81px">Unit Price</td>
+							<td width="77px">Currency</td>
+							<td width="113px">URL</td>
+						</tr>
+						<#if payLinkAttribs ? has_content>
+							<#list payLinkAttribs as attrib>
+								<tr>
+									<td>${attrib.productName!('')}</td>
+									<td>${attrib.productSpec!('')}</td>
+									<td>${attrib.productNum?default(0)}</td>
+									<td>${(attrib.price?default(0)?number/100)?string("#,##0.00")}</td>
+									<td>${attrib.currencyCode!('')}</td>
+									<td>${attrib.site!('')}</td>
+								</tr>
+							</#list>
+						</#if>
+						<tr>
+							<td colspan="6" style="border:0px;"></td>
+						</tr>
+					</tbody>
+					
+					<tbody>
+						<tr>
+							<td colspan="4" style="border-right:0px;background-color:#F1F1F1;text-align:left;" >
+								step1：Billing Information
+							</td>
+							<td colspan="2" style="border-left:0px;background-color:#F1F1F1;text-align:left;">
+								 <a href="javascript:void(0);" style="color:#2850FA;display:none;" class="updateA">Edit&nbsp;》》</a> 
+							</td>
+						</tr>
+					</tbody>
+					<tbody class="show_or_hide">
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing Name：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billName" id="billName" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing Country：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<!-- <input type="text" name="billCountryCode" id="billCountryCode" value="" onblur="blurFun(this);"/> -->
+								<select name="billCountryCode" id="billCountryCode" style="padding:2px 5px;width: 160px;" onchange="countryChange(this);">
+									<option value="">--- Please choose ---</option>
+									<#if countries ? has_content>
+										<#list countries as c>
+											<option value="${c.countryNameEn?default('')}">${c.countryNameEn?default('')}</option>
+										</#list>
+									</#if>
+								</select>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing State：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billState" id="billState" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing City：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billCity" id="billCity" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing Address：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billAddress" id="billAddress" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing Postal Code：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billPostalCode" id="billPostalCode" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						
+						
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing Phone Number：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billPhoneNumber" id="billPhoneNumber" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Billing Email：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="billEmail" id="billEmail" value="" onblur="blurFun(this, 'email');"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td colspan="4" style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color:red;">Please fill in the effective Email.We will send your order information to the Email.</font></div>
+							</td>
+							<td colspan="2" style="border:0px;padding-left:10px;">
+								<div align="left"><input type="button" value="Next" index="0" class="go"/></div>
+							</td> 
+						</tr>
+					</tbody>
+					
+					<tbody><tr><td style="border:0px;"></td></tr></tbody>
+					<tbody>
+						<tr>
+							<td colspan="4" style="border-right:0px;background-color:#F1F1F1;text-align:left;" >
+								step2：Shipping information
+							</td>
+							<td colspan="2" style="border-left:0px;background-color:#F1F1F1;text-align:left;">
+								 <a href="javascript:void(0);" style="color:#2850FA;display:none;" class="updateA">Edit&nbsp;》》</a> 
+							</td>
+						</tr>
+					</tbody>
+					<tbody style="display:none;" class="show_or_hide">
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;text-align:left;">
+								<input type="checkbox" id="copyStep1" /><font style="color:red;">Use billing information as the shipping information</font>
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping Name：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingName" id="shippingName" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping Country：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<!-- <input type="text" name="shippingCountryCode" id="shippingCountryCode" value="" onblur="blurFun(this);"/> -->
+								<select name="shippingCountryCode" id="shippingCountryCode" style="padding:2px 5px;width: 160px;" onchange="countryChange(this) ;">
+									<option value="">--- Please choose ---</option>
+									<#if countries ? has_content>
+										<#list countries as c>
+											<option value="${c.countryNameEn?default('')}">${c.countryNameEn?default('')}</option>
+										</#list>
+									</#if>
+								</select>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping State：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingState" id="shippingState" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping City：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingCity" id="shippingCity" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping Address：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingAddress" id="shippingAddress" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping Postal Code：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingPostalCode" id="shippingPostalCode" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping Phone Number：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingPhoneNumber" id="shippingPhoneNumber" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;padding-left:10px;">
+								<div align="left"><font style="color: red;">*</font>Shipping Email：</div>
+							</td>
+							<td style="border:0px;text-align: left;">
+								<input type="text" name="shippingMail" id="shippingMail" value="" onblur="blurFun(this, 'email');"/>
+							</td>
+							<td colspan="2" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+							<td colspan="2" style="border:0px;text-align:left;">
+								<div><input type="button" value="Next" index="1" class="go"/></div>
+							</td>
+						</tr>
+					</tbody>
+					
+					<tbody><tr><td style="border:0px;"></td></tr></tbody>
+					<tbody>
+						<tr>
+							<td colspan="4" style="border-right:0px;background-color:#F1F1F1;text-align:left;" >
+								step3：Method Of Payment
+							</td>
+							<td colspan="2" style="border-left:0px;background-color:#F1F1F1;text-align:left;">
+								 <a href="javascript:void(0);" style="color:#2850FA;display:none;" class="updateA">Edit&nbsp;》》</a> 
+							</td>
+						</tr>
+					</tbody>
+					<tbody style="display:none;" class="show_or_hide">
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;text-align:left;">
+								<font style="color:red;">Please fill in the order of payment information</font>
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;">We Accept:</td>
+							<td style="border:0px;">
+								<img src="<@sp.static/>/img/paylink/visa.png" alt="image not found"/>
+							</td>
+							<td style="border:0px;">
+								<img src="<@sp.static/>/img/paylink/master.png" alt="image not found"/>
+							</td>
+							<td style="border:0px;">
+								<img src="<@sp.static/>/img/paylink/jcb.png" alt="image not found"/>
+							</td>
+							<td colspan="2" style="border:0px;text-align:left;color:red;display:none;">&nbsp;</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>Card Number:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="cardHolderNumber" id="cardHolderNumber" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>Expiration Date:</td>
+							<td style="border:0px;text-align: left">
+								<select name="cardExpirationMonth" id="cardExpirationMonth" onchange="ExpirationDateChange(this, 'Month')">
+									<option value="">Month</option>
+									<option value="01">1</option>
+									<option value="02">2</option>
+									<option value="03">3</option>
+									<option value="04">4</option>
+									<option value="05">5</option>
+									<option value="06">6</option>
+									<option value="07">7</option>
+									<option value="08">8</option>
+									<option value="09">9</option>
+									<option value="10">10</option>
+									<option value="11">11</option>
+									<option value="12">12</option>
+								</select>
+								<select name="cardExpirationYear" id="cardExpirationYear" onchange="ExpirationDateChange(this, 'Year')">
+									<option value="">Year</option>
+									<option value="2015">2015</option>
+									<option value="2016">2016</option>
+									<option value="2017">2017</option>
+									<option value="2018">2018</option>
+									<option value="2019">2019</option>
+									<option value="2020">2020</option>
+									<option value="2021">2021</option>
+									<option value="2022">2022</option>
+									<option value="2023">2023</option>
+									<option value="2024">2024</option>
+									<option value="2025">2025</option>
+									<option value="2026">2026</option>
+								</select>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>First Name:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="cardHolderFirstName" id="cardHolderFirstName" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>Last Name:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="cardHolderLastName" id="cardHolderLastName" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+						</tr>
+						<!-- <tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>支付人邮箱:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="cardHolderEmail" id="cardHolderEmail" value="test@test.com" onblur="blurFun(this, 'email');"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">支付人邮箱不能为空</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>支付人手机:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="cardHolderPhoneNumber" id="cardHolderPhoneNumber" value="18918435383" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="4" style="border:0px;text-align:left;color:red;display:none;">支付人手机不能为空</td>
+						</tr> -->
+						<tr>
+							<td style="border:0px;text-align: right;"><font style="color:red">*</font>CVV2 Code:</td>
+							<td style="border:0px;text-align: left">
+								<input type="text" name="securityCode" id="securityCode" value="" onblur="blurFun(this);"/>
+							</td>
+							<td colspan="2" style="border:0px;text-align:left;color:red;display:none;">This field is required.</td>
+							<td colspan="2" style="border:0px;text-align:left;">
+								<div><input type="button" value="Next" index="2" class="go"/></div>
+							</td>
+						</tr>
+					</tbody>	
+					
+					<tbody><tr><td style="border:0px;"></td></tr></tbody>
+					<tbody>
+						<tr>
+							<td colspan="6" style="background-color:#F1F1F1;text-align:left;" >
+								step4：Comfirm the order
+							</td>
+						</tr>
+					</tbody>
+					<tbody style="display: none;" class="show_or_hide">
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;text-align:left;">
+								<font style="color:red;">Please confirm the order of payment information</font>
+							</td>
+							<td colspan="4" style="border:0px;"></td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;padding-left:10px;">Sub-Total：</td>
+							<td style="border:0px;text-align: left;">
+								<font>${(payLink.productAmount?number?default(0)/100)?string("#,##0.00")}</font>
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;padding-left:10px;">Fee：</td>
+							<td style="border:0px;text-align: left;">
+								<font>${(payLink.fee?number?default(0)/100)?string("#,##0.00")}</font>
+							</td>
+						</tr>
+						<tr>
+							<td style="border:0px;text-align: right;padding-left:10px;">Total Amount：</td>
+							<td style="border:0px;text-align: left;">
+								<font id="totalAmount">${(payLink.totalAmount?number?default(0)/100)?string("#,##0.00")}</font>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" style="border:0px;padding-left:10px;">
+								accept the license&nbsp;&nbsp;
+								<a href="/file/${pathTail}" style="color:#0000FF;" target="_blank">
+									<#if shoptermsName?has_content>${shoptermsName?default('')}</#if>
+								</a>&nbsp;&nbsp;&nbsp;&nbsp;
+								<input type="checkbox" id="shoptermname" />
+							</td>
+							<td colspan="4" style="border:0px;text-align: left;">
+								<input type="submit" onclick="javascript:setOrderId() ;return nullCheck(3);" value="Submit Payment" class="btn_blue" style="width:184px;"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+
+<script type="text/javascript">
+	 function setOrderId(f){
+		
+		/* var myDate = new Date();
+		//f.orderId.value=myDate.getTime();
+		$("#orderId").val(myDate.getTime()) ; */
+		var myDate = new Date();
+	    myDate.getYear();       //获取当前年份(2位)
+	    myDate.getFullYear();   //获取完整的年份(4位,1970-????)
+	    myDate.getMonth();      //获取当前月份(0-11,0代表1月)
+	    myDate.getDate();       //获取当前日(1-31)
+	    myDate.getDay();        //获取当前星期X(0-6,0代表星期天)
+	    myDate.getTime();       //获取当前时间(从1970.1.1开始的毫秒数)
+	    myDate.getHours();      //获取当前小时数(0-23)
+	    myDate.getMinutes();    //获取当前分钟数(0-59)
+	    myDate.getSeconds();    //获取当前秒数(0-59)
+	    myDate.getMilliseconds();   //获取当前毫秒数(0-999)
+	    myDate.toLocaleDateString();    //获取当前日期
+	    var mytime=myDate.toLocaleTimeString();    //获取当前时间
+	    myDate.toLocaleString();       //获取日期与时间
+	
+		var x = myDate.getFullYear()+'';
+		var y = myDate.getFullYear()+1+'';
+	    
+	    if(myDate.getMonth()+1<10){
+	    	x += '0'+(myDate.getMonth()+1);
+	    	y += '0'+(myDate.getMonth()+1);
+	    }
+	    else{
+	    	x+=myDate.getMonth()+1;
+	    	y+=myDate.getMonth()+1;
+	    }
+	    
+	    if(myDate.getDate()<10){
+	    	x += '0'+myDate.getDate();
+	    	y += '0'+myDate.getDate();
+	    }
+	    else{
+	    	x +=myDate.getDate();
+	    	y +=myDate.getDate();
+	    }
+	    
+	    if(myDate.getHours()<10){
+	    	x += '0'+myDate.getHours();
+	    	y += '0'+myDate.getHours();
+	    }
+	    else{
+	    	x +=myDate.getHours();
+	    	y +=myDate.getHours();
+	    }
+	    
+	    if(myDate.getMinutes()<10){
+	    	x += '0'+myDate.getMinutes();
+	    	y += '0'+myDate.getMinutes();
+	    }
+	    else{
+	    	x +=myDate.getMinutes();
+	    	y +=myDate.getMinutes();
+	    }
+	    
+	    if(myDate.getSeconds()<10){
+	    	x += '0'+myDate.getMinutes();
+	    	y += '0'+myDate.getMinutes();
+	    }
+	    else{
+	    	x +=myDate.getSeconds();
+	    	y +=myDate.getSeconds();
+	    }
+	    if(x.length = 15){
+			x = x.substr(0, 14)
+		}
+		if(y.length = 15){
+			y = y.substr(0, 14)
+		}
+	    document.getElementById("submitTime").value = x;
+		document.getElementById("failureTime").value = y;
+		
+    } 
+</script>
+<script type="text/javascript">
+	function nullCheck(_index){
+		var _index = _index ;
+		if(_index == 0){
+			//账单信息验证
+			var billName = $("#billName").val() ;
+			if(null == billName || "" == billName){
+				$("#billName").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			
+			var billCountryCode = $("#billCountryCode").find("option:selected").val() ;
+			if(null == billCountryCode || "" == billCountryCode){
+				$("#billCountryCode").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var billState = $("#billState").val() ;
+			if(null == billState || "" == billState){
+				$("#billState").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var billCity = $("#billCity").val() ;
+			if(null == billCity || "" == billCity){
+				$("#billCity").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var billAddress = $("#billAddress").val() ;
+			if(null == billAddress || "" == billAddress){
+				$("#billAddress").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var billPostalCode = $("#billPostalCode").val() ;
+			if(null == billPostalCode || "" == billPostalCode){
+				$("#billPostalCode").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var billPhoneNumber = $("#billPhoneNumber").val() ;
+			if(null == billPhoneNumber || "" == billPhoneNumber){
+				$("#billPhoneNumber").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var billEmail = $("#billEmail").val() ;
+			if(null == billEmail || "" == billEmail){
+				$("#billEmail").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+		}
+		else if(_index == 1){
+			//收货信息验证
+			var shippingName = $("#shippingName").val() ;
+			if(null == shippingName || "" == shippingName){
+				$("#shippingName").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			
+			var shippingCountryCode = $("#shippingCountryCode").find("option:selected").val() ;
+			if(null == shippingCountryCode || "" == shippingCountryCode){
+				$("#shippingCountryCode").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var shippingState = $("#shippingState").val() ;
+			if(null == shippingState || "" == shippingState){
+				$("#shippingState").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var shippingCity = $("#shippingCity").val() ;
+			if(null == shippingCity || "" == shippingCity){
+				$("#shippingCity").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var shippingAddress = $("#shippingAddress").val() ;
+			if(null == shippingAddress || "" == shippingAddress){
+				$("#shippingAddress").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var shippingPostalCode = $("#shippingPostalCode").val() ;
+			if(null == shippingPostalCode || "" == shippingPostalCode){
+				$("#shippingPostalCode").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			
+			var shippingPhoneNumber = $("#shippingPhoneNumber").val() ;
+			if(null == shippingPhoneNumber || "" == shippingPhoneNumber){
+				$("#shippingPhoneNumber").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var shippingMail = $("#shippingMail").val() ;
+			if(null == shippingMail || "" == shippingMail){
+				$("#shippingMail").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+		}
+		else if(_index ==2){
+			//支付方式验证
+			var cardHolderNumber = $("#cardHolderNumber").val() ;
+			if(null == cardHolderNumber || "" == cardHolderNumber){
+				$("#cardHolderNumber").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			//有效期月
+			var cardExpirationMonth = $("#cardExpirationMonth").find("option:selected").val() ;
+			if(cardExpirationMonth == "Month" || "" == cardExpirationMonth){
+				$("#cardExpirationMonth").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			//有效期年
+			var cardExpirationYear = $("#cardExpirationYear").find("option:selected").val() ;
+			if(cardExpirationYear == "Year" || cardExpirationYear =="" ){
+				$("#cardExpirationYear").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var cardHolderFirstName = $("#cardHolderFirstName").val() ;
+			if(null == cardHolderFirstName || "" == cardHolderFirstName){
+				$("#cardHolderFirstName").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var cardHolderLastName = $("#cardHolderLastName").val() ;
+			if(null == cardHolderLastName || "" == cardHolderLastName){
+				$("#cardHolderLastName").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+			var securityCode = $("#securityCode").val() ;
+			if(null == securityCode || "" == securityCode){
+				$("#securityCode").parent("td").next("td").css('display', 'inline-block') ;
+				return false ;
+			}
+		}
+		else if(_index ==3){
+			//校验
+			var shoptermname = $("#shoptermname").attr("checked") ;
+			if(shoptermname == false){
+				//alert("请阅读并同意购物条款信息！") ;
+				alert("Please read and accept the license！") ;
+				return false ;
+			}
+			
+		}else{
+			alert("please fill in the required field！") ;
+			return false ;
+		}
+		//
+		
+		return true ;
+	}
+	//校验字段失焦
+	function blurFun(eleDom, email){
+		$this = $(eleDom) ;
+		//邮箱验证
+		if(email == undefined){
+			email = "" ;
+		}
+		if(null != email && "" != email){
+			var reg1 = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/ ;
+			var reg2 = /^[a-z\d]+(\.[a-z\d]+)*@([\da-z](-[\da-z])?)+(\.{1,2}[a-z]+)+$/ ;
+			var result1 = reg1.test($this.val()) ;
+			var result2 = reg2.test($this.val()) ;
+			if(result1 == false && result2 == false){
+				alert("Illegal email！") ;
+				$this.val('') ;
+				return false ;
+			}
+		}else{
+			//错误提示信息隐藏
+			var thisVal = $this.val() ;
+			if(null != thisVal && "" != thisVal){
+				$this.parent("td").next("td").css('display', 'none') ;
+			}
+		}
+		
+	}
+	//有效期失焦
+	function ExpirationDateChange(obj, date){
+		$this = $(obj) ;
+		var selVal = $this.find("option:selected").val() ;
+		if("Month" == date){
+			if(null != selVal && "" != selVal && "Month" != selVal){
+				$this.parent("td").next("td").css('display', 'none') ;
+			}
+		}
+		if("Year" == date){
+			if(null != selVal && "" != selVal && "Year" != selVal){
+				$this.parent("td").next("td").css('display', 'none') ;
+			}
+		}
+	}
+	//国家
+	function countryChange(obj){
+		$this = $(obj) ;
+		var country = $this.find("option:selected").val() ;
+		if(null != country && "" != country){
+			$this.parent("td").next("td").css('display', 'none') ;
+		}
+	}
+</script>
+
+</body>
+</html>

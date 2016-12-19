@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="accountSpecification">
+	<typeAlias alias="accountSpecification" type="com.pay.pe.model.AccountSpecification"/>
+    <resultMap id="accountSpecification" class="com.pay.pe.model.AccountSpecification">
+        <result column="ORG_TYPE" property="orgType" jdbcType="DECIMAL"/>
+        <result column="NON_CURRENCY_UNIT" property="nonCurrencyUnit" jdbcType="VARCHAR"/>
+        <result column="PRECISION" property="precision" jdbcType="DECIMAL"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="ACCT_CODE" property="acctCode" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="ACCT_LEVEL" property="acctLevel" jdbcType="DECIMAL"/>
+        <result column="NEGATIVE_BALANCE" property="negativeBalance" jdbcType="DECIMAL"/>
+        <result column="ACCT_TYPE" property="acctType" jdbcType="DECIMAL"/>
+        <result column="CHILD_ORG_TYPE" property="childOrgType" jdbcType="DECIMAL"/>
+        <result column="SUMMARIZE_TO" property="summarizeTo" jdbcType="DECIMAL"/>
+        <result column="REFERABLE" property="referable" jdbcType="DECIMAL"/>
+        <result column="CHILD_BEORG" property="childBeorg" jdbcType="DECIMAL"/>
+        <result column="SUM_ACCT_UPDATE_METHOD" property="sumAcctUpdateMethod" jdbcType="DECIMAL"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="DECIMAL"/>
+        <result column="ACCT_NAME" property="acctName" jdbcType="VARCHAR"/>
+        <result column="ACCT_DIARY_UPDATE_METHOD" property="acctDiaryUpdateMethod" jdbcType="DECIMAL"/>
+        <result column="IS_MEMBER_ACCT" property="isMemberAcct" jdbcType="DECIMAL"/>
+        <result column="DESCRIBE" property="describe" jdbcType="VARCHAR"/>
+        <result column="BALANCE_BY" property="balanceBy" jdbcType="DECIMAL"/>
+        <result column="ACCT_CONTENT" property="acctContent" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="accountSpecification">
+        INSERT INTO SUBJECT(
+			ORG_TYPE,NON_CURRENCY_UNIT,PRECISION,CURRENCY_CODE,ACCT_CODE,
+			STATUS,ACCT_LEVEL,NEGATIVE_BALANCE,ACCT_TYPE,CHILD_ORG_TYPE,
+			SUMMARIZE_TO,REFERABLE,CHILD_BEORG,SUM_ACCT_UPDATE_METHOD,ORG_CODE,
+			ACCT_NAME,ACCT_DIARY_UPDATE_METHOD,IS_MEMBER_ACCT,DESCRIBE,BALANCE_BY,
+			ACCT_CONTENT
+        )
+        VALUES(
+            #orgType#,#nonCurrencyUnit#,#precision#,#currencyCode#,#acctCode#,
+			#status#,#acctLevel#,#negativeBalance#,#acctType#,#childOrgType#,
+			#summarizeTo#,#referable#,#childBeorg#,#sumAcctUpdateMethod#,#orgCode#,
+			#acctName#,#acctDiaryUpdateMethod#,#isMemberAcct#,#describe#,#balanceBy#,
+			#acctContent#
+		)
+    </insert>
+
+    <update id="update" parameterClass="accountSpecification">
+        UPDATE SUBJECT
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="orgType">
+            ORG_TYPE = #orgType#
+        </isNotNull>
+        <isNotNull prepend="," property="nonCurrencyUnit">
+            NON_CURRENCY_UNIT = #nonCurrencyUnit#
+        </isNotNull>
+        <isNotNull prepend="," property="precision">
+            PRECISION = #precision#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="acctLevel">
+            ACCT_LEVEL = #acctLevel#
+        </isNotNull>
+        <isNotNull prepend="," property="negativeBalance">
+            NEGATIVE_BALANCE = #negativeBalance#
+        </isNotNull>
+        <isNotNull prepend="," property="acctType">
+            ACCT_TYPE = #acctType#
+        </isNotNull>
+        <isNotNull prepend="," property="childOrgType">
+            CHILD_ORG_TYPE = #childOrgType#
+        </isNotNull>
+        <isNotNull prepend="," property="summarizeTo">
+            SUMMARIZE_TO = #summarizeTo#
+        </isNotNull>
+        <isNotNull prepend="," property="referable">
+            REFERABLE = #referable#
+        </isNotNull>
+        <isNotNull prepend="," property="childBeorg">
+            CHILD_BEORG = #childBeorg#
+        </isNotNull>
+        <isNotNull prepend="," property="sumAcctUpdateMethod">
+            SUM_ACCT_UPDATE_METHOD = #sumAcctUpdateMethod#
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="acctName">
+            ACCT_NAME = #acctName#
+        </isNotNull>
+        <isNotNull prepend="," property="acctDiaryUpdateMethod">
+            ACCT_DIARY_UPDATE_METHOD = #acctDiaryUpdateMethod#
+        </isNotNull>
+        <isNotNull prepend="," property="isMemberAcct">
+            IS_MEMBER_ACCT = #isMemberAcct#
+        </isNotNull>
+        <isNotNull prepend="," property="describe">
+            DESCRIBE = #describe#
+        </isNotNull>
+        <isNotNull prepend="," property="balanceBy">
+            BALANCE_BY = #balanceBy#
+        </isNotNull>
+        <isNotNull prepend="," property="acctContent">
+            ACCT_CONTENT = #acctContent#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM SUBJECT        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="accountSpecification">
+        DELETE FROM SUBJECT        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="orgType">
+            ORG_TYPE = #orgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="nonCurrencyUnit">
+            NON_CURRENCY_UNIT = #nonCurrencyUnit# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="precision">
+            PRECISION = #precision# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctLevel">
+            ACCT_LEVEL = #acctLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="negativeBalance">
+            NEGATIVE_BALANCE = #negativeBalance# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctType">
+            ACCT_TYPE = #acctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="childOrgType">
+            CHILD_ORG_TYPE = #childOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="summarizeTo">
+            SUMMARIZE_TO = #summarizeTo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="referable">
+            REFERABLE = #referable# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="childBeorg">
+            CHILD_BEORG = #childBeorg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sumAcctUpdateMethod">
+            SUM_ACCT_UPDATE_METHOD = #sumAcctUpdateMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctName">
+            ACCT_NAME = #acctName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctDiaryUpdateMethod">
+            ACCT_DIARY_UPDATE_METHOD = #acctDiaryUpdateMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isMemberAcct">
+            IS_MEMBER_ACCT = #isMemberAcct# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="describe">
+            DESCRIBE = #describe# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="balanceBy">
+            BALANCE_BY = #balanceBy# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctContent">
+            ACCT_CONTENT = #acctContent# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="accountSpecification"
+        parameterClass="java.lang.String">
+        SELECT 
+			ORG_TYPE,NON_CURRENCY_UNIT,PRECISION,CURRENCY_CODE,ACCT_CODE,
+			STATUS,ACCT_LEVEL,NEGATIVE_BALANCE,ACCT_TYPE,CHILD_ORG_TYPE,
+			SUMMARIZE_TO,REFERABLE,CHILD_BEORG,SUM_ACCT_UPDATE_METHOD,ORG_CODE,
+			ACCT_NAME,ACCT_DIARY_UPDATE_METHOD,IS_MEMBER_ACCT,DESCRIBE,BALANCE_BY,
+			ACCT_CONTENT
+        FROM SUBJECT
+        WHERE 
+            ACCT_CODE = #acctCode# 
+    </select>
+    
+    <select id="findBySelective" resultMap="accountSpecification">
+        SELECT 
+			ORG_TYPE,NON_CURRENCY_UNIT,PRECISION,CURRENCY_CODE,ACCT_CODE,
+			STATUS,ACCT_LEVEL,NEGATIVE_BALANCE,ACCT_TYPE,CHILD_ORG_TYPE,
+			SUMMARIZE_TO,REFERABLE,CHILD_BEORG,SUM_ACCT_UPDATE_METHOD,ORG_CODE,
+			ACCT_NAME,ACCT_DIARY_UPDATE_METHOD,IS_MEMBER_ACCT,DESCRIBE,BALANCE_BY,
+			ACCT_CONTENT
+        FROM SUBJECT
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="orgType">
+            ORG_TYPE = #orgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="nonCurrencyUnit">
+            NON_CURRENCY_UNIT = #nonCurrencyUnit# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="precision">
+            PRECISION = #precision# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctLevel">
+            ACCT_LEVEL = #acctLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="negativeBalance">
+            NEGATIVE_BALANCE = #negativeBalance# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctType">
+            ACCT_TYPE = #acctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="childOrgType">
+            CHILD_ORG_TYPE = #childOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="summarizeTo">
+            SUMMARIZE_TO = #summarizeTo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="referable">
+            REFERABLE = #referable# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="childBeorg">
+            CHILD_BEORG = #childBeorg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sumAcctUpdateMethod">
+            SUM_ACCT_UPDATE_METHOD = #sumAcctUpdateMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctName">
+            ACCT_NAME = #acctName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctDiaryUpdateMethod">
+            ACCT_DIARY_UPDATE_METHOD = #acctDiaryUpdateMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isMemberAcct">
+            IS_MEMBER_ACCT = #isMemberAcct# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="describe">
+            DESCRIBE = #describe# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="balanceBy">
+            BALANCE_BY = #balanceBy# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctContent">
+            ACCT_CONTENT = #acctContent# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM SUBJECT
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="orgType">
+            ORG_TYPE = #orgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="nonCurrencyUnit">
+            NON_CURRENCY_UNIT = #nonCurrencyUnit# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="precision">
+            PRECISION = #precision# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctCode">
+            ACCT_CODE = #acctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctLevel">
+            ACCT_LEVEL = #acctLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="negativeBalance">
+            NEGATIVE_BALANCE = #negativeBalance# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctType">
+            ACCT_TYPE = #acctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="childOrgType">
+            CHILD_ORG_TYPE = #childOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="summarizeTo">
+            SUMMARIZE_TO = #summarizeTo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="referable">
+            REFERABLE = #referable# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="childBeorg">
+            CHILD_BEORG = #childBeorg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sumAcctUpdateMethod">
+            SUM_ACCT_UPDATE_METHOD = #sumAcctUpdateMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctName">
+            ACCT_NAME = #acctName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctDiaryUpdateMethod">
+            ACCT_DIARY_UPDATE_METHOD = #acctDiaryUpdateMethod# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="isMemberAcct">
+            IS_MEMBER_ACCT = #isMemberAcct# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="describe">
+            DESCRIBE = #describe# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="balanceBy">
+            BALANCE_BY = #balanceBy# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="acctContent">
+            ACCT_CONTENT = #acctContent# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

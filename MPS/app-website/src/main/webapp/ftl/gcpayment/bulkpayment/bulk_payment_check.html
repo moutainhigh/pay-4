@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- <script  type="text/javascript" src="<@sp.static/>/mps/js/zidingyi.js"></script> -->
+
+<!-- query validate -->
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+
+<title>批量付款审核</title>
+
+</head>
+
+<body>
+<script>
+	$(function(){
+		var uploadeTrackingForm,saveTrackingForm;
+		var uploadeDialog,saveDialog;
+		
+		uploadeDialog=$("#dialog-uploade" ).dialog({
+		      autoOpen: false,
+		      height: 300,
+		      width: 400,
+		      modal: true,
+		      buttons: {
+		          "取消": function() {
+		        	  $("#dialog-uploade" ).dialog( "close" );
+		          },
+		     	      "确定":function() {
+		     	    	  batchUpload();
+		     	      }
+		        },
+		      close: function() {
+		    	  document.getElementById("uploadeTracking").reset();
+		    	  //uploadeTrackingForm[0].reset();
+		    	  //$("#dialog-uploade" ).dialog( "close" );
+		      }
+	    });
+	})
+	// 
+	function batchUpload(){
+		var isTrue = checkFileSuffix() ;
+		if(!isTrue) return ;
+		$('#uploadeTracking').submit();
+	}
+	function checkFileSuffix() {
+		var flag = true ;
+		var fileName = $("#file_check").val() ;
+		if(null != fileName && "" != fileName){
+			var suffixName = fileName.substring(fileName.lastIndexOf(".")) ;
+			if(suffixName != ".xls"){
+				alert("文件格式不正确，请选择.xls格式文件上传！") ;
+				flag = false ;
+			}
+		}else{
+			alert("请选择文件！") ;
+			flag = false ;
+		}
+		return  flag ;
+	}
+</script>
+
+	
+  
+<script type="text/javascript">
+	function uploadeTrackingFunc(bulkorderNo, bulkorderId){
+		$("#bulkorderNo").val(bulkorderNo) ;
+		$("#bulkorderId").val(bulkorderId) ;
+	    $("#dialog-uploade" ).dialog( "open" );
+	}
+</script>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/mps/images/logo.png" alt="" title=""
+					width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+				<ul class="mainmenu clearfix">
+					<li id="topmenu_5"><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+					<li id="topmenu_3"><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+					<li id="topmenu_1"><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+					<li id="topmenu_2"><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+					<li id="topmenu_6"><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+					<li id="secmenu_5_52" class="other">
+						<a href="${rc.contextPath}/corp/myAccount.htm">基本信息</a>
+					</li>
+
+					<li id="secmenu_5_52" class="other">
+						<a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">账户余额明细</a>
+					</li>
+					
+					<li id="secmenu_5_51" class="other">
+						<a href="${rc.contextPath}/corp/batchpay2bank.htm">批量付款</a>
+					</li>
+				</ul>
+				<ul class="submenu" style="display: none" id="secmenuul_3">
+
+					<li id="secmenu_3_31" class="other"><a
+						href="../gatewayorder/gatewayOrderQuery.htm">交易查询</a></li>
+
+					<li id="secmenu_3_32" class="other"><a
+						href="../merchantbill/merchantBillDownloadlist.htm">对账单下载</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span ><a href="${rc.contextPath}/corp/batchpay2bank.htm">批量付款</a></span>
+					<span ><a href="${rc.contextPath}/corp/bulkPayment.htm?method=toQueryBulkHistory">批量付款记录查询</a></span> 
+					<span class="current"><a href="${rc.contextPath}/corp/bulkPayment.htm?method=toBulkPaymentCheck">批量付款审核</a></span> 
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="seccon">
+							<div class="bgbox">
+								<form class="form" action="${rc.contextPath}/corp/bulkPayment.htm?method=checkBulkOrderQuery" method="post" name="" id="">
+									<table class="tab01" style="line-height: 25px">
+										<tbody>
+											
+											<tr>
+			                                   <td width="100"><span style="float:right">付款申请日期：</span></td>
+			                                   <td>
+			                                  <input type="text" class="Wdate inp_normal w380" name="beginTime" readonly="readonly" id="beginTime" gtbfieldid="109"  <#if beginTime?has_content>value="${beginTime}"</#if> onclick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+									         <span>-</span>
+									         <input type="text" class="Wdate inp_normal w380" name="endTime" readonly="readonly" id="endTime" gtbfieldid="110" <#if endTime?has_content>value="${endTime}"</#if> onclick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})">
+			                                     
+			                                   </td>
+			                                   
+											</tr>
+											
+											<tr>
+												<td></td>
+												<td>
+													<input class="btn_blue" type="submit" alt="查  询" value="查  询">
+												</td>
+												<td>
+											    </td>
+											    <td>
+											       
+											    </td>
+											</tr>
+											
+										</tbody>
+									</table>
+								</form>
+								
+							</div>
+							<div><font color="red"></font></div>
+							<div class="listFence" id="resultListDiv">
+						
+								<div>
+									<div>
+										审核文件的格式和批量付款文件一致，当两个文件数据一致时，才能进行出款。
+									</div>
+									
+									<table class="tab03">
+										<thead>
+											<tr>
+													<th>付款批次号</th>
+													<th>申请时间</th>
+													<th>付款金额</th>
+													<th>付款笔数</th>
+													<th>付款状态</th>
+													<th>详情</th>
+													
+											</tr>
+										</thead>
+										<tbody>
+											<!-- 测试数据 -->
+											<!-- <tr>
+												<td>厅</td>
+												<td>sdfa</td>
+				   								<td>dafs</td>
+				   								<td>sdfa</td>
+				   								<td>
+				   									fdsa
+												</td>
+												<td><a href="javascript:void(0);" style="color:#0000FF;">上传审核文件</a></td>
+											</tr>  -->
+											<#if listResult?has_content>
+												<#list listResult as checkQuery>
+													<tr>
+														<td>${checkQuery.bulkpayNo}</td>					<!-- 批次号 -->
+						   								<td>${checkQuery.createTime?default("")?string("yyyy-MM-dd")}</td>		<!-- 申请时间 -->
+						   								<td>${checkQuery.sum_Amount}</td>					<!-- 付款金额 -->
+						   								<td>${checkQuery.template_Count}</td>				<!-- 付款笔数 -->
+														<td>
+															<#if checkQuery.status?has_content>
+																<#if checkQuery.status == 0>
+																	待审核
+																	<#elseif checkQuery.status == 1>
+																		商户审核拒绝
+																	<#elseif checkQuery.status == 2>
+																		商户审核通过待复核
+																	<#elseif checkQuery.status == 3>
+																		复核拒绝
+																	<#elseif checkQuery.status == 4>
+																		付款中
+																	<#elseif checkQuery.status == 5>
+																		付款完成
+																	<#elseif checkQuery.status == 6>
+																		已作废
+																</#if>
+															</#if>
+														</td>					<!-- 付款状态 -->
+														<td><a href="javascript:void(0);" onclick="javascript:uploadeTrackingFunc('${checkQuery.bulkpayNo}', '${checkQuery.id}');" style="color:#0000FF;">上传审核文件</a></td>
+													</tr> 
+												</#list>
+											</#if>
+										</tbody>
+									</table>
+									<!-- <script type="text/javascript">function formatInputPage(e){var ie = navigator.appName=="Microsoft Internet Explorer"?true:false;if(!ie) var key = e.which;else var key = event.keyCode;if (key == 8 || key == 46 || (key >= 48 && key <= 57)) return true;return false;} function checkPages(page){if (page < 1) page = 1;if (page > 1) page = 1;return page;} </script><div class="temppage"><span>总计：1</span>&nbsp;&nbsp;<span>当前页/总页数：1/1</span><span title="首页" class="disabled">首页</span><span title="上一页" class="disabled">上一页</span><span title="Page 1" class="current">1</span><span title="下一页" class="disabled">下一页</span><span title="最后一页" class="disabled">最后一页</span><script type="text/javascript">window.currentPageNo=1;window.total=1;</script></div><br> -->
+									<!-- 分页实现 -->
+									<div align="right">
+										<#if listResult?has_content>
+											<hr style="border-style:dotted; " />
+										</#if>
+										<div align="right">
+											<#if listResult?has_content>
+												<@sp.pagination pu=pu/>
+											</#if>
+									   </div>
+								   </div>
+								</div>
+								<div class="page_box" style="text-align: right">
+							</div>
+							</div>
+							
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+</body>
+
+<div id="dialog-uploade" title="上传审核文件" style="display: none; text-align:center">
+  <form action="${rc.contextPath}/corp/bulkorderCheck.htm?method=bulkorderFileCheck" id="uploadeTracking" enctype="multipart/form-data" name="uploadeTracking" method="post"  > <!-- target="hidden_frame" -->
+  	<input type="hidden" name="bulkorderNo" id="bulkorderNo" />
+  	<input type="hidden" name="bulkorderId" id="bulkorderId" />
+  	<table style="text-align:center">
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr>
+      <!-- <td><label for="lbl_template" class="side" style="margin-left:50px">下载模板</label></td>
+      <td><a href="${rc.contextPath}/corp/cross/trackingMgr.htm?method=downLoadFile&fileName=Express_Template.csv" id="url_template" name="url_template" style="text-decoration:underline;">运单模板.csv</a></td> -->
+      </tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+  	  <tr><td>&nbsp;</td><td></td></tr>
+      <tr><td><label for="lbl_trackingfile" class="side" style="margin-left:50px">上传文件</label></td>
+      <td><input type="file"  name="file_check" id="file_check" accept=".csv"  value="点击上传"></td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+      <tr><td> &nbsp;</td><td></td></tr>
+<!--       Allow form submission with keyboard without duplicating the dialog button     --> 
+      <tr><td><input type="submit" tabindex="-1" style="position:absolute; top:-1000px"></td></tr>
+   </table>
+   <!-- <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe> -->
+  </form>
+</div>
+<script type="text/javascript">
+	function callback(result){  
+		//window.parent.location.reload();
+		var opt={};
+		//opt.close=reloadSite;
+	    //document.getElementById("file_trackinguploade").outerHTML = document.getElementById("file_trackinguploade").outerHTML; 
+	    var statue=result.split("|")[0];
+	    var msg=result.split("|")[1];
+	    if(statue=="Y"){
+			//$.pay.alert(msg);
+			$("#dialog-uploade" ).dialog( "close" );
+			//window.location.href = '${rc.contextPath}/corp/bulkorderCheck.htm?method=bulkorderFileCheck&toCheckDetailView=Y';
+	    }else if(statue=="N"){
+				$.pay.alert(msg);
+	    }
+	}
+</script>
+</html>

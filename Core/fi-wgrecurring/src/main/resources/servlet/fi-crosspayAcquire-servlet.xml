@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="webgateHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/gcpay.htm">crosspayCashierAcquireController</prop>
+				<prop key="/gcpayapi.htm">crosspayApiAcquireController</prop>
+				<prop key="/ipay.htm">crosspayCashierAcquireController</prop>
+				<prop key="/ipayapi.htm">crosspayApiAcquireController</prop>
+				<prop key="/orderRefund.htm">orderRefundController</prop>
+				<prop key="/orderQuery.htm">orderQueryController</prop>
+				<prop key="/traApiPay.htm">crosspayApiTravelController</prop>
+				<prop key="/ipayPreAuth.htm">preauthApiController</prop>
+				<prop key="/ipayPreAuthComp.htm">preauthCompApiController</prop>
+				<prop key="/ipayTradeRevoke.htm">tradeRevokeApiController</prop>
+				<prop key="/queryCurrencyRate.htm">queryCurrencyRateController</prop>
+				<prop key="/systemTest.htm">systemDetectionController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="crosspayCashierAcquireController"
+		class="com.pay.gateway.controller.CrosspayCashierAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="failRedirectUrl" value="${gateway.cashierFailUrl}" />
+		<property name="successRedirectUrl" value="${gateway.cashierUrl}" />
+		
+	</bean>
+	
+	<bean id="systemDetectionController"
+		class="com.pay.gateway.controller.SystemDetectionController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+	</bean>
+
+	<bean id="crosspayApiAcquireController" class="com.pay.gateway.controller.CrosspayApiAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+	<bean id="queryCurrencyRateController" class="com.pay.gateway.controller.CurrencyRateQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="currencyRateQueryValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+	</bean>
+	
+	<bean id="crosspayApiTravelController" class="com.pay.gateway.controller.CrosspayApiAcquireController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="crosspayTravelApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="currencyService" ref="if-countryCurrencyService"/>
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+	<!-- 预授权 -->
+	<bean id="preauthApiController" class="com.pay.gateway.controller.PreauthApiController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="preauthApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+		<!-- 预授权完成 -->
+	 <bean id="preauthCompApiController" class="com.pay.gateway.controller.PreauthCompApiController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="preauthCompApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+			<!-- 预授权完成 -->
+	 <bean id="tradeRevokeApiController" class="com.pay.gateway.controller.TradeRevokeApiController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="tradeRevokeApiAcquireValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="gatewayResponseService" ref="gatewayResponseService" />
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+
+	<bean id="orderRefundController" class="com.pay.gateway.controller.OrderRefundController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="api-refund-ValidateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+
+	<bean id="orderQueryController" class="com.pay.gateway.controller.OrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="validateService">
+			<ref bean="api-query-validateService" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService"/>
+	</bean>
+
+</beans>

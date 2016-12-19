@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutCheckSqlMap">
+	<typeAlias alias="fundoutCheck" type="com.pay.fundout.withdraw.dto.check.FundoutCheckDto"/>
+	<typeAlias alias="fundoutCheckBatch" type="com.pay.fundout.withdraw.dto.check.FundoutCheckBatchDto"/>
+   
+	   <select id="checkFundoutFile" parameterClass="fundoutCheck" resultClass="fundoutCheck">
+			SELECT 
+			TRADE_AMOUNT amount,
+			ACCOUNT_NO  bankAccount,
+			ACCOUNT_NAME bankName
+			FROM
+				BATCH_FILE_RECORD			   
+			WHERE  1=1
+			<isNotNull  prepend="AND" property="amount">
+				TRADE_AMOUNT = #amount#*1000
+			</isNotNull>
+			<isNotNull prepend="AND" property="bankAccount">
+				ACCOUNT_NO =  #bankAccountCode#
+			</isNotNull>
+			<isNotNull prepend="AND" property="bankName">
+				ACCOUNT_NAME = #bankAccount#
+			</isNotNull>
+	   </select>
+	   
+	   <select id="checkBankInfo" parameterClass="fundoutCheck" resultClass="fundoutCheck">
+	   		 SELECT 
+		  BANKKAIHU  bankName	   		 
+	   		 FROM 
+	   		 bank_Branche_info
+	   		 where  1=1
+	   		 <isNotNull prepend="AND" property="bankCode">
+			   		banknumber=#bankCode#
+	   		 </isNotNull>
+	   		 <isNotNull prepend="AND" property="bankName">
+			   		BANKKAIHU = #bankName#
+	   		 </isNotNull>
+	   </select>
+	   
+	   <insert id="createFundoutCheck" parameterClass="fundoutCheck" >
+	  	 <selectKey resultClass="java.lang.String" keyProperty="id">
+	  	 	select seq_fundoutCheck_key.NEXTVAL from dual
+		</selectKey>
+	    insert  into  
+	    fundout_check(
+		    ID,
+		    BATCH_NUM,
+		    STATUS,
+		    BANK_ACCOUNT_CODE,
+		    AMOUNT,
+		    BANK_ACCOUNT,
+		    BANK_NAME
+	    )
+	    values(
+	    #id#,
+	    #batchNum#,
+	    #status#,
+	    #bankAccountCode#,
+	    #amount#,
+	   	#bankAccount#,
+	   	#bankName#
+	    )
+	   </insert>
+	   
+	   <insert id="createFundoutFileBatch" parameterClass="fundoutCheckBatch" >
+	    <selectKey resultClass="java.lang.String" keyProperty="id">
+	  	 	select seq_fundoutCheckBatch_key.NEXTVAL from dual
+		</selectKey>
+	   	insert into
+	   	fundout_check_batch(
+	   		BATCH_NO,
+	   		ID,
+	   		OPERATOR,
+	   		APPLY_COUNT,
+	   		CHECKDATE,
+	   		UPLOAD_FILE_NAME
+	   	)
+	   	values(
+	   		#batchNo#,
+	   		#id#,
+	   		#operator#,
+	   		#applyCount#,
+	   		#checkDate#,
+	   		#uploadFileName#
+	   	)
+	   </insert>
+	   <update id="updateFundoutFileBatch" parameterClass="fundoutCheckBatch">
+	 	  update
+	 	  fundout_check_batch 
+	 	  set 
+	 	  SUCCESS_COUNT=#successCount# 
+	 	  where 
+	 	  BATCH_NO  = #batchNo#
+	   </update>
+	   <select id="findByCriteria" parameterClass="fundoutCheckBatch" resultClass="fundoutCheckBatch">
+		SELECT 
+		ID id,
+		BATCH_NO         batchNo,
+		OPERATOR         operator,
+		APPLY_COUNT      applyCount,
+		SUCCESS_COUNT    successCount,
+		CHECKDATE        checkDate,
+		UPLOAD_FILE_NAME uploadFileName
+		FROM 
+			FUNDOUT_CHECK_BATCH	   
+	    WHERE 
+	    1=1
+	    <isNotEmpty prepend="AND" property="batchNo">
+	  		  BATCH_NO = #batchNo#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="operator">
+	  		  OPERATOR = #operator#
+	    </isNotEmpty>
+	     <isNotEmpty prepend="AND" property="startDate">
+			CHECKDATE <![CDATA[>=]]> #startDate#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endDate">
+	           	CHECKDATE <![CDATA[<=]]> #endDate#
+		</isNotEmpty>
+		ORDER BY CHECKDATE DESC
+	   </select>
+	    <select id="countByCriteria" parameterClass="fundoutCheckBatch" resultClass="java.lang.Integer">
+		SELECT 
+		count(1)
+		FROM 
+			FUNDOUT_CHECK_BATCH	   
+	    WHERE 
+	    1=1
+	    <isNotEmpty prepend="AND" property="batchNo">
+	  		  BATCH_NO = #batchNo#
+	    </isNotEmpty>
+	    <isNotEmpty prepend="AND" property="operator">
+	  		  OPERATOR = #operator#
+	    </isNotEmpty>
+	     <isNotEmpty prepend="AND" property="startDate">
+			CHECKDATE <![CDATA[>=]]> #startDate#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endDate">
+	           	CHECKDATE <![CDATA[<=]]> #endDate#
+		</isNotEmpty>
+	   </select>
+	   <select id="queryFundoutCheckDetail"  resultClass="fundoutCheck">
+	   	SELECT 
+	   	ID id,
+	   	batch_num batchNum,
+	   	status  ,
+	   	bank_account_code bankAccountCode,
+	   	amount,
+	   	bank_account bankAccount,
+	   	bank_name bankName
+	   	FROM 
+	   		fundout_check
+	   	where 
+	   		batch_num = #batchNum#
+	   </select>
+	  <!--  	   <select id="queryFundoutCheckDetail_COUNT" resultClass="java.lang.Integer">
+	   	SELECT 
+	COUNT(1)
+	   	FROM 
+	   		fundout_check
+	   	where 
+	   		batch_num=#batchNum#
+	   </select> -->
+</sqlMap>

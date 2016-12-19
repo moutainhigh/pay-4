@@ -1,0 +1,600 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="txncoreService" class="com.pay.txncore.hessian.HessianService">
+		<property name="eventHandlerMap" ref="eventHandlerMap" />
+	</bean>
+
+	<bean id="eventHandlerMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="30114" value-ref="currencyExchangeRateCreateHandler" /><!-- yes -->
+				<entry key="30115" value-ref="currencyExchangeRateQueryHandler" /><!-- yes -->
+
+				<entry key="30130" value-ref="reconciliationHandler" /><!-- yes -->
+				<entry key="30131" value-ref="liquidationHandler" /><!-- yes -->
+				<entry key="30132" value-ref="orgExchangeRateCreateHandler" /><!-- yes -->
+				<entry key="30133" value-ref="orgExchangeRateQueryHandler" /><!-- yes -->
+				<entry key="30134" value-ref="partnerExchangeRateCreateHandler" /><!-- yes -->
+				<entry key="30135" value-ref="partnerExchangeRateQueryHandler" /><!-- yes -->
+				<entry key="30136" value-ref="liquidationAssureHandler" /><!-- yes -->
+				<entry key="30137" value-ref="settlementCountHandler" /><!-- yes -->
+				
+				<entry key="30144" value-ref="partnerReportHandler" /><!-- yes -->
+				
+				<entry key="30146" value-ref="settlementBaseRateCreateHandler" /><!-- yes -->
+				<entry key="30147" value-ref="settlementBaseRateQueryHandler" /><!-- yes -->
+				<entry key="30148" value-ref="transactionBaseRateCreateHandler" /><!-- yes -->
+				<entry key="30149" value-ref="transactionBaseRateQueryHandler" /><!-- yes -->
+				<entry key="30207" value-ref="transRateMarkupCreateHandler" /><!-- yes -->
+				<entry key="30208" value-ref="transRateMarkupQueryHandler" /><!-- yes -->
+				<entry key="30209" value-ref="transRateMarkupUpdateHandler" /><!-- yes -->
+				
+				<entry key="30150" value-ref="settlementRateCreateHandler" /><!-- yes -->
+				<entry key="30151" value-ref="settlementRateQueryHandler" /><!-- yes -->
+				<entry key="30152" value-ref="transactionRateCreateHandler" /><!-- yes -->
+				<entry key="30153" value-ref="transactionRateQueryHandler" /><!-- yes -->
+				
+				<entry key="30154" value-ref="settlementRateAdjustCreateHandler" /><!-- yes -->
+				<entry key="30155" value-ref="settlementRateAdjustQueryHandler" /><!-- yes -->
+				<entry key="30156" value-ref="transactionRateAdjustCreateHandler" /><!-- yes -->
+				<entry key="30157" value-ref="transactionRateAdjustQueryHandler" /><!-- yes -->
+
+				<entry key="30160" value-ref="chargebackConfigQueryHandler" /><!-- yes -->
+				<entry key="30161" value-ref="chargebackConfigAddHandler" /><!-- yes -->
+				<entry key="30162" value-ref="chargebackConfigUpdateHandler" /><!-- yes -->
+				<entry key="30164" value-ref="currencyRateQueryHandler" /><!-- yes -->
+				<entry key="30183" value-ref="currencyBaseRateQueryHandler" /><!-- yes -->
+				<entry key="30166" value-ref="countRiskFeeHandler" /><!-- yes -->				
+				
+				<entry key="30172" value-ref="partnerReconcileHandler"/><!-- yes -->
+
+				<entry key="30176" value-ref="partnerRateFloatCreateHandler"/><!-- yes -->
+				<entry key="30177" value-ref="partnerRateFloatQueryHandler"/><!-- yes -->
+				<entry key="30182" value-ref="partnerRateFloatDeleteHandler"/><!-- yes -->
+
+				
+				<entry key="30178" value-ref="reconcileQueryHandler"></entry><!-- yes -->
+				<entry key="30187" value-ref="reconcileQueryDetailHandler"></entry><!-- yes -->
+				
+				<entry key="10109" value-ref="frozenOrderQueryHandler" />
+				<entry key="30195" value-ref="partnerTradeCountQueryHandler"/>
+				<entry key="30200" value-ref="tranDailyReportCreateHanler"/>
+				<entry key="30211" value-ref="countRefundFeeHandler"/>  
+				<entry key="50102" value-ref="orderCreditRiskFilterHandler"/> 
+				<entry key="50103" value-ref="orderCreditQueryHandler"/> 
+				<entry key="50104" value-ref="orderCreditConfirmHandler"/> 
+				<entry key="50105" value-ref="liquidationOrderCreditHandler"/> 
+				<entry key="50106" value-ref="orderCreateHandler"/> 
+				<entry key="50107" value-ref="orderCreditOrderQueryHandler"/> 
+				<entry key="50108" value-ref="orderCreditOrderDetailQueryHandler"/> 
+				<entry key="50109" value-ref="dayRateCreateHandler"/> 
+				<entry key="50110" value-ref="dayRateDeleteHandler"/> 
+				<entry key="50111" value-ref="dayRateUpdateHandler"/> 
+				<entry key="50112" value-ref="dayRateQueryHandler"/> 
+				<entry key="50113" value-ref="orderCreditSettlementUpdateHandler"/> 
+				<entry key="50114" value-ref="batchStatusQueryHandler"/> 
+				<entry key="50115" value-ref="batchStatusUpdateHandler"/> 
+                <entry key="30234" value-ref="tradeBaseReportsHandler"/><!-- add by delin 2016年7月6日 16:06:24 -->
+				<entry key="30235" value-ref="tradeFailDealReportsHandler"/><!-- add by delin 2016年7月6日 16:06:24 -->
+				<entry key="30236" value-ref="merchantRefundPercntHandler"/><!-- add by delin 2016年7月7日17:25:37-->
+				<entry key="30237" value-ref="ipDistrReportHandler"/><!-- add by delin 2016年7月8日 11:24:36-->
+				<entry key="30238" value-ref="cardBinDistrReportHandler"/><!-- add by delin 2016年7月8日 11:24:36-->
+				<entry key="30239" value-ref="ipAndCardBinMatchReportHandler"/><!-- add by delin 2016年7月8日 11:24:36-->
+				<entry key="30240" value-ref="cardorgDistrReportHandler"/><!-- add by davis 2016-07-08 17:44-->
+		
+				<entry key="30244" value-ref="tradeBaseReportsDownHandler" />	<!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="30245" value-ref="tradeFailDealReportsDownHandler" /> <!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="30246" value-ref="merchantRefundPercntDownHandler" /> <!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="30247" value-ref="ipDistrReportDownHandler" />     <!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="30248" value-ref="cardBinDistrReportDownHandler" /> <!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="30249" value-ref="ipAndCardBinMatchReportDownHandler" /> <!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="30250" value-ref="cardorgDistrReportDownHandler" /><!-- add by delin 2016年7月13日14:21:13 -->
+				<entry key="accounting.task.frozenamountrepair" value-ref="frozenAmountRepairHandler" /><!-- add by mmzhang 2016-07-18  -->
+				<entry key="accounting.tranDailyReportUpdateHanler" value-ref="tranDailyReportUpdateHanler" />
+				<entry key="accounting.msp.settlementOrderQuery" value-ref="orderCreditQueryForMpsHandler"/> 
+				<entry key="accounting.tranDailyReportQueryForUpdateHanler" value-ref="tranDailyReportQueryForUpdateHanler"/> 
+				<entry key="accounting.capitalPool.manage.query"  value-ref="capitalPoolManageQueryHandler" /><!-- add by delin 2016年8月4日14:23:33 -->
+				<entry key="accounting.capitalPool.manage.update"  value-ref="capitalPoolManageUpdateHandler" /><!-- add by delin 2016年8月9日10:57:28 -->
+				<entry key="accounting.capitalPool.manage.count"  value-ref="capitalPoolManageCountHandler" /><!-- add by delin 2016年8月9日10:57:28 -->
+				<entry key="accounting.capitalPool.manage.addAudit"  value-ref="capitalPoolManageAddAuditHandler" /><!-- add by delin 2016年8月9日10:57:28 -->
+				<entry key="accounting.capitalPool.manage.queryPosition"  value-ref="positionAllocaAuditQueryHandler" /><!-- add by delin 2016年8月9日10:57:28 -->
+				<entry key="accounting.capitalPool.manage.update.position"  value-ref="positionAllocaAuditUpdateHandler" /><!-- add by delin 2016年8月9日10:57:28 -->
+				<entry key="accounting.CapitalPoolManageQueryByStatusAuditHandler"  value-ref="capitalPoolManageQueryByStatusAuditHandler" /><!-- add by delin 2016年8月9日10:57:28 -->
+				<entry key="accounting.buySettleOrderBuyParitiesHandler" value-ref="buySettleOrderBuyParitiesHandler"/>
+				<entry key="accounting.buySettleOrderSettleParitiesHandler" value-ref="buySettleOrderSettleParitiesHandler"/>
+				<entry key="accounting.buySettleOrderQueryPageHandler" value-ref="buySettleOrderQueryPageHandler"/>
+				<entry key="accounting.buySettleOrderQueryPageByMapHandler" value-ref="buySettleOrderQueryPageByMapHandler"/>
+				<entry key="accounting.buySettleOrderQueryByMapHandler" value-ref="buySettleOrderQueryByMapHandler"/>
+				<!-- KF 跨境付款 付款文件下载  add delin  2016年8月25日20:37:17-->
+				<entry key="accounting.kf.file.info" value-ref="payFileQueryHandler"></entry>
+				<!-- KF 跨境付款 出款失败录入 add delin  2016年8月25日20:37:17-->
+				<entry key="accounting.kf.remit.fail" value-ref="remitFailTypingQueryHandler"></entry>
+				<!-- KF 跨境付款 出款失败录入审核  add delin  2016年8月25日20:37:17-->		
+				<entry key="accounting.kf.remit.fail.reviewed" value-ref="remitFailTypingReviewedHandler"></entry>
+				
+				<entry key="crosspay.cardBindOrderQueryHanler" value-ref="cardBindOrderQueryHanler"/> 
+				<entry key="crosspay.tokenPayInfoQueryHanler" value-ref="tokenPayInfoQueryHanler"/> 
+				
+				<entry key="accounting.kfPayResourceDownloadHandler" value-ref="kfPayResourceDownloadHandler"/>
+				<entry key="accounting.kfPayBatchResourceDownloadHandler" value-ref="kfPayBatchResourceDownloadHandler"/>
+				<entry key="accounting.kfPayTrandSaveHandler" value-ref="kfPayTrandSaveHandler"/>
+				<entry key="accounting.kfPayResourceSaveHandler" value-ref="kfPayResourceSaveHandler"/>
+				<entry key="accounting.kfPayTrandDeatilSaveHandler" value-ref="kfPayTrandDeatilSaveHandler"/>
+				<entry key="accounting.kfCrossBorerPayApplyHandler" value-ref="kfCrossBorerPayApplyHandler"></entry>
+				<entry key="accounting.kfPayTrandUpdateHandler" value-ref="kfPayTrandUpdateHandler"></entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<!-- 跨境付款更新 -->
+	<bean id="kfPayTrandUpdateHandler" class="com.pay.crossBorerPay.handler.KfPayTrandUpdateHandler">
+		<property name="remitFailTypingService" ref="remitFailTypingService"></property>
+		<property name="payFileService" ref="payFileService"></property>
+	</bean>
+	<!--跨境付款申请记账  -->
+	<bean id="kfCrossBorerPayApplyHandler" class="com.pay.crossBorerPay.handler.KfCrossBorerPayApplyHandler">
+		<property name="kfCrossBorerPayService" ref="kfCrossBorerPayServiceImpl"></property>
+	</bean>
+
+	<!-- 跨境付款订单明细保存 -->
+	<bean id="kfPayTrandDeatilSaveHandler" class="com.pay.crossBorerPay.handler.KfPayTrandDeatilSaveHandler">
+		<property name="kfPayTradeDetailServiceImpl" ref="kfPayTradeDetailServiceImpl"></property>
+	</bean>
+	<!-- 跨境付款文件资源保存 -->
+	<bean id="kfPayResourceSaveHandler" class="com.pay.crossBorerPay.handler.KfPayResourceSaveHandler">
+		<property name="kfPayResourceServiceImpl" ref="kfPayResourceServiceImpl"></property>
+	</bean>
+	<!-- 跨境付款交易订单保存 -->
+	<bean id="kfPayTrandSaveHandler" class="com.pay.crossBorerPay.handler.KfPayTrandSaveHandler">
+		<property name="kfPayTradeServiceImpl" ref="kfPayTradeServiceImpl"></property>
+	</bean>
+	<!-- 跨境付款文件下载 -->
+	<bean id="kfPayBatchResourceDownloadHandler" class="com.pay.crossBorerPay.handler.KfPayBatchResourceDownloadHandler">
+		<property name="kfPayResourceServiceImpl" ref="kfPayResourceServiceImpl"></property>
+	</bean>
+	<!-- 跨境付款文件下载 -->
+	<bean id="kfPayResourceDownloadHandler" class="com.pay.crossBorerPay.handler.KfPayResourceDownloadHandler">
+		<property name="kfPayResourceServiceImpl" ref="kfPayResourceServiceImpl"></property>
+	</bean>
+	<!--保存购汇订单  -->
+	<bean id="buySettleOrderBuyParitiesHandler" class="com.pay.buySettle.handler.BuySettleOrderBuyParitiesHandler">
+		<property name="buySettleOrderServiceImpl" ref="buyOrderServiceImpl"></property>
+	</bean>
+	<!--保存结汇订单-->
+	<bean id="buySettleOrderSettleParitiesHandler" class="com.pay.buySettle.handler.BuySettleOrderBuyParitiesHandler">
+		<property name="buySettleOrderServiceImpl" ref="settleOrderServiceImpl"></property>
+	</bean>
+	<!--报表查询  -->
+	<bean id="buySettleOrderQueryByMapHandler" class="com.pay.buySettle.handler.BuySettleOrderQueryByMapHandler">
+		<property name="buySettleOrderServiceImpl" ref="buyOrderServiceImpl"></property>
+	</bean>
+	<!--查询购结汇订单明细 根据Model 分页  -->
+	<bean id="buySettleOrderQueryPageHandler" class="com.pay.buySettle.handler.BuySettleOrderQueryPageHandler">
+		<property name="buySettleOrderServiceImpl" ref="buyOrderServiceImpl"></property>
+	</bean>
+	<!--查询购结汇订单明细 根据map 分页  -->
+	<bean id="buySettleOrderQueryPageByMapHandler" class="com.pay.buySettle.handler.BuySettleOrderQueryPageByMapHandler">
+		<property name="buySettleOrderServiceImpl" ref="buyOrderServiceImpl"></property>
+	</bean>
+	<bean id="frozenOrderQueryHandler"
+		class="com.pay.txncore.crosspay.handler.FrozenOrderQueryHandler">
+		<property name="frozenOrderService" ref="frozenOrderService" />
+	</bean>
+
+	<!-- 配置商户域名 -->
+	<bean id="merchantTradeCountQueryHandler"
+		class="com.pay.txncore.handler.MerchantTradeCountQueryHandler">
+		<property name="tradeCountDAO" ref="fi-tradeCountDAO" />
+	</bean>
+	
+	<bean id="currencyRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyRateQueryHandler">
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="currencyBaseRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyBaseRateQueryHandler">
+		<property name="transBaseService" ref="transactionBaseRateService" />
+		<property name="settleBaseService" ref="settlementBaseRateService" />
+	</bean>
+	
+    <bean id="partnerRateFloatQueryHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerRateFloatQueryHandler">
+		<property name="partnerRateFloatService" ref="partnerRateFloatService" />
+	</bean>
+	
+	<bean id="partnerRateFloatCreateHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerRateFloatCreateHandler">
+		<property name="partnerRateFloatService" ref="partnerRateFloatService" />
+	</bean>
+	
+	<bean id="partnerRateFloatDeleteHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerRateFloatDeleteHandler">
+		<property name="partnerRateFloatService" ref="partnerRateFloatService" />
+	</bean>
+
+	<bean id="currencyExchangeRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyExchangeRateCreateHandler">
+		<property name="currencyExchangeRateService" ref="currencyExchangeRateService" />
+	</bean>
+	
+	<bean id="settlementBaseRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.SettlementBaseRateCreateHandler">
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="settlementBaseRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.SettlementBaseRateQueryHandler">
+		<property name="settlementBaseRateService" ref="settlementBaseRateService" />
+	</bean>
+	
+	<bean id="transactionBaseRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.TransactionBaseRateCreateHandler">
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+	
+	<bean id="transactionBaseRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.TransactionBaseRateQueryHandler">
+		<property name="transactionBaseRateService" ref="transactionBaseRateService" />
+	</bean>
+	
+	<bean id="transRateMarkupCreateHandler"
+		class="com.pay.txncore.handler.currencycode.TransRateMarkupCreateHandler">
+		<property name="transRateMarkupService" ref="transRateMarkupService" />
+	</bean>
+	
+	<bean id="transRateMarkupUpdateHandler"
+		class="com.pay.txncore.handler.currencycode.TransRateMarkupUpdateHandler">
+		<property name="transRateMarkupService" ref="transRateMarkupService" />
+	</bean>
+	
+	<bean id="transRateMarkupQueryHandler"
+		class="com.pay.txncore.handler.currencycode.TransRateMarkupQueryHandler">
+		<property name="transRateMarkupService" ref="transRateMarkupService" />
+	</bean>
+	
+	<bean id="transactionRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerTransactionRateCreateHandler">
+		<property name="transactionRateService" ref="transactionRateService" />
+	</bean>
+	
+	<bean id="transactionRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerTransactionRateQueryHandler">
+		<property name="transactionRateService" ref="transactionRateService" />
+	</bean>
+	
+	<bean id="settlementRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerSettlementRateCreateHandler">
+		<property name="settlementRateService" ref="settlementRateService" />
+	</bean>
+	
+	<bean id="settlementRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerSettlementRateQueryHandler">
+		<property name="settlementRateService" ref="settlementRateService" />
+	</bean>
+	
+	<bean id="settlementRateAdjustCreateHandler"
+		class="com.pay.txncore.handler.currencycode.SettlementRateAdjustCreateHandler">
+		<property name="settlementRateAdjustService" ref="settlementRateAdjustService" />
+	</bean>
+	
+	<bean id="settlementRateAdjustQueryHandler"
+		class="com.pay.txncore.handler.currencycode.SettlementRateAdjustQueryHandler">
+		<property name="settlementRateAdjustService" ref="settlementRateAdjustService" />
+	</bean>
+	
+	<bean id="transactionRateAdjustCreateHandler"
+		class="com.pay.txncore.handler.currencycode.TransactionRateAdjustCreateHandler">
+		<property name="transactionRateAdjustService" ref="transactionRateAdjustService" />
+	</bean>
+	
+	<bean id="transactionRateAdjustQueryHandler"
+		class="com.pay.txncore.handler.currencycode.TransactionRateAdjustQueryHandler">
+		<property name="transactionRateAdjustService" ref="transactionRateAdjustService" />
+	</bean>
+
+	<bean id="orgExchangeRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.OrgExchangeRateCreateHandler">
+		<property name="orgExchangeRateService" ref="orgExchangeRateService" />
+	</bean>
+
+	<bean id="partnerExchangeRateCreateHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerExchangeRateCreateHandler">
+		<property name="partnerExchangeRateService" ref="partnerExchangeRateService" />
+	</bean>
+
+	<bean id="currencyExchangeRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.CurrencyExchangeRateQueryHandler">
+		<property name="currencyExchangeRateService" ref="currencyExchangeRateService" />
+	</bean>
+
+	<bean id="orgExchangeRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.OrgExchangeRateQueryHandler">
+		<property name="orgExchangeRateService" ref="orgExchangeRateService" />
+	</bean>
+
+	<bean id="partnerExchangeRateQueryHandler"
+		class="com.pay.txncore.handler.currencycode.PartnerExchangeRateQueryHandler">
+		<property name="partnerExchangeRateService" ref="partnerExchangeRateService" />
+	</bean>
+
+	<bean id="settlementCountHandler"
+		class="com.pay.txncore.handler.settlement.SettlementCountHandler">
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+	</bean>
+
+	<bean id="reconciliationHandler"
+		class="com.pay.txncore.handler.reconciliation.ReconciliationHandler">
+		<property name="channelService" ref="channelService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="reconcileBatchService" ref="reconcileBatchService" />
+	</bean>
+
+	<bean id="liquidationHandler" class="com.pay.txncore.handler.LiquidationHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+	</bean>
+	
+	<bean id="countRiskFeeHandler" class="com.pay.txncore.handler.CountRiskFeeHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+
+	<!--  add by sch 2016-05-09 -->
+	<bean id="countRefundFeeHandler" class="com.pay.txncore.handler.CountRefundFeeHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	
+	<bean id="liquidationAssureHandler" class="com.pay.txncore.handler.LiquidationAssureHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+	</bean>
+	
+	<bean id="partnerReportHandler"
+		class="com.pay.txncore.handler.report.PartnerReportHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+
+	<!-- add delin 交易基本信息报表  2016年7月6日16:08:45-->
+	<bean id="tradeBaseReportsHandler"
+		class="com.pay.txncore.handler.report.TradeBaseReportsHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<!-- add delin 交易失败详情报表  2016年7月6日16:08:51-->
+	<bean id="tradeFailDealReportsHandler"
+		class="com.pay.txncore.handler.report.TradeFailDealReportsHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<!-- add delin 商户退款比例报表  2016年7月7日17:27:05-->
+	<bean id="merchantRefundPercntHandler"
+		class="com.pay.txncore.handler.report.MerchantRefundPercntHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<!-- add delin ip分布报表 -->
+	<bean id="ipDistrReportHandler"
+		class="com.pay.txncore.handler.report.IpDistrReportHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<!-- add delin cardBin分布报表 -->
+	<bean id="cardBinDistrReportHandler"
+		class="com.pay.txncore.handler.report.CardBinDistrReportHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+		<!-- add delin ip and cardBin match报表 -->
+	<bean id="ipAndCardBinMatchReportHandler"
+		class="com.pay.txncore.handler.report.IpAndCardBinMatchReportHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<!-- add davis 卡种分布报表 -->
+	<bean id="cardorgDistrReportHandler"
+		class="com.pay.txncore.handler.report.CardorgDistrReportHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	
+	<!-- 7个报表下载需要的数据 add delin 2016年7月13日14:28:16 -->
+	<bean id="tradeBaseReportsDownHandler"
+		class="com.pay.txncore.handler.report.TradeBaseReportsDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<bean id="tradeFailDealReportsDownHandler"
+		class="com.pay.txncore.handler.report.TradeFailDealReportsDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<bean id="merchantRefundPercntDownHandler"
+		class="com.pay.txncore.handler.report.MerchantRefundPercntDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<bean id="ipDistrReportDownHandler"
+		class="com.pay.txncore.handler.report.IpDistrReportDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<bean id="cardBinDistrReportDownHandler"
+		class="com.pay.txncore.handler.report.CardBinDistrReportDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<bean id="ipAndCardBinMatchReportDownHandler"
+		class="com.pay.txncore.handler.report.IpAndCardBinMatchReportDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	<bean id="cardorgDistrReportDownHandler"
+		class="com.pay.txncore.handler.report.CardorgDistrReportDownHandler">
+		<property name="reportDAO" ref="reportDAO"/>
+	</bean>
+	
+	<bean id="orgRateQueryHandler"
+		class="com.pay.txncore.handler.rate.OrgRateQueryHandler">
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeOrderService" ref="tradeOrderService"/>
+		<property name="currencyRateService" ref="currencyRateService"/>
+	</bean>
+	
+	<bean id="chargebackConfigQueryHandler"
+		class="com.pay.txncore.handler.chargeback.ChargebackConfigQueryHandler">
+		<property name="chargeBackConfigDAO" ref="chargeBackConfigDAO"/>
+	</bean>
+	
+	<bean id="chargebackConfigAddHandler"
+		class="com.pay.txncore.handler.chargeback.ChargebackConfigAddHandler">
+		<property name="chargeBackConfigDAO" ref="chargeBackConfigDAO"/>
+	</bean>
+	
+	<bean id="chargebackConfigUpdateHandler"
+		class="com.pay.txncore.handler.chargeback.ChargebackConfigUpdateHandler">
+		<property name="chargeBackConfigDAO" ref="chargeBackConfigDAO"/>
+	</bean>
+	
+	<bean id="partnerReconcileHandler"
+		class="com.pay.txncore.handler.partnerreconcile.PartnerReconcileHandler">
+		<property name="crossPayOrderQueryDao" ref="crossPayOrderQueryDao"/>
+	</bean>
+
+	<bean id="reconcileQueryHandler" class="com.pay.txncore.handler.reconciliation.ReconcileQueryHandler">
+		<property name="reconcileRecordService" ref="reconcileRecordService" />
+	</bean>
+	<bean id="reconcileQueryDetailHandler" class="com.pay.txncore.handler.reconciliation.ReconcileQueryDetailHandler">
+		<property name="reconcileRecordService" ref="reconcileRecordService" />
+	</bean>
+	
+    <bean id="partnerTradeCountQueryHandler"
+		class="com.pay.txncore.handler.report.PartnerTradeCountQueryHandler">
+		<property name="tradeCountDAO" ref="fi-tradeCountDAO" />
+	</bean>
+    <bean id="tranDailyReportCreateHanler"
+		class="com.pay.txncore.handler.report.TranDailyReportCreateHanler">
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="reportService" ref="account-ReportService" />
+		<property name="tranDailyReportService" ref="tranDailyReportService" />
+	</bean>
+    <bean id="orderCreditRiskFilterHandler"
+		class="com.pay.txncore.handler.ordercredit.OrderCreditRiskFilterHandler">
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="creditFilterDAO" ref="creditFilterDAO" />
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="ipCountryInfoService" ref="inf-ipCountryInfoService"/>
+	</bean>
+	<bean id="orderCreditQueryHandler"
+		class="com.pay.txncore.handler.ordercredit.OrderCreditQueryHandler">
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	<bean id="orderCreditQueryForMpsHandler"
+		class="com.pay.txncore.handler.ordercredit.OrderCreditQueryForMpsHandler">
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	<bean id="orderCreditConfirmHandler"
+		class="com.pay.txncore.handler.ordercredit.OrderCreditConfirmHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	<bean id="liquidationOrderCreditHandler"
+		class="com.pay.txncore.handler.ordercredit.LiquidationOrderCreditHandler">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	
+	<bean id="orderCreateHandler" class="com.pay.txncore.handler.ordercredit.OrderCreateHandler">
+		<property name="orderCreditService" ref="orderCreditService" />
+	</bean>
+	<bean id="orderCreditOrderQueryHandler" class="com.pay.txncore.handler.ordercredit.OrderCreditOrderQueryHandler">
+		<property name="orderCreditService" ref="orderCreditService" />
+	</bean>
+	<bean id="orderCreditOrderDetailQueryHandler" class="com.pay.txncore.handler.ordercredit.OrderCreditOrderDetailQueryHandler">
+		<property name="orderCreditService" ref="orderCreditService" />
+	</bean>
+	<!-- 订单授信日利率创建 -->
+	<bean id="dayRateCreateHandler" class="com.pay.txncore.handler.ordercredit.DayRateCreateHandler">
+		<property name="dayRateService" ref="dayRateService" />
+	</bean>
+	<!-- 订单授信日利率删除 -->
+	<bean id="dayRateDeleteHandler" class="com.pay.txncore.handler.ordercredit.DayRateDeleteHandler">
+		<property name="dayRateService" ref="dayRateService" />
+	</bean>
+	<!-- 订单授信日利率修改 -->
+	<bean id="dayRateUpdateHandler" class="com.pay.txncore.handler.ordercredit.DayRateUpdateHandler">
+		<property name="dayRateService" ref="dayRateService" />
+	</bean>
+	<!-- 订单授信日利率查询 -->
+	<bean id="dayRateQueryHandler" class="com.pay.txncore.handler.ordercredit.DayRateQueryHandler">
+		<property name="dayRateService" ref="dayRateService" />
+	</bean>
+	<!-- 订单授信清算状态更改 -->
+	<bean id="orderCreditSettlementUpdateHandler" class="com.pay.txncore.handler.ordercredit.OrderCreditSettlementUpdateHandler">
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+	</bean>
+	<!-- 批量状态查询 -->
+	<bean id="batchStatusQueryHandler" class="com.pay.txncore.handler.ordercredit.BatchStatusQueryHandler">
+		<property name="creditFilterDAO" ref="creditFilterDAO" />
+	</bean>
+	<!-- 批量状态更改 -->
+	<bean id="batchStatusUpdateHandler" class="com.pay.txncore.handler.ordercredit.BatchStatusUpdateHandler">
+		<property name="creditFilterDAO" ref="creditFilterDAO" />
+	</bean>
+	<!--  -->
+	<bean id="frozenAmountRepairHandler" class="com.pay.txncore.handler.FrozenAmountRepairHandler">
+		<property name="acctService" ref="acc-acctService" />
+	</bean>
+	
+	<bean id="cardBindOrderQueryHanler" class="com.pay.txncore.handler.crosspay.CardOrderQueryHandler">
+		<property name="cardBindDAO" ref="cardBindDAO" />
+	</bean>
+	
+	<bean id="tokenPayInfoQueryHanler" class="com.pay.txncore.handler.crosspay.TokenPayInfoQueryHandler">
+		<property name="tokenPayInfoDAO" ref="tokenPayInfoDAO" />
+	</bean>
+	<!-- 交易日报表更新 -->
+	<bean id="tranDailyReportUpdateHanler" class="com.pay.txncore.handler.report.TranDailyReportUpdateHanler">
+		<property name="tranDailyReportService" ref="tranDailyReportService" />
+	</bean>
+	<!-- 交易日报表查询 -->
+	<bean id="tranDailyReportQueryForUpdateHanler" class="com.pay.txncore.handler.report.TranDailyReportQueryForUpdateHanler">
+		<property name="tranDailyReportService" ref="tranDailyReportService" />
+	</bean>
+	<!-- 结购资金池查询 2016年8月4日14:24:15 delin -->
+	<bean id="capitalPoolManageQueryHandler" class="com.pay.txncore.handler.buysettlepoundage.CapitalPoolManageQueryHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- 结购资金池预警线金额修改 2016年8月4日14:24:15 delin -->
+	<bean id="capitalPoolManageUpdateHandler" class="com.pay.txncore.handler.buysettlepoundage.CapitalPoolManageUpdateHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- 结购资金池可购汇金额<预警线金额统计 2016年8月4日14:24:15 delin -->
+	<bean id="capitalPoolManageCountHandler" class="com.pay.txncore.handler.buysettlepoundage.CapitalPoolManageCountHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- 调拨头寸申请 2016年8月9日17:32:08 delin -->
+	<bean id="capitalPoolManageAddAuditHandler" class="com.pay.txncore.handler.buysettlepoundage.CapitalPoolManageAddAuditHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- 调拨头寸审核查询 2016年8月9日17:32:08 delin -->
+	<bean id="positionAllocaAuditQueryHandler" class="com.pay.txncore.handler.buysettlepoundage.PositionAllocaAuditQueryHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- 调拨头寸审核 2016年8月12日11:39:00 delin -->
+	<bean id="positionAllocaAuditUpdateHandler" class="com.pay.txncore.handler.buysettlepoundage.PositionAllocaAuditUpdateHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- 查询资金池账户启用状态  -->
+	<bean id="capitalPoolManageQueryByStatusAuditHandler" class="com.pay.txncore.handler.buysettlepoundage.CapitalPoolManageQueryByStatusHandler">
+			<property name="capitalPoolManageService" ref="capitalPoolManageService" />
+	</bean>
+	<!-- KF 跨境付款 付款文件下载  add delin  2016年8月25日20:37:17-->	
+	<bean id="payFileQueryHandler" class="com.pay.crossBorerPay.handler.PayFileQueryHandler">
+		<property name="remitFailTypingService" ref="remitFailTypingService" />
+			<property name="payFileService" ref="payFileService" />
+			<property name="kfPayResourceService" ref="kfPayResourceServiceImpl"></property>
+	</bean>
+	<!-- 出款失败录入 -->
+	<bean id="remitFailTypingQueryHandler" class="com.pay.crossBorerPay.handler.RemitFailTypingQueryHandler">
+			<property name="remitFailTypingService" ref="remitFailTypingService" />
+	</bean>
+	<!-- 出款失败录入 -->
+	<bean id="remitFailTypingReviewedHandler" class="com.pay.crossBorerPay.handler.RemitFailTypingReviewedHandler">
+			<property name="remitFailTypingService" ref="remitFailTypingService" />
+			<property name="kfCrossBorerPayService" ref="kfCrossBorerPayServiceImpl"></property>
+	</bean>
+</beans>

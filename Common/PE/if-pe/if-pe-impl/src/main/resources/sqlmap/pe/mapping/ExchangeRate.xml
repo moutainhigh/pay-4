@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="exchangerate">
+	<typeAlias alias="exchangeRate" type="com.pay.pe.model.ExchangeRate"/>
+    <resultMap id="exchangeRate" class="com.pay.pe.model.ExchangeRate">
+        <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP"/>
+        <result column="CURRENCY_CODE_TO" property="currencyCodeTo" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="CURRENCY_CODE_FROM" property="currencyCodeFrom" jdbcType="VARCHAR"/>
+        <result column="EXCHANGE_RATE" property="exchangeRate" jdbcType="DECIMAL"/>
+        <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		START_DATE,CURRENCY_CODE_TO,STATUS,CURRENCY_CODE_FROM,EXCHANGE_RATE,
+		END_DATE,SEQUENCE_ID,CREATE_DATE
+    </sql>
+    <insert id="create" parameterClass="exchangeRate">
+        INSERT INTO EXCHANGE_RATE(
+			START_DATE,CURRENCY_CODE_TO,STATUS,CURRENCY_CODE_FROM,EXCHANGE_RATE,
+			END_DATE,SEQUENCE_ID,CREATE_DATE
+        )
+        VALUES(
+            #startDate#,#currencyCodeTo#,#status#,#currencyCodeFrom#,#exchangeRate#,
+			#endDate#,#sequenceId#,#createDate#
+		)
+    </insert>
+
+    <update id="update" parameterClass="exchangeRate">
+        UPDATE EXCHANGE_RATE
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="startDate">
+            START_DATE = #startDate#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCodeTo">
+            CURRENCY_CODE_TO = #currencyCodeTo#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCodeFrom">
+            CURRENCY_CODE_FROM = #currencyCodeFrom#
+        </isNotNull>
+        <isNotNull prepend="," property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate#
+        </isNotNull>
+        <isNotNull prepend="," property="endDate">
+            END_DATE = #endDate#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM EXCHANGE_RATE        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="exchangeRate">
+        DELETE FROM EXCHANGE_RATE        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="startDate">
+            START_DATE = #startDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCodeTo">
+            CURRENCY_CODE_TO = #currencyCodeTo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCodeFrom">
+            CURRENCY_CODE_FROM = #currencyCodeFrom# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="endDate">
+            END_DATE = #endDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="exchangeRate"
+        parameterClass="java.lang.Long">
+        SELECT 
+			START_DATE,CURRENCY_CODE_TO,STATUS,CURRENCY_CODE_FROM,EXCHANGE_RATE,
+			END_DATE,SEQUENCE_ID,CREATE_DATE
+        FROM EXCHANGE_RATE
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="exchangeRate">
+        SELECT 
+			START_DATE,CURRENCY_CODE_TO,STATUS,CURRENCY_CODE_FROM,EXCHANGE_RATE,
+			END_DATE,SEQUENCE_ID,CREATE_DATE
+        FROM EXCHANGE_RATE
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="startDate">
+            START_DATE = #startDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCodeTo">
+            CURRENCY_CODE_TO = #currencyCodeTo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCodeFrom">
+            CURRENCY_CODE_FROM = #currencyCodeFrom# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="endDate">
+            END_DATE = #endDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM EXCHANGE_RATE
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="startDate">
+            START_DATE = #startDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCodeTo">
+            CURRENCY_CODE_TO = #currencyCodeTo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCodeFrom">
+            CURRENCY_CODE_FROM = #currencyCodeFrom# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="endDate">
+            END_DATE = #endDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

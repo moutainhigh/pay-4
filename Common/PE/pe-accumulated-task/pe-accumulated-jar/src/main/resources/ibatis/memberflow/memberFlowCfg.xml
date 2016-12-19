@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="MemberFlowCfg">
+	<typeAlias alias="memberFlowCfg"
+		type="com.pay.pe.accumulated.memberpackagemonitor.dto.MemberFlowPackageCfgDto" />
+		
+	<resultMap id="tMemberFlowPackageCfg" class="com.pay.pe.accumulated.memberpackagemonitor.dto.MemberFlowPackageCfgDto">
+        <result column="SHUT_DOWN_LINKMAN_MOBILE" property="shutDownLinkmanMobile" jdbcType="VARCHAR"/>
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="PRE_PAY_AMOUNT" property="prePayAmount" jdbcType="DECIMAL"/>
+        <result column="WARN_FLOW" property="warnFlow" jdbcType="DECIMAL"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PRE_PAY_DATE" property="prePayDate" jdbcType="TIMESTAMP"/>
+        <result column="WARN_LINKMAN" property="warnLinkman" jdbcType="VARCHAR"/>
+        <result column="SHUT_DOWN_FLOW" property="shutDownFlow" jdbcType="DECIMAL"/>
+        <result column="BEGIN_DATE" property="beginDate" jdbcType="TIMESTAMP"/>
+        <result column="PRE_PAY_FLOW" property="prePayFlow" jdbcType="DECIMAL"/>
+        <result column="WARN_LINKMAN_MOBILE" property="warnLinkmanMobile" jdbcType="VARCHAR"/>
+        <result column="SHUT_DOWN_LINKMAN" property="shutDownLinkman" jdbcType="VARCHAR"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="LAST_OPERATE_TIME" property="lastOperateTime" jdbcType="TIMESTAMP"/>
+        <result column="AVERAGE_RATE" property="averageRate" jdbcType="DECIMAL"/>
+        <result column="SHUT_DOWN_LINKMAN_EMAIL" property="shutDownLinkmanEmail" jdbcType="VARCHAR"/>
+        <result column="MEMBER_NAME" property="memberName" jdbcType="VARCHAR"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="WARN_LINKMAN_EMAIL" property="warnLinkmanEmail" jdbcType="VARCHAR"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+        <result column="LAST_OPERATOR" property="lastOperator" jdbcType="VARCHAR"/>
+    </resultMap>
+		
+	<select id="selectMemberFlowCfgList" parameterClass="java.util.Map"
+		resultMap="tMemberFlowPackageCfg">
+		select 
+			C.*
+		from 
+			T_MEMBER_FLOW_PACKAGE_CFG C
+		where
+			1 = 1
+			<isNotNull prepend="AND" property="beginDate">
+	          <![CDATA[ C.BEGIN_DATE = TO_DATE(#beginDate#, 'yyyy-MM-dd') ]]>
+	        </isNotNull>
+			<isNotNull prepend="AND" property="status">
+	          <![CDATA[ C.STATUS = #status# ]]>
+	        </isNotNull>
+	    order by C.PRE_PAY_DATE ASC
+	</select>
+	
+	<select id="selectMemberFlowCfgListOrderByBeginDate" parameterClass="java.util.Map"
+		resultMap="tMemberFlowPackageCfg">
+		select 
+			C.*
+		from 
+			T_MEMBER_FLOW_PACKAGE_CFG C
+		where
+			1 = 1
+			<isNotNull prepend="AND" property="memberCode">
+	          <![CDATA[ C.MEMBER_CODE = #memberCode# ]]>
+	        </isNotNull>
+			<isNotNull prepend="AND" property="status">
+	          <![CDATA[ C.STATUS = #status# ]]>
+	        </isNotNull>
+	    order by BEGIN_DATE DESC
+	</select>
+	
+	<select id="hasNextPckRule" parameterClass="java.util.Map"
+		resultMap="tMemberFlowPackageCfg">
+		select 
+			C.*
+		from 
+			T_MEMBER_FLOW_PACKAGE_CFG C
+		where
+			1 = 1
+			AND C.BEGIN_DATE IS NULL
+			<isNotNull prepend="AND" property="memberCode">
+	          <![CDATA[ C.MEMBER_CODE = #memberCode# ]]>
+	        </isNotNull>
+			<isNotNull prepend="AND" property="status">
+	          <![CDATA[ C.STATUS = #status# ]]>
+	        </isNotNull>
+	    order by C.PRE_PAY_DATE ASC
+	</select>
+	
+	<update id="update" parameterClass="memberFlowCfg">
+      UPDATE T_MEMBER_FLOW_PACKAGE_CFG
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="shutDownLinkmanMobile">
+            SHUT_DOWN_LINKMAN_MOBILE = #shutDownLinkmanMobile#
+        </isNotNull>
+        <isNotNull prepend="," property="createTime">
+            CREATE_TIME = #createTime#
+        </isNotNull>
+        <isNotNull prepend="," property="prePayAmount">
+            PRE_PAY_AMOUNT = #prePayAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="warnFlow">
+            WARN_FLOW = #warnFlow#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="prePayDate">
+            PRE_PAY_DATE = #prePayDate#
+        </isNotNull>
+        <isNotNull prepend="," property="warnLinkman">
+            WARN_LINKMAN = #warnLinkman#
+        </isNotNull>
+        <isNotNull prepend="," property="shutDownFlow">
+            SHUT_DOWN_FLOW = #shutDownFlow#
+        </isNotNull>
+        <isNotNull prepend="," property="beginDate">
+            BEGIN_DATE = #beginDate#
+        </isNotNull>
+        <isNotNull prepend="," property="prePayFlow">
+            PRE_PAY_FLOW = #prePayFlow#
+        </isNotNull>
+        <isNotNull prepend="," property="warnLinkmanMobile">
+            WARN_LINKMAN_MOBILE = #warnLinkmanMobile#
+        </isNotNull>
+        <isNotNull prepend="," property="shutDownLinkman">
+            SHUT_DOWN_LINKMAN = #shutDownLinkman#
+        </isNotNull>
+        <isNotNull prepend="," property="creator">
+            CREATOR = #creator#
+        </isNotNull>
+        <isNotNull prepend="," property="lastOperateTime">
+            LAST_OPERATE_TIME = #lastOperateTime#
+        </isNotNull>
+        <isNotNull prepend="," property="averageRate">
+            AVERAGE_RATE = #averageRate#
+        </isNotNull>
+        <isNotNull prepend="," property="shutDownLinkmanEmail">
+            SHUT_DOWN_LINKMAN_EMAIL = #shutDownLinkmanEmail#
+        </isNotNull>
+        <isNotNull prepend="," property="warnLinkmanEmail">
+            WARN_LINKMAN_EMAIL = #warnLinkmanEmail#
+        </isNotNull>
+        <isNotNull prepend="," property="lastOperator">
+            LAST_OPERATOR = #lastOperator#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<bean id="fundout-securitycheck-abstractVoter" class="com.pay.fundout.securitycheck.voter.AbstractVoter"
+		abstract="true">
+	</bean>
+
+	<bean id="fundout-securitycheck-baseAcctVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.BaseAcctAttributeVoter"
+		abstract="true" parent="fundout-securitycheck-abstractVoter">
+		<property name="cachePayerAcctInfo" value="true" />
+		<property name="cachePayeeAcctInfo" value="true" />
+		<property name="massPayService" ref="massPayService" />
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctPayerFrozenVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctPayerFrozenVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>17</value>
+
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payerUndo">
+			<set>
+				<value>23</value>
+				<value>24</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctPayeeFrozenVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctPayeeFrozenVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>17</value>
+
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payeeUndo">
+			<set>
+				<value>10</value>
+				<value>17</value>
+				<value>22</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctAllowFundInVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctAllowFundInVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payeeUndo">
+			<set>
+				<value>10</value>
+				<value>22</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctAllowFundOutVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctAllowFundOutVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payerUndo">
+			<set>
+				<value>23</value>
+				<value>24</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctAllowInVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctAllowInVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payeeUndo">
+			<set>
+				<value>10</value>
+				<value>22</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctAllowOutVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctAllowOutVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payerUndo">
+			<set>
+				<value>23</value>
+				<value>24</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-AcctPayAbleVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.AcctPayAbleVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payerUndo">
+			<set>
+				<value>23</value>
+				<value>24</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-BalanceLessVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.BalanceLessVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payerUndo">
+			<set>
+				<value>23</value>
+				<value>24</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-RealNameVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.RealNameVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>10</value>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+		<property name="payerUndo">
+			<set>
+				<value>23</value>
+				<value>24</value>
+			</set>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-PayerMemberStatusVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.PayerMemberStatusVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>20</value>
+				<value>21</value>
+				<value>22</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="fundout-securitycheck-PayeeMemberStatusVoter"
+		class="com.pay.fundout.securitycheck.voter.spi.acct.impl.PayeeMemberStatusVoter"
+		parent="fundout-securitycheck-baseAcctVoter">
+		<property name="supportBusiness">
+			<list>
+				<value>20</value>
+				<value>21</value>
+				<value>23</value>
+				<value>24</value>
+			</list>
+		</property>
+	</bean>
+</beans>

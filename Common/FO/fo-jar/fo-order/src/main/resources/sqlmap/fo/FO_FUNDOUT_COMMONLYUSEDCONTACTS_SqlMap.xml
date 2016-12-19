@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="FO_FUNDOUT_COMMONLY_USED_CONTACTS">
+
+	<typeAlias alias="recentPayeeDTO" type="com.pay.fo.order.dto.RecentPayeeDTO" />
+
+	<insert id="create" parameterClass="recentPayeeDTO">
+   	 <selectKey resultClass="java.lang.Long" keyProperty="contactsId">
+   	 	SELECT SEQ_COMMONLY_USED_CONTACTS.nextval AS id FROM dual
+	 </selectKey>
+        INSERT INTO COMMONLY_USED_CONTACTS(
+		 CONTACTS_ID           ,
+		 ORDER_ID              ,
+		 PAYEE_NAME            ,
+		 TRADE_TYPE            ,
+		 PAYEE_BANKCODE        ,
+		 PAYEE_BANKPROVINCE    ,
+		 PAYEE_BANKCITY        ,
+		 PAYEE_OPENINGBANKNAME ,
+		 PAYEE_BANKACCTCODE    ,
+		 PAYEE_BANKNAME        ,
+		 PAYEE_LOGINNAME       ,
+		 TYPE                  ,
+		 PAYER_MEMBERCODE	   ,
+		 CREATE_DATE
+        )
+        VALUES(
+            #contactsId#,
+            #orderId#,
+            #payeeName#,
+            #tradeType#,
+            #payeeBankCode#,
+			#payeeBankprovince#,
+			#payeeBankcity#,
+			#payeeOpeningbankname#,
+			#payeeBankacctcode#,
+			#payeeBankName#,
+			#payeeLoginname#,
+			#type#,
+			#payerMembercode#,
+			#createDate#
+		)
+    </insert>
+
+	<delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM COMMONLY_USED_CONTACTS        
+        WHERE  CONTACTS_ID = #contactsId# 
+    </delete>
+    
+    <delete id="deleteByRownum" parameterClass="recentPayeeDTO">
+        DELETE FROM COMMONLY_USED_CONTACTS        
+        WHERE TYPE = #type# AND CREATE_DATE = (SELECT CREATE_DATE FROM (SELECT MIN(CREATE_DATE) CREATE_DATE FROM COMMONLY_USED_CONTACTS
+        WHERE
+			PAYER_MEMBERCODE = #payerMembercode# 
+			AND TYPE = #type#
+			ORDER BY CREATE_DATE DESC ))
+    </delete>
+
+
+	<select id="queryContacts" resultClass="recentPayeeDTO" parameterClass="recentPayeeDTO">
+	SELECT
+		CONTACTS_ID 			contactsId,
+	    ORDER_ID 				orderId,
+		PAYEE_NAME 				payeeName,
+		TRADE_TYPE 				tradeType,
+		PAYEE_BANKCODE 			payeeBankCode,
+		PAYEE_BANKPROVINCE 		payeeBankprovince,
+		PAYEE_BANKCITY 			payeeBankcity,
+		PAYEE_OPENINGBANKNAME 	payeeOpeningbankname,
+		PAYEE_BANKACCTCODE 		payeeBankacctcode,
+		PAYEE_BANKNAME          payeeBankName,
+		PAYEE_LOGINNAME			payeeLoginname,
+		TYPE 					type,
+		PAYER_MEMBERCODE		payerMembercode
+	FROM (SELECT * FROM COMMONLY_USED_CONTACTS WHERE 
+			PAYER_MEMBERCODE = #payerMembercode# 
+			AND TYPE = #type#
+			<isNotNull prepend="AND" property="payeeBankacctcode">
+	            PAYEE_BANKACCTCODE = #payeeBankacctcode# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="payeeLoginname">
+	            PAYEE_LOGINNAME = #payeeLoginname# 
+	        </isNotNull>
+		ORDER BY CREATE_DATE DESC)
+		WHERE ROWNUM &lt;= 11
+	</select>
+	
+</sqlMap>

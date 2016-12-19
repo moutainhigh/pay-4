@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/cert/atlcrypt.js"></script>
+<title>证书校验</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css" rel="stylesheet" type="text/css">
+<#assign cafaTemplate = "com.pay.app.common.template.CfcaTemplate"?new()>
+<#assign result = cafaTemplate()>
+<#if result.ie == 1>
+	<OBJECT ID="atlCrypt" codeBase="<@sp.static/>/HnaCert.cab#version=1,0,0,1" CLASSID="CLSID:F67513E2-046C-4349-A877-EC2EEADAD726" width="240" height="30" style="display:none;"></OBJECT>
+<#elseif result.firefox == 1 || result.chrome == 1>
+	<embed id="atlCrypt" name="atlCrypt" type="application/hnacert" width="1" height="1" loop="true" pluginspage="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit" style=""></embed>
+<#else>
+	<embed id="atlCrypt" name="atlCrypt" type="application/hnacert" width="1" height="1" loop="true" pluginspage="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit" style=""></embed>			 	
+</#if>
+</head>
+<body>
+<div class="header">
+	<h1 class="logo"><a href="${rc.contextPath}/index.htm"><img alt="iPayLinks支付" title="iPayLinks支付" src="<@sp.static/>/img/pay/logo.png"></a></h1>
+	<div class="header_bar"><a href="${rc.contextPath}/help/index.htm" class="help">帮助中心</a> </div>
+</div>
+<div class="container">
+	<p class="load_line"></p>
+	<div class="pki_tips pki_tips_load">
+		<div class="result_tips">
+			<div class="set_height clearfix" id="stepDiv"> 
+				<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+				<span class=""></span>
+				  <p class="words f14b"><img class="v_m" src="<@sp.static/>/img/pay/loading2.gif"><span class="ml20">正在检测本机数字证书控件,请稍候...</span></p>
+				   <p class="c_999">数字证书保护您的账户安全。</p>
+				   <p class="c_666">&nbsp;</p>
+				   <p class="link mt10">&nbsp;</p>
+			</div>
+		</div>
+	</div>
+	<p class="load_line"></p>
+</div>
+
+<form action="${rc.contextPath}${actionUrl?default('/index.htm')?html}" id="autoForm" method="post" target="_top">
+<#if pMaps?exists && pMaps?has_content>
+	<#assign params=pMaps>
+ 	<#assign keys=params?keys>
+	<#list keys as key>
+	<input type="hidden" name="${key?html}" value="${params[key]?html}"> 
+	</#list>
+</#if>
+	<input type="hidden" name="isLogin" value="1" />
+</form>
+
+<script type="text/javascript">
+$(window).unload(function() {
+	try{
+		$("OBJECT").remove();
+	}catch(e){};
+});
+</script>
+
+<#if acResponse?exists && acResponse?has_content>
+	<input type="hidden" name="pki_status" id="pki_status" value="${acResponse.status}"/>
+	<input type="hidden" name="pki_signCertPem" id="pki_signCertPem" value="${acResponse.signCertPem?default("")}"/>
+	<input type="hidden" name="pki_authCode" id="pki_authCode" value="${acResponse.authCode}"/>
+	<input type="hidden" name="pki_refNo" id="pki_refNo" value="${acResponse.refNo}"/>
+	<input type="hidden" name="pki_cn" id="pki_cn" value="${acResponse.cn}"/>
+</#if>
+<form id="_importCertForm" style="display: none;" action="${rc.contextPath}/corp/cert/import.htm" method="post">
+	<input type="hidden" id="machineId" name="machineId" value="" />
+</form>
+<script type="text/javascript" src="<@sp.static/>/js/pay/login/certCheck.js"></script>
+<#include "/common/include/footer.html">
+</body>
+</html>

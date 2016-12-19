@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="subject-poss">
+<typeAlias alias="subjectDto" type="com.pay.pe.account.model.Subject"/>
+
+   <resultMap id="subject" class="com.pay.pe.account.model.Subject">
+        <result column="acct_code" property="acctCode" jdbcType="VARCHAR"/>
+        <result column="acct_name" property="acctName" jdbcType="VARCHAR"/>
+   </resultMap>
+	
+	<select id="selectSubjectList" resultMap="subject">
+			select acct_code,acct_name from pe.subject  
+			       where status=1 order by acct_code      
+    </select>
+   
+    
+    <select id="countSubjectByAcctCodeAndAcctName" resultClass="java.lang.Integer" parameterClass="subjectDto" >
+			select  count(1)  from pe.subject  
+			       where status=1
+			        and   acct_code=#acctCode#
+			        and acct_name=#acctName#
+    </select>
+    
+</sqlMap>

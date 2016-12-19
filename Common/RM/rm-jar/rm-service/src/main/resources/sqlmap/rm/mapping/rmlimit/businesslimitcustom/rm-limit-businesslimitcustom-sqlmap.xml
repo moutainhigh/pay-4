@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcbusinesslimitcustom">
+	<typeAlias alias="rcBusinessLimitCustom" type="com.pay.rm.service.model.rmlimit.businesslimitcustom.RcBusinessLimitCustom"/>
+    <resultMap id="rcBusinessLimitCustom" class="com.pay.rm.service.model.rmlimit.businesslimitcustom.RcBusinessLimitCustom">
+        <result column="DAY_LIMIT" property="dayLimit" jdbcType="DECIMAL"/>
+        <result column="MONTH_LIMIT" property="monthLimit" jdbcType="DECIMAL"/>
+        <result column="MONTH_TIMES" property="monthTimes" jdbcType="DECIMAL"/>
+        <result column="MCC" property="mcc" jdbcType="DECIMAL"/>
+        <result column="SINGLE_LIMIT" property="singleLimit" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BUSINESS_TYPE" property="businessType" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="BUSINESS_ID" property="businessId" jdbcType="DECIMAL"/>
+        <result column="DAY_TIMES" property="dayTimes" jdbcType="DECIMAL"/>
+        <result column="B_MEMBER_NAME" property="bMemberName" jdbcType="DECIMAL"/>
+        <result column="BATCH_ACCOUNTS" property="batchAccounts" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,B_MEMBER_NAME,MCC,
+		SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,BUSINESS_ID,
+		DAY_TIMES,BATCH_ACCOUNTS
+    </sql>
+    <insert id="create" parameterClass="rcBusinessLimitCustom">
+    	<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			select SEQ_RC_B_LIMIT_CUSTOM_ID.NEXTVAL FROM DUAL 
+		</selectKey>
+        INSERT INTO RC_BUSINESS_LIMIT_CUSTOM(
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,MCC,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,BUSINESS_ID,
+			DAY_TIMES,BATCH_ACCOUNTS
+        )
+        VALUES(
+            #dayLimit#,#monthLimit#,#monthTimes#,#mcc#,
+			#singleLimit#,#status#,#businessType#,#sequenceId#,#businessId#,
+			#dayTimes#,#batchAccounts#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcBusinessLimitCustom">
+        UPDATE RC_BUSINESS_LIMIT_CUSTOM
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="dayLimit">
+            DAY_LIMIT = #dayLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="monthLimit">
+            MONTH_LIMIT = #monthLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="monthTimes">
+            MONTH_TIMES = #monthTimes#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="bMemberName">
+            B_MEMBER_NAME = #bMemberName#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="mcc">
+            MCC = #mcc#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="singleLimit">
+            SINGLE_LIMIT = #singleLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="businessType">
+            BUSINESS_TYPE = #businessType#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="businessId">
+            BUSINESS_ID = #businessId#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="dayTimes">
+            DAY_TIMES = #dayTimes#
+        </isNotEmpty>
+       <isNotEmpty prepend="," property="batchAccounts">
+            BATCH_ACCOUNTS = #batchAccounts#
+        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotEmpty>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+        DELETE FROM RC_BUSINESS_LIMIT_CUSTOM        
+        WHERE
+            SEQUENCE_ID = #sequenceId# 
+            
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcBusinessLimitCustom">
+        DELETE FROM RC_BUSINESS_LIMIT_CUSTOM        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="dayLimit">
+            DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthLimit">
+            MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthTimes">
+            MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="bMemberName">
+            B_MEMBER_NAME = #bMemberName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mcc">
+            MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="dayTimes">
+            DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcBusinessLimitCustom" parameterClass="java.lang.Long">
+        SELECT 
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,MCC,B_MEMBER_NAME,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,BUSINESS_ID,
+			DAY_TIMES,BATCH_ACCOUNTS
+        FROM RC_BUSINESS_LIMIT_CUSTOM
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcBusinessLimitCustom">
+        SELECT 
+			DAY_LIMIT,
+			MONTH_LIMIT,
+			MONTH_TIMES,
+			MCC,
+			B_MEMBER_NAME,
+			SINGLE_LIMIT,
+			STATUS,BUSINESS_TYPE,
+			SEQUENCE_ID,
+			BUSINESS_ID,
+			DAY_TIMES,BATCH_ACCOUNTS
+        FROM RC_BUSINESS_LIMIT_CUSTOM
+        <dynamic prepend="WHERE">
+	        <isNotEmpty prepend="AND" property="businessId">
+	            BUSINESS_ID = #businessId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="bMemberName">
+	         	B_MEMBER_NAME LIKE '%' || #bMemberName# || '%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessType">
+	            BUSINESS_TYPE = #businessType#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+        </dynamic>
+        ORDER BY SEQUENCE_ID
+    </select>
+    
+    <select id="serachById" resultClass="java.lang.Integer" parameterClass="rcBusinessLimitCustom" > 
+        SELECT 
+			COUNT(1)
+        FROM RC_BUSINESS_LIMIT_CUSTOM
+        <dynamic prepend="WHERE">
+	        <isNotEmpty prepend="AND" property="businessId">
+	            BUSINESS_ID = #businessId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessType">
+	            BUSINESS_TYPE = #businessType#
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT 
+        	COUNT(*) 
+        FROM RC_BUSINESS_LIMIT_CUSTOM
+        <dynamic prepend="WHERE">
+	        <isNotEmpty prepend="AND" property="businessId">
+	            BUSINESS_ID = #businessId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="bMemberName">
+	         	B_MEMBER_NAME LIKE '%' || #bMemberName# || '%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessType">
+	            BUSINESS_TYPE = #businessType#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+    
+</sqlMap>

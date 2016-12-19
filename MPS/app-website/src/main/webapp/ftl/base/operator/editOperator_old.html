@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#if isSuccess?exists || errorMsg?exists || !operator?exists>
+<meta http-equiv="refresh" content="5;URL=${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">
+</#if>
+<#include "/common/macro/seoCorp.ftl">
+<title>${modify_operator}${title}</title>
+<meta name="Keywords" content="${modify_operator_Keywords}" />
+<meta name="Description" content="${modify_operator_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/b_rights.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/operator/operatorValidator.js"></script>
+<script type="text/javascript">
+var winPerm ;
+var inputTxt;
+var chechBoxTxt;
+	$(function(){	
+	$("#name").focus();
+	inputTxt=$("#selectVal");
+	chechBoxTxt = $("#selectTxt");
+	$("#selectPerm").click(function(){
+		var val = $("#selectVal").val();
+		winPerm=$.pay.window("${rc.contextPath}/corp/operatorManage.htm?method=selectPermission&selectVal="+val,{title:"修改功能权限",w:800,h:550,url:true,iframe:true,close:function(){$("#note").focus()}});
+	});
+	});
+</script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_operator_manager,bsp_operator_manager"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	
+
+		<!--自适应box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg ">
+				<div class="tit_box ">
+					<h3 class="title font14"><span class="ico_dot2"></span><strong>修改操作员</strong></h3>
+				</div>
+				
+					<#if operator?exists>
+					<#if isSuccess?exists>
+					<div class="txtC">
+					<div class="result_tips"> 
+					<!--set_height根据设计稿情况来变化，更改名字后，定高度-->
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class=" pop_s"></span>
+						<div class="words"> <strong class="col_black">修改操作员 <span class="col_b10000">${operatorName?default('')}</span> 成功！</strong><br />
+							<span class="col_b10000" id="UE">5</span> 秒钟之后将自动返回…… <a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView" class="col_b10000">立即返回</a>
+							<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回企业账户</a>|<a href="${rc.contextPath}/index.htm">返回iPayLinks支付首页</a></p>
+						</div>
+					</div>
+					</div>
+					</div>
+					<#elseif errorMsg?exists>
+					<div class="txtC">
+					<div class="result_tips"> 
+					<!--set_height根据设计稿情况来变化，更改名字后，定高度-->
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class="pop_war"></span>
+						<div class="words"> <strong class="col_black">修改操作员 <span class="col_b10000">${operator.identity?default('')}</span> 失败！</strong><br />
+							<strong class="col_black">${errorMsg}</strong><br />
+							<span class="col_b10000" id="UE">5</span> 秒钟之后将自动返回…… <a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView" class="col_b10000">立即返回</a>
+							<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回企业账户</a>|<a href="${rc.contextPath}/index.htm">返回iPayLinks支付首页</a></p>
+						</div>
+					</div>
+					</div>
+					</div>
+					<#else>
+					<div class="pay_info">
+						<form class="mod_form" id="operatorForm" method="post" action="${rc.contextPath}/corp/operatorAction.htm" >
+						<input type="hidden" name="method" value="editOperator">
+						<input id="memberCode" name="memberCode" type="hidden" value="${operator.memberCode?default('')}">
+						<input id="operatorId" name="operatorId" type="hidden" value="${operator.operatorId?default('')}">
+							<ul class="form_list mt20 addpf">
+								<li>
+									<label class="form_side col000"><span>*</span>登录账号：</label>
+									<input type="hidden" id="oldIdentity" name="oldIdentity" size="32" maxlength="32" value="${operator.identity?default('')}">
+									<input type="text" class="inp_normal" id="oldLogin" name="oldLogin" size="32" maxlength="32"  disabled="true" value="${operator.identity?default('')}">
+									<span id="identityTip"></span>
+								</li>
+				
+								<li>
+									<label class="form_side col000"><span>*</span>真实姓名：</label>
+									<input type="text" class="inp_normal" id="name" name="name" maxlength="32" size="32" value="${operator.name?default('')}">
+									<span id="nameTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">证件号码：</label>
+									<input type="text" class="inp_normal" id="certCode" name="certCode" size="32" maxlength="20" value="${operator.certCode?default('')}">
+									<span id="certCodeTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>部门：</label>
+									<input type="text" class="inp_normal" id="depart" name="depart" size="32" maxlength="64" value="${operator.depart?default('')}">
+									<span id="departTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">电子邮件：</label>
+									<input type="text" class="inp_normal" id="email" name="email" size="32" maxlength="64" value="${operator.email?default('')}">
+									<span id="emailTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>手机号码：</label>
+									<input type="text" class="inp_normal" id="mobile" name="mobile" size="32" maxlength="11" value="${operator.mobile?default('')}">
+									<span id="mobileTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000">电话号码：</label>
+									<input type="text" class="inp_normal" id="phone" name="phone" size="32" maxlength="16" value="${operator.phone?default('')}">
+									<span id="phoneTip"></span>
+								</li>
+								<li>
+									<label class="form_side col000"><span>*</span>功能权限：</label>
+									<input type="hidden" id="selectVal" name="selectVal" value="${menuIds?default('')}"/>
+									<div id="selectTxt"><#if menuNames?has_content> ${menuNames?default('')} <br/></#if></div><a id="selectPerm" href="javascript:void(0);" name="selectPerm" class="red" >  修改权限</a>
+									<span id="selectValTip"></span><#if chErrorMsg?exists> <span class="red">功能权限至少添加一个 </span></#if>
+								</li>
+								<li>
+									<label class="form_side col000">备注：</label>
+									<textarea cols="40" id="note" name="note" rows="5" class="inp_normal" maxlength="128" >${operator.note?default('')}</textarea>
+									<span id="noteTip"></span>
+								</li>
+								<li>
+									<!--<label class="form_side col000"><span>*</span>支付密码：</label>
+									<input type="password" id="payPassword" name="payPassword" class="inp_normal" size="35">
+									<#if payErrorMsg?exists> <span class="red">${payErrorMsg} </span><#else> <span id="payPasswordTip"></span></#if></li> -->
+							<li><span class="btn_yel botton_yel">
+							<button type="submit" id="btnSubmit" align="center">保  存</button></span>
+								 </li>
+								 </ul>
+						</form>
+					</div>
+					</#if>
+					<#else>
+					<div class="txtC">
+					<div class="result_tips">
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class="pop_war"></span>
+						<div class="words">  <strong class="col_black">操作员不存在！</strong><br />
+						<span class="col_b10000">5</span> 秒钟之后将自动返回…… <a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView" class="col_b10000">立即返回</a></div>
+					</div>
+					</div>
+					</div>
+					</#if>
+				
+		
+		</div>
+		<p class="bot"><i></i></p>
+
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

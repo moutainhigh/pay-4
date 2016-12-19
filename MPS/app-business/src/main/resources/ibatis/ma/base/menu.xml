@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="menu">
+		<typeAlias alias="menu" type="com.pay.base.model.Menu" />
+    <typeAlias alias="featuremenu" type="com.pay.base.model.FeatureMenu" />
+    
+		<insert id="create" parameterClass="menu">
+				<selectKey resultClass="java.lang.Long" keyProperty="menuId">
+						select SEQ_MENU_ID.nextval as menuId from dual 
+    </selectKey>
+				insert into
+				t_menu
+				(
+				MENU_ID ,
+				TYPE ,
+				HIERARCHY ,
+				PARENT_ID ,
+				ORDER_ID ,
+				NAME ,
+				URL ,
+				DESCRIPTION,
+				STATUS,
+				DISPLAY_FLAG
+				)
+				values
+				(
+				#menuId#,
+				#type#,
+				#hierarchy#,
+				#parentId#,
+				#orderId#,
+				#name#,
+				#url#,
+				#description#,
+				#status#,
+				#displayFlag#
+				)
+		</insert>
+		
+		<insert id="createFeatureMenu" parameterClass="featuremenu">
+        <selectKey resultClass="java.lang.Long" keyProperty="featureMenuId">
+            select SEQ_FEATURE_MENU_ID.nextval as ID from dual 
+    </selectKey>
+        insert into
+        T_FEATURE_MENU
+        (
+				  FEATURE_MENU_ID ,
+				  FEATURE_ID   ,   
+				  MENU_ID         
+		    )
+        values
+        (
+        #featureMenuId#,
+        #featureId#,
+        #menuId#
+        )
+    </insert>
+    
+     <delete id="deleteMenuById" parameterClass="java.lang.Long">
+       DELETE FROM T_MENU WHERE MENU_ID=#VALUE#
+     </delete>
+		
+	   <delete id="deleteFeatureMenuByFeature" parameterClass="java.lang.Long">
+	     DELETE FROM T_FEATURE_MENU WHERE FEATURE_ID=#VALUE#
+	   </delete>
+	   
+	   <select id="findFmCountByFeatureId" resultClass="java.lang.Integer" parameterClass="java.lang.Long">
+	   select count(*) from T_FEATURE_MENU WHERE FEATURE_ID=#VALUE#
+	   </select>
+	
+
+		<select id="findByParentId" resultClass="menu" parameterClass="java.util.HashMap">
+				select 
+				MENU_ID as menuId,
+				TYPE as type,
+				HIERARCHY as hierarchy,
+				PARENT_ID as parentId,
+				ORDER_ID as orderId,
+				NAME as name,
+				URL as url,
+				DESCRIPTION as description,
+				STATUS as status,
+				DISPLAY_FLAG as displayFlag,
+				MENU_CODE as menuCode,
+				SECURITY_LEVEL as securityLvl,
+				CREATE_DATE as  createDate,
+				UPDATE_DATE as  updateDate   
+				FROM  T_MENU                
+        WHERE PARENT_ID=#parentId#
+         <isNotEmpty prepend="and" property="type">
+                TYPE = #type#
+         </isNotEmpty>
+        
+        order by ORDER_ID asc,type desc
+    </select>
+    
+    
+    
+		<select id="findByOperator" resultClass="menu" parameterClass="java.lang.Long">
+				select 
+				MENU_ID as menuId,
+				TYPE as type,
+				HIERARCHY as hierarchy,
+				PARENT_ID as parentId,
+				ORDER_ID as orderId,
+				NAME as name,
+				URL as url,
+				DESCRIPTION as description,
+				STATUS as status,
+				DISPLAY_FLAG as displayFlag,
+				MENU_CODE as menuCode,
+				SECURITY_LEVEL as securityLvl,
+				CREATE_DATE as  createDate,
+				UPDATE_DATE as  updateDate   
+				FROM  T_MENU                
+        WHERE PARENT_ID=#parentId# and  TYPE in (6,9)
+   	 order by ORDER_ID asc,type desc
+    </select>
+    
+    
+    
+    <select id="findAll" resultClass="menu" parameterClass="java.lang.Long">
+        select 
+        MENU_ID as menuId,
+        TYPE as type,
+        HIERARCHY as hierarchy,
+        PARENT_ID as parentId,
+        ORDER_ID as orderId,
+        NAME as name,
+        URL as url,
+        DESCRIPTION as description,
+        STATUS as status,
+        DISPLAY_FLAG as displayFlag,
+        MENU_CODE as menuCode,
+        SECURITY_LEVEL as securityLvl,
+        CREATE_DATE as  createDate,
+        UPDATE_DATE as  updateDate   
+        FROM  T_MENU                
+        order by UPDATE_DATE desc
+    </select>
+    
+    
+    
+      <select id="findMenuByFeatureId" resultClass="com.pay.base.model.Menu" parameterClass="java.lang.Long">
+        select
+         MENU_ID as menuId,
+        TYPE as type,
+        HIERARCHY as hierarchy,
+        PARENT_ID as parentId,
+        ORDER_ID as orderId,
+        NAME as name,
+        URL as url,
+        DESCRIPTION as description,
+        STATUS as status,
+        DISPLAY_FLAG as displayFlag,
+        MENU_CODE as menuCode,
+        SECURITY_LEVEL as securityLvl,
+        CREATE_DATE as  createDate,
+        UPDATE_DATE as  updateDate   
+        FROM  T_MENU
+        WHERE STATUS=1 AND MENU_ID  IN
+        (SELECT MENU_ID FROM T_FEATURE_MENU WHERE FEATURE_ID=#VALUE#)   
+        order by ORDER_ID asc
+       </select>
+       
+       
+         <select id="findMenuByIdsArray" resultClass="com.pay.base.model.Menu" parameterClass="java.util.HashMap">
+         
+            select
+         MENU_ID as menuId,
+        TYPE as type,
+        HIERARCHY as hierarchy,
+        PARENT_ID as parentId,
+        ORDER_ID as orderId,
+        NAME as name,
+        URL as url,
+        DESCRIPTION as description,
+        STATUS as status,
+        DISPLAY_FLAG as displayFlag,
+        MENU_CODE as menuCode,
+        SECURITY_LEVEL as securityLvl,
+        CREATE_DATE as  createDate,
+        UPDATE_DATE as  updateDate   
+        FROM  T_MENU
+        WHERE 
+       DISPLAY_FLAG=1 AND STATUS = 1 AND MENU_ID  IN
+         
+        <iterate property="ids"  conjunction="," close=")" open="(">
+            #ids[]#
+       </iterate>
+               <!-- order by ORDER_ID asc-->
+              order by (case when type=9 then 9999  else order_id end) asc
+         </select>
+           
+ 	<select id="findMenuByTypesArray" resultClass="com.pay.base.model.Menu" parameterClass="java.util.HashMap">
+      select
+        MENU_ID as menuId,
+        TYPE as type,
+        HIERARCHY as hierarchy,
+        PARENT_ID as parentId,
+        ORDER_ID as orderId,
+        NAME as name,
+        URL as url,
+        DESCRIPTION as description,
+        STATUS as status,
+        DISPLAY_FLAG as displayFlag,
+        MENU_CODE as menuCode,
+        SECURITY_LEVEL as securityLvl,
+        CREATE_DATE as  createDate,
+        UPDATE_DATE as  updateDate   
+        FROM  T_MENU
+        WHERE 
+       DISPLAY_FLAG=1 AND TYPE  IN
+        <iterate property="types"  conjunction="," close=")" open="(">
+            #types[]#
+       	</iterate>
+       order by CREATE_DATE desc
+    </select>
+     
+    <select id="getByMenuId" resultClass="menu" parameterClass="java.lang.Long">
+        select 
+        MENU_ID as menuId,
+        TYPE as type,
+        HIERARCHY as hierarchy,
+        PARENT_ID as parentId,
+        ORDER_ID as orderId,
+        NAME as name,
+        URL as url,
+        DESCRIPTION as description,
+        STATUS as status,
+        DISPLAY_FLAG as displayFlag,
+        MENU_CODE as menuCode,
+        SECURITY_LEVEL as securityLvl,
+        CREATE_DATE as  createDate,
+        UPDATE_DATE as  updateDate   
+        FROM  T_MENU                
+        WHERE MENU_ID=#VALUE#
+    </select>
+		
+
+		<update id="updateMenuStates" parameterClass="java.util.Map">
+				update
+				T_MENU
+				set
+				status = #status#
+				where
+				MENU_ID = #menuId#
+		</update>
+		
+		<update id="update" parameterClass="menu">
+				update
+				T_MENU
+				set
+				ORDER_ID=#orderId#,
+				  type=#type#,
+				NAME=#name#,
+				URL=#url#,
+				DESCRIPTION=#description#,
+				 STATUS = #status#,
+				DISPLAY_FLAG = #displayFlag#,
+				UPDATE_DATE = sysdate
+				where
+				MENU_ID = #menuId#
+		</update>
+		
+		<update id="updateSorting" parameterClass="menu">
+		    update
+        T_MENU
+        set
+        ORDER_ID=#orderId#,
+       UPDATE_DATE = sysdate
+        where
+        MENU_ID = #menuId#
+		</update>
+</sqlMap>

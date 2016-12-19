@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<link href="<@sp.static/>/mps/css/bootstrap.min.css" rel="stylesheet">
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+	<!-- data picker controller -->
+	<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+	<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+	<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+	<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+	<title>提现账户管理</title>
+	<script type="text/javascript">
+		function delBankCard(liquidateId){
+			if(null == liquidateId || undefined == liquidateId){
+				alert("要删除的银行卡不能为空！") ;
+				return false ;
+			}
+				window.location.href = "${rc.contextPath}/corp/corp_withdrawcashmanagement.htm?method=removeBankCard&liquidateId="+ liquidateId ;
+		}
+		function detail(errorMsg){
+			 $("#detail").html(errorMsg);
+			 $("#dialog-detail" ).dialog( "open" );
+		}
+	</script>
+	<script type="text/javascript">
+		$(function(){
+			<#if errorMsg?has_content>
+				alert('${errorMsg}') ;
+			</#if>
+			var subkey;
+			subkey=$("#dialog-download" ).dialog({
+		      autoOpen: false,
+		      height: 300,
+		      width: 400,
+		      modal: true,
+		      buttons: {
+		          "取消": function() {
+		        	  $("#paymentPwd").attr("value","");
+		        	  $("#errorMsg").html("");
+		        	  $("#liquidateId").attr("value","");
+		        	  $("#dialog-download" ).dialog( "close" );
+		          },
+		  	      "确定":function() {
+		  	    	subPayPwd();
+		  	      }
+		      },
+		      close: function() {
+		    	 
+		      }
+		});
+			var detail;
+			detail=$("#dialog-detail" ).dialog({
+		      autoOpen: false,
+		      height: 300,
+		      width: 400,
+		      modal: true,
+		      buttons: {
+		  	      "确定":function() {
+		  	    	  $("#detail").html("");
+		        	  $("#dialog-detail" ).dialog( "close" );
+		  	      }
+		      },
+		      close: function() {
+		    	 
+		      }
+		});
+	}) ;
+
+	function openDialog(liquidateId){
+		if(null == liquidateId || undefined == liquidateId){
+			alert("要删除的银行卡不能为空！") ;
+			return false ;
+		}
+		 $("#liquidateId").attr("value",liquidateId);
+		 $("#dialog-download" ).dialog( "open" );
+	}
+	function subPayPwd(){
+		var paymentPwd=$("#paymentPwd").val();
+		if(paymentPwd==''){
+			alert("请输入支付密码！");
+			return;
+		}
+		$.ajax({
+			type : "POST",
+			url : "${rc.contextPath}/corp/checkPaymentPwd.htm?paymentPwd="+paymentPwd,
+			success : function(data) {
+			if(data=='N'){
+				$("#errorMsg").html("支付密码错误！");	
+				}else if(data=='Y'){
+				 var liquidateId=$("#liquidateId").val();
+					 delBankCard(liquidateId);
+			}
+		}
+	});
+}
+	</script>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+	<@sp.head  mCode="corp_withdraw_01" />
+	
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+					<span class="current"><a href="${rc.contextPath}/corp/corp_withdrawcashmanagement.htm">银行卡管理</a></span>
+				</div>
+				<div class="seccon">
+				<div class="transparentbox" style="padding:0px;">
+					<table class="tab03" summary="Account Information List">
+						<thead>
+							<tr style="background-color: #eee">
+								<th>银行</th>
+								<th>银行卡尾号</th>
+								<th>账户名称</th>
+								<th>状态</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<#if list?has_content>
+				   				<#list list as Rainy>
+				   					<#if Rainy.bankAcct?has_content && (Rainy.bankAcct?length)&gt;4>
+				   					<#assign startIndex = (Rainy.bankAcct?length) - 4>
+				   					<#assign endIndex = Rainy.bankAcct?length>
+										<tr>
+											<td>${Rainy.bankName?default("")}</td>
+											<td>**** **** **** ${Rainy.bankAcct?substring(startIndex, endIndex)?default('')}</td>
+										    <td>${Rainy.acctName?default("")}</td>
+											<td>
+												<#if Rainy.auditStatus?has_content>
+													<#if Rainy.auditStatus == 101>
+														待审核
+													</#if>
+													<#if Rainy.auditStatus == 102>
+														审核通过
+													</#if>
+													<#if Rainy.auditStatus == 103>
+														审核拒绝
+													</#if>
+													<#if Rainy.auditStatus == 104>
+														审核滞留
+													</#if>
+												</#if>
+											</td>
+											<td>
+											<#if Rainy.auditStatus?has_content>
+													<#if Rainy.auditStatus == 101>
+													</#if>
+													<#if Rainy.auditStatus == 102>
+													<a style="color:#2020FF " calss="xiaodai" href="javascript:openDialog(${Rainy.liquidateId!('')});">删除</a>
+													</#if>
+													<#if Rainy.auditStatus == 103>
+													<a style="color:#2020FF " calss="xiaodai" onclick="detail('${Rainy.auditRemark!('')}')" href="#">详情</a>
+													&nbsp;&nbsp;
+													<a style="color:#2020FF " calss="xiaodai" href="javascript:openDialog(${Rainy.liquidateId!('')});">删除</a>
+													</#if>
+													<#if Rainy.auditStatus == 104>
+													</#if>
+												</#if>
+											</td> 
+										</tr>
+									</#if>
+								</#list>
+							</#if>
+						</tbody>
+					</table>
+					<div>
+						<a  style="color: red ;float:left;" class="xiaodai" href="/website/corp/editCorpBankCard.htm"><input class="btn_blue2" type="button"  value="添加银行账户" alt="添加银行账户"></a>
+										<span align="center" style="padding:2px 20px 0px 10px;color:#EE6C00;">您还可以添加${10-bankCardNumber}个银行卡账户</span>
+						<a  style="color: red ;float:right;" class="xiaodai" href="/website/corp/withdraw.htm"><input class="btn_blue2" type="button"  value="返回" alt="返回"></a>
+					</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+</body>
+	<div id="dialog-download" title="请输入支付密码" style="display: none; text-align:center">
+ 	<form action="" id="keydownload" method="post" >
+	  	<table style="text-align:center">
+	  	  <tr><td>&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;</td><td>&nbsp;&nbsp;&nbsp;&nbsp;确定删除 ?</td></tr>
+	      <tr><td><label for="lbl_trackingfile" class="side" style="margin-left:50px">支付密码 :  </label></td>
+	      <td><input type="password"  name="paymentPwd" id="paymentPwd" value="">&nbsp;&nbsp;
+	      	<span id="errorMsg" style="color: red"></span>
+	      </td></tr>
+	      <tr><td> &nbsp;</td><td></td></tr>
+	      <tr><td> &nbsp;</td><td></td></tr>
+	      <tr><td>	</td></tr>
+	   </table>
+	   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+    <input type="hidden" name="liquidateId" id="liquidateId">
+  </form>
+</div>
+	<!-- 修改银行卡不能删除的问题   id=liquidateId  id 重复 -->
+
+	<div id="dialog-detail" title="详情" style="display: none; text-align:center">
+ 	<form action="" id="keydownload" method="post" >
+	  	<table style="text-align:center">
+	  	  <tr><td>&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td></td></tr>
+	  	  <tr><td>&nbsp;</td><td>
+	  	   	失败原因 ： 	<span id="detail" style="color: red"></span></td></tr>
+	      <tr><td>
+		    </td>
+		    <td>
+	     
+	      </td></tr>
+	      <tr><td> &nbsp;</td><td></td></tr>
+	      <tr><td> &nbsp;</td><td></td></tr>
+	      <tr><td>	</td></tr>
+	   </table>
+	   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+   <!-- 	 <input type="hidden" name="liquidateId" id="liquidateId"> -->
+  </form>
+</div>
+</html>

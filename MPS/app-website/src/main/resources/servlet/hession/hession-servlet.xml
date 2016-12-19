@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+
+
+<!-- hession 应用 url配置-->
+	<bean id="hnpayHessionHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+					<prop key="/hession">payHessionController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean name="payHessionController"
+		class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="payHessionService" />
+		<property name="serviceInterface"
+			value="com.pay.app.hesssion.service.PayHessionService" />
+	</bean>
+
+	<bean id="payHessionService"
+		class="com.pay.app.controller.base.hession.PayHessionServiceImpl">
+		<property name="idCardVerifyService" ref="acc-idCardVerifyService"/>
+	</bean>
+
+
+</beans>

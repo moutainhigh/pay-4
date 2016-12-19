@@ -1,0 +1,45 @@
+<script type="text/javascript">
+$(function(){
+	$(".tabc li").hover(function(){
+		$(this).children(".mod").show();
+		},
+		function(){
+			$(this).children(".mod").hide();
+	});
+	
+	$(".mod").click(function(){
+			var contactsId = $(this).attr("data-seq");
+			$.pay.confirm('确认删除?',
+					{h:200,
+					t:'3',
+					confirm:function(){
+						$.ajax({
+							type:"GET",
+							url: "${rc.contextPath}/corp/pay2bank.htm?method=deleteRecentPayee&contactsId="+contactsId,
+							success:function(result){
+								if("success" == result){
+									$("#li"+contactsId).remove();
+									$.pay.alert('删除成功', {h : 160, t : '1'});
+								}else{
+									$.pay.alert('删除失败', {h : 160, t : '2'});
+								}
+							}
+						}); 
+					},cancel:function(){
+			}});
+		});
+	});
+</script>
+<ul class="tabc">
+<#if recentPayeeDTOList?exists> 
+	<#list recentPayeeDTOList as payee>
+		<li id="li${payee.contactsId}">
+			<span class="mod" data-seq="${payee.contactsId}" style="display:none" title="删除">删除</span>
+			<input type="radio"  
+				onclick="recentPayee('${payee.payeeName?default('')}','${payee.payeeAcctType?default('')}','${payee.payeeBankName?default('')}','${payee.payeeBankprovince?default('')}','${payee.payeeBankcity?default('')}','${payee.payeeOpeningbankname?default('')}','${payee.payeeBankacctcode?default('')}');"
+				name="linkerradio"> 
+			<label for="" title="${payee.payeeName?default('')}（${payee.payeeBankName?default('')}  ${payee.payeeBankacctcode?default('')}）">${payee.payeeName?default('')}（<span class="mr20">${payee.payeeBankName?default('')}</span> <span>${payee.payeeBankacctcode?default('')}</span>）</label>
+		</li>
+	</#list> 
+</#if>
+</ul>

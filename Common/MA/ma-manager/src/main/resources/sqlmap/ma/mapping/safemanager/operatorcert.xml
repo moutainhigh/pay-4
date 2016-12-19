@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="operatorCert" >
+	
+	
+	<select id="queryOperatorCertInfo"  resultClass="com.pay.poss.safemanager.dto.OperatorCertDto" 
+	parameterClass="com.pay.poss.safemanager.dto.OperatorCertDto">
+		select 
+	   op.mcId memberCertId,
+	   op.member_code memberCode,
+       eb.zh_name memberName,
+       me.login_name loginName,
+       op.identity operatorName,
+       decode(op.name, 'admin', 1, 0) isAdmin,
+       nvl(op.status, -1) certStatus,
+       eb.merchant_code merchantCode,
+       op.cert_code certCode,
+       op.operator_Id operatorId,
+       op.mobile bindMobile
+  from (select 
+  				mc.id mcId,	
+  				 nvl(mc.operator_id,opi.operator_id) operator_Id,
+               opi.identity,
+               mc.status,
+               opi.member_code,
+               opi.name,
+               opi.cert_code,
+               opi.mobile
+          from t_operator opi
+          left join t_member_cert mc
+            on (opi.member_code = mc.member_code and
+               opi.operator_id = mc.operator_id)
+         where  opi.name != 'admin'
+           
+           <isNotEmpty property="operatorName">
+			and opi.identity = #operatorName#
+		</isNotEmpty>
+		<isNotEmpty property="certStatus">
+			and nvl(mc.status,-1) = #certStatus#
+		</isNotEmpty>
+		<isNotEmpty property="memberCode">
+			and opi.member_code = #memberCode#
+		</isNotEmpty>
+		
+        union
+        select 
+        	   mc.id mcId,	
+        	     nvl(mc.operator_id,opi.operator_id) operator_Id,
+               opi.identity,
+               mc.status,
+               opi.member_code,
+               opi.name,
+               opi.cert_code,
+               opi.mobile
+          from t_operator opi
+          left join t_member_cert mc
+            on (opi.member_code = mc.member_code and mc.operator_id = 0)
+         where  opi.name = 'admin'
+            <isNotEmpty property="operatorName">
+			and opi.identity = #operatorName#
+		</isNotEmpty>
+		<isNotEmpty property="certStatus">
+			and nvl(mc.status,-1) = #certStatus#
+		</isNotEmpty>
+		<isNotEmpty property="memberCode">
+			and opi.member_code = #memberCode#
+		</isNotEmpty>
+	
+		
+           ) op
+  	left join t_member me
+    on op.member_code = me.member_code
+  left join t_enterprise_base eb
+    on eb.member_code = op.member_code
+    where 1=1
+    <isNotEmpty property="merchantCode" >
+			AND eb.merchant_code = #merchantCode#
+		</isNotEmpty>
+		<isNotEmpty property="loginName">
+			and me.login_name = #loginName#
+		</isNotEmpty>
+		<isNotEmpty property="operatorId">
+			and op.operator_id = #operatorId#
+		</isNotEmpty>
+		
+ order by isAdmin desc, certStatus desc
+		
+	</select>
+	
+	<select id="queryOperatorCertUseInfo" resultClass="com.pay.poss.safemanager.dto.OperatorCertUseDto" parameterClass="map">
+		select 
+		t.id certManageId,
+		t.use_place usePalce, 
+		t.status status, 
+		t.UPDATE_DATE createDate, 
+		t.user_dn userDn
+		from t_cert_manage t
+		where  1=1 
+		 <isNotEmpty property="memberCode">
+			and t.member_code = #memberCode#
+		</isNotEmpty>
+		 <isNotEmpty property="operatorId">
+			and t.operator_id = #operatorId#
+		</isNotEmpty>
+		order by t.id DESC
+	</select>
+	
+	<update id="updateCertStatus" parameterClass="map">
+		update t_member_cert set status = #status#,UPDATE_DATE = sysdate where id=#id#
+	</update>
+	<update id="updateUseStatusByCertId" parameterClass="map">
+	update t_cert_manage t set status = #status#,UPDATE_DATE = sysdate
+	where (t.member_code,t.operator_id )
+	in(select mc.MEMBER_CODE,mc.OPERATOR_ID from t_member_cert mc where mc.id = #memberCertId#)
+	</update>
+	
+	<update id="updateUseStatus" parameterClass="map">
+		update t_cert_manage set status = #status#,UPDATE_DATE = sysdate where id = #id#
+	</update>
+	
+	
+	<select id="queryCertCountStat" resultClass="com.pay.poss.safemanager.dto.OperatorCertStatDto" parameterClass="map">
+		select count(distinct t.member_code) certMemberCount , count(*) certOperatorCount
+		  from t_member_cert t
+		 where t.status = 2
+		 and 
+		  t.update_date &gt; #begin#  and  t.update_date &lt; #end#
+	</select>
+</sqlMap>

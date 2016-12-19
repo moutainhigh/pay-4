@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="certManage">
+	<typeAlias alias="certManage" type="com.pay.acc.cert.model.CertManage"/>
+	
+    <resultMap id="certManageMap" class="com.pay.acc.cert.model.CertManage">
+        <result column="ID"                 property="id"          jdbcType="NUMBER"/>
+        <result column="MEMBER_CODE"        property="memberCode"  jdbcType="NUMBER"/>
+        <result column="OPERATOR_ID"        property="operatorId"  jdbcType="NUMBER"/>
+        <result column="USER_DN"            property="userDn"      jdbcType="VARCHAR"/>
+        <result column="MACHINE_IDENTIFIER" property="machineId"   jdbcType="VARCHAR"/>
+        <result column="USE_PLACE"          property="usePlace"    jdbcType="VARCHAR"/>
+		<result column="STATUS"             property="status"      jdbcType="NUMBER"/>
+		<result column="CREATE_DATE"        property="createDate"  jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE"        property="updateDate"  jdbcType="TIMESTAMP"/>
+    </resultMap>
+  
+    <insert id="create" parameterClass="certManage">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">			
+		select SEQ_CERT_MANAGE_ID.NEXTVAL from DUAL
+		</selectKey>
+		insert into T_CERT_MANAGE
+		    (ID,
+		     MEMBER_CODE,
+		     OPERATOR_ID,
+		     USER_DN,
+		     MACHINE_IDENTIFIER,
+		     USE_PLACE,
+		     STATUS,
+		     CREATE_DATE,
+		     UPDATE_DATE)
+		values
+		  (#id#, #memberCode#, #operatorId#, #userDn#, #machineId#, #usePlace#, #status#, sysdate, sysdate)
+    </insert>
+
+
+    <update id="update" parameterClass="certManage">
+		update T_CERT_MANAGE
+			set UPDATE_DATE = sysdate
+        <isNotNull prepend="," property="memberCode">
+            MEMBER_CODE = #memberCode#
+        </isNotNull>
+        <isNotNull prepend="," property="operatorId">
+            OPERATOR_ID = #operatorId#
+        </isNotNull>
+        <isNotNull prepend="," property="userDn">
+            USER_DN = #userDn#
+        </isNotNull>
+        <isNotNull prepend="," property="machineId">
+            MACHINE_IDENTIFIER = #machineId#
+        </isNotNull>
+        <isNotNull prepend="," property="usePlace">
+            USE_PLACE = #usePlace#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="id">
+            ID = #id#
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+	<update id="updateStatus" parameterClass="map">
+        update T_CERT_MANAGE set
+        	STATUS = #status#,
+            UPDATE_DATE = sysdate
+        <dynamic prepend="WHERE">
+	        <isNotNull prepend="AND" property="id">
+	        ID = #id#
+	        </isNotNull>
+            <isNotNull prepend="AND" property="memberCode">
+             MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="AND" property="operatorId">
+            OPERATOR_ID = #operatorId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="userDn">
+             USER_DN = #userDn#
+            </isNotNull>
+            <isNotNull prepend="AND" property="machineId">
+             MACHINE_IDENTIFIER = #machineId#
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        delete from T_CERT_MANAGE where ID = #id#
+    </delete>
+    
+    <select id="findById" resultMap="certManageMap" parameterClass="java.lang.Long">
+		select ID,
+		       MEMBER_CODE,
+		       OPERATOR_ID,
+		       USER_DN,
+		       MACHINE_IDENTIFIER,
+		       USE_PLACE,
+		       STATUS,
+		       CREATE_DATE,
+		       UPDATE_DATE
+		  from T_CERT_MANAGE
+	      WHERE ID = #id# 
+    </select>
+    
+    <select id="findBySelective" resultMap="certManageMap" parameterClass="map">
+		select ID,
+		       MEMBER_CODE,
+		       OPERATOR_ID,
+		       USER_DN,
+		       MACHINE_IDENTIFIER,
+		       USE_PLACE,
+		       STATUS,
+		       CREATE_DATE,
+		       UPDATE_DATE
+		  from T_CERT_MANAGE
+        <dynamic prepend="WHERE"> 
+      		<isNotNull prepend="AND" property="memberCode">
+             MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="AND" property="operatorId">
+             OPERATOR_ID = #operatorId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="userDn">
+             USER_DN = #userDn#
+            </isNotNull>
+            <isNotNull prepend="AND" property="machineId">
+             MACHINE_IDENTIFIER = #machineId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="status">
+             STATUS = #status#
+        	</isNotNull>
+        </dynamic>
+        order by CREATE_DATE desc
+    </select>
+    
+    <select id="countByExample" resultClass="int" parameterClass="map">
+		select count(1)
+		  from T_CERT_MANAGE
+        <dynamic prepend="WHERE"> 
+      		<isNotNull prepend="AND" property="memberCode">
+             MEMBER_CODE = #memberCode#
+            </isNotNull>
+            <isNotNull prepend="AND" property="operatorId">
+             OPERATOR_ID = #operatorId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="userDn">
+             USER_DN = #userDn#
+            </isNotNull>
+            <isNotNull prepend="AND" property="machineId">
+             MACHINE_IDENTIFIER = #machineId#
+            </isNotNull>
+            <isNotNull prepend="AND" property="status">
+             STATUS = #status#
+        	</isNotNull>
+        </dynamic>
+        order by CREATE_DATE desc
+    </select>
+
+</sqlMap>

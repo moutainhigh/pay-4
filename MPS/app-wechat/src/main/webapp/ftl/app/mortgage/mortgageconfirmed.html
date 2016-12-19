@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment支付房贷-确认页</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/steward.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet"	type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"	type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+</head>
+<script type="text/javascript">
+$(function() {
+});
+</script>
+	<#if errorMsg?exists>
+	<script type="text/javascript">
+$(function(){	
+$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+});
+</script>
+	</#if>
+<body>
+<!--导航 str-->
+<@sp.ebillheader pagename="还房贷" />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="form_box">
+		<div class="form_tit">
+			<h3><i>还房贷</i></h3>
+			<em class="step_cur_2"></em> </div>
+			<div class="content verify_page">
+				<!--表单str -->
+				<!-- 
+				<form class="mod_form" id="form" name="form" method="post" action="${rc.contextPath}/ca/confirmation.htm">
+				 -->
+				<form class="mod_form" id="form" name="form" method="post" action="${rc.contextPath}/ebpp/confirmation.htm">
+					<table class="verify_table">
+					<tbody>
+						<tr>
+							<td class="thead" colspan="2">房贷账户银行卡信息</td>
+						</tr>
+						<tr>
+							<td class="type">开户人姓名：</td>
+							<td><strong class="col333">${EbillItemRequest.payeeName?default('')}</strong></td> </tr>
+						<tr>
+							<td class="type">开户行：</td>
+							<td><span>${EbillItemRequest.bankName?default('')}</span></td> </tr>
+						<tr>
+							<td class="type">开户行所在地：</td>
+							<td><span>${EbillItemRequest.billProvince?default('')} -- ${EbillItemRequest.billCity?default('')}</span></td> </tr>
+						<tr>
+							<td class="type">开户行名称：</td>
+							<td><span>${EbillItemRequest.payeeAcctKaiHu?default('')}</span></td> </tr>
+						<tr>
+							<td class="type">银行卡号：</td>
+							<td><span>${EbillItemRequest.payeeAccountNo?default('')}</span></td> </tr>
+						<tr>
+							<td class="thead" colspan="2">房贷信息</td>
+						</tr>
+						<tr>
+							<td class="type">本期房贷期数：</td>
+							<td><span>${EbillItemRequest.isSue?default('')}</span></td> </tr>
+						<tr>
+							<td class="type">本期房贷：</td>
+							<td><span><strong class="red">${EbillItemRequest.billAmountString?default('')}</strong> 元</span></td> </tr>
+						<tr>
+							<td class="type">手续费：</td>
+							<td><span><strong class="red">${EbillItemRequest.billFeeAmountString?default('')}</strong> 元</span></td>
+						</tr>
+						 <#if EbillItemRequest.payerMobile?has_content>	
+						 	<tr>
+								<td class="type">提醒日期：</td>
+								<td><span>每月${EbillItemRequest.billNotifyDay?default('0')}日</span></td>
+							</tr>
+							<tr>
+								<td class="type">我的手机号码：</td>
+								<td><span>${EbillItemRequest.payerMobile?default('')}</span></td>
+						 	</tr>
+						 </#if>	
+					</tbody>
+				</table>
+				<#if Session["userSession"]?exists>
+				<p class="btn_box txtC sppf"><span class="btn_yel botton_yel">
+						<button type="submit" onclick="document.form.submit();this.disabled=true;">确定付款</button>
+						</span><a href="${rc.contextPath}/ca/toMortgagerpayment.htm?method=backMortgager" class="red bk_pf">返回修改</a></p>
+				</#if>		
+				<input type="hidden" value="${rc.contextPath}/ca/toMortgagerpayment.htm?method=backMortgager" id="back" ></input>
+				</form>
+				<!--表单end --> 
+			</div>
+	</div>
+		<#if Session["userSession"]?exists>
+		<#else>
+		<div class="login_bo" id="payDiv" tabindex="100">
+		<div class="login_l">
+		<!-- 当前状态DIV，非当前为<div class="login_other"> -->
+			<iframe name="iframe_l" frameborder="0" width="438px" height="256px" scrolling="no" src="${rc.contextPath}/individualLogin.htm?returnUrl=/ebpp/confirmation.htm" ></iframe>
+		</div>
+		<div class="login_r">
+			<iframe name="iframe_r" frameborder="0" scrolling="no" src="${rc.contextPath}/ebpp/tpAccount.htm" width="438px" height="256px"></iframe>
+		</div>
+		</div>
+		</#if>
+	<!--问答 str
+	<div class="mod_box_a q_a">
+		<div class="con_box">
+			<div class="mod_tit">
+				<h3 class="title font14"> <strong>有问题 我帮您</strong> </h3>
+				<a class="more red" href="${rc.contextPath}/baseHelp.htm">更多帮助</a> </div>
+					<dl class="ico_txtBox">
+							<dt><i class="q_ico"></i>我能不能用信用卡还房贷?</dt>
+							<dd><i class="a_ico"></i>不可以。缴纳房贷必须是使用借记卡中的资金还款至您的信用卡，否则将涉嫌利用信用卡套现，这是违法的。</dd>
+						</dl>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+	问答 end-->
+</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+            
+	<bean id="fo-order-pay2AcctOrderService" class="com.pay.fo.order.service.pay2acct.impl.Pay2AcctOrderServiceImpl">
+		<property name="payToAcctOrderProcessService" ref="fo-order-payToAcctOrderProcessService"/>
+		<property name="orderAfterProcessService" ref="fo-order-orderAfterProcessService"></property>
+		<property name="orderCallbackService" ref="fo-order-pay2AcctOrderCallbackService"></property>
+		<property name="successAccountingService" ref="fundout-pay2acctPayerFeeAccounting"></property>
+		<property name="workorderService" ref="fo-order-audit-workorderService"></property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService"></property>
+		<property name="paymentValidateService" ref="fo-order-new-paymentValidateService"/>
+		<property name="accountQueryFacadeService" ref="fo-maapi-accountQueryFacadeService"></property>
+		<property name="pay2AcctOrderValidateService" ref="fo-order-new-pay2AcctOrderValidateService"></property>
+	</bean>
+	<bean id="fo-order-pay2AcctOrderValidateService" class="com.pay.fo.order.service.pay2acct.impl.Pay2AcctOrderValidateServiceImpl">
+		<property name="payToAcctOrderService" ref="fo-order-payToAcctOrderService"></property>
+	</bean>
+	<bean id="fo-order-new-pay2AcctOrderValidateService" class="com.pay.fo.order.service.pay2acct.impl.NewPay2AcctOrderValidateServiceImpl">
+		<property name="payToAcctOrderService" ref="fo-order-payToAcctOrderService"></property>
+	</bean>
+	
+	<!-- 付款到账户订单回调处理 -->
+	<bean id="fo-order-pay2AcctOrderCallbackService" class="com.pay.fo.order.service.pay2acct.callback.Pay2AcctOrderCallbackServiceImpl" parent="fo-order-abstractOrderCallbackService">
+		<property name="payToAcctOrderProcessService" ref="fo-order-payToAcctOrderProcessService"></property>
+		<property name="payeeSmsTemplateId" value="${pay2acct.sucess.sms}" />
+		<property name="payeeEmailTemplateId" value="${pay2acct.sucess.payer.email}" />
+	</bean>
+</beans>

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>导入数字证书</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_cert_manager"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">导入数字证书</strong><span>|</span><a href="#">使用遇到问题?</a></div>
+			</div>
+			<div class="step">
+				<ol class="step-3">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写导入信息</li>
+					<li class="li-2">2.验证短信校验码</li>
+					<li class="li-3">3.导入证书</li>
+					<li class="li-4">4.证书导入成功</li>
+				</ol>
+			</div>
+			<div class="ico_txtBox mt10"><i class="warn_ico"></i> 安装成功后， gcpayment支付将记录您的物理网卡地址,如果网卡更换（如使用3G卡上网等），请重新安装证书！</div>
+			<div class="pad_center install_pki">
+				<div class="install_pki_con">
+				<p class="mt10"><img class="v_m" src="<@sp.static/>/img/pay/loading2.gif"> <span class="ml20">正在安装证书...</span></p>
+				</div>
+			</div>
+			<form id="importForm" action="${rc.contextPath}/corp/cert/import.htm?method=doImport" style="display: none;" method="post">
+				<input type="hidden" name="token" value="${importCertDto.token}" />
+				<input type="hidden" name="dn" value="${importCertDto.dn}" />
+				<input type="hidden" name="usePlace" value="${importCertDto.usePlace}" />
+				<input type="hidden" name="certFilePath" id="certFilePath" value="${importCertDto.certFilePath}" />
+				<input type="hidden" name="certPwd" id="certPwd" value="${importCertDto.backupPwd}" />
+				<input type="hidden" name="machineId" id="machineId" value="" />
+				
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+<@sp.cfca />
+<script type="text/javascript">
+$(function(){
+	var pwd = $("#certPwd").val();
+	var pfx = $("#certFilePath").val();
+	
+	if(importCert(pfx,pwd)){
+		var id = getmachineId();
+		$("#machineId").val(id);
+		$("#importForm").submit();
+	}else{
+		$("#importForm").attr("action","${rc.contextPath}/corp/cert/import.htm?method=importFailure");
+		$("#importForm").submit();
+	}
+});
+</script>
+</div>
+</body>
+</html>

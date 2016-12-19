@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/ipaylinks/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/ipaylinks/js/My97DatePicker/WdatePicker.js"></script> 
+<script  type="text/javascript" src="<@sp.static/>/ipaylinks/js/zidingyi.js"></script>
+<!-- jquery validate -->
+<!--
+<script src="../resources/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+-->
+<link href="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/ipaylinks/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/ipaylinks/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/ipaylinks/css/main.css"/>
+<link href="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/ipaylinks/images/favicon.ico" rel="shortcut icon"/>
+
+<title>货币兑换</title>
+<style>
+#left  {float:left; width:500;}
+#right {float:left; align:center;height:200px}
+</style>
+<script type="text/javascript">
+
+
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/ipaylinks/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/ipaylinks/js/My97DatePicker/WdatePicker.js"></script> 
+<!-- jquery validate -->
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/ipaylinks/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/ipaylinks/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/ipaylinks/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/ipaylinks/css/main.css"/>
+<link href="<@sp.static/>/ipaylinks/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/ipaylinks/images/favicon.ico" rel="shortcut icon"/>
+
+<script src="jquery.min.js" type="text/javascript"> </script>
+<script language="javascript" type="text/javascript"> 
+
+function isEmpty(){
+	if($('#currencyin option:selected').val() !="" && $('#currencyout option:selected').val() !="" && document.getElementById("PuchaseCurr").value!="")
+	{
+	$("#afterPurchaseCur").find("span").text(toDecimal((document.getElementById("afterbalance").value)*getRate()));
+	$("#finalbalance").val(document.getElementById("afterbalance").value*getRate());
+	}
+	
+	
+}
+
+
+
+function showTip(oEvent)
+{
+ var oDiv=document.getElementById("divTip1");
+ oDiv.style.visibility="visible";
+ oDiv.style.left=oEvent.clientX+5;
+ oDiv.style.top=oEvent.clientY+5;
+}
+
+function hideTip(oEvent)
+{
+ var oDiv=document.getElementById("divTip1");
+ oDiv.style.visibility="hidden";
+}
+
+
+
+
+function checkNum(obj) {
+    //检查是否是非数字值
+    if (isNaN(obj.value)) {
+        obj.value = "";
+    }
+    if (obj != null) {
+        if (obj.value.toString().split(".").length > 1 && obj.value.toString().split(".")[1].length > 2) {
+            alert("小数点后多于两位！");
+            obj.value = "";
+        }
+    }
+}
+
+
+function toDecimal(x) {   
+    var f = parseFloat(x);              
+
+if (isNaN(f)) {   
+        return;              
+}              
+f = Math.round(x*100)/100;              
+return f;          
+}       
+
+function GetBalance(){
+		 	balance = toDecimal($('#currencyin option:selected').val().split("_")[1]);	
+		    incode = $('#currencyin option:selected').val().split("_")[2];
+		 	$("#inCode").val(incode);
+		 	$("#balance").val(balance);
+			$("#test").find("span").text(balance);
+			isEmpty();
+		}
+
+//计算购汇手续费与可购汇金额 
+function CalCharge(){
+	balance = $('#currencyin option:selected').val().split("_")[1];
+/* 	inputbalance = document.getElementById("PuchaseCurr").value;  */
+
+	var param = {
+			"balance" : balance,
+		 /* 	"inputbalance" : inputbalance,  */
+	}; 
+	var url = "${rc.contextPath}/corp/currexchange.htm?method=chargeCount";
+   $.ajax({ 
+				type : "post",
+				url : url,
+				datatype : "json",
+				async:false,
+				data:param,	
+			     success: function(data) {
+			          var Back = JSON.parse(data);
+			    	 
+			    	 if(parseFloat(Back.maxCurrencyPurchase) <= 0){
+			    	 Back.maxCurrencyPurchase=0,
+			    	 Back.charge=""
+			    	 }
+			    	 $("#charge1").find("span").text(Back.charge);	
+			    	 $("#canPurchase").find("span").text(Back.maxCurrencyPurchase);
+			    		  $("#maxCurrencyPurchase").val(Back.maxCurrencyPurchase);
+			        },
+	});	
+	
+}
+
+
+//计算实际手续费 
+function CalRealCharge(){	
+	$("#realcharge").find("span").text("");
+	$("#afterPurchaseCur").find("span").text("");
+	
+	inputbalance = document.getElementById("PuchaseCurr").value;
+	
+	if (inputbalance == "")
+	{
+	    return;
+	}　
+	
+	if (parseFloat(inputbalance) > parseFloat(document.getElementById("maxCurrencyPurchase").value)){
+		alert("申请金额不能大于可结汇金额");
+		$("#PuchaseCurr").val("");
+		return ;
+	}
+
+	
+	var param = {
+			"inputbalance" : inputbalance,
+	}; 
+	var url = "${rc.contextPath}/corp/currexchange.htm?method=chargeRealCount";
+		//var bb
+   $.ajax({
+				type : "post",
+				url : url,
+				datatype : "json",
+				async:false,
+				data:param,
+			     success: function(data) {
+			          var Back = JSON.parse(data);
+			          
+			          if(Back.afterbalance < 0){
+			        	  Back.afterbalance= "";
+			        	  Back.inputcharge="";
+			          }
+			          $("#realcharge").find("span").text(Back.inputcharge);
+			          $("#realcharge1").val(Back.inputcharge);
+			          $("#afterbalance").val(Back.afterbalance);
+			     },      
+	});		
+  
+   isEmpty();
+}
+
+function getRate(){
+	
+	var targetCurrency = $('#currencyout option:selected').val();
+	 $("#outCode").val(targetCurrency);	
+	var currency = $('#currencyin option:selected').val().split("_")[2];
+	var param = {
+			"targetCurrency" : targetCurrency,
+			"currency" : currency,
+	}; 
+	var url = "${rc.contextPath}/corp/currexchange.htm?method=getRate";
+	 $.ajax({
+			type : "post",
+			url : url,
+			datatype : "json",
+			async:false,
+			data:param,
+		     success: function(data) {
+		           var Back = JSON.parse(data);
+				    g =toDecimal(Back.exchangeRate);
+				   if(g==undefined){
+					   g=0;
+					   alert("汇率出错！")
+				   }
+				   $("#currentRate").find("span").text(g);
+				   $("#rate").val(g);
+				   
+		     },      
+});	
+	
+	if($('#currencyin option:selected').val() !="" && $('#currencyout option:selected').val() !="" && document.getElementById("PuchaseCurr").value!="")
+	{ 
+		$("#afterPurchaseCur").find("span").text(toDecimal((document.getElementById("afterbalance").value)*g));
+		$("#finalbalance").val(document.getElementById("afterbalance").value*g);
+	
+	}	
+	return g; 
+	}
+		
+
+
+</script> 
+
+
+</head>
+<body>
+    <#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/ipaylinks/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+							<li id="topmenu_6" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                            <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+                            <li id="topmenu_5" ><a href="${rc.contextPath}/corp/currexchange.htm">货币兑换</a></li>
+				</ul>
+				<ul class="submenu" style="display: none" id="secmenuul_5">
+					<li id="secmenu_5_51" class="current">
+						<a href="${rc.contextPath}/corp/currexchange.htm">兑换申请</a>
+					</li>
+					<li id="secmenu_3_32" class="other">
+						<a href="${rc.contextPath}/corp/reconcileDownload.htm">兑换记录</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div class="mainbox" style="">
+		<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<span class="current" >货币兑换申请</span>
+			</div>
+
+			<div class="section" >
+
+				<div class="bgbox" >
+			<div id="left">
+			    <form action="${rc.contextPath}/corp/currexchange.htm?method=submit" method="post" enctype="multipart/form-data" id="refundform">
+ 		
+                <div class="seccon">
+
+					<div class="bgbox">
+				
+						<table class="tab01" >
+						
+	
+     				
+							<tbody>
+
+									<tr>
+										<td align="left">
+											转出币种：
+          									 <select id="currencyin" name="currencyin" style="width: 150px;height: 25px" onchange="CalCharge();GetBalance()">
+                                          		 <option value=""  selected="selected" >--请选择--</option> 
+                                         			 <#if infoList?exists>
+                                               			 <#list infoList as tss>
+                                       						<option value="${tss.acctCode}_${tss.balance}_${tss.curCode}">${tss.acctName}</option> 
+               											 </#list>
+              							 			 </#if>
+											</select>    
+					
+		   				            	</td>
+		   				            												
+									</tr>
+						<!-- balance 账户余额  afterbalance 扣除实际手续费后的金额  maxCurrencyPurchase最大购汇金额 finalblance实际购汇转入金额    realcharge实际手续费  inCode转出账户code-->			 
+	    				 <input type="hidden" id="balance" name="balance">
+						     <input type="hidden" id="afterbalance" name="afterbalance">
+						     <input type="hidden" id="maxCurrencyPurchase" name="maxCurrencyPurchase">
+						     <input type ="hidden" id="finalbalance" name="finalbalance">
+						     <input type ="hidden" id="realcharge1" name="realcharge1">
+						     <input type ="hidden" id="inCode" name="inCode">
+						     <input type ="hidden" id="outCode" name="outCode">
+						     <input type ="hidden" id="rate" name="rate">
+									<tr>
+									 <td id="test">余额：
+									 	<span></span>			
+									  </td>
+									 </tr>
+
+
+									<tr>
+										<td align="left">
+											转入币种：					
+											  <select id="currencyout" name="currencyout" style="width: 150px;height: 25px" onchange="getRate()">
+									          <option value="" selected="selected">--请选择--</option>
+                                              <#if currencyList?exists>
+		   				                           <#list currencyList as tss>
+		   				                              <option value="${tss.currencyCode}">${tss.currencyName}</option>
+		   				                           </#list>
+		   				                      </#if>
+                                      		 </select>
+		   				            	</td>          													
+									</tr>
+					
+					
+					
+					
+				
+				
+                                    <tr>
+                                    	<td id="charge1">
+                                    	      购汇手续费:<span></span>	                           	
+                                    	</td>
+                                    
+                                    
+                                    </tr>
+                                    
+                                    
+                                    <tr>
+                                    	<td id="canPurchase">
+                                    	可购汇金额：<span></span>	 
+                                    	</td>
+                                    </tr>
+                                    <tr>
+                                    	<td>
+                                    	申请购汇金额：	
+                                    	<input type="text" id="PuchaseCurr" name="PuchaseCurr" onBlur="CalRealCharge()" onkeyup="checkNum(this)" /> 
+                                    	<font color="red">申请金额不能大于可结汇金额</font>
+                                    	</td>
+                                    </tr>
+                                    <tr>
+                                    	<td id="realcharge">
+                                    	实际购汇手续费：<span></span>
+                                    	</td>
+                                    </tr>
+									<tr>
+										<td id="currentRate">
+                                    	当前汇率：<span></span>
+                                    	
+                                    	
+                                    	</td>
+                                    </tr>
+                                    <tr>
+                                    	<td>
+                                    		<font color="red">当前汇率为参考汇率，实际汇率以购汇当日的银行汇率为准。</font>
+                                    	</td>
+                                    </tr>
+									<tr>
+										<td id="afterPurchaseCur">
+                                    	购汇后金额：<span></span>
+                                    	</td>
+                                    </tr>
+                                  
+                                  
+                                  <tr>
+									<td>
+										<input type="submit" id="btnOk" class="btn_blue" value="提交" alt="提交"  />
+									</td>
+								</tr>
+
+
+							</tbody>
+
+						</table>
+	
+
+						</div>
+
+						</div>
+	
+						</form>
+						</div>																								
+						
+						<div id="right">
+<img src="<@sp.static/>/img/validator/tips1.png" onmouseover="showTip(event)" onmouseout="hideTip(event)"></img>
+<div id="divTip1" style="background-color:white;position:absolute;visibility:hidden;padding:5px;border:1px solid #999" >
+   <div border:10px>可兑换金额为扣除手续费后可购汇的最大人民币金额，</br>
+   兑换手续费显示的为按照可兑换金额计算出来的最大手续费值。</br>
+   实际兑换手续费会根据填写的申请兑换金额，自动计算。</br>
+   当前兑换为申请兑换时的参考汇率，兑换后金额是按照当前汇率计算出来的外币金额。</br>
+   实际兑换汇率以兑换当日银行汇率为准。</div>
+  </div>
+                    </div> 
+					<div style="clear:both"></div>   
+					 
+					 <div id="resultListDiv" class="listFence" >
+				     <div><font color="red"></font></div>
+				  </div>
+					
+
+		
+					
+				</div>	
+				
+
+			</div>
+		</div>
+	
+	
+	</div>
+<#include "/include/myfoot.html">
+</body>
+</html>

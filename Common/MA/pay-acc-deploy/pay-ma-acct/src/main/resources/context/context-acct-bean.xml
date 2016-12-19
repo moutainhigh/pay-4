@@ -1,0 +1,158 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!--
+		########################################基本dao配置##############################################
+	-->
+	<bean id="acc-acctBaseDAO" class="com.pay.inf.dao.impl.BaseDAOImpl"
+		abstract="true">
+		<property name="sqlMapClient" ref="sqlMapClientAcc"/>
+	</bean>
+	
+	<!-- ACC 账户DAO -->
+	<bean id="acc-acctDAO" class="com.pay.acc.acct.dao.impl.AcctDAOImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-acct" />
+	</bean>
+	<!-- ACC 账户属性DAO -->
+	<bean id="acc-acctAttribDAO" class="com.pay.acc.acctattrib.dao.impl.AcctAttribDAOImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-acctAttrib" />
+	</bean>
+	<!-- ACC 余额更新DAO -->
+	<bean id="acc-balanceLogDAO" class="com.pay.acc.balancelog.dao.impl.BalanceLogDaoImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-balanceLog" />
+	</bean>
+	<!-- ACC 支付日志DAO -->
+	<bean id="acc-transLogDAO" class="com.pay.acc.translog.dao.impl.TransLogDAOImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-transLog" />
+	</bean>
+	
+	<!-- ACC 冲正日志DAO -->
+	<bean id="acc-flushesLogDAO" class="com.pay.acc.translog.dao.impl.FlushesLogDAOImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-flushesLog" />
+	</bean>	
+	
+	<!-- ACC pe记账DAO -->
+	<bean id="acc-peDealInfoDAO" class="com.pay.acc.pedealinfo.dao.impl.PeDealInfoDAOImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-pedealInfo" />
+	</bean>
+	<!-- 交易信息DAO -->
+	<bean id="acc-balanceDealDAO" class="com.pay.acc.deal.dao.impl.BalanceDealDAOImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-balanceDeal" />
+	</bean>
+	<!-- 交易分录信息DAO -->
+	<bean id="acc-balanceEntryDAO" class="com.pay.acc.deal.dao.impl.BalanceEntryDAOImpl" parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-balanceEntry"/>
+	</bean>
+	<!--
+		########################################基本service配置##############################################
+	-->
+	<!-- ACC 账户service -->
+	<bean id="acc-acctService" class="com.pay.acc.acct.service.impl.AcctServiceImpl">
+		<property name="acctDAO" ref="acc-acctDAO" />
+		<property name="frozenOperatorLogService" ref="acc-frozenOperatorLogService" />
+	</bean>
+	<!-- ACC 余额service -->
+	<bean id="acc-balanceLogService"
+		class="com.pay.acc.balancelog.service.impl.BalanceLogServiceImpl">
+		<property name="balanceLogDao" ref="acc-balanceLogDAO" />
+	</bean>
+	<!-- ACC 账户属性service -->
+	<bean id="acc-acctAttribService"
+		class="com.pay.acc.acctattrib.service.impl.AcctAttribServiceImpl">
+		<property name="acctAttribDAO" ref="acc-acctAttribDAO" />
+	</bean>
+	<!-- ACC pe记账service -->
+	<bean id="acc-peDealInfoService"
+		class="com.pay.acc.pedealinfo.service.impl.PeDealInfoServiceImpl">
+		<property name="peDealInfoDAO" ref="acc-peDealInfoDAO" />
+	</bean>
+	<!-- ACC 支付日志service -->
+	<bean id="acc-transLogService"
+		class="com.pay.acc.translog.service.impl.TransLogServiceImpl">
+		<property name="transLogDAO" ref="acc-transLogDAO" />
+	</bean>
+	
+	<!-- ACC 冲正日志service -->
+	<bean id="acc-flushesLogService"
+		class="com.pay.acc.translog.service.impl.FlushesLogServiceImpl">
+		<property name="flushesLogDAO" ref="acc-flushesLogDAO" />
+	</bean>	
+	
+	<!-- ACC交易service -->
+	<bean id="acc-balanceDealService" class="com.pay.acc.deal.service.impl.BalanceDealServiceImpl">
+		<property name="balanceDealDAO" ref="acc-balanceDealDAO"/>
+	</bean>
+	<bean id="acc-balanceEntryService" class="com.pay.acc.deal.service.impl.BalanceEntryServiceImpl">
+		<property name="balanceEntryDAO" ref="acc-balanceEntryDAO"/>
+	</bean>
+	
+	<!-- 提现金额SERVICE -->
+	<bean id="acc-withdrawalsRuleService" class="com.pay.acc.deal.service.impl.WithdrawalsRuleServiceImpl">
+		<property name="balanceEntryService" ref="acc-balanceEntryService" />
+	</bean>	
+	
+		<!-- MA操作日志service -->
+	<bean id="acc-operateLogDAO" class="com.pay.acc.operatelog.dao.impl.OperateLogDaoImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-operateLog" />
+	</bean>
+	<bean id="acc-operateLogService" class="com.pay.acc.operatelog.service.impl.OperateLogServiceImpl">
+		<property name="operateLogDAO" ref="acc-operateLogDAO"/>
+	</bean>
+	
+	<bean id="acc-queryBalanceDAO" class="com.pay.acc.querybalance.dao.impl.QueryBalanceDAOImpl" parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-queryBalance" />
+	</bean>
+	
+	
+	<!-- 冻结资金记录的日志 -->
+	<bean id="acc-frozenOperatorLogDao" class="com.pay.acc.balancelog.dao.impl.FrozenOperatorLogDaoImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-frozenOperatorLog" />
+	</bean>
+	<bean id="acc-frozenOperatorLogService" class="com.pay.acc.balancelog.service.impl.FrozenOperatorLogServiceImpl">
+		<property name="frozenOperatorLogDao" ref="acc-frozenOperatorLogDao"/>
+	</bean>
+	
+
+	<bean id="kfFeeConfigDao" class="com.pay.acct.crossBorderPay.dao.impl.KfFeeConfigDaoImpl" parent="acc-acctBaseDAO">
+		<property name="namespace" value="acc-kfFeeConfig"/>
+	</bean>
+	
+	<bean id="kfFeeConfigService" class="com.pay.acct.crossBorderPay.service.impl.KfFeeConfigServiceImpl">
+		<property name="kfFeeConfigDao" ref="kfFeeConfigDao"/>
+	</bean>
+	
+</beans> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

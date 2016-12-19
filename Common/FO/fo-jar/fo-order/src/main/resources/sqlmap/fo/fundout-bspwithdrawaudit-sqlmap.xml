@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatisfin.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bspWithdrawAudit">
+	
+	<!-- 提现审核列表 -->
+	<resultMap class="java.util.HashMap" id="bspWithdrawAuditResultMap">
+		<result column="ORDER_SEQ" property="orderSeq"/>
+		<result column="ORDER_TYPE" property="orderType"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="PAYEE_NAME" property="memberName"/>
+		<result column="REALOUT_AMOUNT" property="amount"/>
+		<result column="STATUS" property="status"/>
+	</resultMap>
+	
+	<select id="queryBspWithdrawAuditList" parameterClass="java.util.HashMap" resultMap="bspWithdrawAuditResultMap">
+		SELECT 
+	  		WO.ORDER_SEQ,
+	  		WO.ORDER_TYPE,
+	  		WO.CREATE_DATE, 
+	  		OO.PAYEE_NAME,
+	  		OO.REALOUT_AMOUNT,
+	  		WO.STATUS
+  		FROM FO.WORK_ORDER WO INNER JOIN FO.FUNDOUT_ORDER OO
+  		ON WO.ORDER_SEQ = OO.ORDER_ID
+        WHERE WO.STATUS = 0 AND WO.ORDER_TYPE = 0 AND WO.ORDER_SMALLTYPE = '004'
+		<isNotEmpty prepend="AND" property="startDate">
+			<![CDATA[
+		 		WO.CREATE_DATE >=  #startDate#
+		 	]]>
+		</isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+         	<![CDATA[
+		 		WO.CREATE_DATE <  #endDate#+1
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="bspMemberName">
+	 		OO.PAYEE_NAME =  #bspMemberName#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="memberCode">
+	 		WO.AUDIT_MEMBER_CODE =  #memberCode#
+		</isNotEmpty>
+		 ORDER BY WO.CREATE_DATE DESC
+	</select>
+	
+	<select id="queryBspWithdrawAuditList_COUNT" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+  		FROM FO.WORK_ORDER WO INNER JOIN FO.FUNDOUT_ORDER OO
+  		ON WO.ORDER_SEQ = OO.ORDER_ID
+        WHERE WO.STATUS = 0 AND WO.ORDER_TYPE = 0 AND WO.ORDER_SMALLTYPE = '004'
+		<isNotEmpty prepend="AND" property="startDate">
+			<![CDATA[
+		 		WO.CREATE_DATE >=  #startDate#
+		 	]]>
+		</isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+         	<![CDATA[
+		 		WO.CREATE_DATE <  #endDate#+1
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="bspMemberName">
+	 		OO.PAYEE_NAME =  #bspMemberName#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="memberCode">
+	 		WO.AUDIT_MEMBER_CODE =  #memberCode#
+		</isNotEmpty>
+	</select>
+	
+	
+	<!-- 更新bsp工单状态 -->
+	<update id="updateBspWorkorder" parameterClass="java.util.HashMap">
+		UPDATE WORK_ORDER 
+			SET STATUS = #status#,
+			AUDIT_OPERATOR = #auditOperator#,
+			AUDIT_REMARK = #remark#,
+			update_date = SYSDATE
+		WHERE ORDER_SEQ = #orderSeq#
+		<isNotEmpty prepend="AND" property="oldStatus">
+	 		STATUS = #oldStatus#
+		</isNotEmpty>
+    </update>
+</sqlMap>

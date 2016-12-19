@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>iPayLinks支付-交易管理-充值记录</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+	<#if status?has_content>
+		$("#status").val("${status}");
+	</#if>
+});
+</script>
+
+</head>
+<body>
+
+<#if Session["userSession"].scaleType==10>
+	<#assign urlPath ="corp/bsp/queryChargeOrder.htm"/>
+	<#assign withdrawName="出金记录">
+	<#assign withdrawUrl="corp/bspwithdrawlist.htm?method=queryWithdrawSummaryFromBsp">
+	<#assign depositName="入金">
+<#else>	
+	<#assign urlPath ="app/queryDeposit.htm"/>
+	<#assign withdrawName="提现记录">
+	<#assign withdrawUrl="app/withdrawinfodetail.htm?method=queryPersonWithdrawDetailList">
+	<#assign depositName="充值">
+</#if>	
+<@sp.head mCode="bsp_acharge,app_query_order"/>
+
+
+<div class="container share_wrap">
+	<div> 
+		<div class="order_search">
+			<form class="form" action="${rc.contextPath}/${urlPath}?method=queryDepositMethod" method="post" name="incomeDetailForm" id="incomeDetailForm">
+				<div class="slelct_down">
+					<ul>
+						<li>
+							<label class="side">起止时间：</label>
+							<input type="text" class="Wdate inp_normal w180" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',maxDate:'#F{$dp.$D(\'endTime\')}'})"  name="startTime"  readonly="readonly" id="startTime" gtbfieldid="109" 
+							<#if startTime?default('')!="">
+		  						value="${startTime?default('')}"
+		  					</#if>
+		  					/>
+							<span>-</span>
+							<input type="text" class="Wdate inp_normal w180" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'startTime\')}',maxDate:'%y-%M-%d'})"  name="endTime" readonly="readonly" id="endTime" gtbfieldid="110"
+							<#if endTime?default('')!="">
+		  						value="${endTime?default('')}"
+		  					</#if>
+		  					/>
+						</li>
+						<li>
+							<label class="side">${depositName}状态：</label>
+							<select name="status" id="status" class="inp_normal w200">
+								<option value="">全部</option>
+								<option value="0">处理中</option>
+								<option value="1">${depositName}成功</option>
+								<option value="2">${depositName}失败</option>
+							</select>
+						</li>
+					</ul>
+					<em>
+						<i class="btnC">
+						<button type="submit">查 询</button>
+						</i>
+					</em>
+				</div>
+			</form>
+		</div>
+		
+		<div class="refund_list">
+				<div class="refund_title"> 
+					<!--tab str -->
+					<div class="mode_tit">
+					<#if depositName != "入金">
+						<h2><a href="${rc.contextPath}/${withdrawUrl}">${withdrawName}</a></h2>
+					</#if>
+						<h2 class="sel"><a href="javascript:void(0)">${depositName}记录</a> </h2>
+					</div>
+					<span><a href="javascript:excelBalance();"><#if qbdList?has_content>导出EXCEL</#if></a></span>
+				</div>
+			<div class="refund_box"> 
+				<div class="barg_table">
+				<table>
+					<tr>
+						<th width="15%">创建时间</th>
+						<th width="16%">交易流水号/协议流水号</th>
+						<th width="10%">交易类型</th>
+						<th width="10%">收/支</th>
+						<th width="10%">${depositName}渠道</th>
+						<th width="10%">${depositName}状态</th>
+						<th width="8%">${depositName}金额(元)</th>
+						<th width="8%">操作</th>
+					</tr>
+					 <#if dateList?has_content>
+		   				<#list dateList as ts>
+							<tr>
+								<td align="center">${ts.createDate?datetime}</td>
+								<td align="center">
+								${ts.depositOrderNo!('')}
+								<br/>
+								${ts.depositProtocolNo!('')}
+								</td>
+								<td align="center">${depositName}</td>
+								<td align="center">收</td>
+								<td align="center">${ts.itemName!('')}</td>
+								<td align="center">
+								<#if ts.status?has_content>
+										<#if ts.status='0'>
+											处理中
+										<#elseif ts.status='1'>
+											${depositName}成功
+										<#elseif ts.status='2'>
+											${depositName}失败
+										<#else>
+											未知
+										</#if>
+									</#if>
+								</td>
+								<td align="center">${((ts.depositAmount!(0)?number)* 0.001)?string(",##0.00")}</td>
+								<td align="center"><a target="_blank" class="blues" href="${rc.contextPath}/${urlPath}?method=queryDepositDetailMethod&depositOrderNo=${ts.depositOrderNo!('')}">查看</a></td>
+							</tr>
+						</#list>
+	 				</#if>
+				</table>
+				</div>
+				<#if pu?exists>
+					<div class="page_box">
+						<p>共<span class="blod">${count?default('0')}</span>笔交易  金额总计：<span class="blod green">${totalAmount?default('0.00')}</span>元 </p>
+					<!--分页 str -->
+						<div class="page"><@sp.pagination pu=pu/></div>
+			 		<!--分页 end -->
+					</div>
+				</#if>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

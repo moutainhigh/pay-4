@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+
+<script src="<@sp.static/>/mps/js/swfobject_modified.js" type="text/javascript"></script>
+
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>购物条款</title>
+<style type="text/css">
+	a{text-decoration:underline;}
+	/* .tab03 input[type='text']{width:100px;}
+	.tab03 input[type='button']{width:40px;} */
+	.border0{border:0px;}
+</style>
+</head>
+
+<body>
+	<#include "/include/topbar.html">
+<@sp.head  mCode="corp_paylink_basicinfo"/>
+		
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="seccon">
+				<div class="tit">
+					<span ><a href="${rc.contextPath}/corp/paylink.htm?method=payLinkBasicInfoMaintain">商户logo</a></span>
+					<span class="current"><a href="${rc.contextPath}/corp/paylink.htm?method=payShopTerm">购物条款</a></span>
+					<span ><a href="${rc.contextPath}/corp/paylink.htm?method=contact">售后联系方式</a></span>
+				</div>
+				<form class="form" action="${rc.contextPath}/corp/paylink.htm?method=doPayShopTermUorS" enctype="multipart/form-data" method="post" name="" id="">
+					<#if baseInfo.infoId ? has_content><!--  && baseInfo.shoptermsUrl ?has_content -->
+						<input type="hidden" value="doUpdate" id="doUpdate" name="doUpdate"/>
+						<input type="hidden" value="${baseInfo.infoId?default('')}" id="infoId" name="infoId"/>
+					</#if>
+					<table class="tab03">
+						<tbody>
+							<tr>
+								<td colspan="7" style="border:0px;">
+									<div align="left" style="padding-left:30px;">
+										请选择将显示在支付链接打开后页面中展示的购物条款文件。上传成功后，再次上传会覆盖原来的条款文件。
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="border:0px;width:140px;">
+									<div align="right">选择购物条款：</div>
+								</td>
+								<td style="border:0px;width:240px;">
+									<div align="left">
+										<input type="file" name="shopTermFile" id="shopTermFile"/>
+									</div>
+								</td>
+								<td style="border:0px;width:180px;">
+									<div align="left">
+										<#if baseInfo.infoId ? has_content && baseInfo.shoptermsUrl ? exists>
+											<input type="submit" value="上  传" onclick="javascript:return window.confirm('确认修改吗？');" class="btn_blue2" style="width:140px;"/>
+											<#else>
+												<input type="submit" value="上  传" class="btn_blue2" style="width:140px;"/>
+										</#if>
+									</div>
+								</td>
+								<td colspan="4" style="border:0px;">&nbsp;</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;">
+									<div align="left" style="color:red;padding-left:30px;">上传的文件不能大于5M，支持的文件格式为pdf</div>
+								</td>
+							</tr>
+							<tr><td colspan="7" style="border:0px;">&nbsp;</td></tr>
+							<tr>
+								<td colspan="7" style="border:0px;">
+									<div align="left" style="padding-left:30px;">
+										<#if shoptermsName ? exists && pathTail ? exists>
+											<a href="/file/${pathTail}" style="color:#002BFF;" target="_blank">${shoptermsName?default('')}</a>&nbsp;&nbsp;
+										</#if>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "/include/myfoot.html">
+	<script type="text/javascript">
+		<#if FILE_TYPE_ERROR ? has_content>
+			alert('${FILE_TYPE_ERROR}') ;
+		</#if>
+		<#if FILE_SIZE_ERROR_TIP ? has_content>
+			alert('${FILE_SIZE_ERROR_TIP}') ;
+		</#if>
+		<#if noFile ? has_content>
+			alert('${noFile}') ;
+		</#if>
+		<#if uploadExction ? has_content>
+			alert('${uploadExction}') ;
+		</#if>
+	</script>
+	
+</body>
+</html>

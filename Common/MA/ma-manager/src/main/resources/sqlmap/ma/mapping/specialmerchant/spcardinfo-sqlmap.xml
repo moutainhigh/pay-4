@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="spcardinfo">
+
+	<typeAlias alias="spCardInfoDto"
+		type="com.pay.poss.specialmerchant.dto.SpCardInfoDto" />
+
+	<insert id="create" parameterClass="spCardInfoDto">
+    	<selectKey resultClass="java.lang.Long" keyProperty="spMerchantCardId">
+			SELECT SEQ_SP_MERCHANT_CARD_ID.nextval FROM DUAL
+		</selectKey>
+        insert into  T_SP_MERCHANT_CARD (
+        	SP_MERCHANT_CARD_ID,
+        	SP_MERCHANT_ID,
+        	CARD_TYPE_ID,
+        	DISCOUNT_INFO)
+        values (
+	        #spMerchantCardId#, 
+	        #spMerchantId#, 
+	        #cardTypeId#, 
+	        #discountInfo#)
+    </insert>
+    
+    <update id="update" parameterClass="spCardInfoDto">
+        update T_SP_MERCHANT_CARD
+        <dynamic prepend="SET"> 
+	        <isNotEmpty prepend="," property="cardTypeId">
+	            CARD_TYPE_ID = #cardTypeId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="discountInfo">
+	            DISCOUNT_INFO = #discountInfo#
+	        </isNotEmpty>
+        </dynamic>
+        where  
+        	SP_MERCHANT_CARD_ID = #spMerchantCardId# 
+    </update>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM T_SP_MERCHANT_CARD
+        where     
+        	SP_MERCHANT_CARD_ID = #spMerchantCardId#
+    </delete>
+    
+    <delete id="deletebyselective" parameterClass="java.lang.Long">
+        DELETE FROM T_SP_MERCHANT_CARD
+        where     
+        	SP_MERCHANT_ID = #spMerchantId#
+    </delete>
+    <select id="queryspcardinfo" resultClass="spCardInfoDto" parameterClass="spCardInfoDto">
+    	select
+    		sc.SP_MERCHANT_CARD_ID spMerchantCardId,
+    		sc.SP_MERCHANT_ID spMerchantId,
+    		sc.CARD_TYPE_ID cardTypeId,
+    		sc.DISCOUNT_INFO discountInfo,
+    		se.ENUM_NAME enumName
+    	from  T_SP_MERCHANT_CARD sc
+    		left join T_SP_ENUM_INFO se
+    			on se.enum_code = sc.card_type_id
+		where 
+			sc.SP_MERCHANT_ID = #spMerchantId#
+    </select>
+    <select id="queryspcardbyselective" resultClass="spCardInfoDto" parameterClass="spCardInfoDto">
+    	select
+    		sc.SP_MERCHANT_CARD_ID spMerchantCardId,
+    		sc.SP_MERCHANT_ID spMerchantId,
+    		sc.CARD_TYPE_ID cardTypeId,
+    		sc.DISCOUNT_INFO discountInfo
+    	from  T_SP_MERCHANT_CARD sc
+		where 1=1
+			<isNotEmpty prepend="and" property="spMerchantId">  
+	        	  sc.SP_MERCHANT_ID = #spMerchantId#
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="cardTypeId">  
+	        	  sc.CARD_TYPE_ID = #cardTypeId#
+				</isNotEmpty>
+				<isNotEmpty prepend="and" property="spMerchantCardId">  
+	        	  sc.SP_MERCHANT_CARD_ID = #spMerchantCardId#
+				</isNotEmpty>
+    </select>
+    <select id="queryspcardinfobyid" resultClass="spCardInfoDto" parameterClass="java.lang.Long">
+	    select 
+	        sc.SP_MERCHANT_CARD_ID spMerchantCardId,
+    		sc.SP_MERCHANT_ID spMerchantId,
+    		sc.CARD_TYPE_ID cardTypeId,
+    		sc.DISCOUNT_INFO discountInfo
+		from  T_SP_MERCHANT_CARD sc
+	       WHERE 
+           sc.SP_MERCHANT_CARD_ID = #spMerchantCardId# 
+    </select>
+    
+</sqlMap>

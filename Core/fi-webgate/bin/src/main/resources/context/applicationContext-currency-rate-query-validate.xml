@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境API收单 -->
+	<bean id="currencyRateQueryValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="currencyrate-api-acquireRule" />
+	</bean>
+
+	<bean id="currencyrate-api-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="currencyrate-api-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="currencyrate-api-versionCheckRule" class="com.pay.gateway.validate.currencyrate.api.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+
+	<bean id="currencyrate-api-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.currencyrate.api.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-targetCurrencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0454" />
+		<property name="message" value="Original currency is wrong:原币种不正确" />
+	</bean>
+
+	<bean id="currencyrate-api-targetCurrencyCodeCheckRule"
+		class="com.pay.gateway.validate.currencyrate.api.TargetCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-dateTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0455" />
+		<property name="message" value="Target currency is wrong:目标币种不正确" />
+	</bean>
+	
+	<bean id="currencyrate-api-dateTimeCheckRule"
+		class="com.pay.gateway.validate.currencyrate.api.DateTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-merchantStatusCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Order submission time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="currencyrate-api-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.currencyrate.api.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="currencyrate-api-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.currencyrate.api.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+
+	<bean id="currencyrate-api-charsetCheckRule" class="com.pay.gateway.validate.currencyrate.api.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="currencyrate-api-signTypeCheckRule" class="com.pay.gateway.validate.currencyrate.api.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+
+	<bean id="currencyrate-api-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.currencyrate.api.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="currencyrate-api-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="currencyrate-api-gatewayRequestSaveAction" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+	
+	<bean id="currencyrate-api-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.currencyrate.api.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="currencyrate-api-exceptionAction" class="com.pay.gateway.validate.currencyrate.api.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+</beans>

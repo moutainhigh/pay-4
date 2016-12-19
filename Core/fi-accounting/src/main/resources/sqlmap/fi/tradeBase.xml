@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tradeBase">
+	<typeAlias alias="tradeBase" type="com.pay.txncore.model.TradeBase"/>
+    <resultMap id="tradeBaseResult" class="tradeBase">
+        <result column="RETURN_URL" property="returnUrl" jdbcType="VARCHAR"/>
+        <result column="TRADE_BASE_NO" property="tradeBaseNo" jdbcType="DECIMAL"/>
+        <result column="ORDER_INVALID_TIME" property="orderInvalidTime" jdbcType="TIMESTAMP"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="DIRECT_FLG" property="directFlg" jdbcType="VARCHAR"/>
+        <result column="PAYER_MARK" property="payerMark" jdbcType="VARCHAR"/>
+        <result column="OFFER_FLG" property="offerFlg" jdbcType="VARCHAR"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="SETTLEMENT_CURRENCY_CODE" property="settlementCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="DEBIT_FLG" property="debitFlg" jdbcType="VARCHAR"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="TOTAL_AMOUNT" property="totalAmount" jdbcType="DECIMAL"/>
+        <result column="PAY_TYPE" property="payType" jdbcType="VARCHAR"/>
+        <result column="ORDER_COMMIT_TIME" property="orderCommitTime" jdbcType="TIMESTAMP"/>
+        <result column="NOTIFY_URL" property="notifyUrl" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="PLATFORM_ID" property="platformId" jdbcType="VARCHAR"/>
+        <result column="SIGN_TYPE" property="signType" jdbcType="DECIMAL"/>
+        <result column="CHARSET" property="charset" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="tradeBase">
+   		 <selectKey resultClass="java.lang.Long" keyProperty="tradeBaseNo">
+    		SELECT 101 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_TRADE_BASE_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO TRADE_BASE(
+			RETURN_URL,TRADE_BASE_NO,ORDER_INVALID_TIME,
+			REMARK,DIRECT_FLG,PAYER_MARK,OFFER_FLG,SETTLEMENT_CURRENCY_CODE,
+			UPDATE_DATE,CURRENCY_CODE,DEBIT_FLG,ORG_CODE,TOTAL_AMOUNT,
+			PAY_TYPE,ORDER_COMMIT_TIME,NOTIFY_URL,CREATE_DATE,PLATFORM_ID,CHARSET,SIGN_TYPE
+        )
+        VALUES(
+            #returnUrl#,#tradeBaseNo#,#orderInvalidTime#,
+			#remark#,#directFlg#,#payerMark#,#offerFlg#,#settlementCurrencyCode#,
+			sysdate,#currencyCode#,#debitFlg#,#orgCode#,#totalAmount#,
+			#payType#,#orderCommitTime#,#notifyUrl#,sysdate, #platformId#,#charset#,#signType#
+		)
+    </insert>
+
+    <update id="update" parameterClass="tradeBase">
+        UPDATE TRADE_BASE
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="returnUrl">
+            RETURN_URL = #returnUrl#
+        </isNotNull>
+        <isNotNull prepend="," property="tradeBaseNo">
+            TRADE_BASE_NO = #tradeBaseNo#
+        </isNotNull>
+        <isNotNull prepend="," property="orderInvalidTime">
+            ORDER_INVALID_TIME = #orderInvalidTime#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="directFlg">
+            DIRECT_FLG = #directFlg#
+        </isNotNull>
+        <isNotNull prepend="," property="payerMark">
+            PAYER_MARK = #payerMark#
+        </isNotNull>
+        <isNotNull prepend="," property="offerFlg">
+            OFFER_FLG = #offerFlg#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysdate
+        </isNotNull>
+        <isNotNull prepend="," property="currencyCode">
+            CURRENCY_CODE = #currencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="settlementCurrencyCode">
+            SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="debitFlg">
+            DEBIT_FLG = #debitFlg#
+        </isNotNull>
+        <isNotNull prepend="," property="orgCode">
+            ORG_CODE = #orgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="totalAmount">
+            TOTAL_AMOUNT = #totalAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="payType">
+            PAY_TYPE = #payType#
+        </isNotNull>
+        <isNotNull prepend="," property="orderCommitTime">
+            ORDER_COMMIT_TIME = #orderCommitTime#
+        </isNotNull>
+        <isNotNull prepend="," property="notifyUrl">
+            NOTIFY_URL = #notifyUrl#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="platformId">
+            PLATFORM_ID = #platformId#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+         TRADE_BASE_NO = #tradeBaseNo#
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="tradeBaseResult" parameterClass="java.lang.Long">
+        SELECT * FROM TRADE_BASE WHERE TRADE_BASE_NO = #tradeBaseNo#
+    </select>
+    
+    <select id="findByCriteria" resultMap="tradeBaseResult">
+        SELECT * FROM TRADE_BASE
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="returnUrl">
+            RETURN_URL = #returnUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeBaseNo">
+            TRADE_BASE_NO = #tradeBaseNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderInvalidTime">
+            ORDER_INVALID_TIME = #orderInvalidTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="directFlg">
+            DIRECT_FLG = #directFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerMark">
+            PAYER_MARK = #payerMark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="offerFlg">
+            OFFER_FLG = #offerFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="settlementCurrencyCode">
+            SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+        </isNotNull>        
+        <isNotNull prepend="AND" property="debitFlg">
+            DEBIT_FLG = #debitFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="totalAmount">
+            TOTAL_AMOUNT = #totalAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payType">
+            PAY_TYPE = #payType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderCommitTime">
+            ORDER_COMMIT_TIME = #orderCommitTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="notifyUrl">
+            NOTIFY_URL = #notifyUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="platformId">
+            PLATFORM_ID = #platformId# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM TRADE_BASE
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="returnUrl">
+            RETURN_URL = #returnUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="tradeBaseNo">
+            TRADE_BASE_NO = #tradeBaseNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderInvalidTime">
+            ORDER_INVALID_TIME = #orderInvalidTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="directFlg">
+            DIRECT_FLG = #directFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerMark">
+            PAYER_MARK = #payerMark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="offerFlg">
+            OFFER_FLG = #offerFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="settlementCurrencyCode">
+            SETTLEMENT_CURRENCY_CODE = #settlementCurrencyCode#
+        </isNotNull>        
+        <isNotNull prepend="AND" property="debitFlg">
+            DEBIT_FLG = #debitFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="totalAmount">
+            TOTAL_AMOUNT = #totalAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payType">
+            PAY_TYPE = #payType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderCommitTime">
+            ORDER_COMMIT_TIME = #orderCommitTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="notifyUrl">
+            NOTIFY_URL = #notifyUrl# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="platformId">
+            PLATFORM_ID = #platformId# 
+        </isNotNull>
+        </dynamic>
+    </select>
+    
+</sqlMap>

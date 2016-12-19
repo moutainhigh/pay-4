@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>file:/opt/pay/config/app/gov_config.properties</value>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<!-- 实名认证映射 -->
+	<bean id="CertificationHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		
+		<property name="interceptors">
+			<list>
+				<ref bean="featureInterceptor"/>
+			</list>
+		</property>
+		
+		
+		<property name="mappings">
+			<props>
+				<!-- 实名认证首页 -->
+				<prop key="/app/cidverifyIndex.htm">cidVerifyController</prop>
+				<!-- 选择认证方式 -->
+				<prop key="/app/cidverifyMode.htm">cidVerifyController</prop>
+				<!-- 填写个人信息 -->
+				<prop key="/app/cidverifyUserInfo.htm">cidVerifyController</prop>
+				<!-- 填写银行卡信息 -->
+				<prop key="/app/cidverifyBankBind.htm">cidVerifyController</prop>
+				<!-- 确认个人信息 -->
+				<prop key="/app/cidverifyConfirmInfo.htm">cidVerifyController</prop>
+				<!-- 实名认证提交 -->
+				<prop key="/app/certification.htm">cidVerifyController</prop>
+				<!-- 通过公安网实名认证 -->
+				<prop key="/app/cid2gov.htm">cidVerifyController</prop>
+				<!-- 查询账户余额 -->
+				<prop key="/app/confirmAccountBalance.htm">cidVerifyController</prop>
+				<prop key="/province.htm">provinceController</prop>
+				<prop key="/app/province.htm">provinceController</prop>
+				<prop key="/corp/province.htm">provinceController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="cidVerifyController" class="com.pay.app.controller.base.cidverify.CidVerifyController">
+		<property name="uploadUrl" value="${gov.uploadUrl}" />
+		<property name="uploadPort" value="${gov.uploadPort}" />
+		<property name="uploadUsername" value="${gov.uploadUsername}" />
+		<property name="uploadPassword" value="${gov.uploadPassword}" />
+		<property name="uploadPath" value="${gov.uploadPath}" />
+		
+		<property name="isFree" value="${gov.isFree}" />
+		<property name="fee" value="${gov.fee}" />
+		<property name="govAccount" value="${gov.govAccount}" />
+	
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="idCardVerifyService">
+			<ref bean="acc-idCardVerifyService"/>
+		</property>
+		
+		<property name="cidVerify2GovService">
+			<ref bean="app-cidVerify2GovServiceFacadeImpl"/>
+		</property>	
+		<property name="bankAcctService">
+			<ref bean="app-bankAcctServiceFacade"/>
+		</property>
+		
+		<property name="checkCodeService">
+			<ref bean="checkCodeService"/>
+		</property>
+		<property name="accountLocked">
+			<value>/base/cidverify/accountLockedPage</value>
+		</property>	
+		
+		<property name="verifingPage">
+			<value>/base/cidverify/verifing</value>
+		</property>
+		<property name="noDataInGov">
+			<value>/base/cidverify/noDataInGovPage</value>
+		</property>
+		<property name="calFeeFail">
+			<value>/base/cidverify/calFeeFailPage</value>
+		</property>	
+		
+		<property name="accountBalanceFail">
+			<value>/base/cidverify/accountBalanceFailPage</value>
+		</property>
+		
+		<property name="accountExceptionPage">
+			<value>/base/cidverify/accountExceptionPage</value>
+		</property>	
+		<property name="notEnoughBalancePage">
+			<value>/base/cidverify/notEnoughBalancePage</value>
+		</property>
+		
+		<property name="certificationindexpage">
+			<value>/base/cidverify/certificationindex</value>
+		</property>
+		<property name="certificationmodepage">
+			<value>/base/cidverify/certificationmode</value>
+		</property>
+		<property name="certificationuserinfopage">
+			<value>/base/cidverify/certificationuserinfo</value>
+		</property>
+		<property name="certificationbankbindpage">
+			<value>/base/cidverify/certificationbankbind</value>
+		</property>
+		<property name="certificationresultpage">
+			<value>/base/cidverify/certificationresult</value>
+		</property>
+		<property name="success">
+			<value>/base/cidverify/certificationresultsuccess</value>
+		</property>
+		<property name="endpage">
+			<value>/base/cidverify/certificationend</value>
+		</property>
+		<property name="bankVerifyResultPage">
+			<value>/base/cidverify/bankVerifyResultPage</value>
+		</property>
+		<property name="verfityExitsPage">
+			<value>/base/cidverify/verfityExitsPage</value>
+		</property>		
+	</bean>
+	
+	<bean id="provinceController" class="com.pay.app.controller.base.province.ProvinceController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+			<property name="bankAcctService">
+			<ref bean="app-bankAcctServiceFacade"/>
+		</property>
+		<property name="provinceView">
+			<value>/base/common/province</value>
+		</property>
+		<property name="cityView">
+			<value>/base/common/city</value>
+		</property>
+		
+	</bean>
+	
+</beans>

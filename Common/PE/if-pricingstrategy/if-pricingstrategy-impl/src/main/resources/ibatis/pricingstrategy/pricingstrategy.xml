@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pricingstrategy">
+  <resultMap id="pricingStrategyResultMap" class="com.pay.pricingstrategy.model.PricingStrategy" >
+    <result column="PAYMENT_SERVICE_CODE" property="paymentServiceCode" jdbcType="DECIMAL" />
+    <result column="PRICE_STRATEGY_CODE" property="priceStrategyCode" jdbcType="DECIMAL" />
+    <result column="PRICE_STRATEGY_NAME" property="priceStrategyName" jdbcType="VARCHAR" />
+    <result column="PRICE_STRATEGY_TYPE" property="priceStrategyType" jdbcType="DECIMAL" />
+    <result column="SERVICE_LEVEL_CODE" property="serviceLevelCode" jdbcType="DECIMAL" />
+    <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL" />
+    <result column="EFFECTIVE_ON" property="effectiveOn" jdbcType="DECIMAL" />
+    <result column="VALID_DATE" property="validDate" jdbcType="TIMESTAMP" />
+    <result column="INVALID_DATE" property="invalidDate" jdbcType="TIMESTAMP" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="CACULATE_METHOD" property="caculateMethod" jdbcType="DECIMAL" />
+    <result column="PRICE_STRATEGY_SEQ" property="priceStrategySeq" jdbcType="DECIMAL" />
+    <result column="BATCH_ID" property="batchId" jdbcType="DECIMAL" />
+  </resultMap>
+  <resultMap id="pricingStrategyDetailResultMap" class="com.pay.pricingstrategy.model.PricingStrategyDetail" >
+    <result column="PRICE_STRATEGY_DETAIL_CODE" property="priceStrategyDetailCode" jdbcType="DECIMAL" />
+    <result column="PRICE_STRATEGY_CODE" property="priceStrategyCode" jdbcType="DECIMAL" />
+    <result column="TERMINAL_TYPE_CODE" property="terminalTypeCode" jdbcType="DECIMAL" />
+    <result column="EFFECTIVE_FROM" property="effectiveFrom" jdbcType="TIMESTAMP" />
+    <result column="EFFECTIVE_TO" property="effectiveTo" jdbcType="TIMESTAMP" />
+    <result column="RANG_BY" property="rangBy" jdbcType="DECIMAL" />
+    <result column="RANG_FROM" property="rangFrom" jdbcType="DECIMAL" />
+    <result column="RANG_TO" property="rangTo" jdbcType="DECIMAL" />
+    <result column="FIXED_CHARGE" property="fixedCharge" jdbcType="DECIMAL" />
+    <result column="CHARGE_RATE" property="chargeRate" jdbcType="DECIMAL" />
+    <result column="MAX_CHARGE" property="maxCharge" jdbcType="DECIMAL" />
+    <result column="MIN_CHARGE" property="minCharge" jdbcType="DECIMAL" />
+    <result column="RESERVED_CODE" property="reservedCode" jdbcType="VARCHAR" />
+    <result column="RESERVED_NAME" property="reservedName" jdbcType="VARCHAR" />
+  </resultMap>
+  <resultMap id="pricingStrategyDetailReport" class="com.pay.pricingstrategy.model.PricingStrategyDetailReport" >
+    <result column="PRICE_STRATEGY_DETAIL_CODE" property="priceStrategyDetailCode" jdbcType="DECIMAL" />
+    <result column="PRICE_STRATEGY_CODE" property="priceStrategyCode" jdbcType="DECIMAL" />
+    <result column="TERMINAL_TYPE_CODE" property="terminalTypeCode" jdbcType="DECIMAL" />
+    <result column="EFFECTIVE_FROM" property="effectiveFrom" jdbcType="TIMESTAMP" />
+    <result column="EFFECTIVE_TO" property="effectiveTo" jdbcType="TIMESTAMP" />
+    <result column="RANG_BY" property="rangBy" jdbcType="DECIMAL" />
+    <result column="RANG_FROM" property="rangFrom" jdbcType="DECIMAL" />
+    <result column="RANG_TO" property="rangTo" jdbcType="DECIMAL" />
+    <result column="FIXED_CHARGE" property="fixedCharge" jdbcType="DECIMAL" />
+    <result column="CHARGE_RATE" property="chargeRate" jdbcType="DECIMAL" />
+    <result column="MAX_CHARGE" property="maxCharge" jdbcType="DECIMAL" />
+    <result column="MIN_CHARGE" property="minCharge" jdbcType="DECIMAL" />
+    <result column="RESERVED_CODE" property="reservedCode" jdbcType="VARCHAR" />
+    <result column="RESERVED_NAME" property="reservedName" jdbcType="VARCHAR" />
+  </resultMap>
+
+	<typeAlias alias="pricingStrategy"
+		type="com.pay.pricingstrategy.model.PricingStrategy" />
+	<typeAlias alias="pricingStrategyDetail"
+		type="com.pay.pricingstrategy.model.PricingStrategyDetail" />
+
+	<insert id="createPricingStrategyDetail" parameterClass="pricingStrategyDetail">
+		<selectKey resultClass="java.lang.Long" keyProperty="priceStrategyDetailCode">
+			select SEQ_PRICE_STRATEGY_DETAIL_ID.nextval as priceStrategyDetailCode	from DUAL 
+		</selectKey>
+		INSERT
+		INTO PRICE_STRATEGY_DETAIL
+		(PRICE_STRATEGY_DETAIL_CODE, PRICE_STRATEGY_CODE, TERMINAL_TYPE_CODE, EFFECTIVE_FROM, EFFECTIVE_TO, RANG_BY, RANG_FROM, RANG_TO, FIXED_CHARGE, CHARGE_RATE, MAX_CHARGE, MIN_CHARGE, RESERVED_CODE, RESERVED_NAME)
+		VALUES(#priceStrategyDetailCode#,#priceStrategyCode#,#terminalTypeCode#,#effectiveFrom#,#effectiveTo#,#rangBy#,#rangFrom#,#rangTo#,#fixedCharge#,#chargeRate#,#maxCharge#,#minCharge#,#reservedCode#,#reservedName#)
+	</insert>
+
+	<insert id="create" parameterClass="pricingStrategy">
+		<selectKey resultClass="java.lang.Long" keyProperty="priceStrategyCode">
+			select SEQ_PRICE_STRATEGY_ID.nextval as priceStrategyCode	from DUAL 
+		</selectKey>
+		INSERT INTO PRICE_STRATEGY
+		(PAYMENT_SERVICE_CODE, PRICE_STRATEGY_CODE, PRICE_STRATEGY_NAME,
+		PRICE_STRATEGY_TYPE,SERVICE_LEVEL_CODE, MEMBER_CODE, EFFECTIVE_ON,
+		VALID_DATE, INVALID_DATE, STATUS, CACULATE_METHOD, PRICE_STRATEGY_SEQ,
+		BATCH_ID)
+		VALUES
+		(#paymentServiceCode#,#priceStrategyCode#,#priceStrategyName#,#priceStrategyType#,#serviceLevelCode#,#memberCode#,#effectiveOn#,#validDate#,#invalidDate#,#status#,#caculateMethod#,#priceStrategySeq#,#batchId#)
+	</insert>
+
+  <update id="update" parameterClass="pricingStrategy">
+    update PRICE_STRATEGY
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="paymentServiceCode" >
+        PAYMENT_SERVICE_CODE = #paymentServiceCode#
+      </isNotNull>
+      <isNotNull prepend="," property="priceStrategyName" >
+        PRICE_STRATEGY_NAME = #priceStrategyName#
+      </isNotNull>
+      <isNotNull prepend="," property="priceStrategyType" >
+        PRICE_STRATEGY_TYPE = #priceStrategyType#
+      </isNotNull>
+      <isNotNull prepend="," property="serviceLevelCode" >
+        SERVICE_LEVEL_CODE = #serviceLevelCode#
+      </isNotNull>
+      <isNotNull prepend="," property="memberCode" >
+        MEMBER_CODE = #memberCode#
+      </isNotNull>
+      <isNotNull prepend="," property="effectiveOn" >
+        EFFECTIVE_ON = #effectiveOn#
+      </isNotNull>
+      <isNotNull prepend="," property="validDate" >
+        VALID_DATE = #validDate#
+      </isNotNull>
+      <isNotNull prepend="," property="invalidDate" >
+        INVALID_DATE = #invalidDate#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        STATUS = #status#
+      </isNotNull>
+      <isNotNull prepend="," property="caculateMethod" >
+        CACULATE_METHOD = #caculateMethod#
+      </isNotNull>
+      <isNotNull prepend="," property="priceStrategySeq" >
+        PRICE_STRATEGY_SEQ = #priceStrategySeq#
+      </isNotNull>
+      <isNotNull prepend="," property="batchId" >
+        BATCH_ID = #batchId#
+      </isNotNull>
+    </dynamic>
+    WHERE PRICE_STRATEGY_CODE = #priceStrategyCode#
+  </update>
+
+	<update id="updatePricingStrategyDetail" parameterClass="pricingStrategyDetail">
+		UPDATE PRICE_STRATEGY_DETAIL
+		<dynamic prepend="set">
+			<isNotNull prepend="," property="priceStrategyDetailCode">
+				PRICE_STRATEGY_DETAIL_CODE
+				= #priceStrategyDetailCode#
+			</isNotNull>
+			<isNotNull prepend="," property="priceStrategyCode">
+				PRICE_STRATEGY_CODE =
+				#priceStrategyCode#
+      		</isNotNull>
+			<isNotNull prepend="," property="terminalTypeCode">
+				TERMINAL_TYPE_CODE =
+				#terminalTypeCode#
+      		</isNotNull>
+			<isNotNull prepend="," property="effectiveFrom">
+				EFFECTIVE_FROM =
+				#effectiveFrom#
+      		</isNotNull>
+			<isNotNull prepend="," property="effectiveTo">
+				EFFECTIVE_TO =
+				#effectiveTo#
+      		</isNotNull>
+			<isNotNull prepend="," property="rangBy">
+				RANG_BY = #rangBy#
+			</isNotNull>
+			<isNotNull prepend="," property="rangFrom">
+				RANG_FROM = #rangFrom#
+			</isNotNull>
+			<isNotNull prepend="," property="rangTo">
+				RANG_TO = #rangTo#
+			</isNotNull>
+			<isNotNull prepend="," property="fixedCharge">
+				FIXED_CHARGE =
+				#fixedCharge#
+      		</isNotNull>
+			<isNotNull prepend="," property="chargeRate">
+				CHARGE_RATE = #chargeRate#
+			</isNotNull>
+			<isNotNull prepend="," property="maxCharge">
+				MAX_CHARGE = #maxCharge#
+			</isNotNull>
+			<isNotNull prepend="," property="minCharge">
+				MIN_CHARGE = #minCharge#
+			</isNotNull>
+			<isNotNull prepend="," property="reservedCode">
+				RESERVED_CODE =
+				#reservedCode#
+      		</isNotNull>
+			<isNotNull prepend="," property="reservedName">
+				RESERVED_NAME =
+				#reservedName#
+      		</isNotNull>
+		</dynamic>
+		WHERE PRICE_STRATEGY_DETAIL_CODE = #priceStrategyDetailCode#
+	</update>
+
+	<select id="selectById" resultMap="pricingStrategyResultMap">
+		SELECT * FROM PRICE_STRATEGY
+		WHERE PRICE_STRATEGY_CODE = #priceStrategyCode#
+	</select>
+
+	<select id="selectPriceStrategyDetailById" resultMap="pricingStrategyDetailResultMap">
+		SELECT *
+		FROM PRICE_STRATEGY_DETAIL
+		WHERE PRICE_STRATEGY_DETAIL_CODE =
+		#priceStrategyDetailCode#
+	</select>
+
+	<select id="getAllPricingStrategyDetailByPricingStrategyCode"
+		resultClass="pricingStrategyDetail">
+		SELECT * FROM PRICE_STATETY_DETAIL
+		WHERE
+		PRICE_STRATEGY_CODE = #priceStrategyCode#
+	</select>
+
+	<select id="getAllGlobalPricingStrategyByExample" resultMap="pricingStrategyResultMap">
+		SELECT * FROM PRICE_STRATEGY
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="priceStrategyCode">
+				PRICE_STRATEGY_CODE =
+				#priceStrategyCode# 
+		    </isNotEmpty>
+			<isNotEmpty prepend="and" property="paymentServiceCode">
+				PAYMENT_SERVICE_CODE = #paymentServiceCode#
+		    </isNotEmpty>
+			<isNotEmpty prepend="and" property="memberCode">
+				MEMBER_CODE =
+				#memberCode#
+      		</isNotEmpty>
+			<isNotEmpty prepend="and" property="serviceLevelCode">
+				SERVICE_LEVEL_CODE = #serviceLevelCode#
+			</isNotEmpty>
+			<isNotEmpty prepend="and" property="effectiveOn">
+				EFFECTIVE_ON  = #effectiveOn#
+			</isNotEmpty>
+		</dynamic>
+		ORDER BY PRICE_STRATEGY_CODE DESC
+	</select>
+
+	<select id="getAllGlobalPricingStrategyByPricingStrategyCode"
+		resultClass="pricingStrategy">
+		SELECT * FROM PRICE_STATETY
+		WHERE
+		PRICE_STRATEGY_CODE =
+		#priceStrategyCode#
+	</select>
+
+	<select id="getAllPricingStrategyDetailByExample" resultMap="pricingStrategyDetailResultMap">
+		SELECT * FROM PRICE_STRATEGY_DETAIL
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="priceStrategyCode">
+				PRICE_STRATEGY_CODE =
+				#priceStrategyCode# 
+	    	</isNotEmpty>
+			<isNotEmpty prepend="and" property="terminalTypeCode">
+				TERMINAL_TYPE_CODE =
+				#terminalTypeCode# 
+	    	</isNotEmpty>
+			<isNotEmpty prepend="and" property="reservedCode">
+				RESERVED_CODE =
+				#reservedCode#
+	    	</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	
+	<select id="getPricingStrategyDetailByReservedCode" resultMap="pricingStrategyDetailResultMap">
+		SELECT * FROM PRICE_STRATEGY_DETAIL
+		<dynamic prepend="WHERE">
+			<isNotEmpty prepend="and" property="priceStrategyCode">
+				PRICE_STRATEGY_CODE =
+				#priceStrategyCode# 
+	    	</isNotEmpty>
+			<isNotEmpty prepend="and" property="terminalTypeCode">
+				TERMINAL_TYPE_CODE =
+				#terminalTypeCode# 
+	    	</isNotEmpty>
+			<isNotEmpty prepend="and" property="reservedCode">
+				RESERVED_CODE  is  null
+	    	</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<delete id="delete">
+		DELETE FROM PRICE_STRATEGY WHERE PRICE_STRATEGY_CODE = #priceStrategyCode#
+	</delete>
+	
+	<delete id="deletePriceStrategyDetail">
+		DELETE FROM PRICE_STRATEGY_DETAIL WHERE PRICE_STRATEGY_DETAIL_CODE = #priceStrategyDetailCode#
+	</delete>
+	
+	<select id="getAllPricingStrategyDetailByPSC"
+		resultMap="pricingStrategyDetailReport">
+		SELECT psd.PRICE_STRATEGY_DETAIL_CODE, psd.PRICE_STRATEGY_CODE, psd.TERMINAL_TYPE_CODE, psd.EFFECTIVE_FROM, 
+		psd.EFFECTIVE_TO, psd.RANG_BY, psd.RANG_FROM, psd.RANG_TO, psd.FIXED_CHARGE, psd.CHARGE_RATE, 
+		psd.MAX_CHARGE, psd.MIN_CHARGE, psd.RESERVED_CODE, psd.RESERVED_NAME, psd.EXPRESSION 
+ 		from PRICE_STRATEGY_DETAIL psd,PRICE_STRATEGY ps 
+ 		where ps.PRICE_STRATEGY_CODE=psd.PRICE_STRATEGY_CODE 
+ 		and ps.PAYMENT_SERVICE_CODE=#paymentServiceCode#
+	</select>
+</sqlMap>

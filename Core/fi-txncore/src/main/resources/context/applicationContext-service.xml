@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+ "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/inf/cardbind/config.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+	<bean id="partnerConfigService" class="com.pay.txncore.service.impl.PartnerConfigServiceImpl">
+		<property name="partnerConfigDAO" ref="figetPartnerConfigDAO" />
+	</bean>
+
+	<bean id="tradeOrderService" class="com.pay.txncore.service.impl.TradeOrderServiceImpl">
+		<property name="tradeBaseDAO" ref="fi-tradeBaseDAO" />
+		<property name="tradeOrderDAO" ref="fi-tradeOrderDAO" />
+		<property name="tradeDataDAO" ref="fi-tradeDataDAO" />
+		<property name="blowfish" ref="blowfish"></property>
+	</bean>
+
+	<bean id="tradeDataService" class="com.pay.txncore.service.impl.TradeDataServiceImpl">
+		<property name="tradeDataDAO" ref="fi-tradeDataDAO" />
+	</bean>
+
+	<bean id="tradeExtendsService" class="com.pay.txncore.service.impl.TradeExtendsServiceImpl">
+		<property name="tradeExtendsDAO" ref="fi-tradeExtendsDAO" />
+	</bean>
+
+	<bean id="fi-paymentOrderService" class="com.pay.txncore.service.impl.PaymentOrderServiceImpl">
+		<property name="paymentOrderDAO" ref="fi-paymentOrderDAO" />
+	</bean>
+
+	<bean id="depositOrderService" class="com.pay.txncore.service.impl.DepositOrderServiceImpl">
+		<property name="depositOrderDAO" ref="fi-depositOrderDAO" />
+	</bean>
+
+	<bean id="txncore-paymentService" class="com.pay.txncore.service.impl.PaymentServiceImpl">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeExtendsService" ref="tradeExtendsService" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="expressTrackingService" ref="expressTrackingService" />
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="channelService" ref="channelService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="paymentOrderExpandDAO" ref="fi-paymentOrderExpandDAO" />
+		<property name="businessTradeCountService" ref="businessTradeCountService" />
+		<property name="merchantRateService" ref="acc-merchantRateService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeAmountCountService" ref="tradeAmountCountService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="partnerConfigService" ref="partnerConfigService" />
+		<property name="channelCurrencyDAO" ref="channelCurrencyDAO" />
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="transRateMarkupService" ref="transRateMarkupService" />
+		<property name="tradeDataService" ref="tradeDataService" />
+		<property name="riskClientService" ref="riskClientService" />
+		<property name="ipCountryInfoService" ref="inf-ipCountryInfoService" />
+		<property name="decryptService" ref="decryptService"/>
+	</bean>
+
+	<bean id="txncore-apiPayService" class="com.pay.txncore.service.impl.ApiPayServiceImpl">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	<bean id="txncore-cashierPayService" class="com.pay.txncore.service.impl.CashierPayServiceImpl">
+		<property name="paymentService" ref="txncore-paymentService" />
+		<property name="tokenPayService" ref="tokenPayInfoService"/>
+		<property name="cardBindService" ref="cardBindService" />
+		<property name="securityKey" value="${securityKey}"/>
+	</bean>
+	<bean id="txncore-localPayService" class="com.pay.txncore.service.impl.LocalPayServiceImpl">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+	
+	<bean id="txncore-chinaLocalPayService" class="com.pay.txncore.service.impl.ChinaLocalPayServiceImpl">
+		<property name="paymentService" ref="txncore-paymentService" />
+	</bean>
+
+	<bean id="txncore-preauthService" class="com.pay.txncore.service.impl.PreauthServiceImpl">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="channelService" ref="channelService" />
+		<property name="tradeExtendsService" ref="tradeExtendsService" />
+	</bean>
+
+	<bean id="txncore-preauthCompService" class="com.pay.txncore.service.impl.PreauthCompServiceImpl">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeExtendsService" ref="tradeExtendsService" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="channelService" ref="channelService" />
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+	</bean>
+
+	<bean id="txncore-preauthRevokeService" class="com.pay.txncore.service.impl.PreauthRevokeServiceImpl">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeExtendsService" ref="tradeExtendsService" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="partnerExchangeRateService" ref="partnerExchangeRateService" />
+		<property name="channelService" ref="channelService" />
+	</bean>
+
+	<bean id="currencyExchangeRateService"
+		class="com.pay.txncore.crosspay.service.impl.CurrencyExchangeRateServiceImpl">
+		<property name="currencyExchangeRateDAO" ref="currencyExchangeRateDAO" />
+	</bean>
+
+	<bean id="settlementBaseRateService"
+		class="com.pay.txncore.crosspay.service.impl.SettlementBaseRateServiceImpl">
+		<property name="settlementBaseRateDAO" ref="settlementBaseRateDAO" />
+	</bean>
+
+	<bean id="settlementRateService"
+		class="com.pay.txncore.crosspay.service.impl.SettlementRateServiceImpl">
+		<property name="settlementRateDAO" ref="settlementRateDAO" />
+	</bean>
+
+	<bean id="transactionBaseRateService"
+		class="com.pay.txncore.crosspay.service.impl.TransactionBaseRateServiceImpl">
+		<property name="transactionBaseRateDAO" ref="transactionBaseRateDAO" />
+	</bean>
+
+	<bean id="transactionRateService"
+		class="com.pay.txncore.crosspay.service.impl.TransactionRateServiceImpl">
+		<property name="transactionRateDAO" ref="transactionRateDAO" />
+	</bean>
+
+	<bean id="transRateMarkupService" class="com.pay.txncore.service.impl.TransRateMarkupServiceImpl">
+		<property name="transRateMarkupDAO" ref="transRateMarkupDAO" />
+	</bean>
+
+	<bean id="partnerRateFloatService"
+		class="com.pay.txncore.crosspay.service.impl.PartnerRateFloatServiceImpl">
+		<property name="partnerRateFloatDAO" ref="partnerRateFloatDAO" />
+	</bean>
+
+	<bean id="transactionRateAdjustService"
+		class="com.pay.txncore.crosspay.service.impl.TransactionRateAdjustServiceImpl">
+		<property name="transactionRateAdjustDAO" ref="transactionRateAdjustDAO" />
+		<property name="transactionRateService" ref="transactionRateService" />
+		<property name="transactionBaseRateService" ref="transactionBaseRateService" />
+	</bean>
+
+	<bean id="currencyRateService"
+		class="com.pay.txncore.crosspay.service.impl.CurrencyRateServiceImpl">
+		<property name="transactionRateAdjustService" ref="transactionRateAdjustService" />
+		<property name="transactionRateService" ref="transactionRateService" />
+		<property name="transactionBaseRateService" ref="transactionBaseRateService" />
+		<property name="settlementRateAdjustService" ref="settlementRateAdjustService" />
+		<property name="settlementRateService" ref="settlementRateService" />
+		<property name="settlementBaseRateService" ref="settlementBaseRateService" />
+	</bean>
+
+	<bean id="settlementRateAdjustService"
+		class="com.pay.txncore.crosspay.service.impl.SettlementRateAdjustServiceImpl">
+		<property name="settlementRateAdjustDAO" ref="settlementRateAdjustDAO" />
+		<property name="settlementRateService" ref="settlementRateService" />
+		<property name="settlementBaseRateService" ref="settlementBaseRateService" />
+	</bean>
+
+	<bean id="orgExchangeRateService"
+		class="com.pay.txncore.crosspay.service.impl.OrgExchangeRateServiceImpl">
+		<property name="orgCurrencyExchangeRateDAO" ref="orgCurrencyExchangeRateDAO" />
+		<property name="currencyExchangeRateService" ref="currencyExchangeRateService" />
+	</bean>
+
+	<bean id="channelOrderService" class="com.pay.txncore.service.impl.ChannelOrderServiceImpl">
+		<property name="channelOrderDAO" ref="fi-channelOrderDAO" />
+	</bean>
+
+	<bean id="channelService" class="com.pay.txncore.service.impl.ChannelServiceImpl">
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="accountingService" ref="accounting-100-100" />
+		<property name="accounting_100_101" ref="accounting-100-101" />
+		<property name="accounting_100_102" ref="accounting-100-102" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="partnerWebsiteConfigService" ref="partnerWebsiteConfigService" />
+		<property name="partnerRateFloatService" ref="partnerRateFloatService" />
+		<property name="cardFilterService" ref="inf-cardFilterService" />
+	</bean>
+
+	<bean id="orderQueryService" class="com.pay.txncore.service.impl.OrderQueryServiceImpl">
+		<property name="queryDAO" ref="orderQueryDAO" />
+	</bean>
+
+
+	<bean id="fi-refundService" class="com.pay.txncore.service.refund.impl.RefundServiceImpl">
+		<property name="validateService" ref="refundTransactionValidateService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="accounting_500_500" ref="accounting-500-500" />
+		<property name="accounting_500_501" ref="accounting-500-501" />
+		<property name="accounting_500_502" ref="accounting-500-502" />
+		<property name="accounting_500_503" ref="accounting-500-503" />
+		<property name="accounting_500_504" ref="accounting-500-504" />
+		<property name="accounting_500_505" ref="accounting-500-505" />
+		<property name="accounting_500_506" ref="accounting-500-506" />
+		<property name="accounting_500_507" ref="accounting-500-507" />
+		<property name="accounting_500_508" ref="accounting-500-508" />
+		<property name="accounting_500_509" ref="accounting-500-509" />
+		<property name="accounting_500_510" ref="accounting-500-510" />
+		<property name="accounting_500_511" ref="accounting-500-511" />
+		<property name="accounting_500_512" ref="accounting-500-512" />
+		<property name="accounting_500_513" ref="accounting-500-513" />
+		<property name="accounting_500_514" ref="accounting-500-514" />
+		<property name="accounting_500_515" ref="accounting-500-515" />
+		<property name="accounting_500_518" ref="accounting-500-518" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="partnerConfigService" ref="partnerConfigService" />
+		<property name="acctService" ref="acc-acctService" />
+		<property name="refundOrderExtendService" ref="refundOrderExtendService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="currencyRateService" ref="currencyRateService" />
+		<property name="refundOrderConfirmService" ref="refundOrderConfirmService" />
+		<property name="redisClient" ref="redisClient" />
+	</bean>
+
+	<bean id="gatewayMemberInfoServiceFacade" class="com.pay.txncore.facade.impl.MemberInfoServiceFacadeImpl">
+		<property name="memberQueryService">
+			<ref bean="acc-memberQueryService" />
+		</property>
+		<property name="partnerConfigDAO">
+			<ref bean="figetPartnerConfigDAO" />
+		</property>
+		<property name="linkerQueryService">
+			<ref bean="acc-linkerQueryService" />
+		</property>
+		<property name="memberRelationQueryService">
+			<ref bean="acc-memberRelationQueryService" />
+		</property>
+		<property name="memberOperateService">
+			<ref bean="acc-memberOperateService" />
+		</property>
+	</bean>
+
+	<bean id="refundOrderService"
+		class="com.pay.txncore.service.refund.impl.RefundOrderServiceImpl">
+		<property name="refundOrderDAO" ref="fi-refundOrderDAO" />
+	</bean>
+
+	<bean id="refundOrderExtendService"
+		class="com.pay.txncore.service.refund.impl.RefundOrderExtendServiceImpl">
+		<property name="refundOrderExtendDAO" ref="fi-refundOrderExtendDAO" />
+		<property name="refundOrderStatusChangeLogDAO" ref="fi-refundOrderStatusChangeLogDAO" />
+		<property name="refundFeeOrderDAO" ref="fi-refundFeeOrderDAO" />
+	</bean>
+	
+	<bean id="refundOrderConfirmService"
+		class="com.pay.txncore.service.refund.impl.RefundOrderConfirmServiceImpl">
+		<property name="refundOrderConfirmDAO" ref="fi-refundOrderConfirmDAO" />
+	</bean>
+
+	<bean id="fiRefundCalculationService"
+		class="com.pay.txncore.service.refund.impl.RefundCalculationServiceImpl">
+		<property name="refundOrderService" ref="refundOrderService" />
+	</bean>
+
+	<bean id="accountValidateService" class="com.pay.txncore.facade.impl.AccountValidateServiceImpl" />
+
+	<bean id="refundTransactionValidateService"
+		class="com.pay.txncore.service.refund.impl.RefundTransactionValidateServiceImpl">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="accountValidateService" ref="accountValidateService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+	</bean>
+
+	<bean id="fiOrderQueryServiceApi" class="com.pay.txncore.service.impl.OrderQueryServiceApiImpl">
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeOrderDAO" ref="fi-tradeOrderDAO" />
+	</bean>
+
+	<bean id="tradeOrderDetailService"
+		class="com.pay.txncore.service.impl.TradeOrderDetailServiceImpl">
+		<property name="tradeOrderDAO" ref="fi-tradeOrderDAO" />
+	</bean>
+
+	<bean id="tradeAmountCountService"
+		class="com.pay.txncore.service.impl.TradeAmountCountServiceImpl">
+		<property name="tradeAmountCountDAO" ref="tradeAmountCountDAO" />
+		<property name="currencyRateService" ref="currencyRateService" />
+	</bean>
+
+	<bean id="riskBlackListService" class="com.pay.txncore.commons.RiskBlackWhiteListService">
+		<property name="blackWhiteListService" ref="blackWhiteListService" />
+	</bean>
+
+	<bean id="coder" class="com.pay.txncore.utils.HexCoder" />
+	<bean id="blowfish" class="com.pay.txncore.utils.Blowfish">
+		<constructor-arg index="0" value="1234567890654321"></constructor-arg>
+		<constructor-arg index="1" ref="coder"></constructor-arg>
+	</bean>
+
+	<bean id="txncore-allChannelPayService" class="com.pay.txncore.service.impl.AllChannelPayServiceImpl">
+		<property name="cashierPayService" ref="txncore-cashierPayService"></property>
+		<property name="paymentService" ref="txncore-paymentService"></property>
+		<property name="tradeOrderService" ref="tradeOrderService"></property>
+	</bean>
+
+	<bean id="decryptService" class="com.pay.txncore.service.DecryptService">
+		<property name="decryptMatchs">
+			<map>
+				<entry key="10081001" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081002" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081003" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081004" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081005" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081006" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081007" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081008" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081009" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081010" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081011" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081012" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081013" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081014" value="decryptfolder/computopdecript.xml" />
+				<entry key="10081015" value="decryptfolder/computopdecript.xml" />
+				<entry key="10077002" value="decryptfolder/boletodecript.xml" />
+				<!-- <entry key="10081016" value="decryptfolder/qhwrdecript.xml" /> -->
+			</map>
+		</property>
+	</bean>
+	<bean id="tokenPayInfoService" class="com.pay.txncore.service.impl.TokenPayInfoServiceImpl">
+		<property name="tokenPayInfoDAO" ref="tokenPayInfoDAO"></property>
+		<property name="authChaneOrderDAO" ref="authChaneOrderDAO"></property>
+	</bean>
+	<bean id="cardBindOrderService" class="com.pay.txncore.service.impl.CardBindOrderServiceImpl">
+		<property name="cardBindOrderDAO" ref="cardBindOrderDAO"></property>
+	</bean>
+	<bean id="cardBindService" class="com.pay.txncore.service.impl.CardBindServiceImpl">
+		<property name="tokenPayService" ref="tokenPayInfoService"/>
+		<property name="cardBindOrderService" ref="cardBindOrderService"/>
+		<property name="currencyCode" value="${currencyCode}" />
+		<property name="orderAmount" value="${orderAmount}"/>
+		<property name="securityKey" value="${securityKey}"/>
+		<property name="partnerId" value="${partnerId}"/>
+		<property name="refundService" ref="fi-refundService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="paymentOrderExpandDAO" ref="fi-paymentOrderExpandDAO" />
+		<property name="apiPayService" ref="txncore-apiPayService" />
+		<property name="cashierPayService" ref="txncore-cashierPayService"></property>
+		<property name="paymentService" ref="txncore-paymentService"></property>
+	</bean>
+	
+	<!-- 创建token及预授权服务 -->
+	<bean id="createTokenPreauthService" class="com.pay.txncore.service.impl.CreateTokenPreauthServiceImpl">
+		<property name="tokenPayService" ref="tokenPayInfoService"/>
+		<property name="cardBindOrderService" ref="cardBindOrderService"/>
+		<property name="preAuth2Service" ref="txncore-preAuth2Service" />
+		<!-- <property name="currencyCode" value="${currencyCode}" />
+		<property name="orderAmount" value="${orderAmount}"/> -->
+		<property name="securityKey" value="${securityKey}"/>
+		<property name="paymentService" ref="txncore-paymentService"></property>
+	</bean>
+	
+	<bean id="preControllerService" class="com.pay.txncore.service.impl.PreControllerServiceImpl">
+		<property name="preControllerDAO" ref="preControllerDAO" />
+	</bean>
+
+	<bean id="authChaneOrderService" class="com.pay.txncore.service.impl.AuthChaneOrderServiceImpl">
+		<property name="authChaneOrderDAO" ref="authChaneOrderDAO" />
+	</bean>
+	<bean id="txncore-preAuth2Service" class="com.pay.txncore.service.preauth.impl.PreAuth2ServiceImpl">
+		<property name="preControllerService" ref="preControllerService"/>
+		<property name="paymentService" ref="txncore-paymentService"/>
+		<property name="tradeOrderService" ref="tradeOrderService" />
+		<property name="tradeExtendsService" ref="tradeExtendsService" />
+		<property name="paymentOrderService" ref="fi-paymentOrderService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="expressTrackingService" ref="expressTrackingService" />
+		<property name="partnerSettlementOrderService" ref="partnerSettlementOrderService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="channelService" ref="channelService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="paymentOrderExpandDAO" ref="fi-paymentOrderExpandDAO" />
+		<property name="businessTradeCountService" ref="businessTradeCountService" />
+		<property name="merchantRateService" ref="acc-merchantRateService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="tradeAmountCountService" ref="tradeAmountCountService" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="partnerConfigService" ref="partnerConfigService" />
+		<property name="channelCurrencyDAO" ref="channelCurrencyDAO" />
+		<property name="dccService" ref="configurationDCCService" />
+		<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+		<property name="transRateMarkupService" ref="transRateMarkupService" />
+		<property name="tradeDataService" ref="tradeDataService" />
+		<property name="riskClientService" ref="riskClientService" />
+		<property name="ipCountryInfoService" ref="inf-ipCountryInfoService" />
+		<property name="decryptService" ref="decryptService"/>
+		<property name="channelOrderDAO" ref="fi-channelOrderDAO"></property>
+		<property name="tradeOrderDAO" ref="fi-tradeOrderDAO"></property>
+		<property name="paymentOrderDAO" ref="fi-paymentOrderDAO"></property>
+		<property name="authChaneOrderService" ref="authChaneOrderService"></property>
+		<property name="authChaneOrderDAO" ref="authChaneOrderDAO"></property>
+		<property name="tradeBaseDAO" ref="fi-tradeBaseDAO" />
+	</bean>
+	<bean id="bindCardService" class="com.pay.txncore.service.impl.BindCardServiceImpl">
+		<property name="tokenPayService" ref="tokenPayInfoService"/>
+		<property name="cardBindOrderService" ref="cardBindOrderService"/>
+		<property name="currencyCode" value="${currencyCode}" />
+		<property name="orderAmount" value="${orderAmount}"/>
+		<property name="securityKey" value="${securityKey}"/>
+		<property name="partnerId" value="${partnerId}"/>
+		<property name="siteId" value="${siteId}"/>
+		<property name="refundService" ref="fi-refundService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="refundOrderService" ref="refundOrderService" />
+		<property name="channelOrderService" ref="channelOrderService" />
+		<property name="paymentOrderExpandDAO" ref="fi-paymentOrderExpandDAO" />
+		<property name="apiPayService" ref="txncore-apiPayService" />
+		<property name="preAuth2Service" ref="txncore-preAuth2Service" />
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="retryTimes" value="2" />
+	</bean>
+</beans> 

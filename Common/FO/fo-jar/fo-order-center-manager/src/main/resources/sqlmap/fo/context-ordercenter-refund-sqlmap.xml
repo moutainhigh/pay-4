@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 包含充退,充退的冲正 -->
+<sqlMap namespace="ORDERCENTERREFUND">
+	<!-- 订单查询条件 -->
+	<typeAlias alias="fo_ordercenterquerydto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<typeAlias alias="fo_ordercenterresultdto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	<typeAlias alias="fo_ordercenterrelationdto" type="com.pay.poss.service.ordercenter.dto.relationorder.OrderRelationDTO" />
+	<typeAlias alias="fo_ordercenterdetaildto" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+
+	<!-- 充退 订单详情 -->
+	<select id="refund_ordercenter_detail_query" resultClass="fo_ordercenterdetaildto" parameterClass="java.lang.Long">
+		SELECT
+	      d.detail_ky          orderKy,  
+	      1005 				   orderType,
+	      m.member_code         memberCode,
+	      ''         payeeName,
+	      ''           payeeAcct,
+	      ''         payeeAcctType,
+	      1005           orderType,
+	      d.recharge_bank           bankName,
+	      ''         bankBranch,
+	      ''         provinces,
+	      ''           city,
+	      ''         liquidateBatchKy,
+	      d.apply_amount orderAccount,
+	      m.operator_ip payerIp,
+	      m.apply_time orderCreateTime,
+	      d.FINISH_TIME orderEndTime,
+	      d.apply_remark         remarks
+	    FROM refund_order_m m,refund_order_d d
+	    WHERE d.master_ky = m.order_ky
+			and d.detail_ky = #orderKy#
+	UNION ALL
+		SELECT
+	      m.order_ky          orderKy,  
+	      1005 				        orderType,
+	      m.member_code       memberCode,
+	      ''                  payeeName,
+	      ''                  payeeAcct,
+	      ''                  payeeAcctType,
+	      1005                orderType,
+	      ''                  bankName,
+	      ''                  bankBranch,
+	      ''                  provinces,
+	      ''                  city,
+	      ''                  liquidateBatchKy,
+	      m.apply_amount orderAccount,
+	      m.operator_ip payerIp,
+	      m.apply_time orderCreateTime,
+	      m.FINISH_TIME orderEndTime,
+	      ''         remarks
+	    FROM refund_order_m m
+      	WHERE m.order_ky = #orderKy#
+	</select>	
+	
+	<!-- 充退列表查询 查的是明细 -->
+	<select id="refund_ordercenter_query" resultClass="fo_ordercenterresultdto" parameterClass="fo_ordercenterquerydto">
+		SELECT
+			   d.DETAIL_KY    orderKy,
+	           d.RECHARGE_BANK_ORDER        bankOrderKy,
+	           1005         orderType,
+	           d.APPLY_AMOUNT orderAmount,
+	           decode(d.STATUS, 111, 111, 112, 112, 101) orderStatus,
+	           to_char(m.member_code)   payerAccountNo ,
+	           ''           payerBankNo,
+	           ''           payerBankName,
+	           ''        payeeAccountNo,
+	           d.recharge_bank          payeeBankNo,
+	           '' payeeBankName, 
+	           m.APPLY_TIME    orderDate,
+	           w.workflow_ky workflowKy,
+	           to_char(m.member_code) payerMemberCode,
+	           to_char(m.MEMBER_ACC_TYPE) payerAccType,
+	           '' payeeMemberCode,
+	           '' payeeAccType
+	    FROM refund_order_m m,refund_order_d d,refund_workorder w ,acc.T_MEMBER t
+	    where m.order_ky = w.refund_m_ky and d.master_ky = m.order_ky AND m.MEMBER_CODE = t.MEMBER_CODE
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(m.MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            m.MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            d.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(d.DETAIL_KY) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ m.APPLY_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ m.APPLY_TIME <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            D.RECHARGE_ORDER_SEQ = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            D.RECHARGE_BANK_ORDER = #bankOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="loginName" prepend="AND">
+	            t.LOGIN_NAME = LOWER(#loginName#)
+	        </isNotEmpty>
+    </select>
+    
+    <!-- 充退列表查询  总条数-->
+    <select id="refund_ordercenter_query_COUNT" resultClass="java.lang.Integer" parameterClass="fo_ordercenterquerydto">
+		SELECT
+			   COUNT(1)
+	    FROM REFUND_ORDER_M M,REFUND_ORDER_D D,REFUND_WORKORDER W,acc.T_MEMBER t
+	    WHERE M.ORDER_KY = W.REFUND_M_KY AND D.MASTER_KY = M.ORDER_KY AND m.MEMBER_CODE = t.MEMBER_CODE
+	        <isNotEmpty  property="memberCode" prepend="AND">
+	            to_char(m.MEMBER_CODE) = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty  property="accType" prepend="AND">
+	            m.MEMBER_ACC_TYPE = #accType#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderStatus" prepend="AND">
+	            d.STATUS = #orderStatus#
+	        </isNotEmpty>
+	        <isNotEmpty  property="orderKy" prepend="AND">
+	            to_char(d.DETAIL_KY) = #orderKy#
+	        </isNotEmpty>
+	        <isNotEmpty property="startTime" prepend="AND">
+		 		<![CDATA[ m.APPLY_TIME >= #startTime# ]]>
+			</isNotEmpty>
+		 	<isNotEmpty property="endTime" prepend="AND">
+		    	<![CDATA[ m.APPLY_TIME <= #endTime# ]]>
+		 	</isNotEmpty>
+		 	<isNotEmpty  property="merchantOrderKy" prepend="AND">
+	            D.RECHARGE_ORDER_SEQ = #merchantOrderKy#
+	        </isNotEmpty>
+	        <isNotEmpty  property="bankOrderKy" prepend="AND">
+	            D.RECHARGE_BANK_ORDER = #bankOrderKy#
+	        </isNotEmpty>
+	         <isNotEmpty  property="loginName" prepend="AND">
+	            t.LOGIN_NAME = LOWER(#loginName#)
+	        </isNotEmpty>
+    </select>
+    
+    <!-- 充退关联订单查询 关联的是充值-->
+	<select id="refund_ordercenter_relation_query" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		select d.recharge_order_seq orderKy,
+			   1001         orderType,
+		       d.recharge_amount orderAmount,
+		       d.recharge_time orderDate,
+		       111 orderStatus
+		from refund_order_d d
+		where d.DETAIL_KY = #orderKy#
+		
+	UNION ALL
+		
+		select d.DETAIL_KY orderKy,
+			     1005         orderType,
+		       d.APPLY_AMOUNT orderAmount,
+		       d.FINISH_TIME orderDate,
+		       d.STATUS orderStatus
+		FROM refund_order_d d
+		WHERE d.MASTER_KY = #orderKy#
+    </select>
+    
+</sqlMap>

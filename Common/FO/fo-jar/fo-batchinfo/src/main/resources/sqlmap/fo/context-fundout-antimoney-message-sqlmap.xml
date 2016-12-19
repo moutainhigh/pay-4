@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="antimoney">
+	<typeAlias alias="message" type="com.pay.fundout.batchinfo.service.model.MessageObject"/>
+	
+	<insert id="create" parameterClass="message">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			SELECT seq_fo_antimoney_message.NEXTVAL AS id FROM DUAL
+		</selectKey>
+		INSERT INTO fundout_antimoney_message(id, name, category, type, submit_date, batch_no, seq_no, create_date)
+		VALUES(#id#, #name#, #category#, #type#, #submitDate#, #batchNo#, #seqNo#, #createDate#)
+    </insert>
+	
+	<select id="findById" resultClass="message">
+		SELECT * FROM fundout_antimoney_message
+		WHERE id = #id#
+	</select>
+	
+	<select id="queryMessageFile" parameterClass="message" resultClass="message">
+    	SELECT id id, name name, category category, type type, submit_date submitDate, batch_no batchNo, seq_no seqNo, create_date createDate
+    	FROM fundout_antimoney_message
+    	<dynamic prepend="where">
+    		<isNotNull prepend="AND" property="category">
+	            category = #category#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="type">
+	            type = #type#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="batchNo">
+	            batch_no = #batchNo#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="seqNo">
+	            seq_no = #seqNo#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="submitDate">
+	            submit_date = #submitDate#
+	        </isNotNull>
+        </dynamic>
+        ORDER BY create_date DESC
+    </select>
+    
+    <select id="queryMessageFile_COUNT" parameterClass="message" resultClass="integer">
+    	SELECT COUNT(1) FROM fundout_antimoney_message
+    	<dynamic prepend="where">
+    		<isNotNull prepend="AND" property="category">
+	            category = #category#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="type">
+	            type = #type#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="batchNo">
+	            batch_no = #batchNo#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="seqNo">
+	            seq_no = #seqNo#
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="submitDate">
+	            submit_date = #submitDate#
+	        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- <bean id="contractService" class="com.pay.poss.merchantmanager.service.impl.ContractServiceImpl"> 
+		<property name="contractServiceMa" ref="businessContractManageService" /> 
+		</bean> -->
+
+	<bean id="memberRelationDao"
+		class="com.pay.poss.memberrelation.dao.impl.MemberRelationDaoImpl"
+		parent="baseDAO">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+		<property name="namespace" value="memberRelation" />
+	</bean>
+	
+	<bean id="platformMembersDao"
+		class="com.pay.poss.platformmembers.dao.impl.PlatformMembersDaoImpl"
+		parent="baseDAO">
+		<property name="sqlMapClient" ref="sqlMapClientPoss-Ma"></property>
+		<property name="namespace" value="pltMembers" />
+	</bean>
+
+	<bean id="relationValidator"
+		class="com.pay.poss.memberrelation.service.impl.RelationValidatorImpl">
+		<property name="memberQueryService"> <ref bean="acc-memberQueryService"/> </property>
+	</bean>
+
+	<bean id="poss-MemberRelationService"
+		class="com.pay.poss.memberrelation.service.impl.MemberRelationServiceImpl">
+		<property name="memberRelationDao"> <ref bean="memberRelationDao"/> </property>
+	</bean>
+	
+	<bean id="poss-platformMembersService"
+		class="com.pay.poss.platformmembers.service.impl.PlatformMembersServiceImpl">
+		<property name="platformMembersDao"> <ref bean="platformMembersDao"/> </property>
+	</bean>
+
+	<bean id="uploadTemplateDataService"
+		class="com.pay.poss.memberrelation.service.impl.UploadTemplateDataServiceImpl">
+		<property name="vouchValidators">
+			<list>
+				<ref bean="relationValidator" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+
+
+<link href="<@sp.static/>/css/pay/public.css?v=20101230.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=20101230.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=20101230.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<!-- <script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/ajaxfileupload.js"></script> -->
+<!-- <script type="text/javascript" src="<@sp.static/>/js/pay/paychain/paylinkinfo-logo.js"></script> -->
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+<script type="text/javascript">
+//商户订单号获取焦点事件 2016年4月25日10:12:53  change by tom.wang
+$(function(){
+	var startTime;
+	var endTime;
+	$("#merchantOrderId").focus(function(){
+		 startTime=$("#startTime").val();
+	     endTime=$("#endTime").val();
+		$("#startTime").val("");
+		$("#endTime").val("");
+	});
+	
+	$("#merchantOrderId").blur( function () { 
+			if($("#merchantOrderId").val()==""){
+			$("#startTime").val(startTime);
+			$("#endTime").val(endTime);	
+			} 
+		} );
+});
+$(function(){
+	<#if errorMsg?has_content>
+		$.pay.alert('${errorMsg}') ;
+	</#if>
+}) ;
+</script>
+<script type="text/javascript">
+	$(function(){
+		<#if script?has_content>
+			$.pay.alert('${script}')
+		</#if>
+	});
+</script>
+
+
+<title>
+	<#if margin?has_content && margin == 1>
+		保证金查询
+		<#else>
+			余额查询
+	</#if>
+</title>
+
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="corp_balance_detail"/>
+
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="tit">
+				<#if margin!=1 ><span class="current"> <#else>  <span>  </#if> 	<a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance">余额查询</a></span> 
+					<span><a href="${rc.contextPath}/corp/cross/settlementOrder.htm">清算查询</a></span> 
+					<!-- <span><a href="${rc.contextPath}/corp/withdrawOrderQuery.htm">提现查询</a></span>  -->
+			    <#if margin==1 ><span class="current"> <#else>  <span>  </#if>	<a href="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance&margin=1">保证金查询</a></span>
+					<!-- <span><a href="${rc.contextPath}/corp/cross/settlementOrder.htm?method=queryNosett">待清算交易统计</a></span> -->
+				</div>
+				<div class="seccon">
+					<div class="bgbox">
+						<div class="seccon">
+							<div class="bgbox">
+						<#if margin!=1 >		<form class="form single" action="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance"	method="post" name="balanceListForm" id="balanceListForm" onsubmit="return check();">
+						<#else >		<form class="form single" action="${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance&margin=1"	method="post" name="balanceListForm" id="balanceListForm" onsubmit="return check();"></#if>
+									
+									<table class="tab01 formtable">
+									<colgroup>
+							                <col width="100px;"/>
+							                <col/>
+							                <col width="100px;"/>
+							                <col/>
+							            </colgroup>
+											<tr>
+												<td><div align="right">会员名称：</div></td>
+												<td><div>${enterpriseBase.zhName}</div></td>
+												<td><div align="right">会员号：</div></td>
+												<td><div>${enterpriseBase.memberCode?default('')}</div></td>
+											</tr>
+											<tr>
+												<td><div align="right">选择账户：</div></td>
+												<td colspan="1">
+												<!-- 取消全部这个选项 by tom.wang 2016年4月21日16:42:59 -->
+												<select id="acctCode" name="acctCode" size="1">
+													<#if margin!=1 >
+														<#if acctList ? has_content>
+															<#list acctList as at>
+																<#if at.acctCode?exists && at.curName?exists && at.isBasicAcct==1>
+																	<option value="${at.acctCode}" <#if acctCode?exists && acctCode == at.acctCode>selected="selected"</#if>>${at.curName}账户</option>
+																</#if>
+															</#list>
+														</#if>
+														<#else> 
+														<#if acctList ? has_content>
+															<#list acctList as at>
+																<#if at.acctCode?exists && at.curName?exists && at.isFrozenAcct==1>
+																	<option value="${at.acctCode}" <#if acctCode?exists && acctCode == at.acctCode>selected="selected"</#if>>${at.curName}账户</option>
+																</#if>
+															</#list>
+														</#if>
+													</#if>
+													<
+												</select>
+												</td>
+												<td>
+													<!-- 修改字段描述名称  delin.dong 2016年5月23日 15:17:51-->
+													<div align="right">明细类型：</div>
+												</td>
+												<td colspan="1">
+													<select class="" name="dealType" id="dealType" size="1" > 
+														<option value=" " >全部</option>
+														<#list dealTypeList	as dt>
+															<option value="${dt.code}"<#if dealType?exists && dealType == dt.code>selected</#if>>${dt.message}</option>
+														</#list>
+													</select>
+												</td>
+											</tr>
+											<tr>
+												<td><div align="right">入账时间：</div></td>
+												<td colspan="1">
+													<input class="Wdate" type="text" id="startTime"  name="startTime" readonly="readonly"  
+													onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss'})" 
+													value="${stValue!''}"
+													>
+													至
+													<input class="Wdate" type="text" id="endTime"  name="endTime" readonly="readonly" 
+													onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'#F{$dp.$D(\'startTime\')}',maxDate:'%y-%M-%d %H:%m:%s'})" value="${eValue!''}"
+													>											
+												</td>
+												<!-- <td><div align="right">交易流水号：</div></td>
+												<td><input type="text" id="payNo" name="payNo" class="base-input" value="${payNo!''}"></td> --> 
+												<td>
+													<div align="right">商户订单号：</div>
+												</td>
+												<td>
+													<input type="text"  id="merchantOrderId" name="merchantOrderId" class="base-input"  value="${merchantOrderId!''}"/>
+													<input type="hidden"   name="acctName" /><!--存储获取选中账户值  -->
+												</td>
+											</tr>
+											<!-- <tr>
+												<td></td>
+												<td colspan="">
+													<input type="hidden" name="queryPro" id="queryPro"> 
+													<input type="submit" class="btn_blue" value="查  询" alt="查询">
+												</td>													
+												<td>
+													&nbsp;
+												</td>
+												<td>
+													<input type="button" class="btn_blue" value="下  载" alt="下  载" onclick="javascript:downwExcel() ;"/>
+												</td> 
+											</tr> -->
+											<tr >
+												<td colspan="4" style="">
+													<div class="divquery">
+														<!-- <input type="hidden" name="queryPro" id="queryPro">  -->
+														<input type="submit" class="btn_blue2" value="查  询" alt="查  询">
+													</div>
+													<div class="divdown">
+														<input type="button" class="btn_blue2" value="下载" alt="下载" onclick="javascript:downwExcel() ;"/>
+													</div>
+												</td>
+											</tr>										
+									</table>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div id="resultListDiv" class="listFence" style="margin-top:10px">
+						<!--余额明细 str-->
+						<div class="barg_table mb20">
+							<table style="width: 100%;line-height: 25px;style="text-align:center" class="tab03">
+								<tr>
+								    <th width="10%">商户订单号</th>
+									<th width="17%">交易流水号</th>
+									<th width="15%">入账时间</th>
+									<th width="13%">交易类型</th>
+									<th width="10%">收入</th>
+									<th width="10%">支出</th> 
+									<#if margin!=1 >
+									<th width="10%">账户余额</th>
+									<#else>
+									<th width="10%">账户保证金</th>
+									</#if>
+								</tr>
+								<#if qbdList?has_content> <#list qbdList as qs>	
+								<tr>
+									<td align="center">${qs.merchantOrderId?default("--")}</td>
+									<td align="center">${qs.payNo?default("")}</td>
+									<td> 
+										<#if qs.balanceDate?default("")?length lt 19>
+										${qs.balanceDate?default("")} <#else> ${qs.balanceDate[0..18]}
+										</#if>
+									</td>
+									<td align="center">
+											${qs.fundTrace?default("")} 
+									</td>
+									<td style="text-align: right;"><span class="green">#{qs.revenue?default(0);m3} ${currencyCode?default("")}</span></td>
+									<td style="text-align: right;"><span class="red">#{qs.pay?default(0);m3} ${currencyCode?default("")}</span></td>
+									<td style="text-align: right;">#{qs.balance?default(0);m3} ${currencyCode?default("")}</td>
+								</tr>
+								</#list> <#else> <#--
+								<tr class="gray">
+									<td colspan="7">
+										<div class="tip">
+											<div class="ico"></div>
+											<h2>暂无任何记录</h2>
+											<p>
+												您可以：<em><a href="${rc.contextPath}/corp/myAccount.htm">查看账户首页</a>
+													<a href="${rc.contextPath}/corp/acctCharge.htm">充值到iPayLinks支付</a></em>
+											</p>
+										</div>
+									</td>
+								</tr>
+								--> </#if>
+							</table>
+						</div>
+						<#if qbdList?has_content>
+						<hr style="border-style: dotted;" />
+						<!-- 共${sum.count}笔交易 收入总计：#{sum.incomeSumNo?default(0);m2}元
+						支出总计：#{sum.expensesSumNo?default(0);m2}元 -->
+						<div style="text-align: right;">
+						<!--分页 str -->
+						<@sp.pagination pu=pu/>
+						<input type="hidden"
+							value="${pu.curPageNo}" id="curPage"> 
+						<!--分页 end -->
+						</div>
+						</#if>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+<script type="text/javascript">   
+   function check(){
+	   var acctCode = $("#acctCode").val();
+	   var startTime = $("#startTime").val();
+	   var endTime = $("#endTime").val();
+	   var payNo = $("#payNo").val();
+	   if(acctCode==''){
+		   alert('请选择账户');
+		   return false;
+	   }//删除日期为空的判断
+	   return true ;
+   }
+   //下载excel
+   function downwExcel(){
+	   //获取选择的账户名称
+	 var acctName= $("#acctCode  option:selected").text();
+	   $("input[name='acctName']").attr("value",acctName);
+	  var flag = check() ;
+	   if(!flag)
+		   return ;
+	   if(${margin}==1){		   
+	   $("#balanceListForm").attr('action', '${rc.contextPath}/corp/queryBalanceList.htm?method=excelBalance&margin=1') ;
+	   }else{
+	   $("#balanceListForm").attr('action', '${rc.contextPath}/corp/queryBalanceList.htm?method=excelBalance') ;
+		   
+	   }
+	   
+	   $("#balanceListForm").submit() ;
+	   $("#balanceListForm").attr('action', '${rc.contextPath}/corp/queryBalanceList.htm?method=queryBalance') ; 
+   }
+   //因明细类型：PayForEnum.SEARCH_TYPES值在Poss系统中也要使用，为了不与Poss系统冲突，这里删除指定项。add by davis.guo at 2016-08-25
+   $(document).ready(function(){
+		$("#dealType option[value='901']").remove();   //删除Select中Value='901'的Option,保证金金额冻结
+		$("#dealType option[value='903']").remove();   //删除Select中Value='903'的Option,保证金金额解冻
+		//$("#dealType option[text='保证金金额冻结']").remove();   //删除Select中Text='保证金金额冻结'的Option
+		//$("#dealType option[text='保证金金额解冻']").remove();   //删除Select中Text='保证金金额解冻'的Option
+	});
+   //end davis.guo ==================================================
+</script>
+</body>
+</html>

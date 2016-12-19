@@ -1,0 +1,274 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="2" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/ma/commonconfigure.properties</value>
+				<value>classpath:/properties/config.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="accountService" class="com.pay.account.hessian.HessianService">
+		<property name="eventHandlerMap" ref="eventHandlerMap" />
+	</bean>
+
+	<bean id="eventHandlerMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<!--会员和一起注册  -->
+				<entry key="10601">
+					<bean class="com.pay.account.handler.RegisterHandler">
+						<property name="iMessageDigest" ref="iMessageDigest" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="registerService" ref="acc-registerService" />
+						<property name="memberIdentityService" ref="memberIdentityService" />
+					</bean>
+				</entry>
+				<!--会员和企业登录  -->
+				<entry key="10602">
+					<bean class="com.pay.account.handler.LoginHandler">
+						<property name="loginService" ref="acc-loginService" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="memberIdentityService" ref="memberIdentityService" />
+					</bean>
+				</entry>
+				<entry key="10603">
+					<bean class="com.pay.account.handler.FindPasswordHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="checkCodeService" ref="checkCodeService" />
+						<property name="memberQueryService" ref="acc-memberQueryService" />
+						<property name="jmsSender" ref="jmsSender" />
+						<property name="findPwdUrl" value="${MAIL_URL_FIND_LOGIN_PWD}" />
+						<property name="findPayPwdUrl" value="${MAIL_URL_PWD}" />
+					</bean>
+				</entry>
+				<entry key="10604">
+					<bean class="com.pay.account.handler.SetPasswordHandler">
+						<property name="iMessageDigest" ref="iMessageDigest" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="acctAttribService" ref="acc-acctAttribService" />
+					</bean>
+				</entry>
+				<entry key="10605">
+					<bean class="com.pay.account.handler.ModifyPasswordHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="memberQueryService" ref="acc-memberQueryService" />
+						<property name="accountVerifyService" ref="acc-accountVerifyService" />
+						<property name="accountInfoService" ref="acc-accountInfoService" />
+					</bean>
+				</entry>
+				<entry key="10606">
+					<bean class="com.pay.account.handler.BindingContactHandler">
+						<property name="individualInfoService" ref="acc-individualInfoService" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="checkCodeService" ref="checkCodeService" />
+						<property name="activeEmailUrl" value="${ACTIVE_EMAIL}" />
+						<property name="jmsSender" ref="jmsSender" />
+					</bean>
+				</entry>
+				<entry key="10607">
+					<bean class="com.pay.account.handler.CertificationHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="idCardVerifyService" ref="acc-idCardVerifyService" />
+						<property name="individualInfoService" ref="acc-individualInfoService" />
+					</bean>
+				</entry>
+				<entry key="10608">
+					<bean class="com.pay.account.handler.BindingWithdrawBankCardHandler">
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="memberQueryService" ref="acc-memberQueryService" />
+						<property name="memberVerifyService" ref="acc-memberVerifyService" />
+					</bean>
+				</entry>
+				<entry key="10609">
+					<bean class="com.pay.account.handler.QueryWithdrawBankCardHandler">
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="bankService" ref="bankService" />
+					</bean>
+				</entry>
+				<entry key="10610">
+					<bean class="com.pay.account.handler.BindingQuickPaymentBankCardHandler">
+						<property name="bankService" ref="bankService" />
+						<property name="memberService" ref="acc-memberService" />
+						<property name="memberQuickBankAcctService" ref="acc-memberQuickBankAcctService" />
+					</bean>
+				</entry>
+				<entry key="10611">
+					<bean class="com.pay.account.handler.QueryQuickPaymentBankCardHandler">
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="memberService" ref="acc-memberService" />
+					</bean>
+				</entry>
+				<entry key="10612">
+					<bean class="com.pay.account.handler.ModifyWithdrawBankCardHandler">
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="memberService" ref="acc-memberService" />
+					</bean>
+				</entry>
+				<entry key="10613">
+					<bean class="com.pay.account.handler.ModifyQuickPaymentBankCardHandler">
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="memberService" ref="acc-memberService" />
+					</bean>
+				</entry>
+				<entry key="10614">
+					<bean class="com.pay.account.handler.CheckCodeHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="checkCodeService" ref="checkCodeService" />
+						<property name="checkCodeTimeoutMinute" value="${sms.checkCode.timeout.maxMinute}" />
+						<property name="jmsSender" ref="jmsSender" />
+					</bean>
+				</entry>
+				<entry key="10615">
+					<bean class="com.pay.account.handler.QueryMemberInfoHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="memberQueryService" ref="acc-memberQueryService" />
+						<property name="idCardVerifyService" ref="acc-idCardVerifyService" />
+						<property name="accountQueryService" ref="acc-accountQueryService" />
+						<property name="memberIdentityService" ref="memberIdentityService" />
+					</bean>
+				</entry>
+				<entry key="10616">
+					<bean class="com.pay.account.handler.CertificationCheckHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="idCardVerifyService" ref="acc-idCardVerifyService" />
+					</bean>
+				</entry>
+				<entry key="10617">
+					<bean class="com.pay.account.handler.SecurityQuestionSetupHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="iMessageDigest" ref="iMessageDigest" />
+					</bean>
+				</entry>
+				<entry key="10618">
+					<bean class="com.pay.account.handler.RetLoginPasswordHandler">
+						<property name="memberService" ref="acc-memberService" />
+					</bean>
+				</entry>
+				<entry key="10619">
+					<bean class="com.pay.account.handler.AccountUpdateHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="acctService" ref="acc-acctService" />
+						<property name="acctAttribService" ref="acc-acctAttribService" />
+					</bean>
+				</entry>
+				<entry key="10620">
+					<bean class="com.pay.account.handler.WithdrawHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="bankService" ref="bankService" />
+						<property name="provinceService" ref="provinceService" />
+						<property name="cityService" ref="cityService" />
+						<property name="memberQueryService" ref="acc-memberQueryService" />
+						<property name="accountQueryService" ref="acc-accountQueryService" />
+						<property name="withdrawOrderService" ref="fo-order-withdrawOrderService" />
+						<property name="paymentValidateService" ref="fo-order-paymentValidateService" />
+						<property name="configBankService" ref="context_fundout_configbank_service" />
+					</bean>
+				</entry>
+				<entry key="10621">
+					<bean class="com.pay.account.handler.BankHandler">
+						<property name="bankService" ref="bankService" />
+					</bean>
+				</entry>
+				<entry key="10622">
+					<bean class="com.pay.account.handler.AreaHandler">
+						<property name="provinceService" ref="provinceService" />
+					</bean>
+				</entry>
+				<entry key="10623">
+					<bean class="com.pay.account.handler.BankNumberHandler">
+						<property name="bankService" ref="bankService" />
+						<property name="provinceService" ref="provinceService" />
+						<property name="cityService" ref="cityService" />
+						<property name="bankBrancheInfoService" ref="fundout-bankBrancheInfoService" />
+					</bean>
+				</entry>
+				<entry key="10624">
+					<bean class="com.pay.account.handler.ValidateCheckeCodeHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="checkCodeService" ref="checkCodeService" />
+						<property name="checkCodeTimeoutMinute" value="${sms.checkCode.timeout.maxMinute}" />
+					</bean>
+				</entry>
+				<entry key="10625">
+					<bean class="com.pay.account.handler.CityHandler">
+						<property name="cityService" ref="cityService" />
+					</bean>
+				</entry>
+				<entry key="10626">
+					<bean class="com.pay.account.handler.DelBindingWithdrawBankCardHandler">
+						<property name="memberBankService" ref="acc-memberBankService" />
+						<property name="memberService" ref="acc-memberService" />
+					</bean>
+				</entry>
+				<entry key="10627">
+					<bean class="com.pay.account.handler.AcctPaymentHandler">
+						<property name="memberService" ref="acc-memberService" />
+						<property name="acctAttribService" ref="acc-acctAttribService" />
+						<property name="iMessageDigest" ref="iMessageDigest" />
+						<property name="acctService" ref="acc-acctService"/>
+						<!--  <property name="acctPaymentAccounting" ref="fundin-acctPaymentAccounting"/>-->
+					</bean>
+				</entry>
+				
+				<!--查询用户所有账户币种-->
+				<entry key="10628">
+					<bean class="com.pay.account.handler.QueryAllAcctCurrencyHandler">
+						<property name="acctService" ref="acc-acctService"/>
+						<property name="memberService" ref="acc-memberService"/>
+						<property name="acctAttribService" ref="acc-acctAttribService"/>
+					</bean>
+				</entry>
+				<!--更新账户状态  -->
+				<entry key="10629">
+					<bean class="com.pay.account.handler.AccountStatusUpdateHandler">
+						<property name="acctService" ref="acc-acctService"/>
+						<property name="acctAttribService" ref="acc-acctAttribService"/>
+						<property name="memberService" ref="acc-memberService"/>
+					</bean>
+				</entry>
+				<!--添加币种账户  -->
+				<entry key="10630">
+					<bean class="com.pay.account.handler.AddAcctCurrencyHandle">
+						<property name="enterpriseService" ref="enterpriseService"/>
+					</bean>
+				</entry>
+				<!--会员冻结  -->
+				<entry key="10631">
+					<bean class="com.pay.account.handler.UpdateLockMemberHander">
+						<property name="memberService" ref="acc-memberService"/>
+					</bean>
+				</entry>
+				<!-- 会员解冻 -->
+				<entry key="10632">
+					<bean class="com.pay.account.handler.UpdateUnlockMemberHandler">
+						<property name="memberService" ref="acc-memberService"/>						
+					</bean>
+				</entry>
+				<!--查询账户所有属性  -->
+				<entry key="10633">
+					<bean class="com.pay.account.handler.AccountQueryHandler">
+						<property name="memberService" ref="acc-memberService"/>
+						<property name="acctService" ref="acc-acctService"/>
+					</bean>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+</beans>

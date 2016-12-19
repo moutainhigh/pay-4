@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	<!-- 出款失败 -->
+<sqlMap namespace="ordercenterbackfundout">
+	<!-- 订单查询条件 -->
+	<typeAlias alias="fo_ordercenterquerydto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterQueryDTO" />
+	<!-- 订单查询结果 -->
+	<typeAlias alias="fo_backfundoutresultdto" type="com.pay.poss.service.ordercenter.dto.list.OrderCenterResultDTO" />
+	<!-- 订单详情 -->
+	<typeAlias alias="fo_backfundoutdetaildto" type="com.pay.poss.service.ordercenter.dto.detail.OrderDetailDTO" />
+	<!-- 关联订单 -->
+	<typeAlias alias="fo_ordercenterrelationdto" type="com.pay.poss.service.ordercenter.dto.relationorder.OrderRelationDTO" />
+	
+	
+	<!-- 出款失败-->
+	<select id="context_fundout_backfundout" parameterClass="fo_ordercenterquerydto" resultClass="fo_backfundoutresultdto">
+		SELECT   
+	        SEQUENCE_ID 								orderKy, 
+	        '' 											bankOrderKy, 
+	        1014 										orderType, 
+	        APP_AMOUNT 									orderAmount,
+	        decode(STATUS, 111, 111, 112, 112, 101) 	orderStatus, 
+	        ''					 						payerAccountNo,
+	        '' 											payerBankNo,
+	        '' 											payerBankName, 
+	        ''				 							payeeAccountNo, 
+	        ''		 									payeeBankNo, 
+	        '' 											payeeBankName, 
+	        CREATE_TIME 								orderDate,
+	        ''			 								workflowKy,
+	        to_char(PAYER_MEMBER) 						payerMemberCode,
+	        to_char(PAYER_ACCT_TYPE) 					payerAccType,
+	        to_char(PAYEE_MEMBER) 						payeeMemberCode,
+	        to_char(PAYEE_ACCT_TYPE) 					payeeAccType,
+	        APP_TYPE									busiType,
+	        SEQUENCE_SRC								orderSrc
+	    FROM  BACK_FUNDMENT_ORDER
+	    <dynamic prepend=" WHERE ">
+          <isNotEmpty  property="memberCode" prepend="AND">
+              (PAYER_MEMBER = #memberCode# OR PAYEE_MEMBER = #memberCode#)
+          </isNotEmpty>
+          <isNotEmpty  property="accType" prepend="AND">
+              (PAYER_ACCT_TYPE = #accType# OR PAYEE_ACCT_TYPE = #accType#)
+          </isNotEmpty>
+          <isNotEmpty  property="orderStatus" prepend="AND">
+              STATUS = #orderStatus#
+          </isNotEmpty>
+          <isNotEmpty  property="orderKy" prepend="AND">
+              SEQUENCE_ID = #orderKy#
+          </isNotEmpty>
+          <isNotEmpty property="startTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME >= #startTime# ]]>
+      	  </isNotEmpty>
+       	  <isNotEmpty property="endTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME <= #endTime# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty  property="orderSrc" prepend="AND">
+       			SEQUENCE_SRC = #orderSrc#
+   		  </isNotEmpty>
+		  <isNotEmpty  property="merchantOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  <isNotEmpty  property="bankOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  </dynamic>
+	 </select>
+	 
+	 <!-- 出款失败-->
+	<select id="context_fundout_backfundout_COUNT" parameterClass="fo_ordercenterquerydto" resultClass="java.lang.Integer">
+		SELECT  COUNT(1)
+	    FROM  BACK_FUNDMENT_ORDER
+	    <dynamic prepend=" WHERE ">
+          <isNotEmpty  property="memberCode" prepend="AND">
+              (PAYER_MEMBER = #memberCode# OR PAYEE_MEMBER = #memberCode#)
+          </isNotEmpty>
+          <isNotEmpty  property="accType" prepend="AND">
+              (PAYER_ACCT_TYPE = #accType# OR PAYEE_ACCT_TYPE = #accType#)
+          </isNotEmpty>
+          <isNotEmpty  property="orderStatus" prepend="AND">
+              STATUS = #orderStatus#
+          </isNotEmpty>
+          <isNotEmpty  property="orderKy" prepend="AND">
+              SEQUENCE_ID = #orderKy#
+          </isNotEmpty>
+          <isNotEmpty  property="orderSrc" prepend="AND">
+       		  SEQUENCE_SRC = #orderSrc#
+   		  </isNotEmpty>
+          <isNotEmpty property="startTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME >= #startTime# ]]>
+      	  </isNotEmpty>
+       	  <isNotEmpty property="endTime" prepend="AND">
+          	  <![CDATA[ CREATE_TIME <= #endTime# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty  property="merchantOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  <isNotEmpty  property="bankOrderKy" prepend="AND">
+       			1 != 1
+   		  </isNotEmpty>
+   		  </dynamic>
+	 </select>  
+	 
+	<!-- 出款失败关联的是提现退款 -->
+	<select id="context_fundout_backfundout_relation_query" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		SELECT b.sequence_id orderKy,
+		       1010         orderType,
+		       b.realpay_amount orderAmount,
+		       b.create_date    orderDate,
+		       b.status orderStatus
+		FROM t_bank_refund_order b
+		WHERE b.trade_order_id = #orderKy#
+		
+	UNION ALL
+	
+		SELECT b.SEQUENCE_ID orderKy,
+           1008         orderType,
+           b.AMOUNT orderAmount,
+           b.CREATE_TIME    orderDate,
+           b.status orderStatus
+    	FROM withdraw_order b
+    	WHERE b.MASS_ORDER_SEQ = #orderKy#
+    </select>      
+	        
+	<!-- 订单详情 --> 
+	<select id="context_fundout_backfundout_orderdetail" resultClass="fo_backfundoutdetaildto" parameterClass="java.lang.Long">
+		SELECT
+			  SEQUENCE_ID          orderKy,
+		      ''			       payerKy,
+		      PAYER_MEMBER         memberCode,
+		      1014 				   orderType,
+		      ''		           payerAcct,
+		      PAYER_ACCT_TYPE      payerAcctType,
+		      APP_AMOUNT           orderAccount,
+		      ''			       payeeName,
+		      ''	 	           bankAcct,
+		      ''             	   bankName,
+		      ''		           bankBranch,
+		      ''        		   provinces,
+		      REASONS		       remarks,
+		      CREATE_TIME          orderCreateTime,
+		      UPDATE_TIME          orderEndTime,
+		      ''			       payment,
+		      0                   fee,
+		      ''	               city,
+		      ''			       liquidateBatchKy,
+		      decode(STATUS, 111, 111, 112, 112, 101) orderStatus,
+	          to_char(APP_TYPE)    orderType    
+	    FROM BACK_FUNDMENT_ORDER
+		WHERE SEQUENCE_ID = #orderKy#
+	</select> 
+	
+	<!-- 提现关联订单 -->
+	<select id="context_fundout_backfundout_relation_withdraw" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		SELECT 
+			SEQUENCE_ID 	orderKy, 
+			DECODE(BUSI_TYPE,0,1004,2,1012,3,1013,4,1008)		orderType, 
+			AMOUNT 			orderAmount, 
+			CREATE_TIME 	orderDate, 
+			STATUS 			orderStatus
+      	FROM WITHDRAW_ORDER
+     	WHERE SEQUENCE_ID = #orderSrc#
+	</select>
+	
+	<!-- 充退关联订单 -->
+	<select id="context_fundout_backfundout_relation_refund" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		SELECT 
+			DETAIL_KY 		orderKy, 
+			1005			orderType, 
+			APPLY_AMOUNT 	orderAmount, 
+			FINISH_TIME 	orderDate, 
+			STATUS 			orderStatus
+      	FROM REFUND_ORDER_D
+     	WHERE DETAIL_KY = #orderSrc#
+	</select>
+	
+	<!-- 付款到账户关联订单 -->
+	<select id="context_fundout_backfundout_relation_pay2acct" resultClass="fo_ordercenterrelationdto" parameterClass="fo_ordercenterquerydto">
+		SELECT 
+			SEQUENCE_ID 	orderKy, 
+			DECODE(NVL(PARENT_ORDER,1006),1006,1006,1007)		orderType, 
+			AMOUNT 			orderAmount, 
+			CREATE_DATE 	orderDate, 
+			STATUS 			orderStatus
+      	FROM MASSPAY_ORDER
+     	WHERE SEQUENCE_ID = #orderSrc#
+	</select>
+</sqlMap>

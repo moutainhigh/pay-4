@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="bankacct">
+	<typeAlias alias="bankacct" type="com.pay.app.model.BankAcct" />
+	<typeAlias alias="liquidateInfo" type="com.pay.base.model.LiquidateInfo"/>
+
+	<insert id="InsertBankAcct" parameterClass="com.pay.app.model.BankAcct">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_MEMBER_BANK_ACCT_ID.nextval as ID from dual 
+		</selectKey>
+				insert into
+		t_member_bank_acct
+		(
+		id,
+		bank_Id,
+		MEMBER_CODE,
+		IS_PRIMARY_BANKACCT,
+		BRANCH_BANK_NAME,
+		BRANCH_BANK_ID,
+		CREATION_DATE,
+		NAME,
+		STATUS,
+		BANK_ACCT_ID,
+		PROVINCE,
+		CITY
+		)
+		values
+		(
+		#id#,
+		#bankId#,
+		#memberCode#,
+		#isPrimaryBankacct#,
+		#branchBankName#,
+		#branchBankId#,
+		#creationDate#,
+		#name#,
+		#status#,
+		#bankAcctId#,
+		#province#,
+		#city#
+		)
+	</insert>
+	
+	
+	<select id="getMemberBankNum" resultClass="java.lang.Integer" >
+		select count(*) as Counts from t_member_bank_acct
+		where
+		member_Code=#memberCode:VARCHAR#
+	</select>
+	
+	<select id="checkBankCardExits" resultClass="java.lang.Integer" >
+		select count(*) as Counts from t_member_bank_acct
+		where
+		bank_acct_id=#bankAcctId:VARCHAR#
+	</select>
+
+	<select id="queryBankAcctByCode" resultClass="bankacct" parameterClass="long" >
+		Select 
+		ID,
+		bank_id as bankId,
+		member_code as memberCode,
+		IS_PRIMARY_BANKACCT as isPrimaryBankacct,
+		BRANCH_BANK_NAME as branchBankName,
+		BRANCH_BANK_Id as branchBankId,
+		CREATION_DATE as creationDate,
+		name,
+		status,
+		BANK_ACCT_ID as bankAcctId,
+		PROVINCE,
+		CITY
+		 From T_Member_Bank_Acct Where Member_Code=#memberCode#
+		ORDER BY IS_PRIMARY_BANKACCT DESC,ID ASC
+	</select>
+	
+	<select id="queryBankAcctByMemberCode" resultClass="liquidateInfo" parameterClass="long" >
+		<!-- //会员号 商户结算银行名称  账户名称  状态  --> 
+		Select
+		LIQUIDATE_ID as liquidateId,
+		member_code as memberCode,
+		BANK_NAME  as bankName,
+		BANK_ACCT as bankAcct,
+		ACCT_NAME as acctName,
+		STATUS as status,
+		AUDITSTATUS as auditStatus,
+		AUDITREMARK  as auditRemark
+		From T_LIQUIDATE_INFO Where 1= 1
+		AND  Member_Code=#memberCode#
+		ORDER BY BANK_NAME ASC
+	</select>
+	
+	<select id="selectBankAcctById" resultClass="bankacct" parameterClass="long" >
+		Select 
+		ID as id,
+		bank_id as bankId,
+		member_code as memberCode,
+		IS_PRIMARY_BANKACCT as isPrimaryBankacct,
+		BRANCH_BANK_NAME as branchBankName,
+		BRANCH_BANK_Id as branchBankId,
+		CREATION_DATE as creationDate,
+		name,
+		status,
+		BANK_ACCT_ID as bankAcctId,
+		PROVINCE,
+		CITY
+		 From T_Member_Bank_Acct Where ID=#id#
+	</select>
+	
+	<select id="selectBankAcct" resultClass="bankacct" parameterClass="map" >
+		Select 
+		ID,
+		bank_id as bankId,
+		member_code as memberCode,
+		IS_PRIMARY_BANKACCT as isPrimaryBankacct,
+		BRANCH_BANK_NAME as branchBankName,
+		BRANCH_BANK_Id as branchBankId,
+		CREATION_DATE as creationDate,
+		name,
+		status,
+		BANK_ACCT_ID as bankAcctId,
+		PROVINCE,
+		CITY
+		 From T_Member_Bank_Acct Where 1=1
+		 <dynamic>
+			<isNotEmpty prepend="AND" property="memberCode">
+				memberCode =#memberCode#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="bankAcctId">
+				BANK_ACCT_ID =#bankAcctId#
+            </isNotEmpty>
+         </dynamic>
+	</select>
+	
+	<update id="updateBankAcct" parameterClass="bankacct">
+		Update T_Member_Bank_Acct Set
+			bank_id =#bankId#, BRANCH_BANK_NAME =#branchBankName#,BANK_ACCT_ID =#bankAcctId#,
+			BRANCH_BANK_ID = #branchBankId#,
+			PROVINCE=#province#,CITY=#city#	 Where ID=#id#
+	</update>
+	
+	<update id="updateStatus" parameterClass="map" >
+			UPDATE T_Member_Bank_Acct  
+			SET is_primary_bankacct = #isPrimaryBankacct#
+			WHERE MEMBER_CODE = #memberCode#
+			<isNotEmpty property="id">
+				AND id = #id#
+			</isNotEmpty>
+		</update>
+		
+	<delete id="deleteBankAcctById" >
+		Delete From T_Member_Bank_Acct Where Id=#id#
+	</delete>
+
+</sqlMap>

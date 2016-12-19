@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoHelp.ftl">
+<title>${heetour_ecard}${prepaidcard_intro}${title}</title>
+<meta name="Keywords" content="${keywords}" />
+<meta name="Description" content="${description}" />
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/introduce.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/jquery-1.4.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(function(){
+	   hashH = document.documentElement.scrollHeight; //获取自身高度
+	   urlC = "http://card-help.pay.com/portal-help/specialmerchant/specialmerchantB.html"; //设置iframeA的
+	   document.getElementById("iframeA").src=urlC+"#"+hashH; //将高度作为参数传递
+})
+ 
+</script>
+</head>
+<body>
+
+<iframe id="iframeA" name="iframeA" src="" width="0" height="0" style="display:none;" >
+</iframe> 	
+
+<!--主内容-->
+<div class="container"> 
+	<!--侧栏-->
+	<!-- <#include "/help/prepaidcard/card_menu.html"> -->
+	<!--/侧栏--> 
+	<!--主栏-->
+		<div class="search_main">
+			<div class="sort_keyword">
+				<h5 class="tit">商户搜索条件</h5>
+				<dl class="item">
+					<dt>地区：</dt>
+					<dd id="areaid" class="cur" onclick="queryArea('all')">全部</dd>
+					<#if citys?has_content>
+					   <#list citys as city>
+					    <dd id="${city.citycode?default('')}" onclick="queryArea(${city.citycode?default('')})">${city.cityname?default("")}</dd>
+					    </#list>
+					</#if> 
+				</dl>
+				<dl class="item">
+					<dt>经营范围：</dt>
+					<dd id="productid" class="cur" onclick="queryProduct('')">全部</dd>
+					<#if products?has_content>
+					   <#list products as pr>
+					    <dd id="${pr.enumCode?default('')}" onclick="queryProduct(${pr.enumCode?default('')})">${pr.enumName?default("")}</dd>
+					    </#list>
+					</#if> 
+					
+				</dl>
+				<dl class="item">
+					<dt>卡种类：</dt>
+					<dd id="cardtypeid" class="cur" onclick="queryCardType('')">全部</dd>
+					<#if cardTypes?has_content>
+					   <#list cardTypes as cardType>
+					    <dd id="${cardType.enumCode?default('')}" onclick="queryCardType(${cardType.enumCode?default('')})">${cardType.enumName?default("")}</dd>
+					    </#list>
+					</#if>
+				</dl>
+			</div>
+			<form class="search_box" action="${rc.contextPath}/specialmerchant.htm?view=specialmerchant&method=indexspecialmerchant" method="post" name="pecialmerchantForm" id="pecialmerchantListForm">
+				<input type="hidden" id="province_code" value="${specialmerchantdto.province_code?default('')}">
+				<input type="hidden" id="range_id" value="${specialmerchantdto.range_id?default('')}">
+				<input type="hidden" id="card_type_id" value="${specialmerchantdto.card_type_id?default('')}">
+				<span class="fr">
+				<input type="text" class="inp_normal w150" id ="specialname" name="specialname" value="${specialmerchantdto.sp_merchant_name?default('')}" onClick="if(this.value=='请输入商户名称'){this.value=''}" onBlur="if(this.value==''){this.value='请输入商户名称'}" >
+				<button type="submit" class="s_btn v_m"></button> 
+				</span>共搜索到 <span class="red">${sum?default("0")}</span> 个符合条件的商户
+			</form>
+			<div class="list_box">
+				<#if specialMerchantList?has_content>
+				<hr style="border-style:dotted; " />
+				<!--分页 str -->
+					<@sp.pagination pu=pu/>
+					<input type="hidden" value="${pu.curPageNo}" id="curPage">
+				<!--分页 end --> 
+				</#if>
+				<ul class="s_mod_list">
+				      <#if specialMerchantList?has_content>
+					     <#list specialMerchantList as specialMerchant>
+					       <li>
+					       		<div class="pic"><a href="${rc.contextPath}/viewdetail.htm?view=specialmerchantdetail&method=viewdetail&sp_merchant_id=${specialMerchant.sp_merchant_id?default(0)}" target="_blank">
+					       		<#if specialMerchant.sp_merchant_logo?has_content>
+					       			<img src="<@sp.upload/>${specialMerchant.sp_merchant_logo}" />
+					       		<#else>
+					       			<img src="<@sp.static/>/img/v2/pay/introduce/nopic_150.jpg" />
+					       		</#if>
+					       		</a>
+					       		</div>
+					       		<h3><a href="${rc.contextPath}/viewdetail.htm?view=specialmerchantdetail&method=viewdetail&sp_merchant_id=${specialMerchant.sp_merchant_id?default(0)}" target="_blank">${specialMerchant.sp_merchant_name?default("")}</a></h3>
+					       		<p class="s_mod_tr"><a href="${rc.contextPath}/viewdetail.htm?view=specialmerchantdetail&method=viewdetail&sp_merchant_id=${specialMerchant.sp_merchant_id?default(0)}" class="blues" target="_blank">查看优惠信息</a></p>
+					       		<p class="s_mod_tr">${specialMerchant.merchant_intro?default("")}</p>
+					       		<p class="s_mod_tr"><span class="c_666">经营范围：</span>${specialMerchant.range_name?default("")}</p>
+					       		<p class="s_mod_tr"><span class="c_666">地址：</span>${specialMerchant.addr?default("")}</p>
+						        <p class="s_mod_tr"><span class="c_666">电话：</span>${specialMerchant.tel?default("")}<span class="c_666 ml30">网址：</span><a href="${specialMerchant.website_url?default('')}" class="blue" target="_blank">${specialMerchant.website_url?default("")}</a></p>
+						        <span class="mod"><a href="${rc.contextPath}/viewdetail.htm?view=specialmerchantdetail&method=viewdetail&sp_merchant_id=${specialMerchant.sp_merchant_id?default(0)}" class="blues" target="_blank">详情</a></span></li>
+					       </li>
+					     </#list>
+					</#if>
+				</ul>
+				<#if specialMerchantList?has_content>
+				<hr style="border-style:dotted; " />
+				<!--分页 str -->
+					<@sp.pagination pu=pu/>
+					<input type="hidden" value="${pu.curPageNo}" id="curPage">
+				<!--分页 end --> 
+				</#if>
+
+			</div>
+		</div>
+	<!--/主栏--> 
+</div>
+<!--/主内容--> 
+	<!--footer -->
+	<!-- <#include "/common/include/footerV2.html"> -->
+</body>
+<script type="text/javascript">
+$(document).ready(function(){
+	
+	$("#tite_3").addClass("cur");
+	$("#menu_1").hide();
+
+	var specialname = $("#specialname").val();
+	
+	var province_code = $("#province_code").val();
+	var range_id = $("#range_id").val();
+	var card_type_id = $("#card_type_id").val();
+	
+	if(province_code!=""){
+		$("#areaid").removeClass("cur"); 
+		$("#"+province_code).addClass("cur");
+	}else{
+		$("#areaid").addClass("cur"); 
+	
+	}
+	
+	if(range_id==0){
+		$("#productid").addClass("cur");
+	}else{
+		$("#productid").removeClass("cur"); 
+		$("#"+range_id).addClass("cur"); 
+	}
+	
+	if(card_type_id!=""){
+		$("#cardtypeid").removeClass("cur"); 
+		$("#"+card_type_id).addClass("cur");
+	}else{
+		$("#cardtypeid").addClass("cur"); 
+	
+	}
+	
+	if(specialname==""){
+		 $("#specialname").val("请输入商户名称");
+	}
+	$("button").click(function(){
+		$("#pecialmerchantForm").submit();
+		});
+})
+
+function queryArea(id){
+	var range_id = $("#range_id").val();
+	var card_type_id = $("#card_type_id").val();
+	var url  ="${rc.contextPath}/specialmerchant.htm?view=specialmerchant&method=indexspecialmerchant&province_code=" +id+"&range_id="+range_id+"&card_type_id="+card_type_id;
+	window.location.href = url;
+}
+
+function queryProduct(id){
+	var province_code = $("#province_code").val();
+	if(province_code==""){
+		province_code = "all";
+	}
+	var card_type_id = $("#card_type_id").val();
+	var url  ="${rc.contextPath}/specialmerchant.htm?view=specialmerchant&method=indexspecialmerchant&province_code=" +province_code+"&range_id="+id+"&card_type_id="+card_type_id;
+	window.location.href = url;
+}
+
+function queryCardType(id){
+	var province_code = $("#province_code").val();
+	if(province_code==""){
+		province_code = "all";
+	}
+	var range_id = $("#range_id").val();
+	var url  ="${rc.contextPath}/specialmerchant.htm?view=specialmerchant&method=indexspecialmerchant&province_code=" +province_code+"&range_id="+range_id+"&card_type_id="+id;
+	window.location.href = url;
+}
+
+</script>
+</html>

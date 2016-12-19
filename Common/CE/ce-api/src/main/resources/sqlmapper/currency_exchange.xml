@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="currency_exchange">
+	<typeAlias alias="currencyExchange" type="com.pay.ce.model.CurrencyExchangeOrder"/>
+
+	<resultMap id="BaseResultMap" class="currencyExchange" >
+	    <result column="CE_ORDER_NO" property="ceOrderNo" jdbcType="DECIMAL" />
+	    <result column="CURRENCY" property="currency" jdbcType="VARCHAR" />
+	    <result column="CEOUT_AMOUNT" property="ceOutAmount" jdbcType="VARCHAR" />
+	    <result column="TARGET_CURRENCY" property="targetCurrency" jdbcType="VARCHAR" />
+	    <result column="CE_AMOUNT" property="ceAmount" jdbcType="VARCHAR" />
+	    <result column="RATE" property="rate" jdbcType="VARCHAR" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP" />
+	    <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL" />
+	    <result column="FEE" property="fee" jdbcType="VARCHAR" />
+	    <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	</resultMap>
+
+ <sql id="Criteria_Where_Clause" >
+       <isNotNull prepend="AND" property="ceOrderNo" >
+        CE_ORDER_NO = #ceOrderNo:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="AND" property="ceAmount" >
+        CEOUT_AMOUNT = #ceOutAmount:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="ceAmount" >
+        CE_AMOUNT = #ceAmount:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="currency" >
+        CURRENCY = #currency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="status" >
+        STATUS = #status:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="targetCurrency" >
+        TARGET_CURRENCY = #targetCurrency:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="rate" >
+        RATE = #rate:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="partnerId" >
+        PARTNER_ID = #partnerId:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="AND" property="fee" >
+        FEE = #fee:VARCHAR#
+      </isNotNull> 
+		<isNotNull prepend="AND" property="createDate" >
+        CREATE_DATE = #createDate:VARCHAR#
+      </isNotNull> 
+		<isNotNull prepend="AND" property="updateTime" >
+        UPDATE_TIME = #updateTime:VARCHAR#
+      </isNotNull> 
+      
+      
+      
+  </sql>
+
+
+
+
+	<!-- insert to change records -->
+	<insert id="insertCurrencyExchange" parameterClass="currencyExchange">
+		<selectKey resultClass="java.lang.Long" keyProperty="ceOrderNo">
+			SELECT	170 || TO_CHAR(SYSDATE, 'yymmddhh24mi')||LPAD(SEQ_CURRENCYEXCHANGE_ID.nextval, 6, 0) FROM DUAL
+		</selectKey>
+		INSERT INTO
+		CURRENCY_EXCHANGE_ORDER
+		(CE_ORDER_NO,CURRENCY,CEOUT_AMOUNT,TARGET_CURRENCY,CE_AMOUNT,RATE,STATUS,FEE,UPDATE_TIME,CREATE_DATE,PARTNER_ID)
+		values(#ceOrderNo#,#currency#,#ceOutAmount#,#targetCurrency#,#ceAmount#,#rate#,#status#,#fee#,#updateTime#,#createDate#,#partnerId#)
+	</insert>
+	
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="currencyExchange" >
+    select * from CURRENCY_EXCHANGE_ORDER WHERE 1=1
+    <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty> 
+	<isNotEmpty prepend="AND" property="memberCode">
+			PARTNER_ID = #memberCode#
+	</isNotEmpty>
+    <isParameterPresent >
+      <include refid="currency_exchange.Criteria_Where_Clause" />
+    </isParameterPresent>
+<!--     order by CREATE_DATE desc -->
+  </select>
+  
+  <select id="findByCriteria_COUNT" resultClass="java.lang.Integer" parameterClass="currencyExchange" >
+    select count(1) from CURRENCY_EXCHANGE_ORDER WHERE 1=1 
+     <isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty>
+	<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+	</isNotEmpty> 
+    <isParameterPresent >
+      <include refid="currency_exchange.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </select>
+  
+ 
+	
+
+</sqlMap>

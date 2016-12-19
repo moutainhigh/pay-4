@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcnamelist">
+	<typeAlias alias="rcNameList" type="com.pay.rm.service.model.rmnamelist.RcNameList"/>
+    <resultMap id="rcNameList" class="com.pay.rm.service.model.rmnamelist.RcNameList">
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="MEMBER_TYPE" property="memberType" jdbcType="DECIMAL"/>
+        <result column="MEMBER_ID" property="memberId" jdbcType="VARCHAR"/>
+        <result column="BUSINESS_ID" property="businessId" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="NAME_TYPE" property="nameType" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		SEQUENCE_ID,STATUS,MEMBER_TYPE,MEMBER_ID,BUSINESS_ID,
+		CREATE_DATE,UPDATE_DATE,NAME_TYPE
+    </sql>
+    <insert id="create" parameterClass="rcNameList">
+        <selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			select seq_rc_name_list_id .NEXTVAL FROM DUAL 
+		</selectKey>
+        INSERT INTO RC_NAME_LIST(
+			SEQUENCE_ID,STATUS,MEMBER_TYPE,MEMBER_ID,BUSINESS_ID,
+			CREATE_DATE,NAME_TYPE
+        )
+        VALUES(
+            #sequenceId#,#status#,#memberType#,#memberId#,#businessId#,
+			sysdate,#nameType#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcNameList">
+        UPDATE RC_NAME_LIST
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="sequnceId">
+            SEQUENCE_ID = #sequnceId#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="memberType">
+            MEMBER_TYPE = #memberType#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="memberId">
+            MEMBER_ID = #memberId#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="businessId">
+            BUSINESS_ID = #businessId#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="nameType">
+            NAME_TYPE = #nameType#
+        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM RC_NAME_LIST        
+        <dynamic prepend="WHERE">
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcNameList">
+        DELETE FROM RC_NAME_LIST        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="sequnceId">
+            SEQUENCE_ID = #sequnceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberType">
+            MEMBER_TYPE = #memberType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberId">
+            MEMBER_ID = #memberId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="nameType">
+            NAME_TYPE = #nameType# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcNameList"
+        parameterClass="java.lang.Long">
+        SELECT 
+			SEQUENCE_ID,STATUS,MEMBER_TYPE,MEMBER_ID,BUSINESS_ID,
+			CREATE_DATE,UPDATE_DATE,NAME_TYPE
+        FROM RC_NAME_LIST
+        WHERE 
+        	SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcNameList">
+        SELECT 
+			SEQUENCE_ID,STATUS,MEMBER_TYPE,MEMBER_ID,BUSINESS_ID,
+			CREATE_DATE,UPDATE_DATE,NAME_TYPE
+        FROM RC_NAME_LIST
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="sequnceId">
+            SEQUENCE_ID = #sequnceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberType">
+            MEMBER_TYPE = #memberType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberId">
+            MEMBER_ID = #memberId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="nameType">
+            NAME_TYPE = #nameType# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="countBySelective"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM RC_NAME_LIST
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="sequnceId">
+            SEQUENCE_ID = #sequnceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberType">
+            MEMBER_TYPE = #memberType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberId">
+            MEMBER_ID = #memberId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessId">
+            BUSINESS_ID = #businessId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="nameType">
+            NAME_TYPE = #nameType# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

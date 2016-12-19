@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ppaymentservicepkg">
+	<typeAlias alias="pPaymentServicePkg" type="com.pay.pe.model.PaymentServicePKG"/>
+    <resultMap id="pPaymentServicePkg" class="com.pay.pe.model.PaymentServicePKG">
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="PAYMENT_SERVICE_PACKAGE_NAME" property="paymentServicePackageName" jdbcType="VARCHAR"/>
+        <result column="AUTO_MERGE_ENTRIES" property="autoMergeEntries" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_SERVICE_PACKAGE_CODE" property="paymentServicePackageCode" jdbcType="DECIMAL"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		DESCRIPTION,PAYMENT_SERVICE_PACKAGE_NAME,AUTO_MERGE_ENTRIES,PAYMENT_SERVICE_PACKAGE_CODE
+    </sql>
+    <insert id="create" parameterClass="pPaymentServicePkg">
+        INSERT INTO P_PAYMENT_SERVICE_PKG(
+			DESCRIPTION,PAYMENT_SERVICE_PACKAGE_NAME,AUTO_MERGE_ENTRIES,PAYMENT_SERVICE_PACKAGE_CODE
+        )
+        VALUES(
+            #description#,#paymentServicePackageName#,#autoMergeEntries#,#paymentServicePackageCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="pPaymentServicePkg">
+        UPDATE P_PAYMENT_SERVICE_PKG
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="description">
+            DESCRIPTION = #description#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentServicePackageName">
+            PAYMENT_SERVICE_PACKAGE_NAME = #paymentServicePackageName#
+        </isNotNull>
+        <isNotNull prepend="," property="autoMergeEntries">
+            AUTO_MERGE_ENTRIES = #autoMergeEntries#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="paymentServicePackageCode">
+            PAYMENT_SERVICE_PACKAGE_CODE = #paymentServicePackageCode# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM P_PAYMENT_SERVICE_PKG        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="paymentServicePackageCode">
+            PAYMENT_SERVICE_PACKAGE_CODE = #paymentServicePackageCode# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="pPaymentServicePkg">
+        DELETE FROM P_PAYMENT_SERVICE_PKG        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePackageName">
+            PAYMENT_SERVICE_PACKAGE_NAME = #paymentServicePackageName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="autoMergeEntries">
+            AUTO_MERGE_ENTRIES = #autoMergeEntries# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePackageCode">
+            PAYMENT_SERVICE_PACKAGE_CODE = #paymentServicePackageCode# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="pPaymentServicePkg"
+        parameterClass="java.lang.Integer">
+        SELECT 
+			DESCRIPTION,PAYMENT_SERVICE_PACKAGE_NAME,AUTO_MERGE_ENTRIES,PAYMENT_SERVICE_PACKAGE_CODE
+        FROM P_PAYMENT_SERVICE_PKG
+        WHERE 
+            PAYMENT_SERVICE_PACKAGE_CODE = #paymentServicePackageCode# 
+    </select>
+    
+    <select id="findBySelective" resultMap="pPaymentServicePkg">
+        SELECT 
+			DESCRIPTION,PAYMENT_SERVICE_PACKAGE_NAME,AUTO_MERGE_ENTRIES,PAYMENT_SERVICE_PACKAGE_CODE
+        FROM P_PAYMENT_SERVICE_PKG
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePackageName">
+            PAYMENT_SERVICE_PACKAGE_NAME = #paymentServicePackageName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="autoMergeEntries">
+            AUTO_MERGE_ENTRIES = #autoMergeEntries# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePackageCode">
+            PAYMENT_SERVICE_PACKAGE_CODE = #paymentServicePackageCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM P_PAYMENT_SERVICE_PKG
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePackageName">
+            PAYMENT_SERVICE_PACKAGE_NAME = #paymentServicePackageName# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="autoMergeEntries">
+            AUTO_MERGE_ENTRIES = #autoMergeEntries# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePackageCode">
+            PAYMENT_SERVICE_PACKAGE_CODE = #paymentServicePackageCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

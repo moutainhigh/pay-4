@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	
+	
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<value>file:/opt/pay/config/pe/reconciliation/pe-reconciliation.properties</value>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	
+	
+	<bean id="entryQueryService"
+		class="com.pay.pe.account.service.impl.EntryQueryServiceImpl">
+		<property name="entryQueryDao" ref="entryQueryDao" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />		
+		
+	</bean>
+
+	<bean id="subjectService"
+		class="com.pay.pe.account.service.impl.SubjectServiceImpl">
+		<property name="subjectDao" ref="subjectDao" />
+	</bean>
+
+	<bean id="entryQueryDao"
+		class="com.pay.pe.account.dao.impl.EntryQueryDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="acctountMix" />
+	</bean>
+	
+	<bean id="subjectDao"
+		class="com.pay.pe.account.dao.impl.SubjectDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="subject-poss" />
+	</bean>
+		
+		
+	<bean id="accumulatedResourcesDao"
+		class="com.pay.pe.account.dao.impl.AccumulatedResourcesDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="accmulatedResources" />
+		<property name="entryQueryDao" ref="entryQueryDao"></property>
+	</bean>
+	
+	<bean id="accumulatedResourcesService"
+		class="com.pay.pe.account.service.impl.AccumulatedResourcesServiceImpl">
+		<property name="accumulatedResourcesDao" ref="accumulatedResourcesDao" />
+	</bean>
+	
+	<bean id="accountingFeeFailedDao"
+		class="com.pay.pe.account.dao.impl.AccountingFeeFailedDaoImpl"
+		parent="peBaseDAO">
+		<property name="namespace" value="accountingFeeFailed" />
+		<property name="entryQueryDao" ref="entryQueryDao"></property>
+	</bean>
+	
+	<bean id="accountingFeeFailedService"
+		class="com.pay.pe.account.service.impl.AccountingFeeFailedServiceImpl">
+		<property name="accountingFeeFailedDao" ref="accountingFeeFailedDao" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="chargeBackService" ref="chargeBackService" />
+	</bean>
+		
+
+    <bean id="reconciliationService"
+		class="com.pay.pe.reconciliation.service.impl.ReconciliationServiceImpl">
+		<!-- property name="mpayLoadServiceApi" ref="mpayLoadServiceApi" /-->
+		<property name="server" value="${ftp.service}" />
+		<property name="user" value="${ftp.user}" />
+		<property name="password" value="${ftp.password}" />
+		<property name="remotePath" value="${ftp.remotePath}" />
+		<property name="localPath" value="${ftp.localPath}" />
+		<property name="targetPath" value="${ftp.targetPath}" />
+	</bean>                 
+	
+
+</beans>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-idcVerifyGov">
+
+	<typeAlias alias="idcVerifyGov" type="com.pay.acc.member.model.IdcVerifyGov" />
+
+	<insert id="create" parameterClass="idcVerifyGov">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_IDC_VERIFY_GOV_ID.nextval from DUAL
+		</selectKey>
+		insert into
+		T_IDC_VERIFY_GOV
+		(
+		ID,
+		IDC_VERIFY_BASE_ID,
+		PHOTO,
+		CREATED_DATE,
+		ERROR_CODE,
+		ERROR_MSG
+		)
+		values
+		(
+		#id#,
+		#idcVerifyBaseId#,
+		#photo#,
+		sysdate,
+		#errorCode#,
+		#errorMsg#
+		)
+	</insert>
+
+	<update id="update" parameterClass="idcVerifyGov">
+		update
+		T_IDC_VERIFY_GOV
+		set
+		IDC_VERIFY_BASE_ID = #idcVerifyBaseId#,
+		PHOTO = #photo#,
+		CREATED_DATE = #createdDate#,
+		ERROR_CODE = #errorCode#,
+		ERROR_MSG = #errorMsg#
+		where
+		ID = #id#
+	</update>
+
+	<select id="queryGov" resultClass="idcVerifyGov">
+		Select
+		ID,
+		IDC_VERIFY_BASE_ID as idcVerifyBaseId,
+		photo,
+		CREATED_DATE as createdDate,
+		ERROR_CODE as errorCode,
+		ERROR_MSG as errorMsg
+
+		From T_IDC_VERIFY_GOV
+		Where IDC_VERIFY_BASE_ID=#idcVerifyBaseId#
+	</select>
+
+	<update id="updateGov" parameterClass="idcVerifyGov">
+		Update T_IDC_VERIFY_GOV Set
+		PHOTO=#photo#
+		Where IDC_VERIFY_BASE_ID=#idcVerifyBaseId#
+	</update>
+
+</sqlMap>

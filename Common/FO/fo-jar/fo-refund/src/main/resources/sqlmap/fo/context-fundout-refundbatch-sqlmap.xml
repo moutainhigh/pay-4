@@ -1,0 +1,532 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refund.batch">
+	 <!-- 充退订单从表 -->
+	 <typeAlias alias="refundOrderD" type="com.pay.poss.refund.model.RefundOrderD"/>
+	 <!-- 充退订单主表 -->
+	 <typeAlias alias="resuleMap_refundOrderM" type="com.pay.poss.refund.model.RefundOrderM"/>
+	 <!-- 充退工单表 -->
+	 <typeAlias alias="refundWorkorder" type="com.pay.poss.refund.model.RefundWorkorder"/>
+	 <!-- 批次的概要信息 -->
+	 <typeAlias alias="refundBatchInfoDTO" type="com.pay.poss.refund.model.RefundBatchInfoDTO"/>
+	 <!-- 文件信息表 -->
+	 <typeAlias alias="batchFileInfo" type="com.pay.poss.refund.model.BatchFileInfo"/>
+	 <!-- 批次信息表 -->
+	 <typeAlias alias="batchInfo" type="com.pay.poss.refund.model.BatchInfo"/>
+	  <!-- 产生批次DTO -->
+	 <typeAlias alias="refundBatchDTO" type="com.pay.poss.refund.model.RefundBatchDTO"/>
+	 <!-- 手工生成批次文件   查询充退数据DTO -->
+	 <typeAlias alias="refundHandworkBatchDTO" type="com.pay.poss.refund.model.RefundHandworkBatchDTO"/>
+	 <!-- 手工处理充退结果  查询批次充退数据 -->
+	 <typeAlias alias="refundProcessResultDTO" type="com.pay.poss.refund.model.RefundProcessResultDTO"/>
+	
+	<!-- 手工处理充退结果 -->
+	<select id="selectRefundProcessResultDTO" resultClass="refundProcessResultDTO" parameterClass="java.util.Map">
+    	  SELECT  a.order_ky orderKy,
+    	  		  b.DETAIL_KY AS detailKy,
+			      b.RECHARGE_BANK AS rechargeBank,
+			      round(nvl(b.APPLY_AMOUNT,0)/1000,2) AS applyAmount,
+			      a.Member_Name AS memberName,
+			      a.APPLY_REASON AS applyRemark,
+			      b.STATUS AS status,
+			      b.ERROR_TIP cause
+			 from refund_order_m a,
+			      refund_order_d b,
+			      batch_info c,
+                  refund_workorder d,
+                  batch_file_info e
+			where a.order_ky=b.master_ky
+			  and  c.batch_num=d.batch_num
+			                 and c.batch_num=e.batch_num
+			                 and d.refund_m_ky=a.order_ky
+			                 and b.recharge_bank = e.bank_code
+			                 <dynamic>
+			                 	<isNotEmpty prepend="and" property="BATCH_NAME">
+			                 		c.BATCH_NAME like '%' || #BATCH_NAME:VARCHAR# || '%'
+			                 	</isNotEmpty>
+			                 	<isNotEmpty prepend="and" property="BATCH_NUM">
+			                 		c.BATCH_NUM = #BATCH_NUM:VARCHAR#
+			                 	</isNotEmpty>
+			                 	<isNotEmpty prepend="and" property="STATUS">
+							 		e.batch_file_status = #STATUS:NUMERIC#
+							 	</isNotEmpty>
+							 	<isNotEmpty prepend="and" property="BATCH_STATUS">
+							 		e.batch_file_status in ($BATCH_STATUS$)
+							 	</isNotEmpty>
+			                 </dynamic>
+			 <dynamic>
+			 	<isNotEmpty property="ORDER_STATUS" prepend="AND">
+          			b.STATUS in ($ORDER_STATUS$)
+          		</isNotEmpty>
+			 	<isNotEmpty prepend="and" property="RECHARGE_ORDER_SEQ">
+			 		b.RECHARGE_ORDER_SEQ =  to_number(#RECHARGE_ORDER_SEQ:VARCHAR#)
+			 	</isNotEmpty>
+			 	<isNotEmpty property="RECHARGE_BANK" prepend="AND">
+          			b.RECHARGE_BANK like '%' || #RECHARGE_BANK:VARCHAR# || '%'
+          		</isNotEmpty>
+          		<isNotEmpty property="ORDER_KY" prepend="AND">
+          			a.order_ky =  to_number(#ORDER_KY:VARCHAR#)
+          		</isNotEmpty>
+			 </dynamic>
+     </select>
+     
+     <!-- 手工处理充退结果分页 count -->
+     <select id="selectRefundProcessResultDTO_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+      SELECT
+	    COUNT(*)
+	    from refund_order_m a,
+			      refund_order_d b,
+			      batch_info c,
+                  refund_workorder d,
+                  batch_file_info e
+			where a.order_ky=b.master_ky
+			  and c.batch_num=d.batch_num
+			                 and c.batch_num=e.batch_num
+			                 and d.refund_m_ky=a.order_ky
+			                 and b.recharge_bank = e.bank_code
+			                 <dynamic>
+			                 	<isNotEmpty prepend="and" property="BATCH_NAME">
+			                 		c.BATCH_NAME like '%' || #BATCH_NAME:VARCHAR# || '%'
+			                 	</isNotEmpty>
+			                 	<isNotEmpty prepend="and" property="BATCH_NUM">
+			                 		c.BATCH_NUM = #BATCH_NUM:VARCHAR#
+			                 	</isNotEmpty>
+			                 	<isNotEmpty prepend="and" property="STATUS">
+							 		e.batch_file_status = #STATUS:NUMERIC#
+							 	</isNotEmpty>
+							 	<isNotEmpty prepend="and" property="BATCH_STATUS">
+							 		e.batch_file_status in ($BATCH_STATUS$)
+							 	</isNotEmpty>
+			                 </dynamic>
+			 <dynamic>
+			 	<isNotEmpty property="ORDER_STATUS" prepend="AND">
+          			b.STATUS in ($ORDER_STATUS$)
+          		</isNotEmpty>
+			 	<isNotEmpty prepend="and" property="RECHARGE_ORDER_SEQ">
+			 		b.RECHARGE_ORDER_SEQ =  to_number(#RECHARGE_ORDER_SEQ:VARCHAR#)
+			 	</isNotEmpty>
+			 	<isNotEmpty property="RECHARGE_BANK" prepend="AND">
+          			b.RECHARGE_BANK like '%' || #RECHARGE_BANK:VARCHAR# || '%'
+          		</isNotEmpty>
+          		<isNotEmpty property="ORDER_KY" prepend="AND">
+          			a.order_ky =  to_number(#ORDER_KY:VARCHAR#)
+          		</isNotEmpty>
+			 </dynamic>
+     </select>
+     
+     <!-- 统计总数 -->
+    <select id="selectRefundProcessResultSum" parameterClass="java.util.Map" resultClass="java.util.HashMap">
+    	SELECT    count(b.DETAIL_KY) count,
+			      round(sum(nvl(b.APPLY_AMOUNT,0))/1000,2) AS sumAmount
+			 from refund_order_m a,
+			      refund_order_d b,
+			      batch_info c,
+                  refund_workorder d,
+                  batch_file_info e
+			where a.order_ky=b.master_ky
+			  and c.batch_num=d.batch_num
+			                 and c.batch_num=e.batch_num
+			                 and d.refund_m_ky=a.order_ky
+			                 and b.recharge_bank = e.bank_code
+			                 <dynamic>
+			                 	<isNotEmpty prepend="and" property="BATCH_NAME">
+			                 		c.BATCH_NAME like '%' || #BATCH_NAME:VARCHAR# || '%'
+			                 	</isNotEmpty>
+			                 	<isNotEmpty prepend="and" property="BATCH_NUM">
+			                 		c.BATCH_NUM = #BATCH_NUM:VARCHAR#
+			                 	</isNotEmpty>
+			                 	<isNotEmpty prepend="and" property="STATUS">
+							 		e.batch_file_status = #STATUS:NUMERIC#
+							 	</isNotEmpty>
+							 	<isNotEmpty prepend="and" property="BATCH_STATUS">
+							 		e.batch_file_status in ($BATCH_STATUS$)
+							 	</isNotEmpty>
+			                 </dynamic>
+			 <dynamic>
+			 	<isNotEmpty property="ORDER_STATUS" prepend="AND">
+          			b.STATUS in ($ORDER_STATUS$)
+          		</isNotEmpty>
+			 	<isNotEmpty prepend="and" property="RECHARGE_ORDER_SEQ">
+			 		b.RECHARGE_ORDER_SEQ =  to_number(#RECHARGE_ORDER_SEQ:VARCHAR#)
+			 	</isNotEmpty>
+			 	<isNotEmpty property="RECHARGE_BANK" prepend="AND">
+          			b.RECHARGE_BANK like '%' || #RECHARGE_BANK:VARCHAR# || '%'
+          		</isNotEmpty>
+          		<isNotEmpty property="ORDER_KY" prepend="AND">
+          			a.order_ky =  to_number(#ORDER_KY:VARCHAR#)
+          		</isNotEmpty>
+			 </dynamic>
+    </select>
+	
+	<!-- 查询充退数据  -->
+     <select id="selectRefundHandworkBatchDTO" resultClass="refundHandworkBatchDTO" parameterClass="java.util.Map">
+      SELECT 
+    	OM1.WORKORDER_KY AS workorderKy,
+    	OM1.ORDER_KY AS orderKy,
+    	OM1.ORDER_KY AS detailKy,
+		OM1.APPLY_AMOUNT AS applyAmount,
+		OM1.MEMBER_NAME AS memberName,
+		OM1.APPLY_REASON AS applyRemark,
+		OM1.STATUSDESC AS statusDesc,
+		OM1.STATUS AS status
+		FROM (SELECT WO.WORKORDER_KY,WO.REFUND_M_KY,WO.STATUSDESC,WO.STATUS,OM.ORDER_KY,OM.APPLY_AMOUNT,OM.APPLY_REASON,OM.Member_Name FROM
+         (SELECT 
+                 WORKORDER_KY,
+                 REFUND_M_KY,
+                 decode(status,0,'工单初始',1,'审核通过',2,'审核拒绝',3,'审核滞留',4,'复核通过',5,'复核拒绝',6,'清算拒绝',7,'完成',status) statusDesc,
+                 STATUS FROM REFUND_WORKORDER WHERE BATCH_STATUS=0 AND STATUS=4) WO 
+      INNER JOIN
+          (SELECT ORDER_KY,APPLY_AMOUNT,APPLY_REASON,Member_Name,MEMBER_CODE FROM REFUND_ORDER_M
+          	<dynamic prepend="WHERE">
+          	 	<isPropertyAvailable property="STARTTIME">
+          		<isNotEmpty property="STARTTIME" prepend="AND">
+            	<![CDATA[ APPLY_TIME >= #STARTTIME# ]]>
+	     		</isNotEmpty>
+	        	<isNotEmpty property="ENDTIME" prepend="AND">
+	           		<![CDATA[ APPLY_TIME < #ENDTIME# + 1]]>
+	           	</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="MEMBER_CODE">
+          		<isNotEmpty property="MEMBER_CODE" prepend="AND">
+          			MEMBER_CODE =  #MEMBER_CODE#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          	 </dynamic> 
+          ) OM
+      ON WO.REFUND_M_KY = OM.ORDER_KY 
+      ) OM1
+      INNER JOIN
+          (SELECT DISTINCT MASTER_KY
+          FROM REFUND_ORDER_D
+          <dynamic prepend="WHERE">
+          	<isPropertyAvailable property="RECHARGE_BANK">
+          		<isNotEmpty property="RECHARGE_BANK" prepend="AND">
+          			RECHARGE_BANK =  #RECHARGE_BANK#
+          		</isNotEmpty>
+          	</isPropertyAvailable>
+          	<isPropertyAvailable property="RECHARGE_ORDER_SEQ">
+          		<isNotEmpty property="RECHARGE_ORDER_SEQ" prepend="AND">
+          			RECHARGE_ORDER_SEQ = #RECHARGE_ORDER_SEQ#
+          		</isNotEmpty>
+          	</isPropertyAvailable>
+          	<isPropertyAvailable property="ORDER_KY">
+          		<isNotEmpty property="ORDER_KY" prepend="AND">
+          			MASTER_KY = #ORDER_KY#
+          		</isNotEmpty>
+          	</isPropertyAvailable>
+          </dynamic> 
+          )OD
+      ON OM1.ORDER_KY = OD.MASTER_KY
+     </select>
+     
+     <!-- 查询充退数据分页 count  -->
+     <select id="selectRefundHandworkBatchDTO_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+      SELECT 
+    	COUNT(*)
+		FROM (SELECT WO.WORKORDER_KY,WO.REFUND_M_KY,WO.STATUS,OM.ORDER_KY,OM.APPLY_AMOUNT,OM.APPLY_REASON,OM.Member_Name FROM
+         (SELECT 
+                 WORKORDER_KY,
+                 REFUND_M_KY,
+                 STATUS FROM REFUND_WORKORDER WHERE BATCH_STATUS=0 AND STATUS=4) WO 
+      INNER JOIN
+          (SELECT ORDER_KY,APPLY_AMOUNT,APPLY_REASON,Member_Name,MEMBER_CODE,APPLY_TIME FROM REFUND_ORDER_M
+          	<dynamic prepend="WHERE">
+          	 	<isPropertyAvailable property="STARTTIME">
+          		<isNotEmpty property="STARTTIME" prepend="AND">
+            	<![CDATA[ APPLY_TIME >= #STARTTIME# ]]>
+	     		</isNotEmpty>
+	        	<isNotEmpty property="ENDTIME" prepend="AND">
+	           		<![CDATA[ APPLY_TIME < #ENDTIME# + 1]]>
+	           	</isNotEmpty>
+          		</isPropertyAvailable>
+          		<isPropertyAvailable property="MEMBER_CODE">
+          		<isNotEmpty property="MEMBER_CODE" prepend="AND">
+          			MEMBER_CODE =  #MEMBER_CODE#
+          		</isNotEmpty>
+          		</isPropertyAvailable>
+          	 </dynamic> 
+          ) OM
+      ON WO.REFUND_M_KY = OM.ORDER_KY 
+      ) OM1
+      INNER JOIN
+          (SELECT DISTINCT MASTER_KY
+          FROM REFUND_ORDER_D
+          <dynamic prepend="WHERE">
+          	<isPropertyAvailable property="RECHARGE_BANK">
+          		<isNotEmpty property="RECHARGE_BANK" prepend="AND">
+          			RECHARGE_BANK =  #RECHARGE_BANK#
+          		</isNotEmpty>
+          	</isPropertyAvailable>
+          	<isPropertyAvailable property="RECHARGE_ORDER_SEQ">
+          		<isNotEmpty property="RECHARGE_ORDER_SEQ" prepend="AND">
+          			RECHARGE_ORDER_SEQ = #RECHARGE_ORDER_SEQ#
+          		</isNotEmpty>
+          	</isPropertyAvailable>
+        	<isPropertyAvailable property="ORDER_KY">
+          		<isNotEmpty property="ORDER_KY" prepend="AND">
+          			MASTER_KY = #ORDER_KY#
+          		</isNotEmpty>
+          	</isPropertyAvailable>
+          </dynamic> 
+          )OD
+      ON OM1.ORDER_KY = OD.MASTER_KY
+     </select>
+
+	 <!-- 充退订单从表 -->
+      <resultMap id="RefundOrderDResult" class="refundOrderD"> 
+          <result property="detailKy" column="DETAIL_KY" ></result>
+          <result property="masterKy" column="MASTER_KY"  ></result>
+          <result property="rechargeOrderSeq" column="RECHARGE_ORDER_SEQ"  ></result>
+          <result property="rechargeBankSeq" column="RECHARGE_BANK_SEQ"  ></result>
+          <result property="rechargeAmount" column="RECHARGE_AMOUNT"  ></result>
+          <result property="rechargeTime" column="RECHARGE_TIME"  ></result>
+          <result property="rechargeChannel" column="RECHARGE_CHANNEL"  ></result>
+          <result property="rechargeBank" column="RECHARGE_BANK"  ></result>
+          <result property="applyRemark" column="APPLY_REMARK"  ></result>
+          <result property="applyMax" column="APPLY_MAX"  ></result>
+          <result property="applyAmount" column="APPLY_AMOUNT"  ></result>
+          <result property="showPosition" column="SHOW_POSITION"  ></result>
+          <result property="status" column="STATUS"  ></result>
+          <result property="errorTip" column="ERROR_TIP"  ></result>
+      </resultMap>
+        
+     <!-- 自动批次 -->
+     <update id="updateWOBatchNumWithAuto">
+     	UPDATE REFUND_WORKORDER 
+     		SET BATCH_NUM = #batchNum#, BATCH_STATUS=1
+     	WHERE BATCH_NUM = 'SYS_0' AND STATUS=4 AND BATCH_STATUS=0
+     </update>
+     
+     <!-- 手工批次 -->
+     <update id="updateWOBatchNumWithManual">
+     	UPDATE REFUND_WORKORDER 
+     		SET BATCH_NUM = #batchNum#, BATCH_STATUS=1
+     	WHERE BATCH_NUM = 'SYS_0' AND STATUS=4 AND BATCH_STATUS=0
+		<isPropertyAvailable property="seqSql">
+			<isNotEmpty property="seqSql" prepend="AND">
+		 		WORKORDER_KY IN $seqSql$
+		 	</isNotEmpty>
+	 	</isPropertyAvailable>     	
+     </update>  
+     
+     <!-- 批次重建 -->
+     <update id="updateWOBatchNumWithRebuild">
+     	UPDATE REFUND_WORKORDER 
+     		SET BATCH_NUM = #newBatchNum#, BATCH_STATUS = 1
+     	WHERE BATCH_NUM = #batchNum# AND STATUS = 4 AND BATCH_STATUS = 2
+     </update>        
+     
+     <!-- 废除批次SQL 如下 -->
+     <!-- 根据批次号查询废除的工单信息 -->
+     <select id="queryRefundWorkorder" resultClass="java.lang.String" parameterClass="java.util.HashMap">
+	  	SELECT 
+	  		WORKFLOW_KY workflowKy 
+	  	FROM REFUND_WORKORDER
+	  	WHERE BATCH_NUM = #batchNum#
+     </select>
+     <!-- 废除工单 -->
+     <update id="updateRefundWorkOrder">
+     	UPDATE REFUND_WORKORDER 
+     		SET BATCH_STATUS = 2,STATUS = 0
+     	WHERE BATCH_NUM = #batchNum# AND STATUS= 4 AND BATCH_STATUS = 1
+     </update>
+     <!-- 废除批次 -->
+     <update id ="updateRefundBatchInfo">
+     	UPDATE BATCH_INFO B SET B.STATUS = 3,B.UPDATE_TIME = sysdate WHERE B.BATCH_TYPE ='200001' AND B.BATCH_NUM =#batchNum#
+     </update>
+      <!-- 废除文件 -->
+     <update id ="updateRefundBatchFileInfo">
+     	UPDATE BATCH_FILE_INFO F SET F.BATCH_FILE_STATUS = 6 ,F.UPDATE_TIME = sysdate WHERE F.BATCH_FILE_STATUS = 2 AND F.BATCH_NUM =#batchNum#
+     </update>
+     
+     
+      <!-- 按银行计算概要信息 -->
+     <select id="calcMasterInfoByBatchNum" resultClass="refundBatchInfoDTO" parameterClass="java.lang.String">
+	  	SELECT 
+	  		RECHARGE_BANK bankCode,SUM(APPLY_AMOUNT) totalAmount,COUNT(RECHARGE_BANK) totalCount 
+	  	FROM
+	     (SELECT REFUND_M_KY FROM REFUND_WORKORDER WHERE BATCH_NUM = #value# AND BATCH_STATUS=1 AND STATUS=4) WO 
+	      INNER JOIN
+	          REFUND_ORDER_D OD
+	      ON WO.REFUND_M_KY = OD.MASTER_KY
+	      GROUP BY RECHARGE_BANK
+     </select>
+     
+     <!-- 计算概要信息 -->
+     <select id="calcMasterInfoByBatchNumWithoutBank" resultClass="refundBatchInfoDTO" parameterClass="java.lang.String">
+	  	SELECT 
+	  		SUM(APPLY_AMOUNT) totalAmount,COUNT(RECHARGE_BANK) totalCount 
+	  	FROM
+	     (SELECT REFUND_M_KY FROM REFUND_WORKORDER WHERE BATCH_NUM = #value# AND BATCH_STATUS=1 AND STATUS=4) WO 
+	      INNER JOIN
+	          REFUND_ORDER_D OD
+	      ON WO.REFUND_M_KY = OD.MASTER_KY
+     </select>     
+     
+     <!-- 文件详细  -->
+     <select id="selectRefundBatchDTOByBatchNumAndBankCode" resultClass="refundBatchDTO" parameterClass="java.util.Map">
+       SELECT
+		    OD.RECHARGE_ORDER_SEQ AS rechargeOrderSeq,
+		    OD.RECHARGE_BANK_SEQ AS rechargeBankSeq,
+		    OD.RECHARGE_BANK AS rechargeBank,
+		    OD.APPLY_AMOUNT AS applyAmount,
+		    OM1.MEMBER_CODE AS memberCode,
+		    OM1.MEMBER_NAME AS memberName,
+	        OM1.APPLY_TIME AS applyTimes,
+	        OM1.BATCH_NUM AS batchNum,
+		    OD.APPLY_REMARK AS applyRemark,
+        	OD.DETAIL_KY AS detailKy
+      FROM (SELECT * FROM
+         (SELECT REFUND_M_KY,BATCH_NUM FROM REFUND_WORKORDER WHERE BATCH_NUM = #BATCH_NUM# AND BATCH_STATUS=1 AND STATUS=4) WO 
+      INNER JOIN
+          REFUND_ORDER_M OM
+      ON WO.REFUND_M_KY = OM.ORDER_KY 
+      ) OM1
+      INNER JOIN
+          (SELECT * FROM REFUND_ORDER_D 
+			<dynamic prepend=" WHERE " >
+				<isNotEmpty prepend="and" property="BANK_CODE">
+					 RECHARGE_BANK = #BANK_CODE# 
+				</isNotEmpty>
+			</dynamic>
+          )OD
+      ON OM1.ORDER_KY = OD.MASTER_KY
+     </select>
+     
+     
+    <!-- 新增文件信息 -->
+    <insert id="insertBatchFileInfo" parameterClass="batchFileInfo">
+    	<selectKey resultClass="Long" keyProperty="fileKy">
+			SELECT SEQ_FILE_KY.NEXTVAL AS ID FROM DUAL 
+		</selectKey>
+        INSERT INTO BATCH_FILE_INFO (
+        	FILE_KY, 
+        	BATCH_NUM, 
+        	FILE_PATH, 
+        	FILE_NAME, 
+        	FILE_TYPE, 
+        	ALL_AMOUNT,
+            ALL_COUNT, 
+            BANK_CODE, 
+            OPERATORS, 
+            UPDATE_TIME,
+            GENERATE_TIME,
+            BATCH_FILE_STATUS
+        )values (
+        	#fileKy#,                            			
+        	#batchNum#,                                  	
+        	#filePath#,                                  	
+        	#fileName#,                                  	
+        	#fileType#,                                  	
+        	#allAmount#,                                 	
+        	#allCount#,                                  	
+            #bankCode#,                                   
+            #operators#,                                  
+            #updateTime#,                                 
+            #generateTime#,                               
+            #batchFileStatus#                             
+        )
+    </insert>
+    
+    <!-- 更新批次信息表状态 -->
+    <update id="updateBatchInfo" parameterClass="batchInfo">
+    	UPDATE BATCH_INFO 
+    		SET STATUS = #status# 
+    	WHERE BATCH_NUM = #batchNum#
+    </update>
+    
+    <!-- 更新充退详细表-->
+    <update id="updateRefundOrderD" parameterClass="java.util.Map">
+    	UPDATE REFUND_ORDER_D
+    		SET STATUS = #status#
+    			<isNotEmpty property="errorTip" prepend=",">
+    				ERROR_TIP = #errorTip#
+    			</isNotEmpty>
+    	WHERE DETAIL_KY = #detailKy#
+    </update>
+    
+    <!-- 条件(批次号)查询批次信息表 -->
+    <select id="queryBatchInfoByBatchNum" resultClass="batchInfo" parameterClass="java.lang.String">
+    	SELECT 
+    		BATCH_NUM AS batchNum,
+    		BATCH_TYPE AS batchType,
+    		UPDATE_TIME AS updatetime,
+    		BATCH_NAME AS batchName,
+    		STATUS AS status
+    	FROM BATCH_INFO
+    	WHERE BATCH_NUM = #batchNum#
+    </select>
+
+	<!-- 查询充退信息 -->
+	<select id="queryRefundDetailInfo" parameterClass="java.util.Map" resultClass="resuleMap_refundOrderM">
+		select	
+			      a.member_name memberName,
+				  a.MEMBER_TYPE  memberType,
+				  a.order_ky orderKy,
+			      a.member_code memberCode,
+			      a.member_acc_type memberAccType,
+			      a.member_acc memberAcc,
+			      a.apply_time applyTime,
+			      a.apply_from applyFrom,
+            	  b.deposit_back_no depositBackNo,
+			      b.detail_ky detailKy,
+			      b.apply_amount applyAmount,
+			      b.recharge_order_seq rechargeOrderSeq,
+			      decode(b.status,102,111,103,112,101) status,
+			      c.batch_num batchNum,
+            	  b.recharge_bank bankCode,
+            	  c.STATUS workOrderStatus,
+            	  c.WORKORDER_KY workOrderKy
+		  from	refund_order_m a,
+		  		refund_order_d b,
+		  		refund_workorder c
+		 where a.order_ky=b.master_ky
+		   and a.order_ky=c.refund_m_ky
+		   <dynamic>
+		   		<isNotEmpty property="ids">
+		   			and b.detail_ky in ($ids$)
+			   		and b.status in(102,103)
+		   		</isNotEmpty>
+			    <isNotEmpty prepend="and" property="workOrderKy">
+			    	c.WORKORDER_KY=#workOrderKy:NUMERIC#
+			    </isNotEmpty>
+			    <isNotEmpty property="acceptKyList" prepend="and">
+         			c.WORKORDER_KY in
+					<iterate property="acceptKyList" open="(" close=")" conjunction=",">
+						#acceptKyList[]#
+					</iterate>
+         		</isNotEmpty>
+		   </dynamic>
+	</select>
+	
+	<!-- 更新充退详细表-->
+    <update id="updateRefundOrderDStatus" parameterClass="java.util.Map">
+    	UPDATE REFUND_ORDER_D a
+    		<dynamic>
+    			<isEqual property="handleType" compareValue="confirm">
+    				SET a.STATUS = (select decode(b.status,102,111,103,112,101) 
+					                   from refund_order_d b 
+					                  where b.detail_ky=a.detail_ky)
+    			</isEqual>
+    			<isEqual property="handleType" compareValue="back">
+    				SET a.STATUS = #status#
+    			</isEqual>
+    		</dynamic>
+    	WHERE a.DETAIL_KY in ($ids$)
+    		<dynamic>	
+    			<isEqual property="handleType" compareValue="back">
+    				and a.status in(102,103)
+    			</isEqual>
+    		</dynamic>
+    </update>
+    
+    <!-- 更新批次文件状态 -->
+    <update id="updateBatchFileInfoStatus" parameterClass="java.util.Map">
+    	update batch_file_info f 
+		   set f.batch_file_status=#status:NUMERIC#,
+		       f.update_time=sysdate
+		 where f.batch_num=#batchNum:VARCHAR#
+		   and f.bank_code=#bankCode:VARCHAR#
+		   and f.file_type=#fileType:NUMERIC#
+    </update>
+</sqlMap>

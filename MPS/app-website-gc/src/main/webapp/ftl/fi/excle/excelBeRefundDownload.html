@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;
+}
+</style> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>iPayLinks支付被商户退款订单</title>
+</head>
+<body>
+	<table width="800" border="1">
+	  iPayLinks支付被商户退款订单明细
+		<thead>
+		  <tr>
+		      <td colspan="5"><#if sDate?has_content>${sDate}</#if></td>
+		   </tr>
+		     <tr>
+		       <td colspan="5">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+	    <tr><td colspan="5">#----------iPayLinks支付被商户退款订单明细列表----------</td></tr>
+		<tr>
+			<td style="width:20%" >创建时间</td>
+			<td style="width:20%" >交易流水号</td>
+			<td style="width:15%" >原订单号</td>
+			<td style="width:20%" >订单金额</td>
+			<td style="width:10%" >退款金额</td>
+		</tr>
+	</thead>
+	<tbody>
+	<#if refundList?has_content>
+		<#list refundList as ls>
+			<tr <#if ls_index%2==0>style="background-color:#f1f5fa;"</#if>>
+				<td class="excel_txt"><span><em>
+					<#if ls.createTime?default("")?length lt 19>
+						${ls.createTime?default("")}
+					<#else>
+						${ls.createTime[0..18]}
+					</#if>
+				</em></td>
+				<td class="excel_txt">${ls.refundOrderID?default("")}</td>
+				<td class="excel_txt">${ls.orderID?default("")}</td>
+				<td class="excel_txt">${ls.orderAmount?default("")}</td>
+				<td class="excel_txt">${ls.applyAmount?default("")}</td>
+			</tr>
+ 		</#list>
+	</#if>
+			<tr><td colspan="5">#----------iPayLinks支付被商户退款订单明细列表----------</td></tr>
+			</tbody>
+		</table>
+</body>
+</html>

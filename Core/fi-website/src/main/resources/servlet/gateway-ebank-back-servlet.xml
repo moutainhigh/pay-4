@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="gateway-bankBackUrlMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/mock/deposit/mockBackResponse.htm">mockBankBackResponseController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="mockBankBackResponseController"
+		class="com.pay.gateway.controller.bankadaptor.BankBackResponseController">
+		<property name="invokeService" ref="client-txnCoreService"/>
+		<property name="bankChannel" value="000000001" />
+	</bean>
+	
+</beans>

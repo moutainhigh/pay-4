@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<!-- 定义映射-->
+    <bean id="aboutBaseHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/about.htm">aboutBaseController</prop>
+				<prop key="/about/contact.htm">aboutBaseController</prop>
+				<prop key="/about/privacy.htm">aboutBaseController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="aboutBaseParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/about.htm">index</prop>
+				<prop key="/about/contact.htm">contact</prop>
+				<prop key="/about/privacy.htm">privacy</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="aboutBaseController" class="com.pay.app.controller.about.AboutBaseController">
+		<property name="methodNameResolver">
+			<ref bean="aboutBaseParamResolver" />
+		</property>
+		
+		<property name="index">
+			<value>/about/pay</value>
+		</property>
+		<property name="contact">
+			<value>/about/contact</value>
+		</property>
+		<property name="privacy">
+			<value>/about/privacy</value>
+		</property>	
+		
+	</bean>
+</beans>

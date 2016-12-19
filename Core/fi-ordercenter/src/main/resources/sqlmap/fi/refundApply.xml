@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="refundapply">
+	<typeAlias alias="refundApply" type="com.pay.txncore.model.RefundApply"/>
+    <resultMap id="refundApplyResult" class="com.pay.txncore.model.RefundApply">
+        <result column="REASON" property="reason" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PAYER_FEE" property="payerFee" jdbcType="DECIMAL"/>
+        <result column="PARTNER_ID" property="partnerId" jdbcType="VARCHAR"/>
+        <result column="REMARK1" property="remark1" jdbcType="VARCHAR"/>
+        <result column="REFUND_TYPE" property="refundType" jdbcType="VARCHAR"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+        <result column="REMARK2" property="remark2" jdbcType="VARCHAR"/>
+        <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+        <result column="PAYEE_FEE" property="payeeFee" jdbcType="DECIMAL"/>
+        <result column="REFUND_APPLY_NO" property="refundApplyNo" jdbcType="DECIMAL"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="APPLY_BATCH_NO" property="applyBatchNo" jdbcType="DECIMAL"/>
+        <result column="APPLY_AMOUNT" property="applyAmount" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="ACTUAL_AMOUNT" property="actualAmount" jdbcType="DECIMAL"/>
+        <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+        <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap id="refundApplyQueryResult" class="com.pay.txncore.model.RefundApply">
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+      <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+      <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR"/>
+      <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+      <result column="CREATOR" property="creator" jdbcType="VARCHAR"/>
+      <result column="AUDIT_OPERATOR" property="auditOperator" jdbcType="VARCHAR"/>
+      <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+      <result column="APPLY_AMOUNT" property="applyAmount" jdbcType="DECIMAL"/>
+      <result column="REFUND_APPLY_NO" property="refundApplyNo" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+    <insert id="create" parameterClass="refundApply">
+	 <selectKey resultClass="java.lang.Long" keyProperty="refundApplyNo">
+    	  SELECT 121 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_REFUND_APPLY_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO REFUND_APPLY(
+			REASON,STATUS,PAYER_FEE,PARTNER_ID,REMARK1,
+			REFUND_TYPE,UPDATE_DATE,REFUND_ORDER_NO,REMARK2,CREATOR,
+			PAYEE_FEE,REFUND_APPLY_NO,ORDER_AMOUNT,APPLY_BATCH_NO,APPLY_AMOUNT,
+			CREATE_DATE,ACTUAL_AMOUNT,ORDER_ID,AUDIT_OPERATOR
+        )
+        VALUES(
+            #reason#,#status#,#payerFee#,#partnerId#,#remark1#,
+			#refundType#,sysdate,#refundOrderNo#,#remark2#,#creator#,
+			#payeeFee#,#refundApplyNo#,#orderAmount#,#applyBatchNo#,#applyAmount#,
+			sysdate,#actualAmount#,#orderId#,#auditOperator#
+		)
+    </insert>
+
+    <update id="update" parameterClass="refundApply">
+        UPDATE REFUND_APPLY
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="reason">
+            REASON = #reason#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="payerFee">
+            PAYER_FEE = #payerFee#
+        </isNotNull>
+        <isNotNull prepend="," property="partnerId">
+            PARTNER_ID = #partnerId#
+        </isNotNull>
+        <isNotNull prepend="," property="remark1">
+            REMARK1 = #remark1#
+        </isNotNull>
+        <isNotNull prepend="," property="refundType">
+            REFUND_TYPE = #refundType#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysdate
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="remark2">
+            REMARK2 = #remark2#
+        </isNotNull>
+        <isNotNull prepend="," property="creator">
+            CREATOR = #creator#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeFee">
+            PAYEE_FEE = #payeeFee#
+        </isNotNull>
+        <isNotNull prepend="," property="refundApplyNo">
+            REFUND_APPLY_NO = #refundApplyNo#
+        </isNotNull>
+        <isNotNull prepend="," property="orderAmount">
+            ORDER_AMOUNT = #orderAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="applyBatchNo">
+            APPLY_BATCH_NO = #applyBatchNo#
+        </isNotNull>
+        <isNotNull prepend="," property="applyAmount">
+            APPLY_AMOUNT = #applyAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="actualAmount">
+            ACTUAL_AMOUNT = #actualAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="orderId">
+            ORDER_ID = #orderId#
+        </isNotNull>
+        <isNotNull prepend="," property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+       		REFUND_APPLY_NO = #refundApplyNo#
+        </dynamic>
+    </update>
+
+	<select id="queryRefundApplyList" resultMap="refundApplyQueryResult" parameterClass="java.util.HashMap">
+		select * from fi.refund_apply r_a
+			where r_a.partner_id = #partnerId#
+		<dynamic>
+			<isNotEmpty prepend="AND" property="fromTime">
+				r_a.CREATE_DATE <![CDATA[>=]]>
+				to_date(#fromTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+				r_a.CREATE_DATE <![CDATA[<=]]>
+				to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="orderId">
+				r_a.order_id = #orderId#
+			</isNotEmpty>
+			<isEqual prepend="and" property="status" compareValue="0">
+				r_a.STATUS in (1, 2, 3)
+			</isEqual>
+			<isNotEqual prepend="and" property="status" compareValue="0"> 
+				r_a.STATUS = #status#
+			</isNotEqual>
+		</dynamic>
+		order  by r_a.create_date desc
+	</select>
+
+	<select id="querytotalItemNumAndAmount" resultClass="java.util.HashMap"	parameterClass="java.util.HashMap">
+		select	nvl(sum(APPLY_AMOUNT),0) as APPLY_AMOUNT,count(*) as ITEM_NUM
+		from refund_apply r_a where r_a.partner_id = #partnerId#
+		<dynamic>
+			<isNotEmpty prepend="AND" property="fromTime">
+				r_a.CREATE_DATE <![CDATA[>=]]>
+				to_date(#fromTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+				r_a.CREATE_DATE <![CDATA[<=]]>
+				to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="orderId">
+				r_a.order_id = #orderId#
+			</isNotEmpty>
+			<isEqual prepend="and" property="status" compareValue="0">
+				r_a.STATUS in (1, 2, 3)
+			</isEqual>
+			<isNotEqual prepend="and" property="status" compareValue="0"> 
+				r_a.STATUS = #status#
+			</isNotEqual>
+		</dynamic>
+	</select>
+
+    <select id="findById" resultMap="refundApplyResult" parameterClass="java.lang.Long">
+        SELECT * FROM REFUND_APPLY
+        WHERE REFUND_APPLY_NO = #refundApplyNo#
+    </select>
+    
+    <select id="findBySelective" resultMap="refundApplyResult">
+        SELECT * FROM REFUND_APPLY
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="reason">
+            REASON = #reason# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark1">
+            REMARK1 = #remark1# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundType">
+            REFUND_TYPE = #refundType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark2">
+            REMARK2 = #remark2# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundApplyNo">
+            REFUND_APPLY_NO = #refundApplyNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyBatchNo">
+            APPLY_BATCH_NO = #applyBatchNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyAmount">
+            APPLY_AMOUNT = #applyAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="actualAmount">
+            ACTUAL_AMOUNT = #actualAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM REFUND_APPLY
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="reason">
+            REASON = #reason# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerId">
+            PARTNER_ID = #partnerId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark1">
+            REMARK1 = #remark1# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundType">
+            REFUND_TYPE = #refundType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark2">
+            REMARK2 = #remark2# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="creator">
+            CREATOR = #creator# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundApplyNo">
+            REFUND_APPLY_NO = #refundApplyNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderAmount">
+            ORDER_AMOUNT = #orderAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyBatchNo">
+            APPLY_BATCH_NO = #applyBatchNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="applyAmount">
+            APPLY_AMOUNT = #applyAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="actualAmount">
+            ACTUAL_AMOUNT = #actualAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderId">
+            ORDER_ID = #orderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="auditOperator">
+            AUDIT_OPERATOR = #auditOperator# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

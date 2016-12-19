@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="webgateRecurringHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/recurring.htm">crosspayApiRecurringAcquireController</prop>
+				<prop key="/cancelRecurringOrder.htm">cancelRecurringOrderController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="cancelRecurringOrderController" class="com.pay.gateway.controller.CancelRecurringOrderController">
+			<property name="methodNameResolver">
+				<ref bean="paramResolver" />
+			</property>
+				<property name="txncoreClientService" ref="txncoreClientService" />
+				<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+				<property name="forpayClientService" ref="forpayClientService" />
+			<property name="validateService">
+				<ref bean="cancelRecurringAcquireValidateService" />
+			</property>
+			<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+
+	<bean id="crosspayApiRecurringAcquireController" class="com.pay.gateway.controller.CrosspayApiRecurringAcquireController">
+			<property name="methodNameResolver">
+				<ref bean="paramResolver" />
+			</property>
+			<property name="validateService">
+				<ref bean="crosspayApiRecAcquireValidateService" />
+			</property>
+			<property name="txncoreClientService" ref="txncoreClientService" />
+			<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+			<property name="gatewayResponseService" ref="gatewayResponseService" />
+			<property name="memberProductService" ref="acc-memberBaseProductService"/>
+			<property name="dccService" ref="configurationDCCService" />
+			<property name="cardBinInfoService" ref="if-cardBinInfoService" />
+			<property name="currencyService" ref="if-countryCurrencyService"/>
+			<property name="jmsSender" ref="jmsSender"/>
+		</bean>
+
+</beans>

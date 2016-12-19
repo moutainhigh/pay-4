@@ -1,0 +1,147 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>iPayLinks支付-交易管理-收款明细</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#closeDetail").click(function(){
+		window.close();
+	});
+});
+</script>
+</head>
+<body>
+<@sp.head mCode="corp_mpayorder_query"/>
+<div class="container share_wrap">
+	<div class="container">
+		<div class="mod_box_a">
+				<p class="top"><i></i></p>
+				<div class="con_box has_bg">
+						<div class="tit_box">
+								<h3 class="title font14"><strong>订单交易详情</strong></h3>
+						</div>
+						<#if amount?has_content>
+						<table class="verify_table set_width">
+								<tbody>
+										<tr>
+											<td colspan="2" class="thead">订单交易详情</td>
+										</tr>
+										<tr>
+											<td class="type">网关收单时间：</td>
+											<td>${createDate!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">支付完成时间：</td>
+											<td>${commitDate!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">交易类型：</td>
+											<td>
+												${tradeType!('')}
+											</td>
+										</tr>
+										<tr>
+											<td class="type">商户订单号：</td>
+											<td>${orderId!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">商品名称：</td>
+											<td>${desGoodsName!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">商品描述：</td>
+											<td>${desGoodsDsp!('')}</td>
+										</tr>
+										
+										<tr>
+											<td class="type">金额：</td>
+											<td>${((amount!(0)))?string(",##0.00")} 元</td>
+										</tr>
+										<tr>
+											<td class="type">付款人：</td>
+											<td><#if payer?has_content>${payer?default("")}</#if></td>
+										</tr>
+										<tr>
+											<td class="type">订单状态：</td>
+											<td>
+												<#if orderStatus?exists>
+													<#if orderStatus?default("")==0>
+														等待支付
+													<#elseif orderStatus?default("")==1>
+														已关闭
+													<#elseif orderStatus?default("")==2>
+														已付款
+													<#elseif orderStatus?default("")==3>
+														已退款
+													<#elseif orderStatus?default("")==4>
+														交易完成
+													</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">支付状态：</td>
+											<td>
+												<#if payStatus?exists>
+													<#if payStatus ==1>
+														支付中
+													<#elseif payStatus ==2>
+														支付成功
+													<#elseif payStatus ==3>
+														支付中
+													<#elseif payStatus ==4>
+														支付中
+													<#elseif payStatus ==5>
+														支付中
+													<#elseif payStatus ==6>
+														支付中
+													<#elseif payStatus ==7>
+														支付失败
+													</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">手续费：</td>
+											<td>
+												<#if payeeFee?exists>
+													${((payeeFee!(0)))?string(",##0.00")} 元
+												</#if>
+											</td>
+										</tr>
+										
+								</tbody>
+						</table>
+						<#else>
+						<div class="content txtC">
+							<div class="result_tips">
+								<div class="set_height clearfix">
+									<span class="pop_fail"></span>
+									<p class="words f14"><strong>无效订单</strong></p>
+									<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a>|<a href="${rc.contextPath}/index.htm">返回iPayLinks支付首页</a></p>
+								</div>
+							</div>
+						</div>
+						</#if>
+						<p class="btn_box"><span class="btn_yel">
+						<button id="closeDetail">关闭</button>
+						</span></p>
+				</div>
+				<p class="bot"><i></i></p>
+		</div>
+</div>
+</div>
+<#include "/common/include/footer.html">
+</body>
+</html>

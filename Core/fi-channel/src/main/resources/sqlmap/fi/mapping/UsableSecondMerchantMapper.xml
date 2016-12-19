@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.channel.dao.UsableSecondMerchantMapper">
+
+  <resultMap id="BaseResultMap" class="com.pay.channel.model.UsableSecondMerchant">
+    <result column="ID" jdbcType="DECIMAL" property="id" />
+    <result column="PAYMENT_CHANNEL_ITEM_ID" jdbcType="DECIMAL" property="paymentChannelItemId" />
+    <result column="CHANNEL_CONFIG_ID" jdbcType="DECIMAL" property="channelConfigId" />
+    <result column="CARD_ORG" jdbcType="VARCHAR" property="cardOrg" />
+    <result column="USE_REFERENCE" jdbcType="VARCHAR" property="useReference" />
+    <result column="JOIN_FREE_TIME" jdbcType="TIMESTAMP" property="joinFreeTime" />
+    <result column="DELETE_DATE" jdbcType="TIMESTAMP" property="deleteDate" />
+  </resultMap>
+
+  <resultMap id="dtoResultMap" class="com.pay.channel.dto.UsableSecondMerchantDTO" extends="BaseResultMap">
+    <result column="NAME" property="paymentChannelName" jdbcType="VARCHAR"/>
+    <result column="ORG_MERCHANT_CODE" property="orgMerchantCode" jdbcType="VARCHAR"/>
+    <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    ID, PAYMENT_CHANNEL_ITEM_ID, CHANNEL_CONFIG_ID, CARD_ORG, USE_REFERENCE, JOIN_FREE_TIME,
+    DELETE_DATE
+  </sql>
+
+  <select id="findById" parameterClass="java.math.BigDecimal" resultMap="BaseResultMap">
+    select 
+      <include refid="Base_Column_List" />
+    from USABLE_SECOND_MERCHANT
+    where ID = #id#
+  </select>
+
+  <delete id="delete" parameterClass="java.math.BigDecimal">
+    delete from USABLE_SECOND_MERCHANT
+    where ID = #id#
+  </delete>
+
+  <insert id="create" parameterClass="com.pay.channel.model.UsableSecondMerchant">
+    <selectKey resultClass="java.math.BigDecimal" keyProperty="id">
+      SELECT SEQ_USABLE_SECOND_MERCHANT.NEXTVAL AS ID FROM DUAL
+    </selectKey>
+    insert into USABLE_SECOND_MERCHANT (ID, PAYMENT_CHANNEL_ITEM_ID, CHANNEL_CONFIG_ID,
+      CARD_ORG, USE_REFERENCE, JOIN_FREE_TIME,
+      DELETE_DATE)
+    values (#id#, #paymentChannelItemId#, #channelConfigId#,
+      #cardOrg#, #useReference#, sysdate,null)
+  </insert>
+
+  <update id="updateModelByModel" parameterClass="com.pay.channel.model.UsableSecondMerchant">
+    update USABLE_SECOND_MERCHANT
+    <dynamic prepend="SET">
+      <isNotNull prepend="," property="useReference">
+        USE_REFERENCE = #useReference#
+      </isNotNull>
+      <isNotNull prepend="," property="deleteDate"><!--只要delteDate 不为空，就执行-->
+        DELETE_DATE = sysdate, JOIN_FREE_TIME = sysdate + 60
+      </isNotNull>
+    </dynamic>
+    where ID = #id#
+  </update>
+
+  <select id="findByCriteria" parameterClass="com.pay.channel.dto.UsableSecondMerchantDTO" resultMap="dtoResultMap">
+    SELECT
+    usm.ID, usm.PAYMENT_CHANNEL_ITEM_ID, usm.CHANNEL_CONFIG_ID,
+    usm.CARD_ORG, usm.USE_REFERENCE, usm.JOIN_FREE_TIME,
+    usm.DELETE_DATE,pci.NAME,pci.ORG_CODE, chc.ORG_MERCHANT_CODE
+    FROM USABLE_SECOND_MERCHANT usm,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+    WHERE 1=1 AND usm.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  usm.CHANNEL_CONFIG_ID = chc.ID(+)
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      usm.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="channelConfigId">
+      usm.CHANNEL_CONFIG_ID = #channelConfigId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgMerchantCode">
+      chc.ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+    </isNotEmpty>
+    order by ID asc
+  </select>
+
+  <select id="countByCriteria" parameterClass="com.pay.channel.dto.UsableSecondMerchantDTO" resultClass="java.lang.Integer">
+    SELECT
+    count(1)
+    FROM USABLE_SECOND_MERCHANT usm,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+    WHERE 1=1 AND usm.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  usm.CHANNEL_CONFIG_ID = chc.ID(+)
+    <isNotEmpty prepend="AND" property="paymentChannelItemId">
+      usm.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="channelConfigId">
+      usm.CHANNEL_CONFIG_ID = #channelConfigId#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgCode">
+      pci.ORG_CODE = #orgCode#
+    </isNotEmpty>
+    <isNotEmpty prepend="AND" property="orgMerchantCode">
+      chc.ORG_MERCHANT_CODE like  #orgMerchantCode#||'%'
+    </isNotEmpty>
+  </select>
+
+  <select id="findFreeSecondMerChant"  resultMap="dtoResultMap">
+    SELECT
+     *
+    FROM (
+      SELECT
+        usm.ID, usm.PAYMENT_CHANNEL_ITEM_ID, usm.CHANNEL_CONFIG_ID,
+        usm.CARD_ORG, usm.USE_REFERENCE, usm.JOIN_FREE_TIME,
+        usm.DELETE_DATE,pci.NAME,pci.ORG_CODE, chc.ORG_MERCHANT_CODE
+      FROM USABLE_SECOND_MERCHANT usm,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+      WHERE 1=1 AND usm.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  usm.CHANNEL_CONFIG_ID = chc.ID(+)
+        AND usm.JOIN_FREE_TIME &lt;= SYSDATE AND usm.DELETE_DATE IS  NULL AND usm.USE_REFERENCE = '0'
+      order by JOIN_FREE_TIME asc)
+    UNION
+    SELECT
+      *
+    FROM (
+      SELECT
+        usm.ID, usm.PAYMENT_CHANNEL_ITEM_ID, usm.CHANNEL_CONFIG_ID,
+        usm.CARD_ORG, usm.USE_REFERENCE, usm.JOIN_FREE_TIME,
+        usm.DELETE_DATE,pci.NAME,pci.ORG_CODE, chc.ORG_MERCHANT_CODE
+      FROM USABLE_SECOND_MERCHANT usm,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+      WHERE 1=1 AND usm.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  usm.CHANNEL_CONFIG_ID = chc.ID(+)
+        AND usm.JOIN_FREE_TIME &lt;= SYSDATE AND usm.DELETE_DATE IS NOT NULL AND usm.USE_REFERENCE = '0'
+      order by JOIN_FREE_TIME asc)
+  </select>
+
+  <select id="findFreeSecondMerChantByPaymentChannelItemId" resultMap="dtoResultMap" parameterClass="com.pay.channel.model.UsableSecondMerchant">
+    SELECT
+      *
+    FROM (
+      SELECT
+        usm.ID, usm.PAYMENT_CHANNEL_ITEM_ID, usm.CHANNEL_CONFIG_ID,
+        usm.CARD_ORG, usm.USE_REFERENCE, usm.JOIN_FREE_TIME,
+        usm.DELETE_DATE,pci.NAME,pci.ORG_CODE, chc.ORG_MERCHANT_CODE
+      FROM USABLE_SECOND_MERCHANT usm,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+      WHERE 1=1 AND usm.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  usm.CHANNEL_CONFIG_ID = chc.ID(+)
+        AND usm.JOIN_FREE_TIME &lt;= SYSDATE AND usm.DELETE_DATE IS  NULL AND usm.USE_REFERENCE = '0'
+        AND usm.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+        <isNotEmpty prepend="AND" property="channelConfigId">
+          usm.CHANNEL_CONFIG_ID != #channelConfigId#
+        </isNotEmpty>
+      order by JOIN_FREE_TIME desc)
+      UNION all
+    SELECT
+      *
+    FROM (
+      SELECT
+        usm.ID, usm.PAYMENT_CHANNEL_ITEM_ID, usm.CHANNEL_CONFIG_ID,
+        usm.CARD_ORG, usm.USE_REFERENCE, usm.JOIN_FREE_TIME,
+        usm.DELETE_DATE,pci.NAME,pci.ORG_CODE, chc.ORG_MERCHANT_CODE
+      FROM USABLE_SECOND_MERCHANT usm,PAYMENT_CHANNEL_ITEM pci,CHANNEL_CONFIG chc
+      WHERE 1=1 AND usm.PAYMENT_CHANNEL_ITEM_ID = pci.ID(+) AND  usm.CHANNEL_CONFIG_ID = chc.ID(+)
+        AND usm.JOIN_FREE_TIME &lt;= SYSDATE AND usm.DELETE_DATE IS NOT NULL AND usm.USE_REFERENCE = '0'
+        AND usm.PAYMENT_CHANNEL_ITEM_ID = #paymentChannelItemId#
+        <isNotEmpty prepend="AND" property="channelConfigId">
+          usm.CHANNEL_CONFIG_ID != #channelConfigId#
+        </isNotEmpty>
+      order by JOIN_FREE_TIME desc)
+  </select>
+
+</sqlMap>

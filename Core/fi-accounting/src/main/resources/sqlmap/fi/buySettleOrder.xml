@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fi-buysettleOrder">
+    <typeAlias alias="buysettleOrder" type="com.pay.txncore.model.BuysettleOrder"/>
+    <typeAlias alias="hashMap" type="java.util.HashMap"/>
+    <sql id="buysettleOrderFeild">
+    	EXCHANGE_NO exchangeNo,
+    	COMPLETED_DATE completedDate,
+    	CREATE_DATE createDate,
+    	CURRENCY_CODE currencyCode,
+    	EXCH_AMOUNT exchAmount,
+    	EXCH_CURRENCY_CODE exchCurrencyCode,
+    	EXCHANGE_RATE exchangeRate,
+    	FEE_RATE feeRate,
+    	FIXED_FEE fixedFee,
+    	ORDER_AMOUNT orderAmount,
+    	PARTNER_ID partnerId,
+    	PARTNER_NAME partnerName,
+    	PERCENT_FEE percentFee,
+    	remark,
+    	source,
+    	status,
+    	TALLEST_FEE tallestFee,TYPE type,
+    	UPDATE_DATE updateDate,
+    	TRADE_FEE tradeFee 
+    </sql>
+   	<sql id="buysettleOrderFeildByInsert">
+    	EXCHANGE_NO,
+    	PARTNER_ID,
+    	PARTNER_NAME,
+    	ORDER_AMOUNT,
+    	CURRENCY_CODE,
+    	EXCH_AMOUNT,
+    	EXCH_CURRENCY_CODE,
+    	EXCHANGE_RATE,
+    	STATUS,
+    	TYPE,
+    	FIXED_FEE,
+    	PERCENT_FEE,
+    	TALLEST_FEE,
+    	FEE_RATE,
+    	CREATE_DATE,
+    	COMPLETED_DATE,
+    	UPDATE_DATE,
+    	SOURCE,
+    	REMARK,
+    	TRADE_FEE
+    </sql>
+   	<sql id="buysettleOrderSelect">
+		SELECT
+		<include refid="buysettleOrderFeild" />
+		FROM BUYSETTLE_ORDER buysettleOrder
+	</sql>
+	
+	<sql id="buysettleOrderConditions">
+	    <dynamic prepend="where">
+		    <isNotEqual compareValue="0"  property="exchangeNo" prepend="and" >
+		      	buysettleOrder.EXCHANGE_NO = #exchangeNo#
+		    </isNotEqual>
+		    <isNotEmpty property="completedDate" prepend="and">
+		      	buysettleOrder.COMPLETED_DATE = #completedDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="createDate" prepend="and">
+		      	buysettleOrder.CREATE_DATE = #createDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="currencyCode" prepend="and">
+		      	buysettleOrder.CURRENCY_CODE = #currencyCode#
+		    </isNotEmpty>
+		    <isNotEmpty property="exchAmount" prepend="and">
+		      	buysettleOrder.EXCH_AMOUNT = #exchAmount#
+		    </isNotEmpty>
+		    <isNotEmpty property="exchCurrencyCode" prepend="and">
+		      	buysettleOrder.EXCH_CURRENCY_CODE = #exchCurrencyCode#
+		    </isNotEmpty>
+		    <isNotEmpty property="exchangeRate" prepend="and">
+		      	buysettleOrder.EXCHANGE_RATE = #exchangeRate#
+		    </isNotEmpty>
+		    <isNotEmpty property="feeRate" prepend="and">
+		      	buysettleOrder.FEE_RATE = #feeRate#
+		    </isNotEmpty>
+		    <isNotEmpty property="fixedFee" prepend="and">
+		      	buysettleOrder.FIXED_FEE = #fixedFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="partnerId" prepend="and">
+		      	buysettleOrder.PARTNER_ID = #partnerId#
+		    </isNotEmpty>
+		    <isNotEmpty property="partnerName" prepend="and">
+		      	buysettleOrder.PARTNER_NAME = #partnerName#
+		    </isNotEmpty>
+		    <isNotEmpty property="percentFee" prepend="and">
+		      	buysettleOrder.PERCENT_FEE = #percentFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="remark" prepend="and">
+		      	buysettleOrder.remark = #remark#
+		    </isNotEmpty>
+		    <isNotEmpty property="source" prepend="and">
+		      	buysettleOrder.source = #source#
+		    </isNotEmpty>
+		    <isNotEmpty property="status" prepend="and">
+		      	buysettleOrder.status = #status#
+		    </isNotEmpty>
+		    <isNotEmpty property="tallestFee" prepend="and">
+		      	buysettleOrder.TALLEST_FEE = #tallestFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="updateDate" prepend="and">
+		      	buysettleOrder.UPDATE_DATE = #updateDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="type" prepend="and">
+		      	buysettleOrder.TYPE = #type#
+		    </isNotEmpty>
+		    <isNotEmpty property="orderAmount" prepend="and">
+		      	buysettleOrder.ORDER_AMOUNT = #orderAmount#
+		    </isNotEmpty>
+		    <isNotEmpty property="startTime" prepend="and">
+		    		<![CDATA[
+		   		 		buysettleOrder.CREATE_DATE >= to_date(#startTime#,'yyyy-mm-dd hh24:mi:ss')
+		   		  	 ]]>
+			      <isNotEmpty property="endTime" prepend="and">
+			   		   <![CDATA[
+			      			 buysettleOrder.CREATE_DATE <= to_date(#endTime#,'yyyy-mm-dd hh24:mi:ss')
+			      		]]>
+			      </isNotEmpty>
+			     
+		    </isNotEmpty>
+		    <isNotEmpty property="endTime" prepend="and">
+		    	<![CDATA[
+		   		 	 buysettleOrder.CREATE_DATE <= to_date(#endTime#,'yyyy-mm-dd hh24:mi:ss')
+		   		]]>
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	<sql id="buysettleOrderConditionsByPojo">
+	    <dynamic prepend="where">
+		    <isNotEqual compareValue="0"  property="exchangeNo" prepend="and" >
+		      	buysettleOrder.EXCHANGE_NO = #exchangeNo#
+		    </isNotEqual>
+		    <isNotEmpty property="completedDate" prepend="and">
+		      	buysettleOrder.COMPLETED_DATE = #completedDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="createDate" prepend="and">
+		      	buysettleOrder.CREATE_DATE = #createDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="currencyCode" prepend="and">
+		      	buysettleOrder.CURRENCY_CODE = #currencyCode#
+		    </isNotEmpty>
+		    <isNotEmpty property="exchAmount" prepend="and">
+		      	buysettleOrder.EXCH_AMOUNT = #exchAmount#
+		    </isNotEmpty>
+		    <isNotEmpty property="exchCurrencyCode" prepend="and">
+		      	buysettleOrder.EXCH_CURRENCY_CODE = #exchCurrencyCode#
+		    </isNotEmpty>
+		    <isNotEmpty property="exchangeRate" prepend="and">
+		      	buysettleOrder.EXCHANGE_RATE = #exchangeRate#
+		    </isNotEmpty>
+		    <isNotEmpty property="feeRate" prepend="and">
+		      	buysettleOrder.FEE_RATE = #feeRate#
+		    </isNotEmpty>
+		    <isNotEmpty property="fixedFee" prepend="and">
+		      	buysettleOrder.FIXED_FEE = #fixedFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="partnerId" prepend="and">
+		      	buysettleOrder.PARTNER_ID = #partnerId#
+		    </isNotEmpty>
+		    <isNotEmpty property="partnerName" prepend="and">
+		      	buysettleOrder.PARTNER_NAME = #partnerName#
+		    </isNotEmpty>
+		    <isNotEmpty property="percentFee" prepend="and">
+		      	buysettleOrder.PERCENT_FEE = #percentFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="remark" prepend="and">
+		      	buysettleOrder.remark = #remark#
+		    </isNotEmpty>
+		    <isNotEmpty property="source" prepend="and">
+		      	buysettleOrder.source = #source#
+		    </isNotEmpty>
+		    <isNotEmpty property="status" prepend="and">
+		      	buysettleOrder.status = #status#
+		    </isNotEmpty>
+		    <isNotEmpty property="tallestFee" prepend="and">
+		      	buysettleOrder.TALLEST_FEE = #tallestFee#
+		    </isNotEmpty>
+		    <isNotEmpty property="updateDate" prepend="and">
+		      	buysettleOrder.UPDATE_DATE = #updateDate#
+		    </isNotEmpty>
+		    <isNotEmpty property="type" prepend="and">
+		      	buysettleOrder.TYPE = #type#
+		    </isNotEmpty>
+		    <isNotEmpty property="orderAmount" prepend="and">
+		      	buysettleOrder.ORDER_AMOUNT = #orderAmount#
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	<select id="queryConditions" resultClass="buysettleOrder" parameterClass="buysettleOrder">
+   		<include refid="buysettleOrderSelect"/>
+   		<include refid="buysettleOrderConditionsByPojo"/>
+   		order by create_date desc
+   	</select>
+   	<select id="queryConditions_COUNT" resultClass="java.lang.Integer" parameterClass="buysettleOrder">
+		select count(1) from BUYSETTLE_ORDER buysettleOrder
+   		<include refid="buysettleOrderConditionsByPojo"/>
+   	</select>
+   	
+	<select id="queryConditionsMap" resultClass="buysettleOrder" parameterClass="hashMap">
+   		<include refid="buysettleOrderSelect"/>
+   		<include refid="buysettleOrderConditions"/>
+   		order by create_date desc
+   	</select>
+   	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer" parameterClass="hashMap">
+		select count(1) from BUYSETTLE_ORDER buysettleOrder
+   		<include refid="buysettleOrderConditions"/>
+   	</select>
+   	<sql id="careteExchangeNO">
+   		<isEqual compareValue="0"  property="type">
+   			select  210|| to_char(sysdate,'yymmddHH24MISS') ||SEQ_POSITION_ALLOCA_AUDIT.nextval as exchangeNo from dual
+   		</isEqual> 
+   		<isEqual compareValue="1"  property="type">
+   			select  220|| to_char(sysdate,'yymmddHH24MISS') ||SEQ_POSITION_ALLOCA_AUDIT.nextval as exchangeNo from dual
+   		</isEqual> 
+   	</sql>
+   	<insert id="create" parameterClass="buysettleOrder">
+			 <selectKey resultClass="java.lang.Long" keyProperty="exchangeNo">
+			      	<include refid="careteExchangeNO"/>		
+			</selectKey>
+			insert into BUYSETTLE_ORDER(
+				<include refid="buysettleOrderFeildByInsert"/>			
+				)
+		<![CDATA[
+			values(
+				#exchangeNo#,
+				#partnerId#,
+				#partnerName#,
+				#orderAmount#,
+				#currencyCode#,
+				#exchAmount#,
+				#exchCurrencyCode#,
+				#exchangeRate#,
+				#status#,
+				#type#,
+				#fixedFee#,
+				#percentFee#,
+				#tallestFee#,
+				#feeRate#,
+				#createDate#,
+				#completedDate#,
+				#updateDate#,
+				#source#,
+				#remark#,
+				#tradeFee#
+			)
+		  ]]>
+	</insert>
+	
+	<update id="update" parameterClass="com.pay.txncore.model.BuysettleOrder">
+		update  BUYSETTLE_ORDER set  STATUS = #status# ,COMPLETED_DATE = #completedDate# where EXCHANGE_NO =#exchangeNo#
+	</update>
+
+</sqlMap>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="cumulated-flow">
+    <typeAlias alias="cumulatedFlow" type="com.pay.pe.accumulated.flow.dto.CumulatedFlowDto"/>
+    
+    
+    	<insert id="create" parameterClass="cumulatedFlow">
+	
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+              select SEQ_CUMULATED_FLOW_ID.Nextval from DUAL 
+		</selectKey>
+		<![CDATA[
+		insert into cumulated_flow(id,
+		                           order_type,
+		                           deal_code,
+		                           acct_code,
+		                           month,
+		                           type,
+		                           total_amount,
+		                           create_date,
+		                           payment_service_code)
+		                    values(#id#,
+		                           #orderType#,
+		                           #dealCode#,
+		                           #acctCode#,
+		                           #month#,
+		                           #type#,
+		                           #totalAmount#,
+		                           sysdate,
+		                           #paymentServiceCode#
+		                           )
+				]]>
+	</insert>
+    
+  	<select id="selectCumulatedFlowByDeal" parameterClass="java.util.Map" resultClass="cumulatedFlow">
+		select sum(d.deal_amount) totalAmount,d.payee_acct_code acctCode,g.payment_service_code  paymentServiceCode
+		       from deal d  ,price_strategy g 
+		       where 
+		           g.price_strategy_code=d.payee_price_strategy_code
+		           and  g.payment_service_code =#paymentServiceCode#		        
+				   and d.deal_status=1		          
+		           and d.deal_begin_date > #beginDate#
+		           and d.deal_begin_date <![CDATA[<= ]]>#endDate#
+		           and d.deal_begin_date >= g.valid_date 
+				   and g.member_code > 0 and g.CACULATE_METHOD = 4          
+		       group by g.payment_service_code,d.payee_acct_code
+  	</select>
+  	
+
+ <sql id="SELECT_CUMMULATED_FLOW">
+		select f.id,
+		       f.order_type orderType,
+		       f.deal_code dealCode,
+		       f.acct_code acctCode,
+		       f.month,
+		       f.type,
+		       f.total_amount totalAmount,
+		       f.payment_service_code paymentServiceCode
+		from  
+		       cumulated_flow f
+		    where 1=1
+
+    </sql>
+    
+   
+    <sql id="CUMMULATED_FLOW_CONDITION">
+  	    <isNotNull prepend="AND" property="acctCode">
+            f.acct_code=#acctCode#
+        </isNotNull>
+        <isNotNull prepend="AND" property="month">
+            f.month=#month#
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            f.payment_service_code=#paymentServiceCode#
+        </isNotNull>
+ 	</sql>
+
+    
+  	<select id="selectCumulatedFlow" parameterClass="java.util.Map" resultClass="cumulatedFlow">
+		<include refid="SELECT_CUMMULATED_FLOW"/>
+		<include refid="CUMMULATED_FLOW_CONDITION"/>
+  	</select>
+
+	
+	<select id="selectAccumulatedOrderId"  resultClass="java.lang.Long">
+	    select seq_accumulated_order_id.Nextval from DUAL 
+  	</select>
+  	
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

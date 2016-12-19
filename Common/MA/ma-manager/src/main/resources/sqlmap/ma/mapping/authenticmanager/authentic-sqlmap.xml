@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="authentic">
+	 <typeAlias alias="verifySearchDto"	type="com.pay.poss.authenticmanager.dto.VerifySearchDto" />
+	 <typeAlias alias="verifySearchListDto"	type="com.pay.poss.authenticmanager.dto.VerifySearchListDto" />
+	 <typeAlias alias="verifyLogDto"	type="com.pay.poss.authenticmanager.dto.VerifyLogDto" />
+	 <typeAlias alias="possOperateLog"	type="com.pay.poss.authenticmanager.model.PossOperate" />
+	 <typeAlias alias="transLog"	type="com.pay.poss.authenticmanager.model.TransLog" />
+	
+	<select id="queryVerifyLog" resultClass="verifySearchListDto" parameterClass="verifySearchDto">
+     select b.* from 
+	(select a.*,rownum as linenum from (
+		select ab.*,c.error_msg as message from (
+			select 
+		      a.id as verifyId,
+		      a.member_code as memberCode,
+		      a.name as memberName,
+		      a.paper_no as cardId,
+		      a.status as verifyStatus,
+		      a.created_date as createDate,
+		      b.login_name as loginName
+	    	from t_idc_verify_base a inner join t_member b 
+	    	on a.member_code=b.member_code ) ab 
+	    	inner join t_idc_verify_gov c 
+	    	on ab.verifyid = c.idc_verify_base_id
+	    	where 1=1
+			<isNotEmpty prepend="and" property="memberCode">  
+	          	ab.memberCode = #memberCode#
+	        </isNotEmpty> 				
+			<isNotEmpty prepend="and" property="memberName">  
+	          	ab.memberName = #memberName#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="cardId">  
+	          	ab.cardId = #cardId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="verifyStatus">  
+	          	ab.verifyStatus =#verifyStatus#
+	        </isNotEmpty>  	        
+	        <isNotEmpty prepend="and" property="loginName">  
+	          	ab.loginName = #loginName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="startDate"> 
+		        ab.createDate<![CDATA[>=]]>TO_DATE(#startDate#,'YYYY-MM-DD')
+		    </isNotEmpty>
+		    <isNotEmpty prepend="and" property="endDate">
+		        ab.createDate<![CDATA[<]]>TO_DATE(#endDate#,'YYYY-MM-DD')+1
+		    </isNotEmpty>	
+        order by ab.createDate desc
+	
+	) a where rownum <![CDATA[<=]]> #pageEndRow# ) b where linenum <![CDATA[>]]> #pageStartRow# 
+	</select>
+	
+	 <select id="queryVerifyLogCount" resultClass="java.lang.Integer" parameterClass="verifySearchDto">
+    
+		select count(1) from (
+			select 
+		      a.id as verifyId,
+		      a.member_code as memberCode,
+		      a.name as memberName,
+		      a.paper_no as cardId,
+		      a.status as verifyStatus,
+		      a.created_date as createDate,
+		      b.login_name as loginName
+	    	from t_idc_verify_base a inner join t_member b 
+	    	on a.member_code=b.member_code ) ab 
+	    	inner join t_idc_verify_gov c 
+	    	on ab.verifyid = c.idc_verify_base_id
+	    	where 1=1
+			<isNotEmpty prepend="and" property="memberCode">  
+	          	ab.memberCode = #memberCode#
+	        </isNotEmpty> 				
+			<isNotEmpty prepend="and" property="memberName">  
+	          	ab.memberName = #memberName#
+	        </isNotEmpty> 
+	        <isNotEmpty prepend="and" property="cardId">  
+	          	ab.cardId = #cardId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="verifyStatus">  
+	          	ab.verifyStatus =#verifyStatus#
+	        </isNotEmpty>  	        
+	        <isNotEmpty prepend="and" property="loginName">  
+	          	ab.loginName = #loginName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="and" property="startDate"> 
+		        ab.createDate<![CDATA[>=]]>TO_DATE(#startDate#,'YYYY-MM-DD')
+		    </isNotEmpty>
+		    <isNotEmpty prepend="and" property="endDate">
+		        ab.createDate<![CDATA[<]]>TO_DATE(#endDate#,'YYYY-MM-DD')+1
+		    </isNotEmpty>
+	</select>
+	<select id="getVerifyLogById" resultClass="verifyLogDto" parameterClass="java.lang.Long">
+    	select 
+    		  ab.id as verifyId,
+		      ab.member_code as memberCode,
+		      ab.name as memberName,
+		      ab.paper_no as cardId,
+		      ab.paper_type as cardType,
+		      ab.status as verifyStatus,
+		      ab.created_date as createDate,
+		      ab.login_name as loginName,
+    		  c.error_msg as message 
+    		from (
+    			select 
+				      a.id,
+				      a.member_code ,
+				      a.name ,
+				      a.paper_no ,
+				      a.paper_type,
+				      a.status ,
+				      a.created_date ,
+				      b.login_name 
+	    		from t_idc_verify_base a inner join t_member b 
+	    		on a.member_code=b.member_code ) ab 
+	    	inner join t_idc_verify_gov c 
+	    	on ab.id = c.idc_verify_base_id
+	    	where ab.id=#verifyId#
+		
+	</select>
+    
+	<update id="updateVerifyLogStatus" parameterClass="java.util.Map">
+        update t_idc_verify_base a set a.status=#status# where a.id=#verifyId#
+    </update>
+    <update id="updatePoliceMessage" parameterClass="java.util.Map">
+        update t_idc_verify_gov a set a.error_msg=#message# where a.idc_verify_base_id=#verifyId#
+    </update>
+    
+    <insert id="insertOperateLog" parameterClass="possOperateLog">
+    	<selectKey resultClass="java.lang.Long" keyProperty="operateId">
+			SELECT SEQ_POSS_OPERATE_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_POSS_OPERATE (OPERATE_ID, OBJECT_CODE, LOGIN_NAME, LOGIN_DATE, LOGIN_IP,
+            BROWSER_VER, ACTION_URL, TYPE, STATUS, CREATE_DATE, UPDATE_DATE, UPDATE_OPERATOR)
+        values (#operateId#, #objectCode#, #loginName#, #loginDate#, #loginIp#, #browserVer#,
+            #actionUrl#, #type#, #status#, sysdate,sysdate, #updateOperator#)
+    </insert>
+    <insert id="insertTransLog" parameterClass="transLog">
+    	<selectKey resultClass="java.lang.Long" keyProperty="transId">
+			SELECT SEQ_TRANS_TRANS_ID.nextval FROM DUAL
+		</selectKey>
+        insert into T_TRANS_LOG (TRANS_ID, SERIAL_NO, PAY_TYPE, PAY_DATE, CONFIRM_DATE, STATUS,
+            AMOUNT, RECV_ACCT, PAY_ACCT, RELATX_SERIAL_NO, ACCT_TYPE, UPDATE_DATE, CREATE_DATE,
+            LINK_ID)
+        values (#transId#, #serialNo#, #payType#, #payDate#, #confirmDate#, #status#, #amount#,
+            #recvAcct#, #payAcct#, #relatxSerialNo#, #acctType#, #updateDate#, #createDate#,
+            #linkId#)
+    </insert>
+    <update id="updateTransLog" parameterClass="java.util.Map">
+    	update t_trans_log t set t.relatx_serial_no=#relatxOrderId# where t.serial_no=#orderId#
+    </update>
+    <select id="getOrderId" resultClass="java.lang.String" >
+    	SELECT 300 || TO_CHAR(SYSDATE, 'yymmddhh24mi') || LPAD(seq_acct_acct_id.nextVal, 6, 0)  FROM DUAL
+    </select>
+    <select id="getOldOrderId" resultClass="java.lang.String" parameterClass="java.lang.String">
+    	select t.serial_no from t_trans_log t where t.link_id=#verifyId#
+    </select>
+    <select id="getAccountCodeOfRmb" resultClass="java.lang.String" parameterClass="java.lang.Long">
+    	select t.acct_code from t_acct t where t.member_code=#memberCode# and t.acct_type_id=10
+    </select>
+</sqlMap>

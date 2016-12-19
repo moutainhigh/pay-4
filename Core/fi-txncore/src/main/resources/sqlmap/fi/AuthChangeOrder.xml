@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="authChangeOrder">
+
+	<typeAlias alias="authChangeOrder" type="com.pay.txncore.model.AuthChangeOrder"/>
+    <resultMap id="authChangeOrderResult" class="authChangeOrder">
+        <result column="ID" property="id" jdbcType="DECIMAL" />
+        <result column="PRE_CONTROLLER_ID" property="preControllerId" jdbcType="DECIMAL"/>
+        <result column="CHANNEL_RESPONSE_NO" property="channelResponseNo" jdbcType="VARCHAR"/>
+        <result column="CHANNEL_RESPONSE_CODE" property="channelResponseCode" jdbcType="VARCHAR"/>
+        <result column="CHANNEL_RESPONSE_DESC" property="channelResponseDesc" jdbcType="VARCHAR"/>
+        <result column="REQUEST_ID" property="requestId" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="CHANNGE_TYPE" property="channgeType" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="BIZCODE" property="bizCode" jdbcType="VARCHAR"/>
+        <result column="BIZMSG" property="bizMsg" jdbcType="VARCHAR"/>
+        <result column="COMPLETE_DATE" property="completeDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="authChangeOrderResultDTO" class="com.pay.txncore.dto.AuthChangeOrderDTO">
+        <result column="request_Id" property="requestId" jdbcType="VARCHAR"/>
+        <result column="orderId" property="orderId" jdbcType="VARCHAR"/>
+        <result column="orderAmount" property="orderAmount" jdbcType="VARCHAR"/>
+        <result column="submitTime" property="submitTime" jdbcType="VARCHAR"/>
+        <result column="completeTime" property="completeTime" jdbcType="VARCHAR"/>
+        <result column="dealId" property="dealId" jdbcType="VARCHAR"/>
+        <result column="stateCode" property="stateCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="findByValidate" resultClass="java.lang.Integer">
+        SELECT
+        decode(SUM(ALL_C),0,0,1)*100+decode(SUM(RIP_STATUS),0,0,1)*10+ decode(SUM(RIP_STATUS_TOKEN),0,0,1)
+        FROM
+        (SELECT
+        count(1) ALL_C, 0 RIP_STATUS, 0  RIP_STATUS_TOKEN
+        FROM
+        fi.token_pay_info
+        WHERE
+        partner_id = #partnerId#
+        AND
+        register_user_id=#registerUserId#
+        AND
+        token = #token#
+        AND
+        STATUS = '1' UNION
+        SELECT
+        0 ALL_C, COUNT(1) RIP_STATUS, 0  RIP_STATUS_TOKEN
+        FROM
+        fi.token_pay_info
+        WHERE
+        partner_id = #partnerId#
+        AND
+        register_user_id=#registerUserId#
+        AND
+        token = #token# UNION
+        SELECT
+        0 ALL_C, 0 RIP_STATUS, COUNT(1) RIP_STATUS_TOKEN
+        FROM
+        fi.token_pay_info
+        WHERE
+        partner_id = #partnerId#
+        AND
+        register_user_id=#registerUserId#
+        )
+    </select>
+
+    <insert id="create" parameterClass="authChangeOrder">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+    		SELECT '107' || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_AUTH_CHANGE_ORDER.nextval, 6, 0)  FROM DUAL
+        </selectKey>
+        INSERT INTO AUTH_CHANGE_ORDER(
+            ID,PRE_CONTROLLER_ID,CHANNEL_RESPONSE_NO,CHANNEL_RESPONSE_CODE,CHANNEL_RESPONSE_DESC,
+        CREATE_DATE,CHANNGE_TYPE,STATUS,BIZCODE,BIZMSG,COMPLETE_DATE,REQUEST_ID
+        )
+        VALUES(
+            #id#,#preControllerId#,null,null,null,
+          sysdate,'1','0',null,null,sysdate,#requestId#
+		)
+    </insert>
+    
+    <update id="update" parameterClass="authChangeOrder">
+        UPDATE AUTH_CHANGE_ORDER SET COMPLETE_DATE = sysdate
+        <isNotNull prepend="," property="channelResponseNo">
+              CHANNEL_RESPONSE_NO = #channelResponseNo#
+        </isNotNull>
+        <isNotNull prepend="," property="channelResponseCode">
+            CHANNEL_RESPONSE_CODE = #channelResponseCode#
+        </isNotNull>
+        <isNotNull prepend="," property="channelResponseDesc">
+            CHANNEL_RESPONSE_DESC = #channelResponseDesc#
+        </isNotNull>
+        <isNotNull prepend="," property="preControllerId">
+            PRE_CONTROLLER_ID = #preControllerId#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            status = #status#
+        </isNotNull>
+        WHERE id = #id#
+    </update>
+    
+	<select id="findById" resultMap="authChangeOrderResult" parameterClass="java.lang.Long">
+        SELECT * FROM AUTH_CHANGE_ORDER WHERE ID = #id#
+	</select>
+
+    <select id="findList" resultMap="authChangeOrderResult" parameterClass="authChangeOrder">
+        SELECT * FROM AUTH_CHANGE_ORDER WHERE PRE_CONTROLLER_ID = #preControllerId#
+    </select>
+
+    <select id="findListByCondition" resultMap="authChangeOrderResultDTO" parameterClass="java.util.Map">
+        SELECT
+          m.request_id,
+          t.order_Id orderId,
+          t.PRE_AUTHOR_AMOUNT||t.PRE_CURRENCY_CODE orderAmount,
+          to_char(m.create_date,'yyyymmddhh24miss') submitTime,
+          to_char(m.COMPLETE_DATE,'yyyymmddhh24miss') completeTime,
+          m.id dealId,
+          decode(m.status, '1', '2', '2','3', '0') stateCode
+        FROM PRE_CONTROLLER T, AUTH_CHANGE_ORDER M
+        WHERE
+          T.ID = m.PRE_CONTROLLER_ID
+        <isNotEmpty prepend="AND" property="preControllerId">
+            t.id = #preControllerId#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberCode">
+            t.member_code = #memberCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="requestId">
+            m.request_id = #requestId#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="startDate">
+            m.CREATE_DATE &gt;= to_date(#startDate#,'yyyymmddhh24miss');
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="endDate">
+            m.CREATE_DATE &lt;= to_date(#endDate#,'yyyymmddhh24miss');
+        </isNotEmpty>
+    </select>
+
+</sqlMap>

@@ -1,0 +1,163 @@
+
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<meta charset="utf-8">
+<title>gcpayment付-提现记录明细</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/css.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<link type="text/css" rel="stylesheet"
+	href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<script type="text/javascript" charset="utf-8">
+function queryListByBusinessStatus(str){
+	document.getElementById('queryListHidden').value=str;
+	document.cashtradeform.submit();
+		
+}
+$(document).ready(function(){
+	$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+});
+
+</script>
+</head>
+
+<body id="home">
+<div class="outer"><@sp.head channel=4/>
+<div class="content clearfix"><@sp.banner toptit="交易记录"/>
+<@sp.menu channel="3_1"/> <!-- sider end -->
+<div class="main w770 record"><!-- query form start-->
+<form action="${rc.contextPath}/app/querycashlist.do" method="post"
+	name="cashtradeform" id="">
+<div class="mode bor-box record-search">
+<p><span> <em>时间：</em> <input class="Wdate" type="text"
+	id="startTime" name="startTime">- <input class="Wdate"
+	id="endTime" name="endTime" type="text"> </span> <span> <em>交易状态：</em>
+<select id="businessStatus" name="businessStatus">
+	<option value="all">所有状态</option>
+	<option value="wait_pay">处理中</option>
+	<option value="paying">处理成功</option>
+	<option value="payed">处理失败</option>
+</select> </span></p>
+<span>
+<button class="red-btn" type="submit">查 询</button>
+</span></div>
+<div class="mode tabs con">
+<ul class="tab-menu">
+	<#if qlHidden=="init"||qlHidden=="queryList_all">
+	<li class="cur" id="queryList1"><strong>全部交易</strong></li>
+	<li id="queryList2"
+		onclick="queryListByBusinessStatus('queryList_ing');"><strong>正在交易</strong></li>
+	<li id="queryList3"
+		onclick="queryListByBusinessStatus('queryList_end');"><strong>已完成交易</strong></li>
+	<li id="queryList4"
+		onclick="queryListByBusinessStatus('queryList_err');"><strong>失败的交易</strong></li>
+	<#elseif qlHidden=="queryList_ing">
+	<li id="queryList1"
+		onclick="queryListByBusinessStatus('queryList_all');"><strong>全部交易</strong></li>
+	<li class="cur" id="queryList2"
+		onclick="queryListByBusinessStatus('queryList_ing');"><strong>正在交易</strong></li>
+	<li id="queryList3"
+		onclick="queryListByBusinessStatus('queryList_end');"><strong>已完成交易</strong></li>
+	<li id="queryList4"
+		onclick="queryListByBusinessStatus('queryList_err');"><strong>失败的交易</strong></li>
+	<#elseif qlHidden=="queryList_end">
+	<li id="queryList1"
+		onclick="queryListByBusinessStatus('queryList_all');"><strong>全部交易</strong></li>
+	<li id="queryList2"
+		onclick="queryListByBusinessStatus('queryList_ing');"><strong>正在交易</strong></li>
+	<li class="cur" id="queryList3"
+		onclick="queryListByBusinessStatus('queryList_end');"><strong>已完成交易</strong></li>
+	<li id="queryList4"
+		onclick="queryListByBusinessStatus('queryList_err');"><strong>失败的交易</strong></li>
+	<#elseif qlHidden=="queryList_err">
+	<li id="queryList1"
+		onclick="queryListByBusinessStatus('queryList_all');"><strong>全部交易</strong></li>
+	<li id="queryList2"
+		onclick="queryListByBusinessStatus('queryList_ing');"><strong>正在交易</strong></li>
+	<li id="queryList3"
+		onclick="queryListByBusinessStatus('queryList_end');"><strong>已完成交易</strong></li>
+	<li class="cur" id="queryList4" onclick=queryListByBusinessStatus('queryList_err');;
+><strong>失败的交易</strong></li>
+	</#if>
+</ul>
+<input type="hidden" id="queryListHidden" name="queryListHidden" />
+
+<div class="box-top"><a class="font-prompt">导出EXCEL</a></div>
+
+<div class="tab-con tab-con-bor">
+<div class="mode con total"><span class="item20"> <select
+	id="queryPro" name="queryPro" onchange="">
+	<option value="queryProAll">全部明细</option>
+	<option value="weekPro">本周</option>
+	<option value="monthPro">本月</option>
+	<option value="daypro">今日</option>
+</select> </span> <span class="item30">总收入(<strong class="obvious"> </strong>)： <strong
+	class="obvious"></strong>元 </span> <span class="item30">总支出(<strong
+	class="obvious">${totalamount?default('')}</strong>): <strong
+	class="obvious"></strong>元</span> <span class="item20">盈余：<strong
+	class="obvious"></strong>元</span></div>
+<div class="mode record-particulars">
+<table>
+
+	<thead>
+		<tr>
+			<td class="item15">流水号</td>
+			<td class="item15">创建时间</td>
+			<td class="item10">名称|备注</td>
+			<td class="item10">收/支</td>
+			<td class="item10">金额(元)</td>
+			<td class="item30">支付方式</td>
+			<td class="item10">状态</td>
+		</tr>
+	</thead>
+	<tbody>
+		<#if cashtradelist?exists><#list cashtradelist as cash>
+		<tr class="even">
+			<td><span></span>${cash.businessNo?default('')}<span></span></td>
+			<td><em>${cash.createDate?default('')}</em> <em></em></td>
+			<td>
+			${cash.businessName?default('')}|${cash.businessRemark?default('')}</td>
+			<td><strong class="obvious">${cash.incomeAndExpenses?default('')}</strong></td>
+			<td>${cash.amount?default('')}</td>
+			<td>${cash.paymentType?default('')}
+			<div>${cash.bankCardNum?default('')}</div>
+			</td>
+			<td><#if cash.status=='1'>处理中</#if><#if
+			cash.status=='2'>处理成功</#if><#if cash.status=='3'>处理失败</#if></td>
+		</tr>
+		</#list></#if>
+		<tr>
+			<td colspan="7"><strong class="fr font-prompt">${pu.startIndex+1}-${pu.startIndex+pu.pageSize}条，共${pu.totalCount}条</strong>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+<div class="con total"><span class="item20"> <select
+	id="queryPro" name="queryPro" onchange="">
+	<option value="queryProAll">全部明细</option>
+	<option value="weekPro">本周</option>
+	<option value="monthPro">本月</option>
+	<option value="daypro">今日</option>
+</select> </span> <span class="item30">总收入(<strong class="obvious"></strong>)：<strong
+	class="obvious"></strong>元</span> <span class="item30">总支出(<strong
+	class="obvious">${totalamount?default('')}</strong>):<strong
+	class="obvious"></strong>元</span> <span class="item20">盈余：<strong
+	class="obvious"></strong>元</span></div>
+
+
+</div>
+</div>
+</form>
+<@sp.pagination pu=pu/> <!-- query form end--></div>
+<!-- main end --></div>
+<!-- content end --></div>
+<!-- outer end -->
+<#include "/common/include/footer.html">
+</body>
+</html>

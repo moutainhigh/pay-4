@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="deal">
+	<typeAlias alias="deal" type="com.pay.pe.model.Deal"/>
+    <resultMap id="deal" class="deal">
+        <result column="PAYEE_SERVICE_LEVEL" property="payeeServiceLevel" jdbcType="DECIMAL"/>
+        <result column="EXCHANGE_RATE" property="exchangeRate" jdbcType="DECIMAL"/>
+        <result column="PAYEE_ACCT_CODE" property="payeeAcctCode" jdbcType="DECIMAL"/>
+        <result column="PAYER_CURRENCY_CODE" property="payerCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="DEAL_CODE" property="dealCode" jdbcType="DECIMAL"/>
+        <result column="HAS_CACULATED_PRICE" property="hasCaculatedPrice" jdbcType="DECIMAL"/>
+        <result column="PAYEE_ORG_CODE" property="payeeOrgCode" jdbcType="DECIMAL"/>
+        <result column="ASYN_ACCOUNTING" property="asynAccounting" jdbcType="DECIMAL"/>
+        <result column="PAYEE_FEE" property="payeeFee" jdbcType="DECIMAL"/>
+        <result column="SUBMIT_ACCT_CODE" property="submitAcctCode" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_SERVICE_PKG_CODE" property="paymentServicePkgCode" jdbcType="VARCHAR"/>
+        <result column="ORDER_SEQ_ID" property="orderSeqId" jdbcType="DECIMAL"/>
+        <result column="PAYEE_ORG_TYPE" property="payeeOrgType" jdbcType="DECIMAL"/>
+        <result column="PAYER_ORG_TYPE" property="payerOrgType" jdbcType="DECIMAL"/>
+        <result column="PAYER_ACCT_CODE" property="payerAcctCode" jdbcType="DECIMAL"/>
+        <result column="PAYER_ACCT_TYPE" property="payerAcctType" jdbcType="DECIMAL"/>
+        <result column="PAYER_FEE" property="payerFee" jdbcType="DECIMAL"/>
+        <result column="SYNC_TOKEN" property="syncToken" jdbcType="DECIMAL"/>
+        <result column="ORDER_TIME" property="orderTime" jdbcType="TIMESTAMP"/>
+        <result column="DEAL_ID" property="dealId" jdbcType="VARCHAR"/>
+        <result column="TRANSACTION_DATE" property="transactionDate" jdbcType="TIMESTAMP"/>
+        <result column="ORG_ORDER_ID" property="orgOrderId" jdbcType="VARCHAR"/>
+        <result column="PAYER_ORG_CODE" property="payerOrgCode" jdbcType="DECIMAL"/>
+        <result column="PAYEE_CURRENCY_CODE" property="payeeCurrencyCode" jdbcType="VARCHAR"/>
+        <result column="DEAL_BEGIN_DATE" property="dealBeginDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYEE_ACCT_TYPE" property="payeeAcctType" jdbcType="DECIMAL"/>
+        <result column="DEAL_AMOUNT" property="dealAmount" jdbcType="DECIMAL"/>
+        <result column="PAYER_SERVICE_LEVEL" property="payerServiceLevel" jdbcType="DECIMAL"/>
+        <result column="DEAL_TYPE" property="dealType" jdbcType="DECIMAL"/>
+        <result column="DEAL_STATUS" property="dealStatus" jdbcType="DECIMAL"/>
+        <result column="DEAL_END_DATE" property="dealEndDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYER_PRICE_STRATEGY_CODE" property="payerPriceStrategy" jdbcType="DECIMAL"/>
+        <result column="PAYEE_PRICE_STRATEGY_CODE" property="payeePriceStrategy" jdbcType="DECIMAL"/>
+        <result column="VOUCHER_CODE" property="voucherCode" jdbcType="DECIMAL"/>
+        <!--  
+        <result column="HAS_CACULATED_PAYEE_PRICE" property="hasCaculatedPayeePrice" jdbcType="DECIMAL"/>
+        <result column="HAS_CACULATED_PAYER_PRICE" property="hasCaculatedPayerPrice" jdbcType="DECIMAL"/>
+		-->
+    </resultMap>
+
+    <insert id="create" parameterClass="deal">
+    	<selectKey  resultClass="java.lang.String" keyProperty="dealId">
+			select SEQ_DEAL_ID.nextval as dealId from DUAL 
+		</selectKey>
+        INSERT INTO DEAL(
+			PAYEE_SERVICE_LEVEL,EXCHANGE_RATE,PAYEE_ACCT_CODE,PAYER_CURRENCY_CODE,DEAL_CODE,
+			HAS_CACULATED_PRICE,PAYEE_ORG_CODE,ASYN_ACCOUNTING,PAYEE_FEE,SUBMIT_ACCT_CODE,
+			PAYMENT_SERVICE_PKG_CODE,ORDER_SEQ_ID,PAYEE_ORG_TYPE,PAYER_ORG_TYPE,PAYER_ACCT_CODE,
+			PAYER_ACCT_TYPE,PAYER_FEE,SYNC_TOKEN,ORDER_TIME,DEAL_ID,
+			TRANSACTION_DATE,ORG_ORDER_ID,PAYER_ORG_CODE,PAYEE_CURRENCY_CODE,DEAL_BEGIN_DATE,
+			PAYEE_ACCT_TYPE,DEAL_AMOUNT,PAYER_SERVICE_LEVEL,DEAL_TYPE,DEAL_STATUS,
+			DEAL_END_DATE,VOUCHER_CODE,PAYER_PRICE_STRATEGY_CODE,PAYEE_PRICE_STRATEGY_CODE,
+			HAS_CACULATED_PAYEE_PRICE,HAS_CACULATED_PAYER_PRICE
+        )
+        VALUES(
+            #payeeServiceLevel#,#exchangeRate#,#payeeAcctCode#,#payerCurrencyCode#,#dealCode#,
+			#hasCaculatedPrice#,#payeeOrgCode#,#asynAccounting#,#payeeFee#,#submitAcctCode#,
+			#paymentServicePkgCode#,#orderSeqId#,#payeeOrgType#,#payerOrgType#,#payerAcctCode#,
+			#payerAcctType#,#payerFee#,#syncToken#,#orderTime#,#dealId#,
+			#transactionDate#,#orgOrderId#,#payerOrgCode#,#payeeCurrencyCode#,#dealBeginDate#,
+			#payeeAcctType#,#dealAmount#,#payerServiceLevel#,#dealType#,#dealStatus#,
+			#dealEndDate#,#voucherCode#,#payerPriceStrategy#,#payeePriceStrategy#,
+			#hasCaculatedPayeePrice#,#hasCaculatedPayerPrice#
+		)
+    </insert>
+
+    <update id="update" parameterClass="deal">
+        UPDATE DEAL
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="payeeServiceLevel">
+            PAYEE_SERVICE_LEVEL = #payeeServiceLevel#
+        </isNotNull>
+        <isNotNull prepend="," property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payerCurrencyCode">
+            PAYER_CURRENCY_CODE = #payerCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="dealCode">
+            DEAL_CODE = #dealCode#
+        </isNotNull>
+        <isNotNull prepend="," property="hasCaculatedPrice">
+            HAS_CACULATED_PRICE = #hasCaculatedPrice#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="asynAccounting">
+            ASYN_ACCOUNTING = #asynAccounting#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeFee">
+            PAYEE_FEE = #payeeFee#
+        </isNotNull>
+        <isNotNull prepend="," property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="orderSeqId">
+            ORDER_SEQ_ID = #orderSeqId#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType#
+        </isNotNull>
+        <isNotNull prepend="," property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType#
+        </isNotNull>
+        <isNotNull prepend="," property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType#
+        </isNotNull>
+        <isNotNull prepend="," property="payerFee">
+            PAYER_FEE = #payerFee#
+        </isNotNull>
+        <isNotNull prepend="," property="syncToken">
+            SYNC_TOKEN = #syncToken#
+        </isNotNull>
+        <isNotNull prepend="," property="orderTime">
+            ORDER_TIME = #orderTime#
+        </isNotNull>
+        <isNotNull prepend="," property="transactionDate">
+            TRANSACTION_DATE = #transactionDate#
+        </isNotNull>
+        <isNotNull prepend="," property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId#
+        </isNotNull>
+        <isNotNull prepend="," property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeCurrencyCode">
+            PAYEE_CURRENCY_CODE = #payeeCurrencyCode#
+        </isNotNull>
+        <isNotNull prepend="," property="dealBeginDate">
+            DEAL_BEGIN_DATE = #dealBeginDate#
+        </isNotNull>
+        <isNotNull prepend="," property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType#
+        </isNotNull>
+        <isNotNull prepend="," property="dealAmount">
+            DEAL_AMOUNT = #dealAmount#
+        </isNotNull>
+        <isNotNull prepend="," property="payerServiceLevel">
+            PAYER_SERVICE_LEVEL = #payerServiceLevel#
+        </isNotNull>
+        <isNotNull prepend="," property="dealType">
+            DEAL_TYPE = #dealType#
+        </isNotNull>
+        <isNotNull prepend="," property="dealStatus">
+            DEAL_STATUS = #dealStatus#
+        </isNotNull>
+        <isNotNull prepend="," property="dealEndDate">
+            DEAL_END_DATE = #dealEndDate#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM DEAL        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="deal">
+        DELETE FROM DEAL        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="payeeServiceLevel">
+            PAYEE_SERVICE_LEVEL = #payeeServiceLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerCurrencyCode">
+            PAYER_CURRENCY_CODE = #payerCurrencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="hasCaculatedPrice">
+            HAS_CACULATED_PRICE = #hasCaculatedPrice# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="asynAccounting">
+            ASYN_ACCOUNTING = #asynAccounting# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderSeqId">
+            ORDER_SEQ_ID = #orderSeqId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="syncToken">
+            SYNC_TOKEN = #syncToken# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderTime">
+            ORDER_TIME = #orderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transactionDate">
+            TRANSACTION_DATE = #transactionDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeCurrencyCode">
+            PAYEE_CURRENCY_CODE = #payeeCurrencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealBeginDate">
+            DEAL_BEGIN_DATE = #dealBeginDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealAmount">
+            DEAL_AMOUNT = #dealAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerServiceLevel">
+            PAYER_SERVICE_LEVEL = #payerServiceLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealType">
+            DEAL_TYPE = #dealType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealStatus">
+            DEAL_STATUS = #dealStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealEndDate">
+            DEAL_END_DATE = #dealEndDate# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="deal"
+        parameterClass="java.lang.String">
+        SELECT 
+			PAYEE_SERVICE_LEVEL,EXCHANGE_RATE,PAYEE_ACCT_CODE,PAYER_CURRENCY_CODE,DEAL_CODE,
+			HAS_CACULATED_PRICE,PAYEE_ORG_CODE,ASYN_ACCOUNTING,PAYEE_FEE,SUBMIT_ACCT_CODE,
+			PAYMENT_SERVICE_PKG_CODE,ORDER_SEQ_ID,PAYEE_ORG_TYPE,PAYER_ORG_TYPE,PAYER_ACCT_CODE,
+			PAYER_ACCT_TYPE,PAYER_FEE,SYNC_TOKEN,ORDER_TIME,DEAL_ID,
+			TRANSACTION_DATE,ORG_ORDER_ID,PAYER_ORG_CODE,PAYEE_CURRENCY_CODE,DEAL_BEGIN_DATE,
+			PAYEE_ACCT_TYPE,DEAL_AMOUNT,PAYER_SERVICE_LEVEL,DEAL_TYPE,DEAL_STATUS,
+			DEAL_END_DATE,VOUCHER_CODE,PAYER_PRICE_STRATEGY_CODE,PAYEE_PRICE_STRATEGY_CODE
+        FROM DEAL
+        WHERE 
+            DEAL_ID = #dealId# 
+    </select>
+    
+     <select id="findByVoucherCode" resultMap="deal">
+        SELECT 
+			PAYEE_SERVICE_LEVEL,EXCHANGE_RATE,PAYEE_ACCT_CODE,PAYER_CURRENCY_CODE,DEAL_CODE,
+			HAS_CACULATED_PRICE,PAYEE_ORG_CODE,ASYN_ACCOUNTING,PAYEE_FEE,SUBMIT_ACCT_CODE,
+			PAYMENT_SERVICE_PKG_CODE,ORDER_SEQ_ID,PAYEE_ORG_TYPE,PAYER_ORG_TYPE,PAYER_ACCT_CODE,
+			PAYER_ACCT_TYPE,PAYER_FEE,SYNC_TOKEN,ORDER_TIME,DEAL_ID,
+			TRANSACTION_DATE,ORG_ORDER_ID,PAYER_ORG_CODE,PAYEE_CURRENCY_CODE,DEAL_BEGIN_DATE,
+			PAYEE_ACCT_TYPE,DEAL_AMOUNT,PAYER_SERVICE_LEVEL,DEAL_TYPE,DEAL_STATUS,
+			DEAL_END_DATE,VOUCHER_CODE,PAYER_PRICE_STRATEGY_CODE,PAYEE_PRICE_STRATEGY_CODE
+        FROM DEAL WHERE VOUCHER_CODE = #voucherCode#
+    </select>
+    
+    
+    
+    <select id="findBySelective" resultMap="deal">
+        SELECT 
+			PAYEE_SERVICE_LEVEL,EXCHANGE_RATE,PAYEE_ACCT_CODE,PAYER_CURRENCY_CODE,DEAL_CODE,
+			HAS_CACULATED_PRICE,PAYEE_ORG_CODE,ASYN_ACCOUNTING,PAYEE_FEE,SUBMIT_ACCT_CODE,
+			PAYMENT_SERVICE_PKG_CODE,ORDER_SEQ_ID,PAYEE_ORG_TYPE,PAYER_ORG_TYPE,PAYER_ACCT_CODE,
+			PAYER_ACCT_TYPE,PAYER_FEE,SYNC_TOKEN,ORDER_TIME,DEAL_ID,
+			TRANSACTION_DATE,ORG_ORDER_ID,PAYER_ORG_CODE,PAYEE_CURRENCY_CODE,DEAL_BEGIN_DATE,
+			PAYEE_ACCT_TYPE,DEAL_AMOUNT,PAYER_SERVICE_LEVEL,DEAL_TYPE,DEAL_STATUS,
+			DEAL_END_DATE,PAYER_PRICE_STRATEGY_CODE,PAYEE_PRICE_STRATEGY_CODE,VOUCHER_CODE
+        FROM DEAL
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="payeeServiceLevel">
+            PAYEE_SERVICE_LEVEL = #payeeServiceLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerCurrencyCode">
+            PAYER_CURRENCY_CODE = #payerCurrencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="hasCaculatedPrice">
+            HAS_CACULATED_PRICE = #hasCaculatedPrice# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="asynAccounting">
+            ASYN_ACCOUNTING = #asynAccounting# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderSeqId">
+            ORDER_SEQ_ID = #orderSeqId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="syncToken">
+            SYNC_TOKEN = #syncToken# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderTime">
+            ORDER_TIME = #orderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transactionDate">
+            TRANSACTION_DATE = #transactionDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeCurrencyCode">
+            PAYEE_CURRENCY_CODE = #payeeCurrencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealBeginDate">
+            DEAL_BEGIN_DATE = #dealBeginDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealAmount">
+            DEAL_AMOUNT = #dealAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerServiceLevel">
+            PAYER_SERVICE_LEVEL = #payerServiceLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealType">
+            DEAL_TYPE = #dealType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealStatus">
+            DEAL_STATUS = #dealStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealEndDate">
+            DEAL_END_DATE = #dealEndDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="voucherCode">
+            VOUCHER_CODE = #voucherCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM DEAL
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="payeeServiceLevel">
+            PAYEE_SERVICE_LEVEL = #payeeServiceLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="exchangeRate">
+            EXCHANGE_RATE = #exchangeRate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctCode">
+            PAYEE_ACCT_CODE = #payeeAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerCurrencyCode">
+            PAYER_CURRENCY_CODE = #payerCurrencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealCode">
+            DEAL_CODE = #dealCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="hasCaculatedPrice">
+            HAS_CACULATED_PRICE = #hasCaculatedPrice# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgCode">
+            PAYEE_ORG_CODE = #payeeOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="asynAccounting">
+            ASYN_ACCOUNTING = #asynAccounting# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="submitAcctCode">
+            SUBMIT_ACCT_CODE = #submitAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServicePkgCode">
+            PAYMENT_SERVICE_PKG_CODE = #paymentServicePkgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderSeqId">
+            ORDER_SEQ_ID = #orderSeqId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeOrgType">
+            PAYEE_ORG_TYPE = #payeeOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgType">
+            PAYER_ORG_TYPE = #payerOrgType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctCode">
+            PAYER_ACCT_CODE = #payerAcctCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerAcctType">
+            PAYER_ACCT_TYPE = #payerAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="syncToken">
+            SYNC_TOKEN = #syncToken# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orderTime">
+            ORDER_TIME = #orderTime# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealId">
+            DEAL_ID = #dealId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="transactionDate">
+            TRANSACTION_DATE = #transactionDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgOrderId">
+            ORG_ORDER_ID = #orgOrderId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerOrgCode">
+            PAYER_ORG_CODE = #payerOrgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeCurrencyCode">
+            PAYEE_CURRENCY_CODE = #payeeCurrencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealBeginDate">
+            DEAL_BEGIN_DATE = #dealBeginDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeAcctType">
+            PAYEE_ACCT_TYPE = #payeeAcctType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealAmount">
+            DEAL_AMOUNT = #dealAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerServiceLevel">
+            PAYER_SERVICE_LEVEL = #payerServiceLevel# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealType">
+            DEAL_TYPE = #dealType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealStatus">
+            DEAL_STATUS = #dealStatus# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="dealEndDate">
+            DEAL_END_DATE = #dealEndDate# 
+        </isNotNull>
+         <isNotNull prepend="AND" property="voucherCode">
+            VOUCHER_CODE = #voucherCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

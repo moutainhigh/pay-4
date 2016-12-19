@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="pe-cumulated-flow">
+    <typeAlias alias="cumulatedFlowDto" type="com.pay.pricingstrategy.dto.CumulatedFlowDto"/>
+
+    <sql id="SELECT_CUMMULATED_FLOW">
+		select f.id,
+		       f.order_type orderType,
+		       f.deal_code dealCode,
+		       f.acct_code acctCode,
+		       f.month,
+		       f.type,
+		       f.total_amount totalAmount,
+		       f.payment_service_code paymentServiceCode
+		from  
+		       cumulated_flow f
+		    where 1=1
+    </sql>
+    
+    <sql id="CUMMULATED_FLOW_CONDITION">
+  	    <isNotNull prepend="AND" property="acctCode">
+            f.acct_code=#acctCode#
+        </isNotNull>
+        <isNotNull prepend="AND" property="month">
+            f.month=#month#
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentServiceCode">
+            f.payment_service_code=#paymentServiceCode#
+        </isNotNull>
+ 	</sql>
+    
+  	<select id="selectCumulatedFlow" parameterClass="java.util.Map" resultClass="cumulatedFlowDto">
+		<include refid="SELECT_CUMMULATED_FLOW"/>
+		<include refid="CUMMULATED_FLOW_CONDITION"/>
+  	</select>
+	
+</sqlMap>

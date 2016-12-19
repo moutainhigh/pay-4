@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	
+	<!-- 抽象task -->
+	<bean id="mdbtask-abstractChargeupTask" class="com.pay.ma.task.impl.AbstractChargeupTask"
+		abstract="true">
+		<property name="balanceDealService" ref="mdbtask-balanceDealService" />
+		<property name="balanceEntryService" ref="mdbtask-balanceEntryService" />
+	</bean>
+	<!-- 补账task 配置 -->
+	<bean id="mdbtask-repairChargeupTask" class="com.pay.ma.task.impl.RepairChargeupTaskImpl"
+		parent="mdbtask-abstractChargeupTask">
+		<property name="peServiceFacade" ref="mdbtask-peServiceFacade" />
+	</bean>
+	<bean id="mdbtask-chargeup-jobDetailFactory"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="mdbtask-repairChargeupTask" />
+		<property name="targetMethod" value="executeTask" />
+	</bean>
+	<bean id="mdbtask-chargeup-cronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="mdbtask-chargeup-jobDetailFactory" />
+		<property name="cronExpression">
+			<value>${mdbTask.chargeup}</value>
+		</property>
+
+	</bean>
+	<!-- 记账补mq配置 -->
+	<bean id="mdbtask-chargeupTaskSendMsg" class="com.pay.ma.task.impl.ChargeupTaskSendMsgImpl"
+		parent="mdbtask-abstractChargeupTask">
+		<property name="jmsSender" ref="jmsSender" />
+
+	</bean>
+	<bean id="mdbtask-chargeupSendMsg-jobDetailFactory"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="mdbtask-chargeupTaskSendMsg" />
+		<property name="targetMethod" value="executeTask" />
+	</bean>
+	<bean id="mdbtask-chargeupSendMsg-cronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="mdbtask-chargeupSendMsg-jobDetailFactory" />
+		<property name="cronExpression">
+			<value>${mdbTask.sendMsgMq}</value>
+		</property>
+	</bean>
+
+	<!-- 任务调度 -->
+	<bean id="mdbtask-schedulerFactoryBean"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="mdbtask-chargeup-cronTriggerBean" />
+				<ref bean="mdbtask-chargeupSendMsg-cronTriggerBean" />
+			</list>
+		</property>
+	</bean>
+
+</beans>

@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${realName_cert_card}${title}</title>
+<meta name="Keywords" content="${realName_cert_card_Keywords}" />
+<meta name="Description" content="${realName_cert_card_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/style.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+
+
+<script>
+
+function isBankNameRight(sId,obj){
+	  var bkText=$("#bankCode").find("option:selected").text(); 
+	  if($(obj).val().indexOf(bkText)<0){
+	      return "开户行名称不正确";
+	    }
+	  return true;
+	}
+
+$(function(){
+	$("#randCode").val("");
+	$.formValidator.initConfig({formid:"bankForm",onerror:function(msg,obj){
+		//alert(msg); 
+		}});
+
+    $("#bankIdConfirm").formValidator({tipid:"bankIdConfirmTip",onshow:" ",onfocus:"两次填写的银行卡号必须一致",oncorrect:" "})
+    .inputValidator({min:11,max:19,empty:false,onerror:"银行卡号位数必须11-19位,请确认"})
+    .compareValidator({desid:"bankId",operateor:"=",onerror:"两次银行卡号不一致,请确认"});  
+	
+    $("#bankName").formValidator({tipid:"bankNameTip",onshow:"例如：中国建设银行上海支行。",onfocus:"开户行名称不能为空",oncorrect:" "})
+	.inputValidator({min:2,empty:false,onerror:"开户行名称不能为空,请确认"})
+	.regexValidator({regexp:"chinese",datatype:"enum",onerror:"请输入正确的开户行名称"})
+	.functionValidator({fun:isBankNameRight});
+
+    $("#bankId").formValidator({tipid:"bankIdTip",onshow:"请填入正确的银行卡号",onfocus:"银行卡号不能为空",oncorrect:" "})
+	.inputValidator({min:11,max:19,empty:false,onerror:"银行卡号位数必须11-19位,请确认"})
+	.regexValidator({regexp:"intege",datatype:"enum",onerror:"银行卡号只能输入整数，请重新输入"});
+
+	$("#province").formValidator({tipid:"provinceTip",onshow:" ",onfocus:"请选择银行所在省/直辖市。",oncorrect:" "})
+	.inputValidator({min:1,empty:false,onerror:"请选择银行所在省/直辖市"})
+	.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"包含非法字符，请重新输入"});
+
+	$("#city").formValidator({tipid:"cityTip",onshow:" ",onfocus:"请选择银行所在地区。",oncorrect:" "})
+	.inputValidator({min:1,empty:false,onerror:"请选择银行所在地区。"})
+	.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"包含非法字符，请重新输入"});
+
+	
+	
+
+
+	var province = $("#pv").attr("value");
+	  var city = $("#cy").attr("value");
+	  $("#province").load("${rc.contextPath}/province.htm?defaultProvince="+province);
+	  if(province!='' && city!=''){
+	    $("#city").load("${rc.contextPath}/province.htm?method=city&provinceId="+province+"&defaultCity="+city);
+	  }
+
+	  $("#province").change(function(){
+	    $("#city").load("${rc.contextPath}/province.htm?method=city&provinceId="+$(this).val()+"&defaultCity="+city);
+	  });
+	//$("#bankCode").formValidator({tipid:"bankCodeTip",onshow:" ",onfocus:"请选择需要绑定的银行。",oncorrect:" "})
+	//.inputValidator({min:1,empty:false,onerror:"请选择需要绑定的银行。"})
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head channel=1 />
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+
+		<!--自适应box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title font14 pftt"><strong>银行卡鉴权身份认证</strong></h3>
+				</div>
+				<div class="content">
+					<div class="payTo">
+						<div class="step">
+                        	<ol class="step-2">
+                            	<li class="li-1 <#if vf?default('')!="bank">last</#if>"><span><i>1</i>填写个人信息</span></li>
+                            	<#if vf?default('')=="bank">
+                            		<li class="li-2"><i>2</i>填写银行卡信息</li>
+									<li class="li-3"><i>3</i>确认信息</li>
+									<li class="li-4"><span><i>4</i>认证结果</span></li>
+                            	<#else>
+									<li class="li-2 last"><i>2</i>确认信息</li>
+									<li class="li-3 last"><span><i>3</i>认证结果</span></li>
+								</#if>
+                        	</ol>
+              			</div>
+						
+						<form class="mod_form dep_form add_count" method="post" id="bankForm" action="${rc.contextPath}/app/cidverifyConfirmInfo.htm?method=confirmInfo">
+							<input type="hidden" id="vf" name="vf" value="${vf?default('')}"/>
+							<input type="hidden" id="vn" name="vn" value="${vn?default('')}"/>
+							<input type="hidden" id="inname" name="inname" value="${inname?default('')}"/>
+							<input type="hidden" id="idcno" name="idcno" value="${idcno?default('')}"/>
+							<input type="hidden" id="ln" name="ln" value="${ln?default('')}"/>
+							  <input type="hidden" id="pv" value="">
+                  <input type="hidden" id="cy" value="">
+							<ul class="form_list lh space_flist" style="margin-top:10px;">
+								<li>
+									<label class="form_side">开户人姓名：</label>
+									<b>${inname?default('')}</b>
+									<span>必须使用以<font color="red"> “${inname?default('')}” </font>为开户名的银行卡进行认证</span>
+								</li>
+								<li>
+									<label class="form_side"><span class="pfstar">*</span>开户银行：</label>
+									<select id="bankCode" name="bankCode">
+									
+									<#if bankList?exists>
+										<#list bankList as list>									
+											<option value="${list.bankId?default(0)}" checked="checked">${list.bankName?default('')}</option>
+										</#list>
+									</#if>
+									</select>
+									<span id="bankCodeTip"></span>
+								</li>
+								<li>
+									<label class="form_side"><span class="red pfstar">*</span>开户行所在地区：</label>
+									<select name="province" id="province" class="selType2" >
+										<option value="" selected>---请选择省/直辖市---</option>
+										<#list provinceList as province>
+											<option value="${province.provincecode}">${province.provincename}</option>
+										</#list>
+									</select>
+									
+								
+									<select name="city" id="city" class="selType2">										
+											<option value="" selected>---请选择城市---</option>					
+									</select>
+									<span id="provinceTip"></span>																								
+								<li>
+									<label class="form_side"><span class="red pfstar">*</span>开户行名称：</label>
+									<input type="text" id="bankName" class="inp_normal" name="bankName" size="30"/>
+									<span id="bankNameTip"></span>
+								</li>
+				
+								<li>
+									<label class="form_side"><span class="red pfstar">*</span>银行卡号：</label>
+									<input type="text" class="inp_normal" id="bankId" name="bankId" size="30" maxLength="20" 
+									onpaste="return false" oncontextmenu="return false" oncopy="return false" oncut="return false"/>
+									<span id="bankIdTip"></span>    
+									</li>
+									<li>
+									<label class="form_side"><span class="red pfstar">*</span>重复银行卡号：</label>
+									<input type="text" class="inp_normal" id="bankIdConfirm" name="bankIdConfirm" size="30"  maxLength="20" 
+									onpaste="return false" oncontextmenu="return false" oncopy="return false" oncut="return false"/>
+									<span id="bankIdConfirmTip"></span>									
+									<p class="btn_align"><span class="btn_yel botton_yel btn_pf">
+										<button id="sub_button" type="submit">下一步</button>
+										</span>
+										<a href="javascript:history.go(-1);" class="red">上一步</a> 
+									</p>
+								</li>								
+								
+							</ul>
+						</form>
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

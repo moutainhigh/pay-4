@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 提现SQLMAp配置 -->
+<sqlMap namespace="fo-rc">
+
+	<typeAlias alias="withdrawImportRecord" type="com.pay.fundout.withdraw.model.result.WithdrawImportRecord"/>
+	<typeAlias alias="withdrawImportFile" type="com.pay.fundout.withdraw.model.result.WithdrawImportFile"/>
+	<typeAlias alias="withdrawReconcileResult" type="com.pay.fundout.withdraw.model.result.WithdrawReconcileResult"/>
+	<typeAlias alias="withdrawRcResultSummary" type="com.pay.fundout.withdraw.model.result.WithdrawRcResultSummary"/>
+
+	<!-- 提现对账存储过程 -->
+	<parameterMap id="fundout-withdraw-procwdrrctlparamete" class="java.util.HashMap" >
+		<parameter property="in_g_file_ky" 		    mode="IN"  jdbcType="NUMBER"    javaType="java.lang.Long"	/>
+		<parameter property="in_file_ky" 		    mode="IN"  jdbcType="NUMBER"    javaType="java.lang.Long"	/>
+		<parameter property="in_batch_num" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="in_bank_code" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+		<parameter property="in_category" 		    mode="IN"  jdbcType="VARCHAR"    javaType="java.lang.Long"	/>
+		<parameter property="file_busi_type" 		mode="IN"  jdbcType="NUMBER"    javaType="java.lang.Long"	/>
+		<parameter property="out_rss_val"  		    mode="OUT" jdbcType="VARCHAR"    javaType="java.lang.String"	/>
+	</parameterMap>
+	<procedure id="fundout-withdraw-procwdrrctl" parameterMap="fundout-withdraw-procwdrrctlparamete" >
+		{call PACKAGE_WD_RC_CTL.PROC_WD_RC_CTL(?,?,?,?,?,?,?)}
+	</procedure>
+	
+	<!-- 插入明细表 -->
+	 <insert id="fundout-withdraw-createImportRecord" parameterClass="withdrawImportRecord">
+		<selectKey resultClass="Long" keyProperty="importKy">
+			SELECT SEQ_WD_IMPORT_RECORD_IMPORTKY.NEXTVAL FROM DUAL
+		</selectKey>
+        INSERT INTO WITHDRAW_IMPORT_RECORD(
+        	FILE_KY				, 
+        	BATCH_NUM			, 
+        	BANK_CODE			, 
+        	BANK_SEQ			, 
+        	BANK_AMOUNT			, 
+        	BANK_STATUS			, 
+        	BUSI_TIME			, 
+        	STATUS				, 
+        	IMPORT_KY			, 
+        	ORDER_SEQ			, 
+        	BANK_ACCT_NAME		, 
+        	BANK_ACCT			, 
+        	BANK_BRANCH			, 
+        	BANK_REMARK			, 
+        	BANK_FAILURE_REASON)
+		VALUES(
+			#fileKy#			,
+			#batchNum#			,
+			#bankCode#			,
+			#bankSeq#			,
+			#bankAmount#		,
+			#bankStatus#		,
+			#busiTime#			,
+			#status#			,
+			#importKy#			,
+			#orderSeq#			,
+			#bankAcctName#		,
+			#bankAcct#			,
+			#bankBranch#		,
+			#bankRemark#		,
+			#bankFailureReason#		
+		)
+    </insert>
+    
+	<!-- 插入文件信息表 -->
+	 <insert id="fundout-withdraw-createImportFile" parameterClass="withdrawImportFile">
+		<selectKey resultClass="Long" keyProperty="fileKy">
+			SELECT SEQ_WD_IMPORT_FILE_FILEKY.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO WITHDRAW_IMPORT_FILE
+		  (FILE_KY, BATCH_NUM, BANK_CODE, FILE_NAME, UPLOAD_TIME, ERROR_TIPS, OPERATORS,G_FILE_KY,CATEGORY)
+		VALUES
+		  (#fileKy#, #batchNum#, #bankCode#, #fileName#,SYSDATE,#errorTips#,#operators#,#gFileKy#,#category#)
+    </insert>
+    
+    <!-- 更新文件信息表 -->
+	  <update id="fundout-withdraw-update-importFile">
+     	UPDATE WITHDRAW_IMPORT_FILE 
+     		SET UPLOAD_TIME = SYSDATE
+   		<isNotEmpty property="status" prepend=",">
+   			STATUS = #status#
+   		</isNotEmpty>
+   		<isNotEmpty property="errorTips" prepend=",">
+   			ERROR_TIPS = #errorTips#
+   		</isNotEmpty>
+     	WHERE FILE_KY = #fileKy#
+     </update>   
+     
+     <update id="fundout-withdraw-update-reconcile-result" parameterClass="withdrawReconcileResult">
+     	UPDATE WITHDRAW_RECONCILE_RESULT
+			SET 
+				BUSI_FLAG = #busiFlag#,
+				STATUS = #status#
+		WHERE RESULT_KY = #resultKy#
+     </update>
+     
+     <!-- 统计导入文件的比数和金额 -->
+     <select id="fundout-withdraw-query-summary" parameterClass="java.util.Map" resultClass="withdrawRcResultSummary">
+       SELECT 
+        BATCH_NUM     batchNum     ,
+        BANK_CODE     bankCode    ,
+        nvl(
+        	(select batch_rule_desc from fo.batch_rule_config a,fo.BATCH_INFO b where a.sequence_id = B.RULE_KY and b.batch_num = #batchNum#)
+            ,
+            (select batch_name from fo.batch_info where batch_num = #batchNum#)
+        ) ruleName,
+        COUNT( CASE WHEN LEFT_AMOUNT IS NOT NULL  THEN 1 ELSE NULL END)  allImportCount,       
+        SUM( CASE WHEN LEFT_AMOUNT IS NOT NULL THEN LEFT_AMOUNT ELSE 0 END) allImportAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 101 THEN 1 WHEN 201 THEN 1 ELSE NULL END) sMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 101 THEN RIGHT_AMOUNT WHEN 201 THEN RIGHT_AMOUNT ELSE 0 END) sMatchAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 102 THEN 1 ELSE NULL END) fMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 102 THEN RIGHT_AMOUNT ELSE 0 END) fMatchAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 103 THEN 1 ELSE NULL END) matchIngCount, 
+        SUM( CASE BUSI_FLAG WHEN 103 THEN RIGHT_AMOUNT ELSE 0 END) matchIngAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 104 THEN 1 WHEN 202 THEN 1 ELSE null END) notMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 104 THEN NVL(LEFT_AMOUNT,0)+NVL(RIGHT_AMOUNT,0) WHEN 202 THEN NVL(LEFT_AMOUNT,0)+NVL(RIGHT_AMOUNT,0) ELSE 0 END) notMatchAmount
+       FROM Withdraw_Reconcile_Result 
+ 				<dynamic prepend=" WHERE ">  
+			            <isNotEmpty property="batchNum" prepend="AND">
+            				BATCH_NUM = #batchNum#
+       					 </isNotEmpty>
+			            <isNotEmpty property="bankCode" prepend="AND">
+            				BANK_CODE = #bankCode#
+       					 </isNotEmpty>
+			            <isNotEmpty property="category" prepend="AND">
+            				CATEGORY = #category#
+       					 </isNotEmpty>
+       					 <isNotEmpty property="fileBusiType" prepend="AND">
+            				FILE_BUSI_TYPE = #fileBusiType#
+       					 </isNotEmpty>
+       			</dynamic>
+				GROUP BY  BATCH_NUM,BANK_CODE
+    </select>
+
+	<!-- 查看批次详情 -->
+	 <select id="fundout-withdraw-query-batch-detail-summary" parameterClass="java.util.Map" resultClass="withdrawRcResultSummary">
+       SELECT 
+        BATCH_NUM     batchNum     ,
+        (select nvl(batch_name,rule_Name) from batch_info where batch_num = #batchNum# )        ruleName    ,
+        COUNT( CASE WHEN LEFT_AMOUNT IS NOT NULL  THEN 1 ELSE NULL END)  allImportCount,       
+        SUM( CASE WHEN LEFT_AMOUNT IS NOT NULL THEN LEFT_AMOUNT ELSE 0 END) allImportAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 101 THEN 1 WHEN 201 THEN 1 ELSE NULL END) sMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 101 THEN RIGHT_AMOUNT WHEN 201 THEN RIGHT_AMOUNT ELSE 0 END) sMatchAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 102 THEN 1 ELSE NULL END) fMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 102 THEN RIGHT_AMOUNT ELSE 0 END) fMatchAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 103 THEN 1 ELSE NULL END) matchIngCount, 
+        SUM( CASE BUSI_FLAG WHEN 103 THEN RIGHT_AMOUNT ELSE 0 END) matchIngAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 104 THEN 1 WHEN 202 THEN 1 ELSE null END) notMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 104 THEN NVL(LEFT_AMOUNT,0)+NVL(RIGHT_AMOUNT,0) WHEN 202 THEN NVL(LEFT_AMOUNT,0)+NVL(RIGHT_AMOUNT,0) ELSE 0 END) notMatchAmount
+       FROM Withdraw_Reconcile_Result 
+			<dynamic prepend=" WHERE ">  
+	            <isNotEmpty property="batchNum" prepend="AND">
+          				BATCH_NUM = #batchNum#
+     					 </isNotEmpty>
+     			<isNotEmpty property="category" prepend="AND">
+            			CATEGORY = #category#
+       			</isNotEmpty>
+     		</dynamic>
+		GROUP BY  BATCH_NUM
+    </select>
+
+	
+	 <!-- 统计改批次汇总信息 -->
+     <select id="fundout-withdraw-query-batch-summary" parameterClass="java.util.Map" resultClass="withdrawRcResultSummary">
+       SELECT 
+        BATCH_NUM     batchNum     ,
+        (select nvl(batch_name,rule_Name) from batch_info where batch_num = #batchNum# )        ruleName    ,
+        COUNT( CASE WHEN LEFT_AMOUNT IS NOT NULL  THEN 1 ELSE NULL END)  allImportCount,       
+        SUM( CASE WHEN LEFT_AMOUNT IS NOT NULL THEN LEFT_AMOUNT ELSE 0 END) allImportAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 101 THEN 1 WHEN 201 THEN 1 ELSE NULL END) sMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 102 THEN RIGHT_AMOUNT WHEN 201 THEN RIGHT_AMOUNT ELSE 0 END) sMatchAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 102 THEN 1 ELSE NULL END) fMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 102 THEN RIGHT_AMOUNT ELSE 0 END) fMatchAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 103 THEN 1 ELSE NULL END) matchIngCount, 
+        SUM( CASE BUSI_FLAG WHEN 103 THEN RIGHT_AMOUNT ELSE 0 END) matchIngAmount, 
+        COUNT( CASE BUSI_FLAG WHEN 104 THEN 1 WHEN 202 THEN 1 ELSE null END) notMatchCount, 
+        SUM( CASE BUSI_FLAG WHEN 104 THEN NVL(LEFT_AMOUNT,0)+NVL(RIGHT_AMOUNT,0) WHEN 202 THEN NVL(LEFT_AMOUNT,0)+NVL(RIGHT_AMOUNT,0) ELSE 0 END) notMatchAmount
+      FROM Withdraw_Reconcile_Result 
+ 				<dynamic prepend=" WHERE ">  
+			            <isNotEmpty property="batchNum" prepend="AND">
+            				BATCH_NUM = #batchNum#
+       					 </isNotEmpty>
+       					 <isNotEmpty property="category" prepend="AND">
+		            		CATEGORY = #category#
+		       		   </isNotEmpty>
+       			</dynamic>
+				GROUP BY  BATCH_NUM
+   		 </select>
+
+
+	 <select id="fundout-withdraw-query-rcresulttoacc" parameterClass="java.util.Map" resultClass="withdrawReconcileResult">
+      SELECT RESULT_KY			resultKy		, 
+      		 FILE_KY			fileKy			, 
+      		 CUT_TIME			cutTime			, 
+      		 BATCH_NUM			batchNum		, 
+      		 BANK_CODE			bankCode		, 
+      		 LEFT_BANK_BRANCH	leftBankBranch	, 
+      		 LEFT_BACK_SEQ		leftBackSeq		, 
+      		 LEFT_BANK_SEQ		leftBankSeq		,
+      		 LEFT_AMOUNT		leftAmount		, 
+      		 LEFT_STATUS		leftStatus		, 
+      		 LEFT_TIME			leftTime		, 
+      		 LEFT_REMARK		leftRemark		, 
+      		 LEFT_FAILURE_REASON leftFailureReason	, 
+      		 RIGHT_BANK_BRANCH	rightBankBranch	, 
+      		 RIGHT_ORDER_SEQ	rightOrderSeq	, 
+      		 RIGHT_MEMBER_NAME	rightMemberName	, 
+      		 RIGHT_TIME			rightTime		, 
+      		 RIGHT_AMOUNT		rightAmount		, 
+      		 BUSI_FLAG			busiFlag		, 
+      		 STATUS				status			, 
+      		 RIGHT_BANK_ACCT	rightBankAcct	, 
+      		 LEFT_BANK_ACCT		leftBankAcct	,
+      		 LEFT_MEMBER_NAME	leftMemberName
+      FROM WITHDRAW_RECONCILE_RESULT
+      		 WHERE BATCH_NUM = #batchNum# AND BANK_CODE = #bankCode# AND CATEGORY = #category# and G_FILE_KY = #fileKy#
+      		   <isNotEmpty property="fileBusiType" prepend="AND">
+            		FILE_BUSI_TYPE = #fileBusiType#
+       		   </isNotEmpty>
+			       AND BUSI_FLAG in ($busiFlag$)
+      				AND  STATUS = 1
+      		
+    </select>
+
+
+     <select id="fundout-withdraw-query-rcresult" parameterClass="java.util.Map" resultClass="withdrawReconcileResult">
+      SELECT RESULT_KY			resultKy		, 
+      		 FILE_KY			fileKy			, 
+      		 CUT_TIME			cutTime			, 
+      		 BATCH_NUM			batchNum		, 
+      		 BANK_CODE			bankCode		, 
+      		 LEFT_BANK_BRANCH	leftBankBranch	, 
+      		 LEFT_BACK_SEQ		leftBackSeq		, 
+      		 LEFT_BANK_SEQ		leftBankSeq		,
+      		 LEFT_AMOUNT		leftAmount		, 
+      		 LEFT_STATUS		leftStatus		, 
+      		 LEFT_TIME			leftTime		, 
+      		 LEFT_REMARK		leftRemark		, 
+      		 LEFT_FAILURE_REASON leftFailureReason	, 
+      		 RIGHT_BANK_BRANCH	rightBankBranch	, 
+      		 RIGHT_ORDER_SEQ	rightOrderSeq	, 
+      		 RIGHT_MEMBER_NAME	rightMemberName	, 
+      		 RIGHT_TIME			rightTime		, 
+      		 RIGHT_AMOUNT		rightAmount		, 
+      		 BUSI_FLAG			busiFlag		, 
+      		 STATUS				status			, 
+      		 RIGHT_BANK_ACCT	rightBankAcct	, 
+      		 LEFT_BANK_ACCT		leftBankAcct	,
+      		 LEFT_MEMBER_NAME	leftMemberName
+      FROM WITHDRAW_RECONCILE_RESULT
+      		 WHERE BATCH_NUM = #batchNum# AND BANK_CODE = #bankCode# AND CATEGORY = #category# 
+		 	  <isNotEmpty property="fileBusiType" prepend="AND">
+            	FILE_BUSI_TYPE = #fileBusiType#
+       		   </isNotEmpty>
+			       AND BUSI_FLAG = #busiFlag#
+      		
+    </select>
+     <select id="fundout-withdraw-query-rcresult_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+      SELECT count(1)	
+      FROM WITHDRAW_RECONCILE_RESULT
+      		 WHERE BATCH_NUM = #batchNum# AND BANK_CODE = #bankCode# AND CATEGORY = #category#
+		   <isNotEmpty property="fileBusiType" prepend="AND">
+            				 FILE_BUSI_TYPE = #fileBusiType#
+       		   </isNotEmpty>
+      		 AND BUSI_FLAG = #busiFlag#
+    </select>
+    
+     
+    <!-- 删除 文件导入表信息 -->
+    <delete id="deleteImportedFile" parameterClass="java.util.Map">
+    	DELETE
+        FROM WITHDRAW_IMPORT_FILE
+        WHERE 
+             BATCH_NUM = #batchNum#
+             and G_FILE_KY = #fileKy#
+            AND BANK_CODE = #bankCode#
+            <isNotEmpty property="category" prepend="AND">
+            		CATEGORY = #category#
+       		</isNotEmpty>
+    </delete>
+    
+    <!-- 删除 文件导入详细表信息 -->
+    <delete id="deleteImportedRecord" parameterClass="java.util.Map">
+    	DELETE
+        FROM WITHDRAW_IMPORT_RECORD
+        WHERE 
+        file_ky in (
+                   select file_ky
+                FROM WITHDRAW_IMPORT_FILE
+                WHERE 
+                     BATCH_NUM = #batchNum#
+                     and G_FILE_KY = #fileKy#
+                    AND BANK_CODE = #bankCode#
+                    <isNotEmpty property="category" prepend="AND">
+		            		CATEGORY = #category#
+		       		</isNotEmpty>
+         )
+    </delete>
+    
+    <!-- 删除 对账结果信息 -->
+    <delete id="deleteImportedResult" parameterClass="java.util.Map">
+    	DELETE
+        FROM WITHDRAW_RECONCILE_RESULT
+        WHERE 
+             file_ky in (
+                   select file_ky
+                FROM WITHDRAW_IMPORT_FILE
+                WHERE 
+                     BATCH_NUM = #batchNum#
+                     and G_FILE_KY = #fileKy#
+                    AND BANK_CODE = #bankCode#
+                    <isNotEmpty property="category" prepend="AND">
+		            		CATEGORY = #category#
+		       		</isNotEmpty>
+         )
+    </delete>
+    
+</sqlMap>

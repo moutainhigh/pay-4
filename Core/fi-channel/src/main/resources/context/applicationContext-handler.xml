@@ -1,0 +1,498 @@
+﻿<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="hession-channelService" class="com.pay.channel.hessian.HessianService">
+		<property name="eventHandlerMap" ref="eventHandlerMap" />
+	</bean>
+
+	<bean id="eventHandlerMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<!-- 渠道查询 -->
+				<entry key="40101" value-ref="channelQueryHandler" />
+				<entry key="40138" value-ref="channelQueryLocaleHandler" />
+				<!-- 渠道支付 -->
+				<entry key="40102" value-ref="channelPayHandler" />
+				<!-- 渠道回调 -->
+				<entry key="40103" value-ref="channelBackHandler" />
+				<!-- 渠道查询结果 -->
+				<!-- 渠道退款 -->
+				<entry key="40104" value-ref="channelRefundHandler" />
+				<!--  渠道币种配置查询 -->
+				<entry key="40139" value-ref="channelCurrencyQueryHandler" />
+				<entry key="40140" value-ref="channelCurrencyDeleteHandler" />
+				<entry key="40142" value-ref="channelCurrencyAddHandler" />
+				<entry key="40141" value-ref="channelCurrencyUpdateHandler" />
+				<entry key="40153" value-ref="channelCurrencyReviewedQueryHandler" />
+				<entry key="40154" value-ref="channelCurrencyReviewedAddHandler" />
+				<entry key="40155" value-ref="channelCurrencyReviewedHandler" />
+				<!-- 支付渠道币种配置 -->
+				<entry key="40150" value-ref="channelItemRCurrencyAddHandler" />
+				<entry key="40151" value-ref="channelItemRCurrencyQueryHandler" />
+				<entry key="40152" value-ref="channelItemRCurrencyUpdateHandler" />
+				
+				
+				<entry key="40105" value-ref="paymentChannelCategoryAddHandler" />
+				<entry key="40106" value-ref="paymentChannelCategoryDelHandler" />
+				<entry key="40107" value-ref="paymentChannelCategoryQueryHandler" />
+				<entry key="40108" value-ref="paymentChannelCategoryUpdateHandler" />
+				<entry key="40109" value-ref="paymentChannelAddHandler" />
+				<entry key="40110" value-ref="paymentChannelDelHandler" />
+				<entry key="40111" value-ref="paymentChannelUpdateHandler" />
+				<entry key="40112" value-ref="paymentChannelQueryHandler" />
+				<entry key="40113" value-ref="paymentChannelItemAddHandler" />
+				<entry key="40114" value-ref="paymentChannelItemDelHandler" />
+				<entry key="40115" value-ref="paymentChannelItemUpdateHandler" />
+				<entry key="40116" value-ref="paymentChannelItemQueryHandler" />
+				<entry key="40117" value-ref="paymentChannelItemConfigBatchAddHandler" />
+				<entry key="40118" value-ref="paymentChannelItemConfigBatchDelHandler" />
+				<entry key="40119" value-ref="paymentChannelItemConfigQueryHandler" />
+				<entry key="40120" value-ref="paymentChannelItemDefaultBatchAddHandler" />
+				<entry key="40121" value-ref="paymentChannelItemDefaultBatchDelHandler" />
+				<entry key="40122" value-ref="paymentChannelItemDefaultQueryHandler" />
+				<entry key="40123" value-ref="channelSecondRelationBatchAddHandler" />
+				<entry key="40124" value-ref="channelSecondRelationBatchDelHandler" />
+				<entry key="40125" value-ref="channelSecondRelationQueryHandler" />
+				<entry key="40144" value-ref="channelSecondRelationBatchQueryHandler" />
+				
+				<entry key="40143" value-ref="channelConfigBatchAddHandler" />
+				<entry key="40126" value-ref="channelConfigAddHandler" />
+				<entry key="40127" value-ref="channelConfigDelHandler" />
+				<entry key="40128" value-ref="channelConfigUpdateHandler" />
+				<entry key="40129" value-ref="channelConfigQueryHandler" />
+				<entry key="40130" value-ref="channelPreauthHandler"/>
+				<entry key="40131" value-ref="channelPreauthCompHandler"/>
+				<entry key="40132" value-ref="channelPreauthRevokeHandler"/>
+				
+				<entry key="40133" value-ref="orgRateQueryHandler"/>
+				<entry key="40134" value-ref="channelSpicQueryHandler"/>
+				<entry key="40135" value-ref="systemDetectedHandler"/>
+				<entry key="40136" value-ref="paymentChannelItemConfigUpdateHandler"/>
+				<entry key="fi-channel.parnterChannelCountryUpdateHandler" value-ref="parnterChannelCountryUpdateHandler"/>
+				<entry key="fi-channel.parnterChannelCountryDelHandler" value-ref="parnterChannelCountryDelHandler"/>
+				<entry key="fi-channel.parnterChannelCountryAddHandler" value-ref="parnterChannelCountryAddHandler"/>
+				<entry key="fi-channel.parnterChannelCountryQueryHandler" value-ref="parnterChannelCountryQueryHandler"/>
+				<entry key="40137" value-ref="pccQueryHandler"/>
+				<entry key="fi-channel.channelQueryDirectHandler" value-ref="channelQueryDirectHandler"/>
+
+				<entry key="fi-channel.add2FreeHanlder" value-ref="add2FreeHanlder"></entry>
+				<entry key="fi-channel.memberSecondLimitDelHandler" value-ref="memberSecondLimitDelHandler"></entry>
+				<entry key="fi-channel.memberSecondLimitInsertHandler" value-ref="memberSecondLimitInsertHandler"></entry>
+				<entry key="fi-channel.memberSecondLimitQueryHandler" value-ref="memberSecondLimitQueryHandler"></entry>
+				<entry key="fi-channel.memberSecondLimitUpdateHandler" value-ref="memberSecondLimitUpdateHandler"></entry>
+				<entry key="fi-channel.pollOutFreePoolHandler" value-ref="pollOutFreePoolHandler"></entry>
+				<entry key="fi-channel.queryMemberConChannelConfigHandler" value-ref="queryMemberConChannelConfigHandler"></entry>
+				<entry key="fi-channel.delMemberConChannelConfigHandler" value-ref="delMemberConChannelConfigHandler"></entry>
+				<entry key="fi-channel.memberConnectHisQueryHandler" value-ref="memberConnectHisQueryHandler"></entry>
+				<entry key="fi-channel.afterTradeHandler" value-ref="afterTradeHandler"></entry>
+				<entry key="fi-channel.preAuthApply" value-ref="preAuthApplyHandler"></entry>
+				<entry key="fi-channel.preAuthProcess" value-ref="preAuthProcessHandler"></entry>
+
+				<!-- add by zhaoyang at 20160907 start -->
+				<entry key="fi-channel.settlementCurrencyConfigUpdateHandler" value-ref="settlementCurrencyConfigUpdateHandler"></entry>
+				<entry key="fi-channel.settlementCurrencyConfigDelHandler" value-ref="settlementCurrencyConfigDelHandler"></entry>
+				<entry key="fi-channel.settlementCurrencyConfigAddHandler" value-ref="settlementCurrencyConfigAddHandler"></entry>
+				<entry key="fi-channel.settlementCurrencyConfigQueryHandler" value-ref="settlementCurrencyConfigQueryHandler"></entry>
+				<!-- add by zhaoyang at 20160907 end -->
+
+				<entry key="fi-channel.hnaRateQueryHandler" value-ref="hnaRateQueryHandler"></entry>
+				
+				<!-- add by LIBO for 渠道退款状态查询  at 20161012 start -->
+				<entry key="fi-channel.refundStatusQueryHandler" value-ref="channelRefundStatusQueryHandler" />
+				<!-- add by LIBO for 渠道退款状态查询  at 20161012 start -->
+
+				<entry key="fi-channel.channelCurrencyProcessHandler" value-ref="channelCurrencyProcessHandler"></entry>
+				<entry key="fi-channel.hnaPayHandler" value-ref="hnaPayHandler"></entry>
+			</map>
+		</constructor-arg>
+	</bean>
+
+	<bean id="channelQueryHandler" class="com.pay.channel.handler.ChannelQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO"/>
+		<property name="channelConfigDAO" ref="channelConfigDAO"/>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService"/>
+		<property name="memberCurrentConnectDAO" ref="memberCurrentConnectDAO"/>
+		<!--	 add by Delin for 按量负载均衡 -->
+	<!-- 	<property name="channelMidCountService" ref="channelMidCountService"></property> -->
+			<property name="channelMidAmountService" ref="channelMidAmountService"></property> 
+	</bean>
+	
+	<bean id="pccQueryHandler" class="com.pay.channel.handler.PccQueryHandler">
+       <property name="channelItemDAO"  ref="gatewayPaymentChannelItemDAO"/>
+       <property name="parnterChannelCountryDAO" ref="parnterChannelCountryDAO" />
+	</bean>
+
+	<bean id="channelQueryLocaleHandler" class="com.pay.channel.handler.ChannelQueryLocaleHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO"/>
+		<property name="channelConfigDAO" ref="channelConfigDAO"/>
+		<!-- <property name="channelMidCountService" ref="channelMidCountService"></property> -->
+
+	</bean>
+	<!-- 渠道币种查询 delin 2016年6月20日 20:16:00 -->
+	<bean id="channelCurrencyQueryHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyQueryHandler">
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+	<!-- 渠道币种删除 delin 2016年6月20日 20:16:00 -->
+	<bean id="channelCurrencyDeleteHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyDeleteHandler">
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+	<!-- 渠道币种添加 delin 2016年6月20日 20:16:00 -->
+	<bean id="channelCurrencyAddHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyAddHandler">
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+		<!-- 渠道币种修改 delin 2016年6月20日 20:16:00 -->
+	<bean id="channelCurrencyUpdateHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyUpdateHandler" >
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+		<!-- 渠道币种审核查询 delin 2016年6月30日11:19:35-->
+	<bean id="channelCurrencyReviewedQueryHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyReviewedQueryHandler" >
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+	<!-- 渠道币种审核添加 delin 2016年6月30日11:19:35-->
+	<bean id="channelCurrencyReviewedAddHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyReviewedAddHandler" >
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+	<!-- 渠道币种审核  delin 2016年6月30日16:20:54 -->
+	<bean id="channelCurrencyReviewedHandler" class="com.pay.channel.handler.channelcurrency.ChannelCurrencyReviewedHandler" >
+		<property name="channelCurrencyService" ref="channelCurrencyService"/>
+	</bean>
+
+	
+	<!-- 支付渠道增加handler -->
+	<bean id="channelItemRCurrencyAddHandler" class="com.pay.channel.handler.channelitemrcurrency.ChannelItemRCurrencyAddHandler" >
+		<property name="channelItemRCurrencyService" ref="channelItemRCurrencyService"/>
+	</bean>
+	<!-- 支付渠道查询handler -->
+	<bean id="channelItemRCurrencyQueryHandler" class="com.pay.channel.handler.channelitemrcurrency.ChannelItemRCurrencyQueryHandler" >
+		<property name="channelItemRCurrencyService" ref="channelItemRCurrencyService"/>
+	</bean>
+	<!-- 支付渠道失效handler -->
+	<bean id="channelItemRCurrencyUpdateHandler" class="com.pay.channel.handler.channelitemrcurrency.ChannelItemRCurrencyUpdateHandler" >
+		<property name="channelItemRCurrencyService" ref="channelItemRCurrencyService"/>
+	</bean>
+	
+	<bean id="channelPayHandler" class="com.pay.channel.handler.ChannelPayHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+	
+	<!-- 系统存活探测 -->
+	<bean id="systemDetectedHandler" class="com.pay.channel.handler.SystemDetectedHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+	
+	<!-- 预授权申请 -->
+	<bean id="channelPreauthHandler" class="com.pay.channel.handler.ChannelPreauthHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+	<!-- 预授权完成 -->
+	<bean id="channelPreauthCompHandler" class="com.pay.channel.handler.ChannelPreauthCompHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+	<!-- 预授权撤销 -->
+	<bean id="channelPreauthRevokeHandler" class="com.pay.channel.handler.ChannelPreauthRevokeHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+
+	<bean id="channelBackHandler" class="com.pay.channel.handler.ChannelBackHandler">
+	
+	</bean>
+
+	<bean id="channelRefundHandler" class="com.pay.channel.handler.ChannelRefundHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+
+	<bean id="paymentChannelCategoryAddHandler"
+		class="com.pay.channel.handler.category.PaymentChannelCategoryAddHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelCategoryDelHandler"
+		class="com.pay.channel.handler.category.PaymentChannelCategoryDelHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelCategoryQueryHandler"
+		class="com.pay.channel.handler.category.PaymentChannelCategoryQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelCategoryUpdateHandler"
+		class="com.pay.channel.handler.category.PaymentChannelCategoryUpdateHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelAddHandler"
+		class="com.pay.channel.handler.paymentchannel.PaymentChannelAddHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelDelHandler"
+		class="com.pay.channel.handler.paymentchannel.PaymentChannelDelHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelUpdateHandler"
+		class="com.pay.channel.handler.paymentchannel.PaymentChannelUpdateHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelQueryHandler"
+		class="com.pay.channel.handler.paymentchannel.PaymentChannelQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemAddHandler"
+		class="com.pay.channel.handler.paymentchannelitem.PaymentChannelItemAddHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemDelHandler"
+		class="com.pay.channel.handler.paymentchannelitem.PaymentChannelItemDelHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemUpdateHandler"
+		class="com.pay.channel.handler.paymentchannelitem.PaymentChannelItemUpdateHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemQueryHandler"
+		class="com.pay.channel.handler.paymentchannelitem.PaymentChannelItemQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemConfigBatchAddHandler"
+		class="com.pay.channel.handler.paymentchannelitemconfig.PaymentChannelItemConfigBatchAddHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemConfigBatchDelHandler"
+		class="com.pay.channel.handler.paymentchannelitemconfig.PaymentChannelItemConfigBatchDelHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemConfigQueryHandler"
+		class="com.pay.channel.handler.paymentchannelitemconfig.PaymentChannelItemConfigQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemDefaultBatchAddHandler"
+		class="com.pay.channel.handler.paymentchannelitemdefault.PaymentChannelItemDefaultBatchAddHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemDefaultBatchDelHandler"
+		class="com.pay.channel.handler.paymentchannelitemdefault.PaymentChannelItemDefaultBatchDelHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="paymentChannelItemDefaultQueryHandler"
+		class="com.pay.channel.handler.paymentchannelitemdefault.PaymentChannelItemDefaultQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="channelSecondRelationBatchAddHandler"
+		class="com.pay.channel.handler.relation.ChannelSecondRelationBatchAddHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+
+	<bean id="channelSecondRelationBatchDelHandler"
+		class="com.pay.channel.handler.relation.ChannelSecondRelationBatchDelHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+		<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+	<bean id="channelSecondRelationQueryHandler"
+		class="com.pay.channel.handler.relation.ChannelSecondRelationQueryHandler">
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO"></property>
+	</bean>
+	
+	<bean id="channelSecondRelationBatchQueryHandler"
+		class="com.pay.channel.handler.relation.ChannelSecondRelationBatchQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+	
+	<bean id="channelConfigBatchAddHandler"
+		class="com.pay.channel.handler.paymentchannelitem.ChannelConfigBatchAddHandler">
+		<property name="channelConfigTempDAO" ref="channelConfigTempDAO" />
+	</bean>
+	
+	<bean id="channelConfigAddHandler"
+		class="com.pay.channel.handler.paymentchannelitem.ChannelConfigAddHandler">
+		<property name="channelConfigDAO" ref="channelConfigDAO" />
+	</bean>
+	
+	<bean id="channelConfigDelHandler"
+		class="com.pay.channel.handler.paymentchannelitem.ChannelConfigDelHandler">
+		<property name="channelConfigDAO" ref="channelConfigDAO" />
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+	
+	<bean id="channelConfigUpdateHandler"
+		class="com.pay.channel.handler.paymentchannelitem.ChannelConfigUpdateHandler">
+		<property name="channelConfigDAO" ref="channelConfigDAO" />
+	</bean>
+	
+	<bean id="channelConfigQueryHandler"
+		class="com.pay.channel.handler.paymentchannelitem.ChannelConfigQueryHandler">
+		<property name="channelConfigDAO" ref="channelConfigDAO" />
+	</bean>
+	
+	<bean id="orgRateQueryHandler"
+		class="com.pay.channel.handler.OrgRateQueryHandler">
+		<property name="handlerClientService" ref="handlerClientService" />
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+		<property name="channelConfigDAO" ref="channelConfigDAO" />
+		<property name="channelSecondRelationDAO" ref="channelSecondRelationDAO" />
+	</bean>
+	
+	<bean id="channelSpicQueryHandler"
+		class="com.pay.channel.handler.ChannelSpicQueryHandler">
+		<property name="paymentChannelService" ref="channel-paymentChannelService" />
+	</bean>
+	
+	<bean id="paymentChannelItemConfigUpdateHandler"
+		class="com.pay.channel.handler.paymentchannelitem.PaymentChannelItemConfigUpdateHandler">
+		<property name="paymentChannelItemConfigDAO" ref="paymentChannelItemConfigDAO" />
+	</bean>
+
+	<bean id="parnterChannelCountryUpdateHandler"
+		  class="com.pay.channel.handler.ParnterChannelCountryUpdateHandler">
+		<property name="parnterChannelCountryService" ref="parnterChannelCountryService" />
+	</bean>
+
+	<bean id="parnterChannelCountryDelHandler"
+		  class="com.pay.channel.handler.ParnterChannelCountryDelHandler">
+		<property name="parnterChannelCountryService" ref="parnterChannelCountryService" />
+	</bean>
+
+	<bean id="parnterChannelCountryAddHandler"
+		  class="com.pay.channel.handler.ParnterChannelCountryAddHandler">
+		<property name="parnterChannelCountryService" ref="parnterChannelCountryService" />
+	</bean>
+
+	<bean id="parnterChannelCountryQueryHandler"
+		  class="com.pay.channel.handler.ParnterChannelCountryQueryHandler">
+		<property name="parnterChannelCountryDAO" ref="parnterChannelCountryDAO" />
+	</bean>
+	
+	<bean id="channelQueryDirectHandler"
+		  class="com.pay.channel.handler.ChannelQueryDirectHandler">
+		<property name="paymentChannelItemDAO" ref="gatewayPaymentChannelItemDAO" />
+	</bean>
+
+
+	<bean id="add2FreeHanlder"
+		  class="com.pay.channel.handler.autofit.Add2FreeHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+	<bean id="pollOutFreePoolHandler"
+		  class="com.pay.channel.handler.autofit.PollOutFreePoolHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+	<bean id="memberSecondLimitDelHandler"
+		  class="com.pay.channel.handler.autofit.MemberSecondLimitDelHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+	<bean id="memberSecondLimitInsertHandler"
+		  class="com.pay.channel.handler.autofit.MemberSecondLimitInsertHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+
+	<bean id="memberSecondLimitQueryHandler"
+		  class="com.pay.channel.handler.autofit.MemberSecondLimitQueryHandler">
+		<property name="memberSecondLimitDAO" ref="memberSecondLimitDAO"/>
+	</bean>
+
+
+	<bean id="memberSecondLimitUpdateHandler"
+		  class="com.pay.channel.handler.autofit.MemberSecondLimitUpdateHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+
+	<bean id="queryMemberConChannelConfigHandler"
+		  class="com.pay.channel.handler.autofit.QueryMemberConChannelConfigHandler">
+		<property name="memberCurrentConnectDAO" ref="memberCurrentConnectDAO"/>
+	</bean>
+
+	<bean id="delMemberConChannelConfigHandler"
+		  class="com.pay.channel.handler.autofit.DelMemberConChannelConfigHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+
+	<bean id="memberConnectHisQueryHandler"
+		  class="com.pay.channel.handler.autofit.MemberConnectHisQueryHandler">
+		<property name="memberConnectHisDAO" ref="memberConnectHisDAO"/>
+	</bean>
+
+	<bean id="afterTradeHandler"
+		  class="com.pay.channel.handler.autofit.AfterTradeHandler">
+		<property name="autoFitEngineService" ref="autoFitEngineService"/>
+	</bean>
+	
+	<bean id="preAuthApplyHandler"
+		  class="com.pay.channel.handler.preauth.PreAuthApplyHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+	<bean id="preAuthProcessHandler"
+		  class="com.pay.channel.handler.preauth.PreAuthProcessHandler">
+		<property name="channelService" ref="channelService"/>
+		<property name="paymentChannelItemDAO" ref="gatewayPaymentChannelItemDAO"/>
+	</bean>	
+	<bean id="hnaRateQueryHandler"
+		  class="com.pay.channel.handler.hna.HnaRateQueryHandler">
+		  <property name="handlerClientService" ref="handlerClientService"/>
+		  <property name="paymentChannelService" ref="channel-paymentChannelService" />
+		  		<property name="channelConfigDao" ref="channelConfigDAO"/>
+	</bean>
+	<bean id="hnaPayHandler"
+		  class="com.pay.channel.handler.hna.HnaPayHandler">
+		  <property name="handlerClientService" ref="handlerClientService"/>
+		  <property name="paymentChannelService" ref="channel-paymentChannelService" />
+		  		<property name="channelConfigDao" ref="channelConfigDAO"/>
+	</bean>
+	<!-- add by yang.zhao at 20160907 start-->
+	<bean id="settlementCurrencyConfigUpdateHandler"
+		  class="com.pay.channel.handler.SettlementCurrencyConfigUpdateHandler">
+		<property name="settlementCurrencyConfigService" ref="settlementCurrencyConfigService" />
+	</bean>
+
+	<bean id="settlementCurrencyConfigDelHandler"
+		  class="com.pay.channel.handler.SettlementCurrencyConfigDelHandler">
+		<property name="settlementCurrencyConfigService" ref="settlementCurrencyConfigService" />
+	</bean>
+
+	<bean id="settlementCurrencyConfigAddHandler"
+		  class="com.pay.channel.handler.SettlementCurrencyConfigAddHandler">
+		<property name="settlementCurrencyConfigService" ref="settlementCurrencyConfigService" />
+	</bean>
+
+	<bean id="settlementCurrencyConfigQueryHandler"
+		  class="com.pay.channel.handler.SettlementCurrencyConfigQueryHandler">
+		<property name="settlementCurrencyConfigDAO" ref="settlementCurrencyConfigDAO" />
+	</bean>	
+	<!-- add by yang.zhao at 20160907 end-->
+	
+	<bean id="channelRefundStatusQueryHandler" class="com.pay.channel.handler.ChannelRefundStatusQueryHandler">
+		<property name="channelService" ref="channelService"/>
+	</bean>
+
+	<bean id="channelCurrencyProcessHandler"
+		  class="com.pay.channel.handler.channelcurrency.ChannelCurrencyProcessHandler">
+		<property name="channelCurrencyService" ref="channelCurrencyService" />
+	</bean>
+</beans>

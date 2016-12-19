@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>成功生成收款链接_gcpayment支付</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head  mCode="corp_pay_chain_index"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">支付链收款</strong><span>|</span><a href="${rc.contextPath}/corp/paychain/payChainQuery.htm">支付链收款记录</a></div>
+			</div>
+			<div class="step">
+				<ol class="step-3">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写收款信息</li>
+					<li class="li-2">2.确认信息</li>
+					<li class="li-3">3.成功生成收款链接</li>
+				</ol>
+			</div>
+			<div class="content txtC">
+				<div class="result_tips">
+					<div class="set_height clearfix"> 
+						<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X--> 
+						<span class="pop_s"></span>
+						<p class="words f14"><strong><#if projectName?has_content && projectName?length gt 8>${projectName[0..8]}...<#else>${projectName}</#if>(付款名称) 的收款链接已经成功生成!</strong></p>
+						<p><span class="red">支付链到期时间：${overDate?string("yyyy-MM-dd HH:mm:ss")}</span></p>
+						<p class="mt5">您可以通过以下方式将收款信息发送给付款方。</p>
+						<div class="way1">
+							<p><span class="c_06f">方式一：</span>复制链接，通过邮件，MSN，QQ等方式发送给付款方</p>
+							<p>链接地址：<input type="text" id="copyTxt" class="inp_normal" value="${payChainUrl}"> <input type="button" id="copyBtn" class="way1_btn" value="复制链接"></p>
+						</div>
+						<div class="way2">
+							<p><span class="c_f60">方式二：</span>复制以下代码到您的网站,生成按钮，付款方一键完成付款</p>
+							<p>链接地址：<input type="text" id="copyCodeTxt" class="inp_normal" value="<a href='${payChainUrl}' target='_blank'><img src='${serverUrl}<@sp.static/>/img/pay/paylink/link_s1.png' /></a>"> <input type="button" id="copyCodeBtn" class="way2_btn" value="复制代码"></p>
+							<p><img src="<@sp.static/>/img/pay/paylink/example.jpg" /></p>
+						</div>
+						<p class="link mt10">您可能需要：<a href="${rc.contextPath}/corp/paychain/payChainQuery.htm">查看支付链收款记录</a>|<a href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+<script>
+$(function(){
+	
+	$("#copyBtn").click(function(){
+		var f=copyToClipboard($("#copyTxt").val());
+		if(f){
+			$.pay.alert("复制成功",{title:'复制收款链接',w:400});
+		}
+	});
+
+	$("#copyCodeBtn").click(function(){
+		var f=copyToClipboard($("#copyCodeTxt").val());
+		if(f){
+			$.pay.alert("复制成功",{title:'复制收款链接代码',w:400});
+		}
+	});
+});
+</script>
+<#include "/common/include/footer.html">
+
+</body>
+</html>

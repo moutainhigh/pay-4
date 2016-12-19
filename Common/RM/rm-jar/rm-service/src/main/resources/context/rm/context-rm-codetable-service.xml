@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="context_rm_codetable_personbusitype"
+		class="com.pay.rm.base.tags.codetable.dto.CodeTableDefinitionDTO">
+		<property name="tableName">
+			<value>RC_BUSINESS</value>
+		</property>
+		<property name="idColumnName">
+			<value>BUSINESS_ID</value>
+		</property>
+		<property name="descColumnName">
+			<value>BUSINESS_NAME</value>
+		</property>
+		<property name="needCache">
+			<value>false</value>
+		</property>
+		<property name="orderClause">
+			<value>BUSINESS_ID</value>
+		</property>
+		<property name="whereClause">
+			<value>STATUS = 1 AND BUSINESS_TYPE =1 </value>
+		</property>
+	</bean>
+	<bean id="context_rm_codetable_enterprisebusitype"
+		class="com.pay.rm.base.tags.codetable.dto.CodeTableDefinitionDTO">
+		<property name="tableName">
+			<value>RC_BUSINESS</value>
+		</property>
+		<property name="idColumnName">
+			<value>BUSINESS_ID</value>
+		</property>
+		<property name="descColumnName">
+			<value>BUSINESS_NAME</value>
+		</property>
+		<property name="needCache">
+			<value>false</value>
+		</property>
+		<property name="orderClause">
+			<value>BUSINESS_ID</value>
+		</property>
+		<property name="whereClause">
+			<value>STATUS = 1 AND BUSINESS_TYPE =2</value>
+		</property>
+	</bean>
+	
+	<bean id="context_rm_base_codeTableService" 
+		class="com.pay.rm.base.tags.codetable.service.impl.CodeTableServiceImpl">
+		<property name="codeTableDAO" ref="context_rm_base_codeTableDAO" />
+		<property name="defininitionMap">
+			<map>
+				<entry key="rmPersonBusiTypeTable" >
+					<ref bean="context_rm_codetable_personbusitype"/>
+				</entry>
+				<entry key="rmEnterpriseBusiTypeTable" >
+					<ref bean="context_rm_codetable_enterprisebusitype"/>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+</beans>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>员工专用通道--绘制登录图案</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+<!-- 绘制登录图案js -->
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/mazelock.js"></script>
+
+
+</head>
+
+<body>
+    <div id="pagewrap" >
+    	<div id="content" >
+        	<!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                    <div class="go_back" style="float:left;padding-top:9px;">
+                        <img src="<@sp.static/>/wechat/images/jt.png"/>
+                    </div>
+                    <div>
+                        <h2 style="line-height:52px;margin:auto;position:relative;left:-49px;color:#FFFFFF;">设置登录密码</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+            <!-- 隐藏域 -->
+            <input type="password" name="dpwd" id="dpwd" style="display:none;"/>
+            <input type="password" name="dpwd2" id="dpwd2" style="display:none;"/>
+            <input type="hidden" name="test" id="test" value="test" />
+            <!-- 隐藏域结束 -->
+            
+        	<!-- 绘制图案主体 -->
+        	<div id="msg" style="height:30px;line-height:30px;text-align:center;font-size:18px;font-weight:bold;"></div>
+        	<div style="background:#310031;height:400px;">
+            	<!-- <div id="msg" style=""></div> -->
+            
+                <div class="phone" style="" >
+                   &nbsp;
+                </div>
+                
+                <div  style="text-align:center;" >
+                	<div style="width:300px;margin:0 auto;" id="wrap"></div>
+                </div>
+                
+                <!-- 下一步按钮 -->
+                <!-- <div class="common_button" style="padding:1px;">
+                    <div style="width:42%;float:left;background:#30B4FF;">&nbsp;</div>
+                    <div style="width:16%;float:left;background:url(images/button-2.png) no-repeat center center;">下一步</div>
+                    <div style="width:42%;float:left;">&nbsp;</div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+	<script type="text/javascript">
+    	
+		$(function(){
+			var count = 0;
+			//清空内容
+			$("#dpwd").val("");
+			
+			mazeLock = new MazeLock({
+				wrap : document.querySelector("#wrap"),
+				radius  : 30,
+				gap     : 22,
+				size    : 3,
+				callback : function(selected){
+					
+					var msg = document.querySelector("#msg");
+					var dpwdVal = $("#dpwd").val();
+					
+					//第一次
+					if("" == dpwdVal || null == dpwdVal){
+						$("#dpwd").val(selected.join(","));
+						mazeLock.drawErrorPanel() ;
+						msg.innerHTML = "<span style='color: red;'>再画一次</span>";
+					}
+					
+					//第二次输入
+					if("" != dpwdVal && null != dpwdVal){
+						var dpwdVal2 = $("#dpwd").val();
+						//两次密码输入一致
+						if(selected.join(",") == dpwdVal){
+							mazeLock.clearCanvas() ;
+							msg.innerHTML  = "<span style='color: red;'>成功！</span>";
+							setTimeout(function(){
+								//首次账号绑定，去进行安全问题绑定验证
+								<#if resetDpwd?has_content>
+									//window.location.href = "${rc.contextPath}/resetDpwdOK.htm" ;
+									$.ajax({
+										type:'POST',
+										url:'${rc.contextPath}/doResetDpwd.htm?dpwd=' + selected.join(","),
+										success:function(data){
+											if(data == "resetOk")
+												window.location.href = "${rc.contextPath}/resetDpwdOk.htm" ;
+										}
+									}) ;
+									
+									
+									<#else>
+										//TODO 设置登录密码 保存
+										$.ajax({
+											type:'POST',
+											url:'${rc.contextPath}/doMerDpwdSave.htm?dpwd=' + selected.join(","),
+											//data:{},
+											success:function(data){
+												if(data == 0){
+													window.location.href = "${rc.contextPath}/toMerQueValidate.htm" ;
+												}
+											},
+											error:function(){
+												alert("网络服务出错了！") ;
+											}
+										});
+								</#if>
+							},1000);
+						}
+						//两次密码输入不一致
+						else if(selected.join(",") != dpwdVal2){
+							$("#dpwd").val("");
+							mazeLock.drawErrorPanel();
+                    		msg.innerHTML = "<span style='color: red;'>两次绘制图案不一致，请重新绘制！</span>";
+						}
+					}
+				}
+				
+			});
+			mazeLock.init();
+			//console.log(mazeLock);
+			});
+    	
+    </script>
+</body>
+</html>

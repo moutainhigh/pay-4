@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!-- Controller -->
+<beans>
+		
+	
+
+	<bean id="receivUrlMapping"
+			class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/receiv/receiv.htm">receivablesController</prop>
+			</props>
+		</property>
+		
+	</bean>
+	
+
+
+
+	
+	<bean id="receivablesController" class="com.pay.app.controller.base.receivables.ReceivablesController">
+		
+		<property name="receivIndex">
+			<value>/receiv/index</value>
+		</property>
+		<property name="receivConfirm">
+			<value>/receiv/confirm</value>
+		</property>
+		<property name="receivResult">
+			<value>/receiv/result</value>
+		</property>
+		
+		<property name="methodNameResolver">
+			<ref bean="paramResolver"/>
+		</property>
+		
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService" />
+		</property>
+		<property name="memberQueryService">
+			<ref bean="acc-memberQueryService" />
+		</property>
+		<!-- <property name="innerAcquireService">
+			<ref bean="fi-mpayAcquireService" />
+		</property>
+		<property name="acquireContext">
+			<ref bean="fi-acquireContext" />
+		</property> -->
+		
+		<property name="externalLogService">
+			<ref bean="base-externalLogService" />
+		</property>
+		
+	</bean>
+	
+
+	
+   
+   	
+</beans>

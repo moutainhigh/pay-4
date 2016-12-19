@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="tConregOrder">
+    <resultMap id="tConregOrderResult" class="com.pay.poss.conreg.dto.TConregOrder">
+        <result column="CONREG_ORDER_NO" property="conregOrderNo" />
+        <result column="STATUS" property="status" />
+        <result column="PARTNER_ID" property="partnerId" />
+        <result column="CONREG_AMT" property="conregAmt" />
+        <result column="REAL_NAME" property="realName" />
+        <result column="ID_NUMBER" property="idNumber" />
+        <result column="CREATE_DATE" property="createDate" />
+        <result column="UPDATE_DATE" property="updateDate" />
+    </resultMap>
+    <select id="selectSelective" resultMap="tConregOrderResult" parameterClass="com.pay.poss.conreg.dto.TConregOrder">
+        select CONREG_ORDER_NO, STATUS, PARTNER_ID, CONREG_AMT, REAL_NAME, ID_NUMBER, CREATE_DATE,
+            UPDATE_DATE
+        from T_CONREG_ORDER
+        where 1=1
+        	<isNotEmpty prepend="and" property="conregOrderNo">
+                CONREG_ORDER_NO = #conregOrderNo#
+            </isNotEmpty>
+        	<isNotEmpty prepend="and" property="status">
+                STATUS = #status#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="partnerId">
+                PARTNER_ID = #partnerId#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="conregAmt">
+                CONREG_AMT = #conregAmt#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="realName">
+                REAL_NAME like '%$realName$%'
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="idNumber">
+                ID_NUMBER = #idNumber#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotEmpty>
+    </select>
+    
+    <select id="selectSelective_COUNT" resultClass="java.lang.Integer" parameterClass="com.pay.poss.conreg.dto.TConregOrder">
+        select count(1)
+        from T_CONREG_ORDER
+        where 1=1
+        	<isNotEmpty prepend="and" property="conregOrderNo">
+                CONREG_ORDER_NO = #conregOrderNo#
+            </isNotEmpty>
+        	<isNotEmpty prepend="and" property="status">
+                STATUS = #status#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="partnerId">
+                PARTNER_ID = #partnerId#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="conregAmt">
+                CONREG_AMT = #conregAmt#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="realName">
+                REAL_NAME like '%$realName$%'
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="idNumber">
+                ID_NUMBER = #idNumber#
+            </isNotEmpty>
+            <isNotEmpty prepend="and" property="createDate">
+                CREATE_DATE = #createDate#
+            </isNotEmpty>
+    </select>
+</sqlMap>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="depositOrderExpand">
+	<typeAlias alias="depositOrderExpand" type="com.pay.txncore.model.DepositOrderExpand"/>
+	<resultMap id="depositOrderExpand" class="com.pay.txncore.model.DepositOrder">
+        <result column="DEPOSIT_AMOUNT" property="depositAmount" jdbcType="DECIMAL"/>
+        <result column="FEE" property="fee" jdbcType="DECIMAL"/>
+        <result column="CUSTOMER_TYPE" property="customerType" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_ORDER_NO" property="depositOrderNo" jdbcType="DECIMAL"/>
+        <result column="CUSTOMER" property="customer" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="DEPOSIT_BACK_AMOUNT" property="depositBackAmount" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+   <insert id="create" parameterClass="depositorderexpand">
+	<selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT
+			154 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+			||LPAD(SEQ_DEPOSIT_ORDER_NO.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	 	INSERT INTO DEPOSIT_ORDER_EXPAND(
+			ID,SURPLUS_ORDER_NO,DEPOSIT_ORDER_NO,DEPOSIT_PROTOCOL_NO,RESERVE1,
+			RESERVE2,RESERVE3,RESERVE4,RESERVE5,CREATE_DATE,UPDATE_DATE
+        )
+        VALUES(
+            #id#,#surplusOrderNo#,#depositOrderNo#,#depositProtocolNo#,#reserve1#,
+			#reserve2#,#reserve3#,#reserve4#,#reserve5#,sysDate,sysDate
+		)
+	</insert>
+   
+	<select id="querySurplusStatusByDepositOrderNo" parameterClass="java.lang.Long" resultClass="java.lang.Long">
+		select d_order.status
+		from fi.deposit_order_expand doe, fi.deposit_order d_order
+		where doe.surplus_order_no = d_order.deposit_order_no
+		doe.deposit_order_no = #depositOrderNo#
+	</select>
+	
+	<select id="querySurplusOrder" parameterClass="java.lang.Long" resultMap="depositOrderExpand">
+		select d_order.*
+		from fi.deposit_order d_order, fi.deposit_order_expand doe
+		where doe.surplus_Order_no = d_order.deposit_order_no
+		and doe.deposit_order_no = #depositOrderNo#
+	</select>
+	
+</sqlMap>

@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="quartzruninfo">
+	<typeAlias alias="quartzRunInfo" type="com.pay.fundout.withdraw.model.quartzruninfo.QuartzRunInfo"/>
+    <resultMap id="quartzRunInfo" class="com.pay.fundout.withdraw.model.quartzruninfo.QuartzRunInfo">
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="BUSI_TYPE" property="busiType" jdbcType="DECIMAL"/>
+        <result column="FK_ID" property="fkId" jdbcType="DECIMAL"/>
+        <result column="SEQUENCE_ID" property="sequenceId" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="LAST_RUN_TIME" property="lastRunTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		STATUS,BUSI_TYPE,FK_ID,SEQUENCE_ID,CREATE_DATE,
+		UPDATE_DATE,LAST_RUN_TIME
+    </sql>
+    <insert id="create" parameterClass="quartzRunInfo">
+    <selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+		SELECT QUARTZ_RUN_INFO_SEQ.nextval AS SEQUENCE_ID FROM DUAL
+	</selectKey>
+        INSERT INTO QUARTZ_RUN_INFO
+        <dynamic prepend="(">
+        	 <isNotNull prepend="," property="status">
+        	 	STATUS
+        	 </isNotNull>
+        	  <isNotNull prepend="," property="busiType">
+        	 	BUSI_TYPE
+        	 </isNotNull>
+        	  <isNotNull prepend="," property="fkId">
+        	 	FK_ID
+        	 </isNotNull>
+        	  <isNotNull prepend="," property="sequenceId">
+        	 	SEQUENCE_ID
+        	 </isNotNull>
+        	  <isNotNull prepend="," property="createDate">
+        	 	CREATE_DATE
+        	 </isNotNull>
+        	  <isNotNull prepend="," property="updateDate">
+        	 	UPDATE_DATE
+        	 </isNotNull>
+        	  <isNotNull prepend="," property="lastRunTime">
+        	 	LAST_RUN_TIME
+        	 </isNotNull>
+        	 )
+        </dynamic>
+        VALUES
+        <dynamic prepend="(">
+        	 <isNotNull prepend="," property="status">
+        	 	#status#
+        	 </isNotNull>
+        	 <isNotNull prepend="," property="busiType">
+        	 	#busiType#
+        	 </isNotNull>
+        	 <isNotNull prepend="," property="fkId">
+        	 	#fkId#
+        	 </isNotNull>
+        	 <isNotNull prepend="," property="sequenceId">
+        	 	#sequenceId#
+        	 </isNotNull>
+        	 <isNotNull prepend="," property="createDate">
+        	 	#createDate#
+        	 </isNotNull>
+        	 <isNotNull prepend="," property="updateDate">
+        	 	#updateDate#
+        	 </isNotNull>
+        	 <isNotNull prepend="," property="lastRunTime">
+        	 	#lastRunTime#
+        	 </isNotNull>
+        	 )
+        </dynamic>
+    </insert>
+
+    <update id="update" parameterClass="quartzRunInfo">
+        UPDATE QUARTZ_RUN_INFO
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="busiType">
+            BUSI_TYPE = #busiType#
+        </isNotNull>
+        <isNotNull prepend="," property="fkId">
+            FK_ID = #fkId#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = #updateDate#
+        </isNotNull>
+        <isNotNull prepend="," property="lastRunTime">
+            LAST_RUN_TIME = #lastRunTime#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM QUARTZ_RUN_INFO        
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotNull>
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="quartzRunInfo">
+        DELETE FROM QUARTZ_RUN_INFO        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiType">
+            BUSI_TYPE = #busiType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fkId">
+            FK_ID = #fkId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lastRunTime">
+            LAST_RUN_TIME = #lastRunTime# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="quartzRunInfo"
+        parameterClass="java.lang.Long">
+        SELECT 
+			STATUS,BUSI_TYPE,FK_ID,SEQUENCE_ID,CREATE_DATE,
+			UPDATE_DATE,LAST_RUN_TIME
+        FROM QUARTZ_RUN_INFO
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="quartzRunInfo">
+        SELECT 
+			STATUS,BUSI_TYPE,FK_ID,SEQUENCE_ID,CREATE_DATE,
+			UPDATE_DATE,LAST_RUN_TIME
+        FROM QUARTZ_RUN_INFO
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiType">
+            BUSI_TYPE = #busiType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fkId">
+            FK_ID = #fkId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lastRunTime">
+            LAST_RUN_TIME = #lastRunTime# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM QUARTZ_RUN_INFO
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="busiType">
+            BUSI_TYPE = #busiType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="fkId">
+            FK_ID = #fkId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="lastRunTime">
+            LAST_RUN_TIME = #lastRunTime# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

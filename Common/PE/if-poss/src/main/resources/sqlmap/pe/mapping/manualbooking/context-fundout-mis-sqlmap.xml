@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="PE-MIS">
+	<typeAlias alias="vouchData" type="com.pay.pe.manualbooking.model.VouchData"/>
+	<typeAlias alias="vouchDetailData" type="com.pay.pe.manualbooking.model.VouchDetailData"/>
+	
+	<delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM vouch_data        
+        WHERE 
+            <isNotEmpty prepend="AND" property="id">
+            vouch_Data_Id = #id# 
+            </isNotEmpty>
+    </delete>
+    
+	<update id="updateVouchstatus" parameterClass="vouchData">
+    	UPDATE 
+    		vouch_data 
+    	SET status = #status# 
+    	WHERE VOUCH_DATA_ID = #vouchDataId#
+    </update>
+    
+    
+    
+	<insert id="insertVouchData" parameterClass="vouchData">
+      	<selectKey resultClass="java.lang.Long" keyProperty="vouchDataId">      				
+			select  SEQ_PE_VOUCHDATA_ID.NEXTVAL as id from DUAL 
+		</selectKey>
+		INSERT INTO VOUCH_DATA(
+			VOUCH_DATA_ID,AUDIT_DATE,VOUCH_CODE,AUDITOR,APPLICATION_CODE,
+			STATUS,REMARK,ACCOUNTING_DATE,CREATE_DATE,CREATOR,
+			VERSION
+        )
+        VALUES(
+            #vouchDataId#,#auditDate#,#vouchCode#,#auditor#,#applicationCode#,
+			#status#,#remark#,#accountingDate#,#createDate#,#creator#,
+			#version#
+		)
+    </insert>
+    
+    
+	<select id="getVouchData" resultClass="vouchData"  parameterClass="vouchData">
+		select 
+		    vouch_Data_Id		vouchDataId	,
+			application_Code	applicationCode	,
+			STATUS				status ,
+			audit_Date	        auditDate ,
+			accounting_Date		accountingDate ,
+			creator			    creator ,
+			vouch_Code			vouchCode ,
+			create_Date			createDate ,
+			auditor			    auditor , 
+			pe.remark			    remark ,
+			version			    version 
+		from vouch_data
+		 <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="vouchDataId">
+	            vouch_Data_Id = #vouchDataId# 
+	        </isNotEmpty>
+	     </dynamic>
+	</select>
+	
+
+	
+	 <select id="getVouchDataInfo_COUNT"   resultClass="java.lang.Integer">
+     select  count(1)  from (  
+	    select distinct
+	      d.vouch_Data_Id    vouchDataId  ,
+	      application_Code  applicationCode  ,
+	      STATUS        status ,
+        
+	      (select sum(de.amount) from pe.vouch_detail de where de.crdr=2
+	       and de.vouch_Data_Id= d.vouch_Data_Id) amount,
+	      audit_Date          auditDate ,
+	      accounting_Date    accountingDate ,
+	      creator          creator ,
+	      create_Date      createDate ,
+	      auditor          auditor ,
+	      pe.remark        remark,  
+	      version          version
+	    from vouch_data d , pe.vouch_detail pe where pe.vouch_Data_Id= d.vouch_Data_Id)
+        <dynamic prepend=" WHERE ">
+	         <isNotEmpty prepend="AND" property="status">
+	             status = #status:VARCHAR#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="vouchCode">
+	         	vouchDataId like '%' || #vouchCode:VARCHAR# || '%' 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="dataFrom">
+	         	  <![CDATA[ 	 createDate >  to_date(#dataFrom#,'yyyy-mm-dd')    ]]>
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="dataTo">
+	         	 <![CDATA[ createDate <  to_date(#dataTo#,'yyyy-mm-dd')+ 1]]>
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="remark">
+	         	vouchDataId like '%' || #vouchCode:VARCHAR# || '%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="amountFrom">
+	            <![CDATA[ amount  >=  #amountFrom#  ]]> 
+	        </isNotEmpty>	 
+	        <isNotEmpty prepend="AND" property="amountTo">
+	            <![CDATA[ amount  <=  #amountTo#  ]]> 
+	        </isNotEmpty>
+	     </dynamic>
+	            
+    </select>
+    
+    <select id="getVouchDataInfo" resultClass="vouchData"  parameterClass="java.util.HashMap">
+    select * from (   
+	    select distinct
+	     d.vouch_Data_Id    vouchDataId  ,
+	      application_Code  applicationCode  ,
+	      STATUS        status ,
+        
+	      (select sum(de.amount) from pe.vouch_detail de where de.crdr=2
+	       and de.vouch_Data_Id= d.vouch_Data_Id) amount,
+	      audit_Date          auditDate ,
+	      accounting_Date    accountingDate ,
+	      creator          creator ,
+	      create_Date      createDate ,
+	      auditor          auditor ,
+	      pe.remark        remark, 
+	      version          version
+	    from vouch_data d , pe.vouch_detail pe where pe.vouch_Data_Id= d.vouch_Data_Id)
+		 <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="status">
+	             status = #status:VARCHAR#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="vouchCode">
+	         	vouchDataId like '%' || #vouchCode:VARCHAR# || '%' 
+	        </isNotEmpty>
+	          <isNotEmpty prepend="AND" property="dataFrom">
+	         	 createDate >  to_date(#dataFrom#,'yyyy-mm-dd')  
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="dataTo">
+	         	 <![CDATA[ createDate <  to_date(#dataTo#,'yyyy-mm-dd')+ 1  ]]>
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="remark">
+	         	remark like '%' || #remark:VARCHAR# || '%'
+	        </isNotEmpty>
+	          <isNotEmpty prepend="AND" property="amountFrom">
+	            <![CDATA[ amount  >=  #amountFrom#  ]]> 
+	        </isNotEmpty>	 
+	        <isNotEmpty prepend="AND" property="amountTo">
+	            <![CDATA[ amount  <=  #amountTo#  ]]> 
+	        </isNotEmpty>
+	     </dynamic>	        
+	    	order by createDate desc
+	</select>  
+    
+    
+    
+    
+    
+    
+	<select id="getVouchDetail" resultClass="vouchDetailData"  parameterClass="vouchDetailData">
+		select 
+		   vouch_Detail_Id    vouchDetailId,        
+ 		   account_Code       accountCode,             
+           account_Name       accountName,          
+           crdr               crdr,                   
+           remark             remark,                
+           vouch_data_Id      vouchdataId,
+           AMOUNT             amount
+		from vouch_Detail
+	</select>
+	
+    
+     <select id="getVouchDetailInfo_COUNT"   resultClass="java.lang.Integer">
+        SELECT count(*) FROM vouch_Detail
+        <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="accountCode">
+	             account_Code like '%' || #accountCode:VARCHAR# || '%' 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="accountName">
+	         	 account_Name like '%' || #accountName:VARCHAR# || '%' 
+	        </isNotEmpty>
+	     </dynamic>
+    </select>
+    
+	<select id="getVouchDetailInfo" resultClass="vouchDetailData"  parameterClass="java.util.HashMap">
+		select 
+           vouch_Detail_Id    vouchDetailId,        
+ 		   account_Code       accountCode,             
+           account_Name       accountName,          
+           crdr               crdr,                   
+           remark             remark,                
+           vouch_data_Id      vouchdataId,
+           AMOUNT             amount
+            from vouch_Detail
+		 <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="vouchdataId">
+	             vouch_data_Id =#vouchdataId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="accountCode">
+	             account_Code like '%' || #accountCode:VARCHAR# || '%' 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="accountName">
+	         	 account_Name like '%' || #accountName:VARCHAR# || '%' 
+	        </isNotEmpty>
+	     </dynamic>
+	</select>
+ 
+   
+	<select id="getAllVouchDetailInfo" resultClass="vouchDetailData"  parameterClass="java.lang.Long">
+		select 
+           vouch_Detail_Id    vouchDetailId,        
+ 		   account_Code       accountCode,             
+           account_Name       accountName,          
+           crdr               crdr,                   
+           remark             remark,                
+           vouch_data_Id      vouchdataId,
+           AMOUNT             amount
+            from vouch_Detail
+		 <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="vouchdataId">
+	             vouch_data_Id = #id# 
+	        </isNotEmpty>
+	     </dynamic>
+	</select>
+	
+	
+	
+</sqlMap>

@@ -1,0 +1,193 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoCorp.ftl">
+<title>付款链付款|gcpayment支付</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/amount/convert.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/paychain/payinput.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/paychain/bigimg.js"></script>
+<style type="text/css">
+.onShow,.onError,.onFocus{
+	padding-left : 0px;
+}
+</style>
+</head>
+<body>
+<!--导航 str-->
+<div class="header">
+	<h1 class="logo"><a href="${rc.contextPath}/index.htm"><img alt="gcpayment支付" title="gcpayment支付" src="<@sp.static/>/img/pay/logo.png"></a><i class="ver_txt">支付链收款</i></h1>
+	<div class="header_bar"><a class="pad" href="${rc.contextPath}/index.html?method=indexApp" target="_blank">个人服务</a> | <a href="${rc.contextPath}/index.htm" class="pad" target="_blank">企业服务</a>| <a href="${rc.contextPath}/help/index.htm" class="help" target="_blank">帮助中心</a></div>
+	
+</div>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a mt10">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">支付链收款</strong></div>
+			</div>
+			<div class="step">
+				<ol class="step-1">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写付款信息</li>
+					<li class="li-2">2.选择支付方式</li>
+					<li class="li-3">3.支付成功</li>
+				</ol>
+			</div>
+			<form class="pad_center pay_link_verify" action="<#if isNeedLogin>${rc.contextPath}/private/paychain/pay.htm<#else>${rc.contextPath}/paychain/pay.htm</#if>" id="form0" method="post">
+				<input type="hidden" id="payChainNum" name="payChainNum" value="${payChainNum}" />
+				<table class="pay_link_table w500">
+					<thead>
+						<tr>
+							<th colspan="2"><p class="t_tit">收款方信息</p></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td colspan="2" class="blod">收款链接编号: ${payInfo.payChainCode}</td>
+						</tr>
+						<tr>
+							<td class="sort">收款名称</td>
+							<td>${payInfo.payChainName?default('')}</td>
+						</tr>
+						<tr>
+							<td class="sort">收款描述</td>
+							<td>${payInfo.receiptDesc?default('')}</td>
+						</tr>
+						<tr>
+							<td class="sort">图片</td>
+							<td>
+								<#if picList?has_content>
+								<ul class="pic_list pic_list_s">
+								<#list picList as img>
+									<#if img.pictureStatus=2>
+									<li class="user_pic"><img src="<@sp.static/>/img/pay/paylink/unlawful.png" ></li>
+									<#else>
+									<li class="user_pic"><img src="<@sp.upload/>${img.pictureUrl}" imgid="${img.pictureId}" index="${img_index+1}"/></li>
+									</#if>
+								</#list>
+								</ul>
+								</#if>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2"><ul class="add_info">
+									<li><span class="c_666">收款方：</span>${payInfo.payeeName?default('')}</li>
+									<li><span class="c_666">地址：</span>${payInfo.payeeAddr?default('')}</li>
+									<li><span class="c_666">联系电话：</span>${payInfo.payeeTel?default('')}</li>
+
+								</ul>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="2" class="t_tit2"><p>填写付款信息</p></td>
+						</tr>
+						<tr>
+							<td colspan="2"><ul class="form_list">
+									<li>
+										<label class="form_side"><span>*</span>付款金额(元)：</label>
+										<input type="text" class="input c_999" value="填写付款金额" id="amount" name="amount" maxlength="12"/>
+										<span class="red" id="amountTip"></span>								
+									</li>
+									<li>
+										<label class="form_side">大写：</label>
+										<span class="cap c_999" id="dxamount">付款金额大写</span>
+									</li>
+									<li>
+										<label class="form_side"><span>*</span>付款方名称：</label>
+										<input type="text" class="input c_999" value="填写付款方名称" id="payerName" name="payerName" maxlength="20"/> 
+										<span class="red" id="payerNameTip"></span>
+									</li>
+									<li>
+										<label class="form_side"><span>*</span>付款方邮件：</label>
+										<input type="text" class="input c_999"  value="填写付款方邮件" id="payerEmail" name="payerEmail" maxlength="32"/> 
+										<p class="g_tips"><span class="red" id="payerEmailTip"></span></p>
+									</li>
+									<li>
+										<label class="form_side">备注：</label>
+										<textarea class="input c_999" id="payerMemo" name="payerMemo" maxlength="50">付款方填写付款备注</textarea>
+										<span id="payerMemoTip"></span>
+									</li>
+								</ul></td>
+						</tr>
+					</tbody>
+				</table>
+				<div class="btn_box2">
+					<p><input id="agreeBtn" name="agreeBtn" type="checkbox" value="" checked> 我同意遵守<a class="blues" href="${rc.contextPath}/help.htm?method=helpCorpDetail&type=2" target="_blank">《gcpayment支付支付链收款支付协议》</a></p>
+					<p class="mt20"><span class="btn_yel"  id="butspan"><#if isNeedLogin><button type="button" id="submitBtn">登录gcpayment账户并支付</button><#else><button type="button" id="submitBtn">下一步</button></#if></span> </p>
+				</div>
+				<div class="big_pic" style="display:none"><table></table><img src="<@sp.static/>/img/pay/sample/login_per_1.jpg"></div>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+<#include "/common/include/footer.html">
+<script>
+$(function(){
+
+	//出错时还原出错数据
+	<#if amount?has_content>
+		$("#amount").val("${amount}");
+	</#if>
+	<#if payerName?has_content>
+		$("#payerName").val("${payerName}");
+	</#if>
+	<#if payerEmail?has_content>
+		$("#payerEmail").val("${payerEmail}");
+	</#if>
+	<#if payerMemo?has_content>
+		$("#payerMemo").val("${payerMemo}");
+	</#if>
+	
+	//出错信息
+	<#if amountTip?has_content>
+		$.formValidator.setFailState("amountTip","${amountTip?default('')}");
+	</#if>
+	<#if payerNameTip?has_content>
+		$.formValidator.setFailState("payerNameTip","${payerNameTip?default('')}");
+	</#if>
+	<#if payerEmailTip?has_content>
+		$.formValidator.setFailState("payerEmailTip","${payerEmailTip?default('')}");
+	</#if>
+	<#if payerMemoTip?has_content>
+		$.formValidator.setFailState("payerMemoTip","${payerMemoTip?default('')}");
+	</#if>
+	
+	var payeeName = "${payInfo.payeeName?default('')}";
+	$("#submitBtn").click(function(event){
+		event.preventDefault();
+		var flag = $.formValidator.pageIsValid("1");
+		if(!! flag){
+			var amount =  $("#amount").val();
+			$.pay.confirm("您确定要向 \"" + payeeName + "\" 付款吗？<br>付款金额："+ amount +"(元)。 ",
+				{h:200,
+				t:'1',
+				confirm:function(){
+					$("#form0").submit();
+				},
+				cancel:function(){}
+			});
+		}
+	});
+	
+	$("#amount").blur();
+});
+
+</script>
+
+</body>
+</html>

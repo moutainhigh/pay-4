@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!-- service 配置-->
+	<bean id="corpBank-withdraw-ParamPlaceholderConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="2" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/fo/notifyTemplateId.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="fo-bankcorp-bankAccBalanceNotifyService" class="com.pay.fundout.withdraw.service.bankcorp.BankAccBalanceNotifyServiceImpl" >
+		<property name="bankChannelConfigDAO" ref="bankChannelConfigDao" />
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"/>
+		<property name="emailTemplateId" value="${bankCorp.bankAccBalanceNotify.email}"/>
+		<property name="smsTemplateId" value="${bankCorp.bankAccBalanceNotify.mobile}"/>
+	</bean>
+	
+	<bean id="fo-bankcorp-tradeStatusNotifyService" class="com.pay.fundout.withdraw.service.bankcorp.TradeStatusNotifyServiceImpl" >
+		<property name="withdrawService" ref="fundout-withdraw-service" />
+	</bean>
+	
+</beans>

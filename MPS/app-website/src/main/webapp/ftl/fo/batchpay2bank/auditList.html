@@ -1,0 +1,53 @@
+<table class="table table_b">
+<thead>
+	<tr>
+		<th>申请时间</th>
+		<th width="12%">业务批次号</th>
+		<th width="11%">申请操作员</th>
+		<th width="10%">复核操作员</th>
+		<th width="10%">付款笔数</th>
+		<th width="11%">总金额(元)</th>
+		<th>状 态</th>
+		<th width="14%">操 作</th>
+	</tr>
+</thead>
+<tbody id="tbody">
+	<#list auditQueryInfoList as rd>
+		<tr>
+			<td align="center"><span class="time">${rd.createDate?if_exists?string("yyyy-MM-dd HH:mm:ss")}</span></td>
+			<td align="center">${rd.businessBatchNo}</td>
+			<td align="center">
+				${rd.creator}
+			</td>
+			<td align="center">
+					${rd.auditor?default('')}
+			</td>
+			<td align="center">${rd.validCount}</td>
+			<td align="center" class="price">${(rd.validAmount/1000)?string("#,##0.00")}</td>
+			<td align="center">
+				<#if rd.status==1>待复核</#if>
+				<#if rd.status==2>复核通过</#if>
+				<#if rd.status==3>复核拒绝</#if>
+			</td>
+			<td align="center">
+				<a href="javascript:void(0);" onclick="viewDetail('${rd.requestSeq}')" class="blues">查看</a>
+			</td>
+		</tr>
+	</#list>
+	<#if pu.totalCount!=0>
+		<tr>
+			<td colspan="9">
+				每页显示 <strong class="c_000">${pu.pageSize}</strong> 条&nbsp;&nbsp;&nbsp;
+                     	共 <strong class="c_000">${pu.totalCount}</strong> 条&nbsp;&nbsp;&nbsp;
+                     	第 <strong class="c_000">${pu.curPageNo}</strong> 页
+			</td>
+		</tr>
+	</#if>
+	</tbody>
+</table>
+
+<#if auditQueryInfoList?size!=0>
+<!--分页 str -->
+	<@sp.pagination pu=pu/>
+<!--分页 end -->
+</#if>

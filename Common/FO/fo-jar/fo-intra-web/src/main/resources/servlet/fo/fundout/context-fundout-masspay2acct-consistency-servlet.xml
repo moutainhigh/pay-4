@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<!-- <bean name="withdrawBaseController" class="com.pay.fo.controller.fundout.WithdrawBaseController" parent="abstractBaseController" /> -->
+
+	<bean name="withdrawBaseController" class="com.pay.fo.controller.fundout.WithdrawBaseController" abstract="true" parent="abstractBaseController" >
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+	</bean>
+	
+   	<bean name="/consistent.masspay2acct.htm" class="com.pay.fo.controller.fundout.orderconsistency.masspay2acct.MassPay2AcctConsistentControl" parent="withdrawBaseController">
+		<property name="massPay2AcctConsistentService">
+			<ref bean="fundout-withdraw-massPay2Acct-consistency-Service" />
+		</property>
+		<property name="toView">
+            <value>/orderconsistency/masspay2acct/queryMassPay2AcctInit</value>
+        </property>
+        <property name="viewName">
+                <value>/orderconsistency/masspay2acct/queryMassPay2AcctList</value>
+        </property>
+	</bean> 
+	<bean name="/masspayorder_backend_support.htm"
+		class="com.pay.fo.controller.fundout.orderconsistency.batchpaytoacct.MassPayOrderController"
+		parent="withdrawBaseController">
+		<property name="pay2accService" ref="fundout-withdraw-pay2Acct-orderconsistency-Service" />
+		<property name="operatorlogService" ref="fundout-operatorlog-operatorlogService"/>
+		<property name="urlMap">
+			<map>
+				<entry key="doingOrderList" value="/orderconsistency/masspay2acct/massPayOrder101List" />
+				<entry key="failOrderList" value="/orderconsistency/masspay2acct/massPayOrder112List" />
+				<entry key="init_doing" value="/orderconsistency/masspay2acct/massPayOrder101Init" />
+				<entry key="init_fail" value="/orderconsistency/masspay2acct/massPayOrder112Init" />
+			</map>
+		</property>
+	</bean>	
+	
+</beans>
+
+

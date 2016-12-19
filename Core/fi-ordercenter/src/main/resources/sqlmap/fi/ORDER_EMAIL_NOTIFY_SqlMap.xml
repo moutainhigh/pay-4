@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+  <sqlMap namespace="ORDER_EMAIL_NOTIFY" >
+  
+	<typeAlias alias="oenSearch" type="com.pay.txncore.crosspay.model.OrderEmailNotifyCriteria" />
+	<typeAlias alias="orderEmailNotify" type="com.pay.txncore.crosspay.model.OrderEmailNotify" />
+	
+    <resultMap id="oenResultMap" class="orderEmailNotify" >
+      <result column="ID" property="id" jdbcType="DECIMAL" />
+      <result column="MEMBER_CODE" property="memberCode" jdbcType="LONG" />
+      <result column="MERCHANT_CODE" property="merchantCode" jdbcType="LONG" />
+      <result column="MERCHANT_NAME" property="merchantName" jdbcType="VARCHAR" />
+      <result column="LOGIN_NAME" property="loginName" jdbcType="VARCHAR" />
+      <result column="EMAIL_COMPANY" property="emailCompany" jdbcType="VARCHAR" />
+      <result column="EMAIL_NOTIFY" property="emailNotify" jdbcType="VARCHAR" />
+      <result column="OPEN_FLAG" property="openFlag" jdbcType="TINYINT" />
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+      <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+      <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+      <result column="OPERATE_STATUS" property="operateStatus" jdbcType="DECIMAL" />
+      <result column="MAX_TRADE_ORDER_NO" property="maxTradeOrderNo" jdbcType="DECIMAL" />
+    </resultMap>
+    
+    <sql id="ORDER_EMAIL_NOTIFY.Base_Column_List" >
+      ID, MEMBER_CODE, MERCHANT_CODE, MERCHANT_NAME, LOGIN_NAME, EMAIL_COMPANY, EMAIL_NOTIFY, OPEN_FLAG, CREATE_DATE, UPDATE_DATE, OPERATOR, MAX_TRADE_ORDER_NO
+    </sql>
+    <sql id="selectAllColumnList">
+    	ID id,
+    	MEMBER_CODE memberCode,
+    	MERCHANT_CODE merchantCode,
+    	MERCHANT_NAME merchantName,
+    	LOGIN_NAME loginName,
+    	EMAIL_COMPANY emailCompany,
+    	EMAIL_NOTIFY emailNotify,
+    	OPEN_FLAG openFlag,
+    	CREATE_DATE createDate,
+    	UPDATE_DATE updateDate,
+    	OPERATOR operator,
+    	OPERATE_STATUS operateStatus,
+    	MAX_TRADE_ORDER_NO maxTradeOrderNo
+    </sql>
+    
+   	<sql id="insertAllColumnList">
+    	MEMBER_CODE ,
+    	MERCHANT_CODE ,
+    	MERCHANT_NAME ,
+    	LOGIN_NAME ,
+    	EMAIL_COMPANY ,
+    	EMAIL_NOTIFY ,
+    	OPEN_FLAG ,
+    	CREATE_DATE ,
+    	UPDATE_DATE ,
+    	OPERATOR ,
+    	OPERATE_STATUS ,
+    	MAX_TRADE_ORDER_NO 
+    </sql>
+    
+	<sql id="whereConditions">
+	    <dynamic prepend="where">
+		    <isNotNull prepend="and" property="memberCode" >
+          <![CDATA[ MEMBER_CODE = #memberCode# ]]>
+        </isNotNull>
+        <isNotEmpty prepend="and" property="merchantCode">
+       	  <![CDATA[ MERCHANT_CODE =#merchantCode# ]]>
+        </isNotEmpty>
+        <isNotNull prepend="and" property="merchantName" >
+          <![CDATA[ MERCHANT_NAME = #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="loginName" >
+          <![CDATA[ LOGIN_NAME = #loginName# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="and" property="openFlag" >
+          <![CDATA[ OPEN_FLAG = #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operateStatus" >
+          <![CDATA[ OPERATE_STATUS = #operateStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="maxTradeOrderNo" >
+          <![CDATA[ MAX_TRADE_ORDER_NO = #maxTradeOrderNo# ]]>
+        </isNotNull>
+        
+       	<isNotNull property="startDate">
+			<isNotNull property="endDate">
+				and create_date between  to_date(#startDate#,'yyyy-mm-dd') and  to_date(#endDate#,'yyyy-mm-dd')+1  
+			</isNotNull>
+		</isNotNull>
+		
+		<isNotNull property="startDate">
+			<isNull property="endDate">
+				and create_date &gt;= to_date(#startDate#,'yyyy-mm-dd')-1
+			</isNull>
+		</isNotNull>
+
+		<isNotNull property="endDate">
+			<isNull property="startDate">
+				and create_date &lt;= to_date(#endDate#,'yyyy-mm-dd')+1
+			</isNull>
+		</isNotNull>
+	    </dynamic>
+	</sql>
+	
+    <select id="findById" resultMap="oenResultMap" parameterClass="Long" >
+      select 
+      <include refid="ORDER_EMAIL_NOTIFY.Base_Column_List" />
+      <![CDATA[
+      from ORDER_EMAIL_NOTIFY
+      where ID = #id#
+      ]]>
+    </select>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+    	delete from 
+    		ORDER_EMAIL_NOTIFY  config
+        where 
+        	config.id = #id# 
+    </delete>
+    
+    <insert id="create" parameterClass="orderEmailNotify" >
+     <selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT SEQ_ORDER_EMAIL_NOTIFY_ID.nextval FROM DUAL
+	  </selectKey>
+      insert into ORDER_EMAIL_NOTIFY
+      <dynamic prepend="(" >
+          ID,
+        <isNotNull prepend="," property="memberCode" >
+          MEMBER_CODE
+        </isNotNull>
+        <isNotNull prepend="," property="merchantCode" >
+          MERCHANT_CODE
+        </isNotNull>
+        <isNotNull prepend="," property="merchantName" >
+          MERCHANT_NAME
+        </isNotNull>
+        <isNotNull prepend="," property="loginName" >
+          LOGIN_NAME
+        </isNotNull>
+        <isNotNull prepend="," property="emailCompany" >
+          EMAIL_COMPANY
+        </isNotNull>
+        <isNotNull prepend="," property="emailNotify" >
+          EMAIL_NOTIFY
+        </isNotNull>
+        <isNotNull prepend="," property="openFlag" >
+          OPEN_FLAG
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          CREATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate" >
+          UPDATE_DATE
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          OPERATOR
+        </isNotNull>
+        <isNotNull prepend="," property="maxTradeOrderNo" >
+          MAX_TRADE_ORDER_NO
+        </isNotNull>
+        )
+      </dynamic>
+      values
+      <dynamic prepend="(" >
+          <![CDATA[ #id# ,]]>
+        <isNotNull prepend="," property="memberCode" >
+          <![CDATA[ #memberCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="merchantCode" >
+          <![CDATA[ #merchantCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="merchantName" >
+          <![CDATA[ #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="loginName" >
+          <![CDATA[ #loginName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="emailCompany" >
+          <![CDATA[ #emailCompany# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="emailNotify" >
+          <![CDATA[ #emailNotify# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="openFlag" >
+          <![CDATA[ #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="createDate" >
+          <![CDATA[ #createDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate" >
+          <![CDATA[ #updateDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="maxTradeOrderNo" >
+          <![CDATA[ #maxTradeOrderNo# ]]>
+        </isNotNull>
+        )
+      </dynamic>
+    </insert>
+    
+    
+    <update id="update" parameterClass="orderEmailNotify" >
+      update ORDER_EMAIL_NOTIFY
+      <dynamic prepend="set" >
+        <isNotNull prepend="," property="memberCode" >
+          <![CDATA[ MEMBER_CODE = #memberCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="merchantCode" >
+          <![CDATA[ MERCHANT_CODE = #merchantCode# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="merchantName" >
+          <![CDATA[ MERCHANT_NAME = #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="loginName" >
+          <![CDATA[ LOGIN_NAME = #loginName# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="emailCompany" >
+          <![CDATA[ EMAIL_COMPANY = #emailCompany# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="emailNotify" >
+          <![CDATA[ EMAIL_NOTIFY = #emailNotify# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="openFlag" >
+          <![CDATA[ OPEN_FLAG = #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operateStatus" >
+          <![CDATA[ OPERATE_STATUS = #operateStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate" >
+          <![CDATA[ UPDATE_DATE = #updateDate# ]]>
+        </isNotNull>
+        <isNotNull prepend="," property="maxTradeOrderNo" >
+          <![CDATA[ MAX_TRADE_ORDER_NO = #maxTradeOrderNo# ]]>
+        </isNotNull>
+      </dynamic>
+      <![CDATA[
+      where ID = #id#
+      ]]>
+    </update>
+    <!-- 开通状态 -->
+    <update id="updateFlag" parameterClass="java.util.Map" >
+      update ORDER_EMAIL_NOTIFY
+      set OPEN_FLAG = #openFlag#, UPDATE_DATE = sysdate 
+      where ID = #id#
+    </update>
+    <!-- 更新执行状态 -->
+    <update id="updateStatus" parameterClass="java.util.Map" >
+      update ORDER_EMAIL_NOTIFY
+      set OPERATE_STATUS = #operateStatus#
+      where OPEN_FLAG = 1
+    </update>
+    <!-- 更新最大网关订单号 -->
+    <update id="updateMaxOrderNo" parameterClass="java.util.Map" >
+      update ORDER_EMAIL_NOTIFY
+      set MAX_TRADE_ORDER_NO = #maxTradeOrderNo# 
+      where OPEN_FLAG = 1 and ID =#id#      
+    </update>
+    
+    <select id="findByCriteria" resultMap="oenResultMap" parameterClass="oenSearch" >
+    	select * from ORDER_EMAIL_NOTIFY where 1=1
+    	<isNotNull prepend="and" property="memberCode" >
+          <![CDATA[ MEMBER_CODE = #memberCode# ]]>
+        </isNotNull>
+        <isNotEmpty prepend="and" property="merchantCode">
+       	  <![CDATA[ MERCHANT_CODE =#merchantCode# ]]>
+        </isNotEmpty>
+        <isNotNull prepend="and" property="merchantName" >
+          <![CDATA[ MERCHANT_NAME = #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="loginName" >
+          <![CDATA[ LOGIN_NAME = #loginName# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="and" property="operateStatus" >
+          <![CDATA[ OPERATE_STATUS = #operateStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="openFlag" >
+          <![CDATA[ OPEN_FLAG = #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="maxTradeOrderNo" >
+          <![CDATA[ MAX_TRADE_ORDER_NO = #maxTradeOrderNo# ]]>
+        </isNotNull>
+        
+       	<isNotNull property="startDate">
+			<isNotNull property="endDate">
+				and create_date between  to_date(#startDate#,'yyyy-mm-dd') and  to_date(#endDate#,'yyyy-mm-dd')  
+			</isNotNull>
+		</isNotNull>
+		
+		<isNotNull property="startDate">
+			<isNull property="endDate">
+				and create_date &gt;= to_date(#startDate#,'yyyy-mm-dd')
+			</isNull>
+		</isNotNull>
+
+		<isNotNull property="endDate">
+			<isNull property="startDate">
+				and create_date &lt;= to_date(#endDate#,'yyyy-mm-dd')
+			</isNull>
+		</isNotNull>
+        order by id desc
+    </select>
+	
+    <select id="countByCriteria" resultClass="java.lang.Integer" parameterClass="oenSearch">
+     	select count(1) from ORDER_EMAIL_NOTIFY where 1=1
+    	<isNotNull prepend="and" property="memberCode" >
+          <![CDATA[ MEMBER_CODE = #memberCode# ]]>
+        </isNotNull>
+        <isNotEmpty prepend="and" property="merchantCode">
+       	  <![CDATA[ MERCHANT_CODE =#merchantCode# ]]>
+        </isNotEmpty>
+        <isNotNull prepend="and" property="merchantName" >
+          <![CDATA[ MERCHANT_NAME = #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="loginName" >
+          <![CDATA[ LOGIN_NAME = #loginName# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="and" property="operateStatus" >
+          <![CDATA[ OPERATE_STATUS = #operateStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="openFlag" >
+          <![CDATA[ OPEN_FLAG = #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="maxTradeOrderNo" >
+          <![CDATA[ MAX_TRADE_ORDER_NO = #maxTradeOrderNo# ]]>
+        </isNotNull>
+        
+       	<isNotNull property="startDate">
+			<isNotNull property="endDate">
+				and create_date between  to_date(#startDate#,'yyyy-mm-dd') and  to_date(#endDate#,'yyyy-mm-dd')+1  
+			</isNotNull>
+		</isNotNull>
+		
+		<isNotNull property="startDate">
+			<isNull property="endDate">
+				and create_date &gt;= to_date(#startDate#,'yyyy-mm-dd')-1
+			</isNull>
+		</isNotNull>
+
+		<isNotNull property="endDate">
+			<isNull property="startDate">
+				and create_date &lt;= to_date(#endDate#,'yyyy-mm-dd')+1
+			</isNull>
+		</isNotNull>
+        order by id desc
+	</select>
+    
+    <select id="queryOrderEmailNotify" resultMap="oenResultMap" parameterClass="oenSearch">
+     	select * from ORDER_EMAIL_NOTIFY where 1=1
+    	<isNotNull prepend="and" property="memberCode" >
+          <![CDATA[ MEMBER_CODE = #memberCode# ]]>
+        </isNotNull>
+        <isNotEmpty prepend="and" property="merchantCode">
+       	  <![CDATA[ MERCHANT_CODE =#merchantCode# ]]>
+        </isNotEmpty>
+        <isNotNull prepend="and" property="merchantName" >
+          <![CDATA[ MERCHANT_NAME = #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="loginName" >
+          <![CDATA[ LOGIN_NAME = #loginName# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="and" property="operateStatus" >
+          <![CDATA[ OPERATE_STATUS = #operateStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="openFlag" >
+          <![CDATA[ OPEN_FLAG = #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="maxTradeOrderNo" >
+          <![CDATA[ MAX_TRADE_ORDER_NO = #maxTradeOrderNo# ]]>
+        </isNotNull>
+        
+       	<isNotNull property="startDate">
+			<isNotNull property="endDate">
+				and create_date between  to_date(#startDate#,'yyyy-mm-dd') and  to_date(#endDate#,'yyyy-mm-dd')+1  
+			</isNotNull>
+		</isNotNull>
+		
+		<isNotNull property="startDate">
+			<isNull property="endDate">
+				and create_date &gt;= to_date(#startDate#,'yyyy-mm-dd')-1
+			</isNull>
+		</isNotNull>
+
+		<isNotNull property="endDate">
+			<isNull property="startDate">
+				and create_date &lt;= to_date(#endDate#,'yyyy-mm-dd')+1
+			</isNull>
+		</isNotNull>
+        order by id desc
+	</select>
+	
+    <select id="queryCountOrderEmailNotify" resultClass="java.lang.Integer" parameterClass="oenSearch">
+     	select count(1) from ORDER_EMAIL_NOTIFY where 1=1
+    	<isNotNull prepend="and" property="memberCode" >
+          <![CDATA[ MEMBER_CODE = #memberCode# ]]>
+        </isNotNull>
+        <isNotEmpty prepend="and" property="merchantCode">
+       	  <![CDATA[ MERCHANT_CODE =#merchantCode# ]]>
+        </isNotEmpty>
+        <isNotNull prepend="and" property="merchantName" >
+          <![CDATA[ MERCHANT_NAME = #merchantName# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="loginName" >
+          <![CDATA[ LOGIN_NAME = #loginName# ]]>
+        </isNotNull>
+        
+        <isNotNull prepend="and" property="operateStatus" >
+          <![CDATA[ OPERATE_STATUS = #operateStatus# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="openFlag" >
+          <![CDATA[ OPEN_FLAG = #openFlag# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="operator" >
+          <![CDATA[ OPERATOR = #operator# ]]>
+        </isNotNull>
+        <isNotNull prepend="and" property="maxTradeOrderNo" >
+          <![CDATA[ MAX_TRADE_ORDER_NO = #maxTradeOrderNo# ]]>
+        </isNotNull>
+        
+       	<isNotNull property="startDate">
+			<isNotNull property="endDate">
+				and create_date between  to_date(#startDate#,'yyyy-mm-dd') and  to_date(#endDate#,'yyyy-mm-dd')+1  
+			</isNotNull>
+		</isNotNull>
+		
+		<isNotNull property="startDate">
+			<isNull property="endDate">
+				and create_date &gt;= to_date(#startDate#,'yyyy-mm-dd')-1
+			</isNull>
+		</isNotNull>
+
+		<isNotNull property="endDate">
+			<isNull property="startDate">
+				and create_date &lt;= to_date(#endDate#,'yyyy-mm-dd')+1
+			</isNull>
+		</isNotNull>
+        order by id desc
+	</select>
+    
+  </sqlMap>

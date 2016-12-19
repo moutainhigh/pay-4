@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="2" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/fo/batchpayment-api.properties</value>
+				<value>file:/opt/pay/config/security/fo/batchpayment-api-rsa.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="api-batchPaymentService" class="com.pay.api.service.impl.BatchPaymentServiceImpl">
+		<property name="validateService" ref="fo-api-batchPaymentValidateService" />
+		<property name="batchPaymentReqBaseInfoService" ref="fo-order-batchPaymentReqBaseInfoService" />
+		<property name="batchPay2BankRequestService" ref="fo-order-batchPay2BankRequestService" />
+		<property name="batchPay2AcctRequestService" ref="fo-order-batchPay2AcctRequestService" />
+		<property name="batchPay2BankOrderService" ref="fo-order-batchPay2BankOrderService" />
+		<property name="batchPay2AcctOrderService" ref="fo-order-batchPay2AcctOrderService" />
+	</bean>
+
+	<bean id="api-batchPaymentCallbackService"
+		class="com.pay.api.service.impl.BatchPaymentCallbackServiceImpl">
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="merchantConfigureDao" ref="merchantConfigureDao" />
+		<property name="notify_templateId" value="${NOTIFY_TEMPLATEID}" />
+		<property name="securityProvider" ref="api-securityProvider" />
+		<property name="responseXmlTemplate">
+			<value>
+<![CDATA[		
+<?xml version="1.0" encoding="UTF-8"?>
+<PayPlatResponseParameter>
+	<RESPONSE_HEADER>
+		<BIZ_NO>${BIZ_NO}</BIZ_NO>
+		<TOTAL_AMOUNT>${TOTAL_AMOUNT}</TOTAL_AMOUNT>
+		<TOTAL_COUNT>${TOTAL_COUNT}</TOTAL_COUNT>
+		<SUCCESS_AMOUNT>${SUCCESS_AMOUNT?default(0)}</SUCCESS_AMOUNT>
+		<SUCCESS_COUNT>${SUCCESS_COUNT?default(0)}</SUCCESS_COUNT>
+		<ERROR_CODE>${ERROR_CODE?default('')}</ERROR_CODE>
+		<ERROR_MSG>${ERROR_MSG?default('')}</ERROR_MSG>
+		<SIGNVALUE>${SIGNVALUE?default('')}</SIGNVALUE>
+	</RESPONSE_HEADER>
+	<RESPONSE_BODY>
+	<#if itemList?exists>
+		<#list itemList as ls>
+		<PAY_ITEM>
+			<pay_SEQ_NO>${ls.paySeqNo?default('')}</pay_SEQ_NO>
+			<STATUS>${ls.status}</STATUS>
+			<ERROR_CODE>${ls.errorCode?default('')}</ERROR_CODE>
+			<ERROR_MSG>${ls.errorMsg?default('')}</ERROR_MSG>
+			<ORDER_ID>${ls.orderId}</ORDER_ID>
+			<SUCCESS_TIME>${ls.successTime?default('')}</SUCCESS_TIME>
+		</PAY_ITEM>
+		</#list>
+		</#if>
+	</RESPONSE_BODY>
+</PayPlatResponseParameter>
+]]>
+			</value>
+		</property>
+	</bean>
+
+	<bean id="api-securityProvider" class="com.pay.api.service.impl.SecurityProviderImpl">
+		<property name="providePwd">
+			<value>${BATCHPAYMENT_API_RSA_JKS_PWD}</value>
+		</property>
+		<property name="keyFile">
+			<value>file:${BATCHPAYMENT_API_RSA_JKS_PATH}</value>
+		</property>
+		<property name="alias">
+			<value>${BATCHPAYMENT_API_RSA_ALIAS}</value>
+		</property>
+		<property name="pwd">
+			<value>${BATCHPAYMENT_API_RSA_PRIVATE_PWD}</value>
+		</property>
+	</bean>
+
+	<bean id="api-merchantConfigureService" class="com.pay.api.service.impl.MerchantConfigureServiceImpl">
+		<property name="merchantConfigureDao" ref="merchantConfigureDao" />
+	</bean>
+</beans>

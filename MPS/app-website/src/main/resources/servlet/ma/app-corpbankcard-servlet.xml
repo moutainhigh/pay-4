@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="3" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/app/commonconfigure.properties</value>
+				<value>file:/opt/pay/env/fstoken.properties</value>
+			</list>
+		</property>
+	</bean>
+	<!-- 联系人定义映射-->
+	<bean id="corpBankAcctHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+   	  </property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/editCorpBankCard.htm">corpBankAcctController</prop>
+				<prop key="/corp/addCorpBankCard.htm">corpBankAcctController</prop>
+				<prop key="/corp/remvCorpBankCard.htm">corpBankAcctController</prop>
+				<prop key="/corp/setDefaBankCard.htm">corpBankAcctController</prop>
+				<prop key="/corp/setNotDefaBankCard.htm">corpBankAcctController</prop>
+				<prop key="/corp/downAuthTemplate.htm">corpBankAcctController</prop>
+				<prop key="/corp/uploadAuthTemplate.htm">corpBankAcctController</prop>
+				<!-- bsp用 -->
+				<prop key="/corp/bsp/editCorpBankCard.htm">bspBankAcctController</prop>
+				<prop key="/corp/bsp/addCorpBankCard.htm">bspBankAcctController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="corpBankAcctController"
+		class="com.pay.app.controller.base.bankacct.CorpBankAcctController">
+		<property name="methodNameResolver">
+				<ref bean="corpBankAcctParamResolver" />
+			</property>
+		
+		<property name="bankAcctService">
+			<ref bean="app-bankAcctServiceFacade"/>
+		</property>
+		<property name="liquidateInfoService">
+			<ref bean="base-liquidateInfoService"/>
+		</property>
+		<property name="enterpriseBaseService">
+			<ref bean="base-enterpriseBaseService"/>
+		</property>
+		<property name="autoFundoutConfigService">
+			<ref bean="fundout-autoFundoutConfigService"/>
+		</property>
+		<property name="editBantCardView">
+			<value>/base/bankcard/corp/corp_bankcard</value>
+		</property>
+		<property name="addBankCardSuccessView">
+			<value>/base/bankcard/corp/corp_add_success</value>
+		</property>
+		<property name="cardExistsErrorView">
+			<value>/base/bankcard/corp/corp_bankcard_exist</value>
+		</property>
+		<property name="bindCardNumFailedView">
+			<value>/base/bankcard/corp/corp_bankcard_numfail</value>
+		</property>
+		<property name="editBankCardFailedView">
+			<value>/base/bankcard/corp/corp_edit_failed</value>
+		</property>
+		<property name="corpCardErrorView">
+			<value>/base/bankcard/corp/corp_card_error</value>
+		</property>
+		<property name="bankCardListView">
+			<value>/base/bankcard/corp/bank_card_list</value>
+		</property>
+		<property name="authTemplateSavePath" value="${app.authTemplate.path}" />
+		<property name="ossKey" value="${mpsposs.oss.key}" />
+		<property name="ossSubDir" value="auth" />
+		<property name="ossRootDir" value="mpsposs" />
+	</bean>
+	
+	<bean id="bspBankAcctController"
+		class="com.pay.app.controller.base.bankacct.BspBankAcctController" parent="corpBankAcctController">
+		<property name="methodNameResolver">
+				<ref bean="bspBankAcctParamResolver" />
+			</property>
+		<property name="addBankCardSuccessView">
+			<value>/base/bankcard/corp/bsp_update_success</value>
+		</property>
+		
+	</bean>
+	
+	<bean id="corpBankAcctParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/editCorpBankCard.htm">editBankCard</prop>
+				<prop key="/corp/addCorpBankCard.htm">addBankCard</prop>
+				<prop key="/corp/remvCorpBankCard.htm">removeBankCard</prop>
+				<prop key="/corp/setDefaBankCard.htm">setDefaultBankCard</prop>
+				<prop key="/corp/setNotDefaBankCard.htm">setNotDefaultBankCard</prop>
+				<prop key="/corp/downAuthTemplate.htm">downAuthTemplate</prop>
+				<prop key="/corp/uploadAuthTemplate.htm">uploadAuthTemplate</prop>
+				<!-- bsp用 -->
+			</props>
+		</property>
+	</bean>
+	<bean id="bspBankAcctParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<!-- bsp用 -->
+				<prop key="/corp/bsp/editCorpBankCard.htm">editBankCard</prop>
+				<prop key="/corp/bsp/addCorpBankCard.htm">addOrUpdateBankCard</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

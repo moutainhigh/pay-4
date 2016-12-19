@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paymentOrder">
+	<typeAlias alias="paymentOrder" type="com.pay.txncore.model.PaymentOrder"/>
+    <resultMap id="paymentOrderResult" class="paymentOrder">
+        <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="PAYER_TYPE" property="payerType" jdbcType="DECIMAL"/>
+        <result column="PAYEE" property="payee" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_ORDER_NO" property="paymentOrderNo" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="CURRENCY_CODE" property="currencyCode" jdbcType="VARCHAR"/>
+        <result column="PAYEE_FEE" property="payeeFee" jdbcType="DECIMAL"/>
+        <result column="PAYER_FEE" property="payerFee" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_AMOUNT" property="paymentAmount" jdbcType="DECIMAL"/>
+        <result column="DEBIT_FLG" property="debitFlg" jdbcType="VARCHAR"/>
+        <result column="PAYER" property="payer" jdbcType="DECIMAL"/>
+        <result column="ORG_CODE" property="orgCode" jdbcType="VARCHAR"/>
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="PAY_TYPE" property="payType" jdbcType="VARCHAR"/>
+        <result column="PAYEE_TYPE" property="payeeType" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="COMPLETE_DATE" property="completeDate" jdbcType="TIMESTAMP"/>
+        <result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR"/>
+        <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_IP" property="customerIp" jdbcType="VARCHAR"/>
+        <result column="SETTLEMENT_FLG" property="settlementFlg" jdbcType="DECIMAL"/>
+        <result column="COUPON_NUMBER" property="couponNumber" jdbcType="VARCHAR"/>
+        <result column="COUPON_VALUE" property="couponValue" jdbcType="DECIMAL"/>
+        <result column="PRDT_CODE" property="prdtCode" jdbcType="VARCHAR"/>
+    </resultMap>
+	
+	<resultMap class="paymentOrder" id="paymentOrderResult2" extends="paymentOrderResult">
+	       <result column="CARD_NO" property="cardNo" jdbcType="VARCHAR"/>    
+	         <result column="pOExpandCreateDate" property="pOExpandCreateDate" jdbcType="TIMESTAMP"/> 
+	         <result column="TRADE_TYPE" property="tradeType" jdbcType="VARCHAR"/> 
+	</resultMap>
+
+
+    <insert id="create" parameterClass="paymentOrder">
+   		 <selectKey resultClass="java.lang.Long" keyProperty="paymentOrderNo">
+    		SELECT 105 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_PAYMENT_ORDER_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO PAYMENT_ORDER(
+			TRADE_ORDER_NO,STATUS,PAYER_TYPE,PAYEE,
+			PAYMENT_ORDER_NO,UPDATE_DATE,CURRENCY_CODE,PAYEE_FEE,PAYER_FEE,PAYMENT_AMOUNT,
+			DEBIT_FLG,PAYER,ORG_CODE,ERROR_CODE,PAY_TYPE,
+			PAYEE_TYPE,CREATE_DATE,PAYER_NAME,PAYEE_NAME,CUSTOMER_IP,SETTLEMENT_FLG,COUPON_NUMBER,COUPON_VALUE,PRDT_CODE
+        )
+        VALUES(
+            #tradeOrderNo#,#status#,#payerType#,#payee#,
+			#paymentOrderNo#,#updateDate#,#currencyCode#,#payeeFee#,#payerFee#,#paymentAmount#,
+			#debitFlg#,#payer#,#orgCode#,#errorCode#,#payType#,
+			#payeeType#,#createDate#,#payerName#,#payeeName#,#customerIp#,#settlementFlg#,#couponNumber#,#couponValue#,#prdtCode#
+		)
+    </insert>
+
+    <update id="update" parameterClass="paymentOrder">
+        UPDATE PAYMENT_ORDER
+        <dynamic prepend="SET">
+	        <isNotNull prepend="," property="tradeOrderNo">
+	            TRADE_ORDER_NO = #tradeOrderNo#
+	        </isNotNull>
+	        <isNotNull prepend="," property="status">
+	            STATUS = #status#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payerType">
+	            PAYER_TYPE = #payerType#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payee">
+	            PAYEE = #payee#
+	        </isNotNull>
+	        <isNotNull prepend="," property="currencyCode">
+	            CURRENCY_CODE = #currencyCode#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payeeFee">
+	            PAYEE_FEE = #payeeFee#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payerFee">
+	           PAYER_FEE = #payerFee#
+	        </isNotNull>
+	        <isNotNull prepend="," property="paymentAmount">
+	            PAYMENT_AMOUNT = #paymentAmount#
+	        </isNotNull>
+	        <isNotNull prepend="," property="debitFlg">
+	            DEBIT_FLG = #debitFlg#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payer">
+	            PAYER = #payer#
+	        </isNotNull>
+	        <isNotNull prepend="," property="orgCode">
+	            ORG_CODE = #orgCode#
+	        </isNotNull>
+	        <isNotNull prepend="," property="errorCode">
+	            ERROR_CODE = #errorCode#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payType">
+	            PAY_TYPE = #payType#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payeeType">
+	            PAYEE_TYPE = #payeeType#
+	        </isNotNull>
+	        <isNotNull prepend="," property="completeDate">
+	            COMPLETE_DATE = #completeDate#
+	        </isNotNull>
+	        <isNotNull prepend="," property="updateDate">
+	            UPDATE_DATE = #updateDate#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payerName">
+	            PAYER_NAME = #payerName#
+	        </isNotNull>
+	        <isNotNull prepend="," property="payeeName">
+	            PAYEE_NAME = #payeeName#
+	        </isNotNull>
+	        <isNotNull prepend="," property="settlementFlg">
+	            SETTLEMENT_FLG = #settlementFlg#
+	        </isNotNull>
+	        <isNotNull prepend="," property="prdtCode">
+	            PRDT_CODE = #prdtCode#
+	        </isNotNull>
+        </dynamic>
+	    WHERE PAYMENT_ORDER_NO = #paymentOrderNo#
+       	<isNotNull prepend="AND" property="oldStatus">
+        	status = #oldStatus#
+        </isNotNull>
+    </update>
+
+    <select id="findById" resultMap="paymentOrderResult2"
+        parameterClass="java.lang.Long">
+        SELECT
+			po.*,
+        	poe.CARD_NO,
+        	poe.CREATE_DATE pOExpandCreateDate,
+        	tor.TRADE_TYPE
+        FROM 
+        	PAYMENT_ORDER po,
+        	PAYMENT_ORDER_EXPAND poe,
+        	trade_order tor
+        WHERE
+        	 po.PAYMENT_ORDER_NO = poe.PAYMENT_ORDER_NO 
+       	and  po.trade_order_no = tor.trade_order_no
+       	and  po.PAYMENT_ORDER_NO = #paymentOrderNo#
+    </select>
+    
+    <select id="queryByTradeOrderNo" parameterClass="java.lang.Long" resultMap="paymentOrderResult">
+    	SELECT * FROM PAYMENT_ORDER 
+		 WHERE TRADE_ORDER_NO = #tradeOrderNo#
+    </select>
+
+	<select id="queryByTradeOrderAndStatus" resultMap="paymentOrderResult"
+		parameterClass="java.util.HashMap">
+		SELECT * FROM PAYMENT_ORDER
+		
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="tradeOrderNo">
+				TRADE_ORDER_NO = #tradeOrderNo#
+          </isNotNull>
+          <isNotNull prepend="AND" property="status">
+				STATUS = #status#
+          </isNotNull>
+		</dynamic>
+	</select>
+    
+    <select id="findByCriteria" resultMap="paymentOrderResult" parameterClass="paymentOrder">
+        SELECT * FROM PAYMENT_ORDER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerType">
+            PAYER_TYPE = #payerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payee">
+            PAYEE = #payee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>        
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentAmount">
+            PAYMENT_AMOUNT = #paymentAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="debitFlg">
+            DEBIT_FLG = #debitFlg# 	
+        </isNotNull>
+        <isNotNull prepend="AND" property="payer">
+            PAYER = #payer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payType">
+            PAY_TYPE = #payType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeType">
+            PAYEE_TYPE = #payeeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="and" property="settlementFlg">
+            SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+            PRDT_CODE = #prdtCode#
+        </isNotNull>        
+        </dynamic>
+        order by CREATE_DATE desc
+    </select>
+
+    <select id="findByCriteria_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PAYMENT_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerType">
+            PAYER_TYPE = #payerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>        
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentAmount">
+            PAYMENT_AMOUNT = #paymentAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="debitFlg">
+            DEBIT_FLG = #debitFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payer">
+            PAYER = #payer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payType">
+            PAY_TYPE = #payType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeType">
+            PAYEE_TYPE = #payeeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="and" property="settlementFlg">
+            SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+            PRDT_CODE = #prdtCode#
+        </isNotNull> 
+        </dynamic>
+    </select>
+    
+    <select id="countByCriteria"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PAYMENT_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerType">
+            PAYER_TYPE = #payerType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeFee">
+            PAYEE_FEE = #payeeFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payerFee">
+            PAYER_FEE = #payerFee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentOrderNo">
+            PAYMENT_ORDER_NO = #paymentOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+		<isNotEmpty prepend="AND" property="beginTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')+1
+		</isNotEmpty>        
+        <isNotNull prepend="AND" property="currencyCode">
+            CURRENCY_CODE = #currencyCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paymentAmount">
+            PAYMENT_AMOUNT = #paymentAmount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="debitFlg">
+            DEBIT_FLG = #debitFlg# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payer">
+            PAYER = #payer# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="orgCode">
+            ORG_CODE = #orgCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payType">
+            PAY_TYPE = #payType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="payeeType">
+            PAYEE_TYPE = #payeeType# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="and" property="settlementFlg">
+            SETTLEMENT_FLG = #settlementFlg#
+        </isNotNull>
+        <isNotNull prepend="and" property="prdtCode">
+            PRDT_CODE = #prdtCode#
+        </isNotNull>  
+        </dynamic>
+    </select>
+    
+    <update id="updateSettlementFlg">
+    	update PAYMENT_ORDER
+    	set
+    	SETTLEMENT_FLG = #settlementFlg#
+    	where payment_order_no = #paymentOrderNo#
+    </update>
+    
+</sqlMap>

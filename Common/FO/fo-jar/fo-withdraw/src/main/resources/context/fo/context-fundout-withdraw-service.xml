@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+	<!-- 提现申请规则引擎 -->
+	<bean id="fundout-withdraw-ruleengine" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fundout-withdraw-memberAuthRule" />
+		</property>
+	</bean>
+	<!-- 会员实名验证方法 -->
+	<bean id="fundout-withdraw-memberAuthRule" class="com.pay.fundout.withdraw.service.validate.rule.MemberAuthenticationRule"> 
+	<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-withdrawAmountRule" />
+		</property>
+		<property name="messageId" value="memberAuthenticationError" />
+		<property name="withdrawMemberFacadeService">
+			<ref bean="withdrawMemberFacadeService" />
+		</property>
+	</bean>
+	<!-- 提现金额验证规则 是否超出提现可提现金额 -->
+	<bean id="fundout-withdraw-withdrawAmountRule" class="com.pay.fundout.withdraw.service.validate.rule.WithdrawAmountRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-withdrawSingleAmountRule" />
+		</property>
+		<property name="withdrawMemberFacadeService">
+			<ref bean="withdrawMemberFacadeService" />
+		</property>
+		<property name="messageId" value="withdrawAmountError" />
+	</bean>
+	<!-- 提现金额验证规则-单笔提现限额 -->
+	<bean id="fundout-withdraw-withdrawSingleAmountRule" class="com.pay.fundout.withdraw.service.validate.rule.WithdrawSingleAmountConfigRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-withdrawMonthAmountRule" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="messageId" value="withdrawSingleAmountError" />
+	</bean>
+	
+	<!-- 提现金额验证规则-当月提现限额 -->
+	<bean id="fundout-withdraw-withdrawMonthAmountRule" class="com.pay.fundout.withdraw.service.validate.rule.WithdrawMonthAmountConfigRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-withdrawDayTimesRule" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		
+		<property name="withdrawOrderService">
+			<ref bean="withdrawOrderService" />
+		</property>
+		<property name="messageId" value="withdrawMonthAmountError" />
+	</bean>
+	
+	<!-- 提现金额验证规则-单日提现次数限制 -->
+	<bean id="fundout-withdraw-withdrawDayTimesRule" class="com.pay.fundout.withdraw.service.validate.rule.WithdrawDayTimesConfigRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-withdrawMonthTimesRule" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		
+		<property name="withdrawOrderService">
+			<ref bean="withdrawOrderService" />
+		</property>
+		<property name="messageId" value="dayTimesError" />
+	</bean>
+	
+	<!-- 提现次数验证规则-单月提现次数限制 -->
+	<bean id="fundout-withdraw-withdrawMonthTimesRule" class="com.pay.fundout.withdraw.service.validate.rule.WithdrawMonthTimesConfigRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-memberAcctSpecRule" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="withdrawOrderService">
+			<ref bean="withdrawOrderService" />
+		</property>
+		<property name="messageId" value="dayTimesError" />
+	</bean>
+	
+	<!-- 会员账户状态验证规则 -->
+	<bean id="fundout-withdraw-memberAcctSpecRule" class="com.pay.fundout.withdraw.service.validate.rule.MemberAcctSpecificationRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-withdrawLimitConfigRule" />
+		</property>
+		<property name="messageId" value="memberAcctSpecRuleError" />
+		<property name="withdrawMemberFacadeService">
+			<ref bean="withdrawMemberFacadeService" />
+		</property>
+	</bean>
+	<!-- 提现限制配置验证规则-单日提现总限额  -->
+	<bean id="fundout-withdraw-withdrawLimitConfigRule" class="com.pay.fundout.withdraw.service.validate.rule.WithdrawLimitConfigRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-bankChannelRule" />
+		</property>
+		<property name="messageId" value="withdrawLimitConfigRuleError" />
+		<property name="withdrawOrderService">
+			<ref bean="withdrawOrderService" />
+		</property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+	</bean>
+	
+	<!-- 判断是否有出款渠道，没有则返回-->
+	<bean id="fundout-withdraw-bankChannelRule" class="com.pay.fundout.withdraw.service.validate.rule.BankChannelRule">
+	    <property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-selectOutBankAction" />
+		</property>
+		<property name="messageId" value="bankChannelNotExists" />
+		<property name="configBankService">
+			<ref bean="context_fundout_configbank_service" />
+		</property>
+	</bean>
+	
+	
+	
+	<!-- 选择出款银行 -->
+	<bean id="fundout-withdraw-selectOutBankAction" class="com.pay.fundout.withdraw.service.validate.action.SelectOutBankAction">
+		<property name="nextStep">
+			<ref bean="fundout-withdraw-selectBankOutTypeAction" />
+		</property>
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+	</bean>
+	<!-- 选择出款方式 -->
+	<bean id="fundout-withdraw-selectBankOutTypeAction" class="com.pay.fundout.withdraw.service.validate.action.SelectBankOutTypeAction">
+		<!--
+		<property name="nextStep">
+			<ref bean="fundout-withdraw-saveWithDrawOrderAction" />
+		</property>
+		-->
+	</bean>
+	
+	<!-- 保存提现订单处理 
+	<bean id="fundout-withdraw-saveWithDrawOrderAction" class="com.pay.fundout.withdraw.service.validate.action.SaveWithDrawOrderAction">
+		<property name="nextStep">
+			<ref bean="fundout-withdraw-accountingRule" />
+		</property>
+		<property name="withdrawOrderService">
+			<ref bean="withdrawOrderService" />
+		</property>
+	</bean>
+	
+	 记账是否成功 
+	<bean id="fundout-withdraw-accountingRule" class="com.pay.fundout.withdraw.service.validate.rule.AccountingRule">
+	    <property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fundout-withdraw-sendOrderCreatedReqAction" />
+		</property>
+		<property name="orderAfterProcService">
+			<ref bean="fundout-orderchandler-orderAfterProcService" />
+		</property>
+		<property name="orderCallBackService">
+			<ref bean="fundout-withdraw-withDrawReqCallBack" />
+		</property>
+		<property name="accountingService">
+			<ref bean="fundout-withdrawFirstAccounting" />
+		</property>
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+		<property name="orderAfterFailProcAlertHandler" ref="fundout-orderchandler-failProcHandler"></property>
+		<property name="messageId" value="accountingFailued" />
+		
+	</bean>
+	
+	 记账 
+	<bean id="fundout-withdraw-accountingAction" class="com.pay.fundout.withdraw.service.validate.action.AccountingAction">
+		<property name="nextStep">
+			<ref bean="fundout-withdraw-sendOrderCreatedReqAction" />
+		</property>
+		<property name="orderAfterProcService">
+			<ref bean="fundout-orderchandler-orderAfterProcService" />
+		</property>
+		<property name="orderCallBackService">
+			<ref bean="fundout-withdraw-withDrawReqCallBack" />
+		</property>
+		<property name="accountingService">
+			<ref bean="fundout-withdrawFirstAccounting" />
+		</property>
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+	</bean>
+		
+	 发送订单生成消息 
+	<bean id="fundout-withdraw-sendOrderCreatedReqAction" class="com.pay.fundout.withdraw.service.validate.action.SendOrderCreatedRequestAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="queueName" value="fundout.withdraw.request.active" />
+	</bean>
+	-->
+</beans>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/gateway/http-config.properties</value>
+			</list>
+		</property>
+		<property name="order" value="2" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+	
+	<bean id="vccPayHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+     	
+		<property name="mappings">
+			<props>
+				<prop key="/corp/vccMgr.htm">vccMgrController</prop>
+			</props>
+		</property>
+		
+	</bean>
+
+	<bean id="vccMgrController" class="com.pay.fi.VccMgrController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="partnerConfigService" ref="partnerConfigService" />
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="vccPayAction" value="${webgate.vccApiPayUrl}" />
+		<property name="vccPayView" value="/fi/vccpay/vccMgr" />
+		
+	</bean>
+
+</beans>

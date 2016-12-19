@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="MERCHANT_CONFIGURE" >
+  <resultMap id="BaseResultMap" class="com.pay.api.model.MerchantConfigure" >
+    <result column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="MERCHANT_CODE" property="merchantCode" jdbcType="VARCHAR" />
+    <result column="AUTHORIZE_ADDRESS" property="authorizeAddress" jdbcType="VARCHAR" />
+    <result column="NOTIFY_URL" property="notifyUrl" jdbcType="VARCHAR" />
+    <result column="PUBLIC_KEY" property="publicKey" jdbcType="VARCHAR" />
+    <result column="CREATOR" property="creator" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="NOTIFY_FLAG" property="notifyFlag" jdbcType="DECIMAL" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATOR" property="updator" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Criteria_Where_Clause" >
+    <iterate property="oredCriteria" conjunction="or" prepend="where" removeFirstPrepend="iterate" >
+      <isEqual property="oredCriteria[].valid" compareValue="true" >
+        (
+        <iterate prepend="and" property="oredCriteria[].criteriaWithoutValue" conjunction="and" >
+          $oredCriteria[].criteriaWithoutValue[]$
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithSingleValue" conjunction="and" >
+          $oredCriteria[].criteriaWithSingleValue[].condition$
+            #oredCriteria[].criteriaWithSingleValue[].value#
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithListValue" conjunction="and" >
+          $oredCriteria[].criteriaWithListValue[].condition$
+          <iterate property="oredCriteria[].criteriaWithListValue[].values" open="(" close=")" conjunction="," >
+            #oredCriteria[].criteriaWithListValue[].values[]#
+          </iterate>
+        </iterate>
+        <iterate prepend="and" property="oredCriteria[].criteriaWithBetweenValue" conjunction="and" >
+          $oredCriteria[].criteriaWithBetweenValue[].condition$
+          #oredCriteria[].criteriaWithBetweenValue[].values[0]# and
+          #oredCriteria[].criteriaWithBetweenValue[].values[1]#
+        </iterate>
+        )
+      </isEqual>
+    </iterate>
+  </sql>
+  <select id="selectByCriteria" resultMap="BaseResultMap" parameterClass="com.pay.api.model.MerchantConfigureCriteria" >
+    select ID, MERCHANT_CODE, AUTHORIZE_ADDRESS, NOTIFY_URL, PUBLIC_KEY, CREATOR, CREATE_DATE,
+      NOTIFY_FLAG, UPDATE_DATE, UPDATOR, STATUS
+    from MERCHANT_CONFIGURE
+    <isParameterPresent >
+      <include refid="MERCHANT_CONFIGURE.Criteria_Where_Clause" />
+      <isNotNull property="orderByClause" >
+        order by $orderByClause$
+      </isNotNull>
+    </isParameterPresent>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterClass="java.lang.Integer" >
+    select ID, MERCHANT_CODE, AUTHORIZE_ADDRESS, NOTIFY_URL, PUBLIC_KEY, CREATOR, CREATE_DATE,
+      NOTIFY_FLAG, UPDATE_DATE, UPDATOR, STATUS
+    from MERCHANT_CONFIGURE
+    where ID = #id:DECIMAL#
+  </select>
+  <insert id="insert" parameterClass="com.pay.api.model.MerchantConfigure" >
+    insert into MERCHANT_CONFIGURE (ID, MERCHANT_CODE, AUTHORIZE_ADDRESS, NOTIFY_URL, PUBLIC_KEY,
+      CREATOR, CREATE_DATE, NOTIFY_FLAG, UPDATE_DATE, UPDATOR, STATUS)
+    values (SEQ_MERCHANT_CONFIGURE.NEXTVAR, #merchantCode:VARCHAR#, #authorizeAddress:VARCHAR#, #notifyUrl:VARCHAR#,
+      #publicKey:VARCHAR#, #creator:VARCHAR#, #createDate:TIMESTAMP#, #notifyFlag:DECIMAL#,
+      #updateDate:TIMESTAMP#, #updator:VARCHAR#, #status:DECIMAL#)
+  </insert>
+  <insert id="insertSelective" parameterClass="com.pay.api.model.MerchantConfigure" >
+  	<selectKey resultClass="java.lang.Integer" keyProperty="id">
+			SELECT SEQ_MERCHANT_CONFIGURE.NEXTVAL as id from DUAL 
+	</selectKey>
+    insert into MERCHANT_CONFIGURE
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        ID
+      </isNotNull>
+      <isNotNull prepend="," property="merchantCode" >
+        MERCHANT_CODE
+      </isNotNull>
+      <isNotNull prepend="," property="authorizeAddress" >
+        AUTHORIZE_ADDRESS
+      </isNotNull>
+      <isNotNull prepend="," property="notifyUrl" >
+        NOTIFY_URL
+      </isNotNull>
+      <isNotNull prepend="," property="publicKey" >
+        PUBLIC_KEY
+      </isNotNull>
+      <isNotNull prepend="," property="creator" >
+        CREATOR
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE
+      </isNotNull>
+      <isNotNull prepend="," property="notifyFlag" >
+        NOTIFY_FLAG
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE
+      </isNotNull>
+      <isNotNull prepend="," property="updator" >
+        UPDATOR
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        STATUS
+      </isNotNull>
+      )
+    </dynamic>
+    values
+    <dynamic prepend="(" >
+      <isNotNull prepend="," property="id" >
+        #id:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="merchantCode" >
+        #merchantCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="authorizeAddress" >
+        #authorizeAddress:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="notifyUrl" >
+        #notifyUrl:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="publicKey" >
+        #publicKey:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="creator" >
+        #creator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="notifyFlag" >
+        #notifyFlag:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updator" >
+        #updator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        #status:DECIMAL#
+      </isNotNull>
+      )
+    </dynamic>
+  </insert>
+  <select id="countByCriteria" parameterClass="com.pay.api.model.MerchantConfigureCriteria" resultClass="java.lang.Integer" >
+    select count(*) from MERCHANT_CONFIGURE
+    <include refid="MERCHANT_CONFIGURE.Criteria_Where_Clause" />
+  </select>
+  <update id="updateByCriteriaSelective" >
+    update MERCHANT_CONFIGURE
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="record.id" >
+        ID = #record.id:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.merchantCode" >
+        MERCHANT_CODE = #record.merchantCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.authorizeAddress" >
+        AUTHORIZE_ADDRESS = #record.authorizeAddress:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.notifyUrl" >
+        NOTIFY_URL = #record.notifyUrl:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.publicKey" >
+        PUBLIC_KEY = #record.publicKey:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.creator" >
+        CREATOR = #record.creator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.createDate" >
+        CREATE_DATE = #record.createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.notifyFlag" >
+        NOTIFY_FLAG = #record.notifyFlag:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="record.updateDate" >
+        UPDATE_DATE = #record.updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="record.updator" >
+        UPDATOR = #record.updator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="record.status" >
+        STATUS = #record.status:DECIMAL#
+      </isNotNull>
+    </dynamic>
+    <isParameterPresent >
+      <include refid="MERCHANT_CONFIGURE.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByCriteria" >
+    update MERCHANT_CONFIGURE
+    set ID = #record.id:DECIMAL#,
+      MERCHANT_CODE = #record.merchantCode:VARCHAR#,
+      AUTHORIZE_ADDRESS = #record.authorizeAddress:VARCHAR#,
+      NOTIFY_URL = #record.notifyUrl:VARCHAR#,
+      PUBLIC_KEY = #record.publicKey:VARCHAR#,
+      CREATOR = #record.creator:VARCHAR#,
+      CREATE_DATE = #record.createDate:TIMESTAMP#,
+      NOTIFY_FLAG = #record.notifyFlag:DECIMAL#,
+      UPDATE_DATE = #record.updateDate:TIMESTAMP#,
+      UPDATOR = #record.updator:VARCHAR#,
+      STATUS = #record.status:DECIMAL#
+    <isParameterPresent >
+      <include refid="MERCHANT_CONFIGURE.Criteria_Where_Clause" />
+    </isParameterPresent>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterClass="com.pay.api.model.MerchantConfigure" >
+    update MERCHANT_CONFIGURE
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="merchantCode" >
+        MERCHANT_CODE = #merchantCode:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="authorizeAddress" >
+        AUTHORIZE_ADDRESS = #authorizeAddress:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="notifyUrl" >
+        NOTIFY_URL = #notifyUrl:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="publicKey" >
+        PUBLIC_KEY = #publicKey:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="creator" >
+        CREATOR = #creator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="notifyFlag" >
+        NOTIFY_FLAG = #notifyFlag:DECIMAL#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updator" >
+        UPDATOR = #updator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="status" >
+        STATUS = #status:DECIMAL#
+      </isNotNull>
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+  <update id="updateByPrimaryKey" parameterClass="com.pay.api.model.MerchantConfigure" >
+    update MERCHANT_CONFIGURE
+    set MERCHANT_CODE = #merchantCode:VARCHAR#,
+      AUTHORIZE_ADDRESS = #authorizeAddress:VARCHAR#,
+      NOTIFY_URL = #notifyUrl:VARCHAR#,
+      PUBLIC_KEY = #publicKey:VARCHAR#,
+      CREATOR = #creator:VARCHAR#,
+      CREATE_DATE = #createDate:TIMESTAMP#,
+      NOTIFY_FLAG = #notifyFlag:DECIMAL#,
+      UPDATE_DATE = #updateDate:TIMESTAMP#,
+      UPDATOR = #updator:VARCHAR#,
+      STATUS = #status:DECIMAL#
+    where ID = #id:DECIMAL#
+  </update>
+</sqlMap>

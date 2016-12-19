@@ -1,0 +1,111 @@
+<!DOCTYPE HTML>
+<#import "/spring.ftl" as sp />
+<html>
+<head>
+<style type="text/css"> 
+.excel_txt {
+	padding-top: 1px;
+	padding-right: 1px;
+	padding-left: 1px;
+	mso-ignore: padding;
+	color: black;
+	font-size: 11.0pt;
+	font-weight: 400;
+	font-style: normal;
+	text-decoration: none;
+	font-family: 宋体;
+	mso-generic-font-family: auto;
+	mso-font-charset: 134;
+	mso-number-format: "\@";
+	text-align: general;
+	vertical-align: middle;
+	mso-background-source: auto;
+	mso-pattern: auto;
+	white-space: nowrap;  
+}
+</style> 
+<meta charset="utf-8">
+<title>支付账户余额明细导出的excle表格</title>
+
+</head>
+<body>
+	<table width="800" border="1">
+		<thead>
+		   <tr>
+		     <!--  <td colspan="8" style="text-align: middle;">#==============支付收支汇总==============</td>    20160420 Mack comment this line and add below line-->
+			<!-- 修改展示文本 -->
+			 <#if margin!=1 >
+			  <td colspan="11" style="text-align: middle;">#==============基本账户余额明细列表==============</td>
+			<#else>
+			 <td colspan="11" style="text-align: middle;">#==============保证金账户余额明细列表==============</td>
+			</#if>	
+		   </tr>
+		   
+		   <tr>
+		      <td colspan="11">余额账户:<#if acctName?exists>${acctName?default("")}</#if></td>
+		   </tr> 
+		   
+		   <tr>
+		      <td colspan="11"><#if sDate?exists >从${sDate?string('yyyy-MM-dd HH:mm:ss')}</#if>  <#if eDate?exists >到${eDate?string('yyyy-MM-dd HH:mm:ss')}的明细</#if></td>
+		   </tr> 
+		   <tr>
+		       <td colspan="11">下载时间 ：<#if nowDate?exists>${nowDate?string('yyyy-MM-dd')}</#if> </td>
+		   </tr>
+		   <tr>
+		   <#-- 添加 基本账户与保证金账户的区分-->
+			<#if margin!=1 >
+			<td colspan="11">#------------基本账户余额明细列表--------------</td>
+			<#else>
+			<td colspan="11">#------------保证金账户余额明细列表--------------</td>
+			</#if>		   				   
+		   </tr>
+			<tr>
+				<td>商户订单号</td>
+				<td width="150">交易流水号</td>
+				<td  width="150">入账时间</td>
+				<td >明细类型</td><!-- 修改字段描述 2016年5月23日15:21:20 delin.dong -->
+				<td width="150" align="center">备注</td>
+				<td  >收入</td>
+				<td  >收入币种</td>
+				<td  >支出</td>
+				<td  >支出币种</td>
+				<td  >账户余额</td>
+				<td  >余额币种</td>
+			</tr>
+		</thead>
+		<tbody>
+			<#if qbdList?has_content>
+			<#list qbdList as qs>
+			<tr> 
+				<td class="excel_txt">${qs.merchantOrderId?default("")}</td><!-- 修改商户订单号的获取 -->
+				<td class="excel_txt">${qs.payNo?default("")}</td>
+				<td class="excel_txt"><em>${qs.balanceDate?default("")}</em></td>
+				<td>${qs.fundTrace?default("")}</td>
+				<td align="left">
+				<#if qs.fundTrace?default("") == "记账">
+				${qs.remark?default("")}
+				</#if>
+				</td>
+				<td class="excel_txt" style="text-align: right;" ><strong style="color:#fb7701 !important;font-size:12px !important;" >#{qs.revenue?default(0);m3}</strong></td>
+				<td class="excel_txt"><strong style="color:#fb7701 !important;font-size:12px !important;" >${qs.revenueCode?default("")}</strong></td><!--收款币种  -->
+				<td class="excel_txt" style="text-align: right;"><strong style="color:#fb7701 !important;font-size:12px !important;" >#{qs.pay?default(0);m3}</strong></td>
+				<td class="excel_txt"><strong style="color:#fb7701 !important;font-size:12px !important;" >${qs.payCode?default("")}</strong></td><!-- 支付币种 -->
+				<td class="excel_txt" style="text-align: right;"><strong style="color:#fb7701 !important;font-size:12px !important;" >#{qs.balance?default(0);m3}</strong></td>
+				<td class="excel_txt" ><strong style="color:#fb7701 !important;font-size:12px !important;" >${qs.balanceCurCode?default("")}</strong></td>
+			</tr>
+			</#list>
+		  </#if>
+		    <!-- 添加 基本账户与保证金账户的区分-->
+		    <tr>
+			<#if margin!=1 >
+			<td colspan="11">#------------基本账户余额明细列表--------------</td>
+			<#else>
+			<td colspan="11">#------------保证金账户余额明细列表--------------</td>
+			</#if>		   				   
+		   </tr>
+		</tbody>
+	</table>
+	
+	
+</body>
+</html>

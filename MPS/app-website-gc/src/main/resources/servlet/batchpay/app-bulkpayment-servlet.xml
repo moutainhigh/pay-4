@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean id="bulkPaymentHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+     	
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bulkPayment.htm">bulkPaymentController</prop>
+			</props>
+		</property>
+		
+	</bean>
+
+	<bean id="bulkPaymentController" class="com.pay.app.controller.base.bulkpayment.BulkPaymentController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="bulkPaymentTemplate">
+			<value>/gcpayment/bulkpayment/bulk_payment_template</value>
+		</property>
+		<property name="queryView">
+			<value>/gcpayment/bulkpayment/bulk_payment_detail</value>
+		</property>
+		<property name="checkView">
+			<value>/gcpayment/bulkpayment/bulk_payment_check</value>
+		</property>
+		<property name="excelBulkpayQueryBusiness">
+			<value>/gcpayment/bulkpayment/excelBulkpayDownload</value>
+		</property>
+		
+		<property name="bulkpayOrderService">
+			<ref bean="app-bulkpayOrderService"/>
+		</property>
+		<property name="bulkpayTemplateService">
+			<ref bean="app-bulkpayTemplateService"/>
+		</property>
+		<property name="merchantService">
+			<ref bean="app-merchantService"/>
+		</property>
+		<property name="withdrawWorkOrderService">
+			<ref bean="app-withDrawWorkOrderService"/>
+		</property>
+		<property name="accountQueryFacadeService" ref="fo-maapi-accountQueryFacadeService"></property>
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService"></property>
+		<property name="accountingService" ref="fundout-pay2acctPayerFeeAccounting"/>
+		<property name="acctAttribService" ref="acc-acctAttribService"></property>
+		<property name="withdrawOrderService" ref="fo-order-withdrawOrderService" />
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"/>
+		
+	</bean>
+
+</beans>

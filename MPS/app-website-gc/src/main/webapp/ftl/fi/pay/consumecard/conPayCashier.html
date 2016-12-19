@@ -1,0 +1,211 @@
+<!DOCTYPE HTML>
+<html> 
+<head>
+	<meta charset="utf-8">
+	<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+	<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="container"> 
+	<div class="pay_cashier " id="confirmPay">
+		<form method="post" action="${rc.contextPath}/conCardPay.htm?method=onSubmit" id="conCardPayForm" name="conCardPayForm">
+			<ul class="form_list">
+				<li>
+					<label class="form_side">应付总额：</label><strong class="red">${totalAmount?default('')}</strong> 元
+				</li>
+				<li>
+					<label class="form_side" style="margin-top:8px;">已选消费卡类型：</label>
+					<span class="mr20"><label for="test1" class="${cardType?default('')}"></label></span>
+				</li>
+
+				<li>
+					<label class="form_side">已选卡面值：</label>
+					<span class="blod">${amountType?default('')}</span> 元<br />
+					<p class="select_par_value">此笔支付预计结余 <span class="blue">${otherMoney?default('')}</span> 元，将扣除 <span class="c_f60">${fee?default('')}</span> 元手续费后，充值入您iPayLinks账户 ( <span class="blue"> ${conLoginName?default('')}</span> )</p>
+				</li> 
+
+				<li>
+					<label class="form_side">联系方式：</label>
+					<span class="blod">${conLoginName?default('')}</span>
+				</li>
+				<li>
+					<label class="form_side">卡号：</label>
+					<input type="text" class="inp_normal w150" id="conCardNo" name="conCardNo" maxlength="20">
+				</li>
+				<li>
+					<label class="form_side">卡密码：</label>
+					<input type="password" class="inp_normal w150" id="conCardNoPwd" name="conCardNoPwd" maxlength="20">
+				</li>
+				<li>
+					<label class="form_side">验证码：</label>
+					<input id="conRandCode" name="conRandCode" type="text" class="txtType3"  maxlength="4" style="width:80px;"  tabindex="1"/>
+					<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="conCode" width="68" height="23" id="conCode" style="vertical-align: top" />
+					<a id="conRefush" href="javascript:void(0);">换一张</a>
+				</li>
+
+				<li class="btn">
+					<span class="btn_yel mt10"><button id="postSubmit_span_2" type="button" onclick="postSubmit()">确认支付</button></span>
+				</li>
+			</ul>
+			<input type="hidden" name="loginName" id="loginName" value="${conLoginName?default('')}"/>
+			<input type="hidden" name="conCardOrders" id="conCardOrders" value="${conCardOrders?default('')}"/>
+			<input type="hidden" name="ordersKey" id="ordersKey" value="${ordersKey?default('')}"/>
+			<input type="hidden" name="partner" id="partner" value="${partner?default('')}"/>
+			<input type="hidden" name="totalAmount" id="totalAmount" value="${totalAmount?default('')}"/>
+			<input type="hidden" name="amountType" id="amountType" value="${amountType?default('')}"/>
+			<input type="hidden" name="cardTypeNo" id="cardTypeNo" value="${cardType?default('')}"/>
+			<input type="hidden" name="cardTypes" id="cardTypes" value="${cardTypes?default('')}"/> 
+			<input type="hidden" name="otherMoney" id="otherMoney" value="${otherMoney?default('')}"/> 
+			<!--<input type="hidden" name="redirectFlag" id="redirectFlag" value="2"/> -->
+
+			<div class="safe_warning_tips2">
+				<p class="blod red">重要提示：</p>
+				<ol>
+					<li><span class="c_f60">请务必正确的选择您所使用的卡面额，以避免引起不必要的交易失败或交易金额损失。</span></li>
+					<li>
+						<p>神州行卡支付支持使用：全国通用的神州行卡（卡号17位，密码18位），面额：30、50、100、300、500</p>
+						<p>联通卡支付支持使用：联通全国充值卡（卡号15位，密码19位），面额：30、50、100、300、500</p>
+						<p>电信卡支付支持使用：电信全国充值卡（卡号19位，密码18位），面额：30、50、100</p>
+					</li>
+					<li>如果充值卡面额与应付订单金额不符，系统会将此次支付产生的结余扣除相应 <span class="pointer rel poundage">手续费<div class="poundage_pop hide">
+							<p class="blod">充值卡支付结余手续费率：</p>
+							<span >神州行充值卡：8%</span><br />
+							<span >联通充值卡：12%</span><br />
+							<span >电信充值卡：12%</span> </div></span> 后，自动充值并冻结在您所用iPayLinks账户内。 </li>
+					<li>
+						<p class="">客服服务流程</p>
+						<p>如遇支付问题，可通过邮件或电话方式与我司联系，我们将竭诚为您服务。</p>
+						<span class="ml20">（1）邮箱方式：请发送充值卡号，商户订单号，联系方式，并说明所需解决内容，如“结余金额解冻申请”，至客服邮箱pay@hnair.com。</span><br />
+						<span class="ml20">（2）电话方式：请致电客服电话4006650719，并说明所需解决内容。</span> </li>
+					<li>支付完成后请记录本次交易订单号码，以便日后查询核对使用。</li>
+				</ol>
+			</div>
+
+		</form>
+	</div>
+	<div id="conCardDiv" > </div> 
+	
+</div>
+</body>
+<script type="text/javascript">
+
+	$(function(){
+		$(".poundage").hover(
+		function(){
+			$(".poundage_pop").show();
+		},
+		function(){
+			$(".poundage_pop").hide();
+		})
+	
+		$("#conRefush").click(function(){
+			var d = new Date();
+			
+			var conSrc = "validatecode/validatecode.htm?date=" + d.getTime();
+			$("#conCode").attr("src",conSrc);
+			return false;
+		});
+	});
+
+	function returnBank() {
+		var totalAmount = '${totalAmount?default('')}';	
+		var partner = '${partner?default('')}';	
+		var pars = $("#conCardPayForm").serialize();
+		$.ajax({
+			type: "POST",
+			url: "${rc.contextPath}/prepaidCardCashier.htm?method=index",
+			cache: false,
+			data: pars,
+			success: function(result) {
+				$('#conCardDiv').html(result);
+			}
+		});
+	}
+	function postSubmit() {
+			var cardType = $("#cardTypeNo").val();
+			var conCardNo = $("#conCardNo").val();
+			var conCardNoPwd = $("#conCardNoPwd").val();
+			var conRandCode = $("#conRandCode").val();
+		
+			if("" == conCardNo ){
+				$.pay.alert('请输入卡号',{h:160,t:'3'});
+				return ;
+			}
+			if("" == conCardNoPwd ){
+				$.pay.alert('请输入卡密码',{h:160,t:'3'});
+				return ;
+			}
+			if("ydon_card" == cardType){
+				if(conCardNo.length !=17){
+					$.pay.alert('神州行充值卡号应为17位,请检查',{h:160,t:'3'});
+					return ;
+				}
+				if(conCardNoPwd.length !=18){
+					$.pay.alert('神州行充值卡密码应为18位,请检查',{h:160,t:'3'});
+					return ;
+				}
+			}else if("lton_card" == cardType){
+				if(conCardNo.length !=15){
+					$.pay.alert('联通充值卡号应为15位,请检查',{h:160,t:'3'});
+					return ;
+				}
+				if(conCardNoPwd.length !=19){
+					$.pay.alert('联通充值卡密码应为19位,请检查',{h:160,t:'3'});
+					return ;
+				}
+			}else if("dxin_card" == cardType){
+			   if(conCardNo.length !=19){
+					$.pay.alert('电信充值卡号应为19位,请检查',{h:160,t:'3'});
+					return ;
+				}
+				if(conCardNoPwd.length !=18){
+					$.pay.alert('电信充值卡密码应为18位,请检查',{h:160,t:'3'});
+					return ;
+				}
+			}
+
+		
+	
+        	if(conRandCode == ""){
+				$.pay.alert('验证码不能为空',{h:160,t:'3'});
+				return ;
+			}
+
+			var pars = $("#conCardPayForm").serialize();
+			loadWin=$.pay.loading('正在处理中请稍后...',{success:function(){}});
+		    var checkCodeFlag = true;
+			$.ajax({
+				type: "POST",
+				url: "${rc.contextPath}/conCardPay.htm?method=checkCode",
+				cache: false,
+				data: pars,
+					success: function(result) {
+						if(result !=""){
+							checkCodeFlag = false;
+							$.pay.alert(result,{h:160,t:'3'});
+							$.pay.closeLoading(loadWin);
+							return;
+						}
+						$.ajax({
+								type: "POST",
+								url: "${rc.contextPath}/conCardPay.htm?method=onSubmit",
+								cache: false,
+								data: pars,
+									success: function(result) {
+											if(result.indexOf("<!-- tips -->")>=0){
+												$.pay.window(result,{title:'',w:550,h:300,url:false,isClose:false});
+											}else{
+												$.pay.alert(result,{h:160,t:'3'});
+											}
+											$.pay.closeLoading(loadWin);
+										    $("#postSubmit_span_2").addClass("b_off");
+
+									}
+								});
+					}
+				});
+			
+		}
+
+</script>
+</html>

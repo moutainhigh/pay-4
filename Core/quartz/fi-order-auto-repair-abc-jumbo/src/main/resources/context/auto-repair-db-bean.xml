@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	
+	<!-- 自动补单数据源与事务配置 dsFi -->
+	<!-- production配置 -->
+	<bean id="dsFi" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/fiDs" />
+	</bean>
+	<bean id="dsHnacard" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/fihnacardDs" />
+	</bean>
+	<bean id="dataSourceAcc" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/accDs" />
+	</bean>
+	<bean id="peDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/peDs" />
+	</bean>
+	<bean id="infDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/infDs" />
+	</bean>
+	<bean id="dsFo" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/foDs" />
+	</bean>
+	<bean id="dsPoss" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/possDs" />
+	</bean>
+	
+	
+	<!-- 自动补单数据源与事务配置 dsFi -->
+	<!-- QA配置 
+	<bean id="dsFi" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="fi" />
+		<property name="password" value="fi_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="dsHnacard" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="fi_hnacard" />
+		<property name="password" value="fi_hnacard_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="dataSourceAcc" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="acc" />
+		<property name="password" value="acc_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="peDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="pe" />
+		<property name="password" value="pe_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="infDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="inf" />
+		<property name="password" value="inf_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	<bean id="dsFo" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="fo" />
+		<property name="password" value="fo_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	<bean id="dsPoss" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.182:1521:hnapay" />
+		<property name="username" value="intra" />
+		<property name="password" value="intra_dba" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+		-->
+	<!-- 自动补单数据源与事务配置 dsFi -->
+	<!-- dev配置
+	<bean id="dsFi" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="fi" />
+		<property name="password" value="fi" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="dsHnacard" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="fi_hnacard" />
+		<property name="password" value="fi_hnacard" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="dataSourceAcc" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="acc" />
+		<property name="password" value="acc" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="peDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="pe" />
+		<property name="password" value="pe" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	
+	<bean id="infDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="inf" />
+		<property name="password" value="inf" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	<bean id="dsFo" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="fo" />
+		<property name="password" value="fo" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	<bean id="dsPoss" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="url" value="jdbc:oracle:thin:@10.2.169.183:1521:orcl" />
+		<property name="username" value="intra" />
+		<property name="password" value="intra" />
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+	</bean>
+	 -->
+</beans>

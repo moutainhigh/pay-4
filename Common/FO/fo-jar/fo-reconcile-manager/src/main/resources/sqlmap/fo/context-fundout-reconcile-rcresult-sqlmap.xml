@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 查询对账结果SQLMAp配置 -->
+<sqlMap namespace="RC_RESULT">
+	
+	<typeAlias alias="reconcileResultSummaryList" type="com.pay.fundout.reconcile.model.rcresult.ReconcileResultSummary"/>
+	<typeAlias alias="reconcileResultList" type="com.pay.fundout.reconcile.model.rcresult.ReconcileResult"/>
+	
+	<!-- 对账汇总列表
+	<resultMap id="reconcileResultList" class="com.pay.fundout.reconcile.model.rcresult.ReconcileResultSummary">
+        <result column="withdrawBankId" property="withdrawBankId" />
+        <result column="allBankCount" property="allBankCount" />
+        <result column="allAccountCount" property="allAccountCount" />
+        <result column="allBankAmount" property="allBankAmount" />
+        <result column="allAccountAmount" property="allAccountAmount" />
+        <result column="bankManyCount" property="bankManyCount" />
+        <result column="sysManyCount" property="sysManyCount" />
+        <result column="completeMatchCount" property="completeMatchCount" />
+        <result column="completeNoMatchCount" property="completeNoMatchCount" />
+        <result column="completeMatchAmount" property="completeMatchAmount" />
+    </resultMap> -->
+    
+	<select id="queryReconcileResultList" parameterClass="java.util.Map" resultClass="reconcileResultSummaryList">
+		SELECT 
+			WITHDRAW_BANK_ID	withdrawBankId	,
+			COUNT( CASE WHEN BANK_AMOUNT IS NOT NULL  THEN 1 ELSE NULL END)	allBankCount	, 
+			COUNT( CASE WHEN TRADE_AMOUNT IS NOT NULL THEN 1 ELSE NULL END) allAccountCount	,
+			SUM( CASE WHEN BANK_AMOUNT IS NOT NULL THEN BANK_AMOUNT ELSE 0 END) allBankAmount	,
+			SUM( CASE WHEN TRADE_AMOUNT IS NOT NULL THEN TRADE_AMOUNT ELSE 0 END) allAccountAmount	, 
+			COUNT( CASE BUSI_FLAG WHEN 200 THEN 1 ELSE NULL END) bankManyCount	, 
+			COUNT( CASE BUSI_FLAG WHEN 210 THEN 1 ELSE NULL END) sysManyCount	,
+			COUNT( CASE BUSI_FLAG WHEN 100 THEN 1 ELSE NULL END) completeMatchCount	,
+			COUNT( CASE BUSI_FLAG WHEN 220 THEN 1 ELSE NULL END) completeNoMatchCount	,
+			SUM( CASE BUSI_FLAG WHEN 100 THEN TRADE_AMOUNT ELSE 0 end) completeMatchAmount
+		FROM RECONCILE_RESULT 
+			WHERE status = 1
+	            <isNotEmpty property="withDrawBankId" prepend="AND">
+					WITHDRAW_BANK_ID = #withDrawBankId#
+				</isNotEmpty>
+				<isNotEmpty property="startDate" prepend="AND">
+	            	<![CDATA[ BUSI_DATE >= #startDate# ]]>
+				</isNotEmpty>
+				<isNotEmpty property="endDate" prepend="AND">
+	           		<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+	           	</isNotEmpty>
+	           	
+		GROUP BY  WITHDRAW_BANK_ID 
+	</select>
+    
+	<select id="queryReconcileResultList_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+		SELECT COUNT(1) from (
+			SELECT 
+				WITHDRAW_BANK_ID	withdrawBankId	,
+				COUNT( CASE WHEN BANK_AMOUNT IS NOT NULL  THEN 1 ELSE NULL END)	allBankCount	, 
+				COUNT( CASE WHEN TRADE_AMOUNT IS NOT NULL THEN 1 ELSE NULL END) allAccountCount	,
+				SUM( CASE WHEN BANK_AMOUNT IS NOT NULL THEN BANK_AMOUNT ELSE 0 END) allBankAmount	,
+				SUM( CASE WHEN TRADE_AMOUNT IS NOT NULL THEN TRADE_AMOUNT ELSE 0 END) allAccountAmount	, 
+				COUNT( CASE BUSI_FLAG WHEN 200 THEN 1 ELSE NULL END) bankManyCount	, 
+				COUNT( CASE BUSI_FLAG WHEN 210 THEN 1 ELSE NULL END) sysManyCount	,
+				COUNT( CASE BUSI_FLAG WHEN 100 THEN 1 ELSE NULL END) completeMatchCount	,
+				COUNT( CASE BUSI_FLAG WHEN 220 THEN 1 ELSE NULL END) completeNoMatchCount	,
+				SUM( CASE BUSI_FLAG WHEN 100 THEN TRADE_AMOUNT ELSE 0 end) completeMatchAmount
+			FROM RECONCILE_RESULT
+					WHERE status = 1 
+		            <isNotEmpty property="withDrawBankId" prepend="AND">
+						WITHDRAW_BANK_ID = #withDrawBankId#
+					</isNotEmpty>
+					<isNotEmpty property="startDate" prepend="AND">
+		            	<![CDATA[ BUSI_DATE >= #startDate# ]]>
+					</isNotEmpty>
+					<isNotEmpty property="endDate" prepend="AND">
+		           		<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+		           	</isNotEmpty>
+			GROUP BY  WITHDRAW_BANK_ID 	
+		)
+	</select>
+	
+	 <select id="queryReconcileDetailByBank" parameterClass="java.util.Map" resultClass="reconcileResultList">
+        SELECT  
+        	
+        		(SELECT SUM(BANK_AMOUNT)  FROM RECONCILE_RESULT
+      				WHERE	BANK_AMOUNT IS NOT NULL and status = 1
+					<isPropertyAvailable property="busiFlag">
+						 <isNotEqual compareValue="0" property="busiFlag" prepend="AND">
+								BUSI_FLAG = #busiFlag#
+					 	 </isNotEqual>
+				 	 </isPropertyAvailable>
+				    <isNotEmpty property="withdrawBankId" prepend="AND">
+	            				WITHDRAW_BANK_ID = #withdrawBankId#
+	       			</isNotEmpty>
+	       			  <isNotEmpty property="startDate" prepend="AND">
+	            			<![CDATA[ BUSI_DATE >= #startDate# ]]>
+	     			  	 </isNotEmpty>
+	        		<isNotEmpty property="endDate" prepend="AND">
+	           				<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+	           		</isNotEmpty>
+		           )					allAmount		,
+        		RESULT_ID				resultId		,
+        		WITHDRAW_BANK_ID		withdrawBankId	,
+        		BUSI_DATE				busiDate		,
+        		WITHDRAW_BUSI_TYPE		withdrawBusiType,
+				BANK_TRADE_SEQ			tradeSeq		, 
+				BANK_AMOUNT     	tradeAmount		,                 
+				HISTORY_FLAG 			historyFlag		, 
+				BUSI_FLAG               busiFlag		,                 
+				REVISE_STATUS 			reviseStatus	, 
+				TRADE_TIME				tradeTime		,        
+				FILE_ID					fileId
+          FROM RECONCILE_RESULT
+				WHERE	BANK_AMOUNT IS NOT NULL and status = 1
+				<isPropertyAvailable property="busiFlag">
+						 <isNotEqual compareValue="0" property="busiFlag" prepend="AND">
+								BUSI_FLAG = #busiFlag#
+					 	 </isNotEqual>
+				 	 </isPropertyAvailable>
+			   <isNotEmpty property="withdrawBankId" prepend="AND">
+            				WITHDRAW_BANK_ID = #withdrawBankId#
+       			</isNotEmpty>
+       			  <isNotEmpty property="startDate" prepend="AND">
+            			<![CDATA[ BUSI_DATE >= #startDate# ]]>
+     			  	 </isNotEmpty>
+        		<isNotEmpty property="endDate" prepend="AND">
+           				<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+           	</isNotEmpty>
+    </select>
+    <select id="queryReconcileDetailBySys" parameterClass="java.util.Map" resultClass="reconcileResultList">
+       SELECT  
+      		 (SELECT SUM(TRADE_AMOUNT)  FROM RECONCILE_RESULT
+      				WHERE	TRADE_AMOUNT IS NOT NULL and status = 1
+      				<isPropertyAvailable property="busiFlag">
+						 <isNotEqual compareValue="0" property="busiFlag" prepend="AND">
+								BUSI_FLAG = #busiFlag#
+					 	 </isNotEqual>
+				 	 </isPropertyAvailable>
+				    <isNotEmpty property="withdrawBankId" prepend="AND">
+	            		WITHDRAW_BANK_ID = #withdrawBankId#
+	       			</isNotEmpty>
+	       		
+	       			<isNotEmpty property="startDate" prepend="AND">
+	            		<![CDATA[ BUSI_DATE >= #startDate# ]]>
+	     			</isNotEmpty>
+	        		<isNotEmpty property="endDate" prepend="AND">
+	           			<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+	           		</isNotEmpty>
+		           )					allAmount		,
+        		RESULT_ID				resultId		,
+        		WITHDRAW_BANK_ID		withdrawBankId	,
+        		BUSI_DATE				busiDate		,
+        		WITHDRAW_BUSI_TYPE		withdrawBusiType,
+				TRADE_SEQ				tradeSeq		, 
+				TRADE_AMOUNT       tradeAmount		,                 
+				HISTORY_FLAG 			historyFlag		, 
+				BUSI_FLAG               busiFlag		,                 
+				REVISE_STATUs 			reviseStatus	, 
+				TRADE_TIME				tradeTime		,        
+				FILE_ID					fileId
+          FROM RECONCILE_RESULT
+				WHERE	TRADE_AMOUNT IS NOT NULL and status = 1
+				<isPropertyAvailable property="busiFlag">
+					 <isNotEqual compareValue="0" property="busiFlag" prepend="AND">
+							BUSI_FLAG = #busiFlag#
+				 	 </isNotEqual>
+				</isPropertyAvailable>
+			   <isNotEmpty property="withdrawBankId" prepend="AND">
+            				WITHDRAW_BANK_ID = #withdrawBankId#
+       			</isNotEmpty>
+       			
+       			<isNotEmpty property="startDate" prepend="AND">
+            			<![CDATA[ BUSI_DATE >= #startDate# ]]>
+     			</isNotEmpty>
+        		
+        		<isNotEmpty property="endDate" prepend="AND">
+           				<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+           		</isNotEmpty>
+    </select>
+    
+    <select id="queryReconcileDetailByBank_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+        SELECT  
+        		COUNT(1)
+          FROM RECONCILE_RESULT
+				WHERE	BANK_AMOUNT IS NOT NULL and status = 1
+				<isPropertyAvailable property="busiFlag">
+						 <isNotEqual compareValue="0" property="busiFlag" prepend="AND">
+								BUSI_FLAG = #busiFlag#
+					 	 </isNotEqual>
+				 	 </isPropertyAvailable>
+			   <isNotEmpty property="withdrawBankId" prepend="AND">
+            				WITHDRAW_BANK_ID = #withdrawBankId#
+       			</isNotEmpty>
+       			  <isNotEmpty property="startDate" prepend="AND">
+            			<![CDATA[ BUSI_DATE >= #startDate# ]]>
+     			  	 </isNotEmpty>
+        		<isNotEmpty property="endDate" prepend="AND">
+           				<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+           	</isNotEmpty>
+    </select>
+    <select id="queryReconcileDetailBySys_COUNT" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+          SELECT  
+        		COUNT(1)
+          FROM RECONCILE_RESULT
+				WHERE	TRADE_AMOUNT IS NOT NULL and status = 1
+			<isPropertyAvailable property="busiFlag">
+						 <isNotEqual compareValue="0" property="busiFlag" prepend="AND">
+								BUSI_FLAG = #busiFlag#
+					 	 </isNotEqual>
+				 	 </isPropertyAvailable>
+			   <isNotEmpty property="withdrawBankId" prepend="AND">
+            				WITHDRAW_BANK_ID = #withdrawBankId#
+       			</isNotEmpty>
+       			  <isNotEmpty property="startDate" prepend="AND">
+            			<![CDATA[ BUSI_DATE >= #startDate# ]]>
+     			  	 </isNotEmpty>
+        		<isNotEmpty property="endDate" prepend="AND">
+           				<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+           	</isNotEmpty>
+    </select>
+	
+	
+	<select id="queryReconcileResultList2Excel" parameterClass="java.util.Map" resultClass="reconcileResultSummaryList">
+		SELECT 
+			WITHDRAW_BANK_ID	withdrawBankId	,
+			COUNT( CASE WHEN BANK_AMOUNT IS NOT NULL  THEN 1 ELSE NULL END)	allBankCount	, 
+			COUNT( CASE WHEN TRADE_AMOUNT IS NOT NULL THEN 1 ELSE NULL END) allAccountCount	,
+			SUM( CASE WHEN BANK_AMOUNT IS NOT NULL THEN BANK_AMOUNT ELSE 0 END) allBankAmount  ,
+    	    SUM( CASE WHEN TRADE_AMOUNT IS NOT NULL THEN TRADE_AMOUNT ELSE 0 END) allAccountAmount  , 
+      	    COUNT( CASE BUSI_FLAG WHEN 200 THEN 1 WHEN 210 THEN 1 WHEN 220 THEN 1 ELSE NULL END) differenceCount  , 
+      		SUM( CASE BUSI_FLAG WHEN 200 THEN BANK_AMOUNT WHEN 210 THEN TRADE_AMOUNT WHEN 220 THEN TRADE_AMOUNT  ELSE 0 end) differenceAmount,
+    		COUNT(CASE REVISE_STATUS WHEN 0 THEN 1 WHEN 1 THEN 1 WHEN 2 THEN 1 WHEN 3 THEN 1 WHEN 6 THEN 1 ELSE NULL END)  reviseCount,
+            SUM( CASE REVISE_STATUS WHEN 0 THEN NVL(BANK_AMOUNT,TRADE_AMOUNT) WHEN 1 THEN  NVL(BANK_AMOUNT,TRADE_AMOUNT) WHEN 2 THEN NVL(BANK_AMOUNT,TRADE_AMOUNT)
+              WHEN 3 THEN  NVL(BANK_AMOUNT,TRADE_AMOUNT)  WHEN 6  THEN NVL(BANK_AMOUNT,TRADE_AMOUNT) ELSE 0 end) reviseAmount
+   			 FROM RECONCILE_RESULT 
+			WHERE status = 1
+	            <isNotEmpty property="withDrawBankId" prepend="AND">
+					WITHDRAW_BANK_ID = #withDrawBankId#
+				</isNotEmpty>
+				<isNotEmpty property="startDate" prepend="AND">
+	            	<![CDATA[ BUSI_DATE >= #startDate# ]]>
+				</isNotEmpty>
+				<isNotEmpty property="endDate" prepend="AND">
+	           		<![CDATA[ BUSI_DATE < #endDate# + 1]]>
+	           	</isNotEmpty>
+		GROUP BY  WITHDRAW_BANK_ID 
+	</select>
+	
+	
+	
+</sqlMap>

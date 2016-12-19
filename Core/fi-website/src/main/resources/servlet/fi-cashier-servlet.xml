@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<!-- 定义映射 -->
+	<bean id="fiCashierHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/zsyCashier.htm">zsyGatewayOnlineCashierController</prop>
+				<prop key="/cashier.htm">gatewayOnlineCashierController</prop>
+				<prop key="/cashierFail.htm">failureRedirectController</prop>
+				<prop key="/bindCardCashier.htm">gatewayOnlineBindCardController</prop>
+				<prop key="/bindCardCashierFail.htm">bindCardFailureRedirectController</prop>
+				<prop key="/computopCashierFail.htm">computopFailureRedirectController</prop>
+				<prop key="/boletoSuccess.htm">boletoPayController</prop>
+				<prop key="/boleto.htm">boletoCashierController</prop>
+				<prop key="/wechatAlipayCashier.htm">wechatAlipayOnlineCashierController</prop>
+				<prop key="/wechatAlipayCashierFail.htm">wechatAlipayFailureRedirectController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="zsyGatewayOnlineCashierController"
+		class="com.pay.gateway.controller.zsy.ZsyOnlineCashierController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="successView">
+			<value>/fi/zsy/cashier</value>
+		</property>
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="memberService" ref="acc-memberService"/>
+		<property name="accountInfoService" ref="acc-accountInfoService"/>
+	</bean>
+	
+	<!--boleto 控制器  -->
+	<bean id="boletoPayController"
+		class="com.pay.gateway.controller.cashier.BoletoPayController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>		
+	    <property name="enSuccessView">
+			<value>/cashier/local/success_en</value>
+		</property>
+	    <property name="pcEnSuccessView">
+			<value>/cashier/local/success_en</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/cashier/local/success_mobile_en</value>
+		</property>
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="memberService" ref="acc-memberService"/>
+	</bean>
+	
+	
+	<bean id="boletoCashierController"
+		class="com.pay.gateway.controller.cashier.BoletoCashierController">
+		<!-- boleto收银台页面 -->
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="enSuccessView">
+			<value>/cashier/local/pay_en</value>
+		</property> 
+		<property name="enMobileSuccessView">
+			<value>/cashier/local/pay_mobile_en</value>
+		</property>
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="memberService" ref="acc-memberService"/>
+	</bean>
+	
+	<!--computop失败收银台界面  -->
+	<bean id="computopFailureRedirectController"
+		class="com.pay.gateway.controller.cashier.ComputopFailureRedirectController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toView">
+			<value>/cashier/fail</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/cashier/fail_mobile_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/cashier/fail_mobile_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/cashier/fail_cn</value>
+		</property>
+		<property name="enFailView">
+			<value>/cashier/fail_en</value>
+		</property>
+		
+		<property name="valueMap" ref="valueMap"/>
+	</bean>
+	
+	<bean id="gatewayOnlineCashierController"
+		class="com.pay.gateway.controller.cashier.OnlineCashierController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="enSuccessView">
+			<value>/cashier/embedded/pay_en</value>
+		</property>
+	    <property name="pcEnSuccessView">
+			<value>/cashier/embedded/cashier_en</value>
+		</property>
+		<property name="pcCnSuccessView">
+			<value>/cashier/embedded/cashier_cn</value>
+		</property>
+		<property name="cnSuccessView">
+			<value>/cashier/embedded/pay_cn</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/cashier/embedded/pay_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView">
+			<value>/cashier/embedded/pay_mobile_cn</value>
+		</property>
+		<!--新版本-->
+		<property name="enSuccessView11">
+			<value>/cashier1.1/embedded/pay_en</value>
+		</property>
+	    <property name="pcEnSuccessView11">
+			<value>/cashier1.1/embedded/cashier_en</value>
+		</property>
+		<property name="pcCnSuccessView11">
+			<value>/cashier1.1/embedded/cashier_cn</value>
+		</property>
+		<property name="cnSuccessView11">
+			<value>/cashier1.1/embedded/pay_cn</value>
+		</property>
+		<property name="enMobileSuccessView11">
+			<value>/cashier1.1/embedded/pay_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView11">
+			<value>/cashier1.1/embedded/pay_mobile_cn</value>
+		</property>
+		<!--新版本-->
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="memberService" ref="acc-memberService"/>
+	</bean>
+	
+	<!-- 威富通扫码｜WAP支付页面成功跳转 -->
+	<bean id="wechatAlipayOnlineCashierController"
+		class="com.pay.gateway.controller.cashier.WechatAlipayOnlineCashierController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="orderClientService" ref="orderClientService" />
+		<property name="wechatCodeImageView" value="/wechatAlipay/wechatCodeImagePay" />
+		<property name="aliCodeImageView" value="/wechatAlipay/aliCodeImagePay" />
+		<property name="wechatWapView" value="/wechatAlipay/wechatWapPay" />
+		<property name="aliWapView" value="/wechatAlipay/aliWapPay" />
+		
+	</bean>
+	
+	<!-- 威富通扫码｜WAP支付页面失败跳转 -->
+	<bean id="wechatAlipayFailureRedirectController"
+		class="com.pay.gateway.controller.cashier.WechatAlipayFailureRedirectController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="cnMobileFailView">
+			<value>/wechatAlipay/fail_mobile_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/wechatAlipay/fail_mobile_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/wechatAlipay/fail_cn</value>
+		</property>
+		<property name="enFailView">
+			<value>/wechatAlipay/fail_en</value>
+		</property>
+		
+		<property name="valueMap" ref="valueMap"/>
+	</bean>
+	
+	<bean id="gatewayOnlineBindCardController"
+		class="com.pay.gateway.controller.cashier.OnlineBindCardController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<!-- 
+		<property name="failView">
+			<value>/bindCard/fail</value>
+		</property>
+		<property name="successView">
+			<value>/bindCard/embedded/pay</value>
+		</property>
+		-->
+		<property name="enSuccessView">
+			<value>/bindCard/embedded/pay_en</value>
+		</property>
+	    <property name="pcEnSuccessView">
+			<value>/bindCard/embedded/cashier_en</value>
+		</property>
+		<property name="pcCnSuccessView">
+			<value>/bindCard/embedded/cashier_cn</value>
+		</property>
+		<property name="cnSuccessView">
+			<value>/bindCard/embedded/pay_cn</value>
+		</property>
+		<property name="enMobileSuccessView">
+			<value>/bindCard/embedded/pay_mobile_en</value>
+		</property>
+		<property name="cnMobileSuccessView">
+			<value>/bindCard/embedded/pay_mobile_cn</value>
+		</property>
+		<property name="channelClientService" ref="channelClientService"/>
+		<property name="memberService" ref="acc-memberService"/>
+	</bean>
+	
+	<bean id="bindCardFailureRedirectController"
+		class="com.pay.gateway.controller.cashier.BindCardFailureRedirectController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toView">
+			<value>/bindCard/fail</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/bindCard/fail_mobile_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/bindCard/fail_mobile_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/bindCard/fail_cn</value>
+		</property>
+		<property name="enFailView">
+			<value>/bindCard/fail_en</value>
+		</property>
+		
+		<property name="valueMap" ref="valueMap"/>
+	</bean>
+	
+	<bean id="failureRedirectController"
+		class="com.pay.gateway.controller.cashier.FailureRedirectController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toView">
+			<value>/cashier/fail</value>
+		</property>
+		<property name="cnMobileFailView">
+			<value>/cashier/fail_mobile_cn</value>
+		</property>
+		<property name="enMobileFailView">
+			<value>/cashier/fail_mobile_en</value>
+		</property>
+		<property name="cnFailView">
+			<value>/cashier/fail_cn</value>
+		</property>
+		<property name="enFailView">
+			<value>/cashier/fail_en</value>
+		</property>
+		
+		<property name="valueMap" ref="valueMap"/>
+	</bean>
+	
+		<bean id="valueMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="0002_cn" value="版本号不正确" />
+				<entry key="0003_cn" value="订单号不合法" />
+				<entry key="0006_cn" value="订单提交时间不正确" />
+				<entry key="0008_cn" value="订单金额不正确" />
+				<entry key="0009_cn" value="交易类型不正确" />
+				
+				<entry key="0010_cn" value="支付方式不正确" />
+				<entry key="0011_cn" value="交易币种不正确" />
+				<entry key="0007_cn" value="未授权的域名" />
+				<entry key="0012_cn" value="直连标识不正确" />
+				<entry key="0013_cn" value="资金来源借贷标识不正确" />
+				
+				<entry key="0015_cn" value="商户状态异常" />
+				<entry key="0016_cn" value="未授权限的商户" />
+				<entry key="0017_cn" value="商户账户状态异常" />
+				<entry key="0046_cn" value="编码方式不正确" />
+				<entry key="0047_cn" value="签名类型不正确" />
+				
+				<entry key="0048_cn" value="签名校验不通过" />
+				<entry key="0049_cn" value="订单号重复" />
+				<entry key="0450_cn" value="卡号已绑定" />
+				<entry key="0060_cn" value="卡号必须是14-19位的数字" />
+				<entry key="0037_cn" value="卡号必须是14-19位的数字" />
+			</map>
+		</constructor-arg>
+	</bean>
+	
+</beans>

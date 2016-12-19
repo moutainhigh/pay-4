@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="securitycheck.backfund">
+	<typeAlias alias="orderModel" type="com.pay.fundout.securitycheck.model.OrderModel" />
+
+	<select id="queryOrderSrcOfSuccess" resultClass="orderModel" parameterClass="java.util.Map">
+		SELECT 
+		   SEQUENCE_ID    	id, 
+	       PAYER_AMOUNT   	payerAmount, 
+	       ORDER_AMOUNT		uerAmount, 
+	       FEE				fee, 
+	       AMOUNT			payeeAmount
+	  	FROM WITHDRAW_ORDER
+	 	WHERE SEQUENCE_ID = #ORDER_ID# AND STATUS = 111 AND MEMBER_CODE=#MEMBER_CODE#
+	</select>
+
+	<select id="securitycheck.backfund.queryOrderSrcOfFail4Withdraw" resultClass="orderModel" parameterClass="java.util.Map">
+		SELECT 
+		   SEQUENCE_ID    	id, 
+	       PAYER_AMOUNT   	payerAmount, 
+	       ORDER_AMOUNT		uerAmount, 
+	       FEE				fee, 
+	       AMOUNT			payeeAmount
+	  	FROM WITHDRAW_ORDER
+	 	WHERE SEQUENCE_ID = #ORDER_ID# AND MEMBER_CODE=#MEMBER_CODE# AND STATUS IN(101,112)
+	</select>
+
+	<select id="securitycheck.backfund.queryOrderSrcOfFail4Pay2Acct" resultClass="orderModel" parameterClass="java.util.Map">
+		SELECT 
+		   SEQUENCE_ID    	id, 
+	       AMOUNT   		payerAmount, 
+	       AMOUNT			uerAmount, 
+	       0				fee, 
+	       AMOUNT			payeeAmount
+	  	FROM MASSPAY_ORDER
+	 	WHERE SEQUENCE_ID = #ORDER_ID# AND PAYER_MEMBER=#MEMBER_CODE# AND STATUS IN(101,112)
+	</select>
+	
+	<select id="securitycheck.backfund.queryOrderSrcOfFail4Refund" resultClass="orderModel" parameterClass="java.util.Map">
+		SELECT 
+		   ORDER_KY	    	id, 
+	       APPLY_AMOUNT   	payerAmount, 
+	       APPLY_AMOUNT		uerAmount, 
+	       0				fee, 
+	       APPLY_AMOUNT		payeeAmount
+	  	FROM REFUND_ORDER_M
+	 	WHERE ORDER_KY = #ORDER_ID# AND MEMBER_CODE=#MEMBER_CODE#
+	</select>
+</sqlMap>

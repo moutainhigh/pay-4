@@ -1,0 +1,43 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="creidtBaseMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+		<property name="configLocation" value="classpath:ibatis/sqlmap-credit-config.xml" />
+		<property name="dataSource" ref="foDs" />
+	</bean>
+ 
+	<bean id="credit-transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource">
+			<ref bean="accDs" />
+		</property>
+	</bean>
+	
+	<aop:config>
+		<aop:pointcut id="accBaseMethod"
+			expression="execution(* com.pay.credit.service..*(..))" />
+		<aop:advisor advice-ref="txBaseAccAdvice" pointcut-ref="accBaseMethod" />
+	</aop:config>
+
+	<tx:advice id="txBaseAccAdvice" transaction-manager="credit-transactionManager">
+		<tx:attributes>
+		<tx:method name="*" propagation="SUPPORTS" rollback-for="AppException"
+        no-rollback-for="AppUnTxException" />
+      <tx:method name="*RnTx" propagation="REQUIRES_NEW"
+        rollback-for="AppException" no-rollback-for="AppUnTxException" />
+      <tx:method name="*SpTx" propagation="SUPPORTS"
+        rollback-for="AppException" no-rollback-for="AppUnTxException" />
+      <tx:method name="*NsTx" propagation="NOT_SUPPORTED" />
+      <tx:method name="*RdTx" propagation="REQUIRED" read-only="false"
+				rollback-for="com.pay.exception.AppException" />
+		</tx:attributes>
+	</tx:advice>
+
+</beans> 

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcmcclimit">
+	<typeAlias alias="rcMccLimit" type="com.pay.rm.service.model.rmlimit.mcclimit.RcMccLimit"/>
+    <resultMap id="rcMccLimit" class="com.pay.rm.service.model.rmlimit.mcclimit.RcMccLimit">
+        <result column="MCC" property="mcc" jdbcType="DECIMAL"/>
+        <result column="SINGLE_LIMIT" property="singleLimit" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="CATEGORY_ID" property="categoryId" jdbcType="VARCHAR"/>
+        <result column="MCC_DESC" property="mccDesc" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="rcMccLimitDTO" class="com.pay.rm.service.dto.rmlimit.mcclimit.RcMccLimitDTO">
+        <result column="MCC" property="mcc" jdbcType="DECIMAL"/>
+        <result column="SINGLE_LIMIT" property="singleLimit" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="CATEGORY_ID" property="categoryId" jdbcType="VARCHAR"/>
+        <result column="CATEGORY_NAME" property="categoryDesc" jdbcType="VARCHAR"/>
+        <result column="MCC_DESC" property="mccDesc" jdbcType="VARCHAR"/>
+    </resultMap>
+    <sql id="Column_List">
+		MCC,SINGLE_LIMIT,STATUS,CATEGORY_ID,
+		MCC_DESC
+    </sql>
+    <insert id="create" parameterClass="rcMccLimit">
+        INSERT INTO RC_MCC_LIMIT(
+			MCC,SINGLE_LIMIT,STATUS,CATEGORY_ID,
+			MCC_DESC
+        )
+        VALUES(
+            #mcc#,#singleLimit#,#status#,#categoryId#,
+			#mccDesc#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcMccLimit">
+        UPDATE RC_MCC_LIMIT
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="singleLimit">
+            SINGLE_LIMIT = #singleLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="categoryId">
+            CATEGORY_ID = #categoryId#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="mccDesc">
+            MCC_DESC = #mccDesc#
+        </isNotEmpty>
+        </dynamic>
+           WHERE MCC = #mcc# 
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+        DELETE FROM RC_MCC_LIMIT  where  MCC = #mcc# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcMccLimit">
+        DELETE FROM RC_MCC_LIMIT        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="mcc">
+            MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="categoryId">
+            CATEGORY_ID = #categoryId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mccDesc">
+            MCC_DESC = #mccDesc# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcMccLimit"
+        parameterClass="java.lang.Long">
+        SELECT 
+			MCC,SINGLE_LIMIT,STATUS,CATEGORY_ID,
+			MCC_DESC
+        FROM RC_MCC_LIMIT
+        WHERE 
+            MCC = #mcc# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcMccLimitDTO">
+        SELECT 
+			M.MCC,M.SINGLE_LIMIT,M.STATUS,M.CATEGORY_ID,C.CATEGORY_NAME,
+			M.MCC_DESC
+        FROM RC_MCC_LIMIT M,RC_MCC_CATEGORY C
+        WHERE M.CATEGORY_ID = C.CATEGORY_ID
+        <isNotEmpty prepend="AND" property="mcc">
+            M.MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            M.SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            M.STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="categoryId">
+            M.CATEGORY_ID = #categoryId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mccDesc">
+            M.MCC_DESC = #mccDesc# 
+        </isNotEmpty>
+        ORDER BY M.mcc
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT COUNT(*) FROM RC_MCC_LIMIT
+        <dynamic prepend="WHERE">
+        <isNotEmpty prepend="AND" property="mcc">
+            MCC = #mcc# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="categoryId">
+            CATEGORY_ID = #categoryId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mccDesc">
+            MCC_DESC = #mccDesc# 
+        </isNotEmpty>
+        </dynamic>
+    </select>
+</sqlMap>

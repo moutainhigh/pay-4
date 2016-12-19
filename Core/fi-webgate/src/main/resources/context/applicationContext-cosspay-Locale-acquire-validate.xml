@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<!-- 跨境本地化收单 -->
+	<bean id="crosspayLocaleValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="onlineLocaleRule" />
+	</bean>
+
+	<bean id="onlineLocaleRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="crosspay-api-orderCheckRule" />
+		</property>
+	</bean>
+
+	<!-- 订单金额校验 -->
+	<bean id="crosspay-api-orderCheckRule" class="com.pay.gateway.validate.crosspay.locale.TradeOraderCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-locale-belto-paramCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="订单金额不正确" />
+		<property name="messageEn" value="Invalid Order Amount"/>
+	</bean>
+
+	<bean id="crosspay-locale-belto-paramCheckRule" class="com.pay.gateway.validate.crosspay.locale.BeltoParamCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="crosspay-api-RiskCheckRule" />
+		</property>
+		<property name="messageId" value="1000" />
+		<property name="message" value="参数异常" />
+		<property name="messageEn" value="Invalid parameters"/>
+	</bean>
+
+	<bean id="crosspay-api-RiskCheckRule" class="com.pay.gateway.validate.crosspay.locale.RiskBlackListCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="blackWhiteListService" ref="blackWhiteListService" />
+		<property name="messageId" value="0053" />
+		<property name="message" value="风险订单" />
+		<property name="messageEn" value="Risk Order"/>
+	</bean>
+
+</beans>

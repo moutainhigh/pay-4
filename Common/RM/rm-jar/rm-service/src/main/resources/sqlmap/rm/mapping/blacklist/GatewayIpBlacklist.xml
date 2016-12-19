@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="gatewayipblacklist">
+	<typeAlias alias="gatewayIpBlacklist" type="com.pay.rm.service.model.GatewayIpBlacklist"/>
+    <resultMap id="gatewayIpBlacklist" class="gatewayIpBlacklist">
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="ENABLE_COUNT" property="enableCount" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="IP_BLACKLIST_NO" property="ipBlacklistNo" jdbcType="DECIMAL"/>
+        <result column="DISABLE_COUNT" property="disableCount" jdbcType="DECIMAL"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="IP_ADDRESS" property="ipAddress" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap id="ipBlackListResult" class="gatewayIpBlacklist">
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="IP_ADDRESS" property="ipAddress" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="DISABLE_COUNT" property="disableCount" jdbcType="DECIMAL"/> 
+        <result column="ENABLE_COUNT" property="enableCount" jdbcType="DECIMAL"/>
+        <result column="IP_BLACKLIST_NO" property="ipBlacklistNo" jdbcType="DECIMAL"/> 
+    </resultMap>
+
+    <sql id="Column_List">
+		STATUS,REMARK,ENABLE_COUNT,CREATE_DATE,IP_BLACKLIST_NO,
+		DISABLE_COUNT,UPDATE_DATE,IP_ADDRESS
+    </sql>
+
+    <update id="disableIpBlack" parameterClass="java.util.HashMap" >
+    	UPDATE gateway_ip_blacklist 
+	      set UPDATE_DATE = sysdate,DISABLE_COUNT = DISABLE_COUNT + 1,STATUS=2
+	    where 
+	     IP_BLACKLIST_NO = #ipBlackNo# AND STATUS  = 1
+    </update>
+    
+    <update id="enableIpBlack" parameterClass="java.util.HashMap" > 
+      UPDATE gateway_ip_blacklist 
+     	 set UPDATE_DATE = sysdate,ENABLE_COUNT = ENABLE_COUNT + 1,STATUS = 1
+   	 	where 
+      IP_BLACKLIST_NO = #ipBlackNo# AND STATUS  = 2
+    </update>
+    
+    <select id="queryIpBlackList" parameterClass="java.util.HashMap" resultMap="ipBlackListResult">
+	select ip.create_date
+		,ip.ip_address
+		,ip.status
+		,ip.update_date
+		,ip.disable_count
+		,ip.enable_count
+		,ip_blacklist_no
+	 from gateway_ip_blacklist ip
+		  where 
+		 	   ip.create_date <![CDATA[>=]]> to_date(#beginDate#, 'yyyy-MM-dd')
+		       and ip.create_date <![CDATA[<]]> to_date(#endDate#, 'yyyy-MM-dd') + 1
+		    <isNotEmpty prepend="and" property="ipaddr">
+		       ip.ip_address = #ipaddr#
+		    </isNotEmpty>
+		    <isNotEmpty prepend="and" property="status">
+		       ip.status = #status#
+		     </isNotEmpty>
+   order by ip.update_date desc
+    </select>
+    
+    <select id="queryIpBlackListCount" parameterClass="java.util.HashMap" resultClass="java.lang.Long">
+	select count(ip_blacklist_no) as total
+	 from gateway_ip_blacklist ip
+		  where 
+		 	   ip.create_date <![CDATA[>=]]> to_date(#beginDate#, 'yyyy-MM-dd')
+		       and ip.create_date <![CDATA[<]]> to_date(#endDate#, 'yyyy-MM-dd') + 1
+		    <isNotEmpty prepend="and" property="ipaddr">
+		       ip.ip_address = #ipaddr#
+		    </isNotEmpty>
+		    <isNotEmpty prepend="and" property="status">
+		       ip.status = #status#
+		     </isNotEmpty>
+    </select>
+    
+    <insert id="create" parameterClass="gatewayIpBlacklist">
+    	<selectKey resultClass="java.lang.Long" keyProperty="ipBlacklistNo">
+    	  SELECT 134 || TO_CHAR(SYSDATE, 'yymmddhh24mi') ||LPAD(SEQ_IP_BLACKLIST_NO.nextval, 6, 0)  FROM DUAL 
+    	</selectKey>
+        INSERT INTO GATEWAY_IP_BLACKLIST(
+			STATUS,REMARK,ENABLE_COUNT,CREATE_DATE,IP_BLACKLIST_NO,
+			DISABLE_COUNT,UPDATE_DATE,IP_ADDRESS
+        )
+        VALUES(
+            #status#,#remark#,#enableCount#,sysdate,#ipBlacklistNo#,
+			#disableCount#,sysdate,#ipAddress#
+		)
+    </insert>
+
+    <update id="update" parameterClass="gatewayIpBlacklist">
+        UPDATE GATEWAY_IP_BLACKLIST
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="enableCount">
+            ENABLE_COUNT = #enableCount#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="disableCount">
+            DISABLE_COUNT = #disableCount#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysdate
+        </isNotNull>
+        <isNotNull prepend="," property="ipAddress">
+            IP_ADDRESS = #ipAddress#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        	IP_BLACKLIST_NO = #ipBlacklistNo#
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM GATEWAY_IP_BLACKLIST        
+        <dynamic prepend="WHERE">
+        </dynamic>
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="gatewayIpBlacklist">
+        DELETE FROM GATEWAY_IP_BLACKLIST        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="enableCount">
+            ENABLE_COUNT = #enableCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ipBlacklistNo">
+            IP_BLACKLIST_NO = #ipBlacklistNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="disableCount">
+            DISABLE_COUNT = #disableCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ipAddress">
+            IP_ADDRESS = #ipAddress# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="gatewayIpBlacklist"
+        parameterClass="java.lang.Long">
+        SELECT 
+			STATUS,REMARK,ENABLE_COUNT,CREATE_DATE,IP_BLACKLIST_NO,
+			DISABLE_COUNT,UPDATE_DATE,IP_ADDRESS
+        FROM GATEWAY_IP_BLACKLIST
+        WHERE 
+         IP_BLACKLIST_NO = #ipBlacklistNo# 
+    </select>
+    
+    <select id="findBySelective" resultMap="gatewayIpBlacklist">
+        SELECT 
+			STATUS,REMARK,ENABLE_COUNT,CREATE_DATE,IP_BLACKLIST_NO,
+			DISABLE_COUNT,UPDATE_DATE,IP_ADDRESS
+        FROM GATEWAY_IP_BLACKLIST
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="enableCount">
+            ENABLE_COUNT = #enableCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ipBlacklistNo">
+            IP_BLACKLIST_NO = #ipBlacklistNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="disableCount">
+            DISABLE_COUNT = #disableCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ipAddress">
+            IP_ADDRESS = #ipAddress# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM GATEWAY_IP_BLACKLIST
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="enableCount">
+            ENABLE_COUNT = #enableCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ipBlacklistNo">
+            IP_BLACKLIST_NO = #ipBlacklistNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="disableCount">
+            DISABLE_COUNT = #disableCount# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="ipAddress">
+            IP_ADDRESS = #ipAddress# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

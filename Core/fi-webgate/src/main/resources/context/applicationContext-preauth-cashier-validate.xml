@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+   
+    <!--预授权申请实物类收银台-->
+	<bean id="preauthCashierValidateService" class="com.pay.inf.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="preauth-cashier-acquireRule" />
+	</bean>
+
+	<bean id="preauth-cashier-acquireRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="preauth-cashier-versionCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="preauth-cashier-versionCheckRule" class="com.pay.gateway.validate.preauth.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-partnerIdCheckRule" />
+		</property>
+		<property name="messageId" value="0002" />
+		<property name="message" value="The version number is not correct:版本号不正确" />
+	</bean>
+	
+	<bean id="preauth-cashier-partnerIdCheckRule"
+		class="com.pay.gateway.validate.preauth.PartnerIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-mccCheckRule" />
+		</property>
+		<property name="messageId" value="0067" />
+		<property name="memberService" ref="acc-memberService" />
+		<property name="message" value="Merchant(partner ID) is empty or wrong:会员号为空或不正确" />
+	</bean>
+	
+	<bean id="preauth-cashier-mccCheckRule" class="com.pay.gateway.validate.preauth.MccCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-orderIdCheckRule" />
+		</property>
+		<property name="messageId" value="0055" />
+		<property name="message" value="Invalid MCC:MCC不合法" />
+	</bean>
+
+	<bean id="preauth-cashier-orderIdCheckRule" class="com.pay.gateway.validate.preauth.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-goodsNameCheckRule" />
+		</property>
+		<property name="messageId" value="0003" />
+		<property name="message" value="Invalid order number:订单号不合法" />
+	</bean>
+
+	<bean id="preauth-cashier-goodsNameCheckRule"
+		class="com.pay.gateway.validate.preauth.GoodsNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-goodsDescCheckRule" />
+		</property>
+		<property name="messageId" value="0004" />
+		<property name="message" value="Goods name is empty or too long:商品名称为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-goodsDescCheckRule"
+		class="com.pay.gateway.validate.preauth.GoodsDescCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-submitTimeCheckRule" />
+		</property>
+		<property name="messageId" value="0005" />
+		<property name="message" value="Goods description is empty or too long:商品描述为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-submitTimeCheckRule"
+		class="com.pay.gateway.validate.preauth.SubmitTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-siteIdCheckRule" />
+		</property>
+		<property name="messageId" value="0006" />
+		<property name="message" value="Order submission time is wrong:订单提交时间不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-siteIdCheckRule" class="com.pay.gateway.validate.preauth.SiteIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-orderAmountCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="messageId" value="0007" />
+		<property name="message" value="Unauthorized domain names:未授权的域名" />
+	</bean>
+
+	<bean id="preauth-cashier-orderAmountCheckRule"
+		class="com.pay.gateway.validate.preauth.OrderAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-typeCheckRule" />
+		</property>
+		<property name="messageId" value="0008" />
+		<property name="message" value="Invalid Order Amount:订单金额不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-typeCheckRule"
+		class="com.pay.gateway.validate.preauth.TradeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-currencyCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0009" />
+		<property name="message" value="Unauthorized trade type:未授权交易类型" />
+	</bean>
+
+	<bean id="preauth-cashier-currencyCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-customerIPCheckRule" />
+		</property>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+	
+    <bean id="preauth-cashier-customerIPCheckRule"
+		class="com.pay.gateway.validate.preauth.CustomerIPCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="crosspay-airhot-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-dccProductCheckRule" />
+		</property>
+		<property name="messageId" value="0066" />
+		<property name="message" value="Public IP of customer is empty or wrong:客户下单IP为空或不正确" />
+	</bean>
+	
+	
+	<bean id="preauth-cashier-dccProductCheckRule"
+		class="com.pay.gateway.validate.preauth.DCCProductCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-settlementCurrencyCodeCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberBaseProductService"/>
+		<property name="messageId" value="0011" />
+		<property name="message" value="Invalid transaction currency:交易币种不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-settlementCurrencyCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.SettlementCurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-borrowingMarkedCheckRule" />
+		</property>
+		<property name="messageId" value="0012" />
+		<property name="message" value="Invalid settlement currency:结算币种不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-borrowingMarkedCheckRule"
+		class="com.pay.gateway.validate.preauth.BorrowingMarkedCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-noticeUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0013" />
+		<property name="message" value="Invalid value for paramter borrowingMarked:资金来源借贷标识不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-noticeUrlCheckRule"
+		class="com.pay.gateway.validate.preauth.NoticeUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-merchantConfigureCheckRule" />
+		</property>
+		<property name="messageId" value="0014" />
+		<property name="message" value="Invalid merchant notice URL:商户通知地址不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-merchantStatusCheckRule"
+		class="com.pay.gateway.validate.preauth.MerchantStatusCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-merchantConfigureCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="messageId" value="0015" />
+		<property name="message" value="Abnormal merchant status:商户状态异常" />
+	</bean>
+
+	<bean id="preauth-cashier-merchantConfigureCheckRule"
+		class="com.pay.gateway.validate.preauth.MerchantConfigureCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-merchantAcctCheckRule" />
+		</property>
+		<property name="messageId" value="0016" />
+		<property name="message" value="Unauthorized merchant:未授权限的商户" />
+	</bean>
+
+	<bean id="preauth-cashier-merchantAcctCheckRule"
+		class="com.pay.gateway.validate.preauth.MerchantAcctCheckRule">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-billFirstNameCheckRule" />
+		</property>
+		<property name="messageId" value="0017" />
+		<property name="message" value="Abnormal merchant account status:商户账户状态异常" />
+	</bean>
+   	<bean id="preauth-cashier-billFirstNameCheckRule" class="com.pay.gateway.validate.preauth.BillFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-billLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="Billing first name is empty or too long:账单名为空或过长" />
+	</bean>
+	
+	<bean id="preauth-cashier-billLastNameCheckRule" class="com.pay.gateway.validate.preauth.BillLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0018" />
+		<property name="message" value="Billing last name is empty or too long:账单姓为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillAddressCheckRule"
+		class="com.pay.gateway.validate.preauth.BillAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0019" />
+		<property name="message" value="Billing address is empty or too long:账单地址为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillEmailCheckRule"
+		class="com.pay.gateway.validate.preauth.BillEmailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0020" />
+		<property name="message" value="Billing email is empty or too long:账单邮箱为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.preauth.BillPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0021" />
+		<property name="message" value="Billing telephone is empty or too long:账单电话为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillPostalCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.BillPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillCityCheckRule" />
+		</property>
+		<property name="messageId" value="0022" />
+		<property name="message" value="Billing postcode is empty or too long:账单邮编为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillCityCheckRule" class="com.pay.gateway.validate.preauth.BillCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillStateCheckRule" />
+		</property>
+		<property name="messageId" value="0024" />
+		<property name="message" value="Billing city is empty or too long:账单城市为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillStateCheckRule"
+		class="com.pay.gateway.validate.preauth.BillStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-BillCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0025" />
+		<property name="message" value="Billing state is empty or too long:账单州为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-BillCountryCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.BillCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingFirstNameCheckRule" />
+		</property>
+		<property name="messageId" value="0026" />
+		<property name="message" value="Invalid BillCountryCode:账单国家码不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingFirstNameCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingFirstNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingLastNameCheckRule" />
+		</property>
+		<property name="messageId" value="0027" />
+		<property name="message" value="Shipping firstName is empty or too long:收货人名为空或过长" />
+	</bean>
+	
+	<bean id="preauth-cashier-ShippingLastNameCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingLastNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingAddressCheckRule" />
+		</property>
+		<property name="messageId" value="0027" />
+		<property name="message" value="Shipping lastName is empty or too long:收货人姓为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingAddressCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingAddressCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingEmailCheckRule" />
+		</property>
+		<property name="messageId" value="0028" />
+		<property name="message" value="Shipping address is empty or too long:收货人地址为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingEmailCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingMailCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingPhoneNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0029" />
+		<property name="message" value="Shipping email is empty or too long:收货人邮箱为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingPhoneNumberCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingPhoneNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingPostalCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0030" />
+		<property name="message" value="Shipping telephone is empty or too long:收货人电话为空或过长" />
+	</bean>
+     
+	<bean id="preauth-cashier-ShippingPostalCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingPostalCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingCityCheckRule" />
+		</property>
+		<property name="messageId" value="0031" />
+		<property name="message" value="Shipping postcode is empty or too long:收货人邮编为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingCityCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingCityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingStateCheckRule" />
+		</property>
+		<property name="messageId" value="0033" />
+		<property name="message" value="Shipping city is empty or too long:收货人城市为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingStateCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingStateCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-ShippingCountryCodeCheckRule" />
+		</property>
+		<property name="messageId" value="0034" />
+		<property name="message" value="Shipping state is empty or too long:收货人州为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-ShippingCountryCodeCheckRule"
+		class="com.pay.gateway.validate.preauth.ShippingCountryCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-PayModeCheckRule" />
+		</property>
+		<property name="messageId" value="0035" />
+		<property name="message" value="Shipping country is empty or too long:收货人国家为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-PayModeCheckRule" class="com.pay.gateway.validate.preauth.PayModeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-remarkCheckRule" />
+		</property>
+		<property name="messageId" value="0036" />
+		<property name="message" value="The payment method is empty or too long:支付方式为空或过长 "/>
+	</bean>
+	
+	<bean id="preauth-cashier-remarkCheckRule"	class="com.pay.gateway.validate.preauth.RemarkCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-airhot-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-charsetCheckRule" />
+		</property>
+		<property name="messageId" value="0088" />
+		<property name="message" value="Invalid remark:备注信息不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-charsetCheckRule" class="com.pay.gateway.validate.preauth.CharsetCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-signTypeCheckRule" />
+		</property>
+		<property name="messageId" value="0046" />
+		<property name="message" value="Character encoding is wrong:编码方式不正确" />
+	</bean>
+
+	<bean id="preauth-cashier-signTypeCheckRule" class="com.pay.gateway.validate.preauth.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-returnUrlCheckRule" />
+		</property>
+		<property name="messageId" value="0047" />
+		<property name="message" value="Signature type is wrong:签名类型不正确" />
+	</bean>
+	
+	<bean id="preauth-cashier-returnUrlCheckRule"
+		class="com.pay.gateway.validate.preauth.ReturnUrlCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-crosspayAcquireApiSignMsgCheckRule" />
+		</property>
+		<property name="messageId" value="0069" />
+		<property name="message" value="Merchant return URL is empty or too long:商户回调地址为空或过长" />
+	</bean>
+
+	<bean id="preauth-cashier-crosspayAcquireApiSignMsgCheckRule"
+		class="com.pay.gateway.validate.preauth.CrosspayAcquireApiSignMsgCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-orderRepeatCheckRule" />
+		</property>
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="messageId" value="0048" />
+		<property name="message" value="Signature verification fails:签名校验不通过" />
+	</bean>
+
+	<bean id="preauth-cashier-orderRepeatCheckRule"
+		class="com.pay.gateway.validate.preauth.OrderRepeatCheckRule">
+		<property name="txncoreClientService" ref="txncoreClientService" />
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-MerchantChannelCheckRule" />
+		</property>
+		<property name="messageId" value="0049" />
+		<property name="message" value="Repeated transaction number:订单号重复" />
+	</bean>
+
+	<bean id="preauth-cashier-MerchantChannelCheckRule"
+		class="com.pay.gateway.validate.preauth.MerchantChannelCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-MerchantSettlementCheckRule" />
+		</property>
+		<property name="memberService" ref="acc-memberService" />
+		<property name="channelClientService" ref="channelClientService" />
+		<property name="messageId" value="0050" />
+		<property name="message" value="No avalible channel for the merchant:商户无可用渠道" />
+	</bean>
+	
+	<bean id="preauth-cashier-MerchantSettlementCheckRule"
+		class="com.pay.gateway.validate.preauth.MerchantSettlementCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-deviceFingerPrintIdCheckRule" />
+		</property>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="messageId" value="0051" />
+		<property name="message" value="No merchant settlement info:商户未配置结算信息" />
+	</bean>
+	
+	
+	
+	<bean id="preauth-cashier-deviceFingerPrintIdCheckRule"
+		class="com.pay.gateway.validate.preauth.DeviceFingerPrintIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-directFlagCheckRule" />
+		</property>
+		<property name="messageId" value="0068" />
+		<property name="message" value="DeviceFingerprintId is empty or too long:设备指纹ID为空或过长" />
+	</bean>
+	
+	<bean id="preauth-cashier-directFlagCheckRule"
+		class="com.pay.gateway.validate.preauth.DirectFlagCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-languageCheckRule" />
+		</property>
+		<property name="messageId" value="0054" />
+		<property name="message" value="Parameter directFlag is empty:是否直连为空" />
+	</bean>
+	
+	<bean id="preauth-cashier-languageCheckRule"
+		class="com.pay.gateway.validate.preauth.LanguageCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-cardLimitCheckRule" />
+		</property>
+		<property name="messageId" value="0058" />
+		<property name="message" value="Wrong display Language:显示语言不正确" />
+	</bean>
+	<bean id="preauth-cashier-cardLimitCheckRule"
+		class="com.pay.gateway.validate.preauth.CardLimitCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-CardHolderNumberCheckRule" />
+		</property>
+		<property name="messageId" value="0059" />
+		<property name="message" value="Wrong card limit type:支付卡种限制不正确" />
+	</bean>
+	
+	<bean id="preauth-cashier-CardHolderNumberCheckRule"
+		class="com.pay.gateway.validate.preauth.CardHolderNumberCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-orderTerminalCheckRule" />
+		</property>
+		<property name="memberProductService" ref="acc-memberProductService"/>
+		<property name="messageId" value="0037" />
+		<property name="message" value="CardHolderNumber is empty or too long:持卡人卡号为空或过长" />
+	</bean>
+	
+	
+	<bean id="preauth-cashier-orderTerminalCheckRule"
+		class="com.pay.gateway.validate.preauth.OrderTerminalCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="preauth-cashier-exceptionAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref local="preauth-cashier-gatewayRequestSaveAction" />
+		</property>
+		<property name="messageId" value="0045" />
+		<property name="message" value="Paramter orderTerminal is empty or too long:终端设备标识为空或过长" />
+	</bean>
+	
+	<bean id="preauth-cashier-gatewayRequestSaveAction"
+		class="com.pay.gateway.validate.preauth.GatewayRequestSaveAction">
+		<property name="gatewayRequestService" ref="gatewayRequestService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="preauth-cashier-exceptionAction" class="com.pay.gateway.validate.preauth.ExceptionAction">
+		<property name="tradeDataSingnatureService" ref="tradeDataSingnatureService" />
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

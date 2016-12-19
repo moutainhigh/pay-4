@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${pwd_card_application}${title}</title>
+<meta name="Keywords" content="${pwd_card_application_Keywords}" />
+<meta name="Description" content="${pwd_card_application_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/password.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+
+<script type="text/javascript">
+$(function() {
+	$("#randCode").focus();
+		$("#applyCardForm").submit(function(){
+             if($("#randCode").val()==''){
+                      $("#randCodeTip").html("验证码不能为空");
+                      return false;
+                 }else if($("#randCode").val().length<4){
+                	 $("#randCodeTip").html("至少要输入4位字符");
+                	 return false;
+                 }else{
+                      if($("#to_mymail").attr("checked")==true){
+	                    	  var email = $("#email").val();
+	      					  var reg =  /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+	      					  if(email==''){
+	      						  $("#randCodeTip").html("邮箱不能为空");
+	      						  return false;
+	      					  }else if(!reg.test(email)){
+	      						   $("#randCodeTip").html("邮箱格式不正确");
+	      						  return false;
+		      				  }else{
+		      					$("#randCodeTip").hide();
+		                        $("#applyCardForm").attr("action","${rc.contextPath}/matrixCard.htm?method=processRequest"+"&email="+email);		                       	
+		                      }
+                       }else{
+                    	     $("#randCodeTip").hide();
+                    	     $("#applyCardForm").attr("action","${rc.contextPath}/matrixCard.htm?method=processRequest");
+                       }
+                 }
+		     }
+		);
+   }
+);
+
+function choose(){
+	if($("#to_mymail").attr("checked")==true){
+        $("#emailAddress").show();
+	}else{
+		$("#emailAddress").hide();
+    }
+}
+
+function refushCode() {
+	var d = new Date();
+	var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+			+ d.getTime();
+	document.getElementById("code").src = src;
+}
+</script>
+
+<#if  msgStr?has_content>
+<script>
+$(function(){
+	$("#randCodeTip").html("${msgStr?default('')}");
+});
+</script>
+</#if> 
+
+</head>
+<body>
+<!--导航 str-->
+	<@sp.head channel=0 type=1/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+<div class="crumbs">当前位置：<a href="${rc.contextPath}/index.htm">iPayLinks支付/a> &gt; <span>口令卡申请</span></div>
+		<!--焦点图 str -->
+		<div class="mod_box_a pw_focus">
+			<p class="top"><i></i></p>
+			<div class="con_box">
+				<div class="pw_focus_box">
+					<div class="pw_focus_bd">
+						<ul>
+							<li><a><img src="<@sp.static/>/img/pay/sample/banner_card.jpg" alt=""/></a></li>
+							<li><a><img src="<@sp.static/>/img/pay/sample/banner_card.jpg" alt=""/></a></li>
+						</ul>
+					</div>
+					<!-- <div class="pw_focus_nav">
+						<ul>
+							<li class="focus_on"><a href="javascript:;">第一步：申请</a></li>
+							<li><a href="javascript:;">第二步：绑定</a></li>
+						</ul>
+						<div class="pw_focus_nav_bg"></div>
+					</div> -->
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--焦点图 end --> 
+		<!--自适应box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg pad20 app_card">
+				<div class="tit_box border_b">
+					<h3 class="title font14"><strong>申请iPayLinks支付口令卡</strong></h3>
+					<a class="red" href="javascript:void(0);">使用遇到问题？</a> </div>
+				<div class="content">
+					<div class="notes">
+						<p class="notes_icon">为保障广大用户的账户安全，我们提供免费的口令卡保护服务。</p>
+						<p>为了保障账户安全，建议您在成功申请口令卡后，尽快与您的账号进行绑定。</p>
+					</div>
+				
+				 <form  action="" method="post" class="mod_form" id="applyCardForm" name="applyCardForm" onclick="choose()">
+					<ul class="form_list">
+						    <li style="width:  500px; "> <font id="randCodeTip" style="color: red;"> </font> </li>
+							<li>
+						    <label class="form_side"> 验证码：</label>
+						    <input type="text" disableautocomplete autocomplete="off" size="15" class="inp_normal" id="randCode" name="randCode" maxlength="4">
+							<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" />
+							<a href="javascript:refushCode();" class="red">看不清，换一张</a></li>
+							<li>
+								<input type="checkbox" id="to_mymail">
+								<label for="to_mymail">同时发送到我的邮箱</label>
+							</li>
+							<li id="emailAddress" style="display: none">
+								<label class="form_side">邮箱地址：</label>
+								<input type="text" disableautocomplete autocomplete="off" id="email" size="25" class="inp_normal">
+							</li>
+						</ul>
+						<p class="btn_box txtC"> <span class="btn_yel botton_yel">
+							<button type="submit" id="applyNow">立即申请</button>
+							</span> </p>
+					</form>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+		<!--自适应box end --> 
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

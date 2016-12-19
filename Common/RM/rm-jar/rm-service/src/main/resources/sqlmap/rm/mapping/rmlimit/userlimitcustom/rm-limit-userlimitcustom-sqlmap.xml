@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="rcuserlimitcustom">
+	<typeAlias alias="rcUserLimitCustom" type="com.pay.rm.service.model.rmlimit.userlimitcustom.RcUserLimitCustom"/>
+    <resultMap id="rcUserLimitCustom" class="com.pay.rm.service.model.rmlimit.userlimitcustom.RcUserLimitCustom">
+        <result column="DAY_LIMIT" property="dayLimit" />
+        <result column="MONTH_LIMIT" property="monthLimit" />
+        <result column="MONTH_TIMES" property="monthTimes" />
+        <result column="SINGLE_LIMIT" property="singleLimit" />
+        <result column="STATUS" property="status" />
+        <result column="BUSINESS_TYPE" property="businessType" />
+        <result column="SEQUENCE_ID" property="sequenceId" />
+        <result column="MEMBER_CODE" property="memberCode" />
+        <result column="DAY_TIMES" property="dayTimes" />
+        <result column="MEMBER_NAME" property="memberName" />
+    </resultMap>
+
+    <sql id="Column_List">
+		DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,MEMBER_NAME,
+		SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,MEMBER_CODE,
+		DAY_TIMES
+    </sql>
+    <insert id="create" parameterClass="rcUserLimitCustom">
+    	<selectKey resultClass="java.lang.Long" keyProperty="sequenceId">
+			select SEQ_RC_U_LIMIT_CUSTOM_ID.NEXTVAL FROM DUAL 
+		</selectKey>
+        INSERT INTO RC_USER_LIMIT_CUSTOM(
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,MEMBER_CODE,
+			DAY_TIMES
+        )
+        VALUES(
+            #dayLimit#,#monthLimit#,#monthTimes#,
+			#singleLimit#,#status#,#businessType#,#sequenceId#,#memberCode#,
+			#dayTimes#
+		)
+    </insert>
+
+    <update id="update" parameterClass="rcUserLimitCustom">
+        UPDATE RC_USER_LIMIT_CUSTOM
+        <dynamic prepend="SET"> 
+        <isNotEmpty prepend="," property="dayLimit">
+            DAY_LIMIT = #dayLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="monthLimit">
+            MONTH_LIMIT = #monthLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="monthTimes">
+            MONTH_TIMES = #monthTimes#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="singleLimit">
+            SINGLE_LIMIT = #singleLimit#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="status">
+            STATUS = #status#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="businessType">
+            BUSINESS_TYPE = #businessType#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="memberCode">
+            MEMBER_CODE = #memberCode#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="dayTimes">
+            DAY_TIMES = #dayTimes#
+        </isNotEmpty>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+            </isNotEmpty>
+        </dynamic>
+    </update>
+    
+    <delete id="delete" parameterClass="long">
+        DELETE FROM RC_USER_LIMIT_CUSTOM        
+        WHERE
+            SEQUENCE_ID = #sequenceId# 
+            
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="rcUserLimitCustom">
+        DELETE FROM RC_USER_LIMIT_CUSTOM        
+        <dynamic prepend="WHERE"> 
+        <isNotEmpty prepend="AND" property="dayLimit">
+            DAY_LIMIT = #dayLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthLimit">
+            MONTH_LIMIT = #monthLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="monthTimes">
+            MONTH_TIMES = #monthTimes# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberName">
+            MEMBER_NAME = #memberName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="singleLimit">
+            SINGLE_LIMIT = #singleLimit# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="businessType">
+            BUSINESS_TYPE = #businessType# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="sequenceId">
+            SEQUENCE_ID = #sequenceId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="memberCode">
+            member_code = #memberCode# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="dayTimes">
+            DAY_TIMES = #dayTimes# 
+        </isNotEmpty>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="rcUserLimitCustom" parameterClass="java.lang.Long">
+        SELECT 
+			DAY_LIMIT,MONTH_LIMIT,MONTH_TIMES,MEMBER_NAME,
+			SINGLE_LIMIT,STATUS,BUSINESS_TYPE,SEQUENCE_ID,MEMBER_CODE,
+			DAY_TIMES
+        FROM RC_USER_LIMIT_CUSTOM
+        WHERE 
+            SEQUENCE_ID = #sequenceId# 
+    </select>
+    
+    <select id="findBySelective" resultMap="rcUserLimitCustom">
+        SELECT 
+			DAY_LIMIT,
+			MONTH_LIMIT,
+			MONTH_TIMES,
+			MEMBER_NAME,
+			SINGLE_LIMIT,
+			STATUS,BUSINESS_TYPE,
+			SEQUENCE_ID,
+			MEMBER_CODE,
+			DAY_TIMES
+        FROM RC_USER_LIMIT_CUSTOM
+        <dynamic prepend="WHERE">
+	        <isNotEmpty prepend="AND" property="memberCode">
+	            MEMBER_CODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="memberName">
+	         	MEMBER_NAME LIKE '%' || #memberName# || '%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessType">
+	            BUSINESS_TYPE = #businessType#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+        </dynamic>
+        ORDER BY SEQUENCE_ID
+    </select>
+    
+    <select id="serachById" resultClass="java.lang.Integer" parameterClass="rcUserLimitCustom" > 
+        SELECT 
+			COUNT(1)
+        FROM RC_USER_LIMIT_CUSTOM
+        <dynamic prepend="WHERE">
+	        <isNotEmpty prepend="AND" property="memberCode">
+	            MEMBER_CODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessType">
+	            BUSINESS_TYPE = #businessType#
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT 
+        	COUNT(*) 
+        FROM RC_USER_LIMIT_CUSTOM
+        <dynamic prepend="WHERE">
+	        <isNotEmpty prepend="AND" property="memberCode">
+	            MEMBER_CODE = #memberCode# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="memberName">
+	         	MEMBER_NAME LIKE '%' || #memberName# || '%'
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessType">
+	            BUSINESS_TYPE = #businessType#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+        </dynamic>
+    </select>
+    
+</sqlMap>

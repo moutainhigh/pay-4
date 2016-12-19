@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<#setting number_format="0">
+<#include "/common/macro/seoPerson.ftl">
+<meta charset="utf-8">
+<title>充提记录明细</title>
+<link href="
+<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/pay/record.css" rel="stylesheet" type="text/css">
+<link href="
+<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet"
+type="text/css">
+<link href="
+<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+
+</head>
+<body>
+<!--导航 str-->
+<#if Session["userSession"].scaleType==2 || Session["userSession"].scaleType==10>
+	<@sp.head mCode="corp_query_order,bsp_query_order"/>
+<#else>
+	
+</#if>
+<!--导航 end-->
+<!--主内容 str -->
+<div class="container">
+
+<div><!--订单查询开始-->
+
+
+		<div class="order_search">
+			<form class="form single" action="${rc.contextPath}/corp/queryOrder.htm" method="post" name="compositionListForm" id="compositionListForm">
+			<label class="side w50">时间：</label>
+				<input type="text" class="Wdate inp_normal w130" name="startTime" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'})" readonly="readonly" id="startTime" gtbfieldid="109" value="<#if queryCondition?exists && queryCondition.startTime?has_content>${queryCondition.startTime!('')}</#if>">
+			<span>—</span>
+			<input type="text" class="Wdate inp_normal w130" name="endTime" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm'})" readonly="readonly" id="endTime" gtbfieldid="110" value="<#if queryCondition?exists && queryCondition.endTime?has_content>${queryCondition.endTime!('')}</#if>">
+			<label class="side">交易类型：</label>
+			<select id="dealType" name="dealType" class="inp_normal w100">
+				<option value="0" <#if queryCondition?exists && queryCondition.dealType == 0>selected="selected"</#if>>全部</option>
+				<option value="1" <#if queryCondition?exists && queryCondition.dealType == 1>selected="selected"</#if>>提现</option>
+				<option value="2" <#if queryCondition?exists && queryCondition.dealType == 2>selected="selected"</#if>>充值</option>
+			</select>
+			<span class="btnC hack"><button type="button" onclick="transferSubmit()" id="query_btn">查询</button></span>
+			<input type="hidden" id="orderStatus" name="orderStatus" value="9"/>
+			</form>
+		</div>
+
+<!--订单查询结束--> 
+	<#if errorMsg?exists>
+	<div class="refund_list">
+<div class="barg_table">
+<table>
+<tr class="gray">
+		<td>
+		<div class="tip">
+		<div class="ico"></div>
+		<h2>系统繁忙,请稍后再试!</h2>
+		<p>您可以：<em><a href="${rc.contextPath}/corp/myAccount.htm">查看账户首页</a>
+		<a href="${rc.contextPath}/corp/acctCharge.htm">充值账户</a></em></p>
+
+		</div>
+		</td>
+	</tr>
+</table>
+</div>
+</div>
+	<#else>
+<!--记录明细开始-->
+<div class="refund_list">
+<div class="refund_title"><!--tab str -->
+<div class="mode_tit">
+<h2 <#if queryCondition?exists && queryCondition.orderStatus == 9> class="sel" </#if> val="0" value="9" name="showLabe"><a href="#">全部交易</a></h2>
+<h2 <#if queryCondition?exists && queryCondition.orderStatus == 101> class="sel" </#if> val="1" value="101" name="showLabe"><a href="#">正在交易</a></h2>
+<h2 <#if queryCondition?exists && queryCondition.orderStatus == 111> class="sel" </#if> val="2" value="111" name="showLabe"><a href="#">已完成交易</a></h2>
+<h2 <#if queryCondition?exists && queryCondition.orderStatus == 112> class="sel" </#if> val="3" value="112" name="showLabe"><a href="#">失败的交易</a></h2>
+</div>
+
+<!--tab str --> 
+<span>
+<!-- <a href="#;" onclick="download();">	<#if page?exists && page.result?has_content>导出EXCEL</#if></a> -->
+</span>
+</div>
+<div class="refund_box"><!--价格开始-->
+<div class="list_sum">
+<!-- select id="queryProSelect"	name="queryProSelect">
+	<option value="queryProAll"<#if	qValue?default('')=='queryProAll'>selected</#if>>全部明细</option>
+	<option value="weekPro"<#if	qValue?default('')=='weekPro'>selected</#if>>本周</option>
+	<option value="monthPro"<#if qValue?default('')=='monthPro'>selected</#if>>本月</option>
+	<option value="daypro"<#if qValue?default('')=='daypro'>selected</#if>>今日</option>
+</select-->
+
+<div class="price">
+<span>总收入：<em class="num_price">
+<#if income?exists>
+#{income/1000?default(0);m2}
+</#if>
+</em>元
+</span> 
+<span>总支出：<em class="num_price">
+<#if paycount?exists>
+#{paycount/1000?default(0);m2}
+</#if>
+</em>元</span> 
+</div>
+
+</div>
+<!--价格结束--> <!--充退记录表开始-->
+<div class="barg_table">
+<table>
+	<tr>
+		<th width="18%" align="center">日 期</th>
+		<th>交易名称 | 交易号</th>
+		<th width="10%">收支</th>
+		<th width="10%">状态</th>
+		<th width="10%">金额(元)</th>
+		<th width="10%">费用(元)</th>
+		<th width="10%">操作</th>
+		<!-- <th width="100">备注</th>-->
+	</tr>
+
+
+<#if orderInfos?exists > <#list orderInfos as bs>
+	<tr
+		<#if bs_index%2==0>class="gray"</#if>>
+				<td><span class="time">
+					<span class="time">${bs.orderTime[0..10]?default("")} ${bs.orderTime[10..18]?default("")}</span></span>
+				</td>
+				<td><#if bs.dealType == 1>提现<#else>充值</#if>&nbsp;&nbsp;&nbsp;&nbsp;${bs.dealId?default("")}</span></div>
+				</td>
+				<td>
+					<#if bs.crdr == 1>支出<#else>收入</#if>
+				</td>
+				<td>
+					<#if bs.dealStatus == 100>进行中
+					<#elseif bs.dealStatus == 101>进行中
+					<#elseif bs.dealStatus == 102>申请失败
+					<#elseif bs.dealStatus == 111>成功
+					<#elseif bs.dealStatus == 112>失败
+					<#elseif bs.dealStatus == 113>失败
+					</#if>
+				</td>
+
+				<td><em class="num_price">#{bs.dealAmount/1000?default(0);m2}</em></td>
+				<td><em class="num_price">#{bs.dealFee/1000?default(0);m2}</em></td>
+				<td><div class="handle">
+					<#if bs.dealType == 1>
+					<a target="_blank" class="blues" href="${rc.contextPath}/corp/withdrawOrderQuery.htm?method=detail&dealId=${bs.dealId}">详情</a>
+					<#else>
+					<a target="_blank" class="blues" href="${rc.contextPath}/corp/querychargeOrder.htm?method=detail&dealId=${bs.dealId}">详情</a>
+					</#if>
+				</div></td>
+		</tr>
+	</#list>
+	</#if>
+
+
+</table>
+
+</div>
+<@sp.pagination pu=pu /> 
+</div>
+<input type="hidden" value="${pu.curPageNo}" id="curPage">
+</div>
+
+<!--退款记录明细结束--></div>
+</#if>
+</div>
+<div id="resultListDiv"/>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+
+<script type="text/javascript" charset="utf-8">
+
+function labeShow(id){
+	$("h2[name=showLabe]").each(function(){
+			if($(this).attr("val")==id){
+					$(this).addClass('sel');
+					$("#orderStatus").val($(this).attr('value'));
+				}else{
+					$(this).removeClass('sel');
+				}
+	});
+};
+
+
+
+function download(){
+	var d = document.forms['compositionListForm'];
+	var dealType = d.dealType.value;
+	if(parseInt(dealType) == 0){
+		d.action = '${rc.contextPath}/corp/allOrderQuery.htm?method=downLoad';	
+	}else if(parseInt(dealType) == 1){
+		d.action = '${rc.contextPath}/corp/withdrawOrderQuery.htm?method=downLoad';
+	}else if(parseInt(dealType) == 2){
+		d.action = '${rc.contextPath}/corp/chargeOrderQuery.htm?method=downLoad';
+	}
+	d.submit();
+}
+
+
+function transferSubmit(){
+
+	var d = document.forms['compositionListForm'];
+	var dealType = d.dealType.value;
+	if(parseInt(dealType) == 0){
+		d.action = '${rc.contextPath}/corp/allOrderQuery.htm';	
+	}else if(parseInt(dealType) == 1){
+		d.action = '${rc.contextPath}/corp/withdrawOrderQuery.htm';
+	}else if(parseInt(dealType) == 2){
+		d.action = '${rc.contextPath}/corp/querychargeOrder.htm';
+	}
+	d.submit();
+}
+
+
+$(function(){
+	$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+	$("h2[name=showLabe]").click(function(){
+		labeShow($(this).attr("val"));
+		transferSubmit();
+	});
+});
+</script>
+</body>
+</html>

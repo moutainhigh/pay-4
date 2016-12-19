@@ -1,0 +1,47 @@
+<!--修改IE下弹出页面后，银行列表显示位置偏移问题。因为此页面是alert出的，已经在父页面中赋予此弹出页面的属性值，所以会导致页面部分元素错误 -->
+<!-- tips -->
+<div class="tip_page" >
+	<div class="con_box tips_cont" style="padding-left:85px;">
+		<div class="popup_content">
+			<#if errorMsg?exists>
+				<div class="popup_box" style="margin-left:-45px;">
+						<div class="popup_content"> 
+							<p class="mt20 red2 f14b"><#if errorMsg?exists>${errorMsg?default('')}</#if></p>
+							<span class="pop_war"></span></div>
+					</div>
+			<#else>
+				<h3>please finish on new page<#if buttonLabel?exists>charge<#else>payment</#if>。</h3>
+				<p class="other_condition"><#if buttonLabel?exists>charge<#else>payment</#if>Close it if you finishied.<br /><em class="red">finished<#if buttonLabel?exists>charge<#else>payment</#if>choose your option:</em></p>
+				<span class="pop_war"></span>
+			</#if>
+			<#if errorMsg?exists>
+			<p style="padding-left:60px" class="mt20">
+				<span class="btn_yel botton_yel">
+					<button onclick="javascript:window.location.href='${rc.contextPath}/crossPayPayment.htm?method=fail';">ok</button>
+				</span>
+			</p>
+		<#else>
+			<p>
+				<span class="btn_grey_b">
+					<button onclick="javascript:window.location.href='${rc.contextPath}/crossPayPayment.htm?method=success&depositid=${depositid?default(0)}&payer=${payer?default('')}';">finished<#if buttonLabel?exists>charge<#else>payment</#if></button>
+				</span>
+				<span class="btn_grey_b ml10">
+					<button onclick="javascript:window.location.href='${rc.contextPath}/help/p/payment.htm';">cause a problem</button>
+				</span>
+			</p>
+		</#if>
+		</div>
+		
+	</div>
+	<#if errorMsg?exists>
+	<#else>
+		<#if post2Bankurl?exists>
+		<form id="bankForm" action="${post2Bankurl?default('')}" method="${action?default('post')}">
+		<#if bankParamMap?exists>
+			<#list bankParamMap?keys as paramKey>  
+				<input type="hidden" name="${paramKey?default('')}" value="${bankParamMap[paramKey]?default('')}"/>
+			</#list>
+		</#if>
+		</form>
+		</#if>
+	</#if>

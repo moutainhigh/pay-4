@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutconfigbank">
+		<typeAlias alias="fundoutConfigBank" type="com.pay.fundout.channel.model.configbank.FundoutConfigBank"/>
+    <resultMap id="fundoutConfigBank" class="com.pay.fundout.channel.model.configbank.FundoutConfigBank">
+        <result column="CONFIG_NAME" property="configName" jdbcType="VARCHAR"/>
+        <result column="CHANNEL_ID" property="channelId" jdbcType="VARCHAR"/>
+        <result column="STATUS" property="status" jdbcType="DECIMAL"/>
+        <result column="MARK" property="mark" jdbcType="VARCHAR"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="TARGET_BANK_ID" property="targetBankId" jdbcType="VARCHAR"/>
+        <result column="OPERATOR" property="operator" jdbcType="VARCHAR"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="CONFIG_ID" property="configId" jdbcType="DECIMAL"/>
+        <result column="BUSINESS_ID" property="businessId" jdbcType="VARCHAR"/>
+        <result column="MODE_ID" property="modeId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="create" parameterClass="fundoutConfigBank">
+    <selectKey resultClass="java.lang.Long" keyProperty="configId">
+			SELECT  SEQ_FO_CONFIG_BANK_CONFIG_ID.NEXTVAL as id from DUAL 
+	</selectKey>
+        INSERT INTO FUNDOUT_CONFIG_BANK(
+			CONFIG_NAME,CHANNEL_ID,STATUS,MARK,
+			TARGET_BANK_ID,OPERATOR,CONFIG_ID,MODE_ID,BUSINESS_ID
+        )
+        VALUES(
+            #configName#,#channelId#,#status#,#mark#,
+			#targetBankId#,#operator#,#configId#,#modeId#,#businessId#
+		)
+    </insert>
+
+    <update id="update" parameterClass="fundoutConfigBank">
+        UPDATE FUNDOUT_CONFIG_BANK
+         <dynamic prepend=" SET ">  
+	        <isNotEmpty prepend="," property="configName">
+	            CONFIG_NAME = #configName#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="channelId">
+	            CHANNEL_ID = #channelId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="businessId">
+	            BUSINESS_ID = #businessId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="modeId">
+	            MODE_ID = #modeId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="status">
+	            STATUS = #status#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="mark">
+	            MARK = #mark#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="createDate">
+	            CREATE_DATE = #createDate#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="targetBankId">
+	            TARGET_BANK_ID = #targetBankId#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="operator">
+	            OPERATOR = #operator#
+	        </isNotEmpty>
+	        <isNotEmpty prepend="," property="updateDate">
+	            UPDATE_DATE = #updateDate#
+	        </isNotEmpty>
+	      </dynamic>
+        WHERE 
+            CONFIG_ID = #configId# 
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM FUNDOUT_CONFIG_BANK        
+        WHERE 
+            <isNotEmpty prepend="AND" property="configId">
+            CONFIG_ID = #configId# 
+            </isNotEmpty>
+    </delete>
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        DELETE FROM FUNDOUT_CONFIG_BANK        
+        WHERE CONFIG_ID = #configId# 
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="fundoutConfigBank">
+        DELETE FROM FUNDOUT_CONFIG_BANK        
+        WHERE 
+        <isNotEmpty prepend="AND" property="configName">
+            CONFIG_NAME = #configName# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="channelId">
+            CHANNEL_ID = #channelId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="businessId">
+            BUSINESS_ID = #businessId#
+        </isNotEmpty>
+        <isNotEmpty prepend="," property="modeId">
+            MODE_ID = #modeId#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="mark">
+            MARK = #mark# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="targetBankId">
+            TARGET_BANK_ID = #targetBankId# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="operator">
+            OPERATOR = #operator# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="configId">
+            CONFIG_ID = #configId# 
+        </isNotEmpty>
+    </delete>
+
+    <select id="findById" resultMap="fundoutConfigBank"
+        parameterClass="java.lang.Long">
+        SELECT 
+			CONFIG_NAME,CHANNEL_ID,STATUS,MARK,CREATE_DATE,
+			TARGET_BANK_ID,OPERATOR,UPDATE_DATE,CONFIG_ID,MODE_ID,BUSINESS_ID
+        FROM FUNDOUT_CONFIG_BANK
+        WHERE 
+            CONFIG_ID = #configId# 
+    </select>
+    
+    
+    <select id="findFoBank2Withdraw" resultClass="java.lang.String"
+        parameterClass="java.util.Map">
+         SELECT B.BANK_ID 
+       	 FROM FUNDOUT_CONFIG_BANK A INNER JOIN FUNDOUT_CHANNEL B ON A.CHANNEL_ID = B.CODE  
+             AND A.MODE_ID = #foMode# AND A.BUSINESS_ID = #fobusiness#
+             AND A.TARGET_BANK_ID = #targetBankId#  AND A.STATUS = 1 AND B.STATUS = 1
+    </select>
+    
+    <select id="findBySelective" resultMap="fundoutConfigBank">
+        SELECT 
+			CONFIG_NAME,CHANNEL_ID,STATUS,MARK,CREATE_DATE,
+			TARGET_BANK_ID,OPERATOR,UPDATE_DATE,CONFIG_ID,MODE_ID,BUSINESS_ID
+        FROM FUNDOUT_CONFIG_BANK
+        <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="configName">
+	            CONFIG_NAME = #configName# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="channelId">
+	            CHANNEL_ID = #channelId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessId">
+            	BUSINESS_ID = #businessId#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="modeId">
+           		 MODE_ID = #modeId#
+        	</isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="mark">
+	            MARK = #mark# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="createDate">
+	            CREATE_DATE = #createDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="targetBankId">
+	            TARGET_BANK_ID = #targetBankId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="operator">
+	            OPERATOR = #operator# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="updateDate">
+	            UPDATE_DATE = #updateDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="configId">
+	            CONFIG_ID = #configId# 
+	        </isNotEmpty>
+        </dynamic>
+        ORDER BY CONFIG_NAME
+    </select>
+
+    <select id="findBySelective_COUNT"  resultClass="java.lang.Integer">
+        SELECT count(1) FROM FUNDOUT_CONFIG_BANK
+        <dynamic prepend=" WHERE ">
+	        <isNotEmpty prepend="AND" property="configName">
+	            CONFIG_NAME = #configName# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="channelId">
+	            CHANNEL_ID = #channelId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="businessId">
+            	BUSINESS_ID = #businessId#
+        	</isNotEmpty>
+        	<isNotEmpty prepend="and" property="modeId">
+           		 MODE_ID = #modeId#
+        	</isNotEmpty>
+	        <isNotEmpty prepend="AND" property="status">
+	            STATUS = #status# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="mark">
+	            MARK = #mark# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="createDate">
+	            CREATE_DATE = #createDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="targetBankId">
+	            TARGET_BANK_ID = #targetBankId# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="operator">
+	            OPERATOR = #operator# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="updateDate">
+	            UPDATE_DATE = #updateDate# 
+	        </isNotEmpty>
+	        <isNotEmpty prepend="AND" property="configId">
+	            CONFIG_ID = #configId# 
+	        </isNotEmpty>
+	       </dynamic>
+    </select>
+    <select id="getConfigBankList" resultClass="java.lang.String">
+    	SELECT t.TARGET_BANK_ID  FROM FUNDOUT_CONFIG_BANK t GROUP BY t.TARGET_BANK_ID
+    </select>
+</sqlMap>

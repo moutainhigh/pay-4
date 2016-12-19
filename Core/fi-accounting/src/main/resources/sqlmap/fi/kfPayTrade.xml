@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fi-kfPayTrade">
+    <typeAlias alias="kfPayTrade" type="com.pay.txncore.model.KfPayTrade"/>
+    <typeAlias alias="hashMap" type="java.util.HashMap"/>
+    <sql id="kfPayTradeFeild">
+		BATCH_NO batchNo,
+		PARTNER_ID partnerId,
+		REMIT_CURRENCY remitCurrency,
+		ALL_COUNT allCount,
+		PAY_COUNT payCount,
+		FAIL_COUNT failCount,
+		SUCCESS_COUNT successCount,
+		BUY_ACCOUNT buyAccount,
+		PAY_AMOUNT payAmount,
+		REMIT_AMOUNT remitAmount,
+		TYPE type,
+		STATUS status,
+		CREATE_DATE createDate,
+		COMPLETE_DATE completeDate,
+		operator ,
+		remark
+			
+    </sql>
+   	<sql id="kfPayTradeFeildByInsert">
+		BATCH_NO ,
+		PARTNER_ID ,
+		REMIT_CURRENCY ,
+		ALL_COUNT ,
+		PAY_COUNT ,
+		FAIL_COUNT ,
+		SUCCESS_COUNT ,
+		BUY_ACCOUNT ,
+		PAY_AMOUNT ,
+		REMIT_AMOUNT ,
+		TYPE ,
+		STATUS ,
+		CREATE_DATE ,
+		COMPLETE_DATE ,
+		operator ,
+		remark
+    </sql>
+   	<sql id="kfPayTradeSelect">
+		SELECT
+		<include refid="kfPayTradeFeild" />
+		FROM KF_PAY_TRADE kfPayTrade
+	</sql>
+	
+	<sql id="kfPayTradeConditions">
+	    <dynamic prepend="where">
+		    <isNotEmpty  property="batchNo" prepend="and" >
+		      	kfPayTrade.BATCH_NO = #batchNo#
+		    </isNotEmpty>
+		    <isNotEqual   compareValue="0"  property="partnerId" prepend="and" >
+		      	kfPayTrade.PARTNER_ID = #partnerId#
+		    </isNotEqual>
+		    <isNotEmpty  property="remitCurrency" prepend="and" >
+		      	kfPayTrade.REMIT_CURRENCY = #remitCurrency#
+		    </isNotEmpty>
+		    <isNotEqual  compareValue="0" property="allCount" prepend="and" >
+		      	kfPayTrade.ALL_COUNT = #allCount#
+		    </isNotEqual>
+		    <isNotEqual   compareValue="0"  property="payCount" prepend="and" >
+		      	kfPayTrade.PAY_COUNT = #payCount#
+		    </isNotEqual>
+		    <isNotEqual compareValue="0"   property="failCount" prepend="and" >
+		      	kfPayTrade.FAIL_COUNT = #failCount#
+		    </isNotEqual>
+		    <isNotEqual  compareValue="0" property="successCount" prepend="and" >
+		      	kfPayTrade.SUCCESS_COUNT = #successCount#
+		    </isNotEqual>
+		    <isNotEmpty   property="buyAccount" prepend="and" >
+		      	kfPayTrade.BUY_ACCOUNT = #buyAccount#
+		    </isNotEmpty>
+		    <isNotEqual   compareValue="0" property="payAmount" prepend="and" >
+		      	kfPayTrade.PAY_AMOUNT = #payAmount#
+		    </isNotEqual>
+		    <isNotEqual   compareValue="0"  property="remitAmount" prepend="and" >
+		      	kfPayTrade.REMIT_AMOUNT = #remitAmount#
+		    </isNotEqual>
+		    <isNotEmpty  property="type" prepend="and" >
+		      	kfPayTrade.TYPE = #type#
+		    </isNotEmpty>
+		    <isNotEmpty  property="status" prepend="and" >
+		      	kfPayTrade.STATUS in ($status$)
+		    </isNotEmpty>
+		    <isNotEmpty   property="beginCreateDate" prepend="and" >
+		      	kfPayTrade.CREATE_DATE  <![CDATA[>=]]> to_date(#beginCreateDate#, 'yyyy-mm-dd hh24:mi:ss')
+		    </isNotEmpty>
+		    <isNotEmpty  property="endCreateDate" prepend="and" >
+		      	kfPayTrade.CREATE_DATE  <![CDATA[<=]]>  to_date(#endCreateDate#, 'yyyy-mm-dd hh24:mi:ss')
+		    </isNotEmpty>
+		    <isNotEmpty   property="completeDate" prepend="and" >
+		      	kfPayTrade.COMPLETE_DATE = #completeDate#
+		    </isNotEmpty>
+		    <isNotEmpty  property="operator" prepend="and" >
+		      	kfPayTrade.OPERATOR = #operator#
+		    </isNotEmpty>
+		    <isNotEmpty  property="remark" prepend="and" >
+		      	kfPayTrade.REMARK = #remark#
+		    </isNotEmpty>
+	    </dynamic>
+	</sql>
+	
+	<select id="queryConditions" resultClass="kfPayTrade" parameterClass="kfPayTrade">
+   		<include refid="kfPayTradeSelect"/>
+   		<include refid="kfPayTradeConditions"/>
+   		order by CREATE_DATE desc
+   	</select>
+   	<select id="queryConditions_COUNT" resultClass="java.lang.Integer" parameterClass="kfPayTrade">
+		select count(1) from KF_PAY_TRADE kfPayTrade
+   		<include refid="kfPayTradeConditions"/>
+   	</select>
+   	
+	<select id="queryConditionsMap" resultClass="kfPayTrade" parameterClass="hashMap">
+   		<include refid="kfPayTradeSelect"/>
+   		<include refid="kfPayTradeConditions"/>
+   		order by CREATE_DATE desc
+   	</select>
+   	<select id="queryConditionsMap_COUNT" resultClass="java.lang.Integer" parameterClass="hashMap">
+		select count(1) from KF_PAY_TRADE kfPayTrade
+   		<include refid="kfPayTradeConditions"/>
+   	</select>
+   	<insert id="create" parameterClass="kfPayTrade">
+			 <selectKey resultClass="java.lang.String" keyProperty="batchNo">
+			      	select  'KF'|| to_char(sysdate,'yymmddHH24MISS') ||SEQ_KF_PAY_TRADE.nextval as batchNo from dual	
+			</selectKey>
+			insert into KF_PAY_TRADE(
+				<include refid="kfPayTradeFeildByInsert"/>			
+				)
+		<![CDATA[
+			values(
+				#batchNo#,
+				#partnerId#,
+				#remitCurrency#,
+				#allCount#,
+				#payCount#,
+				#failCount#,
+				#successCount#,
+				#buyAccount#,
+				#payAmount#,
+				#remitAmount#,
+				#type#,
+				#status#,
+				#createDate#,
+				#completeDate#,
+				#operator#,
+				#remark#
+			)
+		  ]]>
+	</insert>
+	<update id="update" parameterClass="kfPayTrade">
+		update 	KF_PAY_TRADE set 
+		STATUS = #status#, 
+		COMPLETE_DATE=#completeDate#
+		where BATCH_NO = #batchNo#		
+	</update>
+</sqlMap>

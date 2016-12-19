@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<beans>
+	<bean id="bulkordercheckHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     	</property>
+     	
+		<property name="mappings">
+			<props>
+				<prop key="/corp/orderCompletion.htm">orderCompletionController</prop>
+			</props>
+		</property>
+		
+	</bean>
+
+	<bean id="orderCompletionController" class="com.pay.app.controller.base.ordercompletion.OrderCompletionController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="indexView" value="/fi/orderCompletion/paramSetting" />
+		
+		<property name="orderCompletionService" ref="orderCompletionService" />
+		
+	</bean>
+
+</beans>

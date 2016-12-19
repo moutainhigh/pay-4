@@ -1,0 +1,969 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatisfin.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="payDetail">
+
+	<!-- 提现列表 -->
+	<resultMap class="java.util.HashMap" id="withdrawListResultMap">
+		<result column="CREATEDATE" property="createDate"/>
+		<result column="ORDERID" property="orderId"/>
+		<result column="PAYEE_BANKNAME" property="bankName"/>
+		<result column="PAYEE_BANKACCTCODE" property="bankAcctCode"/>
+		<result column="ORDER_STATUS" property="status"/>
+		<result column="ORDER_AMOUNT" property="orderAmount"/>
+	</resultMap>
+	<!-- 提现详情-->
+	<resultMap class="java.util.HashMap" id="withdrawDetailResultMap">
+		<result column="CREATEDATE" property="createDate"/>
+		<result column="UPDATE_DATE" property="updateDate"/>
+		<result column="ORDERID" property="orderId"/>
+		<result column="PAYEE_BANKNAME" property="bankName"/>
+		<result column="PAYEE_BANKACCTCODE" property="bankAcctCode"/>
+		<result column="ORDER_STATUS" property="status"/>
+		<result column="ORDER_AMOUNT" property="orderAmount"/>
+		<result column="PAYMENT_REASON" property="paymentReason"/>
+	</resultMap>
+	
+	<!-- 单笔结果集 -->
+	<resultMap class="java.util.HashMap" id="paydetailResultMap">
+		<result column="SEQUENCEID" property="sequenceId"/>
+		<result column="MEMBERCODE" property="memberCode"/>
+		<result column="CREATETIME" property="createTime"/>
+		<result column="AUDITDATE" property="auditDate"/>
+		<result column="ORDERTYPE" property="orderType"/>
+		<result column="PAYEE" property="payee"/>
+		<result column="STATUS" property="status"/>
+		<result column="AMOUNT" property="amount"/>
+	</resultMap>
+
+	<!-- 批量结果集 -->
+	<resultMap class="java.util.HashMap" id="paydetailBatchResultMap">
+		<result column="SEQUENCEID" property="sequenceId"/>
+		<result column="BATCHNUM" property="batchNum"/>
+		<result column="MEMBERCODE" property="memberCode"/>
+		<result column="CREATETIME" property="createTime"/>
+		<result column="AUDITDATE" property="auditDate"/>
+		<result column="UPDATEDATE" property="updateDate"/>
+		<result column="ORDERTYPE" property="orderType"/>
+		<result column="APPLYCOUNT" property="applyCount"/>
+		<result column="APPLYAMOUNT" property="applyAmount"/>
+		<result column="STATUS" property="status"/>
+		<result column="RECHECKSTATUS" property="reCheckStatus"/>
+		<result column="SUCCESSCOUNT" property="successCount"/>
+		<result column="SUCCESSAMOUNT" property="successAmount"/>
+		<result column="UPLOADSEQ" property="uploadSeq"/>
+		<result column="REALPAYAMOUNT" property="realpayAmount"/>
+	</resultMap>
+	
+	<!-- 付款凭证 -->
+	<resultMap class="java.util.HashMap" id="payToBankCertificateResultMap">
+		<result column="SEQUENCE_ID" property="sequenceId"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="FEE" property="fee"/>
+		<result column="ISPAYERPAYFEE" property="isPayerPayFee"/>
+		<result column="PAYERMEMBERCODE" property="payerMembercode"/>
+		<result column="PAYERNAME" property="payerName"/>
+		<result column="PAYERLOGINNAME" property="payerLoginName"/>
+		<result column="PAYEEMEMBERCODE" property="payeeMembercode"/>
+		<result column="PAYEENAME" property="payeeName"/>
+		<result column="PAYEELOGINNAME" property="payeeLoginName"/>
+		<result column="STATUS" property="status"/>
+		<result column="ORDER_REMARKS" property="remark"/>
+		<result column="DISPLAY_NAME" property="displayName"/>
+		<result column="BANK_BRANCH" property="bankBranch"/>
+		<result column="FUNDOUT_BANKCODE" property="fundoutBankcode"/>
+	</resultMap>
+	
+	<!-- 企业单笔付款详情 -->
+	<resultMap class="java.util.HashMap" id="paydetailSingleResultMap">
+		<result column="SEQUENCE_ID" property="sequenceId"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="FEE" property="fee"/>
+		<result column="ISPAYERPAYFEE" property="isPayerPayFee"/>
+		<result column="PAYERMEMBERCODE" property="payerMembercode"/>
+		<result column="PAYERNAME" property="payerName"/>
+		<result column="PAYERLOGINNAME" property="payerLoginName"/>
+		<result column="PAYEEMEMBERCODE" property="payeeMembercode"/>
+		<result column="PAYEENAME" property="payeeName"/>
+		<result column="PAYEELOGINNAME" property="payeeLoginName"/>
+		<result column="STATUS" property="status"/>
+		<result column="ORDER_REMARKS" property="remark"/>
+		<result column="DISPLAY_NAME" property="displayName"/>
+		<result column="BANK_BRANCH" property="bankBranch"/>
+		<result column="AUDIT_REMARK" property="auditRemark"/>
+	</resultMap>
+	<!-- 批量付款单笔详情  -->
+	<resultMap class="java.util.HashMap" id="paySingleBatchDetailResultMap">
+		<result column="SEQUENCEID" property="sequenceId"/>
+		<result column="CREATETIME" property="createTime"/>
+		<result column="ORDERTYPE" property="orderType"/>
+		<result column="BATCHNUM" property="batchNum"/>
+		<result column="APPLYCOUNT" property="applyCount"/>
+		<result column="APPLYAMOUNT" property="applyAmount"/>
+		<result column="VALIDCOUNT" property="validCount"/>
+		<result column="VALIDAMOUNT" property="validAmount"/>
+		<result column="STATUS" property="status"/>
+		<result column="RECHECKSTATUS" property="recheckStatus"/>
+		<result column="FEE" property="fee"/>
+		<result column="SUCCESSAMOUNT" property="successAmount"/>
+		<result column="CREATOR" property="creator"/>
+		<result column="AUDITREMARK" property="auditRemark"/>
+		<result column="ORDERID" property="orderId"/>
+		<result column="REALPAYAMOUNT" property="realpayAmount"/>
+	</resultMap>
+	
+	<!-- 转账收款记录 -->
+	<resultMap class="java.util.HashMap" id="receiptResultMap">
+		<result column="SEQUENCE_ID" property="sequenceId"/>
+		<result column="CREATE_DATE" property="createTime"/>
+		<result column="PAYER_NAME" property="payerName"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="STATUS" property="status"/>
+		<result column="REMARKS" property="remarks"/>
+		<!--<result column="BUSITYPE" property="busiType"/>
+	--></resultMap>
+	<!-- 个人交易记录查询 -->
+	<resultMap class="java.util.HashMap" id="personTradeDetailResultMap">
+		<result column="CREATEDATE" property="createDate"/>
+		<result column="SEQUENCEID" property="sequenceId"/>
+		<result column="REMARKS" property="remarks"/>
+		<result column="PAYERMEMBER" property="payerMember"/>
+		<result column="PAYERNAME" property="payerName"/>
+		<result column="PAYEEMEMBER" property="payeeMember"/>
+		<result column="PAYEENAME" property="payeeName"/>
+		<result column="STATUS" property="status"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="BUSITYPE" property="busiType"/>
+		<result column="ORDERTYPE" property="orderType"/>
+	</resultMap>
+	<!-- 个人交易记录详情 -->
+	<resultMap class="java.util.HashMap" id="singlePersonTradeDetailResultMap">
+		<result column="CREATEDATE" property="createDate"/>
+		<result column="SEQUENCEID" property="sequenceId"/>
+		<result column="REMARKS" property="remarks"/>
+		<result column="PAYERMEMBER" property="payerMember"/>
+		<result column="PAYERNAME" property="payerName"/>
+		<result column="PAYEEMEMBER" property="payeeMember"/>
+		<result column="PAYEENAME" property="payeeName"/>
+		<result column="FEE" property="payerFee"/>
+		<result column="ISPAYERPAYFEE" property="isPayerPayFee"/>
+		<result column="STATUS" property="status"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="BUSITYPE" property="busiType"/>
+		<result column="BANK_ACCT" property="bankAcct"/>
+		<result column="BANK_BRANCH" property="bankBranch"/>
+		<result column="DISPLAY_NAME" property="displayName"/>
+	</resultMap>
+	
+	<!-- BSP 提现列表查询 -->
+	<resultMap class="java.util.HashMap" id="withdrawSummaryFromBspResultMap">
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="SEQUENCE_ID" property="sequenceId"/>
+		<result column="DISPLAY_NAME" property="displayName"/>
+		<result column="BANK_ACCT" property="bankAcct"/>
+		<result column="RECHECKSTATUS" property="recheckStatus"/>
+		<result column="STATUS" property="status"/>
+		<result column="AMOUNT" property="amount"/>
+	</resultMap>
+	<!-- BSP 提现详情查询 -->
+	<resultMap class="java.util.HashMap" id="withdrawDetailFromBspResultMap">
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="UPDATE_TIME" property="updateTime"/>
+		<result column="SEQUENCE_ID" property="sequenceId"/>
+		<result column="DISPLAY_NAME" property="displayName"/>
+		<result column="BANK_ACCT" property="bankAcct"/>
+		<result column="RECHECKSTATUS" property="recheckStatus"/>
+		<result column="STATUS" property="status"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="ORDER_REMARKS" property="orderRemarks"/>
+		<result column="RECHECKSERIALNO" property="recheckSerialNo"/>
+		<result column="RECHECKDATE" property="recheckDate"/>
+		<result column="AUDIT_OPERATOR" property="auditOperator"/>
+		<result column="AUDIT_REMARK" property="auditRemark"/>
+	</resultMap>
+	
+	<!-- BSP 资金调拨详情查询 -->
+	<resultMap class="java.util.HashMap" id="fundAllotDetailResultMap">
+		<result column="SEQUENCE_ID" property="sequenceId"/>
+		<result column="CREATE_DATE" property="createDate"/>
+		<result column="UPDATE_DATE" property="updateDate"/>
+		<result column="PAYER_NAME" property="payerName"/>
+		<result column="PAYEE_NAME" property="payeeName"/>
+		<result column="STATUS" property="status"/>
+		<result column="AMOUNT" property="amount"/>
+		<result column="REMARKS" property="remarks"/>
+		<result column="RECHECKSERIALNO" property="recheckSerialNo"/>
+		<result column="RECHECKDATE" property="recheckDate"/>
+		<result column="RECHECKSTATUS" property="recheckStatus"/>
+		<result column="AUDIT_OPERATOR" property="auditOperator"/>
+		<result column="AUDIT_REMARK" property="auditRemark"/>
+	</resultMap>
+	
+	<select id="queryFundAllotDetail" resultMap="fundAllotDetailResultMap"><!-- BSP 资金调拨详情查询 -->
+		SELECT T.ORDER_ID SEQUENCE_ID,
+		       TO_CHAR(T.CREATE_DATE, 'yyyy-mm-dd hh24:mi:ss') CREATE_DATE,
+		       TO_CHAR(T.UPDATE_DATE, 'yyyy-mm-dd hh24:mi:ss') UPDATE_DATE,
+		       T.PAYER_NAME,
+		       T.PAYEE_NAME,
+		       T.ORDER_STATUS STATUS,
+		       T.ORDER_AMOUNT AMOUNT,
+		       T.PAYMENT_REASON REMARKS,
+		       W.SEQUENCE_ID RECHECKSERIALNO,
+		       W.UPDATE_DATE RECHECKDATE,
+		       W.STATUS RECHECKSTATUS,
+		       W.AUDIT_OPERATOR,
+		       W.AUDIT_REMARK
+		  FROM ORDER_INFO T, WORK_ORDER W
+		 WHERE T.ORDER_ID = W.ORDER_SEQ
+		       AND W.ORDER_TYPE = 5
+		       AND (T.PAYEE_MEMBERCODE=#memberCode# OR T.PAYER_MEMBERCODE=#memberCode# OR W.CREATE_MEMBER_CODE=#memberCode#)
+			   AND T.ORDER_ID = #sequenceId#
+	</select>
+	<select id="queryWithdrawDetailFromBsp" resultMap="withdrawDetailFromBspResultMap"><!-- BSP 提现详情查询 -->
+		SELECT TO_CHAR(T.CREATE_DATE, 'yyyy-mm-dd hh24:mi:ss') CREATE_TIME,
+		       T.UPDATE_DATE UPDATE_TIME,
+		       T.ORDER_ID SEQUENCE_ID,
+		       T.PAYEE_BANKNAME DISPLAY_NAME,
+		       T.PAYEE_BANKACCTCODE BANK_ACCT,
+		       W.STATUS RECHECKSTATUS,
+		       DECODE(T.ORDER_STATUS,
+		              100,
+		              '初始状态',
+		              101,
+		              '处理中',
+		              102,
+		              '申请失败',
+		              111,
+		              '成功',
+		              112,
+		              '失败',
+		              113,
+		              '已退票') STATUS,
+		       T.ORDER_AMOUNT AMOUNT,
+		       T.PAYMENT_REASON ORDER_REMARKS,
+		       W.SEQUENCE_ID RECHECKSERIALNO,
+		       W.UPDATE_DATE RECHECKDATE,
+		       W.AUDIT_OPERATOR,
+		       W.AUDIT_REMARK
+		  FROM  WORK_ORDER W, FUNDOUT_ORDER T
+		 WHERE T.ORDER_ID = W.ORDER_SEQ
+		  AND (W.AUDIT_MEMBER_CODE = #memberCode# OR T.PAYER_MEMBERCODE = #memberCode# )
+		  AND T.ORDER_ID = #sequenceId#
+	</select>
+	
+	<select id="queryWithdrawSummaryFromBsp" resultMap="withdrawSummaryFromBspResultMap"><!-- BSP 提现列表查询 -->
+		SELECT TO_CHAR(T.CREATE_DATE, 'yyyy-mm-dd hh24:mi:ss') CREATE_TIME,
+		       T.ORDER_ID SEQUENCE_ID,
+		       T.PAYEE_BANKNAME DISPLAY_NAME,
+		       T.PAYEE_BANKACCTCODE BANK_ACCT,
+		       DECODE(W.STATUS, 0, '待审核', 1, '审核通过', 2, '审核拒绝') RECHECKSTATUS,
+		       DECODE(T.ORDER_STATUS,
+		              100,
+		              '初始状态',
+		              101,
+		              '处理中',
+		              102,
+		              '申请失败',
+		              111,
+		              '成功',
+		              112,
+		              '失败',
+		              113,
+		              '已退票') STATUS,
+		       T.ORDER_AMOUNT AMOUNT
+		  FROM FUNDOUT_ORDER T, WORK_ORDER W
+		 WHERE T.ORDER_ID = W.ORDER_SEQ
+	  AND T.PAYER_MEMBERCODE = #memberCode#
+	  	<isNotEmpty prepend="AND" property="startTime">
+		 	T.CREATE_DATE >=  #startTime#
+		</isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+         	<![CDATA[
+		 	T.CREATE_DATE <  (#endTime#+1)
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+		 	T.ORDER_STATUS = #status#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="recheckStatus">
+		 	W.STATUS = #recheckStatus#
+		</isNotEmpty>
+		 ORDER BY T.CREATE_DATE DESC
+	</select>
+	<select id="queryWithdrawSummaryFromBsp_COUNT" resultClass="java.lang.Integer"><!-- BSP 提现列表count查询 -->
+		SELECT COUNT(1)
+		  FROM FUNDOUT_ORDER T, WORK_ORDER W
+		 WHERE T.ORDER_ID = W.ORDER_SEQ
+	  AND T.PAYER_MEMBERCODE = #memberCode#
+	  	<isNotEmpty prepend="AND" property="startTime">
+		 	T.CREATE_DATE >=  #startTime#
+		</isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+         	<![CDATA[
+		 	T.CREATE_DATE <  (#endTime#+1)
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+		 	T.ORDER_STATUS = #status#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="recheckStatus">
+		 	W.STATUS = #recheckStatus#
+		</isNotEmpty>
+	</select>
+	
+	<select id="tradeQueryForAcc" resultMap="singlePersonTradeDetailResultMap"><!-- 个人交易查询账户 -->
+		SELECT TO_CHAR(MO.CREATE_DATE, 'yyyy-mm-dd hh24:mi:ss') CREATEDATE,
+		       MO.ORDER_ID SEQUENCEID,
+		       MO.PAYMENT_REASON REMARKS,
+		       MO.PAYER_MEMBERCODE PAYERMEMBER,
+		       MO.PAYER_NAME PAYERNAME,
+		       MO.PAYEE_MEMBERCODE PAYEEMEMBER,
+		       MO.PAYEE_NAME PAYEENAME,
+		       0 FEE,
+		       0 ISPAYERPAYFEE,
+		       MO.ORDER_STATUS STATUS,
+		       MO.ORDER_AMOUNT AMOUNT,
+		       '1' BUSITYPE,
+		       '' BANK_ACCT,
+		       '' BANK_BRANCH,
+		       '' DISPLAY_NAME
+		  FROM Pay_ToAcctOrder MO
+		  WHERE MO.ORDER_ID= #serialNo#
+		  AND (	MO.PAYER_MEMBERCODE=#memberCode# OR
+		  		MO.PAYEE_MEMBERCODE=#memberCode#)
+	</select>
+	
+	<select id="tradeQueryForBank" resultMap="singlePersonTradeDetailResultMap"><!-- 个人交易查询银行 -->
+		SELECT to_char(WO.CREATE_DATE,'yyyy-mm-dd hh24:mi:ss') CREATEDATE,
+			       WO.ORDER_ID SEQUENCEID,
+			       wo.PAYMENT_REASON REMARKS,
+			       WO.PAYER_MEMBERCODE PAYERMEMBER,
+			       WO.PAYER_NAME PAYERNAME,
+			       '' PAYEEMEMBER,
+			       WO.PAYEE_NAME PAYEENAME,
+			       WO.FEE FEE,
+			       WO.IS_PAYERPAYFEE ISPAYERPAYFEE,
+			       WO.ORDER_STATUS STATUS,
+			       WO.ORDER_AMOUNT AMOUNT,
+		           '2' BUSITYPE,
+               wo.PAYEE_BANKACCTCODE BANK_ACCT,
+               wo.PAYEE_OPENINGBANKNAME BANK_BRANCH,
+               wo.PAYEE_BANKNAME DISPLAY_NAME
+        FROM FUNDOUT_ORDER WO 
+       WHERE WO.ORDER_TYPE = 3
+		 AND WO.ORDER_ID= #serialNo#
+		 AND WO.PAYER_MEMBERCODE = #memberCode#
+	</select>
+	
+	<!-- 个人交易记录查询 -->
+	<select id="queryPersonTradeDetailList" parameterClass="java.util.HashMap" resultMap="personTradeDetailResultMap">
+		SELECT *
+  		FROM (SELECT PO.CREATE_DATE CREATEDATE,
+               PO.PAYMENT_ORDER_NO SEQUENCEID,
+               TRO.GOODS_NAME REMARKS,
+               PO.PAYER PAYERMEMBER,
+               PO.PAYER_NAME PAYERNAME,
+               PO.PAYEE PAYEEMEMBER,
+               PO.PAYEE_NAME PAYEENAME,
+               TO_NUMBER(PO.STATUS) STATUS,
+               PO.PAYMENT_AMOUNT AMOUNT,
+               '0' BUSITYPE,
+               'X' ORDERTYPE
+          FROM FI.PAYMENT_ORDER PO, FI.TRADE_ORDER TRO
+         WHERE PO.TRADE_ORDER_NO = TRO.TRADE_ORDER_NO
+		<isNotEmpty prepend="AND" property="startTime">
+		 	PO.CREATE_DATE >=  #startTime#
+		</isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+         	<![CDATA[
+		 	PO.CREATE_DATE <  #endTime# +1
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="startAmount">
+	 		PO.PAYMENT_AMOUNT >=  #startAmount#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endAmount">
+         	<![CDATA[
+		 	PO.PAYMENT_AMOUNT <=  #endAmount#
+		 	]]>
+		</isNotEmpty>
+		<!-- 0为支出,1为双向,2为收入-->
+		<isEqual prepend="AND" property="flag" compareValue="0">
+			PO.PAYER = #memberCode#
+		</isEqual>
+		<isEqual prepend="AND" property="flag" compareValue="1">
+			(PO.PAYER = #memberCode#
+			OR
+			PO.PAYEE = #memberCode#)
+		</isEqual>
+		<isEqual prepend="AND" property="flag" compareValue="2">
+			PO.PAYEE = #memberCode#
+		</isEqual>
+        UNION ALL
+         SELECT MO.CREATE_DATE CREATEDATE,
+               MO.ORDER_ID SEQUENCEID,
+               MO.PAYMENT_REASON REMARKS,
+               MO.PAYER_MEMBERCODE PAYERMEMBER,
+               MO.PAYER_NAME PAYERNAME,
+               MO.PAYEE_MEMBERCODE PAYEEMEMBER,
+               MO.PAYEE_NAME PAYEENAME,
+               MO.ORDER_STATUS STATUS,
+               MO.ORDER_AMOUNT AMOUNT,
+               '1' BUSITYPE,
+               to_char(MO.ORDER_TYPE) ORDERTYPE
+          FROM ORDER_INFO MO
+          WHERE (MO.ORDER_TYPE=1 OR MO.ORDER_TYPE=2 OR MO.ORDER_TYPE=3)
+				<isNotEmpty prepend="AND" property="startTime">
+		 			MO.CREATE_DATE >=  #startTime#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="endTime">
+         			<![CDATA[
+		 			MO.CREATE_DATE <  #endTime# +1
+		 			]]>
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="startAmount">
+			 		MO.ORDER_AMOUNT >=  #startAmount#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="endAmount">
+		         	<![CDATA[
+				 	MO.ORDER_AMOUNT <=  #endAmount#
+				 	]]>
+				</isNotEmpty>
+				<!-- 0为支出,1为双向,2为收入-->
+				<isEqual prepend="AND" property="flag" compareValue="0">
+					MO.PAYER_MEMBERCODE = #memberCode#
+				</isEqual>
+				<isEqual prepend="AND" property="flag" compareValue="1">
+					(MO.PAYER_MEMBERCODE = #memberCode#
+					OR
+					(MO.PAYEE_MEMBERCODE = #memberCode# and  mo.ORDER_STATUS NOT IN (100,102) ))
+				</isEqual>
+				<isEqual prepend="AND" property="flag" compareValue="2">
+					MO.PAYEE_MEMBERCODE = #memberCode#
+					and  mo.ORDER_STATUS NOT IN (100,102)
+				</isEqual>
+         ) D
+		ORDER BY CREATEDATE DESC
+	</select>
+	<select id="queryPersonTradeDetailList_COUNT" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+  		FROM (SELECT PO.CREATE_DATE CREATEDATE,
+               PO.PAYMENT_ORDER_NO SEQUENCEID,
+               TRO.GOODS_NAME REMARKS,
+               PO.PAYER PAYERMEMBER,
+               PO.PAYER_NAME PAYERNAME,
+               PO.PAYEE PAYEEMEMBER,
+               PO.PAYEE_NAME PAYEENAME,
+               TO_NUMBER(PO.STATUS) STATUS,
+               PO.PAYMENT_AMOUNT AMOUNT,
+               '0' BUSITYPE,
+               '' ORDERTYPE
+          FROM FI.PAYMENT_ORDER PO, FI.TRADE_ORDER TRO
+         WHERE PO.TRADE_ORDER_NO = TRO.TRADE_ORDER_NO
+		<isNotEmpty prepend="AND" property="startTime">
+		 	PO.CREATE_DATE >=  #startTime#
+		</isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+         	<![CDATA[
+		 	PO.CREATE_DATE <  #endTime# +1
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="startAmount">
+	 		PO.PAYMENT_AMOUNT >=  #startAmount#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endAmount">
+         	<![CDATA[
+		 	PO.PAYMENT_AMOUNT <=  #endAmount#
+		 	]]>
+		</isNotEmpty>
+		<!-- 0为支出,1为双向,2为收入-->
+		<isEqual prepend="AND" property="flag" compareValue="0">
+			PO.PAYER = #memberCode#
+		</isEqual>
+		<isEqual prepend="AND" property="flag" compareValue="1">
+			(PO.PAYER = #memberCode#
+			OR
+			PO.PAYEE = #memberCode#)
+		</isEqual>
+		<isEqual prepend="AND" property="flag" compareValue="2">
+			PO.PAYEE = #memberCode#
+		</isEqual>
+        UNION ALL
+         SELECT MO.CREATE_DATE CREATEDATE,
+               MO.ORDER_ID SEQUENCEID,
+               MO.PAYMENT_REASON REMARKS,
+               MO.PAYER_MEMBERCODE PAYERMEMBER,
+               MO.PAYER_NAME PAYERNAME,
+               MO.PAYEE_MEMBERCODE PAYEEMEMBER,
+               MO.PAYEE_NAME PAYEENAME,
+               MO.ORDER_STATUS STATUS,
+               MO.ORDER_AMOUNT AMOUNT,
+               '1' BUSITYPE,
+               to_char(MO.ORDER_TYPE) ORDERTYPE
+          FROM ORDER_INFO MO
+          WHERE (MO.ORDER_TYPE=1 OR MO.ORDER_TYPE=2 OR MO.ORDER_TYPE=3)
+				<isNotEmpty prepend="AND" property="startTime">
+		 			MO.CREATE_DATE >=  #startTime#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="endTime">
+         			<![CDATA[
+		 			MO.CREATE_DATE <  #endTime# +1
+		 			]]>
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="startAmount">
+			 		MO.ORDER_AMOUNT >=  #startAmount#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="endAmount">
+		         	<![CDATA[
+				 	MO.ORDER_AMOUNT <=  #endAmount#
+				 	]]>
+				</isNotEmpty>
+				<!-- 0为支出,1为双向,2为收入-->
+				<isEqual prepend="AND" property="flag" compareValue="0">
+					MO.PAYER_MEMBERCODE = #memberCode#
+				</isEqual>
+				<isEqual prepend="AND" property="flag" compareValue="1">
+					(MO.PAYER_MEMBERCODE = #memberCode#
+					OR
+					(MO.PAYEE_MEMBERCODE = #memberCode# and  mo.ORDER_STATUS NOT IN (100,102) ))
+				</isEqual>
+				<isEqual prepend="AND" property="flag" compareValue="2">
+					MO.PAYEE_MEMBERCODE = #memberCode#
+					and  mo.ORDER_STATUS NOT IN (100,102)
+				</isEqual>
+         ) D
+	</select>
+	<select id="queryReceiptRecordFormAcc" parameterClass="java.util.HashMap" resultMap ="receiptResultMap">
+		SELECT T.ORDER_ID SEQUENCE_ID,
+	         T.CREATE_DATE CREATE_DATE,
+	         T.PAYER_NAME PAYER_NAME,
+	         T.ORDER_AMOUNT AMOUNT,
+	         T.ORDER_STATUS STATUS,
+	         T.PAYMENT_REASON REMARKS
+	      FROM ORDER_INFO T
+		 WHERE  T.PAYEE_MEMBERCODE = #memberCode#
+		 and t.ORDER_STATUS not IN (100, 102)
+		 AND (T.ORDER_TYPE=1 OR T.ORDER_TYPE=2)
+		<isNotEmpty prepend="AND" property="serialNo">
+		 	T.ORDER_ID=#serialNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="startTime">
+		 	T.CREATE_DATE >=  #startTime#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+	  		<![CDATA[
+		 	T.CREATE_DATE <  #endTime#
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+		 	T.ORDER_STATUS = #status#
+		</isNotEmpty>
+		 ORDER BY T.CREATE_DATE DESC
+	</select>
+	<select id="queryReceiptRecordFormAcc_COUNT" parameterClass="java.util.HashMap" resultClass ="java.lang.Integer">
+		SELECT COUNT(1)
+	      FROM ORDER_INFO T
+		 WHERE  T.PAYEE_MEMBERCODE = #memberCode#
+		 and t.ORDER_STATUS not IN (100, 102)
+		 AND (T.ORDER_TYPE=1 OR T.ORDER_TYPE=2)
+		<isNotEmpty prepend="AND" property="serialNo">
+		 	T.ORDER_ID=#serialNo#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="startTime">
+		 	T.CREATE_DATE >=  #startTime#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+	  		<![CDATA[
+		 	T.CREATE_DATE <  #endTime#
+		 	]]>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="status">
+		 	T.ORDER_STATUS = #status#
+		</isNotEmpty>
+	</select>
+	
+	<!-- 批量付款到账户/银行单笔详情 -->
+	<select id="querySingleBatchPayDeailbyAcc" parameterClass="java.util.HashMap" resultMap ="paySingleBatchDetailResultMap">
+		SELECT BP.ORDER_ID      ORDERID,
+			   E.REQUEST_SEQ	SEQUENCEID,
+		       E.CREATE_DATE      CREATETIME,
+		       E.REQUEST_TYPE     ORDERTYPE,
+		       E.BUSINESS_BATCHNO BATCHNUM,
+		       E.REQUEST_COUNT    APPLYCOUNT,
+		       E.REQUEST_AMOUNT   APPLYAMOUNT,
+		       E.VALID_COUNT      VALIDCOUNT,
+		       E.VALID_AMOUNT     VALIDAMOUNT,
+		       BP.ORDER_STATUS    STATUS,
+		       E.STATUS 		  RECHECKSTATUS,
+		       E.FEE              FEE,
+		       BP.SUCCESS_AMOUNT  SUCCESSAMOUNT,
+		       E.CREATOR          CREATOR,
+		       E.AUDIT_REMARK     AUDITREMARK,
+		       E.REALPAY_AMOUNT   REALPAYAMOUNT
+		  FROM BATCH_PAYMENTREQBASEINFO E, BATCH_PAYMENTORDER BP
+		 WHERE E.PAYER_MEMBERCODE = BP.PAYER_MEMBERCODE(+)
+		       AND E.BUSINESS_BATCHNO = BP.BUSINESS_BATCH_NO(+)
+		       AND E.REQUEST_TYPE = BP.ORDER_TYPE(+)
+		   AND E.PAYER_MEMBERCODE = #memberCode#
+			<isNotEmpty prepend="AND" property="serialNo">
+		 		BP.ORDER_ID = #serialNo#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="uploadSeq">
+		 		E.REQUEST_SEQ = #uploadSeq#
+			</isNotEmpty>
+		   
+	</select>
+	
+	<select id="querySinglePayDeailbyPay2Bank" parameterClass="java.util.HashMap" resultMap ="paydetailSingleResultMap">
+		SELECT WO.ORDER_ID SEQUENCE_ID,
+	       WO.CREATE_DATE CREATE_TIME,
+	       WO.ORDER_AMOUNT AMOUNT,
+	       WO.FEE FEE,
+	       WO.IS_PAYERPAYFEE ISPAYERPAYFEE,
+	       TO_CHAR(WO.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+	       WO.PAYER_NAME PAYERNAME,
+	       WO.PAYER_LOGINNAME PAYERLOGINNAME,
+	       '' PAYEEMEMBERCODE,
+	       WO.PAYEE_NAME PAYEENAME,
+	       WO.PAYEE_BANKACCTCODE PAYEELOGINNAME,
+	       DECODE(WO.ORDER_STATUS,
+	              100,
+	              '初始状态',
+	              101,
+	              '处理中',
+	              102,
+	              '申请失败',
+	              111,
+	              '处理成功',
+	              112,
+	              '处理失败',
+	              113,
+	              '退票') STATUS,
+	       WO.PAYMENT_REASON ORDER_REMARKS,
+	       WO.PAYEE_BANKNAME DISPLAY_NAME,
+	       w.audit_remark AUDIT_REMARK,
+	       WO.PAYEE_OPENINGBANKNAME BANK_BRANCH
+	  FROM FUNDOUT_ORDER WO,fo.work_order w
+	 	WHERE wo.order_id = w.order_seq(+) and WO.PAYER_MEMBERCODE = #memberCode#
+		AND WO.ORDER_ID=#sequenceId#
+	</select>
+	
+	<select id="queryPay2BankRefundTicket" parameterClass="java.util.HashMap" resultMap ="paydetailSingleResultMap">
+		SELECT WO.ORDER_ID SEQUENCE_ID,
+	       WO.CREATE_DATE CREATE_TIME,
+	       WO.ORDER_AMOUNT AMOUNT,
+	       WO.FEE FEE,
+	       WO.IS_PAYERPAYFEE ISPAYERPAYFEE,
+	       TO_CHAR(WO.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+	       WO.PAYER_NAME PAYERNAME,
+	       WO.PAYER_LOGINNAME PAYERLOGINNAME,
+	       '' PAYEEMEMBERCODE,
+	       WO.PAYEE_NAME PAYEENAME,
+	       WO.PAYEE_BANKACCTCODE PAYEELOGINNAME,
+	       DECODE(WO.ORDER_STATUS,
+	              100,
+	              '初始状态',
+	              101,
+	              '处理中',
+	              102,
+	              '申请失败',
+	              111,
+	              '处理成功',
+	              112,
+	              '处理失败',
+	              113,
+	              '退票') STATUS,
+	       WO.PAYMENT_REASON ORDER_REMARKS,
+	       WO.PAYEE_BANKNAME DISPLAY_NAME,
+	       w.audit_remark AUDIT_REMARK,
+	       WO.PAYEE_OPENINGBANKNAME BANK_BRANCH
+	  FROM FUNDOUT_ORDER WO, FUNDOUT_REFUNDORDER FR
+	  WHERE fr.SRC_ORDERID = wo.ORDER_ID
+	  AND fr.SRC_ORDERID = #sequenceId#
+		AND WO.PAYER_MEMBERCODE = #memberCode#
+	</select>
+	
+	<select id="querySinglePayDeailbyPay2Acc" parameterClass="java.util.HashMap" resultMap ="paydetailSingleResultMap">
+		SELECT MO.ORDER_ID SEQUENCE_ID,
+		       MO.CREATE_DATE CREATE_TIME,
+		       MO.ORDER_AMOUNT AMOUNT,
+		       MO.FEE FEE,
+		       MO.IS_PAYERPAYFEE ISPAYERPAYFEE,
+		       to_char(MO.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+		       MO.PAYER_NAME PAYERNAME,
+		       MO.PAYER_LOGINNAME PAYERLOGINNAME,
+		       to_char(MO.PAYEE_MEMBERCODE) PAYEEMEMBERCODE,
+		       MO.PAYEE_NAME PAYEENAME,
+		       MO.PAYEE_LOGINNAME PAYEELOGINNAME,
+		       DECODE(MO.ORDER_STATUS,
+		              100,
+		              '初始状态',
+		              101,
+		              '处理中',
+		              102,
+		              '申请失败',
+		              111,
+		              '处理成功',
+		              112,
+		              '处理失败',
+		              113,
+		              '退票') STATUS,
+		       MO.PAYMENT_REASON ORDER_REMARKS,
+		       '' DISPLAY_NAME,
+		       w.audit_remark AUDIT_REMARK,
+		       '' BANK_BRANCH
+		  FROM ORDER_INFO MO,fo.work_order w
+			WHERE mo.order_id = w.order_seq(+) and (MO.ORDER_TYPE = 1 or MO.ORDER_TYPE = 2)
+				AND MO.ORDER_ID = #sequenceId#
+				AND	(MO.PAYER_MEMBERCODE = #memberCode# OR MO.PAYEE_MEMBERCODE = #memberCode#)
+	</select>
+
+	<!-- 单笔付款查询 -->
+	<select id="queryPayDetailList" parameterClass="java.util.HashMap"
+		resultMap="paydetailResultMap">
+		SELECT A.ORDER_ID SEQUENCEID,
+		       A.PAYER_MEMBERCODE MEMBERCODE,
+		       to_char(A.CREATE_DATE,'yyyy-mm-dd hh24:mi:ss') CREATETIME,
+		       to_char(W.UPDATE_DATE,'yyyy-mm-dd hh24:mi:ss') AUDITDATE,
+		       A.ORDER_TYPE ORDERTYPE,
+			   A.PAYEE_NAME PAYEE,
+		       A.ORDER_STATUS STATUS,
+		       A.ORDER_AMOUNT AMOUNT
+		  FROM ORDER_INFO A,FO.WORK_ORDER w
+     WHERE a.order_id = w.order_seq(+) and ( A.ORDER_TYPE = 1
+		       OR A.ORDER_TYPE = 3)
+		       AND A.PAYER_MEMBERCODE=#memberCode#
+			 <isNotEmpty prepend="AND" property="startTime">
+			 	A.CREATE_DATE >= #startTime#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="endTime">
+			 	<![CDATA[
+			 	A.CREATE_DATE < #endTime#
+			 	]]>
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="payStatus">
+			 	A.ORDER_STATUS = #payStatus#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="payChannel">
+			 	A.ORDER_TYPE = #payChannel#
+			 </isNotEmpty>
+			 ORDER BY A.CREATE_DATE DESC
+	</select>
+	<select id="queryPayDetailList_COUNT" parameterClass="java.util.HashMap"
+		resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+		  FROM ORDER_INFO A
+		 WHERE( A.ORDER_TYPE = 1
+		       OR A.ORDER_TYPE = 3)
+		       AND A.PAYER_MEMBERCODE=#memberCode#
+			 <isNotEmpty prepend="AND" property="startTime">
+			 	A.CREATE_DATE >= #startTime#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="endTime">
+			 	<![CDATA[
+			 	A.CREATE_DATE < #endTime#
+			 	]]>
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="payStatus">
+			 	A.ORDER_STATUS = #payStatus#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="payChannel">
+			 	A.ORDER_TYPE = #payChannel#
+			 </isNotEmpty>
+	</select>
+
+
+	<!-- 批量付款查询 -->
+	<select id="queryPayBatchDetailList" parameterClass="java.util.HashMap"
+		resultMap="paydetailBatchResultMap">
+		 SELECT BP.ORDER_ID SEQUENCEID,
+		       E.BUSINESS_BATCHNO BATCHNUM,
+		       E.Payer_MemberCode MEMBERCODE,
+		       to_char(E.CREATE_DATE,'yyyy-mm-dd hh24:mi:ss') CREATETIME,
+		       to_char(bp.create_date,'yyyy-mm-dd hh24:mi:ss') AUDITDATE,
+		       to_char(E.UPDATE_DATE,'yyyy-mm-dd hh24:mi:ss') UPDATEDATE,
+		       E.REQUEST_TYPE orderType,
+		       E.REQUEST_COUNT APPLYCOUNT,
+		       E.REQUEST_AMOUNT APPLYAMOUNT,
+		       bp.ORDER_STATUS STATUS,
+		       E.STATUS RECHECKSTATUS,
+		       E.VALID_COUNT SUCCESSCOUNT,
+		       E.VALID_AMOUNT SUCCESSAMOUNT,
+		       E.REQUEST_SEQ UPLOADSEQ,
+		       E.REALPAY_AMOUNT REALPAYAMOUNT
+		  FROM BATCH_PAYMENTREQBASEINFO E,Batch_PaymentOrder BP
+			  WHERE E.PAYER_MEMBERCODE=BP.PAYER_MEMBERCODE(+)
+			  AND E.BUSINESS_BATCHNO = BP.BUSINESS_BATCH_NO(+)
+			  AND E.REQUEST_TYPE = BP.ORDER_TYPE(+)
+			  AND E.STATUS != 0
+	          and E.Payer_MemberCode=#memberCode#
+         	     <isNotEmpty prepend="AND" property="startTime">
+				 	E.CREATE_DATE >= #startTime#
+				 </isNotEmpty>
+				 <isNotEmpty prepend="AND" property="endTime">
+				 	<![CDATA[
+				 	E.CREATE_DATE < #endTime#
+				 	]]>
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="payStatus">
+				 	<isEqual property="payStatus" compareValue="102">
+				 		 ((E.STATUS=3) OR (E.STATUS=2 and bp.ORDER_STATUS = #payStatus#)) 
+				 	</isEqual>
+				 	<isNotEqual property="payStatus" compareValue="102">
+				 		(bp.ORDER_STATUS=#payStatus#  OR bp.ORDER_STATUS IS NULL)
+				 	</isNotEqual>
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="serialNo">
+				 	E.BUSINESS_BATCHNO = #serialNo#
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="reCheck">
+				 	E.STATUS = #reCheck#
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="payChannel">
+				 	e.REQUEST_TYPE = #payChannel#
+				 </isNotEmpty>
+			ORDER BY E.CREATE_DATE DESC
+	</select>
+	<select id="queryPayBatchDetailList_COUNT" parameterClass="java.util.HashMap"
+		resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+		  FROM BATCH_PAYMENTREQBASEINFO E,Batch_PaymentOrder BP
+			  WHERE E.PAYER_MEMBERCODE=BP.PAYER_MEMBERCODE(+)
+			  AND E.BUSINESS_BATCHNO = BP.BUSINESS_BATCH_NO(+)
+			  AND E.REQUEST_TYPE = BP.ORDER_TYPE(+)
+			  AND E.STATUS != 0
+	          and E.Payer_MemberCode=#memberCode#
+         	     <isNotEmpty prepend="AND" property="startTime">
+				 	E.CREATE_DATE >= #startTime#
+				 </isNotEmpty>
+				 <isNotEmpty prepend="AND" property="endTime">
+				 	<![CDATA[
+				 	E.CREATE_DATE < #endTime#
+				 	]]>
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="payStatus">
+				 	<isEqual property="payStatus" compareValue="102">
+				 		 ((E.STATUS=3) OR (E.STATUS=2 and bp.ORDER_STATUS = #payStatus#)) 
+				 	</isEqual>
+				 	<isNotEqual property="payStatus" compareValue="102">
+				 		(bp.ORDER_STATUS=#payStatus#  OR bp.ORDER_STATUS IS NULL)
+				 	</isNotEqual>
+				 </isNotEmpty>
+				 <isNotEmpty prepend="AND" property="serialNo">
+				 	E.BUSINESS_BATCHNO = #serialNo#
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="reCheck">
+				 	E.STATUS = #reCheck#
+				 </isNotEmpty>
+                 <isNotEmpty prepend="AND" property="payChannel">
+				 	e.REQUEST_TYPE = #payChannel#
+				 </isNotEmpty>
+	</select>
+	<!-- 提现列表 -->
+	<select id="queryWithdrawList" parameterClass="java.util.HashMap"
+		resultMap="withdrawListResultMap">
+		SELECT T.CREATE_DATE CREATEDATE,
+		       T.ORDER_ID ORDERID,
+		       T.PAYEE_BANKNAME,
+		       T.PAYEE_BANKACCTCODE,
+		       T.ORDER_STATUS,
+		       T.ORDER_AMOUNT
+		  FROM FUNDOUT_ORDER T
+		  where t.order_type=0
+		  and t.PAYER_MEMBERCODE = #memberCode#
+		     <isNotEmpty prepend="AND" property="startTime">
+			 	T.CREATE_DATE >= #startTime#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="endTime">
+			 	<![CDATA[
+			 	T.CREATE_DATE < #endTime#
+			 	]]>
+			 </isNotEmpty>
+		  	 <isNotEmpty prepend="AND" property="status">
+		  	 	<isEqual compareValue="112">
+		  	 		T.ORDER_STATUS in (112,113)
+		  	 	</isEqual>
+		  	 	<isNotEqual compareValue="112">
+		  	 		T.ORDER_STATUS = #status#
+		  	 	</isNotEqual>
+			 </isNotEmpty>
+		  order by T.CREATE_DATE desc
+	</select>
+	<select id="queryWithdrawList_COUNT" parameterClass="java.util.HashMap"
+		resultClass="java.lang.Integer">
+		SELECT COUNT(1)
+		   FROM FUNDOUT_ORDER T
+		  where t.order_type=0
+		  and t.PAYER_MEMBERCODE = #memberCode#
+		     <isNotEmpty prepend="AND" property="startTime">
+			 	T.CREATE_DATE >= #startTime#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="endTime">
+			 	<![CDATA[
+			 	T.CREATE_DATE < #endTime#
+			 	]]>
+			 </isNotEmpty>
+		  	 <isNotEmpty prepend="AND" property="status">
+			 	<isEqual compareValue="112">
+		  	 		T.ORDER_STATUS in (112,113)
+		  	 	</isEqual>
+		  	 	<isNotEqual compareValue="112">
+		  	 		T.ORDER_STATUS = #status#
+		  	 	</isNotEqual>
+			 </isNotEmpty>
+	</select>
+	
+	<!-- 提现详情 -->
+	<select id="queryWithdrawDetail" parameterClass="java.util.HashMap"
+		resultMap="withdrawDetailResultMap">
+		SELECT T.CREATE_DATE CREATEDATE,
+			   T.UPDATE_DATE,
+		       T.ORDER_ID ORDERID,
+		       T.PAYEE_BANKNAME,
+		       T.PAYEE_BANKACCTCODE,
+		       T.ORDER_STATUS,
+		       T.ORDER_AMOUNT,
+		       T.PAYMENT_REASON
+		  FROM FUNDOUT_ORDER T
+		  where t.order_type=0
+		  and t.PAYER_MEMBERCODE = #memberCode#
+		  and t.order_id= #serialNo#
+	</select>
+	
+	<!-- 付款凭证 -->
+	<select id="queryPayToBankCertificate" parameterClass="java.util.HashMap" resultMap ="payToBankCertificateResultMap">
+		SELECT   WO.ORDER_ID SEQUENCE_ID,
+         WO.CREATE_DATE CREATE_TIME,
+         WO.ORDER_AMOUNT AMOUNT,
+         WO.FEE FEE,
+         WO.IS_PAYERPAYFEE ISPAYERPAYFEE,
+         TO_CHAR(WO.PAYER_MEMBERCODE) PAYERMEMBERCODE,
+         WO.PAYER_NAME PAYERNAME,
+         WO.PAYER_LOGINNAME PAYERLOGINNAME,
+         '' PAYEEMEMBERCODE,
+         WO.PAYEE_NAME PAYEENAME,
+         WO.PAYEE_BANKACCTCODE PAYEELOGINNAME,
+         DECODE(WO.ORDER_STATUS,
+                100,
+                '初始状态',
+                101,
+                '处理中',
+                102,
+                '申请失败',
+                111,
+                '处理成功',
+                112,
+                '处理失败',
+                113,
+                '退票') STATUS,
+         WO.PAYMENT_REASON ORDER_REMARKS,
+         WO.PAYEE_BANKNAME DISPLAY_NAME,
+         WO.PAYEE_OPENINGBANKNAME BANK_BRANCH,
+         WO.FUNDOUT_BANKCODE FUNDOUT_BANKCODE
+    FROM FUNDOUT_ORDER WO
+    WHERE WO.PAYER_MEMBERCODE = #memberCode#
+    AND WO.ORDER_ID=#sequenceId#
+	</select>
+	
+</sqlMap>

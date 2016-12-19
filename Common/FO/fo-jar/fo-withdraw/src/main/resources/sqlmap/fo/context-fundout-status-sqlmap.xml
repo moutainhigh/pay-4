@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fundoutStatus">
+	<typeAlias alias="baseBatchFileInfo" type="com.pay.poss.base.model.BatchFileInfo" />
+	
+	<update id="fo_updateBatchFileInfoByFileky" parameterClass="baseBatchFileInfo">
+        UPDATE 	BATCH_FILE_INFO	
+       	SET UPDATE_TIME = sysdate 
+       	<isNotEmpty property="dlBatchCount"  prepend=",">
+       		DL_BATCH_COUNT = #dlBatchCount#
+       	</isNotEmpty>
+       	<isNotEmpty property="batchFileStatus"  prepend=",">
+       		BATCH_FILE_STATUS = #batchFileStatus#
+       	</isNotEmpty>
+       	<isNotEmpty property="dlBatchBusiCount" prepend=",">
+       		DL_BATCH_BUSI_COUNT = dlBatchBusiCount
+       	</isNotEmpty>
+       	<isNotEmpty property="dlBankCount" prepend=",">
+       		DL_BANK_COUNT = #dlBankCount#
+       	</isNotEmpty>
+       	<isNotEmpty property="dlBankBusiCount" prepend=",">
+       		DL_BANK_BUSI_COUNT = #dlBankBusiCount#
+       	</isNotEmpty>
+       	<isNotEmpty property="generateTime" prepend=",">
+       		GENERATE_TIME = #generateTime#
+       	</isNotEmpty>
+       	<isNotEmpty property="downloadTime" prepend=",">
+       		DOWNLOAD_TIME = #downloadTime#
+       	</isNotEmpty>
+       	<isNotEmpty property="importTime" prepend=",">
+       		IMPORT_TIME = #importTime#
+       	</isNotEmpty>
+       	<isNotEmpty property="sureimportTime" prepend=",">
+       		SUREIMPORT_TIME = #sureimportTime#
+       	</isNotEmpty>
+       	<isNotEmpty property="foReviewTime" prepend=",">
+       		FOREVIEW_TIME = #foReviewTime#
+       	</isNotEmpty>
+        WHERE FILE_KY = #fileKy#
+        <isNotEmpty property="batchFileStatus" prepend="and">
+       		BATCH_FILE_STATUS != #batchFileStatus#
+       	</isNotEmpty>
+        <isNotEmpty property="oldBatchFileStatus" prepend="and">
+       		BATCH_FILE_STATUS = #oldBatchFileStatus#
+       	</isNotEmpty>
+      	<isNotEmpty property="fileType" prepend="AND">
+       		FILE_TYPE = #fileType#
+       	</isNotEmpty>
+      	
+       	 <isNotEmpty property="channelCode" prepend="and">
+       		CHANNEL_CODE = #channelCode#
+       	</isNotEmpty>
+      	<isNotEmpty property="batchNum" prepend="and">
+       		BATCH_NUM = #batchNum#
+       	</isNotEmpty>
+    </update>
+	
+</sqlMap>

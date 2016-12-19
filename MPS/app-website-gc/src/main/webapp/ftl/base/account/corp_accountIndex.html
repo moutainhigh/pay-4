@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Cache-Control" content="no-store" />
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
+	<link href="<@sp.static/>/mps/css/bootstrap.min.css" rel="stylesheet">
+	<!-- <script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script> -->
+	<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.8.3.min.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/highcharts/highcharts.js"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/highcharts/exporting.js"></script>
+	<!-- data picker controller -->
+	<script type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script>
+	<!-- jquery validate -->
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+	<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+	<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+	<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+	<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css" />
+	<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon" />
+	<title>账户基本信息</title>
+	<script type="text/javascript">
+		function accountChange(currency){
+			var _currency = currency ;
+			$.ajax({
+				type:'POST',
+				url:'${rc.contextPath}/corp/myAccount.htm?method=acct&currency='+_currency,
+				dataType:'json',
+				success:function(data){
+					var basicPseudoAcct = data.basic ;
+					var guaranteePseudoAcct = data.guarantee ;
+					$("#basicBalance").text(basicPseudoAcct['balanceStr']) ;
+					$("#guaranteeBalance").text(guaranteePseudoAcct['balanceStr']) ;
+					$("#basicfrozenAmount").text(basicPseudoAcct['totalFrozenAmountStr']) ;
+					$("#guaranteefrozenAmount").text(guaranteePseudoAcct['totalFrozenAmountStr']) ;
+					var currencyCode = basicPseudoAcct['currencyCode'] ;
+					if(null == currencyCode || "" == currencyCode)
+						currencyCode = guaranteePseudoAcct['currencyCode'] ;
+					$(".currency").text(currencyCode) ;
+					$("#sumAmount").text(data.sumAmount)
+				},
+				erro:function(){
+					
+				}
+			});
+		} ;
+		function viewDetail(){
+			var currency = $("#account").find("option:selected").val() ;
+			if(null == currency || "" == currency){
+				return ;
+			}
+			window.location.href = '${rc.contextPath}/corp/myAccount.htm?method=acctDetail&currency='+ currency ;
+		}
+	</script>
+	
+</head>
+<body>
+<#include "/include/topbar.html">
+<@sp.head  mCode="corp_my_account" />
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01" style="">
+			
+				<div class="seccon" style="padding:20px;">
+					<div >
+						<div class="mess_notice">
+							<div class="mess_notice_right_bor" onclick="javascript:window.location.href='${rc.contextPath}/corp/bounced.htm?status=0'">
+								<div class="notice_num"><font>${countBounced?default(0)}</font></div>
+								<div class="notice_text"><font>调单通知</font></div>
+							</div>
+						</div>
+						<div class="mess_notice" id="chargeback" onclick="javascript:window.location.href='${rc.contextPath}/corp/bounced.htm?method=bounced&status=0'">
+							<div class="notice_num"><font>${countCharge?default(0)}</font></div>
+							<div class="notice_text"><font>拒付通知</font></div>
+						</div> 
+						<!-- onclick="javascript:window.location.href='${rc.contextPath}/announcement.htm' ;" -->
+						<!-- 以后放开前面注释的[调单通知][拒付通知]，去掉style="0" -->
+						<div class="mess_notice_news" id="news" onclick="javascript:window.location.href='${rc.contextPath}/corp/announcement.htm' ;">
+							<div class="notice_num"><font>${countAnnouncement?default(0)}</font></div>
+							<div class="notice_text"><font>系统公告</font></div> 
+						</div>		
+						<div class="clear"></div>
+					</div>
+					<!-- 订单授信产品判断 -->
+					<#if sp.hasProduct('ordercredit')>
+					<#if totalCredit!=0 >
+						<div style="margin: 20px 0px;">
+							<a style="color: red;" href="${rc.contextPath}/corp/creditOrder.htm">您有${totalCredit?default(0)}笔共${totalCreditAmount?default(0)}元人民币的订单可授信</a>
+						</div>
+					</#if>
+					</#if>
+					
+					<!-- 账户情况 -->
+					<div>
+						<div>
+							<span class="tip_span">账户情况:</span>
+						</div>
+						<div class="d_account">
+							<select name="" id="account" style="padding:2px;" onchange="accountChange(this.value);">
+								<!-- <option value="">人民币账户</option>
+								<option value="">美元账户</option>
+								<option value="">日元账户</option>
+								<option value="">欧元账户</option>
+								<option value="">新加坡元账户</option> -->
+								<#if pseudoAccts?has_content>
+									<#list pseudoAccts as acct>
+										<option value="${acct.currency?default('')}">${acct.acctName?default('')}</option>
+									</#list>
+								</#if>
+							</select>
+							<span class="d_account_detail" onclick="javascript:viewDetail() ;">账户详情</span>
+						</div>
+						<div class="d_item">
+							<span >
+								<font>账户可用余额：<em id="basicBalance">${(basicPseudoAcct.balance/1000?default(0.00))?string(",##0.000")}</em></font>
+								&nbsp;&nbsp;<em class="currency">${basicPseudoAcct.currencyCode?default("")}</em>
+							</span>
+						</div>
+						<div class="d_item d_item_margin">
+							<span >
+								<font>保证金：<em id="guaranteeBalance">${(guaranteePseudoAcct.balance?default(0)/1000)?string(",##0.000")}</em></font>
+								&nbsp;&nbsp;<em class="currency">${basicPseudoAcct.currencyCode?default("")}</em>
+							</span>
+						</div>
+						<div class="clear"></div>
+						<div class="d_item">
+							<span >
+								<font>冻结基本户：<em id="basicfrozenAmount">${((basicPseudoAcct.frozenAmount?default(0)/1000))?string(",##0.000")}</em></font>
+								&nbsp;&nbsp;<em class="currency">${basicPseudoAcct.currencyCode?default("")}</em>
+							</span>
+						</div>
+						<div class="d_item">
+							<span >
+								<font>冻结保证金：<em id="guaranteefrozenAmount">${((guaranteePseudoAcct.frozenAmount?default(0)/1000))?string(",##0.000")}</em></font>
+								&nbsp;&nbsp;<em class="currency">${basicPseudoAcct.currencyCode?default("")}</em>
+							</span>
+						</div>
+					
+						<!-- <div class="d_item d_item_margin">
+							<span >
+								<font>
+									待清算金额：
+									<em id="sumAmount">
+										<#if sumAmount?has_content>
+											${(sumAmount?number/1000)?string(",##0.000")}
+											<#else>
+												0.000
+										</#if>
+									</em>
+								</font>
+								&nbsp;&nbsp;<em class="currency">${basicPseudoAcct.currencyCode?default("")}</em>
+							</span>
+						</div> -->
+						<div class="clear"></div>
+					</div>
+					<!-- 交易统计关键指标 -->
+					<div style="margin-top:40px;">
+						<div>
+							<span class="tip_span">昨日交易统计:</span>
+						</div>
+						<div class="d_item">
+							<span ><font>昨日总交易笔数：${yesterday.yesterdaySum?default(0)}</font>&nbsp;&nbsp;笔</span>
+						</div>
+						<div class="d_item">
+							<span ><font>昨日成功交易笔数：${yesterday.yesterdaySuccess?default(0)}</font>&nbsp;&nbsp;笔数</span>
+						</div>
+						<div class="clear"></div>
+					</div>
+					
+					<div style="margin-top:40px;">
+						<div>
+							<span style="display:inline-block;width:4px;;background-color:black;">&nbsp;&nbsp;</span>
+							<span class="tip_span">每日成功交易笔数趋势图:</span>
+						</div>
+						
+						<div id="container" style="min-width:700px;height:300px"></div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+	<script type="text/javascript">
+		$(function () {
+		    $('#container').highcharts({
+		    	credits: {
+		    	    enabled: false
+		    	},
+		        title: {
+		            text: '近30天交易统计',
+		            x: -20 //center
+		        },
+		        xAxis: {
+		        	categories:${dateList?default('')}
+		            //categories: ['11-10','','','','11-14','','','','11-18','','','','11-22','','','','11-26','','','','11-30','','','','12-4','','','','12-8','']
+		        	//categories: ['11-10','11-14','11-18','11-22','11-26','11-30','12-4','12-8','12-9']
+		        },
+		        yAxis: {
+		            min:0,
+		            title: {
+		                text: '交易成功笔数'
+		            },
+		            plotLines: [{
+		                value: 0,
+		                width: 1,
+		                color: '#808080'
+		            }]
+		        },
+		        tooltip: {
+		            valueSuffix: '笔'
+		        },
+		        legend: {
+		            layout: 'vertical',
+		            align: 'right',
+		            verticalAlign: 'middle',
+		            borderWidth: 0
+		        },
+		        series: [{
+		            name: '成功量',
+		            data:${sumlist?default('')},
+		            //data: [0, 30, 50, 89, 10, 90, 100, 289, 11, 299, 321, 421 , 145, 206, 287, 388, 389, 103, 111, 19 ,333, 504, 315, 116, 127, 318, 319, 220, 3, 400],
+		            //data: [0, 30, 50, 89, 10, 90, 100, 289,33],
+		            color:'#FF0000'
+		        }]
+		    });
+		});
+		
+	</script>
+</body>
+
+</html>

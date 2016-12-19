@@ -1,0 +1,683 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="querycosting">
+	<typeAlias alias="queryResponseDTO" type="com.pay.poss.report.dto.QueryResponseDTO"/>
+	<typeAlias alias="queryRequstParameter" type="com.pay.poss.report.dto.QueryRequstParameter"/>
+	<typeAlias alias="queryBankKeyDTO" type="com.pay.poss.report.dto.QueryBankKeyDTO"/>
+	
+	<!--  网关交易成本明细（不包含充值） -->
+	<select id="getfundInCosting" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+		SELECT B.IMEMBERNAME, A.*
+		  FROM (SELECT T.MEMBERTYPE, T.TNAME, G.*
+	          FROM (SELECT P.DESCRIPTION AS GATEWAYNAME,
+                       O.PAYEE AS PARTNERID,
+                       D.DEPOSIT_PROTOCOL_NO AS SERIALNO,
+                       DEP.DEPOSIT_AMOUNT AS ORDERAMOUNT,
+                       DEP.FEE AS FEE,
+                       DEP.CREATE_DATE AS CREATEDATE,
+                       DEP.UPDATE_DATE AS UPDATEDATE,
+                       DECODE(DEP.STATUS,0,'处理中',1,'成功',2,'失败','异常状态') AS STATUSDES
+                  FROM FI.PAYMENT_CHANNEL_ITEM P,
+                       FI.DEPOSIT_PROTOCOL     D,
+                       FI.DEPOSIT_ORDER        DEP,
+                       FI.PAYMENT_ORDER        O
+                 WHERE DEP.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+                   AND O.PAYMENT_ORDER_NO = DEP.PAYMENT_ORDER_NO
+                   AND D.CHANNEL_NO = P.ID
+                    <![CDATA[ 
+					   and DEP.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+					   and DEP.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+				    ]]>
+				    <isNotNull prepend="AND" property="orderStatus">
+				       	DEP.STATUS=  #orderStatus# 
+				    </isNotNull>
+				    <isNotNull prepend="AND" property="channel">
+				       	P.ORGCODE = #channel# 
+				    </isNotNull>
+				    <!-- 为空表示不是分子公司 -->
+				    <isNull  property="innerMember">
+			            <isNotNull prepend="AND" property="memberCode">
+			            	O.PAYEE = #memberCode#
+			            </isNotNull>
+		           </isNull>
+                ) G,
+               (SELECT C.MEMBER_CODE,
+                       C.TYPE MEMBERTYPE,
+                       A.NAME || B.ZH_NAME TNAME
+                  FROM ACC.T_INDIVIDUAL_INFO A,
+                       ACC.T_ENTERPRISE_BASE B,
+                       ACC.T_MEMBER          C
+                 WHERE C.MEMBER_CODE = A.MEMBER_CODE(+)
+                 AND C.MEMBER_CODE = B.MEMBER_CODE(+)
+                 <isNull  property="innerMember">
+                 	<isNotNull prepend="AND" property="memberType">
+		            	C.type = #memberType#
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="memberCode">
+		            	C.MEMBER_CODE = #memberCode#
+		            </isNotNull>
+		         </isNull>
+                ) T
+         WHERE T.MEMBER_CODE = G.PARTNERID) A,
+       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+         WHERE F.MEMBER_CODE = S.PARENT_ID
+          <isNotNull property="innerMember">
+	         <isNotNull prepend="AND" property="imemberCode">
+	            	F.MEMBER_CODE = #imemberCode#
+	         </isNotNull>
+         </isNotNull>
+        ) B
+        <dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+ 		order by A.UPDATEDATE desc
+	</select>
+ 
+  <select id="getfundInCosting_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	  SELECT count(1)
+		  FROM (SELECT T.MEMBERTYPE, T.TNAME, G.*
+	          FROM (SELECT P.DESCRIPTION AS GATEWAYNAME,
+                       O.PAYEE AS PARTNERID,
+                       D.DEPOSIT_PROTOCOL_NO AS SERIALNO,
+                       DEP.DEPOSIT_AMOUNT AS ORDERAMOUNT,
+                       DEP.FEE AS FEE,
+                       DEP.CREATE_DATE AS CREATEDATE,
+                       DEP.UPDATE_DATE AS UPDATEDATE,
+                       DECODE(DEP.STATUS,0,'处理中',1,'成功',2,'失败','异常状态') AS STATUSDES
+                  FROM FI.PAYMENT_CHANNEL_ITEM P,
+                       FI.DEPOSIT_PROTOCOL     D,
+                       FI.DEPOSIT_ORDER        DEP,
+                       FI.PAYMENT_ORDER        O
+                 WHERE DEP.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+                   AND O.PAYMENT_ORDER_NO = DEP.PAYMENT_ORDER_NO
+                   AND D.CHANNEL_NO = P.ID
+                    <![CDATA[ 
+					   and DEP.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+					   and DEP.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+				    ]]>
+				    <isNotNull prepend="AND" property="orderStatus">
+				       	DEP.STATUS=  #orderStatus# 
+				    </isNotNull>
+				    <isNotNull prepend="AND" property="channel">
+				       	P.ORGCODE = #channel# 
+				    </isNotNull>
+				    <!-- 为空表示不是分子公司 -->
+				    <isNull  property="innerMember">
+			            <isNotNull prepend="AND" property="memberCode">
+			            	O.PAYEE = #memberCode#
+			            </isNotNull>
+		           </isNull>
+                ) G,
+               (SELECT C.MEMBER_CODE,
+                       C.TYPE MEMBERTYPE,
+                       A.NAME || B.ZH_NAME TNAME
+                  FROM ACC.T_INDIVIDUAL_INFO A,
+                       ACC.T_ENTERPRISE_BASE B,
+                       ACC.T_MEMBER          C
+                 WHERE C.MEMBER_CODE = A.MEMBER_CODE(+)
+                 AND C.MEMBER_CODE = B.MEMBER_CODE(+)
+                 <isNull  property="innerMember">
+                 	<isNotNull prepend="AND" property="memberType">
+		            	C.type = #memberType#
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="memberCode">
+		            	C.MEMBER_CODE = #memberCode#
+		            </isNotNull>
+		         </isNull>
+                ) T
+         WHERE T.MEMBER_CODE = G.PARTNERID) A,
+       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+         WHERE F.MEMBER_CODE = S.PARENT_ID
+          <isNotNull property="innerMember">
+	         <isNotNull prepend="AND" property="imemberCode">
+	            	F.MEMBER_CODE = #imemberCode#
+	         </isNotNull>
+         </isNotNull>
+        ) B
+        <dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+   </select>
+   
+   <!-- 充值交易 -->
+   <select id="getdepositCosting" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+		SELECT B.IMEMBERNAME, A.*
+		  FROM (SELECT T.MEMBERTYPE, T.TNAME, G.*
+	          FROM (SELECT P.DESCRIPTION AS GATEWAYNAME,
+                       DEP.CUSTOMER AS PARTNERID,
+                       D.DEPOSIT_PROTOCOL_NO AS SERIALNO,
+                       DEP.DEPOSIT_AMOUNT AS ORDERAMOUNT,
+                       DEP.FEE AS FEE,
+                       DEP.CREATE_DATE AS CREATEDATE,
+                       DEP.UPDATE_DATE AS UPDATEDATE,
+                       DECODE(DEP.STATUS,0,'处理中',1,'成功',2,'失败','异常状态') AS STATUSDES
+                  FROM FI.PAYMENT_CHANNEL_ITEM P,
+                       FI.DEPOSIT_PROTOCOL     D,
+                       FI.DEPOSIT_ORDER        DEP
+                 WHERE DEP.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+                   AND DEP.PAYMENT_ORDER_NO = 0
+                   AND D.CHANNEL_NO = P.ID
+                    <![CDATA[ 
+					   and DEP.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+					   and DEP.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+				    ]]>
+				    <isNotNull prepend="AND" property="orderStatus">
+				       	DEP.STATUS=  #orderStatus# 
+				    </isNotNull>
+				    <isNotNull prepend="AND" property="channel">
+				       	P.ORGCODE = #channel# 
+				    </isNotNull>
+				    <!-- 为空表示不是分子公司 -->
+				    <isNull  property="innerMember">
+			            <isNotNull prepend="AND" property="memberCode">
+			            	DEP.CUSTOMER = #memberCode#
+			            </isNotNull>
+		           </isNull>
+                ) G,
+               (SELECT C.MEMBER_CODE,
+                       C.TYPE MEMBERTYPE,
+                       A.NAME || B.ZH_NAME TNAME
+                  FROM ACC.T_INDIVIDUAL_INFO A,
+                       ACC.T_ENTERPRISE_BASE B,
+                       ACC.T_MEMBER          C
+                 WHERE C.MEMBER_CODE = A.MEMBER_CODE(+)
+                 AND C.MEMBER_CODE = B.MEMBER_CODE(+)
+                 <isNull  property="innerMember">
+                 	<isNotNull prepend="AND" property="memberType">
+		            	C.type = #memberType#
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="memberCode">
+		            	C.MEMBER_CODE = #memberCode#
+		            </isNotNull>
+		         </isNull>
+                ) T
+         WHERE T.MEMBER_CODE = G.PARTNERID) A,
+       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+         WHERE F.MEMBER_CODE = S.PARENT_ID
+          <isNotNull property="innerMember">
+	         <isNotNull prepend="AND" property="imemberCode">
+	            	F.MEMBER_CODE = #imemberCode#
+	         </isNotNull>
+         </isNotNull>
+        ) B
+        <dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+ 		order by A.UPDATEDATE desc
+	</select>
+	
+  <select id="getdepositCosting_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	  SELECT count(1)
+		  FROM (SELECT T.MEMBERTYPE, T.TNAME, G.*
+	          FROM (SELECT P.DESCRIPTION AS GATEWAYNAME,
+                       DEP.CUSTOMER AS PARTNERID,
+                       D.DEPOSIT_PROTOCOL_NO AS SERIALNO,
+                       DEP.DEPOSIT_AMOUNT AS ORDERAMOUNT,
+                       DEP.FEE AS FEE,
+                       DEP.CREATE_DATE AS CREATEDATE,
+                       DEP.UPDATE_DATE AS UPDATEDATE,
+                       DECODE(DEP.STATUS,0,'处理中',1,'成功',2,'失败','异常状态') AS STATUSDES
+                  FROM FI.PAYMENT_CHANNEL_ITEM P,
+                       FI.DEPOSIT_PROTOCOL     D,
+                       FI.DEPOSIT_ORDER        DEP
+                 WHERE DEP.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+                   AND DEP.PAYMENT_ORDER_NO = 0
+                   AND D.CHANNEL_NO = P.ID
+                    <![CDATA[ 
+					   and DEP.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+					   and DEP.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+				    ]]>
+				    <isNotNull prepend="AND" property="orderStatus">
+				       	DEP.STATUS=  #orderStatus# 
+				    </isNotNull>
+				    <isNotNull prepend="AND" property="channel">
+				       	P.ORGCODE = #channel# 
+				    </isNotNull>
+				    <!-- 为空表示不是分子公司 -->
+				    <isNull  property="innerMember">
+			            <isNotNull prepend="AND" property="memberCode">
+			            	DEP.CUSTOMER = #memberCode#
+			            </isNotNull>
+		           </isNull>
+                ) G,
+               (SELECT C.MEMBER_CODE,
+                       C.TYPE MEMBERTYPE,
+                       A.NAME || B.ZH_NAME TNAME
+                  FROM ACC.T_INDIVIDUAL_INFO A,
+                       ACC.T_ENTERPRISE_BASE B,
+                       ACC.T_MEMBER          C
+                 WHERE C.MEMBER_CODE = A.MEMBER_CODE(+)
+                 AND C.MEMBER_CODE = B.MEMBER_CODE(+)
+                 <isNull property="innerMember">
+                 	<isNotNull prepend="AND" property="memberType">
+		            	C.type = #memberType#
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="memberCode">
+		            	C.MEMBER_CODE = #memberCode#
+		            </isNotNull>
+		         </isNull>
+                ) T
+         WHERE T.MEMBER_CODE = G.PARTNERID) A,
+       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+         WHERE F.MEMBER_CODE = S.PARENT_ID
+          <isNotNull property="innerMember">
+	         <isNotNull prepend="AND" property="imemberCode">
+	            	F.MEMBER_CODE = #imemberCode#
+	         </isNotNull>
+         </isNotNull>
+        ) B
+        <dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+   </select>
+  
+  <select id="getRefundInCosting" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+		SELECT B.IMEMBERNAME, A.*
+		  FROM (SELECT T.MEMBERTYPE, T.TNAME, G.*
+		          FROM (SELECT R.REFUND_ORDER_NO AS SEQUENCEID,
+		                       P.ITEM_NAME       AS GATEWAYNAME,
+		                       T.PARTNER_ID      AS PARTNERID,
+		                       D.SERIAL_NO       AS SERIALNO,
+		                       T.ORDER_ID        AS ORDERID,
+		                       T.ORDER_AMOUNT    AS ORDERAMOUNT,
+		                       R.REFUND_AMOUNT   AS REFUNDAMOUNT,
+		                       R.PAYEE_FEE       AS FEE,
+		                       T.CREATE_DATE     AS CREATEDATE,
+		                       R.UPDATE_DATE     AS UPDATEDATE
+		                  FROM FI.TRADE_ORDER          T,
+		                       FI.REFUND_ORDER         R,
+		                       FI.PAYMENT_CHANNEL_ITEM P,
+		                       FI.DEPOSIT_PROTOCOL     D,
+		                       FI.DEPOSIT_BACK_ORDER   DBO
+		                 WHERE T.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+		                   AND R.REFUND_ORDER_NO = DBO.REFUND_ORDER_NO
+		                   AND DBO.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+		                   AND D.CHANNEL_NO = P.ID
+		                 <![CDATA[
+						   and R.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+						   and R.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+					     ]]>
+					     <isNotNull prepend="AND" property="orderStatus">
+					       R.STATUS=  #orderStatus# 
+					     </isNotNull>
+					     <isNotNull prepend="AND" property="channel">
+					       P.ORGCODE = #channel# 
+					     </isNotNull>
+					     <isNull  property="innerMember">
+				            <isNotNull prepend="AND" property="memberCode">
+				            	T.PARTNER_ID = #memberCode#
+				            </isNotNull>
+				         </isNull>
+					     ) G,
+               (SELECT C.MEMBER_CODE,
+                       C.TYPE MEMBERTYPE,
+                       A.NAME || B.ZH_NAME TNAME
+                  FROM ACC.T_INDIVIDUAL_INFO A,
+                       ACC.T_ENTERPRISE_BASE B,
+                       ACC.T_MEMBER          C
+                 WHERE C.MEMBER_CODE = A.MEMBER_CODE(+)
+                 AND C.MEMBER_CODE = B.MEMBER_CODE(+)
+                 <isNull  property="innerMember">
+                 	<isNotNull prepend="AND" property="memberType">
+		            	C.type = #memberType#
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="memberCode">
+		            	C.MEMBER_CODE = #memberCode#
+		            </isNotNull>
+		         </isNull>
+                ) T
+         WHERE T.MEMBER_CODE = G.PARTNERID) A,
+       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+         WHERE F.MEMBER_CODE = S.PARENT_ID
+          <isNotNull property="innerMember">
+	         <isNotNull prepend="AND" property="imemberCode">
+	            	F.MEMBER_CODE = #imemberCode#
+	         </isNotNull>
+         </isNotNull>
+        ) B
+        <dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+        order by A.UPDATEDATE desc
+	</select>
+ 
+  <select id="getRefundInCosting_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	 SELECT count(1)
+		  FROM (SELECT T.MEMBERTYPE, T.TNAME, G.*
+		          FROM (SELECT R.REFUND_ORDER_NO AS SEQUENCEID,
+		                       P.ITEM_NAME       AS GATEWAYNAME,
+		                       T.PARTNER_ID      AS PARTNERID,
+		                       D.SERIAL_NO       AS SERIALNO,
+		                       T.ORDER_ID        AS ORDERID,
+		                       T.ORDER_AMOUNT    AS ORDERAMOUNT,
+		                       R.REFUND_AMOUNT   AS REFUNDAMOUNT,
+		                       R.PAYEE_FEE       AS FEE,
+		                       T.CREATE_DATE     AS CREATEDATE,
+		                       R.UPDATE_DATE     AS UPDATEDATE
+		                  FROM FI.TRADE_ORDER          T,
+		                       FI.REFUND_ORDER         R,
+		                       FI.PAYMENT_CHANNEL_ITEM P,
+		                       FI.DEPOSIT_PROTOCOL     D,
+		                       FI.DEPOSIT_BACK_ORDER   DBO
+		                 WHERE T.TRADE_ORDER_NO = R.TRADE_ORDER_NO
+		                   AND R.REFUND_ORDER_NO = DBO.REFUND_ORDER_NO
+		                   AND DBO.DEPOSIT_ORDER_NO = D.DEPOSIT_ORDER_NO
+		                   AND D.CHANNEL_NO = P.ID
+		                 <![CDATA[
+						   and R.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+						   and R.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+					     ]]>
+					     <isNotNull prepend="AND" property="orderStatus">
+					       R.STATUS=  #orderStatus# 
+					     </isNotNull>
+					     <isNotNull prepend="AND" property="channel">
+					       P.ORGCODE = #channel# 
+					     </isNotNull>
+					     <isNull  property="innerMember">
+				            <isNotNull prepend="AND" property="memberCode">
+				            	T.PARTNER_ID = #memberCode#
+				            </isNotNull>
+				         </isNull>
+					     ) G,
+               (SELECT C.MEMBER_CODE,
+                       C.TYPE MEMBERTYPE,
+                       A.NAME || B.ZH_NAME TNAME
+                  FROM ACC.T_INDIVIDUAL_INFO A,
+                       ACC.T_ENTERPRISE_BASE B,
+                       ACC.T_MEMBER          C
+                 WHERE C.MEMBER_CODE = A.MEMBER_CODE(+)
+                 AND C.MEMBER_CODE = B.MEMBER_CODE(+)
+                 <isNull  property="innerMember">
+                 	<isNotNull prepend="AND" property="memberType">
+		            	C.type = #memberType#
+		            </isNotNull>
+		            <isNotNull prepend="AND" property="memberCode">
+		            	C.MEMBER_CODE = #memberCode#
+		            </isNotNull>
+		         </isNull>
+                ) T
+         WHERE T.MEMBER_CODE = G.PARTNERID) A,
+       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+         WHERE F.MEMBER_CODE = S.PARENT_ID
+          <isNotNull property="innerMember">
+	         <isNotNull prepend="AND" property="imemberCode">
+	            	F.MEMBER_CODE = #imemberCode#
+	         </isNotNull>
+         </isNotNull>
+        ) B
+        <dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.PARTNERID = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+        order by A.UPDATEDATE desc
+   </select>
+   
+   <select id="getfundOutCosting" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+	SELECT B.IMEMBERNAME, A.*
+	  FROM (SELECT WO.PAYER_MEMBERTYPE MEMBERTYPE,
+	               WO.PAYER_NAME PAYERNAME,
+	               ORDER_ID SEQUENCEID,
+	               WW.BATCH_NUM BATCHNO,
+	               WO.PAYER_MEMBERCODE MEMBERCODE,
+	               (SELECT P.ORG_NAME
+	                  FROM INF.P_ORGANIZATION P
+	                 WHERE P.ORG_CODE = WO.PAYEE_BANKCODE) BANKNAME,
+	               PAYEE_BANKACCTCODE BANKACCT,
+	               PAYEE_NAME PAYEENAME,
+	               REALOUT_AMOUNT ORDERAMOUNT,
+	               WO.UPDATE_DATE ORDERDATE
+	          FROM FO.FUNDOUT_ORDER WO, FO.WITHDRAW_WORKORDER WW
+	         WHERE WO.ORDER_ID = WW.ORDER_SEQ
+	        <![CDATA[ 
+			   and  WO.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+			   and  WO.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		    ]]>
+		    <isNotNull prepend="AND" property="orderStatus">
+		       WO.Order_STATUS=  #orderStatus# 
+		    </isNotNull>
+		    <isNotNull prepend="AND" property="channel">
+	       		WO.FUNDOUT_BANKCODE = #channel# 
+	    	</isNotNull>
+	    	<isNull  property="innerMember">
+                <isNotNull prepend="AND" property="memberType">
+	            	WO.PAYER_MEMBERTYPE = #memberType#
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="memberCode">
+	            	WO.PAYER_MEMBERCODE = #memberCode#
+	            </isNotNull>
+	         </isNull> ) A,
+	       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+	          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+	         WHERE F.MEMBER_CODE = S.PARENT_ID
+	        <isNotNull property="innerMember">
+		        <isNotNull prepend="AND" property="imemberCode">
+		            	F.MEMBER_CODE = #imemberCode#
+		        </isNotNull>
+         	</isNotNull>
+	        ) B
+		<dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+        order by ORDERDATE desc
+	</select>
+ 
+  <select id="getfundOutCosting_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	 SELECT count(1)
+	  FROM (SELECT WO.PAYER_MEMBERTYPE MEMBERTYPE,
+	               WO.PAYER_NAME PAYERNAME,
+	               ORDER_ID SEQUENCEID,
+	               WW.BATCH_NUM BATCHNO,
+	               WO.PAYER_MEMBERCODE MEMBERCODE,
+	               (SELECT P.ORG_NAME
+	                  FROM INF.P_ORGANIZATION P
+	                 WHERE P.ORG_CODE = WO.PAYEE_BANKCODE) BANKNAME,
+	               PAYEE_BANKACCTCODE BANKACCT,
+	               PAYEE_NAME PAYEENAME,
+	               REALOUT_AMOUNT ORDERAMOUNT,
+	               WO.UPDATE_DATE ORDERDATE
+	          FROM FO.FUNDOUT_ORDER WO, FO.WITHDRAW_WORKORDER WW
+	         WHERE WO.ORDER_ID = WW.ORDER_SEQ
+	        <![CDATA[ 
+			   and  WO.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+			   and  WO.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+		    ]]>
+		    <isNotNull prepend="AND" property="orderStatus">
+		       WO.Order_STATUS=  #orderStatus# 
+		    </isNotNull>
+		    <isNotNull prepend="AND" property="channel">
+	       		WO.FUNDOUT_BANKCODE = #channel# 
+	    	</isNotNull>
+	    	<isNull  property="innerMember">
+                <isNotNull prepend="AND" property="memberType">
+	            	WO.PAYER_MEMBERTYPE = #memberType#
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="memberCode">
+	            	WO.PAYER_MEMBERCODE = #memberCode#
+	            </isNotNull>
+	         </isNull> ) A,
+	       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+	          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+	         WHERE F.MEMBER_CODE = S.PARENT_ID
+	        <isNotNull property="innerMember">
+		        <isNotNull prepend="AND" property="imemberCode">
+		            	F.MEMBER_CODE = #imemberCode#
+		        </isNotNull>
+         	</isNotNull>
+	        ) B
+		<dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+   </select>
+   
+   
+   <select id="getRefundOutCosting" resultClass="queryResponseDTO"  parameterClass="queryRequstParameter">
+	SELECT B.IMEMBERNAME, A.*
+	  FROM (SELECT B.ORDER_ID AS SEQUENCEID,
+	               O.ORDER_ID AS ORDERSEQID,
+	               O.PAYER_MEMBERCODE AS MEMBERCODE,
+	               O.PAYER_MEMBERTYPE AS MEMBERTYPE,
+	               O.PAYER_NAME AS PAYERNAME,
+	               (SELECT P.ORG_NAME
+	                  FROM INF.P_ORGANIZATION P
+	                 WHERE P.ORG_CODE = O.PAYEE_BANKCODE) AS BANKNAME,
+	               O.PAYEE_BANKACCTCODE AS BANKACCT,
+	               O.PAYEE_NAME AS PAYEENAME,
+	               O.REALOUT_AMOUNT AS ORDERAMOUNT,
+	               O.FEE AS FEE,
+	               O.UPDATE_DATE AS UPDATEDATE,
+	               B.UPDATE_DATE AS ORDERDATE
+	          FROM FO.FUNDOUT_REFUNDORDER B, FO.FUNDOUT_ORDER O
+	         WHERE B.SRC_ORDERID = O.ORDER_ID
+	         <![CDATA[ 
+			   and  B.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+			   and  B.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+			]]>
+	        <isNotNull prepend="AND" property="orderStatus">
+	           B.order_STATUS=  #orderStatus# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="channel">
+	           O.FUNDOUT_BANKCODE = #channel# 
+	        </isNotNull>
+	        <isNull  property="innerMember">
+                <isNotNull prepend="AND" property="memberType">
+	            	O.PAYER_MEMBERTYPE = #memberType#
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="memberCode">
+	            	O.PAYER_MEMBERCODE = #memberCode#
+	            </isNotNull>
+	         </isNull>
+	        ) A,
+	       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+	          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+	         WHERE F.MEMBER_CODE = S.PARENT_ID
+	        <isNotNull property="innerMember">
+		        <isNotNull prepend="AND" property="imemberCode">
+		            	F.MEMBER_CODE = #imemberCode#
+		        </isNotNull>
+         	</isNotNull>
+	        ) B
+		<dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+        order by A.ORDERDATE desc
+	</select>
+ 
+  <select id="getRefundOutCosting_COUNT"   resultClass="java.lang.Integer"  parameterClass="queryRequstParameter">
+	 SELECT count(1)
+	  FROM (SELECT B.ORDER_ID AS SEQUENCEID,
+	               O.ORDER_ID AS ORDERSEQID,
+	               O.PAYER_MEMBERCODE AS MEMBERCODE,
+	               O.PAYER_MEMBERTYPE AS MEMBERTYPE,
+	               O.PAYER_NAME AS PAYERNAME,
+	               (SELECT P.ORG_NAME
+	                  FROM INF.P_ORGANIZATION P
+	                 WHERE P.ORG_CODE = O.PAYEE_BANKCODE) AS BANKNAME,
+	               O.PAYEE_BANKACCTCODE AS BANKACCT,
+	               O.PAYEE_NAME AS PAYEENAME,
+	               O.REALOUT_AMOUNT AS ORDERAMOUNT,
+	               O.FEE AS FEE,
+	               O.UPDATE_DATE AS UPDATEDATE,
+	               B.UPDATE_DATE AS ORDERDATE
+	          FROM FO.FUNDOUT_REFUNDORDER B, FO.FUNDOUT_ORDER O
+	         WHERE B.SRC_ORDERID = O.ORDER_ID
+	         <![CDATA[ 
+			   and  B.UPDATE_DATE >= to_date(#startDate#, 'yyyy-MM-dd')
+			   and  B.UPDATE_DATE < to_date(#endDate#, 'yyyy-MM-dd') + 1
+			]]>
+	        <isNotNull prepend="AND" property="orderStatus">
+	           B.order_STATUS=  #orderStatus# 
+	        </isNotNull>
+	        <isNotNull prepend="AND" property="channel">
+	           O.FUNDOUT_BANKCODE = #channel# 
+	        </isNotNull>
+	        <isNull  property="innerMember">
+                <isNotNull prepend="AND" property="memberType">
+	            	O.PAYER_MEMBERTYPE = #memberType#
+	            </isNotNull>
+	            <isNotNull prepend="AND" property="memberCode">
+	            	O.PAYER_MEMBERCODE = #memberCode#
+	            </isNotNull>
+	         </isNull>
+	        ) A,
+	       (SELECT F.MEMBER_NAME IMEMBERNAME, S.MEMBER_CODE S_MEMBER_ID
+	          FROM INTRA.T_INNER_MEMBER F, INTRA.T_SUB_MEMBER S
+	         WHERE F.MEMBER_CODE = S.PARENT_ID
+	        <isNotNull property="innerMember">
+		        <isNotNull prepend="AND" property="imemberCode">
+		            	F.MEMBER_CODE = #imemberCode#
+		        </isNotNull>
+         	</isNotNull>
+	        ) B
+		<dynamic prepend="WHERE">
+            <isNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID(+)
+            </isNull>
+            <isNotNull prepend="AND" property="innerMember">
+            	A.MEMBERCODE = B.S_MEMBER_ID
+            </isNotNull>
+        </dynamic>
+   </select>
+
+ 	<select id="getfundOutChannel" resultClass="queryBankKeyDTO" >
+	    SELECT P.ORG_CODE as bankCode, P.ORG_NAME as bankName
+	  	FROM INF.P_ORGANIZATION P
+	 	WHERE P.ORG_CODE IN
+	       (SELECT BANK_ID FROM FO.FUNDOUT_CHANNEL GROUP BY BANK_ID)
+	</select>
+	
+	<select id="getfundInChannel" resultClass="queryBankKeyDTO" >
+	    SELECT I.DESCRIPTION AS bankName, I.ORGCODE AS bankCode
+		  FROM FI.PAYMENT_CHANNEL_ITEM I
+	</select>
+	
+</sqlMap>

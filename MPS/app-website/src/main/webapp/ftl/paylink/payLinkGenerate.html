@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+
+
+<link href="<@sp.static/>/css/pay/public.css?v=20101230.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay_link.css?v=20101230.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=20101230.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+
+<script type="text/javascript" src="<@sp.static/>/js/pay/paychain/numberPro.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+
+<title>支付链生成</title>
+<style type="text/css">
+	.tab03 input[type='text']{width:100px;}
+	.tab03 input[type='button']{width:40px;}
+	.border0{border:0px;}
+</style>
+<script>
+	 	$(function(){
+			var uploadeDialog;
+			uploadeDialog=$("#dialog-uploade" ).dialog({
+		      autoOpen: false,
+		      height: 240,
+		      width: 450,
+		      modal: true,
+		      buttons: {
+		          /* "取消": function() {
+		        	  $("#dialog-uploade" ).dialog( "close" );
+		          }, */
+	      	      "确定":function() {
+	      	    	$("#dialog-uploade" ).dialog( "close" );
+	      	      }
+		        },
+		      close: function() {
+		    	  document.getElementById("uploadeSite").reset();
+		      }
+		    }); 
+		 
+	})
+</script>
+
+<script type="text/javascript">
+	
+	$(document).ready(function(){
+		$("#addTr").click(function(){
+			var $selected = $("#trTitle").next("tr").find("td:eq(4)").find("select").find("option:selected") ;
+			var selectVal = $selected.val() ;
+			var selectTex = $selected.text().trim();
+			var trEle ;
+			//-----------校验开始
+			var toFlag = dyTrDataCheck() ;
+			if(!toFlag) return ;
+			//----------校验结束
+			var _pro
+			if(undefined == selectVal && "" == selectTex){
+				var _optionEle = "<option value=\"\">--请选择--</option>"
+								 +  "		<#if currencyCodes ? has_content>"
+								 +  "			<#list currencyCodes as cc>"
+								 +	"			<option value=\"${cc.code}\">${cc.desc}</option>"
+								 +  "			</#list>"
+								 +	"	</#if>"
+				trEle = constructorTrTitle(_optionEle) ;
+			}else{
+				var _optionEle = "<option value="+ selectVal +">"+ selectTex +"</option>"
+				trEle = constructorTrTitle(_optionEle) ;
+			}
+			var subTrSize = $(".subTr").size() ;
+			if(subTrSize == 0){
+				$(trEle).insertAfter($("#trTitle"));
+			}
+			else{
+				$(trEle).insertAfter($(".subTr:last").parent("td").parent("tr")) ;	
+			}
+		}) ;
+	}) ;
+	//动态行数据校验
+	function dyTrDataCheck(){
+		var $dyTr = $(".dyTr:last") ;
+		var _productName = $dyTr.find("td:eq(0)").find("input").val() ;
+		var _productSpec = $dyTr.find("td:eq(1)").find("input").val() ;
+		var _productNum = $dyTr.find("td:eq(2)").find("input").val() ;
+		var _price = $dyTr.find("td:eq(3)").find("input").val() ;
+		var _currencyCode = $dyTr.find("td:eq(4)").find("select").find("option:selected").val() ;
+		
+		if($dyTr.size()>0){
+			if(null == _productName || "" == _productName){
+				alert("商品名不能为空！") ;
+				return false ;
+			}else{
+				if(_productName.length>25){
+					alert("商品名超出长度限制!") ;
+					return false ;
+				}
+			}
+			if(null != _productSpec && "" != _productSpec){
+				if(_productSpec.length>5){
+					alert("商品规格超出长度限制！") ;
+					return false ;
+				}
+			}
+			if(null == _productNum || "" == _productNum || 0 == _productNum){
+				alert("数量不能为空或0！") ;
+				return false ;
+			}
+			if(null == _price || "" == _price){
+				alert("商品价格不能为空！")
+				return false ;
+			}
+			if(null == _currencyCode || "" == _currencyCode){
+				alert("交易币种不能为空！")
+				return false ;
+			}
+		}
+		return true ;
+	}
+	//新增添行构造
+	function constructorTrTitle(optionEle){
+		var trEle = "<tr class=\"dyTr\">"
+			 +	"<td><input type=\"text\" name=\"productName\"/></td>"
+			 +	"<td><input type=\"text\" name=\"productSpec\"/></td>"	
+			 +  "<td><input type=\"text\" name=\"productNum\" onkeyup='checkNum(this);numOnly(this);' onblur=\"calcProductAmount(this, 2);\"/></td>"	
+			 + 	"<td><input type=\"text\" name=\"price\" onkeyup='javascript:checkNum(this);clearNoNum(this);' onblur=\"calcProductAmount(this, 3);\"/></td>"	
+			 +  "<td><select name=\"currencyCode\" style=\"width:104px;\">"
+			 +		optionEle
+			 +	"</select>"
+			 +  "</td>"	
+			 +  "<td><input type=\"text\" name=\"site\"/></td>"	
+			 +  "<td><input type=\"button\" value=\"-\" class=\"subTr\" onclick=\"javascript:thisTrRemove(this);\"/></td>"	
+			 +  "</tr>" ;
+		return trEle ;
+	}
+	//删除当前行
+	function thisTrRemove(subTrEle){
+		var $subTrEle = $(subTrEle).parent("td").parent("tr") ;
+		var thisTrProductNum = $subTrEle.find("td:eq(2)").find("input").val().trim() ;
+		var thisTrPrice = $subTrEle.find("td:eq(3)").find("input").val().trim() ;
+		//删除行
+		$subTrEle.remove(); 
+		//删除行后， 商品金额相应减少
+		var $f_productAmount = $("#f_productAmount").find("label") ;
+		//var productAmount = Number($f_productAmount.text().trim()) - Number(thisTrProductNum) * Number(thisTrPrice) ;
+		//避免减法出错
+		var bjs = Number($f_productAmount.text().trim()).mul(100) ;
+		var js = Number(thisTrProductNum).mul(Number(thisTrPrice)).mul(100) ;
+		var c = (bjs - js).div(100) ;
+		var cc = bjs - js ;
+		var productAmount = c ; //Number($f_productAmount.text().trim()) - Number(thisTrProductNum) * Number(thisTrPrice) ;
+		//显示
+		$f_productAmount.text(productAmount) ;
+		//step4中商品总金额 
+		$("#step4_pAmount").text(productAmount) ;
+		//总计金额
+		var fee = $("#f_fee").val().trim() ;
+		var totalAmount = Number(fee).add(Number(productAmount)) ;
+		$("#f_totalAmount").find("label").text(totalAmount) ;
+	}
+	//赋
+	function assignment(){
+		var thanMax = maxAmount() ;
+		if(thanMax){
+			alert("总金额不能超上限值!") ; //92233720368547758
+			return false ;
+		}
+		var _productNameDesc = getProductNameDesc();
+		$("#productNameDesc").val(_productNameDesc) ;
+		//return false ;
+		var productAmount = Number($("#f_productAmount").find("label").text().trim()).mul(100) ;
+		$("#productAmount").val(productAmount) ;
+		var totalAmount = Number($("#f_totalAmount").find("label").text().trim()).mul(100) ;
+		$("#totalAmount").val(totalAmount) ;
+		var fee = Number($("#f_fee").val().trim()).mul(100) ;
+		//return false ;
+		$("#fee").val(fee) ;
+		var merchantSite = $("input[type='radio']:checked").next("input").val() ;
+		$("#merchantSite").val(merchantSite) ;
+		
+		var attribArr = [] ;
+		//动态行里数据
+		$(".dyTr").each(function(n, o){
+			var attrib = {} ;
+		  	var _productName = $(o).find("td:eq(0)").find("input").val().trim() ;
+		  	attrib['productName'] = _productName ;
+		  	var _productSpec = $(o).find("td:eq(1)").find("input").val().trim() ;
+			attrib['productSpec'] = _productSpec ;
+			var _productNum = $(o).find("td:eq(2)").find("input").val().trim() ;
+			attrib['productNum'] = _productNum ;
+		  	var _price = Number($(o).find("td:eq(3)").find("input").val().trim()).mul(100) ;
+		  	attrib['price'] = _price ;
+		  	var _currencyCode = $(o).find("td:eq(4)").find("select").find("option:selected").val().trim() ;
+		  	attrib['currencyCode'] = _currencyCode ;
+		  	var _site = $(o).find("td:eq(5)").find("input").val().trim() ;
+		  	attrib['site'] = _site ;
+		  	attribArr.push(attrib) ;
+	    });
+		attribArr = encodeURIComponent(encodeURIComponent(JSON.stringify(attribArr))) ;
+		$("#jsonStr").val(attribArr) ;
+		var subFlag = subDataCheck() ;
+		return subFlag ;
+		//return true; 
+	}
+	//获取productNameDesc
+	function getProductNameDesc(){
+		var productNameDesc = "" ;
+		$(".dyTr").each(function(n, o){
+			var _productName = $(o).find("td:eq(0)").find("input").val().trim() ;
+			productNameDesc = productNameDesc + _productName + "," ;
+		}) ;
+		productNameDesc = productNameDesc.substring(0, productNameDesc.lastIndexOf(",")) ;
+		return productNameDesc ;
+	} ;
+	//数字粗略验证
+	function checkNum(obj) {
+		//检查是否是非数字值
+		if (isNaN(obj.value)) {
+			obj.value = "";
+		}
+	}
+	
+	//失效时间大小校验
+	function sizeCheck(obj){
+		var value = obj.value ;
+		if(isNaN(value)){
+			alert("失效时间只能输入数字") ;
+			$(this).val("") ;
+			return false ;
+		}
+		if(parseInt(value) > 96){
+			alert("失效时间不能超过96小时！") ;
+			$(obj).val("") ;
+			return false;
+		}
+	}
+	//表单数据提交校验
+	function subDataCheck(){
+		var flag = dyTrDataCheck() ;
+		if(!flag) return false;
+		var logoPath = $("input[type='radio']:checked").val() ;
+		if(null == logoPath || "" == logoPath){
+			alert("logo不能为空!") ;
+			return false ;
+		}
+		
+		$("#logoPicture").val($("input[type='radio']:checked").eq(0).attr('id'));
+		var shopterm = $("#shopterm").val() ;
+		if(null == shopterm || "" == shopterm){
+			alert("购物条款不能为空") ;
+			return false ;
+		}
+		
+		var _invalidTimeLong = $("#invalidTimeLong").val().trim() ;
+		if(null == _invalidTimeLong || "" == _invalidTimeLong){
+			alert("失效时间不能为空！") ;
+			return false ;
+		}
+		return true ;
+	}
+	//最大金额限
+	function maxAmount(){
+		var thanMax = false ;
+		var maxAmount = 92233720368547758 ; //省略.07
+		var totalAmount = Number($("#f_totalAmount").find("label").text().trim()) ;
+		if(totalAmount >= maxAmount){
+			thanMax = true ;
+		}
+		return thanMax ;
+	}
+</script>
+<script type="text/javascript">
+	//计算商品价格
+	function calcProductAmount(ele, index){
+		$this = $(ele) ;
+		var $inputs = "" ;
+		var $f_productAmount = $("#f_productAmount").find("label") ;
+		var f_productAmount = 0.00 ;
+		//单价失焦
+		if(index == 3){
+			$inputs =$(".dyTr").find("td:eq(3)").find("input") ;
+			$inputs.each(function(n, o){
+				//商品数量
+				var $productNum = $(o).parent("td").prev("td").find("input") ;
+				f_productAmount = Number(f_productAmount).add(Number($(o).val()).mul(Number($productNum.val().trim()))) ;
+			}) ;
+		}
+		//商品数量失去焦点
+		if(index == 2){
+			$inputs = $(".dyTr").find("td:eq(2)").find("input") ;
+			$inputs.each(function(n, o){
+				//商品单价
+				var $price = $(o).parent("td").next("td").find("input") ;
+				f_productAmount = Number(f_productAmount).add(Number($(o).val()).mul(Number($price.val().trim()))) ;
+			}) ;
+		}
+		$f_productAmount.text(f_productAmount) ;
+		//step4中显示商品金额
+		$("#step4_pAmount").text(f_productAmount) ;
+		//总计金额
+		var fee = $("#f_fee").val().trim() ;
+		var totalAmount = Number(fee).add(Number(f_productAmount)) ;
+		$("#f_totalAmount").find("label").text(totalAmount) ;
+	}
+	
+	$(function(){
+		//其他费用变更时,重新计算总金额
+		$("#f_fee").blur(function(){
+			var productAmount = $("#step4_pAmount").text().trim() ;
+			var fee = $(this).val().trim() ;
+			var totalAmount = Number(productAmount).add(Number(fee)) ;
+			$("#f_totalAmount").find("label").text(totalAmount) ;
+		}) ;
+	}) ;
+	function changeCurrencyCode(obj){
+		$this = $(obj) ;
+		var currencyCode = $this.val() ;
+		var currencyDesc = $this.find("option:selected").text() ;
+		var $nextSiblings = $this.parent("td").parent("tr").nextAll("tr.dyTr") ;
+		$nextSiblings.each(function(n, o){
+			var $desSelect = $(o).find("select").find("option:selected") ;
+			$desSelect.val(currencyCode) ;
+			$desSelect.text(currencyDesc) ;
+		}) ;
+	}
+	
+</script>
+
+</head>
+
+<body>
+   <#include "/include/topbar.html">
+<@sp.head  mCode="corp_paylink_generate"/>
+	<div class="mainbox">
+		<div class="wrap">
+			<div class="section01">
+				<div class="seccon">
+				<div class="tit">
+					<span class="current"><a href="#">支付链生成</a></span>
+				</div>
+				<form class="form" action="javascript:void(0);" name="productForm" id="productForm">
+				
+					<table class="tab03">
+						<tbody>
+							<br/>
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step1:商户信息
+								</td>
+							</tr>
+							<br/>
+							<tr id="trTitle">
+								<td><span style="color:red;">*</span>商品名称</td>
+								<td>商品规格</td>
+								<td><span style="color:red;">*</span>数量</td>
+								<td><span style="color:red;">*</span>商品价格</td>
+								<td><span style="color:red;">*</span>交易币种</td>
+								<td>商品展示网址</td>
+								<td><input type="button" value="+" id="addTr"/></td>
+							</tr>
+							<tr class="dyTr">
+								<td><input type="text" name="productName" /></td>
+								<td><input type="text" name="productSpec" /></td>
+								<td><input type="text" name="productNum" onkeyup='checkNum(this);numOnly(this);' onblur="calcProductAmount(this, 2);"/></td>
+								<td><input type="text" name="price" onkeyup='javascript:checkNum(this);clearNoNum(this);' onblur="calcProductAmount(this, 3);"/></td>
+								<td>
+									<select name="currencyCode" style="width:104px;" onchange="changeCurrencyCode(this) ;">
+										<option value="">--请选择--</option>
+										<#if currencyCodes ? has_content>
+											<#list currencyCodes as cc>
+												<option value="${cc.code}">${cc.desc}</option>
+											</#list>
+										</#if>
+									</select>
+								</td>
+								<td><input type="text" name="site" /></td>
+								<td><input type="button" value="-" class="subTr" onclick="javascript:void(0);"/></td><!-- thisTrRemove(this) -->
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;">&nbsp;</td>
+							</tr>
+							<tr>
+								<td colspan="5" style="border:0px;" >&nbsp;</td>
+								<td style="text-align:left;border:0px;">
+									商品总金额：&nbsp;<font id="f_productAmount"><label>0.00</label>&nbsp;&nbsp;</font>
+								</td>
+								<td style="border:0px;"></td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+				</div>
+			</div>
+		</div>
+		<div class="wrap">
+			<div class="section01">
+			<div class="seccon">
+				<form class="form" action="${rc.contextPath}/corp/paylink.htm?method=payLinkGenerate" method="post" name="" id="">
+					<input type="hidden" name="productAmount" id="productAmount" />
+					<input type="hidden" name="totalAmount" id="totalAmount" />
+					<input type="hidden" name="jsonStr" id="jsonStr" />
+					<input type="hidden" name="fee" id="fee" />
+					<input type="hidden" name="merchantSite" id="merchantSite"/>
+					<input type="hidden" name="productNameDesc" id="productNameDesc"/>
+					<input type="hidden" name="logoPicture" id="logoPicture"/>
+					<table class="tab03">
+						<tbody>		
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step2:商户logo
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;font-weight:bold;">
+									请选择商户的logo图片。
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;">
+									该图片将显示在支付链接打开后页面的顶部。
+								</td>
+							</tr>
+							<tr>
+								<#if logoPictures ? has_content>
+									<#assign logoSize=logoPictures?size>
+									<#list logoPictures as logo>
+										<td style="border:0px;width:200px;text-align:left;">
+											<input type="radio" name="logoPath" id="${logo.pictureId}" value="${logo.picturePath?default('')}" />
+											<!-- logo图上url[商户网址] -->
+											<input type="hidden" value="${logo.merchantSite?default('')}"/>
+											<div style="height:80px;width:120px;">
+												<img src="${logo.picturePath?default('')}" style="width:120px;height:80px;"/>
+											</div>
+										</td>
+									</#list>
+									<#if logoSize=1>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+										<td style="border:0px;width:200px;text-align:left;" colspan="4">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#if logoSize=2>
+										<td style="border:0px;width:200px;text-align:left;">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+										<td style="border:0px;width:200px;text-align:left;" colspan="4">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#if logoSize=3>
+										<td style="border:0px;width:200px;text-align:left;" colspan="4">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#if logoSize=4>
+										<td style="border:0px;width:200px;text-align:left;" colspan="3">
+											<div style="height:80px;width:120px;">
+												
+											</div>
+										</td>
+									</#if>
+									<#else>
+										<td style="border:0px;width:200px;text-align:left;" colspan="7">
+											<div style="height:80px;width:120px;text-align: 
+												center;vertical-align: middle;padding-top:30px;box-sizing:border-box;">
+												<span style="">还未上传logo<br/></span>&nbsp;&nbsp;<a href="${rc.contextPath}/corp/paylink.htm?method=payLinkBasicInfoMaintain" style="color:#002BFF;">&nbsp;&nbsp;去上传</a>
+											</div>
+										</td>
+								</#if>
+							</tr>
+							<!-- <tr>
+								<td colspan="7" style="border:0px;text-align:left;">
+									<input type="checkbox"/>显示启赟支付图片。&nbsp;&nbsp;&nbsp;&nbsp; 勾选后，启赟支付的logo同样将显示在支付链接打开后的页面顶部。
+								</td>
+							</tr> -->
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step3:购物条款文件
+								</td>
+							</tr>
+							<tr>
+								<td style="border:0px;text-align:left;padding-left:20px;">
+									<#if shoptermsName?has_content>
+										<input type="hidden" name="shopterm" id="shopterm" value="${shoptermsName?default('')}" />
+										<a href="/file/${pathTail}" style="color:#002BFF;" target="_blank" >${shoptermsName?default('')}</a>
+										<#else>
+											购物条款还未上传,<a href="${rc.contextPath}/corp/paylink.htm?method=payShopTerm" style="color:#002BFF;">&nbsp;&nbsp;去上传</a>
+									</#if>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="background-color:#F1F1F1;text-align:left;" >
+									step4:费用总计
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;padding-left:20px;">
+									商品金额:&nbsp;&nbsp;<font><label id="step4_pAmount">0.00</label>&nbsp;&nbsp;</font>
+								</td>
+							</tr>
+							<tr>
+								<td style="border:0px;padding-left:20px;">
+									<div align="left">其他费用：</div>
+								</td>
+								<td colspan="6" style="border:0px;text-align:left;">
+									<select name="otherFeeName">
+										<#list fees as fee>
+											<option value="${fee.code}">${fee.desc}</option>
+										</#list>
+									</select>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="" style="border:0px;text-align:left;padding-left:20px;">
+									其他费用金额:&nbsp;&nbsp;
+								</td>
+								<td style="border:0px;text-align:left;">
+									<input type="text" name="f_fee" id="f_fee" onkeyup="javascript:clearNoNum(this);"/>
+								</td>
+								<td colspan="5" style="text-align:left;border:0px;">
+									<!-- 币种：&nbsp;&nbsp;
+									<select name="feeCurrencyCode">
+										<option value="">--请选择--</option>
+										<#if currencyCodes ? has_content>
+											<#list currencyCodes as cc>
+												<option value="${cc.code}">${cc.desc}</option>
+											</#list>
+										</#if>
+									</select> -->
+								</td>
+							</tr>
+							<tr>
+								<td colspan="7" style="border:0px;text-align:left;padding-left:20px;">
+									总计:&nbsp;&nbsp;<font name="f_totalAmount" id="f_totalAmount"><label>0.00</label>&nbsp;&nbsp;</font>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="" style="border:0px;text-align:left;padding-left:20px;">
+									<span style="color:red;">*</span>失效时间:&nbsp;&nbsp;
+											<!-- <input  type="text" class="Wdate inp_normal w380" name=""  readonly="readonly" id="" 
+												gtbfieldid="109" value="" 
+												onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})"> -->
+								</td>
+								<td style="border:0px;text-align:left;" colspan="6">
+									<input type="text" name="invalidTimeLong" id="invalidTimeLong" onkeyup="checkNum(this);numOnly(this);" onblur="sizeCheck(this);"/>&nbsp;&nbsp;小时&nbsp;&nbsp;&nbsp;&nbsp;(不超过96小时)
+								</td>
+							</tr>
+							<tr style="" rowspan="2">
+								<td style="border:0px;text-align:left;padding-left:20px;">
+									<input type="submit" onclick="javascript:return assignment();" value="支付链生成" style="width:134px;" class="btn_blue"/>
+								</td>
+								<td colspan="6" style="border:0px;text-align:left;">
+									<#if payChainLink ? has_content && ("" == errMsg)>
+										<script type="text/javascript">
+											//$.pay.alert("生成成功:${payChainLink?default('')}") ;
+											//$("#dialog-uploade" ).dialog( "open" );
+											$(function(){
+												$("#dialog-uploade" ).dialog( "open" );
+											})
+										</script>
+										<p>生成的支付链如下：</p>
+										<p>${payChainLink?default('')}</p>
+									</#if>
+									<#if errMsg ? has_content>
+										<script type="text/javascript">
+											alert("生成支付链出错了！") ;
+										</script>
+									</#if>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</form>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+	<!--网站批量上传  -->
+<div id="dialog-uploade" title="系统消息" style="display: none; text-align:center">
+  <form action="${rc.contextPath}/corp/cross/siteset.htm?method=submitUploade" id="uploadeSite" enctype="multipart/form-data" name="uploadeSite" method="post" target="hidden_frame" >
+  	<table style="text-align:center"> 
+  	
+  	  <tr><td>&nbsp;</td></tr>
+  	  <tr><td>&nbsp;</td></tr>
+      <tr><td style="padding-left:20px;">生成支付链接成功：</td></tr>
+      <tr><td style="padding-left:20px;">
+      	<#if payChainLink ? has_content && ("" == errMsg)>
+			${payChainLink?default('')}
+		</#if>
+      </td></tr>
+      <tr><td> &nbsp;</td></tr>
+      <tr><td> &nbsp;</td></tr>
+<!--       Allow form submission with keyboard without duplicating the dialog button     --> 
+      <tr><td><input type="submit" tabindex="-1" style="position:absolute; top:-1000px"></td></tr>
+   </table>
+   <iframe name='hidden_frame' id="hidden_frame" style='display:none'></iframe>
+  </form>
+</div>
+	<#include "/include/myfoot.html">
+</body>
+</html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="chargebackorder">
+    
+    <typeAlias alias="hMap" type="java.util.HashMap"/>
+    <typeAlias alias="chargeBackMemberRelation" type="com.pay.base.fi.model.ChargeBackMemberRelation"/>
+    
+    <!-- 创建关联 -->
+    <insert id="createRealtion" parameterClass="hMap">
+    	INSERT
+		INTO CHARGE_BACK_MEMBER_RELATION
+		  (
+		    ORDER_ID,
+		    MEMBERCODE,
+		    CREATE_TIME,
+		    CP_TYPE
+		  )
+		  VALUES
+		  (
+		    #orderId#,
+		    #memberCode#,
+		    #createTime#,
+		    #cpType#
+		  )
+    </insert>
+    
+    <select id="countStatus" resultClass="java.lang.Integer" parameterClass="hMap">
+    	select 
+    		count(t.ORDER_ID) 
+    	from 
+    		CHARGE_BACK_ORDER t
+    	where t.ORDER_ID not in(
+    		select tr.ORDER_ID from CHARGE_BACK_MEMBER_RELATION tr 
+    		where 1=1
+    			<isNotEmpty property="memberCode" prepend="and">
+    				tr.MEMBERCODE=#memberCode#
+    			</isNotEmpty>
+    	)
+    	<isNotEmpty property="cpType" prepend="and">
+    		t.CP_TYPE=#cpType#
+    	</isNotEmpty>
+    	<isNotEmpty prepend="and" property="mpscpTypes" >
+   	 ((t.MERCHANT_CODE = '5' and t.CP_TYPE='1') or t.CP_TYPE='2')
+     </isNotEmpty>
+      <isNotEmpty prepend="and" property="bouncedFlag" >
+        ((t.MERCHANT_CODE = '8' and t.CP_TYPE='1') or t.cp_type='0') 
+     </isNotEmpty>
+    	<isNotEmpty property="cpTypeIn" prepend="and">
+    		t.CP_TYPE in ($cpTypeIn$)
+    	</isNotEmpty>
+    	 <isNotEmpty property="status" prepend="and">
+       		t.STATUS=#status#
+        </isNotEmpty>
+    	 <isNotEmpty property="memberCode" prepend="and">
+       		t.MEMBER_CODE=#memberCode#
+        </isNotEmpty>
+    </select>
+    
+    <select id="queryRelation" parameterClass="hMap" resultClass="chargeBackMemberRelation">
+    	SELECT ORDER_ID as orderId,
+		  MEMBERCODE as memberCode,
+		  CREATE_TIME as createTime,
+		  CP_TYPE cpType
+		FROM CHARGE_BACK_MEMBER_RELATION 
+		where 1=1
+		<isNotEmpty prepend="and" property="orderId">
+			ORDER_ID=#orderId#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="memberCode">
+			MEMBERCODE=#memberCode#
+		</isNotEmpty>
+		<isNotEmpty prepend="and" property="cpType">
+			CP_TYPE=#cpType#
+		</isNotEmpty>
+    </select>
+    
+</sqlMap>

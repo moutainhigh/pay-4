@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+	<!--启用注解事务  -->
+	<tx:annotation-driven  transaction-manager="base-transactionManager" />
+	<!--注解注入 service层-->
+	<context:component-scan base-package="com.pay.base.service.platformmember.impl" />
+	<!--dao层  -->
+	<bean id="platformMemberDao"
+		class="com.pay.base.dao.platformmember.impl.PlatformMemberDaoImpl">
+		<property name="sqlMapClient" ref="accBaseMapClient" />
+		<property name="namespace" value="acc-platformmember" />
+	</bean>
+	<!--service层  -->
+	<!-- <bean id="buySettleForeignCurrecnyServiceDao" class="com.pay.acct.buySettleParities.dao.impl.BuySettleForeignCurrencyServiceDaoImpl"
+		parent="acc-acctBaseDAO">
+		<property name="namespace" value="buySettleForeignCurrecny" />
+	</bean>
+	<bean id="buySettleForeignCurrencyService" class="com.pay.acct.buySettleParities.service.impl.BuySettleForeignCurrencyServiceImpl">
+		<property name="buySettleForeignCurrecnyServiceDao" ref="buySettleForeignCurrecnyServiceDao"/>
+	</bean> -->
+</beans>
+

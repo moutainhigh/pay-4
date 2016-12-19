@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+<!-- 提现申请规则引擎 -->
+	<bean id="fundout_pay2bank_ruleengine" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fundout_pay2bank_AccountInfoCheckRule" />
+		</property>
+	</bean>
+
+	<!-- 账户验证 -->	
+	<bean id="fundout_pay2bank_AccountInfoCheckRule"
+		class="com.pay.fundout.withdraw.service.paytobank.validate.rule.AccountInfoCheckRule">
+		<property name="positiveOutcomeStep" ref="fundout_pay2bank_OrderAmountCheckRule"/>
+		<property name="negativeOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateFailedAction"/>
+		<property name="pay2BankValidateService" ref="fundout_pay2bank_Pay2BankValidateService"></property>
+	</bean>
+	
+	<!-- 金额验证 -->		
+	<bean id="fundout_pay2bank_OrderAmountCheckRule"
+		class="com.pay.fundout.withdraw.service.paytobank.validate.rule.OrderAmountCheckRule">
+		<property name="positiveOutcomeStep" ref="fundout_pay2bank_BalanceCheckRule"/>
+		<property name="negativeOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateFailedAction"/>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="withdrawOrderService" ref="withdrawOrderService"></property>
+		<property name="pay2BankValidateService" ref="fundout_pay2bank_Pay2BankValidateService"></property>
+	</bean>	
+	
+	<!-- 余额验证 -->	
+	<bean id="fundout_pay2bank_BalanceCheckRule"
+		class="com.pay.fundout.withdraw.service.paytobank.validate.rule.BalanceCheckRule">
+		<property name="positiveOutcomeStep" ref="fundout_pay2bank_NameCheckRule"/>
+		<property name="negativeOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateFailedAction"/>
+		<property name="pay2BankValidateService" ref="fundout_pay2bank_Pay2BankValidateService"></property>
+	</bean>
+	
+	<!-- 收款方姓名验证-->	
+	<bean id="fundout_pay2bank_NameCheckRule"
+		class="com.pay.fundout.withdraw.service.paytobank.validate.rule.NameCheckRule">
+		<property name="positiveOutcomeStep" ref="fundout_pay2bank_BankInfoCheckRule"/>
+		<property name="negativeOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateFailedAction"/>
+	</bean>
+	<!-- 开户行名称及银行账户验证-->
+	<bean id="fundout_pay2bank_BankInfoCheckRule"
+		class="com.pay.fundout.withdraw.service.paytobank.validate.rule.BankInfoCheckRule">
+		<property name="positiveOutcomeStep" ref="fundout_pay2bank_BankCardCheckRule"/>
+		<property name="negativeOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateFailedAction"/>
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+	</bean>
+	<!-- 验证银行卡 -->
+	<bean id="fundout_pay2bank_BankCardCheckRule"
+		class="com.pay.fundout.withdraw.service.paytobank.validate.rule.BankCardCheckRule">
+		<property name="pay2BankValidateService" ref="fundout_pay2bank_Pay2BankValidateService"></property>
+		<property name="positiveOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateSuccessAction"/>
+		<property name="negativeOutcomeStep" ref="fundout_pay2bank_Pay2BankValidateFailedAction"/>
+	</bean>
+	
+	<!-- 验证失败处理 -->
+	<bean id="fundout_pay2bank_Pay2BankValidateFailedAction" class="com.pay.fundout.withdraw.service.paytobank.validate.action.Pay2BankValidateFailedAction"/>
+	<!-- 验证成功处理 -->
+	<bean id="fundout_pay2bank_Pay2BankValidateSuccessAction" class="com.pay.fundout.withdraw.service.paytobank.validate.action.Pay2BankValidateSuccessAction"/>
+	
+</beans>

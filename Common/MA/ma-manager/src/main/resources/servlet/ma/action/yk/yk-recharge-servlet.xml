@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="ykRechargeCompensateSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/ma/ykCompensateIndex.do">rechargeCompensateController</prop>
+				<prop key="/ma/ykCompensate.do">rechargeCompensateController</prop>
+				<prop key="/ma/ykAplayRefund.do">rechargeCompensateController</prop>
+				<prop key="/ma/ykQueryStatus.do">rechargeCompensateController</prop>
+				
+			</props>
+		</property>
+	</bean>
+	<bean id="rechargeCompensateController"
+		class="com.pay.poss.yk.controller.RechargeCompensateController">
+		<property name="methodNameResolver">
+			<ref bean="ykRechargeCompensateParamResolver" />
+		</property>
+		<property name="ykCompensateService"	ref="ma-ykCompensateService" />
+		<property name="indexView">
+			<value>/ma/yk/compensate_index</value>
+		</property>
+		<property name="compensateListView">
+			<value>/ma/yk/compensate_list</value>
+		</property>
+		
+	</bean>
+	
+	<bean id="ykRechargeCompensateParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/ma/ykCompensateIndex.do">index</prop>
+				<prop key="/ma/ykCompensate.do">compensateOrderPage</prop>
+				<prop key="/ma/ykAplayRefund.do">aplayRefund</prop>
+				<prop key="/ma/ykQueryStatus.do">queryOrderStatus</prop>
+			</props>
+		</property>
+	</bean>
+	
+	
+</beans>
+

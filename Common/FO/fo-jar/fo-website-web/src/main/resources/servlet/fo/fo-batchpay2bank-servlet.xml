@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+	"http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+
+	<!-- 定义映射-->
+	<bean id="BatchPay2BankHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/corp/batchpay2bank.htm">batchPay2BankController</prop>
+				<prop key="/corp/batchpay2bankaudit.htm">batchPay2BankAuditController</prop>
+				<prop key="/corp/batchpay2bankdownload.htm">batchPay2BankDownloadController</prop>
+			</props>
+		</property>
+		<property name="interceptors">
+            <list>
+                <ref bean="operatPermInterceptor"/>
+            </list>
+     </property>
+	</bean>
+	<bean id="batchPay2BankController" class="com.pay.controller.fo.batchpay2bank.BatchPay2BankController" parent="abstractBatchPay2BankController">
+		<property name="indexView">
+			<value>/fo/batchpay2bank/batchpay2bank</value>
+		</property>
+		<property name="applyConfirmView">
+			<value>/fo/batchpay2bank/applyConfirm</value>
+		</property>
+		<property name="applySuccessView">
+			<value>/fo/batchpay2bank/applySuccess</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/batchpay2bank/error</value>
+		</property>
+		<property name="maxSize" value="3000"></property>
+		
+		<property name="accountQueryService" ref="acc-accountQueryService"/>
+	</bean>
+	<bean id="batchPay2BankDownloadController" class="com.pay.controller.fo.batchpay2bank.BatchPay2BankDownloadController" parent="abstractBatchPay2BankController"></bean>
+	<bean id="batchPay2BankAuditController" class="com.pay.controller.fo.batchpay2bank.BatchPay2BankAuditController" parent="abstractBatchPay2BankController">
+		<property name="indexView">
+			<value>/fo/batchpay2bank/auditIndex</value>
+		</property>
+		<property name="detailView">
+			<value>/fo/batchpay2bank/auditDetail</value>
+		</property>
+		<property name="listView">
+			<value>/fo/batchpay2bank/auditList</value>
+		</property>
+		<property name="errorView">
+			<value>/fo/batchpay2bank/auditError</value>
+		</property>
+		<property name="successView">
+			<value>/fo/batchpay2bank/auditSuccess</value>
+		</property>
+	</bean>
+   <bean id="abstractBatchPay2BankController" class="com.pay.controller.fo.batchpay2bank.AbstractBatchPay2BankController" abstract="true">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="memberQueryFacadeService" ref="fo-maapi-memberQueryFacadeService"></property>
+		<property name="fundoutOrderService" ref="fo-order-fundoutOrderService"></property>
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService"/>
+		<property name="accountQueryFacadeService" ref="fo-maapi-accountQueryFacadeService"></property>
+		<property name="batchPay2BankRequestService" ref="fo-order-batchPay2BankRequestService"></property>
+		<property name="batchPaymentReqBaseInfoService" ref="fo-order-batchPaymentReqBaseInfoService"></property>
+		<property name="batchPaymentToBankReqDetailService" ref="fo-order-batchPaymentToBankReqDetailService"></property>
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"></property>
+		<property name="batchPaymentAuditQueryService" ref="fo-order-batchPaymentAuditQueryService"></property>
+		<property name="batchPay2BankOrderValidateService" ref="fo-order-batchPay2BankOrderValidateService"></property>
+		<property name="memberProductService" ref="acc-memberProductService" />
+	</bean>
+</beans>

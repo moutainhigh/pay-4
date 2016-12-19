@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout-withdraw-withDrawReqCallBack"
+		class="com.pay.fundout.withdraw.service.order.ordercallback.impl.WithdrawReqCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+	</bean>
+	<bean id="fundout-withdraw-payToBankReqCallBack"
+		class="com.pay.fundout.withdraw.service.order.ordercallback.impl.WithdrawReqCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+	</bean>
+	<bean id="fundout-withdraw-withDrawOrderCallBack"
+		class="com.pay.fundout.withdraw.service.order.ordercallback.impl.WithdrawOrderCallBack"
+		parent="fundout-withdraw-commonOrderCallBack">
+		<property name="withdrawOrderService" ref="withdrawOrderService" />
+		<property name="orderProcessHandler" ref="fundout-withdraw-orderProcessHandler" />
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+		<property name="withdrawMemberFacadeService" ref="withdrawMemberFacadeService" />
+		<property name="bankInfoFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="smsTemplateId">
+			<value>${pay2bank.success.sms}</value>
+		</property>
+		<property name="successNotifyEmailTemplateIds">
+			<map>
+				<entry key="0">
+					<value>${withdraw.success.email}</value>
+				</entry>
+				<entry key="3">
+					<value>${pay2bank.sucess.payer.email}</value>
+				</entry>
+			</map>
+		</property>
+		<property name="successNotifySmsTemplateIds">
+			<map>
+				<entry key="0">
+					<value>${withdraw.success.sms}</value>
+				</entry>
+				<entry key="3">
+					<value>${pay2bank.success.sms}</value>
+				</entry>
+			</map>
+		</property>
+		<property name="failNotifyEmailTemplateIds">
+			<map>
+				<entry key="0">
+					<value>${withdraw.fail.email}</value>
+				</entry>
+				<entry key="3">
+					<value>${pay2bank.payerFail.email}</value>
+				</entry>
+			</map>
+		</property>
+		<property name="failNotifySmsTemplateIds">
+			<map>
+				<entry key="0">
+					<value>${withdraw.fail.sms}</value>
+				</entry>
+				<entry key="3">
+					<value>${pay2bank.payerFail.sms}</value>
+				</entry>
+			</map>
+		</property>					
+	</bean>
+
+	<bean id="fundout-withdraw-withdrawAccounting-succ-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="withdraw_busi_type">
+					<ref bean="fundout-withdraw-withdraw-succ-type-map"/>
+				</entry>
+				<entry key="creditCard_busi_type">
+					<ref bean="fundout-withdraw-creditCard-succ-type-map"/>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-withdraw-succ-type-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="SubmitAcctCode">
+	     			<value>2181010010001</value>
+		     	</entry>
+		     	<entry key="ServicePkgCode">
+		     		<value>102</value>
+		     	</entry>
+		     	<entry key="DealCode">
+		     		<value>102</value>
+		     	</entry>
+		     	<entry key="OrderCode">
+		     		<value>100</value>
+		     	</entry>
+		     	<entry key="PayeeOrgCode">
+		     		<value>130310001</value>
+		     	</entry>
+		     	<entry key="PayerOrgCode">
+		     		<value>010010001</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-creditCard-succ-type-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="SubmitAcctCode">
+	     			<value>2181010010002</value>
+		     	</entry>
+		     	<entry key="ServicePkgCode">
+		     		<value>192</value>
+		     	</entry>
+		     	<entry key="DealCode">
+		     		<value>192</value>
+		     	</entry>
+		     	<entry key="OrderCode">
+		     		<value>190</value>
+		     	</entry>
+		     	<entry key="PayeeOrgCode">
+		     		<value>130310001</value>
+		     	</entry>
+		     	<entry key="PayerOrgCode">
+		     		<value>010010001</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-withdrawAccounting-fail-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="withdraw_busi_type">
+					<ref bean="fundout-withdraw-withdraw-fail-type-map"/>
+				</entry>
+				<entry key="creditCard_busi_type">
+					<ref bean="fundout-withdraw-creditCard-fail-type-map"/>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-withdraw-fail-type-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+		     	<entry key="ServicePkgCode">
+		     		<value>101</value>
+		     	</entry>
+		     	<entry key="DealCode">
+		     		<value>101</value>
+		     	</entry>
+		     	<entry key="OrderCode">
+		     		<value>100</value>
+		     	</entry>
+		     	<entry key="PayeeOrgCode">
+		     		<value>010010001</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<bean id="fundout-withdraw-creditCard-fail-type-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+		     	<entry key="ServicePkgCode">
+		     		<value>191</value>
+		     	</entry>
+		     	<entry key="DealCode">
+		     		<value>191</value>
+		     	</entry>
+		     	<entry key="OrderCode">
+		     		<value>190</value>
+		     	</entry>
+		     	<entry key="PayeeOrgCode">
+		     		<value>010010002</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	
+	<!-- 提现请求Map -->
+	<bean id="fundout-withdraw-withdrawAccounting-req-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="withdraw_busi_type">
+					<ref bean="fundout-withdraw-withdraw-req-type-map"/>
+				</entry>
+				<entry key="creditCard_busi_type">
+					<ref bean="fundout-withdraw-creditCard-req-type-map"/>
+				</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="fundout-withdraw-withdraw-req-type-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+		     	<entry key="ServicePkgCode">
+		     		<value>101</value>
+		     	</entry>
+		     	<entry key="DealCode">
+		     		<value>101</value>
+		     	</entry>
+		     	<entry key="OrderCode">
+		     		<value>100</value>
+		     	</entry>
+		     	<entry key="PayeeOrgCode">
+		     		<value>010010001</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<bean id="fundout-withdraw-creditCard-req-type-map" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+		     	<entry key="ServicePkgCode">
+		     		<value>191</value>
+		     	</entry>
+		     	<entry key="DealCode">
+		     		<value>191</value>
+		     	</entry>
+		     	<entry key="OrderCode">
+		     		<value>190</value>
+		     	</entry>
+		     	<entry key="PayeeOrgCode">
+		     		<value>010010002</value>
+		     	</entry>
+			</map>
+		</constructor-arg>
+	</bean>
+	<!-- 提现请求Map -->
+	<!-- 处理订单失败后处理 -->
+	<bean id="fundout-withdraw-OrderAfterFailProcAlertService" class="com.pay.fundout.withdraw.service.failproc.impl.OrderAfterFailProcAlertServiceImpl">
+		<property name="orderAfterFailProcAlertHandler" ref="fundout-orderchandler-failProcHandler" />
+	</bean>
+</beans>

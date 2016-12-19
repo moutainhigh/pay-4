@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-memberrelaction">
+    
+    <typeAlias alias="memberrelaction" type="com.pay.acc.member.model.MemberRelaction"/>
+
+
+    <select id="countMemberRelaction" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+    	select 1 from t_member_relation t 
+    		where t.father_member_code=#fatherMemberCode# and t.son_member_code=#sonMember# and t.status=1
+    </select>
+    
+    
+    
+    <select id="selectMemberRelationByMember" resultClass="memberrelaction" parameterClass="java.util.Map">
+		select t.father_member_code fatherMemberCode,
+		       t.son_member_code sonMemberCode, 
+		       t.son_usteel_id usteelId,
+		       t.son_usteel_name usteelName 
+			from t_member_relation t 
+		where t.status=1
+       	<isNotNull prepend="and" property="fatherMemberCode">
+        	t.father_member_code= #fatherMemberCode#
+        </isNotNull>
+         <isNotNull prepend="and" property="sonMemberCode">
+        	t.son_member_code=#sonMemberCode#
+        </isNotNull>
+        <isNotNull prepend="and" property="sonzhName">
+        	t.son_zh_name=#sonzhName#
+        </isNotNull>
+    </select>
+    
+</sqlMap>

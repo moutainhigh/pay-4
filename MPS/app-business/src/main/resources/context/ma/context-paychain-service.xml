@@ -1,0 +1,47 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">	<!-- DataSource -->
+
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>file:/opt/pay/config/ma/paychain/payinteface.properties</value>
+		</property>
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+	
+	<!-- 支付链 -->
+	<bean id="base-payChainService"
+		class="com.pay.base.service.paychain.impl.PayChainServiceImpl">
+		<property name="payChainDao" ref="base-payChainDAO" />
+		<property name="payChainPayInfoService" ref="base-payChainPayInfoService" />
+	</bean>
+	
+	<bean id="base-payChainPayInfoService"
+		class="com.pay.base.service.paychain.impl.PayChainPayInfoServiceImpl">
+		<property name="enterpriseContactService" ref="base-enterpriseContactService" />
+		<property name="enterpriseBaseService" ref="base-enterpriseBaseService" />
+		<property name="provinceServiceFacade" ref="app-bankAcctServiceFacade" />
+	</bean>
+	
+	<bean id="base-payChainPayService"
+		class="com.pay.base.service.paychain.impl.PayChainPayServiceImpl">
+		<property name="fiPkey" value="${paychain.fiPkey}" />
+		<property name="platformId" value="${paychain.platformId}" />
+		<property name="payUrl" value="${paychain.payUrl}" />
+		<property name="payNoticeUrl" value="${paychain.payNoticeUrl}" />
+		<property name="payCallBackUrl" value="${paychain.payCallBackUrl}" />
+	</bean>	
+	
+	<bean id="base-payChainUploadService"
+		class="com.pay.base.service.paychain.impl.PayChainUploadServiceImpl">
+		<property name="contextPicService" ref="base-contextPicService" />
+		<property name="uploadFileService" ref="base-uploadFileService" />
+	</bean>
+
+</beans> 

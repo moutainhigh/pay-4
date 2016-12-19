@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+  <sqlMap namespace="ORDER_QUERY" >
+    <resultMap id="BaseResultMap" class="com.pay.txncore.crosspay.model.OrderQueryResult" >
+      <result column="TRADE_ORDER_NO" property="tradeOrderNo" jdbcType="VARCHAR" />
+      <result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+      <result column="TRADE_URL" property="tradeUrl" jdbcType="VARCHAR" />
+      <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+      <result column="partner_id" property="partnerId" jdbcType="VARCHAR" />
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	  <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="VARCHAR" />
+      <result column="ext_order_info_8" property="extOrderInfo8" jdbcType="VARCHAR" />
+	  <result column="orderStatus" property="orderStatus" jdbcType="VARCHAR" />
+	  <result column="frozenStatus" property="frozenStatus" jdbcType="VARCHAR" />
+	  <result column="refuseStatus" property="refuseStatus" jdbcType="VARCHAR" />	  
+    </resultMap>
+    
+    <resultMap class="java.util.HashMap" id="querySummary-new" >
+   		<result column="listSize" property="listSize" />
+   		<result column="listAmount" property="listAmount" />
+   	</resultMap>
+   
+   <select id="countOrderDetailList" parameterClass="java.util.HashMap" resultMap="querySummary-new">
+   select count(*) as listSize,
+        sum(order_amount) as listAmount
+	from
+	(
+		select distinct 
+	   	tro.trade_order_no , 
+	   	tro.order_id ,
+	   	et.trade_url,
+	   	et.email,
+	   	tro.partner_id,
+	   	tro.create_date,
+	   	tro.order_amount,
+		te.ext_order_info_8, 
+		tro.status orderStatus,
+		fo.FROZEN_STATUS frozenStatus,
+		rpo.REFUSE_STATUS refuseStatus 
+		from FI.TRADE_ORDER tro
+		left join FI.TRADE_BASE tb on tb.trade_base_no = tro.trade_base_no
+		left join fi.trade_extends te on te.trade_order_no = tro.trade_order_no
+		left join FI.EXPRESS_TRACKING et on et.trade_order_no = tro.trade_order_no
+		left join FI.FROZEN_ORDER fo on FO.trade_order_no = tro.trade_order_no
+		left join FI.REFUSE_PAYMENT_ORDER  rpo on RPO.trade_order_no = tro.trade_order_no
+		
+		where tb.TRADE_TYPE = '3001' and tro.status in(2,4)
+		<isNotEmpty property="tradeOrderNo" prepend="AND">
+			tro.trade_order_no = #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="orderId" prepend="AND">
+			tro.order_id = #orderId#
+		</isNotEmpty>
+		<isNotEmpty property="partnerId" prepend="AND">
+			 tro.partner_id = #partnerId#
+		</isNotEmpty>
+		<isNotNull property="startTime">
+			AND tro.CREATE_DATE >= to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+	    </isNotNull>
+	    <isNotNull property="endTime">
+	   		<![CDATA[
+			AND tro.CREATE_DATE < to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+			]]>
+		</isNotNull>
+		<isNotEmpty property="sOrderAmount">
+			<![CDATA[
+			AND tro.order_amount >= #sOrderAmount#
+			]]>
+	    </isNotEmpty>
+	    <isNotEmpty property="eOrderAmount">
+	   		<![CDATA[
+			AND tro.order_amount <= #eOrderAmount#
+			]]>
+	    </isNotEmpty>
+		<isNotEmpty property="orderStatus" prepend="AND"> <!-- ALL 全部， [0:未付款;1:交易关闭;2:已付款;3:交易已退款;4:交易成功] -->
+		 			tro.STATUS in ($orderStatus$)
+	    </isNotEmpty>
+	    <isNotEmpty property="frozenStatus" prepend="AND"> <!-- 0：已解冻  1：已冻结 -->
+		 			fo.FROZEN_STATUS in ($frozenStatus$)
+	    </isNotEmpty>
+	    <isNotEmpty property="refuseStatus" prepend="AND"> <!-- 0：已申请 1：拒付成功 2：拒付失败 -->
+		 			rpo.REFUSE_STATUS in ($refuseStatus$)
+	    </isNotEmpty>
+	     group by tro.trade_order_no,
+       tro.trade_order_no,
+       tro.order_id,
+       et.trade_url,
+       et.email,
+       tro.partner_id,
+       tro.create_date,
+       tro.order_amount,
+       te.ext_order_info_8,
+       tro.status,        
+       fo.FROZEN_STATUS,        
+       rpo.REFUSE_STATUS
+		order by tro.create_date desc
+    )
+   </select> 
+    
+    
+   <select id="queryOrderDetailList" parameterClass="java.util.HashMap" resultMap="BaseResultMap">
+   	select distinct 
+   	tro.trade_order_no , 
+   	tro.order_id ,
+   	et.trade_url,
+   	et.email,
+   	tro.partner_id,
+   	tro.create_date,
+   	tro.order_amount,
+	te.ext_order_info_8, 
+	tro.status orderStatus,
+	fo.FROZEN_STATUS frozenStatus,
+	rpo.REFUSE_STATUS refuseStatus 
+	from FI.TRADE_ORDER tro
+	left join FI.TRADE_BASE tb on tb.trade_base_no = tro.trade_base_no
+	left join fi.trade_extends te on te.trade_order_no = tro.trade_order_no
+	left join FI.EXPRESS_TRACKING et on et.trade_order_no = tro.trade_order_no
+	left join FI.FROZEN_ORDER fo on FO.trade_order_no = tro.trade_order_no
+	left join FI.REFUSE_PAYMENT_ORDER  rpo on RPO.trade_order_no = tro.trade_order_no
+	
+	where tb.TRADE_TYPE = '3001' and tro.status in(2,4)
+	<isNotEmpty property="tradeOrderNo" prepend="AND">
+		tro.trade_order_no = #tradeOrderNo#
+	</isNotEmpty>
+	<isNotEmpty property="orderId" prepend="AND">
+		tro.order_id = #orderId#
+	</isNotEmpty>
+	<isNotEmpty property="partnerId" prepend="AND">
+		 tro.partner_id = #partnerId#
+	</isNotEmpty>
+	<isNotNull property="startTime">
+		AND tro.CREATE_DATE >= to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+    </isNotNull>
+    <isNotNull property="endTime">
+   		<![CDATA[
+		AND tro.CREATE_DATE < to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		]]>
+	</isNotNull>
+	<isNotEmpty property="sOrderAmount">
+		<![CDATA[
+		AND tro.order_amount >= #sOrderAmount#
+		]]>
+    </isNotEmpty>
+    <isNotEmpty property="eOrderAmount">
+   		<![CDATA[
+		AND tro.order_amount <= #eOrderAmount#
+		]]>
+    </isNotEmpty>
+	<isNotEmpty property="orderStatus" prepend="AND"> <!-- ALL 全部， [0:未付款;1:交易关闭;2:已付款;3:交易已退款;4:交易成功] -->
+	 			tro.STATUS in ($orderStatus$)
+    </isNotEmpty>
+    <isNotEmpty property="frozenStatus" prepend="AND"> <!-- 0：已解冻  1：已冻结 -->
+	 			fo.FROZEN_STATUS in ($frozenStatus$)
+    </isNotEmpty>
+    <isNotEmpty property="refuseStatus" prepend="AND"> <!-- 0：已申请 1：拒付成功 2：拒付失败 -->
+	 			rpo.REFUSE_STATUS in ($refuseStatus$)
+    </isNotEmpty>
+	 group by tro.trade_order_no,
+       tro.trade_order_no,
+       tro.order_id,
+       et.trade_url,
+       et.email,
+       tro.partner_id,
+       tro.create_date,
+       tro.order_amount,
+       te.ext_order_info_8,
+       tro.status,        
+       fo.FROZEN_STATUS,        
+       rpo.REFUSE_STATUS
+	
+	order by tro.create_date desc
+   
+   
+   
+   </select>
+   
+   
+   <sql id="ORDER_QUERY.oracle_Pagination_Head" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ select * from ( select row_.*, rownum rownum_ from ( ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    <sql id="ORDER_QUERY.oracle_Pagination_Tail" >
+      <dynamic >
+        <isNotEmpty property="oracleStart" >
+          <isNotEmpty property="oracleEnd" >
+            <![CDATA[ ) row_ where rownum <= #oracleEnd# ) where rownum_ > #oracleStart# ]]>
+          </isNotEmpty>
+        </isNotEmpty>
+      </dynamic>
+    </sql>
+    
+    
+    
+    
+    <select id="selectOrders" resultMap="BaseResultMap" parameterClass="java.util.HashMap">
+      <include refid="ORDER_QUERY.oracle_Pagination_Head" />
+      
+      select distinct 
+   	tro.trade_order_no , 
+   	tro.order_id ,
+   	et.trade_url,
+   	et.email,
+   	tro.partner_id,
+   	tro.create_date,
+   	tro.order_amount,
+	te.ext_order_info_8, 
+	tro.status orderStatus,
+	fo.FROZEN_STATUS frozenStatus,
+	rpo.REFUSE_STATUS refuseStatus 
+	from FI.TRADE_ORDER tro
+	left join FI.TRADE_BASE tb on tb.trade_base_no = tro.trade_base_no
+	left join fi.trade_extends te on te.trade_order_no = tro.trade_order_no
+	left join FI.EXPRESS_TRACKING et on et.trade_order_no = tro.trade_order_no
+	left join FI.FROZEN_ORDER fo on FO.trade_order_no = tro.trade_order_no
+	left join FI.REFUSE_PAYMENT_ORDER  rpo on RPO.trade_order_no = tro.trade_order_no
+	
+	where tb.TRADE_TYPE = '3001' and tro.status in(2,4)
+	<isNotEmpty property="tradeOrderNo" prepend="AND">
+		tro.trade_order_no = #tradeOrderNo#
+	</isNotEmpty>
+	<isNotEmpty property="orderId" prepend="AND">
+		tro.order_id = #orderId#
+	</isNotEmpty>
+	<isNotEmpty property="partnerId" prepend="AND">
+		 tro.partner_id = #partnerId#
+	</isNotEmpty>
+	<isNotNull property="startTime">
+				AND tor.CREATE_DATE >= #startTime#
+    </isNotNull>
+    <isNotNull property="endTime">
+   		<![CDATA[
+		AND tor.CREATE_DATE < #endTime#
+		]]>
+	</isNotNull>
+	<isNotEmpty property="sOrderAmount">
+		<![CDATA[
+		AND tor.order_amount >= #sOrderAmount#
+		]]>
+    </isNotEmpty>
+    <isNotEmpty property="eOrderAmount">
+   		<![CDATA[
+		AND tor.order_amount <= #eOrderAmount#
+		]]>
+    </isNotEmpty>
+	<isNotEmpty property="orderStatus" prepend="AND"> <!-- ALL 全部， [0:未付款;1:交易关闭;2:已付款;3:交易已退款;4:交易成功] -->
+	 			tor.STATUS in ($orderStatus$)
+    </isNotEmpty>
+    <isNotEmpty property="frozenStatus" prepend="AND"> <!-- 0：已解冻  1：已冻结 -->
+	 			fo.FROZEN_STATUS in ($frozenStatus$)
+    </isNotEmpty>
+    <isNotEmpty property="refuseStatus" prepend="AND"> <!-- 0：已申请 1：拒付成功 2：拒付失败 -->
+	 			rpo.REFUSE_STATUS in ($refuseStatus$)
+    </isNotEmpty>
+	 group by tro.trade_order_no,
+       tro.trade_order_no,
+       tro.order_id,
+       et.trade_url,
+       et.email,
+       tro.partner_id,
+       tro.create_date,
+       tro.order_amount,
+       te.ext_order_info_8,
+       tro.status,        
+       fo.FROZEN_STATUS,        
+       rpo.REFUSE_STATUS
+	
+	order by tro.create_date desc
+      
+      
+      
+      <include refid="ORDER_QUERY.oracle_Pagination_Tail" />
+    </select>
+    
+    <select id="selectOrderForBackGroundPage" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+	    select distinct tro.trade_order_no,
+	       tro.order_id,
+	       tro.order_amount,
+	       te.ext_order_info_8,
+	       po.payer,
+	       et.trade_url,
+	       et.email,
+	       tro.create_date,
+	       tro.status orderstatus,
+	       fo.status frozenStatus,
+	       ro.status refuseStatus,
+	       poe.card_type
+	  from trade_order      tro,
+	       trade_base       tb,
+	       payment_order    po,
+	       express_tracking et,
+	       trade_extends    te,
+	       PAYMENT_ORDER_EXPAND poe,
+	       FROZEN_ORDER fo,
+	       REFUSE_PAYMENT_ORDER ro
+	 where tro.trade_order_no = po.trade_order_no
+	   and tro.trade_base_no = tb.trade_base_no
+	   and tro.trade_order_no = te.trade_order_no
+	   and tro.trade_order_no = et.trade_order_no
+	   and po.payment_order_no=poe.payment_order_no
+	   and tro.trade_order_no=fo.trade_order_no(+)
+	   and tro.trade_order_no=ro.trade_order_no(+)
+	   and tb.trade_type='3001'
+	   and tro.status not in (0, 5, 6)
+	    <isNotEmpty property="payer" prepend="AND">
+			 po.payer= #payer#
+		</isNotEmpty>
+		<isNotEmpty property="card_type" prepend="AND">
+			 poe.card_type= #card_type#
+		</isNotEmpty>
+		<isNotEmpty property="tradeOrderNo" prepend="AND">
+			 tro.trade_order_no= #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="startTime">
+	   		<![CDATA[
+	   		AND tro.create_date >= to_date(#startTime#,'yyyy-MM-dd HH24:MI:SS')
+			]]>
+		</isNotEmpty>
+	    <isNotEmpty property="endTime">
+	   		<![CDATA[
+			AND tro.create_date < to_date(#endTime#,'yyyy-MM-dd HH24:MI:SS') + 1
+			]]>
+		</isNotEmpty>
+		<isNotEmpty property="orderId" prepend="AND">
+			 tro.order_id= #orderId#
+		</isNotEmpty>
+		<isNotEmpty property="orderStatus" prepend="AND">
+			  tro.status= #orderStatus#
+		</isNotEmpty>
+		<isNotEmpty property="refuseStatus" prepend="AND">
+			 ro.status= #refuseStatus#
+		</isNotEmpty>
+		<isNotEmpty property="frozenStatus" prepend="AND">
+			 fo.status= #frozenStatus#
+		</isNotEmpty>
+    </select>
+    
+    <select id="count_selectOrderForBackGroundPage" resultClass="java.lang.Integer" parameterClass="java.util.HashMap">
+    	select count(*) from (
+	    select distinct tro.trade_order_no,
+	       tro.order_id,
+	       tro.order_amount,
+	       te.ext_order_info_8,
+	       po.payer,
+	       et.trade_url,
+	       et.email,
+	       tro.create_date,
+	       tro.status orderstatus,
+	       fo.status frozenStatus,
+	       ro.status refuseStatus,
+	       poe.card_type
+	  from trade_order      tro,
+	       trade_base       tb,
+	       payment_order    po,
+	       express_tracking et,
+	       trade_extends    te,
+	       PAYMENT_ORDER_EXPAND poe,
+	       FROZEN_ORDER fo,
+	       REFUSE_PAYMENT_ORDER ro
+	 where tro.trade_order_no = po.trade_order_no
+	   and tro.trade_base_no = tb.trade_base_no
+	   and tro.trade_order_no = te.trade_order_no
+	   and tro.trade_order_no = et.trade_order_no
+	   and po.payment_order_no=poe.payment_order_no
+	   and tro.trade_order_no=fo.trade_order_no(+)
+	   and tro.trade_order_no=ro.trade_order_no(+)
+	   and tb.trade_type='3001'
+	   and tro.status not in (0, 5, 6)
+	    <isNotEmpty property="payer" prepend="AND">
+			 po.payer= #payer#
+		</isNotEmpty>
+		<isNotEmpty property="card_type" prepend="AND">
+			 poe.card_type= #card_type#
+		</isNotEmpty>
+		<isNotEmpty property="tradeOrderNo" prepend="AND">
+			 tro.trade_order_no= #tradeOrderNo#
+		</isNotEmpty>
+		<isNotEmpty property="startTime">
+	   		<![CDATA[
+	   		AND tro.create_date >= to_date(#startTime#,'yyyy-MM-dd HH24:MI:SS')
+			]]>
+		</isNotEmpty>
+	    <isNotEmpty property="endTime">
+	   		<![CDATA[
+			AND tro.create_date < to_date(#endTime#,'yyyy-MM-dd HH24:MI:SS') + 1
+			]]>
+		</isNotEmpty>
+		<isNotEmpty property="orderId" prepend="AND">
+			 tro.order_id= #orderId#
+		</isNotEmpty>
+		<isNotEmpty property="orderStatus" prepend="AND">
+			  tro.status= #orderStatus#
+		</isNotEmpty>
+		<isNotEmpty property="refuseStatus" prepend="AND">
+			 ro.status= #refuseStatus#
+		</isNotEmpty>
+		<isNotEmpty property="frozenStatus" prepend="AND">
+			 fo.status= #frozenStatus#
+		</isNotEmpty>
+		)
+    </select>
+    
+   	<select id="selectOrderForBackGroundDetailPage" resultClass="java.util.HashMap" parameterClass="java.util.HashMap">
+   	
+		   select distinct tro.trade_order_no, et.shipping_fullname,(et.shipping_state +et.shipping_city+et.shipping_street) address,et.shipping_phone,et.shipping_zip,et.shipping_mail,
+		   et.partner_id,po.payee_name,po.payee,
+		   tro.order_id,et.trade_url,
+		   tb.trade_type,tro.create_date,tro.update_date,tro.status orderstatus,fo.status frozenStatus,ro.status refuseStatus,tro.goods_name,tro.order_amount,te.ext_order_info_8,
+		   et.express_com,et.query_url,et.tracking_no,
+		   tro.status
+		  from trade_order      tro,
+		       trade_base       tb,
+		       payment_order    po,
+		       express_tracking et,
+		       trade_extends    te,
+		       PAYMENT_ORDER_EXPAND poe,
+		       FROZEN_ORDER fo,
+		       REFUSE_PAYMENT_ORDER ro
+		 where tro.trade_order_no = po.trade_order_no
+		   and tro.trade_base_no = tb.trade_base_no
+		   and tro.trade_order_no = te.trade_order_no
+		   and tro.trade_order_no = et.trade_order_no
+		   and po.payment_order_no=poe.payment_order_no
+		   and tro.trade_order_no=fo.trade_order_no(+)
+		   and tro.trade_order_no=ro.trade_order_no(+)
+		   and tb.trade_type='3001'
+		   and tro.status not in (0, 5, 6)   	   	
+   		 and tro.trade_order_no=#tradeOrderNo#
+   	</select>
+   	
+   	<!-- 结算对账单下载数据查询 -->
+   	<select id="querySettlementOrder" resultClass="com.pay.txncore.handler.partnerreconcile.dto.PartnerSettlementDto" parameterClass="java.util.HashMap">
+   	select
+		to_char(p.SETTLEMENT_DATE,'yyyy-MM-dd') settlementDate,
+		p.order_amount/1000 orderAmount,
+		p.currency_code currencyCode,
+		po.pay_type dealType,
+		trim(to_char(trunc(p.amount*p.SETTLEMENT_RATE/1000,3),'9999999999999999999.999')) settlementAmount,
+		p.SETTLEMENT_CURRENCY_CODE settlementCurrencyCode,
+		p.SETTLEMENT_RATE settlementRate,
+		trim(to_char(trunc(p.PER_FEE/10000,3),'9999999999999999999.999')) fee,
+		p.fixed_fee_currency fixedFeeCurrency,
+		trim(to_char(trunc(p.fixed_fee_settlement_amount/1000,3),'9999999999999999999.999')) fixedFeeSettlementAmount,
+		trim(to_char(trunc(p.ASSURE_AMOUNT*p.SETTLEMENT_RATE/1000,3),'9999999999999999999.999')) assureAmount,
+		trim(to_char(trunc(p.amount*p.SETTLEMENT_RATE/1000,3),'9999999999999999999.999')) - trim(to_char(trunc(p.PER_FEE/10000,3),'9999999999999999999.999'))-trim(to_char(trunc(p.fixed_fee_settlement_amount/1000,3),'9999999999999999999.999'))-trim(to_char(trunc(p.ASSURE_AMOUNT*p.SETTLEMENT_RATE/1000,3),'9999999999999999999.999')) amount,
+		p.order_id orderId,
+		to_char(p.trade_order_no) tradeOrderNo,
+		to_char(t.CREATE_DATE,'yyyy-MM-dd') orderTime
+		from PARTNER_SETTLEMENT_ORDER p,trade_order t,payment_order po
+		where p.trade_order_no = t.trade_order_no
+		and t.trade_order_no = po.trade_order_no
+		and p.SETTLEMENT_FLG =1
+		and p.partner_id=#memberCode#
+		and p.SETTLEMENT_DATE &gt;= to_date(#startTime#,'yyyy-MM-dd')
+		and p.SETTLEMENT_DATE &lt; to_date(#endTime#,'yyyy-MM-dd')
+		and po.PAYMENT_ORDER_NO=(select max(TT.PAYMENT_ORDER_NO) from PAYMENT_ORDER tt where po.TRADE_ORDER_NO=TT.TRADE_ORDER_NO)
+		order by p.SETTLEMENT_DATE desc
+   	</select>
+   	
+   	<!-- 风控对账单下载数据查询 -->
+   	<select id="queryRiskOrder" resultClass="com.pay.txncore.handler.partnerreconcile.dto.PartnerRiskDto" parameterClass="java.util.HashMap">
+   	select
+		to_char(r.update_date,'yyyy-MM-dd') settlementDate,
+		t.order_amount/1000 orderAmount,
+		t.currency_code currencyCode,
+		po.pay_type dealType,
+		decode(t.status,0,'未付款',1,'交易关闭',2,'交易已付款',3,'成功',4,'成功',5,'失败',6,'预授权成功',10,'预授权失败',11,'预授权完成失败',12,'预授权完成成功','进行中') status,
+		r.SETTLEMENT_CURRENCY_CODE settlementCurrencyCode,
+		trim(to_char(trunc(r.fee_amount,3),'9999999999999999999.999')) riskFee,
+		r.FEE_CURRENCY_CODE riskCurrencyCode,
+		r.exchange_rate riskRate,
+		trim(to_char(trunc(r.settlement_amount/1000,3),'9999999999999999999.999')) riskAmount,
+		t.order_id orderId,
+		to_char(t.trade_order_no) tradeOrderNo,
+		to_char(t.CREATE_DATE,'yyyy-MM-dd') orderTime
+		from risk.t_risk_order r,PARTNER_SETTLEMENT_ORDER p,trade_order t,payment_order po
+		where r.trade_order_no = p.trade_order_no(+)
+		and r.trade_order_no = po.trade_order_no(+)
+		and r.trade_order_no = t.trade_order_no(+)
+		and r.FEE_FLG = 1
+		and t.partner_id=#memberCode#
+		and r.update_date &gt;= to_date(#startTime#,'yyyy-MM-dd')
+		and r.update_date &lt; to_date(#endTime#,'yyyy-MM-dd')
+		and po.PAYMENT_ORDER_NO=(select max(TT.PAYMENT_ORDER_NO) from PAYMENT_ORDER tt where po.TRADE_ORDER_NO=TT.TRADE_ORDER_NO)
+		and r.id=(select max(rr.id) from risk.t_risk_order rr where rr.trade_order_no=r.trade_order_no)
+		order by r.update_date desc
+   	</select>
+   	
+   	<!-- 退款对账单下载数据查询 -->
+   	<select id="queryRefundOrder" resultClass="com.pay.txncore.handler.partnerreconcile.dto.PartnerRefundDto" parameterClass="java.util.HashMap">
+   		select
+		to_char(r.complate_date,'yyyy-MM-dd HH24:MI:SS') complateDate,
+		    r.refund_amount/1000 refundAmount,
+				p.order_amount/1000 orderAmount,
+				p.currency_code currencyCode,
+				po.pay_type dealType,
+		    trim(to_char(trunc((r.refund_amount*p.SETTLEMENT_RATE)/1000,3),'9999999999999999999.999')) refundSettlementAmount,
+		    p.SETTLEMENT_CURRENCY_CODE refundSettlementCurrencyCode,
+		    p.SETTLEMENT_RATE refundSettlementRate,
+		    trim(to_char(trunc(nvl((r.refund_amount/t.order_amount)*p.PER_FEE/10000,0),3),'9999999999999999999.999')) refundFee,
+		    trim(to_char(trunc((case when t.order_amount=r.refund_amount then (p.assure_Amount*p.SETTLEMENT_RATE)/1000 else 0 end),3),'9999999999999999999.999')) assureAmount,
+		    to_char( to_number(trim(to_char(trunc((r.refund_amount*p.SETTLEMENT_RATE)/1000,3),'9999999999999999999.999'))) - to_number(trim(to_char(trunc(nvl((r.refund_amount/t.order_amount)*r.payer_fee/1000,0),3),'9999999999999999999.999')))- to_number(trim(to_char(trunc((case when t.order_amount=r.refund_amount then (p.assure_Amount*p.SETTLEMENT_RATE)/1000 else 0 end),3),'9999999999999999999.999')))) amount,
+				p.order_id orderId,
+				to_char(p.trade_order_no) tradeOrderNo,
+				to_char(r.refund_order_no) refundOrderNo
+				from refund_order r,PARTNER_SETTLEMENT_ORDER p,trade_order t,payment_order po
+				where r.trade_order_no = p.trade_order_no
+				and r.payment_order_no = po.payment_order_no and p.SETTLEMENT_FLG in(1,4)
+		    and r.trade_order_no=t.trade_order_no
+		    and r.status=2
+		and p.partner_id=#memberCode#
+		and r.COMPLATE_DATE &gt;= to_date(#startTime#,'yyyy-MM-dd')
+		and r.COMPLATE_DATE &lt; to_date(#endTime#,'yyyy-MM-dd')
+		order by r.COMPLATE_DATE desc
+   	</select>
+   
+  </sqlMap>

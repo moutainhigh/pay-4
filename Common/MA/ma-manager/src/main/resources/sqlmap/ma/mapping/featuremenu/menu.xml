@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="websiteMenu">
+		<typeAlias alias="websiteMenu" type="com.pay.poss.featuremenu.model.Menu" />
+    <typeAlias alias="featuremenu" type="com.pay.poss.featuremenu.model.FeatureMenu" />
+    
+    <sql id="MENU.PAGING_START">
+       	<![CDATA[
+       	SELECT * FROM ( SELECT rownum linenum, t1.* FROM (
+       	]]>
+	</sql>
+
+	<sql id="MENU.PAGING_END">
+       	<![CDATA[
+       	  ) t1 WHERE rownum <= #pageEndRow# )
+       		 where (linenum > #pageStartRow#)
+       	]]>
+	</sql>
+	
+	<select id="genMenuId" resultClass="long">
+			select SEQ_MENU_ID.nextval as menuId from dual 
+	</select>
+	
+	
+	
+	<insert id="create" parameterClass="websiteMenu">
+			<selectKey resultClass="java.lang.Long" keyProperty="menuId">
+				select SEQ_MENU_ID.nextval as menuId 	from dual 
+    		</selectKey>
+				insert into
+				t_menu
+				(
+				MENU_ID ,
+				TYPE ,
+				HIERARCHY ,
+				PARENT_ID ,
+				ORDER_ID ,
+				NAME ,
+				URL ,
+				DESCRIPTION,
+				STATUS,
+				DISPLAY_FLAG,
+				MENU_CODE,
+				SECURITY_LEVEL
+				)
+				values
+				(
+				#menuId#,
+				#type#,
+				#hierarchy#,
+				#parentId#,
+				#orderId#,
+				#name#,
+				#url#,
+				#description#,
+				#status#,
+				#displayFlag#,
+				#menuCode#,
+				#securityLevel#
+				)
+		</insert>
+		
+		<insert id="createFeatureMenu" parameterClass="featuremenu">
+        <selectKey resultClass="java.lang.Long" keyProperty="featureMenuId">
+            select SEQ_FEATURE_MENU_ID.nextval as ID from dual 
+    </selectKey>
+        insert into
+        T_FEATURE_MENU
+        (
+				  FEATURE_MENU_ID ,
+				  FEATURE_ID   ,   
+				  MENU_ID         
+		    )
+        values
+        (
+        #featureMenuId#,
+        #featureId#,
+        #menuId#
+        )
+    </insert>
+    
+     <delete id="deleteMenuById" parameterClass="java.lang.Long">
+       DELETE FROM T_MENU WHERE MENU_ID=#VALUE#
+     </delete>
+		
+	   <delete id="deleteFeatureMenuByFeature" parameterClass="java.lang.Long">
+	     DELETE FROM T_FEATURE_MENU WHERE FEATURE_ID=#VALUE#
+	   </delete>
+	   
+	   <select id="findFmCountByFeatureId" resultClass="java.lang.Integer" parameterClass="java.lang.Long">
+	   select count(*) from T_FEATURE_MENU WHERE FEATURE_ID=#VALUE#
+	   </select>
+	
+	
+	  <sql id="selectSegement">
+      				MENU_ID as menuId,
+					TYPE as type,
+					HIERARCHY as hierarchy,
+					PARENT_ID as parentId,
+					ORDER_ID as orderId,
+					NAME as name,
+					URL as url,
+					DESCRIPTION as description,
+					STATUS as status,
+					DISPLAY_FLAG as displayFlag,
+					MENU_CODE as menuCode,
+					CREATE_DATE as  createDate,
+					UPDATE_DATE as  updateDate,
+					SECURITY_LEVEL as  securityLevel  
+					   
+	</sql>
+
+		<select id="findByParentId" resultClass="websiteMenu" parameterClass="java.util.HashMap">
+			<include refid="MENU.PAGING_START" />
+					select 
+						<include refid="selectSegement"/>
+					FROM  T_MENU                
+		        WHERE PARENT_ID=#parentId#
+		         <isNotEmpty prepend="and" property="type">
+		                TYPE = #type#
+		         </isNotEmpty>
+		         order by UPDATE_DATE desc
+	         <include refid="MENU.PAGING_END" />
+    	</select>
+    <select id="findByParentIdToSorting" resultClass="websiteMenu" parameterClass="java.util.HashMap">
+					select 
+					<include refid="selectSegement"/>
+					FROM  T_MENU                
+		        WHERE PARENT_ID=#parentId#
+		        and display_flag = 1
+		         <isNotEmpty prepend="and" property="type">
+		                TYPE = #type#
+		         </isNotEmpty>
+		         order by ORDER_ID asc,type desc
+    	</select>
+     <select id="countMenuByParentId" resultClass="java.lang.Integer" parameterClass="java.util.HashMap">
+	   select count(1)	    
+	   	FROM  T_MENU           
+        	WHERE PARENT_ID=#parentId#
+         <isNotEmpty prepend="and" property="type">
+                TYPE = #type#
+         </isNotEmpty>
+	   </select>
+    
+    
+    <select id="findAll" resultClass="websiteMenu" parameterClass="java.lang.Long">
+        select 
+       <include refid="selectSegement"/>
+        FROM  T_MENU                
+        order by UPDATE_DATE desc
+    </select>
+    
+     <select id="findAllMenuByType" resultClass="websiteMenu" parameterClass="java.lang.Integer">
+        select 
+       <include refid="selectSegement"/>
+        FROM  T_MENU       
+        where type = #intType#         
+        order by UPDATE_DATE desc
+    </select>
+    
+      <select id="findMenuByFeatureId" resultClass="com.pay.poss.featuremenu.model.Menu" parameterClass="java.lang.Long">
+        select
+         <include refid="selectSegement"/>
+        FROM  T_MENU
+        WHERE 
+        MENU_ID  IN
+        (SELECT MENU_ID FROM T_FEATURE_MENU WHERE FEATURE_ID=#VALUE#)   
+        order by ORDER_ID asc
+       </select>
+       
+       
+         <select id="findMenuByIdsArray" resultClass="com.pay.poss.featuremenu.model.Menu" parameterClass="java.util.HashMap">
+         
+            select
+      <include refid="selectSegement"/>
+        FROM  T_MENU
+        WHERE 
+       DISPLAY_FLAG=1 AND MENU_ID  IN
+        
+        <iterate property="ids"  conjunction="," close=")" open="(">
+            #ids[]#
+       </iterate>
+               order by ORDER_ID asc
+         </select>
+           
+ 
+     
+       
+       
+    <select id="getByMenuId" resultClass="websiteMenu" parameterClass="java.lang.Long">
+        select 
+       <include refid="selectSegement"/>
+        FROM  T_MENU                
+        WHERE MENU_ID=#VALUE#
+    </select>
+		
+
+		<update id="updateMenuStates" parameterClass="java.util.Map">
+				update
+				T_MENU
+				set
+				status = #status#
+				where
+				MENU_ID = #menuId#
+		</update>
+		
+		<update id="update" parameterClass="websiteMenu">
+				update
+				T_MENU
+				set
+				<isNotNull property="parentId">
+					PARENT_ID = #parentId#,
+				</isNotNull>
+				<isNotNull property="orderId">
+				ORDER_ID=#orderId#,
+				</isNotNull>
+				<isNotNull property="hiddenType">
+				type=#hiddenType#,
+				</isNotNull>
+				HIERARCHY=#hierarchy#,
+				<isNotNull property="name">
+				NAME=#name#,
+				</isNotNull>
+				<isNotNull property="url">
+				URL=#url#,
+				</isNotNull>
+				<isNotNull property="description">
+				DESCRIPTION=#description#,
+				</isNotNull>
+				<isNotNull property="status">
+				STATUS = #status#,
+				</isNotNull>
+				<isNotNull property="displayFlag">
+				DISPLAY_FLAG = #displayFlag#,
+				</isNotNull>
+				<isNotNull property="menuCode">
+				MENU_CODE = #menuCode#,
+				</isNotNull>
+				<isNotEmpty property="securityLevel">
+				SECURITY_LEVEL = #securityLevel#,
+				</isNotEmpty>
+				UPDATE_DATE = sysdate
+				where
+				MENU_ID = #menuId#
+		</update>
+		
+		<update id="updateSorting" parameterClass="websiteMenu">
+		    update
+        T_MENU
+        set
+        ORDER_ID=#orderId#,
+       UPDATE_DATE = sysdate
+        where
+        MENU_ID = #menuId#
+		</update>
+		
+		<delete id="deleteByMenuId" parameterClass="long">
+		    delete from T_MENU
+	        where
+	        MENU_ID = #menuId#
+		</delete>
+		
+		<select  id="countMenuCode" resultClass="int" parameterClass="map">
+		   select count(*) as cout
+	        from  T_MENU
+	        where 
+	        MENU_code = #menuCode#
+			<isNotEmpty property="menuId">
+				and MENU_id != #menuId#
+			</isNotEmpty>	        
+		</select>
+		
+		<select  id="queryTreeMenu" resultClass="websiteMenu" parameterClass="map">
+		 	 select 
+				<include refid="selectSegement"/>,
+			level
+			FROM  T_MENU t                 
+		       Start with PARENT_ID = #parentId#
+			　　Connect by prior menu_id = PARENT_ID   
+		</select>
+	
+		<insert id="copyMenu" parameterClass="com.pay.poss.featuremenu.model.CopyMenu">
+			insert into t_menu
+	        (
+	        MENU_ID ,
+	        TYPE ,
+	        HIERARCHY ,
+	        PARENT_ID ,
+	        ORDER_ID ,
+	        NAME ,
+	        URL ,
+	        DESCRIPTION,
+	        STATUS,
+	        DISPLAY_FLAG,
+	        MENU_CODE,
+	        SECURITY_LEVEL
+					)
+			select 
+			 #menuId# ,
+	        #type# ,
+	        HIERARCHY ,
+	        #parentId# ,
+	        ORDER_ID ,
+	        NAME ,
+	        URL ,
+	        DESCRIPTION,
+	        STATUS,
+	        DISPLAY_FLAG,
+	        SECURITY_LEVEL,
+	       MENU_CODE||'_'||to_char(#menuId#)
+	         from t_menu 
+				where MENU_ID = #srcMenuId#
+		</insert>	
+			<select id="existsFatherAndSon" parameterClass="websiteMenu" resultClass="int">
+				select count(1) from t_menu t where  t.menu_id = #menuId# and t.parent_id = #parentId# 
+			</select>
+			
+			<update id="updateSecurityLevel" parameterClass="map">
+		  update t_menu set SECURITY_LEVEL = #securityLevel#
+				where menu_id in
+			<iterate property="menuIds" open="(" close=")" conjunction=",">
+  				 $menuIds[]$
+       		</iterate>
+
+				
+		</update>
+			
+			
+</sqlMap>

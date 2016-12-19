@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="autofundoutconfig">
+	<typeAlias alias="autoFundoutConfig"
+		type="com.pay.fundout.autofundout.custom.model.AutoFundoutConfig" />
+	<resultMap id="autoFundoutConfig"
+		class="com.pay.fundout.autofundout.custom.model.AutoFundoutConfig">
+		<result column="SEQUENCEID" property="sequenceid" jdbcType="DECIMAL" />
+		<result column="RETAINED_AMOUNT" property="retainedAmount"
+			jdbcType="DECIMAL" />
+		<result column="BANK_ACC_CODE" property="bankAccCode" jdbcType="VARCHAR" />
+		<result column="REMARK" property="remark" jdbcType="VARCHAR" />
+		<result column="STATUS" property="status" jdbcType="DECIMAL" />
+		<result column="MEMBER_TYPE" property="memberType" jdbcType="DECIMAL" />
+		<result column="BANK_NAME" property="bankName" jdbcType="VARCHAR" />
+		<result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+		<result column="BANK_CODE" property="bankCode" jdbcType="VARCHAR" />
+		<result column="CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+		<result column="BUSI_TYPE" property="busiType" jdbcType="DECIMAL" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+		<result column="AUTO_TYPE" property="autoType" jdbcType="DECIMAL" />
+		<result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL" />
+		<result column="UPDATE_USER" property="updateUser" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<sql id="Column_List">
+		SEQUENCEID,RETAINED_AMOUNT,BANK_ACC_CODE,REMARK,STATUS,
+		MEMBER_TYPE,BANK_NAME,UPDATE_DATE,BANK_CODE,CREATE_USER,
+		BUSI_TYPE,CREATE_DATE,AUTO_TYPE,MEMBER_CODE,UPDATE_USER
+		
+    </sql>
+	<insert id="create" parameterClass="autoFundoutConfig">
+		<selectKey resultClass="java.lang.Long" keyProperty="sequenceid">
+			SELECT SEQ_AUTO_FUNDOUT_CONFIG.nextval AS SEQUENCE_ID FROM DUAL
+		</selectKey>
+		INSERT INTO AUTO_FUNDOUT_CONFIG(
+		SEQUENCEID,RETAINED_AMOUNT,BANK_ACC_CODE,REMARK,STATUS,
+		MEMBER_TYPE,BANK_NAME,UPDATE_DATE,BANK_CODE,CREATE_USER,
+		BUSI_TYPE,CREATE_DATE,AUTO_TYPE,MEMBER_CODE
+
+		)
+		VALUES(
+		#sequenceid#,#retainedAmount#,#bankAccCode#,#remark#,0,
+		#memberType#,#bankName#,sysdate,#bankCode#,#createUser#,
+		#busiType#,sysdate,#autoType#,#memberCode#
+
+		)
+	</insert>
+	<update id="update" parameterClass="autoFundoutConfig">
+		UPDATE auto_fundout_config
+		set update_date=sysdate
+		<dynamic>
+			<isNotNull prepend="," property="retainedAmount">
+				RETAINED_AMOUNT = #retainedAmount#
+	        </isNotNull>
+			<isNotNull prepend="," property="bankAccCode">
+				BANK_ACC_CODE = #bankAccCode#
+	        </isNotNull>
+			<isNotNull prepend="," property="remark">
+				REMARK = #remark#
+	        </isNotNull>
+			<isNotNull prepend="," property="status">
+				STATUS = #status#
+	        </isNotNull>
+			<isNotNull prepend="," property="bankName">
+				BANK_NAME = #bankName#
+	        </isNotNull>
+			<isNotNull prepend="," property="bankCode">
+				BANK_CODE = #bankCode#
+	        </isNotNull>
+			<isNotNull prepend="," property="busiType">
+				BUSI_TYPE = #busiType#
+	        </isNotNull>
+			<isNotNull prepend="," property="autoType">
+				AUTO_TYPE = #autoType#
+	        </isNotNull>
+			<isNotNull prepend="," property="updateUser">
+				UPDATE_USER = #updateUser#
+	        </isNotNull>
+		</dynamic>
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="sequenceid">
+				SEQUENCEID = #sequenceid# 
+            </isNotNull>
+		</dynamic>
+	</update>
+	<update id="disable" parameterClass="java.lang.Long">
+		UPDATE AUTO_FUNDOUT_CONFIG
+		set status=1,
+		UPDATE_DATE=sysdate
+		where sequenceid=#sequenceid# 
+    </update>
+	<select id="findByMemberCodeAndBankCard" parameterClass="autoFundoutConfig"
+		resultClass="int">
+		SELECT COUNT(1) FROM AUTO_FUNDOUT_CONFIG
+		WHERE MEMBER_TYPE =2 and MEMBER_CODE = #memberCode#
+		and status=0 AND BANK_CODE = #bankCode# and BANK_ACC_CODE = #bankAccCode#
+    </select>
+	<select id="findType" parameterClass="java.lang.Long"
+		resultClass="integer">
+		SELECT auto_type FROM AUTO_FUNDOUT_CONFIG
+		WHERE MEMBER_TYPE =2 and MEMBER_CODE = #memberCode#
+		and status=0
+    </select>
+    
+    
+    <select id="findByMemberCode" parameterClass="java.lang.Long"
+		resultMap="autoFundoutConfig">
+		SELECT * FROM AUTO_FUNDOUT_CONFIG
+		WHERE MEMBER_TYPE =2 and MEMBER_CODE = #memberCode#
+		and status=0
+    </select>
+    
+</sqlMap>

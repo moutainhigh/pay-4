@@ -1,0 +1,69 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="txncoreService" class="com.pay.forpay.hessian.HessianService">
+		<property name="eventHandlerMap" ref="eventHandlerMap" />
+	</bean>
+
+	<bean id="eventHandlerMap" class="java.util.HashMap">
+		<constructor-arg>
+			<map>
+				<entry key="30100" value-ref="testHandler" />
+				<entry key="90101" value-ref="taskRecurringHandler" /><!-- 定义任务跑的循环扣款 -->
+				<entry key="90102" value-ref="recurringHandler" /><!-- 循环扣款取消的接口 -->
+				<entry key="90201" value-ref="exceptionCardStatisticsHandler" />
+				<entry key="trade.email.notify" value-ref="tradeEmailNotifyHandler" /><!-- 定时任务商户订单邮件通知 add by davis.guo at 2016-09-02 -->
+			</map>
+		</constructor-arg>
+	</bean>
+
+
+
+	<bean id="testHandler"
+		class="com.pay.recurring.handler.TestHandler">
+	</bean>
+	
+	<bean id="taskRecurringHandler"
+		class="com.pay.recurring.handler.TaskRecurringHandler">
+		<property name="taskRecurringService" ref="taskRecurringService" />
+		<property name="txncoreClientService" ref="txncoreClientService" />
+			<property name="jmsSender" ref="jmsSender"/>
+	</bean>
+	
+	<bean id="recurringHandler"
+		class="com.pay.recurring.handler.RecurringHandler">
+		<property name="recurringDao" ref="recurringDao" />
+	</bean>
+	
+	<bean id="exceptionCardStatisticsHandler" class="com.pay.exception.handler.ExceptionCardStatisticsHandler">
+		<property name="exceptionCardService" ref="exceptionCardService" />
+		<property name="jmsSender" ref="jmsSender" />	
+	</bean>
+	
+	<!-- 定时任务商户订单邮件通知 add by davis.guo at 2016-09-02 -->
+	<bean id="notifyTemplateService"
+		class="com.pay.notify.service.impl.NotifyTemplateServiceImpl">
+		<property name="notifyTemplateDAO" ref="notifyTemplateDAO" />
+	</bean>
+	
+	<bean id="orderCoreService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${order.txncoreUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+	
+	<bean id="tradeEmailNotifyHandler" class="com.pay.notify.handler.TradeEmailNotifyHandler">
+		<property name="notifyTemplateService" ref="notifyTemplateService" />
+		<property name="orderCenterInvokeService" ref="orderCoreService" />
+		<property name="jmsSender" ref="jmsSender" />
+	</bean>
+	<!--  add by davis.guo end -->
+	
+</beans>

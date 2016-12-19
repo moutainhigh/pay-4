@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="advertisement">
+
+<typeAlias alias="advertisement" type="com.pay.base.model.Advertisement" />
+
+
+    <insert id="create" parameterClass="advertisement">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_ADVERTISEMENT_ID.nextval as id from dual 
+    	</selectKey>
+        insert into 
+        	T_ADVERTISEMENT 
+        	(
+	        	ID, 
+	        	AVAILABLE, 
+	        	ADVTYPE, 
+	        	SORT, 
+	        	TITLE, 
+	        	TARGETS, 
+	        	PARAMETERS, 
+	        	CODE,
+	            STARTTIME, 
+	            ENDTIME, 
+	            REMARK, 
+	            IMGPATH
+            )
+        	values 
+        	(
+	        	#id#, 
+	        	#available#, 
+	        	#advtype#, 
+	        	#sort#, 
+	        	#title#, 
+	        	#targets#, 
+	        	#parameters:VARCHAR:NULL#, 
+	        	#code:VARCHAR:NULL#,
+	            sysdate, 
+	            sysdate, 
+	            #remark:VARCHAR:NULL#, 
+	            #imgpath:VARCHAR:NULL#
+            )
+    </insert>
+    
+    <select id="findById" resultClass="advertisement" parameterClass="java.lang.Long">
+        select ID, AVAILABLE, ADVTYPE, SORT, TITLE, TARGETS, PARAMETERS, CODE, STARTTIME, ENDTIME,
+            REMARK, IMGPATH
+        from 
+        	T_ADVERTISEMENT
+        where 
+        	ID = #id#
+    </select>
+    
+    <select id="queryAdvertiseListByTargets" resultClass="advertisement" parameterClass="java.lang.Integer">
+        select 
+        	ID, 
+        	AVAILABLE, 
+        	ADVTYPE, 
+        	SORT, 
+        	TITLE, 
+        	TARGETS, 
+        	PARAMETERS, 
+        	CODE, 
+        	STARTTIME, 
+        	ENDTIME,
+            REMARK, 
+            IMGPATH
+        from 
+        	T_ADVERTISEMENT
+        where 
+        	TARGETS = #targets#
+        order by SORT asc
+    </select>
+    
+    <select id="queryAdvertiseListByTargetsAvail" resultClass="advertisement" parameterClass="java.util.Map">
+        select 
+        	ID, 
+        	AVAILABLE, 
+        	ADVTYPE, 
+        	SORT, 
+        	TITLE, 
+        	TARGETS, 
+        	PARAMETERS, 
+        	CODE, 
+        	STARTTIME, 
+        	ENDTIME,
+            REMARK, 
+            IMGPATH
+        from 
+        	T_ADVERTISEMENT
+        where 
+        	TARGETS = #targets#
+        and
+        	AVAILABLE = #available#
+        order by SORT asc
+    </select>
+    
+    <select id="getCountByLocation" resultClass="java.lang.Integer" parameterClass="java.lang.Integer">
+        select count(ID)
+        from 
+        	T_ADVERTISEMENT
+        where 
+        	TARGETS = #targets#
+    </select>
+    
+    <update id="update" parameterClass="advertisement">
+        update T_ADVERTISEMENT
+        <dynamic prepend="set">
+        	ENDTIME	 	= sysdate,
+            <isNotNull prepend="," property="available">       
+           		AVAILABLE = #available#
+           	</isNotNull>
+           	<isNotNull prepend="," property="advtype">       
+           		ADVTYPE = #advtype#
+           	</isNotNull>
+           	<isNotNull prepend="," property="sort">       
+           		SORT = #sort#
+           	</isNotNull>
+           	<isNotNull prepend="," property="title">       
+           		TITLE = #title#
+           	</isNotNull>
+           	<isNotNull prepend="," property="parameters">       
+           		PARAMETERS = #parameters#
+           	</isNotNull>
+           	<isNotNull prepend="," property="code">       
+           		CODE = #code#
+           	</isNotNull>
+           	<isNotNull prepend="," property="remark">       
+           		REMARK = #remark#
+           	</isNotNull>
+           	<isNotNull prepend="," property="imgpath">       
+           		IMGPATH = #imgpath#
+           	</isNotNull>
+           	</dynamic>
+        where 
+        	ID = #id#
+    </update>
+    
+    
+    <delete id="delete" parameterClass="java.lang.Long">
+        delete 
+        	 T_ADVERTISEMENT
+        where 
+        	ID = #id#
+    </delete>
+    
+    <update id="updateSortById" parameterClass="java.util.Map">
+        update T_ADVERTISEMENT
+        set 
+            SORT 		= #sort#,
+            ENDTIME	 	= sysdate
+        where 
+        	ID = #id#
+    </update>
+    <select id="queryAdvertisetByLocSort" resultClass="advertisement" parameterClass="java.util.Map">
+        select 
+        	ID, 
+        	AVAILABLE, 
+        	ADVTYPE, 
+        	SORT, 
+        	TITLE, 
+        	TARGETS, 
+        	PARAMETERS, 
+        	CODE, 
+        	STARTTIME, 
+        	ENDTIME,
+            REMARK, 
+            IMGPATH
+        from 
+        	T_ADVERTISEMENT
+        where 
+        	TARGETS = #location#
+          and
+          	SORT 	= #sort#
+    </select>    
+    
+    
+</sqlMap>

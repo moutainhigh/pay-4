@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 银企直联SQLMAp配置 -->
+
+<sqlMap namespace="BANKCORPORATEEXPRESS">
+
+	<typeAlias alias="bankCorporateExpressReqDTO" type="com.pay.fundout.withdraw.dto.bankcorporateexpress.BankCorporateExpressReqDTO" />
+	<typeAlias alias="bankCorporateExpressResDTO" type="com.pay.fundout.withdraw.dto.bankcorporateexpress.BankCorporateExpressResDTO" />
+	
+	<select id="bankCorporateExpressFailQuery" parameterClass="bankCorporateExpressReqDTO" resultClass="bankCorporateExpressResDTO">
+       SELECT
+       		b.workorder_ky				as 		workOrderky,
+       		a.ORDER_ID	 				as 		sequenceId,
+       		a.PAYER_MEMBERCODE 			as 		memberCode,
+       		a.PAYER_NAME				as		memberName,
+       		a.PAYEE_BANKCODE			as		bankCode,
+       		a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+       		a.PAYEE_BANKACCTCODE		as 		bankAcct,
+       		a.order_amount				as 		amount,
+       		a.PAYEE_NAME 				as 		accountName,
+       		a.PAYMENT_REASON			as		orderRemarks,
+       	    b.status 					as 		status,
+       	    b.AUDITFAILING_REASON		as		failReason
+	  FROM FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  WHERE
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID = c.ORDER_ID(+)
+	  	   AND a.FUNDOUT_MODE = 0
+	  	   AND b.BATCH_STATUS = 0
+	  	  <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="tradeType" prepend="AND">
+		   		a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.order_id = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberName" prepend="AND">
+		   		a.PAYER_NAME like #memberName#         
+		   </isNotEmpty>
+		   <isNotEmpty property="status" prepend="AND">
+		   		b.status = #status#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+  	</select>
+  	
+  	<select id="bankCorporateExpressFailQuery_COUNT" resultClass="java.lang.Integer" parameterClass="bankCorporateExpressReqDTO">
+	SELECT
+       		COUNT(*)
+	  FROM FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  WHERE
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID = c.ORDER_ID(+)
+	  	   AND a.FUNDOUT_MODE = 0
+	  	   AND b.BATCH_STATUS = 0
+	  	  <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="tradeType" prepend="AND">
+		   		a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.order_id = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberName" prepend="AND">
+		   		a.PAYER_NAME like #memberName#         
+		   </isNotEmpty>
+		   <isNotEmpty property="status" prepend="AND">
+		   		b.status = #status#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+    </select>
+    
+    
+    <select id="bankCorporateExpressReAuditQuery" parameterClass="bankCorporateExpressReqDTO" resultClass="bankCorporateExpressResDTO">
+       SELECT
+       		b.workorder_ky				as 		workOrderky,
+       		a.ORDER_ID	 				as 		sequenceId,
+       		a.PAYER_MEMBERCODE 			as 		memberCode,
+       		a.PAYER_NAME				as		memberName,
+       		a.PAYEE_BANKCODE			as		bankCode,
+       		a.PAYEE_OPENINGBANKNAME		as		bankBranch,
+       		a.PAYEE_BANKACCTCODE		as 		bankAcct,
+       		a.order_amount				as 		amount,
+       		a.PAYEE_NAME 				as 		accountName,
+       		a.PAYMENT_REASON			as		orderRemarks,
+       	    b.status 					as 		status,
+       	    b.AUDITFAILING_REASON		as		failReason
+	  FROM FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  WHERE
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID = c.ORDER_ID(+)
+	  	   AND a.FUNDOUT_MODE = 0
+	  	   AND b.BATCH_STATUS = 0
+	  	  <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="tradeType" prepend="AND">
+		   		a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.order_id = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberName" prepend="AND">
+		   		a.PAYER_NAME like #memberName#         
+		   </isNotEmpty>
+		   <isNotEmpty property="status" prepend="AND">
+		   		b.status = #status#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+		   ORDER BY a.CREATE_DATE DESC
+  	</select>
+  	
+  	<select id="bankCorporateExpressReAuditQuery_COUNT" resultClass="java.lang.Integer" parameterClass="bankCorporateExpressReqDTO">
+	SELECT
+       		COUNT(*)
+	  FROM FUNDOUT_ORDER a, withdraw_workorder b , BATCH_PAYMENTORDER c
+	  WHERE
+	  	   b.order_seq = a.order_id
+	  	   AND a.PARENT_ORDERID = c.ORDER_ID(+)
+	  	   AND a.FUNDOUT_MODE = 0
+	  	   AND b.BATCH_STATUS = 0
+	  	  <isNotEmpty property="startDate" prepend="AND">
+		   		 <![CDATA[  b.create_time >= #startDate# ]]>
+		  </isNotEmpty>
+		  <isNotEmpty property="endDate" prepend="AND">
+		   		 <![CDATA[  b.create_time <= #endDate#]]>
+		   </isNotEmpty>
+		   <isNotEmpty property="tradeType" prepend="AND">
+		   		a.TRADE_TYPE = #tradeType#
+		   </isNotEmpty>
+	  	   <isNotEmpty property="sequenceId" prepend="AND">
+		   		a.order_id = #sequenceId#
+		   </isNotEmpty>
+		   <isNotEmpty property="memberCode" prepend="AND">
+		   		a.PAYER_MEMBERCODE = #memberCode#         
+		   </isNotEmpty>
+		   <isNotEmpty property="memberName" prepend="AND">
+		   		a.PAYER_NAME like #memberName#         
+		   </isNotEmpty>
+		   <isNotEmpty property="status" prepend="AND">
+		   		b.status = #status#
+		   </isNotEmpty>
+		   <isNotEmpty property="bankKy" prepend="AND">
+		   		a.PAYEE_BANKCODE = #bankKy#
+		   </isNotEmpty>
+    </select>
+    
+    <!--  更新工单 -->
+    <update id="auditUpdate" parameterClass="BankCorporateExpressResDTO">
+        UPDATE 
+        	WITHDRAW_WORKORDER a
+        set 
+			a.update_time = sysdate
+			<isNotEmpty property="status"  prepend=",">
+        			a.status = #status#
+        	</isNotEmpty>
+    	WHERE a.status != #status#
+          and a.workorder_ky = #workOrderky#
+    </update>
+    
+</sqlMap>

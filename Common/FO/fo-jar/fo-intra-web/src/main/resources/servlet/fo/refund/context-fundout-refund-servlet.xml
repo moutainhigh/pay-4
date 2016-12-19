@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/refund.manage.do">refundManageController</prop>
+				<prop key="/refund.manage.download.do">refundManageController</prop>
+				<prop key="/refund.reaudit.do">refundReAuditController</prop>
+				<prop key="/refund.reaudit.download.do">refundReAuditController</prop>
+			</props>
+		</property>
+	</bean>
+	<!-- 充退管理相关操作 -->
+	<bean id="refundManageController" class="com.pay.fo.controller.refund.RefundManageController" parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="refundManageService">
+			<ref bean="refundManageService"/>
+		</property>
+		<property name="operatorPoiInterface">
+			<ref bean="auditInfoExcel"/>
+		</property>
+		<property name="bankInfoService">
+			<ref bean="fundout-refund-bankInfoFacadeService" />
+		</property>
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="urlMap">
+			<map>
+				<entry key="applyInit" value="/refund/applyInit" />
+				<entry key="applyList" value="/refund/applyList" />
+				<entry key="repeatInit" value="/refund/repeat/applyInit" />
+				<entry key="repeatList" value="/refund/repeat/applyList" />
+				<entry key="auditInit" value="/refund/auditInit" />
+				<entry key="auditList" value="/refund/auditList" />
+				<entry key="auditDetail" value="/refund/auditDetail" />
+				<entry key="assignTaskInit" value="/refund/queryAssignTask"/>
+				<entry key="assignTaskList" value="/refund/assignTaskResult"/>
+				<entry key="assignTaskSuccess" value="/refund/assignTaskSuccess"/>
+				<entry key="transmitTaskResult" value="/refund/transmitTaskResult"/>
+			</map>
+		</property>
+	</bean>
+	
+	<bean name="/refund.file.do" class="com.pay.fo.controller.refund.FileProcessController" parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="refundFileService">
+			<ref bean="refundFileService"/>
+		</property>
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" /> 
+		<property name="urlMap">
+			<map>
+				<entry key="batchInit" value="/refund/batchInit" />
+				<entry key="batchList" value="/refund/batchList" />
+				<entry key="fileInit" value="/refund/fileInit" />
+				<entry key="fileList" value="/refund/fileList" />
+				<entry key="fileDetailInit" value="/refund/fileDetailInit" />
+				<entry key="fileDetailList" value="/refund/fileDetailList" />
+				<entry key="fileUpload" value="/refund/fileUpload" />
+				<entry key="resultInit" value="/refund/resultInit" />
+				<entry key="resultMatchOk" value="/refund/resultMatchOkList" />
+				<entry key="resultMatchFail" value="/refund/resultMatchFailList" />
+				<entry key="resultMatchProcessing" value="/refund/resultMatchProcessingList" />
+				<entry key="resultDisMatch" value="/refund/resultDisMatchList" />
+				<entry key="importedFileInit" value="/refund/importedFileInit" />
+				<entry key="importedFileList" value="/refund/importedFileList" />
+				<entry key="fileResult" value="/refund/fileResult" />
+				<entry key="fileConfirm" value="/refund/fileConfirm" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean name="/refund.handwork.do" class="com.pay.fo.controller.refund.RefundHandworkController" parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="refundHandworkService">
+			<ref bean="refundHandworkService"/>
+		</property> 
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="urlMap">
+			<map>
+				<entry key="handworkbatchInit" value="/refund/handworkbatch/handworkbatchInit" />
+				<entry key="handworkbatchList" value="/refund/handworkbatch/handworkbatchList" />
+				<entry key="handworkbatchSuccess" value="/refund/handworkbatch/handworkbatchsuccessmsg" />
+			</map>
+		</property>
+	</bean>
+	
+	<bean name="/refund.processresult.do" class="com.pay.fo.controller.refund.RefundProcessResultController" parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="refundHandworkService">
+			<ref bean="refundHandworkService"/>
+		</property> 
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="urlMap">
+			<map>
+				<entry key="processresultInit" value="/refund/processresult/processresultInit" />
+				<entry key="processresultList" value="/refund/processresult/processresultList" />
+				<entry key="checkprocessresultInit" value="/refund/processresult/checkprocessresultInit" />
+				<entry key="checkprocessresultList" value="/refund/processresult/checkprocessresultList" />
+				<entry key="assignTaskSuccess" value="/refund/assignTaskSuccess"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- add jason_wang -->
+	<bean id="refundReAuditController" class="com.pay.fo.controller.refund.RefundReAuditController" parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="refundManageService">
+			<ref bean="refundManageService"/>
+		</property>
+		<property name="operatorPoiInterface">
+			<ref bean="reAuditInfoExcel"/>
+		</property>
+		<property name="bankInfoService">
+			<ref bean="fundout-refund-bankInfoFacadeService" />
+		</property>
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="urlMap">
+			<map>
+				<entry key="refundReAuditInit" value="/refund/reAuditInit" />
+				<entry key="refundReAuditList" value="/refund/reAuditList" />
+				<entry key="refundReAuditDetail" value="/refund/reAuditDetail" />
+				<entry key="assignTaskSuccess" value="/refund/assignTaskSuccess"/>
+			</map>
+		</property>
+	</bean>
+	
+	<bean name="/refund.liquidate.do" class="com.pay.fo.controller.refund.RefundLiquidateController" parent="abstractBaseController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="refundManageService">
+			<ref bean="refundManageService"/>
+		</property>
+		<property name="bankInfoService">
+			<ref bean="fundout-refund-bankInfoFacadeService" />
+		</property>
+		<property name="bankFacadeService" ref="fundout-withdraw-bankInfoFacadeService" />
+		<property name="urlMap">
+			<map>
+				<entry key="refundLiquidateInit" value="/refund/liquidateInit" />
+				<entry key="refundLiquidateList" value="/refund/liquidateList" />
+				<entry key="refundLiquidateDetail" value="/refund/liquidateDetail" />
+				<entry key="assignTaskSuccess" value="/refund/assignTaskSuccess"/>
+			</map>
+		</property>
+	</bean>
+	<!-- end jason_wang -->
+</beans>
+
+

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="ma-blackchecklist">
+	
+	<typeAlias alias="blackChecklistDTO" type="com.pay.rm.blacklistcheck.dto.BlackChecklistDTO" />
+   
+	
+	<insert id="insert" parameterClass="blackChecklistDTO">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select seq_black_check_list_id.nextval from dual
+		</selectKey>
+		insert into	t_black_check_list
+		(id,member_code ,business_type_id  ,status ,create_date,update_date,CONTENT,TRADE_ORDER_NOS)
+		values(#id#,#memberCode#,#businessTypeId#,#status#,sysdate,sysdate,#content#,#tradeOrderNos#)
+	</insert>
+	
+	
+	
+	<select id="queryBlacklistCheck" parameterClass="java.util.Map" resultClass="blackChecklistDTO">
+		SELECT  
+				ID,
+				MEMBER_CODE memberCode，
+				BUSINESS_TYPE_ID businessTypeId，
+				CONTENT  ，
+				TRADE_ORDER_NOS tradeOrderNos，
+				STATUS，
+				CREATE_DATE  createDate，
+				UPDATE_DATE updateDate
+		FROM 
+			t_black_check_list
+		WHERE  1=1
+			<isNotEmpty prepend="and" property="memberCode">
+          			  MEMBER_CODE = #memberCode#
+        	</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+          			  STATUS = #status#
+        	</isNotEmpty>
+			<isNotEmpty prepend="and" property="businessTypeId">
+          			  BUSINESS_TYPE_ID = #businessTypeId#
+        	</isNotEmpty>
+			<isNotEmpty prepend="and" property="ids">
+          			  id in($ids$)
+        	</isNotEmpty>
+        	<isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+	         CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+		order by create_date desc 	
+	</select>
+	
+	<select id="queryBlacklistCheck_COUNT" parameterClass="java.util.Map" resultClass="java.lang.Integer">
+		SELECT  
+			count(1)
+		FROM 
+			t_black_check_list	
+		WHERE  1=1
+			<isNotEmpty prepend="and" property="memberCode">
+          			  MEMBER_CODE = #memberCode#
+        	</isNotEmpty>
+			<isNotEmpty prepend="and" property="status">
+          			  STATUS = #status#
+        	</isNotEmpty>
+			<isNotEmpty prepend="and" property="businessTypeId">
+          			  BUSINESS_TYPE_ID = #businessTypeId#
+        	</isNotEmpty>
+        		<isNotEmpty prepend="and" property="ids">
+          			  id in($ids$)
+        	</isNotEmpty>
+        	<isNotEmpty prepend="AND" property="startTime">
+			CREATE_DATE <![CDATA[>=]]> to_date(#startTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="endTime">
+	         CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+			</isNotEmpty>
+	</select>
+	
+		<update id="update" parameterClass="blackChecklistDTO" >
+			update t_black_check_list set status = #status#
+			where  id  in($ids$)
+		</update>
+	
+</sqlMap>
+

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="creditFilter">
+	<typeAlias alias="creditFilter" type="com.pay.txncore.model.CreditFilter" />
+	<resultMap id="creditFilter" class="com.pay.txncore.model.CreditFilter">
+		<result column="ID" property="id" jdbcType="DECIMAL" />
+		<result column="CONTENT" property="content" jdbcType="VARCHAR" />
+		<result column="TYPE" property="type" jdbcType="VARCHAR" />
+		<result column="ORDER_ID" property="orderId" jdbcType="VARCHAR" />
+		<result column="CREATE_DATE" property="createDate" jdbcType="VARCHAR" />
+		<result column="CP_TYPE" property="cpType" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="filterBalanceMap" class="com.pay.txncore.model.CreditFilter">
+		<result column="BALANCE" property="balance" jdbcType="DECIMAL" />
+		<result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR" />
+		<result column="CUR_CODE" property="curCode" jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="filterBouncedMap" class="com.pay.txncore.model.CreditFilter">
+		<result column="BOUNCED_RATE" property="bouncedRate" jdbcType="DECIMAL" />
+		<result column="MEMBER_CODE" property="memberCode" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<insert id="create" parameterClass="creditFilter">
+	<selectKey resultClass="java.lang.Long" keyProperty="id">
+		SELECT	20 || TO_CHAR(SYSDATE, 'yymmddhh24mi')	||LPAD(SEQ_DEPOSIT_PROTOCOL_NO.nextval, 7, 0) FROM DUAL
+	</selectKey>
+	 	INSERT INTO credit_filter(
+			ID,CONTENT,TYPE,ORDER_ID,CREATE_DATE,CP_TYPE
+        )
+        VALUES(
+            #id#,#content#,#type:CHAR#,#orderId#,#createDate:TIMESTAMP#,#cpType#
+		)
+	</insert>
+	<select id="queryCreditFilterMaxDate" resultClass="String">
+    select max(to_char(CREATE_DATE, 'yyyyMMdd')) from credit_filter
+    </select>
+	<select id="queryBatchStatus" resultClass="String" parameterClass="java.util.HashMap">
+    select status from BATCH_CHECK
+    where 1=1
+     <isNotNull prepend="AND" property="batchType">
+            BATCH_TYPE = #batchType# 
+    </isNotNull>
+    </select>
+     <update id="update" parameterClass="java.util.HashMap">
+        UPDATE BATCH_CHECK
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="status">
+            status = #status#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="batchType">
+            BATCH_TYPE = #batchType# 
+    	</isNotNull>
+        </dynamic>
+    </update>
+	<select id="queryCreditFilterList" parameterClass="creditFilter" resultMap="creditFilter">
+    select ID,CONTENT,TYPE,ORDER_ID,CREATE_DATE,CP_TYPE from credit_filter
+    where 1=1
+      <isNotNull prepend="AND" property="type">
+            TYPE = #type# 
+      </isNotNull>
+      <isNotNull prepend="AND" property="content">
+            CONTENT = #content# 
+      </isNotNull>
+    </select>
+	<select id="queryCreditBalanceList" parameterClass="java.util.HashMap" resultMap="filterBalanceMap">
+	select CUR_CODE,t.MEMBER_CODE,sum(BALANCE) as balance
+	from acc.t_acct t,acc.T_ACCT_ATTRIB a 
+	where t.ACCT_CODE=a.ACCT_CODE 
+	and a.ACCT_TYPE like '2%' and  t.balance>0 
+    and 1=1
+    <isNotNull prepend="AND" property="memberCode">
+            t.MEMBER_CODE = #memberCode# 
+    </isNotNull>
+      group by cur_code,t.MEMBER_CODE
+    </select>
+	<select id="queryChageBackOrderList" parameterClass="java.util.HashMap" resultMap="filterBouncedMap">
+	select Sum(BOUNCED_RATE) as BOUNCED_RATE,MEMBER_CODE  from  CHARGE_BACK_ORDER  
+    where 1=1
+     <isNotNull prepend="AND" property="beginDate" >
+       to_char(CREATE_DATE, 'yyyyMMdd') <![CDATA[ > ]]>#beginDate#
+        </isNotNull>
+        <isNotNull prepend="AND" property="endDate" >
+       to_char(CREATE_DATE, 'yyyyMMdd') <![CDATA[ <= ]]>#endDate#
+        </isNotNull>
+      group by MEMBER_CODE
+    </select>
+</sqlMap>

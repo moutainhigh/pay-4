@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acc-memberProduct">
+    <typeAlias alias="memberProduct" type="com.pay.acc.member.model.MemberProduct"/>
+   
+		<select id="queryProductByMemberCode" resultClass="memberProduct"
+			parameterClass="memberProduct">
+		    <![CDATA[
+		    	 SELECT 
+		        	t.ID				as id, 	
+		      		t.MEMBER_CODE     as memberCode, 
+		      		t.PRODUCT_ID		as productId, 
+		      		t.STATUS			as status,      		
+		      		t.CREATION_DATE	as creationDate,
+		          	t.UPDATE_DATE		as updateDate
+		        FROM 
+		        	t_member_product t,t_product p
+		        where t.product_id=p.id
+		        and	t.MEMBER_CODE 	= #memberCode#
+		        AND
+		        	p.product_code 	= #productCode#
+		        ]]>
+	
+		</select>
+		
+	   <select id="queryProductsByMemberCode" resultClass="memberProduct"
+			parameterClass="memberProduct">
+		    <![CDATA[
+		    	 SELECT 
+		        	t.ID				as id, 	
+		      		t.MEMBER_CODE     as memberCode, 
+		      		t.PRODUCT_ID		as productId, 
+		      		t.STATUS			as status,      		
+		      		t.CREATION_DATE	as creationDate,
+		          	t.UPDATE_DATE		as updateDate,
+		          	p.PRODUCT_CODE      as productCode
+		        FROM 
+		        	t_member_product t,t_product p
+		        where t.product_id=p.id
+		        and	t.MEMBER_CODE 	= #memberCode#
+		        AND
+		        	p.product_code in($productCode$)
+		        ]]>
+	
+		</select>
+
+	<select id="queryOperatorMenuByOperatorId" resultClass="java.lang.String"
+			parameterClass="java.lang.Long">
+		    <![CDATA[
+		    	select MENU_ARRAY from t_operator_menu where OPERATE_ID=#operatorId#
+		        ]]>
+	
+		</select>
+	<select id="queryProductMenuByProductId" resultClass="java.lang.String"
+			parameterClass="java.lang.Long">
+		    <![CDATA[
+		    	select menu_id from  t_product_menu  t where t.product_id =#productId#
+		        ]]>
+	
+		</select>
+	
+	
+		
+</sqlMap>

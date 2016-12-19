@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="messagesend">
+    <typeAlias alias="messagesend" type="com.pay.app.model.MessageSend"/>
+    
+    <insert id="create" parameterClass="messagesend">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_messagesend_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	t_messagesend 
+        	(
+        		id,
+        		sendId, 
+        		title,
+        		sendTime,
+        		type,
+            	status,
+            	messageContextId,
+            	toUserId
+            )
+        values 
+        	(
+        		#id#, 	
+        		#sendId#, 
+        		#title#, 
+        		#sendTime#, 
+        		#type#, 
+            	#status#,
+            	#messageContextId#,
+            	#toUserId#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		t_messagesend
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		t_messagesend
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="messagesend">
+        update 
+        	t_messagesend
+        set 
+        		sendId = #sendId#, 
+        		title = #title#, 
+        		sendTime = #sendTime#, 
+        		type = #type#, 
+            	status = #status#
+        where 
+        	ID 	= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		t_messagesend
+    </select>
+    
+    
+    <select id="findById" resultClass="messagesend" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		sendId, 
+        		title, 
+        		sendTime, 
+        		type, 
+            	status,
+            	touserId
+        from 
+        	t_messagesend
+        where 
+        	ID 			= #id#
+    </select>
+        <select id="findByContextId" resultClass="messagesend" parameterClass="java.lang.Long">
+ 		select 
+        		id, 	
+        		sendId, 
+        		title, 
+        		sendTime, 
+        		type, 
+	            status,
+	            touserId,
+	            messageContextId
+        from 
+        	t_messagesend
+		where
+		messageContextId=#value#
+    </select>
+    
+    <select id="read" resultClass="messagesend" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	t_messagesend
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="messagesend" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		sendId, 
+        		title, 
+        		sendTime, 
+        		type, 
+            	status
+        from 
+        	t_messagesend
+    </select>    
+    
+</sqlMap>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+ "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+	
+	
+	<bean id="pricingStrategyService"
+		class="com.pay.pricingstrategy.service.impl.PricingStrategyServiceImpl">		
+		<property name="pricingStrategyDAO">
+			<ref bean="pricingStrategyDAO" />			           
+		</property>		
+		<property name="calPriceFactory">
+			<ref bean="calPriceFactory"/>
+		</property>		
+	</bean>
+	
+	<!-- calculate fee -->
+	<bean id="calChargeratio" class="com.pay.pricingstrategy.service.impl.CalChargeratio"></bean>
+	<bean id="calChargeratioLL" class="com.pay.pricingstrategy.service.impl.CalChargeratioLL"></bean>
+	<bean id="calChargeratioUL" class="com.pay.pricingstrategy.service.impl.CalChargeratioUL"></bean>
+	<bean id="calChargeratioULLL" class="com.pay.pricingstrategy.service.impl.CalChargeratioULLL"></bean>
+	<bean id="calFixedcharge" class="com.pay.pricingstrategy.service.impl.CalFixedcharge"></bean>
+	<bean id="calFixedchargeChargeratio" class="com.pay.pricingstrategy.service.impl.CalFixedchargeChargeratio"></bean>
+	<bean id="calFixedchargeChargeratioLL" class="com.pay.pricingstrategy.service.impl.CalFixedchargeChargeratioLL"></bean>
+	<bean id="calFixedchargeChargeratioUL" class="com.pay.pricingstrategy.service.impl.CalFixedchargeChargeratioUL"></bean>
+	<bean id="calFixedchargeChargeratioULLL" class="com.pay.pricingstrategy.service.impl.CalFixedchargeChargeratioULLL"></bean>
+	<!-- calculatePrice -->
+	<bean id="calculatePriceAccumulate" class="com.pay.pricingstrategy.service.impl.CalculatePriceAccumulatedImpl">
+		<property name="pricingStrategyDAO"> <ref bean= "pricingStrategyDAO"/> </property>
+		<property name="calFeeFactory"> <ref bean= "calFeeFactory"/> </property>
+		<property name="innerDealAmount"> <ref bean= "calPriceInnerDealAmount"/> </property>
+	</bean>
+	<bean id="calculatePriceFixed" class="com.pay.pricingstrategy.service.impl.CalculatePriceFixedImpl">
+	</bean>
+	<bean id="calculatePriceSingle" class="com.pay.pricingstrategy.service.impl.CalculatePriceSingleImpl">
+		<property name="pricingStrategyDAO"> <ref bean= "pricingStrategyDAO"/> </property>
+		<property name="calFeeFactory"> <ref bean= "calFeeFactory"/> </property>
+	</bean>
+	<bean id="calculatePriceSpecTime" class="com.pay.pricingstrategy.service.impl.CalculatePriceSpecTimeImpl">
+		<property name="pricingStrategyDAO"> <ref bean= "pricingStrategyDAO"/> </property>
+		<property name="calFeeFactory"> <ref bean= "calFeeFactory"/> </property>
+	</bean>
+	<!--calFeeFactory -->
+	<bean id="calFeeFactory" class="com.pay.pricingstrategy.service.impl.CalFeeFactoryImpl">
+		<property name="calFeeList">
+			<list>
+				<ref bean="calChargeratio"/>
+				<ref bean="calChargeratioLL"/>
+				<ref bean="calChargeratioUL"/>
+				<ref bean="calChargeratioULLL"/>
+				<ref bean="calFixedcharge"/>
+				<ref bean="calFixedchargeChargeratio"/>
+				<ref bean="calFixedchargeChargeratioLL"/>
+				<ref bean="calFixedchargeChargeratioUL"/>
+				<ref bean="calFixedchargeChargeratioULLL"/>
+			</list>
+		</property>
+	</bean>
+	<!-- calPriceFactory -->
+	<bean id="calPriceFactory" class="com.pay.pricingstrategy.service.impl.CalPriceFactoryImpl">
+		<property name="calPriceList">
+			<list>
+				<ref bean="calculatePriceAccumulate"/>
+				<ref bean="calculatePriceFixed"/>
+				<ref bean="calculatePriceSingle"/>
+				<ref bean="calculatePriceSpecTime"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="calPriceInnerDealAmount" class="com.pay.pricingstrategy.service.impl.CalPriceInnerDealAmountImpl">
+			<property name="cumulatedFlowService"> <ref bean= "pe-cumulatedFlowService"/> </property>
+	</bean>
+	<!--提前计算费用 
+	<bean id="pricingStrategyBeforePosting"
+		class="com.pay.pricingstrategy.impl.PricingStrategyBeforePostingImpl">
+		<property name="pricingStrategyService">
+			<ref bean="pricingStrategyService" />
+		</property>
+	</bean>
+	-->
+	
+</beans> 

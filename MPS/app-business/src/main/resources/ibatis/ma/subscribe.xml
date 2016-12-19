@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="subscribe">
+    <typeAlias alias="subscribe" type="com.pay.app.model.Subscribe"/>
+    
+    <insert id="create" parameterClass="subscribe">
+    	<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_subscribe_ID.nextval as ID from dual 
+		</selectKey>    
+        insert into 
+        	subscribe 
+        	(
+        		id, 	
+        		type, 
+        		context, 
+        		creationDate, 
+        		noticeMode, 
+            	status
+            )
+        values 
+        	(
+        		#id#,  	
+        		#type#, 
+        		#context#, 
+        		#creationDate#, 
+        		#noticeMode#, 
+            	#status#
+        	)
+    </insert>
+    <delete id="delete">
+    	delete from 
+    		subscribe
+        where 
+        	ID = #id#
+    </delete>
+    
+    <delete id="deletes" parameterClass="java.util.List">
+    	delete from 
+    		subscribe
+        where 
+        	ID 
+          in 
+            <iterate open="(" close=")" conjunction=",">
+            #ids[]#
+            </iterate>
+    </delete>
+    <update id="update" parameterClass="subscribe">
+        update 
+        	subscribe
+        set 
+        		type = #type#, 
+        		context = #context#, 
+        		creationDate = #creationDate#, 
+        		noticeMode = #noticeMode#, 
+            	status = #status#
+        where 
+        	ID 				= #id#
+    </update>
+    <select id="count" resultClass="java.lang.Integer">
+    	select 
+    		count(id) 
+    	from 
+    		subscribe
+    </select>
+    
+    
+    <select id="findById" resultClass="subscribe" parameterClass="java.lang.Long">
+        select 
+        		id, 	
+        		type, 
+        		context, 
+        		creationDate, 
+        		noticeMode, 
+            	status
+        from 
+        	subscribe
+        where 
+        	ID 			= #id#
+    </select>
+    <select id="read" resultClass="subscribe" parameterClass="java.lang.Long">
+        select 
+        	ID
+        from 
+        	subscribe
+        where 
+        	ID 			= #id#
+    </select>
+    
+    <select id="loadAll" resultClass="subscribe" parameterClass="java.util.List">
+        select 
+        		id, 	
+        		type, 
+        		context, 
+        		creationDate, 
+        		noticeMode, 
+            	status
+        from 
+        	subscribe
+    </select>    
+    
+</sqlMap>

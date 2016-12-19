@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="com.pay.channel.dao.CodeLibraryMapper">
+
+  <resultMap id="BaseResultMap" class="com.pay.channel.model.CodeLibrary">
+    <result column="CODE_TYPE" jdbcType="VARCHAR" property="codeType" />
+    <result column="CODE_NAME" jdbcType="VARCHAR" property="codeName" />
+    <result column="CODE_DESC" jdbcType="VARCHAR" property="codeDesc" />
+    <result column="CODE_ALIAS" jdbcType="VARCHAR" property="codeAlias" />
+    <result column="CODE_SORT" jdbcType="DECIMAL" property="codeSort" />
+    <result column="CODE_LEVEL" jdbcType="VARCHAR" property="codeLevel" />
+    <result column="CREATE_DATE" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="OPERATOR" jdbcType="VARCHAR" property="operator" />
+  </resultMap>
+
+  <select id="findAll" resultMap="BaseResultMap">
+    SELECT
+      *
+    FROM
+      CODE_LIBRARY
+    WHEREgity
+      STATUS = '1'
+    ORDER BY CODE_TYPE,CODE_SORT
+  </select>
+
+  <select id="findByType" resultMap="BaseResultMap" parameterClass="java.lang.String">
+    SELECT
+      *
+    FROM
+      CODE_LIBRARY
+    WHERE
+      CODE_TYPE = #codeType#
+    ORDER BY CODE_TYPE,CODE_SORT
+  </select>
+</sqlMap>

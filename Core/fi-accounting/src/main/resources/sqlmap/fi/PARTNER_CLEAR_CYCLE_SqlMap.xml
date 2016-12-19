@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+  <sqlMap namespace="PARTNER_CLEAR_CYCLE" >
+    <resultMap id="BaseResultMap" class="com.pay.txncore.crosspay.model.PartnerClearCycle" >
+      <result column="ID" property="id" jdbcType="DECIMAL" />
+      <result column="PARTNER_ID" property="partnerId" jdbcType="DECIMAL" />
+      <result column="NEXT_CLEAR_DATE" property="nextClearDate" jdbcType="TIMESTAMP" />
+      <result column="WITHDRAWABLE_AMOUNT" property="withdrawableAmount" jdbcType="VARCHAR" />
+      <result column="STATUS" property="status" jdbcType="DECIMAL" />
+      <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+      <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+      <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+      <result column="EXT_INFO_1" property="extInfo1" jdbcType="VARCHAR" />
+      <result column="EXT_INFO_2" property="extInfo2" jdbcType="VARCHAR" />
+    </resultMap>
+    
+    <select id="findByPartnerId" parameterClass="java.lang.Long" resultMap="BaseResultMap">
+    	select * from PARTNER_CLEAR_CYCLE
+    </select>
+    
+    <update id="updateWithdrawableAmount" parameterClass="java.util.HashMap">
+    	update PARTNER_CLEAR_CYCLE
+    	set
+    	WITHDRAWABLE_AMOUNT = WITHDRAWABLE_AMOUNT + #amount#
+    	where PARTNER_ID = #partnerId#
+    </update>
+    
+    <select id="getWithdrawableAmount" parameterClass="java.lang.Long" resultClass="java.lang.Long">
+    	select WITHDRAWABLE_AMOUNT from PARTNER_CLEAR_CYCLE where PARTNER_ID = #partnerId#
+    </select>
+  </sqlMap>

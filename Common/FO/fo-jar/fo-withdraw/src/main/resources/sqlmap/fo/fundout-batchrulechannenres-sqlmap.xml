@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="batchrulechannelres">
+	<typeAlias alias="batchRuleChannelRes" type="com.pay.fundout.withdraw.model.ruleconfig.BatchRuleChannelRes"/>
+   	<typeAlias alias="batchRuleChannelResQuery" type="com.pay.fundout.withdraw.dto.ruleconfig.BatchRuleChannelQueryDTO"/>
+   
+    <resultMap id="batchRuleChannelResResult" class="com.pay.fundout.withdraw.model.ruleconfig.BatchRuleChannelRes">
+        <result column="SEQ_KY" property="seqKy" />
+        <result column="RULE_KY" property="ruleKy" />
+        <result column="CHANNEL_KY" property="channelKy" />
+        <result column="CREATED_DATE" property="createdDate" />
+        <result column="UPDATED_DATE" property="updatedDate" />
+        <result column="STATE" property="state" />
+        <result column="CREATED_BY" property="createdBy" />
+        <result column="UPDATED_BY" property="updatedBy" />
+    </resultMap>
+    
+    <insert id="insert" parameterClass="batchRuleChannelRes">
+        insert into BATCH_RULE_CHANNEL_RES (SEQ_KY, RULE_KY, CHANNEL_KY, CREATED_DATE, 
+            STATE, CREATED_BY)
+        values (SEQ_BATCH_RULE_CHANNEL_RES.nextval, #ruleKy#, #channelKy#, #createdDate#, #state#, #createdBy#)
+    </insert>
+    
+    <select id="getBatchRuleChannelResList" resultClass="batchRuleChannelResQuery" parameterClass="map">
+    	SELECT A.SEQ_KY 		seqKy,
+    	       A.RULE_KY		ruleKy,
+    	       B.MODE_CODE		modeId,
+    	       B.BUSINESS_CODE 	businessId,
+    	       B.BANK_ID		bankId
+    	FROM BATCH_RULE_CHANNEL_RES A , FUNDOUT_CHANNEL B
+		WHERE A.CHANNEL_KY=B.CODE AND A.STATE!=0 
+		AND EXISTS(SELECT 1 FROM BATCH_RULE_CONFIG WHERE SEQUENCE_ID=A.RULE_KY)
+		and b.status!=0
+		<isNotNull prepend="AND" property="ruleKy">
+            A.RULE_KY = #ruleKy#
+        </isNotNull>
+    </select>
+    
+    <select id="getBatchRuleChannelResList_COUNT" resultClass="integer" parameterClass="map">
+    	SELECT COUNT(*) FROM BATCH_RULE_CHANNEL_RES A , FUNDOUT_CHANNEL B
+		WHERE A.CHANNEL_KY=B.CODE AND A.STATE!=0 
+		AND EXISTS(SELECT 1 FROM BATCH_RULE_CONFIG WHERE SEQUENCE_ID=A.RULE_KY)
+		and b.status!=0
+		<isNotNull prepend="AND" property="ruleKy">
+            A.RULE_KY = #ruleKy#
+        </isNotNull>
+    </select>
+    
+    <update id="updateBatchRuleChannelResById" parameterClass="batchRuleChannelRes">
+    	update BATCH_RULE_CHANNEL_RES
+    	<dynamic prepend="set">
+    		<isNotNull prepend="," property="state">
+	            STATE = #state#
+	        </isNotNull>
+    	</dynamic>
+    	<dynamic prepend="where">
+    		<isNotNull prepend="and" property="seqKy">
+	            SEQ_KY = #seqKy#
+	        </isNotNull>
+    	</dynamic>
+    </update>
+    
+    <select id="getResChannelList" parameterClass="long" resultClass="batchRuleChannelResQuery">
+    	SELECT CODE 	channelKy,
+    	       bank_id 		bankId,
+    	       mode_Code		modeId 
+    	FROM FUNDOUT_CHANNEL 
+		WHERE CODE NOT IN (SELECT CHANNEL_KY FROM BATCH_RULE_CHANNEL_RES A WHERE A.RULE_KY=#value# AND A.STATE!=0)
+		and status !=0 and mode_code = 1
+    </select>
+</sqlMap>

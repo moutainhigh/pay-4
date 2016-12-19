@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/chargeBackConfig.do">chargeBackConfigController</prop>
+				<prop key="/chargeBackQuery.do">chargeBackOrderController</prop>
+				<prop key="/chargeBackQueryDownload.do">chargeBackOrderController</prop>
+				<prop key="/chargeBackAdd.do">chargeBackOrderController</prop>
+				<prop key="/chargeBackAudit.do">chargeBackOrderController</prop>
+				<prop key="/chargeBackImport.do">chargeBackOrderImportController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="chargeBackConfigController"
+		class="com.pay.poss.controller.fi.chargeback.ChargeBackConfigController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="configView">
+			<value>/chargeback/config</value>
+		</property>
+		<property name="chargeBackService" ref="fi-chargeBackService"/>
+	</bean>
+
+	<bean id="chargeBackOrderController"
+		class="com.pay.poss.controller.fi.chargeback.ChargeBackOrderController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/chargeback/queryInit</value>
+		</property>
+		<property name="addView">
+			<value>/chargeback/add</value>
+		</property>
+		<property name="auditView">
+			<value>/chargeback/audit</value>
+		</property>
+		<property name="resultView">
+			<value>/chargeback/result</value>
+		</property>
+		<property name="recordList">
+			<value>/chargeback/recordList</value>
+		</property>
+		<property name="chargeBackService" ref="fi-chargeBackService"/>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+	</bean>
+	
+	<bean id="chargeBackOrderImportController"
+		class="com.pay.poss.controller.fi.chargeback.ChargeBackOrderImportController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/chargeback/import</value>
+		</property>
+		<property name="resultView">
+			<value>/chargeback/result</value>
+		</property>
+		<property name="fileService" ref="fileService"/>
+		<property name="chargeBackService" ref="fi-chargeBackService"/>
+		<property name="channelClientService" ref="channelClientService"/>
+	</bean>
+
+</beans>

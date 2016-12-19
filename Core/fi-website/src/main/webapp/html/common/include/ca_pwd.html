@@ -1,0 +1,92 @@
+<script type="text/javascript" src="<@sp.static/>/js/pay/cert/atlcrypt.js"></script>
+<input type="hidden" name="${name}" id="${id}"/>
+<input type="hidden" name="cid_name" id="cid_name" value="${id}"/>
+<input type="hidden" name="${cid}_dn" id="${cid}_dn"  value="${result.cn?default('')}" />
+<span id="span_${cid}">
+</span>
+<i id="${cid}_certCtlTip" class="payEdit" style="display: none;"><a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit" class="dl">点击下载安全控件</a></i>
+<i id="${cid}_certTip" class="payEdit" style="display: none;" ><a href="${rc.contextPath}/corp/cert/import.htm"  class="dl" >点击导入数字证书</a></i>
+<script type="text/javascript">
+if($("#hasSecurity").length==0 <#if form != ""> || $("form[id='${form}'] input[id='hasSecurity']").length == 0 </#if>){
+	document.write('<input type="hidden" id="hasSecurity" name="hasSecurity" value="cert"/>');
+}
+try{
+	if(!detectActiveX()){
+		$("#span_${cid}").css("display","none");
+		$("#${cid}_certCtlTip").show();
+	}else{
+		$(function(){
+			var machineIds = [];
+			<#if result.certManages?has_content>
+			<#list result.certManages as certManage>
+			machineIds.push('${certManage.machineId?default(0)}');
+			</#list>
+			</#if>
+			window.setTimeout(function(){
+			<#if result.ie == 1>
+				//如果是ie
+				var controller_html = '<OBJECT ID="${cid}" tabindex="${tabindex}" codeBase="<@sp.static/>/HnaCert.cab#version=1,0,0,1" CLASSID="CLSID:F67513E2-046C-4349-A877-EC2EEADAD726" width="${width}" height="${height}"><i class="payEdit"><a href="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit" class="dl" >点击下载安全控件</a></i></OBJECT>';
+				$("#span_${cid}").append(controller_html);
+				
+				//证书控件已经安装,浏览器中没有证书
+				if(! isCertById("${result.cn?default('')}","${cid}") || ! checkCertLocalInstall("${cid}",machineIds)){
+					$("#${cid}").hide();
+					$("#span_${cid}").css("display","none");
+					$("#${cid}_certTip").show();
+				}else{
+				//证书控件已经安装,浏览器中有证书,本地安装的证书与服务一致
+					var c_${cid} = 0;
+					function onactive_${cid}(){
+						if(c_${cid}==0){
+							try{
+								var o_${cid} = $("#${cid}")[0];
+								<#if onEnter!="" && form!="">
+								<#else>
+								<#if onEnter!="">
+								eval("function o_${cid}::OnEnter(){${onEnter}}");
+								</#if>
+								<#if form!="">
+								eval("function o_${cid}::OnEnter(){$('#${form}').submit();return false;}");
+								</#if>
+								</#if>
+							}catch(e){}
+						}
+						c_${cid}++;
+					}
+					try{
+						if($("#${cid}").length>0){
+							$("#${cid}")[0].onactivate = onactive_${cid} ;
+						}
+					}catch(e){}
+				}
+			<#else>
+				var controller_html = '<embed id="${cid}" name="${cid}" tabindex="${tabindex}"  type="application/hnacert" width="${width}" height="${height}" pluginspage="${rc.contextPath}/base/downloadHnapayEdit.htm?method=downloadpayCertEdit"></embed>';
+				$("#span_${cid}").append(controller_html);
+				
+				//证书控件已经安装,浏览器中没有证书
+				if(! isCertById("${result.cn?default('')}","${cid}") || ! checkCertLocalInstall("${cid}",machineIds)){
+					$("#${cid}").hide();
+					$("#span_${cid}").css("display","none");
+					$("#${cid}_certTip").show();
+				}else{
+				//证书控件已经安装,浏览器中有证书,本地安装的证书与服务一致
+					window.submit_${cid}=function(){$('#${form}').submit();return false;};
+					window.tab_${cid}=function(){try{$('#${nextTabid}').focus();}catch(e){}}
+					try{
+						if($("#${cid}").length>0){
+							$("#${cid}")[0].SetEmbedId("${cid}");
+							$("#${cid}")[0].SetOnTab("tab_${cid}");
+							$("#${cid}")[0].SetOnEnter("submit_${cid}");
+						}
+					}catch(e){}
+				}
+				</#if>
+			},100);
+		});
+	}
+}catch(e){}
+
+$(window).unload(function() {
+	$("OBJECT").remove();
+});
+</script>

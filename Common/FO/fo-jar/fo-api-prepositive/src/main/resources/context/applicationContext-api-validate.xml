@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fo-api-prepositive-batchPaymentValidateService" class="com.pay.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fo-api-prepositive-batchPaymentRule" />
+	</bean>
+
+	<bean id="fo-api-prepositive-batchPaymentRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fo-api-prepositive-merchantCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-merchantCheckRule" class="com.pay.api.validate.rule.MerchantCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-signTypeCheckRule" />
+		</property>
+		<property name="merchantConfigureDao" ref="merchantConfigureDao" />
+	</bean>
+	
+	<bean id="fo-api-prepositive-signTypeCheckRule" class="com.pay.api.validate.rule.SignTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-signvalueCheckRule" />
+		</property>
+	</bean>
+	
+	<bean id="fo-api-prepositive-signvalueCheckRule" class="com.pay.api.validate.rule.SignvalueCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-businessNoCheckRule" />
+		</property>
+		<property name="securityProvider" ref="api-securityProvider" />
+	</bean>
+
+	<bean id="fo-api-prepositive-businessNoCheckRule" class="com.pay.api.validate.rule.BusinessNoCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-currencyCodeCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-currencyCodeCheckRule" class="com.pay.api.validate.rule.CurrencyCodeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-totalAmountCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-totalAmountCheckRule" class="com.pay.api.validate.rule.TotalAmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-totalCountCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-totalCountCheckRule" class="com.pay.api.validate.rule.TotalCountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-auditFlagCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-auditFlagCheckRule" class="com.pay.api.validate.rule.AuditFlagCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-feeTypeCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-feeTypeCheckRule" class="com.pay.api.validate.rule.FeeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-payTypeCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-payTypeCheckRule" class="com.pay.api.validate.rule.PayTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-requestTimeCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-requestTimeCheckRule" class="com.pay.api.validate.rule.RequestTimeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-versionCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-versionCheckRule" class="com.pay.api.validate.rule.VersionCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-PaymentItemCheckRule" />
+		</property>
+	</bean>
+	
+	<bean id="fo-api-prepositive-PaymentItemCheckRule" class="com.pay.api.validate.rule.PaymentItemCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="fo-api-prepositive-checkFailedAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="itemRequestValidateService"
+			ref="fo-api-prepositive-item-batchPaymentValidateService" />
+	</bean>
+
+	<!-- validate item request -->
+	<bean id="fo-api-prepositive-item-batchPaymentValidateService"
+		class="com.pay.service.impl.ValidateServiceImpl">
+		<property name="ruleEngine" ref="fo-api-prepositive-item-batchPaymentRule" />
+	</bean>
+
+	<bean id="fo-api-prepositive-item-batchPaymentRule" class="com.pay.inf.rule.RuleEngine">
+		<property name="firstStep">
+			<ref bean="fo-api-prepositive-item-orderIdCheckRule" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-item-orderIdCheckRule" class="com.pay.api.validate.rule.item.OrderIdCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-payeeNameCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-item-payeeNameCheckRule" class="com.pay.api.validate.rule.item.PayeeNameCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-payeeAccountCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-item-payeeAccountCheckRule" class="com.pay.api.validate.rule.item.PayeeAccountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-amountCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-item-amountCheckRule" class="com.pay.api.validate.rule.item.AmountCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-mobileCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-item-mobileCheckRule" class="com.pay.api.validate.rule.item.MobileCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-memoCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-item-memoCheckRule" class="com.pay.api.validate.rule.item.MemoCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-payeeTypeCheckRule" />
+		</property>
+	</bean>
+	<bean id="fo-api-prepositive-item-payeeTypeCheckRule" class="com.pay.api.validate.rule.item.PayeeTypeCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-payeeBankCheckRule" />
+		</property>
+	</bean>
+	
+	<bean id="fo-api-prepositive-item-payeeBankCheckRule" class="com.pay.api.validate.rule.item.PayeeBankCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-provinceCheckRule" />
+		</property>
+		<property name="bankService" ref="bankService"/>
+	</bean>
+	<bean id="fo-api-prepositive-item-provinceCheckRule" class="com.pay.api.validate.rule.item.ProvinceCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-cityCheckRule" />
+		</property>
+		<property name="provinceService" ref="provinceService"/>
+	</bean>
+	<bean id="fo-api-prepositive-item-cityCheckRule" class="com.pay.api.validate.rule.item.CityCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="fo-api-prepositive-item-bankBrancheCheckRule" />
+		</property>
+		<property name="provinceService" ref="provinceService"/>
+		<property name="cityService" ref="cityService"/>
+	</bean>
+	<bean id="fo-api-prepositive-item-bankBrancheCheckRule" class="com.pay.api.validate.rule.item.BankBrancheCheckRule">
+		<property name="negativeOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+		<property name="positiveOutcomeStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+	<bean id="fo-api-prepositive-checkFailedAction"
+		class="com.pay.api.validate.action.BatchOrderInfoCheckFailAction">
+		<property name="nextStep">
+			<ref bean="stopExecuteAction" />
+		</property>
+	</bean>
+
+</beans>

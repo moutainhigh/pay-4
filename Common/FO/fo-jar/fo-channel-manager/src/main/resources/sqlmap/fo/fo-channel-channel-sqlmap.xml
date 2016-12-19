@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="channel">
+	<typeAlias alias="channelObject" type="com.pay.fundout.channel.model.channel.ChannelObject"/>
+	<typeAlias alias="channelRequest" type="com.pay.fundout.channel.model.channel.ChannelRequest"/>
+    <resultMap id="channelResult" class="com.pay.fundout.channel.model.channel.ChannelObject">
+        <result column="CHANNEL_ID" property="channelId" />
+        <result column="CODE" property="channelCode" />
+        <result column="TARGET_BANK_ID" property="bankId" />
+        <result column="MODE_CODE" property="modeCode" />
+    </resultMap>
+    <select id="getChannelList" parameterClass="channelRequest" resultMap="channelResult">
+    	select t2.CHANNEL_ID, t3.CODE, t3.MODE_CODE, t4.TARGET_BANK_ID from fundout_product t1, fundout_channel_relation t2, fundout_channel t3, fundout_config_bank t4
+   		where t1.CODE = t2.PRODUCT_CODE and t2.CHANNEL_ID = t3.CHANNEL_ID and t3.CHANNEL_ID = t4.CHANNEL_ID
+   		and t1.STATUS = 1
+        and t2.STATUS = 1
+        and t3.STATUS = 1
+        and t4.STATUS = 1
+        and t2.PRODUCT_CODE = #productCode#
+        and t4.TARGET_BANK_ID = #targetBank#
+   		<isNotNull prepend="AND" property="channelFlag">
+            t3.MODE_CODE = #channelFlag#
+        </isNotNull>
+    </select>
+</sqlMap>

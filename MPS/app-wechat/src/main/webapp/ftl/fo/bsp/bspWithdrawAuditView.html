@@ -1,0 +1,204 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>出金审核_gcpayment支付</title>
+<#include "/common/macro/seoPerson.ftl">
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+	function checkSubmit(mark){
+		if(hasSecurityCtrl()){
+			if(getPwdCtrlStrLength("paySafeEdit")<=0){
+					$('#paymentPwdTip').html('请输入支付密码');
+					return false;
+			}
+		    $("#payPwd").val(getPwdCtrlVal("paySafeEdit"));
+		}
+		$('#remarkTip').html('');
+		if($("#payPwd").val() == ''){
+			$('#paymentPwdTip').html('请输入支付密码');
+			return false;
+		}else {
+			if(1==mark){
+				$("#bspWithdrawAuditForm").attr("action","${rc.contextPath}/corp/bspWithdrawAudit.htm?method=approved");
+			}else{
+				var remark = $.trim($('#remark').val());
+				if('' == remark){
+					$('#remarkTip').html('请输入备注');
+					return false;
+				}
+				$("#bspWithdrawAuditForm").attr("action","${rc.contextPath}/corp/bspWithdrawAudit.htm?method=refuse");
+			}
+			$("#bspWithdrawAuditForm").submit();
+		}
+	}
+	
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3'
+	      });
+	}
+	$(function(){
+		$("#findselect").click(function() {
+			payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+		});
+		$("#payPwd").keyup(function(event) {
+			if(event.keyCode == 13) {
+				$("#bspWithdrawAuditForm").submit();
+			}
+		});
+		$("#backBtn").click(function(){
+			$("#backForm").submit();
+		});
+		$("#backHref").click(function(){
+			$("#backForm").submit();
+		});
+	});
+</script>
+<form action="${rc.contextPath}/corp/bspWithdrawAudit.htm?method=search" id="backForm" method="post">
+	<input type="hidden" id="startDateId" name="startDate" value="${startDate?default('')}">
+	<input type="hidden" id="endDateId" name="endDate" value="${endDate?default('')}">
+	<input type="hidden" id="bspMemberNameId" name="bspMemberName" value="${bspMemberName?default('')}">
+</form>
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="bsp_bussiness_audit"/>
+<!--导航 end--> 
+
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><i class="cur">出金审核详情</i></div>
+			</div>
+			<form method="post" name="bspWithdrawAuditForm" id="bspWithdrawAuditForm" action="" class="mod_form" enctype="multipart/form-data">
+				<input type="hidden" name="orderSeq" value="${orderSeq}">
+				<input type="hidden" name="orderType" value="${orderType}">
+				<input type="hidden" name="createDate" value="${createDate}">
+				<input type="hidden" name="memberName" value="${memberName}">
+				<input type="hidden" name="amount" value="${amount}">
+				<input type="hidden" name="status" value="${status}">
+				<input type="hidden" name="startDate" value="${startDate?default('')}">
+				<input type="hidden" name="endDate" value="${endDate?default('')}">
+				<input type="hidden" name="bspMemberName" value="${bspMemberName?default('')}">
+				<div class="verify_box">
+					<p class="g_tips red" id="msgTip"></p>
+					<table class="verify_table">
+						<tbody>
+							<tr>
+								<td class="type">交易流水号：</td>
+								<td>${orderSeq}</td>
+							</tr>
+							<tr>
+								<td class="type">业务类型：</td>
+								<td>出金</td>
+							</tr>
+							<tr>
+								<td class="type">创建时间：</td>
+								<td>${createDate}</td>
+							</tr>
+							<tr>
+								<td class="type">交易商名称：</td>
+								<td>${memberName}</td>
+							</tr>
+							<tr>
+								<td class="type">金额：</td>
+								<td>${(amount*0.001)?string("#,##0.00")}(元)</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="btn_box2">
+					<ul class="form_list">
+						<li id="showPwd">
+							<label class="form_side"><i class="c_000 blod">支付密码：</i></label>
+							<@sp.password cid="paySafeEdit" id="payPwd" name="payPwd" width="150px" height="26px" class="inp_normal"/>
+							<em id="payeeNameTip" ><span class="c_999 ml20">支付密码如果连续输错3次，账户将被锁定</span></em>
+							<p class="g_tips red" id="paymentPwdTip"></p>
+						</li>
+						<li>
+							<label class="form_side">备注：</label>
+							<textarea class="inp_normal w250 v_b" rows="3" name="remark" id="remark">${remark?default('')}</textarea>
+							<span class="g_tips red" id="remarkTip"></span>
+						</li>
+						<li id="showBut">
+							<#if status?default('')=='0'>
+							<span class="btn_yel v_b">
+							<button name="approved" id="approved" type="button" onclick="return checkSubmit(1);">通过</button>
+							</span> <span class="btn_yel v_b ml30">
+							<button name="Refuse" id="Refuse" type="button" onclick="return checkSubmit(2);">拒绝</button>
+							<#else>
+							<span class="btn_grey_b v_b ml30">
+							<button name="approved" type="button" disabled="disabled">通过</button>
+							</span> <span class="btn_grey_b v_b ml30">
+							<button name="Refuse" type="button" disabled="disabled">拒绝</button>
+							</#if>
+							</span> <i class="ml20"><a href="##" id="backHref" class="red">返回上一步</a> | <a class="red" href="##" id="findselect">忘记支付密码？</a></i> 
+						</li>
+						<li id="showBack" style="display:none;">
+							<span class="btn_yel v_b">
+								<button id="backBtn" type="button">返回上一步</button>
+							</span>
+						</li>
+					</ul>
+				</div>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end --> 
+<!--footer -->
+<#if errorMsg?has_content>
+<script type="text/javascript" charset="utf-8">
+	$('#paymentPwdTip').html('${errorMsg}');
+</script>
+</#if>
+<#if msg?has_content>
+<#if status?default('')=='1'>
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		$.pay.alert('${msg}',{h:160,t:'1'});
+		$("#showPwd").hide();
+		$("#showBut").hide();
+		$("#showBack").show();
+	});	
+</script>
+<#elseif status?default('')=='3'>
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		$.pay.alert('${msg}',{h:160,t:'3'});
+		$("#showPwd").hide();
+		$("#showBut").hide();
+		$("#showBack").show();
+	});	
+</script>
+<#else>
+<script type="text/javascript" charset="utf-8">
+	$(function(){
+		$.pay.alert('${msg}',{h:160,t:'3'});
+		$("#showPwd").show();
+		$("#showBut").show();
+		$("#showBack").hide();
+	});	
+</script>
+</#if>
+</#if>
+<#include "/common/include/footer.html">
+</body>
+</html>

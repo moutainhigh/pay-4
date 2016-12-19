@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>口令卡浮层</title>
+
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/password.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+<script type="text/javascript">
+$(function(){
+
+	parent.doClosepayaySafeEdit();
+	$("#mform").submit(function(){
+		var num = /^[0-9]*$/;
+		if($.trim($("#value0").val())=="" || $.trim($("#value1").val())=="" || $.trim($("#value2").val())==""){
+	         $("#err").show();
+	         $("#err").html("请输入口令卡信息");
+	         return false;
+	      }else if(!num.test($("#value0").val())){
+	    	  $("#err").show();
+		      $("#err").html("口令卡坐标只能输入数字");
+		      return false;
+	      }else if(!num.test($("#value1").val())){
+	    	  $("#value1").val()
+	    	  $("#err").show();
+		      $("#err").html("口令卡坐标只能输入数字");
+		      return false;
+	      }else if(!num.test($("#value2").val())){
+	    	  $("#err").show();
+		      $("#err").html("口令卡坐标只能输入数字");
+		      return false;
+	      }else{
+               $("#mform").attr("action","${rc.contextPath}/app/matrixLogin.htm");
+		   }
+	      
+	 });
+	  
+	   $("#value0,#value1,#value2").focus(function(){
+		     $("#err").hide();
+		  });
+
+		$("#goacc").click(function(){
+			   parent.jmpUrl="/app/myAccount.htm";
+				parent.menu.isjump=true;
+			   parent.mWin.dialog("close");
+			   });
+		 $("#restmatrixCard").click(function(){
+				parent.jmpUrl="/app/matrixCardReset.htm?method=jumpView";
+				parent.menu.isjump=true;
+			    parent.mWin.dialog("close");	
+			});
+		 $("#apply").click(function(){
+			 parent.jmpUrl="/matrixCard.htm?method=applyCard";
+			 parent.menu.isjump=true;
+			 parent.mWin.dialog("close");		
+			});
+		
+});
+
+var  checkInput = function(inputNum){
+	  if($("#value"+inputNum).val().length>=3){
+  	   $("input[id^='value']").blur();
+  	   if(inputNum==2){
+	    	   inputNum=-1;
+  	   }
+         $("#value"+(inputNum+1)).focus();
+     }
+ }
+
+</script>
+  <#if errMsg?has_content>
+<script>
+$(function(){
+$("#err").show().html("${errMsg}");
+});
+</script>
+<#elseif succesCode?has_content>
+<script>
+$(function(){
+parent.menu.isjump=true;
+parent.mWin.dialog("close");
+});
+</script>
+</#if>
+<style type="text/css">
+ html {   overflow: hidden; } 
+</style>
+</head>
+<body style="background: #fff;">
+  <!-- str -->
+  <div class="popup">
+    <div class="popup_box  t_center">
+      <div class="popup_content" style="width: 380px;"> <strong>您的账户已经申请了gcpayment支付令卡保护，您也可以直接进入账户进行查询操作。</strong>
+        <form id="mform" action="" method="post" name="mform">
+        <input type="hidden" name="method" value="login">
+          <div class="frm_cont serial_num">
+            <label>序列号：</label>
+            <span>${serialNo?default('')}</span> </div>
+          <div class="frm_cont coordinate">
+            <label>动态坐标：</label>
+            <span>${token.xy0}</span><span>${token.xy1}</span><span>${token.xy2}</span> </div>
+          <div class="frm_cont num_input">
+            <label>对应数字：</label>
+            <input type="text" name="value0" id="value0" disableautocomplete autocomplete="off" maxlength="3" onkeyup="checkInput(0)" />
+            <input type="text" name="value1" id="value1" disableautocomplete autocomplete="off" maxlength="3" onkeyup="checkInput(1)"/>
+            <input type="text" name="value2" id="value2" disableautocomplete autocomplete="off" maxlength="3" onkeyup="checkInput(2)"/>
+            <input type="hidden" name="token" value="${token.token}">
+            <p id="err" class="err" style="display: none;">口令卡信息输入错误</p>
+          </div>
+          <div class="btn_area2"> <span class="btn_yel botton_yel">
+            <button type="submit" id="btnSure">确 定</button>
+            </span> <a id="goacc" class="red ml10" href="javascript:void(0);">直接进入账户</a> </div>
+        </form>
+        <div class="a_link"><a id="restmatrixCard" class="red" href="javascript:void(0);">重置口令卡</a> | <a id="apply" class="red" href="javascript:void(0)">免费申请口令卡</a></div>
+        <span class="pop_war"></span></div>
+    </div>
+  </div>
+  <!-- end  --> 
+</div>
+
+</body>
+</html>

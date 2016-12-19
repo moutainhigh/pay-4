@@ -1,0 +1,200 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>gcpayment支付-交易管理-收款明细</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/record.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link type="text/css" rel="stylesheet" href="<@sp.static/>/js/pay/datepicker/skin/WdatePicker.css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript">
+$(function(){
+	$('[data-amount]').keypress(function(e){
+		if(e.which == 8 ||e.which == 0 )return true;
+		if(((e.which >= 45 && e.which <= 57) && e.ctrlKey == false && e.shiftKey == false) || e.which == 0 || e.which == 8) {
+			if(e.which == 45){
+				return false;
+			} else if(e.which == 46){
+				if($(this).val().indexOf(".") == -1 && $(this).val().length !=0) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			return true;
+		} 
+		return false;
+	}).bind("paste",function(){return false;}).css({'imeMode':"disabled",'-moz-user-select':"none"});
+	$("#incomeTable tr:odd").addClass("gray");
+	$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+	$("#advancedSearch").hide();
+	
+
+	function setTime(time,time2){
+		if(time != "" || time2 != ""){
+			$("#startTime").attr("disabled","disabled")
+			$("#endTime").attr("disabled","disabled")
+		}
+		else if(time == "" || time== null){
+			$('#startTime').removeAttr("disabled");
+			$('#endTime').removeAttr("disabled");
+		}
+	}
+	
+	
+</script>
+
+</head>
+<body>
+<@sp.head mCode="corp_mpayorder_query"/>
+<div class="container share_wrap">
+	<div> 
+		<div class="order_search">
+			<form class="form" action="${rc.contextPath}/corp/mpayOrderQuery.htm?method=queryOrderList" method="post" name="orderForm" id="orderForm">
+				<div class="slelct_down">
+					<ul>
+						<li>
+							<label class="side">起止时间：</label>
+							<input type="text" class="Wdate inp_normal w130" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',maxDate:'#F{$dp.$D(\'endTime\')}'})" name="startTime" readonly="readonly" id="startTime" gtbfieldid="109" value="<#if startTime?has_content>${startTime}</#if>">
+							<span>-</span>
+							<input type="text" class="Wdate inp_normal w130" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm',minDate:'#F{$dp.$D(\'startTime\')}'})" name="endTime" readonly="readonly" id="endTime" gtbfieldid="110" value="<#if endTime?has_content>${endTime}</#if>">
+																					 
+						</li>
+						<li>
+							<label class="side">订单状态：</label>
+							<select name="status" id="status" class="inp_normal w200" >
+								<option value="" <#if status?default("") == "">selected</#if>>全部</option>
+								<option value="0" <#if status?default("") == "0">selected</#if>>未付款</option>
+								<option value="1" <#if status?default("") == "1">selected</#if>>交易关闭</option>
+								<option value="2" <#if status?default("") == "2">selected</#if>>已付款</option>
+								<option value="3" <#if status?default("") == "3">selected</#if>>交易已退款</option>
+								<option value="4" <#if status?default("") == "4">selected</#if>>交易成功</option>
+							</select>
+						</li>
+						<li>
+								<label class="side">商家订单号：</label>
+								<input type="text" name="orderId" id="orderId" gtbfieldid="110" class="inp_normal w200" value="<#if orderId?has_content>${orderId}</#if>"/>
+							</li> 
+							<li>
+							<label class="side">订单金额：</label>
+							<input class="inp_normal w200" id="amount" name="amount" type="text" value="<#if amount?has_content>${amount}</#if>">
+							</li>
+						
+					</ul>
+						<ul>
+							
+							<li>
+								<label class="side">付款人：</label>
+								<input id="payer" name="payer" type="text" class="inp_normal w200" value="<#if payer?has_content>${payer}</#if>">
+							</li>
+							
+						</ul>
+					<em>
+					<i class="btnC">
+					<button type="submit" id="submitId">查 询</button>
+					</i>
+					</em>
+				</div>
+			</form>
+		</div>
+		
+		<div class="refund_list">
+			<div class="refund_title"> 
+				<!--tab str -->
+				<div class="mode_tit">
+					<h2 class="sel"><a href="javascript:void(0)">手机支付订单记录</a> </h2>
+				</div>
+			</div>
+			<div class="refund_box"> 
+				<div class="barg_table">
+				<table id="incomeTable">
+					<tr>
+						<th width="15%">网关收单时间</th>
+						<th width="15%">支付完成时间</th>
+						<th width="12%">商户订单号</th>
+						<th width="14%">商品名称</th>
+						<th width="8%">金额(元)</th>
+						<th width="10%">付款人</th>
+						<th width="7%">订单状态</th>
+						<th width="7%">支付状态</th>
+						<th width="6%">操作</th>
+					</tr>
+					 <#if orderList?exists>
+		   				<#list orderList as order>
+							<tr>
+								<td>${order.createDate?default("")}</td>
+								<td>${order.commitDate?default("")}</td>
+								<td align="center">${order.orderId?default("")}</td>
+								<td align="center">${order.desGoodsName?default("")}</td>
+								<td align="center">${order.amount?string(",##0.00")}</td>
+								<td align="center">${order.payer?default("")}</td>
+								<td align="center">
+								<#if order.orderStatus??>
+									<#if order.orderStatus?has_content>
+										<#if order.orderStatus?default("")==0>
+											等待支付
+										<#elseif order.orderStatus?default("")==1>
+											已关闭
+										<#elseif order.orderStatus?default("")==2>
+											已付款
+										<#elseif order.orderStatus?default("")==3>
+											已退款
+										<#elseif order.orderStatus?default("")==4>
+											交易完成
+										</#if>
+									</#if>
+								</#if>
+								</td>
+								<td align="center">
+								<#if order.payStatus??>
+									<#if order.payStatus?has_content>
+										<#if order.payStatus ==1>
+											支付中
+										<#elseif order.payStatus ==2>
+											支付成功
+										<#elseif order.payStatus ==3>
+											支付中
+										<#elseif order.payStatus ==4>
+											支付中
+										<#elseif order.payStatus ==5>
+											支付中
+										<#elseif order.payStatus ==6>
+											支付中
+										<#elseif order.payStatus ==7>
+											支付失败
+										</#if>
+									</#if>
+								</#if>
+								</td>
+								<td align="center">
+										<a target="_blank" class="blues" href="${rc.contextPath}/corp/mpayOrderQuery.htm?method=querySingleDetail&tradeOrderNo=${order.tradeOrderNo!('')}">查看</a>
+								</td>
+							</tr>
+						</#list>
+		 			</#if>
+				</table>
+				</div>
+				<#if orderList?has_content>
+				<hr style="border-style:dotted; " />
+				订单总计：${count?default("")}笔  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 金额总计：${totalAmount?string(",##0.00")}元
+				</#if>
+				<#if orderList?has_content>
+					<@sp.pagination pu=pu/>
+				</#if>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+<script type="text/javascript">
+	setTime($("#payEndTime").val(),$("#payStartTime").val() );	
+</script>
+<#include "/common/include/footer.html">
+</body>
+</html>

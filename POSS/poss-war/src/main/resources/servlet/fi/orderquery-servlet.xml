@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/tradeOrderQuery.do">tradeOrderQueryController</prop>
+				<prop key="/tradeOrderQueryDownload.do">tradeOrderQueryController</prop>
+				<prop key="/paymentOrderQuery.do">paymentQueryController</prop>
+				<prop key="/channelOrderQuery.do">channelOrderQueryController</prop>
+				<prop key="/channelOrderQueryDownload.do">channelOrderQueryController</prop>
+
+				<prop key="/channelCodeQuery.do">channelCodeQueryController</prop>
+				<prop key="/refundOrderQuery.do">refundOrderQueryController</prop>
+				<prop key="/refundOrderDownload.do">refundOrderQueryController</prop>
+				<prop key="/partnerSettlementOrderQuery.do">partnerSettlementOrderQueryController</prop>
+				<prop key="/partnerSettlementOrderQueryDownload.do">partnerSettlementOrderQueryController</prop>
+				<prop key="/partnerSettlementOrderDelResettleFlag.do">partnerSettlementOrderQueryController</prop>
+				<prop key="/partnerSettlementOrderDelResettleAssureFlag.do">partnerSettlementOrderQueryController</prop>
+				<prop key="/crosspay/orderQuery.do">OrderQueryController</prop>
+				<prop key="/tokenpay.do">tokenpayQueryController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 非即时网关渠道配置 -->
+	<bean id="tradeOrderQueryController"
+		class="com.pay.poss.controller.fi.query.TradeOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/ordercentermanager/tradeorder/queryInit</value>
+		</property>
+		<property name="listView">
+			<value>/ordercentermanager/tradeorder/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/ordercentermanager/tradeorder/orderDetail</value>
+		</property>
+		<property name="tradeOrderDetails">
+			<value>/ordercentermanager/tradeorder/tradeOrderDetails</value>
+		</property>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />  
+	    <property name="userRelationService" ref="userRelationServiceImpl" /> 
+	    <property name="currencyRateService" ref="currencyRateService" /> 
+	    <property name="ipCountryInfoService" ref="inf-ipCountryInfoService"/>
+	</bean>
+	
+	<bean id="paymentQueryController"
+		class="com.pay.poss.controller.fi.query.PaymentOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/ordercentermanager/paymentorder/queryInit</value>
+		</property>
+		<property name="listView">
+			<value>/ordercentermanager/paymentorder/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/ordercentermanager/paymentorder/orderDetail</value>
+		</property>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+	</bean>
+	
+	<bean id="channelOrderQueryController"
+		class="com.pay.poss.controller.fi.query.ChannelOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/ordercentermanager/channelorder/queryInit</value>
+		</property>
+		<property name="listView">
+			<value>/ordercentermanager/channelorder/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/ordercentermanager/channelorder/orderDetail</value>
+		</property>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+		<property name="channelClientService" ref="channelClientService"/>
+	</bean>
+	
+	<bean id="partnerSettlementOrderQueryController"
+		class="com.pay.poss.controller.fi.query.PartnerSettlementOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/ordercentermanager/partnersettlementorder/queryInit</value>
+		</property>
+		<property name="listView">
+			<value>/ordercentermanager/partnersettlementorder/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/ordercentermanager/partnersettlementorder/orderDetail</value>
+		</property>
+		<property name="infoView">
+			<value>/ordercentermanager/partnersettlementorder/info</value>
+		</property>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+		<property name="reportService" ref="txncore-reportService" />
+		<property name="redisClient" ref="redisClient"></property>	
+	</bean>
+	
+	<bean id="refundOrderQueryController"
+		class="com.pay.poss.controller.fi.query.RefundOrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/ordercentermanager/refundorder/queryInit</value>
+		</property>
+		<property name="listView">
+			<value>/ordercentermanager/refundorder/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/ordercentermanager/refundorder/orderDetail</value>
+		</property>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+	</bean>
+
+	<bean id="OrderQueryController"
+		class="com.pay.poss.controller.fi.crosspay.OrderQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/ordermanager/queryInit</value>
+		</property>
+		<property name="queryView">
+			<value>/crosspay/ordermanager/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/crosspay/ordermanager/orderQueryDetail.html</value>
+		</property>
+		<property name="excelDownloadView">
+			<value>/crosspay/ordermanager/excelorderQueryDownload.html</value>
+		</property>
+	</bean>
+	
+	<bean id="tokenpayQueryController"
+		class="com.pay.poss.controller.fi.crosspay.TokenpayQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="queryInit">
+			<value>/crosspay/token/queryInit</value>
+		</property>
+		<property name="queryView">
+			<value>/crosspay/token/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/crosspay/token/orderQueryDetail.html</value>
+		</property>
+		<property name="cardBindService">
+			<ref bean="cardBindQueryService" />
+		</property>
+	</bean>
+	
+	<!-- 渠道返回码查询 -->
+	<bean id="channelCodeQueryController"
+		class="com.pay.poss.controller.fi.query.ChannelCodeQueryController">
+		<property name="methodNameResolver">
+			<ref bean="paraMethodResolver" />
+		</property>
+		<property name="initView">
+			<value>/ordercentermanager/channelcode/queryInit</value>
+		</property>
+		<property name="listView">
+			<value>/ordercentermanager/channelcode/recordList</value>
+		</property>
+		<property name="detailView">
+			<value>/ordercentermanager/channelcode/orderDetail</value>
+		</property>
+		<property name="gatewayOrderQueryService" ref="gatewayOrderQueryService"/>
+		<property name="channelClientService" ref="channelClientService"/>
+	</bean>
+</beans>

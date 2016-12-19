@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="orderQueryCrop">
+
+	<typeAlias alias="incomeDetailParaDto" type="com.pay.txncore.model.QueryDetailPara"/>
+	<resultMap id="queryDetail" class="com.pay.txncore.model.QueryDetail">
+		<result column="CREATEDATE" property="createDate" />
+		<result column="TRADEORDERNO" property="tradeOrderNo" />
+		<result column="ORDERID" property="orderId" />
+		<result column="currencyCode" property="currencyCode"/>
+		<result column="ORDERSTATUS" property="orderStatus" />
+		<result column="ORDERAMOUNT" property="orderAmount" />
+		<result property="refundAmount" column="REFUND_AMOUNT"/>
+		<result column="PARTNERID" property="partnerId" />
+		<result property="completeDate" column="completeDate"/>
+		<result property="respCode" column="respCode"/>
+		<result property="respMsg" column="respMsg"/>
+	</resultMap>
+    
+    <resultMap class="com.pay.txncore.model.TradeOrderCount" id="tradeOrderCounts1">
+          <result property="curencyCode" column="curencyCode"/>
+          <result property="amount" column="amount"/>
+    </resultMap>
+    
+	    
+	<resultMap class="java.util.HashMap" id="querySummary-new">
+   		<result column="listSize" property="listSize" />
+   		<result column="listAmount" property="listAmount" />
+   	</resultMap>	
+   	
+	<resultMap class="java.util.HashMap" id="singleIncomeDetailResultMap">
+		<result column="TRADEORDERNO" property="tradeOrderNo" />
+		<result column="CREATEDATE" property="createDate" />
+		<result column="UPDATEDATE" property="updateDate" />
+		<result column="TRADETYPE" property="tradeType" />
+		<result column="ORDERID" property="orderId" />
+		<result column="FLOW" property="flow" />
+		<result column="GOODSNAME" property="goodsName" />
+		<result column="ORDERAMOUNT" property="orderAmount" />
+		<result column="STATUS" property="status" />
+		<result column="PAYTYPE" property="payType" />
+		<result column="PAYEEFEE" property="payeeFee" />
+		<result column="RETURNSTATUS" property="returnStatus" />
+		<result column="ORDERNO" property="orderNo" />
+		<result column="ISREFUND" property="isRefund" />
+		<result column="refundamount" property="refundAmount" />
+		<result column="currencyCode" property="currencyCode" />
+		<result column="bankProtocolNo" property="bankProtocolNo"/>
+		<result column="bankSerialNo" property="bankSerialNo"/>
+		<result column="PAYERMARK" property="payermark"/>
+		<result column="PARTNERID" property="partnerId"/>
+		<result property="respCode" column="respCode"/>
+		<result property="respMsg" column="respMsg"/>
+	</resultMap>
+	
+	<resultMap id="fiorderQueryResultDetail" class="com.pay.txncore.dto.OrderQueryResultDetail">
+        <result column="ORDER_ID" property="orderID" jdbcType="VARCHAR"/>
+        <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_AMOUNT" property="payAmount" jdbcType="DECIMAL"/>
+        <result column="PAYMENT_ORDER_NO" property="orderNo" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="acquiringTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="completeTime" jdbcType="TIMESTAMP"/>
+        <result column="STATUS" property="stateCode" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+    <resultMap id="firefundOrderQueryResultDetail" class="com.pay.txncore.model.RefundOrderQueryResultDetail">
+    	<result column="PARTNER_REFUND_ORDER_ID" property="refundOrderID" jdbcType="DECIMAL"/>
+        <result column="ORDER_ID" property="orderID" jdbcType="VARCHAR"/>
+        <result column="REFUND_AMOUNT" property="refundAmount" jdbcType="DECIMAL"/>
+        <result column="PARTNER_REFUND_TIME" property="refundTime" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="completeTime" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_ORDER_NO" property="refundNo" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="stateCode" jdbcType="VARCHAR"/>
+    </resultMap>
+    
+   <resultMap id="reconcileOrder" class="com.pay.txncore.dto.ReconcileOrder">
+        <result column="updateDate" property="updateDate"/>
+        <result column="paymentOrderNo" property="paymentOrderNo"/>
+        <result column="amount" property="amount"/>
+        <result column="fee" property="fee"/>
+        <result column="orderId" property="orderId"/>
+        <result column="tradeOrderNo" property="tradeOrderNo"/>
+        <result column="createDate" property="createDate"/>
+        <result column="payType" property="payType"/>
+        <result column="depositProtocolNo" property="depositProtocolNo"/>
+        <result column="serialNo" property="serialNo"/>
+        <result column="riskFee" property="riskFee"/>
+        <result column="settlementId" property="settlementId"/>
+        <result column="orderAmount" property="orderAmount"/>
+        <result column="settlementAmount" property="settlementAmount"/>
+        <result column="settlementDate" property="settlementDate"/>
+        <result column="currencyCode" property="currencyCode"/>
+        <result property="settlementCurrencyCode" column="settlementCurrencyCode"/>
+        <result property="assureAmount" column="assureAmount"/>
+        <result property="status" column="status"/>
+        <result property="refundAmount" column="refundAmount"/>
+        <result property="settlementRate" column="settlementRate"/>
+        <result property="fee" column="fee"/>
+        <result property="settlementAmount" column="settlementAmount"/>
+        <result property="fixedFee" column="fixedFee"/>
+        <result property="perFee" column="perFee"/>
+        <result property="fixedFeeCurrency" column="fixedFeeCurrency"/>
+        <result property="fixedFeeSettlementAmount" column="fixedFeeSettlementAmount"/>
+        <result property="recordedAmount" column="recordedAmount"/>
+    </resultMap>
+	<select id="queryIncomeDetailList" parameterClass="incomeDetailParaDto" resultMap="queryDetail">
+		SELECT tor.CREATE_DATE createDate,
+		       tor.TRADE_ORDER_NO tradeOrderNo,
+	           tor.ORDER_ID orderId,
+	           tor.CURRENCY_CODE currencyCode,
+               tor.status orderStatus,
+               tor.PARTNER_ID partnerId,
+               tor.order_amount orderAmount,
+               tor.COMPLETE_DATE as completeDate,
+               tor.REFUND_AMOUNT,
+               tor.RESP_CODE respCode,
+               tor.RESP_MSG respMsg
+             FROM TRADE_ORDER tor
+		  WHERE 1=1
+		   AND tor.Partner_Id = #memberCode#
+		<isNotNull property="startTime">
+			<![CDATA[AND tor.CREATE_DATE >= #startTime#]]>
+		</isNotNull>
+		<isNotNull property="endTime">
+			<![CDATA[AND tor.CREATE_DATE < #endTime#]]>
+		   </isNotNull>
+		   <isNotEmpty property="orderStatus" prepend="AND">
+	 			tor.STATUS in ($orderStatus$)
+		 </isNotEmpty>
+		 <isNotEmpty property="orderSeq">
+				AND tor.ORDER_ID = #orderSeq#
+		   </isNotEmpty>
+	    ORDER BY tor.CREATE_DATE DESC
+	</select>
+	
+	<select id="queryTradeOrderCount1" resultMap="tradeOrderCounts1" parameterClass="java.lang.Long">
+		select sum(to_.ORDER_AMOUNT) as amount,tb.CURRENCY_CODE as curencyCode
+		from TRADE_ORDER to_,TRADE_BASE tb where to_.TRADE_BASE_NO = tb.TRADE_BASE_NO
+		and to_.PARTNER_ID=#memberCode# and to_.status=4 group by tb.CURRENCY_CODE
+	</select>
+	
+    <select id="queryIncomeDetailList_COUNT" parameterClass="incomeDetailParaDto" resultMap="querySummary-new">
+		 select count(*) as listSize,
+		     sum(orderAmount) as listAmount from
+		(
+		SELECT tor.CREATE_DATE createDate,
+		       tor.TRADE_ORDER_NO tradeOrderNo,
+	           tor.ORDER_ID orderId,
+	           tor.CURRENCY_CODE currencyCode,
+               tor.status orderStatus,
+               tor.PARTNER_ID partnerId,
+               tor.order_amount orderAmount,
+               tor.COMPLETE_DATE as completeDate,
+               tor.REFUND_AMOUNT,
+               tor.RESP_CODE respCode,
+               tor.RESP_MSG respMsg
+             FROM TRADE_ORDER tor
+		  WHERE 1=1
+		   AND tor.Partner_Id = #memberCode#
+		<isNotNull property="startTime">
+			<![CDATA[AND tor.CREATE_DATE >= #startTime#]]>
+		</isNotNull>
+		<isNotNull property="endTime">
+			<![CDATA[AND tor.CREATE_DATE < #endTime#]]>
+		   </isNotNull>
+		   <isNotEmpty property="orderStatus" prepend="AND">
+	 			tor.STATUS in ($orderStatus$)
+		 </isNotEmpty>
+		 <isNotEmpty property="orderSeq">
+				AND tor.ORDER_ID = #orderSeq#
+		   </isNotEmpty>
+	    ORDER BY tor.CREATE_DATE DESC
+		) 
+	</select>   
+	
+	<select id="querySingleIncomeDetail" parameterClass="java.util.HashMap" resultMap="singleIncomeDetailResultMap">
+		    SELECT *
+              FROM (SELECT TRO.TRADE_ORDER_NO tradeorderno,
+                           TRO.CREATE_DATE createdate,
+                           TRO.UPDATE_DATE updatedate,
+                           TRO.TRADE_TYPE tradetype,
+                           TRO.ORDER_ID orderid,
+                           TRO.PARTNER_ID partnerId,
+                           TRB.PAYER_MARK payermark,
+                           '收' flow,
+                           TRO.GOODS_NAME goodsname,
+                           TRO.ORDER_AMOUNT / 1000 orderamount,
+                           TRO.REFUND_AMOUNT/ 1000 refundamount,
+                           TRO.CURRENCY_CODE currencyCode,
+                           TRO.RESP_CODE respCode,
+			               TRO.RESP_MSG respMsg
+                      FROM TRADE_ORDER TRO, TRADE_BASE TRB
+                     WHERE TRO.TRADE_BASE_NO = TRB.TRADE_BASE_NO
+                       AND TRO.PARTNER_ID = #memberCode#
+                       AND TRO.TRADE_ORDER_NO = #serialNo#
+                       ) A,
+                   (SELECT status, paytype, payeefee, tradeorderno, bankProtocolNo, bankSerialNo
+                      FROM (
+                      	select * from (SELECT PO.STATUS status,             
+						PO.PAY_TYPE paytype, PO.PAYEE_FEE / 1000 payeefee, PO.TRADE_ORDER_NO tradeorderno,           
+						DR.CHANNEL_ORDER_NO bankProtocolNo,DR.SERIAL_NO bankSerialNo FROM PAYMENT_ORDER PO, CHANNEL_ORDER DR    
+						WHERE PO.PAYMENT_ORDER_NO = DR.PAYMENT_ORDER_NO(+)  AND PO.TRADE_ORDER_NO = #serialNo#  
+						ORDER BY PO.CREATE_DATE DESC )   where rownum <![CDATA[<=]]> 1
+                      ) ) B,
+                   (SELECT returnstatus, orderno
+                      FROM (SELECT GR.RETURN_STATUS returnstatus, GR.ORDER_NO orderno
+                              FROM GATEWAY_RESPONSE GR
+                             WHERE GR.ORDER_NO = #serialNo#
+                             ORDER BY GR.CREATE_DATE DESC) GR
+                     <![CDATA[WHERE ROWNUM <= 1) C,]]>
+                   (SELECT COUNT(RO.TRADE_ORDER_NO)  isrefund
+                      FROM REFUND_ORDER RO
+                     WHERE RO.TRADE_ORDER_NO = #serialNo#
+                     ) D
+             WHERE A.tradeorderno = B.tradeorderno(+)
+               AND A.tradeorderno = C.orderno(+)
+	</select>	
+	
+	<select id="queryPaymentResult" resultMap="fiorderQueryResultDetail" parameterClass="java.util.Map">
+        SELECT 
+			a.ORDER_ID,
+			a.ORDER_AMOUNT,
+			b.PAYMENT_AMOUNT,
+			b.PAYMENT_ORDER_NO,
+			a.CREATE_DATE,
+			b.UPDATE_DATE,
+			b.STATUS
+               FROM trade_order a , PAYMENT_ORDER b
+        where  a.TRADE_ORDER_NO=b.TRADE_ORDER_NO    
+        <isNotNull prepend="AND" property="orderID">
+            a.ORDER_ID = #orderID# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerID">
+            a.PARTNER_ID = #partnerID# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            b.STATUS = #status# 
+        </isNotNull>
+    </select>
+    
+    <select id="queryRefundResult" resultMap="firefundOrderQueryResultDetail" parameterClass="java.util.Map">
+        SELECT 
+			a.PARTNER_REFUND_ORDER_ID,
+			b.ORDER_ID,
+			a.REFUND_AMOUNT,
+			a.PARTNER_REFUND_TIME,
+			a.UPDATE_DATE,
+			a.REFUND_ORDER_NO,
+			a.STATUS
+               FROM TRADE_ORDER b, REFUND_ORDER a
+        where  a.TRADE_ORDER_NO=b.TRADE_ORDER_NO     
+        <isNotNull prepend="AND" property="orderID">
+           	b.ORDER_ID = #orderID# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerID">
+            b.PARTNER_ID = #partnerID# 
+        </isNotNull>
+    </select>
+    
+    <select id="queryAllPaymentResult" resultMap="fiorderQueryResultDetail" parameterClass="java.util.Map">
+        SELECT 
+			a.ORDER_ID,
+			a.ORDER_AMOUNT,
+			b.PAYMENT_AMOUNT,
+			b.PAYMENT_ORDER_NO,
+			a.CREATE_DATE,
+			b.UPDATE_DATE,
+			b.STATUS
+               FROM trade_order a , PAYMENT_ORDER b
+        where  a.TRADE_ORDER_NO=b.TRADE_ORDER_NO    
+        <isNotNull prepend="AND" property="tradeOrderNo">
+            a.TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerID">
+            a.PARTNER_ID = #partnerID# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            b.STATUS = #status# 
+        </isNotNull>
+        <isEmpty prepend="AND" property="beginTime">
+			a.CREATE_DATE <![CDATA[>=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '00:00:00','yyyy-MM-dd hh24:mi:ss')
+		</isEmpty>
+		<isEmpty prepend="AND" property="endTime">
+			a.CREATE_DATE <![CDATA[<=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '23:59:59','yyyy-MM-dd hh24:mi:ss')
+		</isEmpty>
+         <isNotEmpty prepend="AND" property="beginTime">
+			a.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		 </isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+           	a.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+    </select>
+    
+    <select id="queryAllRefundResult" resultMap="firefundOrderQueryResultDetail" parameterClass="java.util.Map">
+        SELECT 
+			a.PARTNER_REFUND_ORDER_ID,
+			b.ORDER_ID,
+			a.REFUND_AMOUNT,
+			a.PARTNER_REFUND_TIME,
+			a.UPDATE_DATE,
+			a.REFUND_ORDER_NO,
+			a.STATUS
+               FROM TRADE_ORDER b, REFUND_ORDER a
+        where  a.TRADE_ORDER_NO=b.TRADE_ORDER_NO     
+         <isNotNull prepend="AND" property="tradeOrderNo">
+            b.TRADE_ORDER_NO = #tradeOrderNo# 
+        </isNotNull>
+         <isNotNull prepend="AND" property="partnerID">
+            	b.PARTNER_ID = #partnerID# 
+        </isNotNull>
+        <isEmpty prepend="AND" property="beginTime">
+				a.CREATE_DATE <![CDATA[>=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '00:00:00','yyyy-MM-dd hh24:mi:ss')
+		</isEmpty>
+		<isEmpty prepend="AND" property="endTime">
+			a.CREATE_DATE <![CDATA[<=]]> to_date(to_char(sysdate,'yyyy-MM-dd')|| '23:59:59','yyyy-MM-dd hh24:mi:ss')
+		</isEmpty>
+         <isNotEmpty prepend="AND" property="beginTime">
+				a.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		 </isNotEmpty>
+         <isNotEmpty prepend="AND" property="endTime">
+           	    a.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+        </isNotEmpty>
+    </select>
+	
+	<select id="findReconcileOrder" resultMap="reconcileOrder" parameterClass="java.util.Map">
+        select b.update_date as updateDate,
+       b.PAYMENT_ORDER_NO as paymentOrderNo,
+       (b.payment_amount - nvl(b.payee_fee, 0)) as amount,
+       nvl(pso.fee, 0) as fee,
+       a.order_id as orderId,
+       b.trade_order_no as tradeOrderNo,
+       a.create_date as createDate,
+       b.pay_type as payType,
+       pso.currency_code currencyCode,
+       c.channel_order_no as depositProtocolNo,
+       c.serial_no as serialNo,
+       pso.risk_fee as riskFee,
+       pso.id settlementId,
+       pso.SETTLEMENT_CURRENCY_CODE settlementCurrencyCode,
+       pso.ASSURE_AMOUNT assureAmount,
+       a.status,
+       a.REFUND_AMOUNT refundAmount,
+       pso.fee,
+       pso.SETTLEMENT_AMOUNT settlementAmount,
+       pso.FIXED_FEE fixedFee,
+       pso.PER_FEE perFee,
+       pso.FIXED_FEE_CURRENCY fixedFeeCurrency,
+       pso.FIXED_FEE_SETTLEMENT_AMOUNT fixedFeeSettlementAmount,
+       pso.RECORDED_AMOUNT recordedAmount,
+       pso.SETTLEMENT_RATE settlementRate,
+       a.order_amount orderAmount,
+       (a.order_amount*pso.settlement_rate-pso.fee-pso.risk_fee) settlementAmount,
+       pso.settlement_date settlementDate
+	  from partner_settlement_order pso,trade_order a, 
+	  payment_order b, channel_order c
+	 where pso.trade_order_no = a.trade_order_no
+	   and a.trade_order_no = b.trade_order_no
+	   and b.payment_order_no = c.payment_order_no(+)
+	   and b.status = '1'
+  		 and a.partner_id= #memberCode# 
+  		 <isNotEmpty prepend="and" property="monthTime">
+			to_char(b.update_date,'yyyy-mm') = #monthTime#
+		 </isNotEmpty>
+		 <isNotEmpty prepend="and" property="dayTime">
+			to_char(b.update_date,'yyyy-mm-dd') = #dayTime#
+		 </isNotEmpty>
+		 order by b.update_date desc
+    </select>
+    
+   <resultMap id="queryOrderInfoMap" class="java.util.HashMap">
+        <result column="ORDERID" property="orderId"/>
+        <result column="ORDERAMOUNT" property="orderAmount"/>
+        <result column="PAYAMOUNT" property="payAmount"/>
+        <result column="ACQUIRINGTIME" property="acquiringTime"/>
+        <result column="COMPLETETIME" property="completeTime"/>
+        <result column="DEALID" property="dealId"/>
+        <result column="CURRENCYCODE" property="currencyCode"/>
+        <result column="STATECODE" property="stateCode"/>
+        <result column="MERCHANTBILLNAME" property="merchantBillName"/>
+    </resultMap>
+
+	<select id="queryOrderInfo" resultMap="queryOrderInfoMap">
+		SELECT 
+		t.order_id orderId,
+		to_char(ORDER_AMOUNT/10) AS ORDERAMOUNT,
+		to_char(P.PAYMENT_AMOUNT/10) PAYAMOUNT,
+		TO_CHAR(TB.ORDER_COMMIT_TIME,'YYYYMMDDHH24MMSS') ACQUIRINGTIME,
+		TO_CHAR(T.COMPLETE_DATE,'YYYYMMDDHH24MMSS') COMPLETETIME,
+		to_char(T.TRADE_ORDER_NO) DEALID,
+		TB.CURRENCY_CODE CURRENCYCODE,
+		DECODE(T.STATUS,4,'2',5,'3',0,'1','1') STATECODE,
+		t.MERCHANT_BILL_NAME MERCHANTBILLNAME
+		FROM TRADE_ORDER T,TRADE_BASE TB,PAYMENT_ORDER P
+		WHERE T.TRADE_BASE_NO=TB.TRADE_BASE_NO
+		AND T.TRADE_ORDER_NO=P.TRADE_ORDER_NO
+		<isNotEmpty property="orderId" prepend="AND">
+			T.ORDER_ID = #orderId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginTime">
+			t.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	t.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		AND T.PARTNER_ID = #partnerId#
+	</select>
+	
+	<resultMap id="queryRefundOrderInfoMap" class="java.util.HashMap">
+        <result column="REFUNDORDERID" property="refundOrderId"/>
+        <result column="ORDERID" property="orderId"/>
+        <result column="REFUNDAMOUNT" property="refundAmount"/>
+        <result column="REFUNDTIME" property="refundTime"/>
+        <result column="COMPLETETIME" property="completeTime"/>
+        <result column="DEALID" property="dealId"/>
+        <result column="STATECODE" property="stateCode"/>
+    </resultMap>
+	
+	<select id="queryRefundOrderInfo" resultMap="queryRefundOrderInfoMap">
+		SELECT 
+        R.PARTNER_REFUND_ORDER_ID refundOrderId,
+        t.order_id orderId,
+        to_char(R.REFUND_AMOUNT/10) AS refundAmount,
+        TO_CHAR(R.PARTNER_REFUND_TIME,'YYYYMMDDHH24MMSS') refundTime,
+        TO_CHAR(R.COMPLATE_DATE,'YYYYMMDDHH24MMSS') completeTime,
+        to_char(r.refund_order_no) DEALID,
+        DECODE(T.STATUS,2,'2',3,'3','1') STATECODE
+        FROM refund_order r,TRADE_ORDER T
+        WHERE r.trade_order_no=t.trade_order_no
+		<isNotEmpty property="orderId" prepend="AND">
+			r.PARTNER_REFUND_ORDER_ID = #orderId#
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="beginTime">
+			r.CREATE_DATE <![CDATA[>=]]> to_date(#beginTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="endTime">
+           	r.CREATE_DATE <![CDATA[<=]]> to_date(#endTime#, 'yyyy-MM-dd hh24:mi:ss')
+		</isNotEmpty>
+		AND r.PARTNER_ID = #partnerId#
+	</select>	
+</sqlMap>

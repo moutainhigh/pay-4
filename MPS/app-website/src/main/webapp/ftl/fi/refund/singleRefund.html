@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>单笔退款申请</title>
+<#include "/common/macro/seoPerson.ftl"> 
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/css.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script src="<@sp.static/>/js/pay/common/common.js?rand=2" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+<meta http-equiv="pragma" content="no-cache"> 
+<meta http-equiv="cache-control" content="no-cache"> 
+<meta http-equiv="expires" content="0"> 
+
+</head>
+<body>
+<script type="text/javascript">	
+function changeRefundType(obj){
+	if(obj == 1){
+	 	$("#refundAmount").val($("#canRefundAmount").val());
+	 	$("#refundAmount").attr('readonly',true);
+	}
+	else if(obj == 2){
+		$("#refundAmount").val('');
+	 	$("#refundAmount").attr('readonly',false);
+	}
+}
+
+<#if errorMsg?exists>
+$(function(){	
+	$.pay.alert('${errorMsg?default('')}',{h:160,t:'3'});
+});
+</#if>
+
+<#if resultCode?exists>
+$(function(){	
+	$.pay.alert('${resultCode?default('')}',{h:160,t:'3'});
+});
+</#if>
+function checkSearchForm(){
+	var orderId = document.forms[0].orderId;
+	if (orderId == '') {
+		$.pay.alert('请输入商户订单号！', {
+			h : 160,
+			t : '3',
+			close:function(){
+				$("#orderId").focus();
+			}
+		});
+		return false;
+	}
+}
+
+function checkRefundForm(){
+	
+	var orderId = document.refundForm.hiddenOrderId;
+	if (orderId.value == '') {
+		$.pay.alert('请先查询出您要进行退款订单后,再进行此操作!', {
+			h : 160,
+			t : '3',
+			close:function(){
+				$("#orderId").focus();
+			}
+		});
+		return false;
+	}
+	
+	var refundType = document.refundForm.refundType;
+	var isChecked =false;
+	for(var i=0;i<refundType.length;i++){
+		 if (refundType[i].checked){
+			 isChecked = true;
+		 }
+	}
+	if (isChecked == false) {
+		$.pay.alert('请选择退款类型！', {
+			h : 160,
+			t : '3',
+			close:function(){
+				$("#refundType").focus();
+			}
+		});
+		return false;
+	}
+	
+	var refundAmount = document.refundForm.refundAmount;
+	if (refundAmount.value == '') {
+		$.pay.alert('请输入退款金额！', {
+			h : 160,
+			t : '3',
+			close:function(){
+				$("#refundAmount").focus();
+			}
+		});
+		return false;
+	}
+	
+	if ('' != refundAmount.value && !isNumber(refundAmount.value)) {
+		$.pay.alert('请输入正确金额 ！', {
+			h : 160,
+			t : '3',
+			close:function(){$("#refundAmount").val("");$("#refundAmount").focus();}
+		});
+		return false;
+	}
+	if ('' != refundAmount.valuet && refundAmount.value <= 0) {
+		$.pay.alert('退款金额不能小于等于0 ！', {
+			h : 160,
+			t : '3',
+			close:function(){$("#heepayDealAmount").focus();}
+		});
+		return false;
+	}	
+	if(parseFloat(refundAmount.value) > parseFloat($("#canRefundAmount").val())){
+		$.pay.alert('退款金额不可大于当前可退金额  ！', {
+			h : 160,
+			t : '3',
+			close:function(){$("#refundAmount").val("");$("#refundAmount").focus();}
+		});
+		return false;
+	}
+
+	var remark = document.refundForm.remark;
+	if (remark.value == '') {
+		$.pay.alert('请输入退款原因！', {
+			h : 160,
+			t : '3',
+			close:function(){
+				$("#remark").focus();
+			}
+		});
+		return false;
+	}
+	if(remark.value.length >= 50){
+		$.pay.alert('退款原因不可大于50个字符！', {
+			h : 160,
+			t : '3',
+			close:function(){
+				$("#remark").focus();
+			}
+		});
+		return false;
+	}
+}
+</script>
+
+<!--导航 str-->
+<@sp.head mCode="corp_single_refund"/>
+<!--导航 end-->
+
+<!--主内容 str -->
+<div class="container">
+<div class="mod_box_a mt10">
+
+<p class="top"><i></i></p>
+<div class="con_box has_bg">
+<div class="tit_box">
+	<div class="title sub_nav3">
+		<strong class="cur">单笔退款申请</strong>
+		<span class="line">|</span>
+			<a href="${rc.contextPath}/corp/batchRefundApply.htm">批量退款申请</a>
+		<span class="line">|</span>
+			<a href="${rc.contextPath}/corp/refundOrderQuery.htm">退款明细</a>
+	</div>
+</div>
+<!--查询 str-->
+
+<div class="order_search mt10">
+<form class="form" action="${rc.contextPath}/corp/singleRefund.htm?method=searchOrder" name="searchFrom" id="searchForm" method="post">
+<ul class="form_list mt10">
+	<li>
+		<label class="form_side2">商户订单号：</label>
+		<input type="text" class="inp_normal w250"  maxlength="32"  value="<#if tradeOrder?has_content>${tradeOrder.orderId?string}</#if>" name="orderId" id="orderId">
+	</li>
+	<li class="btn">
+		<span class="btn_yel">
+			<button type="submit" onClick="return checkSearchForm();">查 询</button>
+		</span>
+	</li>
+</ul>
+</form>
+</div>
+<!--查询 end-->
+<div class="refund_table"><!--订单信息-->
+
+<#if tradeOrder?has_content>
+	<table class="table">
+		<thead>
+			<tr>
+				<th colspan="7" class="txtL"><strong>订单信息</strong></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="gray c_000">
+				<td width="15%">交易时间</td>
+				<td>流水号</td>
+				<td>订单号</td>
+				<td>渠道</td>
+				<td>支付状态</td>
+				<td>通知状态</td>
+				<td>订单金额</td>
+			</tr>
+			<tr>
+				<td>${tradeOrder.createDate?datetime}</td>
+				<td>${tradeOrder.tradeOrderNo?string}</td>
+				<td>${tradeOrder.orderId?string}</td>
+				<td>
+					<#if tradeOrder.payType?default("")=="1">
+						账户支付
+					<#elseif tradeOrder.payType?default("")=="2">
+						网银B2C普通
+					<#elseif tradeOrder.payType?default("")=="3">
+						网银B2B
+					<#elseif tradeOrder.payType?default("")=="4">
+						网银B2C大额
+					<#elseif tradeOrder.payType?default("")=="5">
+						借记卡大额
+					<#elseif tradeOrder.payType?default("")=="6">
+						信用卡大额
+					<#elseif tradeOrder.payType?default("")=="7">
+						易卡支付
+					<#elseif tradeOrder.payType?default("")=="11">
+						充值卡支付
+					</#if>
+					
+				</td> 				
+				<#if tradeOrder.status = 1>
+					<td class="red">交易关闭</td>
+				<#elseif tradeOrder.status = 2>
+					<td class="green">已经付款</td>
+				<#elseif tradeOrder.status = 3>
+					<td class="green">交易完成</td>
+				<#elseif tradeOrder.status = 4>
+					<td class="green">支付完成</td>
+				</#if>
+				<#if tradeOrder.noticeStatus = 1>
+					<td class="green">成功</td>
+				<#elseif tradeOrder.noticeStatus = 2>
+					<td class="red">失败</td>
+				</#if>	
+				<td class="red">${tradeOrder.strOrderAmount?string}</td>
+			</tr>
+		</tbody>
+	</table>
+	
+	<!--/订单信息--> <!-- 退款记录-->
+	<table class="table mt10">
+		<thead>
+			<tr>
+				<th colspan="7" class="txtL"><strong>退款记录</strong></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="gray c_000">
+				<td width="15%">申请时间</td>
+				<td>流水号</td>
+				<td>退款渠道</td>
+				<td>申请金额</td>
+				<td>退款状态</td>
+				<td>退款金额</td>
+			</tr>
+			<#if listRefundOrder?has_content>
+		   		<#list listRefundOrder as order>
+				<tr>
+					<td>${order.createTime?datetime}</td>
+					<td>${order.refundOrderID?string}</td>
+					<td> 
+						<!--${order.refundObjType?string}-->
+						<#if order.depositBackNo !=0  && (order.status=4 || order.status=5)>
+							退银行
+						<#else>
+							退帐户
+						</#if>
+					</td>
+					<td>${order.applyAmount?string}</td>
+
+					<#if order.status = 1>
+						<td class="green">退帐户处理中</td>
+					<#elseif order.status = 2>
+						<td class="green">退帐户成功</td>
+					<#elseif order.status = 3>
+						<td class="red">退帐户失败</td>
+					<#elseif order.status = 4>
+						<td class="green">退帐户成功,充退处理中</td>
+					<#elseif order.status = 5>
+						<td class="green">退帐户成功,充退成功</td>
+					<#elseif order.status = 6>
+						<td class="green">退帐户成功,充退失败</td>
+					</#if>
+					<td class="red">${order.applyAmount}</td>
+				</tr>
+				</#list>
+	 		</#if>
+			<tr>
+				<td colspan="7" class="txtR">剩余可退金额：<strong class="red">${tradeOrder.refundAmount?string}</strong>
+				元</td>
+			</tr>
+		</tbody>
+	</table>
+</#if>
+
+<!--/ 退款记录--></div>
+</div>
+<p class="bot"><i></i></p>
+</div>
+<!--退款申请-->
+<div class="mod_box_a mt10">
+<p class="top"><i></i></p>
+
+<div class="con_box has_bg">
+<div class="tit_box">
+<h3 class="title f14"><strong>退款申请</strong></h3>
+</div>
+<div class="ico_txtBox mt5" id="refundTitle" style="display:none">
+	<i class="warn_ico">
+	</i>
+	<p class="red">尊敬的用户，预付卡及消费卡渠道未开通退款功能，暂不支持退款。</p>
+</div>
+<form class="mod_form" name="refundForm" id="refundForm" action="${rc.contextPath}/corp/singleRefund.htm?method=refund" method="post">
+<ul class="form_list mt20">
+	<li><label class="form_side">是否全额退款：</label> 
+		<input type="radio" value="1" name="refundType" id="refundType" onChange="changeRefundType(1)"> 
+		<label for="test1" class="pointer">是</label> 
+		<input type="radio" class="ml20" value="2" name="refundType" id="refundType" onChange="changeRefundType(2)"> 
+		<label for="test2" class="pointer">否</label>
+	</li>
+	<li>
+		<label class="form_side2">退款金额：</label> 
+		<input type="text" size="12" class="inp_normal w130 blod" name="refundAmount" id="refundAmount" maxlength="16"> 元
+		<span class="c_999 ml20">请填写退款金额,退款金额不可大于当前可退金额  ！</span>
+		<p class="g_tips">可退金额：<strong class="red2"> 
+			<#if tradeOrder?has_content> 
+				${tradeOrder.refundAmount?string} 
+			<#else> 0
+			</#if>
+			 元
+	     </strong></p>
+	     <input type="hidden" name ="canRefundAmount" id ="canRefundAmount" value="<#if tradeOrder?has_content>${tradeOrder.refundAmount?string}</#if>">
+	</li>
+	<li><label class="form_side2">退款原因：</label>
+	<textarea class="inp_normal w250" rows="4" id="remark" name="remark"></textarea>
+	</li>
+	<li class="btn"><span class="btn_yel">
+	<input type="hidden" name ="hiddenOrderId" id ="hiddenOrderId" value="<#if tradeOrder?has_content>${tradeOrder.orderId?string}</#if>">
+	<input type="hidden" name ="hiddenOrderAmount" id ="hiddenOrderAmount" value="<#if tradeOrder?has_content>${tradeOrder.strOrderAmount?string}</#if>">
+	<button type="submit" onClick="return checkRefundForm();" id="btn">提交申请</button> 
+	</span>
+	
+	</li>
+</ul>
+</form>
+
+</div>
+
+<p class="bot"><i></i></p>
+</div>
+
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+<script type="text/javascript">
+<#if tradeOrder?has_content>
+	<#if tradeOrder.payType == "7" || tradeOrder.payType == "11">  
+		$("#btn").attr("disabled","disabled");
+		$("#refundTitle").attr("style","display:block");
+	</#if></#if>
+</script>
+
+</body>
+
+</html>

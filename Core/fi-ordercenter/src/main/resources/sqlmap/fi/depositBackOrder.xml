@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="depositBackOrder">
+	<typeAlias alias="depositBackOrder" type="com.pay.txncore.model.DepositBackOrder"/>
+    <resultMap id="depositBackOrder" class="com.pay.txncore.model.DepositBackOrder">
+        <result column="FEE" property="fee" jdbcType="DECIMAL"/>
+        <result column="DEPOSIT_BACK_NO" property="depositBackNo" jdbcType="DECIMAL"/>
+        <result column="STATUS" property="status" jdbcType="VARCHAR"/>
+        <result column="ERROR_CODE" property="errorCode" jdbcType="VARCHAR"/>
+        <result column="DEPOSIT_ORDER_NO" property="depositOrderNo" jdbcType="DECIMAL"/>
+        <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP"/>
+        <result column="REFUND_ORDER_NO" property="refundOrderNo" jdbcType="DECIMAL"/>
+        <result column="DEPOSIT_BACK_AMOUNT" property="depositBackAmount" jdbcType="DECIMAL"/>
+    </resultMap>
+    
+     <insert id="create" parameterClass="depositBackOrder">
+		<selectKey resultClass="java.lang.Long" keyProperty="depositBackNo">
+			SELECT
+			108 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+			||LPAD(SEQ_DEPOSIT_BACK_NO.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	    INSERT INTO DEPOSIT_BACK_ORDER(
+			DEPOSIT_BACK_NO,FEE,STATUS,ERROR_CODE,DEPOSIT_ORDER_NO,
+			CREATE_DATE,UPDATE_DATE,REFUND_ORDER_NO,DEPOSIT_BACK_AMOUNT
+        )
+        VALUES(
+            #depositBackNo#,#fee#,#status#,#errorCode#,#depositOrderNo#,
+			sysDate,sysDate,#refundOrderNo#,#depositBackAmount#
+		)
+	</insert>
+
+    <update id="update" parameterClass="depositBackOrder">
+        UPDATE DEPOSIT_BACK_ORDER
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="fee">
+            FEE = #fee#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            STATUS = #status#
+        </isNotNull>
+        <isNotNull prepend="," property="errorCode">
+            ERROR_CODE = #errorCode#
+        </isNotNull>
+        <isNotNull prepend="," property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="createDate">
+            CREATE_DATE = #createDate#
+        </isNotNull>
+        <isNotNull prepend="," property="updateDate">
+            UPDATE_DATE = sysDate
+        </isNotNull>
+        <isNotNull prepend="," property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo#
+        </isNotNull>
+        <isNotNull prepend="," property="depositBackAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+            <isNotNull prepend="and" property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo#
+        </isNotNull>
+        </dynamic>
+    </update>
+
+    <select id="findById" resultMap="depositBackOrder"
+        parameterClass="java.lang.Long">
+        SELECT 
+			FEE,DEPOSIT_BACK_NO,STATUS,ERROR_CODE,DEPOSIT_ORDER_NO,
+			CREATE_DATE,UPDATE_DATE,REFUND_ORDER_NO,DEPOSIT_BACK_AMOUNT
+        FROM DEPOSIT_BACK_ORDER
+        WHERE DEPOSIT_BACK_NO=#depositBackNo#
+    </select>
+    
+    <select id="findByBackNoForUpdate" resultMap="depositBackOrder"
+        parameterClass="java.lang.Long">
+        SELECT 
+			FEE,DEPOSIT_BACK_NO,STATUS,ERROR_CODE,DEPOSIT_ORDER_NO,
+			CREATE_DATE,UPDATE_DATE,REFUND_ORDER_NO,DEPOSIT_BACK_AMOUNT
+        FROM DEPOSIT_BACK_ORDER
+        WHERE DEPOSIT_BACK_NO=#depositOrderNo# for update wait 6
+    </select>
+    
+    <select id="findBySelective" resultMap="depositBackOrder">
+        SELECT 
+			FEE,DEPOSIT_BACK_NO,STATUS,ERROR_CODE,DEPOSIT_ORDER_NO,
+			CREATE_DATE,UPDATE_DATE,REFUND_ORDER_NO,DEPOSIT_BACK_AMOUNT
+        FROM DEPOSIT_BACK_ORDER
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="fee">
+            FEE = #fee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM DEPOSIT_BACK_ORDER
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="fee">
+            FEE = #fee# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackNo">
+            DEPOSIT_BACK_NO = #depositBackNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="status">
+            STATUS = #status# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="errorCode">
+            ERROR_CODE = #errorCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositOrderNo">
+            DEPOSIT_ORDER_NO = #depositOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="createDate">
+            CREATE_DATE = #createDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="updateDate">
+            UPDATE_DATE = #updateDate# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="refundOrderNo">
+            REFUND_ORDER_NO = #refundOrderNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="depositBackAmount">
+            DEPOSIT_BACK_AMOUNT = #depositBackAmount#
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

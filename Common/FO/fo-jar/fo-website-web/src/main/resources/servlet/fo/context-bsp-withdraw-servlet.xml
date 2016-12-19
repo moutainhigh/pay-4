@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="fundout-BSP-withdrawHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="interceptors">
+			<list>
+				<ref bean="operatPermInterceptor" />
+			</list>
+		</property>
+		<property name="mappings">
+			<props>
+				<prop key="/corp/bspWithdraw.htm">fundout-bspWithdrawController</prop>
+				<prop key="/corp/bspWithdrawAudit.htm">fundout-bspAuditController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="fundout-bspWithdrawController" class="com.pay.controller.fo.bsp.BspWithdrawController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="toview">
+			<value>/fo/bsp/withdraw_request</value>
+		</property>
+		<property name="confirmView">
+			<value>/fo/bsp/withdraw_confirm</value>
+		</property>
+		<property name="successView">
+			<value>/fo/bsp/withdraw_result</value>
+		</property>
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService" />
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="bspWithdrawOrderService" ref="fo-order-bspWithdrawOrderService"/>
+		<property name="pageMsgService" ref="inf-pageMsgService"/>
+		<property name="bankCardBindService" ref="acc-bankCardBindService"/>
+		<property name="accountQueryService" ref="acc-accountQueryService"/>
+		<property name="bankService" ref="bankService" />
+		<property name="configBankService" ref="context_fundout_configbank_service" />
+		<property name="memberRelationQueryService" ref="acc-memberRelationQueryService"/>
+	</bean>
+	
+	<!-- 提现审核 -->
+	<bean id="fundout-bspAuditController" class="com.pay.controller.fo.bsp.BspAuditController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		<property name="urlMap">
+			<map>
+				<entry key="bspList" value="/fo/bsp/bspWithdrawAudit" />
+				<entry key="bspView" value="/fo/bsp/bspWithdrawAuditView" />
+			</map>
+		</property>
+		<property name="bspwithdrawauditservice" ref="fo-order-bsp-bspWithdrawAuditService" />
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService" />
+		<property name="pageSize" value="10"/>
+		<property name="workorderService" ref="fo-order-audit-workorderService"/>
+		<property name="memberRelationQueryService" ref="acc-memberRelationQueryService"/>
+		<property name="bspWithdrawOrderService" ref="fo-order-bspWithdrawOrderService"/>
+	</bean>
+
+</beans>

@@ -1,0 +1,213 @@
+﻿<!doctype html5>
+<html>
+<head>
+<meta charset="UTF-8">
+<title></title>
+<meta content="" name="keywords" />
+<meta content="" name="description" />
+<link href="<@sp.static/>/css/shop/zhifu.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+<body>
+<#escape x as x?html>
+<div class="phone_box">
+  <form method="post" name="command" id="command" action="${rc.contextPath}/mobile_shop.htm" target="_blank">
+    <ul>
+      <li class="side">
+        <label class="label_side">手机号：</label>
+        <input type="text" id="mobileNo" name="mobileNo" value="${command.mobileNo?default('')}" class="phone_nu" maxlength="12" autocomplete="off">
+      </li> 
+      
+      <li id="mobile_product_list" class="side">
+        <label class="label_side">面&nbsp;&nbsp;&nbsp;值：</label>
+        <input class="radio" type="radio" value="" name="">
+        <label>50元</label>
+        <input class="radio" type="radio" value="" name="">
+        <label>100元</label>
+        <input class="radio" type="radio" value="" name="">
+        <label>200元</label>
+        <p class="other_m">
+        <input class="radio nt10" type="radio"  value="" name="">
+                     其它
+        <select  name="">
+           <option>30元</option>
+        </select>
+        </p>
+      </li>
+	       <li>
+	        <label class="label_side">价&nbsp;&nbsp;&nbsp;格：</label>
+	        <label><span id="showAmount">100</span></label>
+	       </li>
+      <li>
+        <input type="submit" class="btn_cz" value="充 值">
+      </li>
+      <li class="se"><a href="https://www.pay.comom/website/lifemanage.htm?method=shuidianmei" target="_blank">足不出户，轻松缴纳水电煤</a></li>
+    </ul>
+       <input type="hidden" name="bossType" id="bossType" value=""/>
+	   <input type="hidden" id="chargeAmount" value="" name="chargeAmount"/>
+	   <input type="hidden" name="amount" id="amount" value="1"/>
+	   <input type="hidden" id="chargeAmount_next" value=""/>
+	   <input type="hidden" name="provinceCode" id="provinceCode" value=""/>
+	   <input type="hidden" name="address" id="address" value="1"/>
+  </form>
+</div>
+</#escape>
+</body>
+<#if msg?exists>
+	<script type="text/javascript">	
+		$(function(){	
+			alert('${msg?default('')}');
+		});
+	</script>
+</#if>
+<script type="text/javascript">
+$(function(){
+	loadMobileProduct();
+ $('#mobileNo').val('请输入手机号');
+});
+$('#mobileNo').blur(function(){
+	 if($('#mobileNo').val() =="")
+	 {
+	   $('#mobileNo').val('请输入手机号');
+	    //loadMobileProduct();
+	 }
+}).focus(function(){
+	if($('#mobileNo').val() =="请输入手机号"){
+		$('#mobileNo').val('');
+	}
+	 
+}).keyup(function(){
+	if($(this).val().length==12){
+        $(this).val($(this).val().substr(0,11));
+        return false;
+    }
+	$('#bossType').val("");
+	$(this).val($(this).val().replace(/[^\d]/g,''));
+  	if($(this).val().length ==11){
+       //get mobileNo bossType
+        $.ajax({
+        	type:"GET",
+            url:"${rc.contextPath}/mob_tel_segment.htm?method=selSegment&mobileNo="+$(this).val(),
+            dataType:"JSON",
+            success:function(data){
+        	   if(data != null && data !="null"){
+            	    var mobileSegment = strToObject(data);
+           	        $('#bossType').val(mobileSegment['bossType']);
+           	        $('#provinceCode').val(mobileSegment['provinceCode']);
+           	        $('#address').val(sm_r(data));
+           	        loadMobileProduct();
+                }else{
+                       alert('手机号码错误');
+                       return false;
+                 }   
+            }            
+            })
+       }
+});
+$('#command').submit(function(){
+	 //mobile no
+    var mobile_no=$('#mobileNo').val();
+     
+    if($('#showAmount').html()=="暂不支持"){
+          return false;
+     }
+    // is null
+    if(trimAll(mobile_no) =="" || $('#mobileNo').val() == '请输入手机号'){
+  	     alert('手机号码必须填写');
+  	     return false;            
+    }else if($('#bossType').val()==""){ 
+  	   alert('手机号码错误');
+   	   return false;
+    }else{
+         //pattern
+          var reg = /[0-9]{11}/; 
+          if(!reg.test(mobile_no)){
+	       	   alert('手机号码错误');
+	       	   return false;
+      	   }
+    }
+ 
+ 
+});
+
+ //load product
+ function loadMobileProduct(){
+	 var str = "";
+	 if($('#bossType').val()!=""){
+         str +="&bossType="+$('#bossType').val();
+     }
+	 $.ajax({
+   	     type:"GET",
+         url:"${rc.contextPath}/mobile_product.htm?method=mobileProduct"+str,
+         dataType:"JSON",
+         success:function(data){
+             $('#mobile_product_list').html(data);
+         }
+      }) 
+ }
+
+ function loadDiscount(){
+	   var  str = "&chargeAmount="+$('#chargeAmount').val();
+	    if($('#bossType').val()!=""){
+             str +="&bossType="+$('#bossType').val();
+	    }
+       $.ajax({
+ 	   type:"GET",
+       url:"${rc.contextPath}/mobile_product.htm?method=getDiscountBychargeAmount"+str,
+       dataType:"JSON",
+       success:function(data){
+           if( data == 'nonsupport'){
+               $('#showAmount').html('暂不支持');
+            }
+           else {
+               $('#showAmount').html(data*1+"元");
+               $('#amount').val(data*1);
+            }
+           }
+    }) 
+}
+
+
+ function sm_r(data){
+	  var msg = "";
+    if(data != null && data !="null"){
+	     var mobileSegment = strToObject(data);
+	     msg=mobileSegment['provinceName'];
+	    //provinceCode
+ 	     $('#provinceCode').val(mobileSegment['provinceCode']);
+ 	     
+          switch(mobileSegment['bossType'])
+    	    {
+    	    case '0':
+    	    	msg+="移动";
+        	     break;
+    	    case '1':
+    	    	msg+="联通";
+    	    	break;
+    	    default:
+    	    	msg+="电信";
+         }
+	 }
+ 	 return msg;
+	  
+}
+ 
+ function strToObject(){
+	  var str  = arguments[0];
+	  str  = str.substring(1,str.length-1);
+	  var datas = str.split(',');
+	  var mobileSegment = new Object();
+	  for(var i=0;i<datas.length;i++){
+		 var  data = datas[i].split('=');
+		 mobileSegment[trimAll(data[0])] = trimAll(data[1]);
+	 }
+	 
+	  return mobileSegment;
+}
+ function trimAll(str) {
+	  re = /\s+/gi;
+	  str = str.replace(re,"");
+	  return str
+ }
+</script>
+</html>

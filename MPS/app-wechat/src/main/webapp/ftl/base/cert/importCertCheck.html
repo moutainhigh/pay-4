@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>导入数字证书</title>
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/safe.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="corp_cert_manager"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+	<div class="mod_box_a">
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><strong class="cur">导入数字证书</strong><span>|</span><a href="#">使用遇到问题?</a></div>
+			</div>
+			<div class="step">
+				<ol class="step-2">
+					<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+					<li class="li-1">1.填写导入信息</li>
+					<li class="li-2">2.验证短信校验码</li>
+					<li class="li-3">3.导入证书</li>
+					<li class="li-4">4.证书导入成功</li>
+				</ol>
+			</div>
+			<div class="ico_txtBox mt10"><i class="warn_ico"></i> gcpayment支付已经向绑定手机<span class="blue">${mobile?default('')}</span>发送了一组免费短信校验码，请注意查收！</div>
+			<form class="pad_center"  id="form0" action="${rc.contextPath}/corp/cert/import.htm?method=verify" method="post">
+				<input type="hidden" name="token" value="${importCertDto.token}" />
+				<input type="hidden" name="backupPwd" value="${importCertDto.backupPwd}" />
+				<input type="hidden" name="certFilePath" value="${importCertDto.certFilePath}" />
+				<input type="hidden" name="dn" value="${importCertDto.dn}" />
+				<input type="hidden" name="usePlace" value="${importCertDto.usePlace}" />
+				<input type="hidden" name="sign" value="${sign}" />
+				<ul class="form_list">
+					<li>
+						<label class="form_side">手机校验码：</label>
+						<input type="text" class="inp_normal" name="checkCode" id="checkCode" maxlength="6">
+						<#if Session["userSession"]?exists && Session["userSession"].operatorId gt 0>
+                 		<span class="c_999 ml10">如此手机不能正常接收短信，请联系您的管理员为你修改!</span>
+				   		<#else>
+				   		<span class="c_999 ml10">如此手机不能正常接收短信，请先 <a href="${rc.contextPath}/corp/bindNewMobile.htm" class="blues">更换绑定手机</a></span>
+				   		</#if>
+						<p ><span  class="red" id="checkCodeTip"></span></p>
+					</li>
+					<li>
+						<div class="clew_box"><span class="f12 f333">如果1分钟内没有收到校验码，请点击下方按钮再试获取!</span><br>
+							<input type="button" id="seconds" disabled="disabled" tabindex="-1" />
+						</div>
+					</li>
+					<li class="btn">
+						<span class="btn_yel">
+							<button type="submit">提交</button>
+						</span>
+						<a class="blues ml30" href="${rc.contextPath}/corp/cert/import.htm">返 回</a>
+					</li>
+				</ul>
+			</form>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+
+<!--主内容 end -->
+<!--footer -->
+<#include "/common/include/footer.html">
+<@sp.cfca />
+<script type="text/javascript">
+
+$(function(){
+	$.formValidator.initConfig({formid:"form0",onerror:function(msg,obj){}});
+
+	$("input").blur(function(){
+		$(this).val($(this).val().trim());
+	});
+
+	$("#checkCode").formValidator({tipid:"checkCodeTip",onshow:"请输入手机短信里的6位数字校验码",onfocus:"请输入手机短信里的6位数字校验码",oncorrect:"&nbsp;"})
+	.inputValidator({min:6,max:6,empty:false,onerror:"校验码必须是6位"});
+
+	<#if errorCheckCode?has_content>
+	$.formValidator.setFailState("checkCodeTip","${errorCheckCode?default('')}");
+	</#if>
+
+
+	var iTime = 60;
+	var timeFunId = null;
+
+	var timeFun = function() {
+		var sTime = "";
+		if (iTime > 0) {
+			sTime = iTime + "秒";
+
+			if (sTime == "1秒") {
+				clearTimeout(timeFunId);
+				$("#seconds").val("重发校验码短信");
+				document.getElementById("seconds").disabled = "";
+			} else {
+				timeFunId = setTimeout(timeFun, 1000);
+				$("#seconds").val("(" + sTime + ")后重新获取短信");
+				document.getElementById("seconds").disabled = "disabled";
+			}
+			iTime = iTime - 1;
+		}
+	}
+
+	timeFun();
+	
+	var resend = function(){
+		$.ajax( {
+			type : "POST",
+			url : "${rc.contextPath}/corp/cert/import.htm",
+			data : "method=doSendSms&token=${importCertDto.token?default('')}",
+			timeout: 10000,
+			success : function(msg) {
+				if (msg == "Y") {
+					$.pay.alert("短信发送成功 ,请及时查收", {
+						h : 160,
+						t : '1',
+						close : function() {
+						}
+					});
+				} else {
+					$.pay.alert("短信发送失败！", {
+						h : 160,
+						t : '2',
+						close : function() {
+						}
+					});
+				} 
+			}
+		});
+	}
+
+	$("#seconds").click(function() {
+		if ($("#seconds").attr("disabled") != "disabled") {
+			resend();
+			iTime = 60;
+			timeFun();
+		}
+		return false;
+	});
+});
+</script>
+</div>
+</body>
+</html>

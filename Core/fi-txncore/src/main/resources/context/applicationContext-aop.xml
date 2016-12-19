@@ -1,0 +1,34 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<aop:aspectj-autoproxy/>
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/inf/notification/notification-config.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+	<bean id="testBean" class="com.pay.txncore.aop.TestBean" />
+	<bean id="testBean2" class="com.pay.txncore.aop.TestBean2" />
+	<bean id="testInterceptor" class="com.pay.txncore.aop.TestInterceptor" ></bean>
+	<!-- 已经调通
+	<bean id="exceptionInterceptor" class="com.pay.txncore.aop.ExceptionInterceptor">
+		<property name="jmsSender" ref="jmsSender" />
+		<property name="errormsgReceiver" value="${errormsg.receiver.emails}" />
+	</bean>
+	 -->
+</beans>

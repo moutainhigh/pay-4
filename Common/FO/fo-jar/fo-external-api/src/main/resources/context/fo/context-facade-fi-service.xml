@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+
+	<bean id="fundout-refund-bankInfoFacadeService"
+		class="com.pay.poss.service.fi.input.impl.FiBankFacadeServiceImpl">
+		<property name="externalFacadeDao">
+			<ref bean="fundout-externalFacadeDao"/>
+		</property>
+	</bean>
+
+	<bean id="fundout-payOnlineDetailServiceFacade"
+		class="com.pay.poss.service.gateway.impl.PayOnlineDetailServiceFacadeImpl">
+		<property name="externalFacadeDao">
+			<ref bean="fundout-externalFacadeDao"/>
+		</property>
+	</bean>
+
+	<bean id="fundout-refundOnlineServiceFacade"
+		class="com.pay.poss.service.gateway.impl.RefundOnlineServiceFacadeImpl">
+		<property name="externalFacadeDao">
+			<ref bean="fundout-externalFacadeDao"/>
+		</property>
+	</bean>
+
+	<bean id="fundout-depositQueryServiceFacade"
+		class="com.pay.poss.service.gateway.impl.DepositQueryServiceFacadeImpl">
+		<property name="externalFacadeDao">
+			<ref bean="fundout-externalFacadeDao"/>
+		</property>
+	</bean>
+	
+	<bean id="fundout-externalFacadeDao" class="com.pay.poss.dao.impl.ExternalFacadeDaoImpl">
+		<property name="sqlMapClient">
+			<ref bean="sqlMapClientPoss" />
+		</property>
+		<property name="dataSource">
+			<ref bean="foDs" />
+		</property>
+		<!-- property name="sqlExecutor">
+			<ref bean="poss-sqlExecutor" />
+		</property-->
+	</bean>
+
+	<bean id="fundout-incomeDetailServiceFacade"
+		class="com.pay.poss.service.gateway.impl.IncomeDetailServiceFacadeImpl">
+		<property name="externalFacadeDao" ref="fundout-externalFacadeDao" />
+	</bean>
+</beans>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="recurring">
+
+	<insert id="create" parameterClass="java.util.Map">
+	insert into 
+	t_recurring(MEMBER_CODE,ORDER_ID,FREQUENCY,CURRENCY_CODE,AMOUNT,PERIOD,PAYMENT_DAY,
+	LASTEST_PAYMENT_DATE,NEXT_PAYMENT_DATE,MAX_FAILED_TIMES,
+	EFF_FLAG,CREATE_DATE,UPD_DATE,STR_CONTENT,CUST_INTERFACE)
+	VALUES(#partnerId#,#orderId#,#frequency#,#currencyCode#,#orderAmount#,#period#-1,#paymentDay#,
+	trunc(sysdate),
+	decode(#frequency#,'M',trunc(ADD_MONTHS(SYSdate,1)),'Y',trunc(ADD_MONTHS(SYSdate,12)))
+	,#maxFailedTimes#,
+	#effFlag#,sysdate,sysdate,#strContent#,#noticeUrl#
+	)
+	</insert>	
+	
+	<update id="cancelRecurring" parameterClass="java.util.Map">
+	update  t_recurring 
+	set 
+		eff_flag = 'N',
+		UPD_DATE = sysdate,
+		NEW_ORDER_NO = #cancelOrderId# 
+	WHERE 	
+		MEMBER_CODE = #partnerId#
+	AND
+		ORDER_ID = #orderId#		
+	</update>
+	
+	<update id="cancelRecurringQue" parameterClass="java.util.Map">
+	update  T_RECURRING_QUE 
+	SET 
+		EFF_FLAG = 'N',
+		UPD_DATE = sysdate
+	WHERE 	
+		MEMBER_CODE = #partnerId#
+	AND
+		ORDER_ID = #orderId#	
+	</update>
+	
+	<insert id="createRecurringCancel" parameterClass="java.util.Map" >
+	insert into T_RECURRING_CANCEL(MEMBER_CODE,CANCEL_ORDER_ID,OPEN_ORDER_ID,CREATE_DATE,CANCEL_TYPE)
+	values(#partnerId#,#cancelOrderId#,#orderId#,sysdate,#cancelType#)
+	</insert>
+
+	<insert id="cancelPostponeRecurring" parameterClass="java.util.Map">
+	 insert into 
+     fi.T_Recurring_que(MEMBER_CODE,ORDER_ID,PAYMENT_DATE,CURRENCY_CODE,AMOUNT,ISSUENO,FAILED_RETRY_DAYS,CREATE_DATE,UPD_DATE,STR_CONTENT,EFF_FLAG)
+		SELECT 
+			MEMBER_CODE,	
+			ORDER_ID,
+			NEXT_PAYMENT_DATE,
+			CURRENCY_CODE,
+			AMOUNT,
+			ISSUENO,
+			FAILED_RETRY_DAYS,
+			sysdate,
+			sysdate,
+			STR_CONTENT,
+			EFF_FLAG
+		FROM  fi.T_Recurring r
+		WHERE 
+		EFF_FLAG = 'Y'
+		and
+		MEMBER_CODE = #partnerId#
+		and
+		ORDER_ID = #orderId#	
+	</insert>
+	
+	<update id="updatePostponeRecurring" parameterClass="java.util.Map">
+		update t_recurring
+		set
+		EFF_FLAG = 'N',
+		UPD_DATE = sysdate,
+		NEW_ORDER_NO = #cancelOrderId# 
+		WHERE 	
+		MEMBER_CODE = #partnerId#
+		AND
+		ORDER_ID = #orderId#	
+	</update>
+		
+</sqlMap>

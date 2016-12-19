@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="accounting">
+	 <typeAlias alias="accountingFee"		type="com.pay.poss.accounting.dto.AccountingFeeDto" />
+	 <typeAlias alias="accountingFeeParam"		type="com.pay.poss.accounting.dto.AccountingFeeParamDto" />
+
+   
+   <sql id="subQueryAccounting">
+
+ 	SELECT
+                     t.voucher_code,
+                      t2.create_date,
+                       t2.payer_full_mem_acctcode full_mem_code,
+                       t2.order_id,
+                       t2.deal_type,
+                       t2.order_amount,
+                       t.amount fee
+                       from t_balance_deal t
+                  left join t_balance_deal t2
+                    on (t2.voucher_code = t.voucher_code)
+                 where t.deal_type = 34
+                   and (t2.deal_type &gt; 34 OR t2.deal_type &lt; 34)
+                   and t2.payer_fee &gt; 0
+                   and t2.payer_full_mem_acctcode is not null
+                      <isNotNull property="begin">
+                      and t.create_date &gt;= #begin#
+                     </isNotNull>
+                     <isNotNull property="end">
+                      and t.create_date &lt;= TRUNC(#end#)+1-1/86400 
+                     </isNotNull>
+                        <isNotEmpty property="orderNo">
+                     	and t.order_id = #orderNo#
+                     </isNotEmpty>
+                     <isNotEmpty property="dealType">
+                    	 and t2.deal_type = #dealType#
+                     </isNotEmpty>
+                   UNION
+   SELECT
+                   t.voucher_code,
+                       t2.create_date,
+                       t2.payee_full_mem_acctcode full_mem_code,
+                        t2.order_id,
+                       t2.deal_type,
+                       t2.order_amount,
+                       t.amount fee
+
+                  from t_balance_deal t
+                  left join  t_balance_deal t2
+                    on (t2.voucher_code = t.voucher_code)
+                 where t.deal_type = 34
+                   and (t2.deal_type &gt; 34 or t2.deal_type &lt; 34 )
+                   and t2.payee_fee &gt; 0
+                   and t2.payee_full_mem_acctcode is not null
+                   <isNotNull property="begin">
+                      and t.create_date &gt;= #begin#
+                     </isNotNull>
+                     <isNotNull property="end">
+                      and t.create_date &lt;=  TRUNC(#end#)+1-1/86400 
+                     </isNotNull>
+                     <isNotEmpty property="orderNo">
+                     and t.order_id = #orderNo#
+                     </isNotEmpty>
+                      <isNotEmpty property="dealType">
+                     	and t2.deal_type = #dealType#
+                     </isNotEmpty>
+            ) n_t left join t_acct act
+             on (n_t.full_mem_code = act.acct_code )
+             left join t_enterprise_base  teb on (act.member_code = teb.member_code )
+              left join t_individual_info  tii on (act.member_code = tii.member_code )
+              where   1=1
+              <isNotEmpty property="memberCode">
+                 and act.member_code = #memberCode#
+              </isNotEmpty>
+           <isNotEmpty property="acctName">
+              and (teb.zh_name like #acctName#||'%' OR  tii.name like #acctName#||'%')
+              </isNotEmpty>
+   </sql>
+   
+   
+  <select id="search"  parameterClass="accountingFeeParam"  resultClass="accountingFee">
+   		select 
+		n_t.create_date createDate,
+	( case length(teb.zh_name) when 0  then 1 else 2 end) userType,
+       act.member_code memberCode,
+      nvl(teb.zh_name,tii.name) acctName,
+       n_t.order_id orderNo,
+       n_t.deal_type dealType,
+       n_t.order_amount/1000 orderAmount,
+       n_t.fee/1000 fee
+				
+				
+
+from (
+ 		<include refid="subQueryAccounting"/>
+              ORDER BY n_t.create_date DESC
+   </select>
+   
+    <select id="search_COUNT"  parameterClass="accountingFeeParam"  resultClass="int">
+   		select count(1)
+from (
+ 		<include refid="subQueryAccounting"/>
+   </select>
+   
+   
+   
+   
+</sqlMap>

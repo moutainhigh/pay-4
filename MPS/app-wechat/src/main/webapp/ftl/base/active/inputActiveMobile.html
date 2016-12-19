@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>帐号激活_gcpayment支付</title>
+<link href="<@sp.static/>/css/v2/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/v2/pay/reg.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#refresh").click(function(){
+		var d = new Date();
+		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+		$("#img_code").attr("src",src);
+		return false;
+	});
+	var inputs = $("input[type=text]");
+	inputs.focus(function(){
+		inputs.removeClass("inp_select");
+		inputs.addClass("inp_normal");
+		var cstr = this.className;
+		this.className=cstr.replace("inp_normal","inp_select");
+	});
+});
+
+$(function(){
+	
+	$.formValidator.initConfig({formid:"inputActiveMobileForm",onerror:function(msg,obj){}});
+
+	$("input").blur(function(){
+		$(this).val($(this).val().trim());
+		
+	});
+	$("#mobile").formValidator({tipid:"mobileTip",onshow:"请填写正确的手机号码",onfocus:"请填写正确的手机号码",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"手机号码不能为空,请确认"})
+	  .regexValidator({regexp:"mobile",datatype:"enum",onerror:"手机号码格式不正确且必须为11位数字"});
+	$("#code").formValidator({tipid:"codeTip",onshow:"请输入图中4位字母",onfocus:"请填写验证码",oncorrect:" "})
+		.inputValidator({min:4,max:4,empty:false,onerror:"请输入图中4位字母"});
+});
+
+</script>
+</head>
+<body>
+<!--header-->
+<@sp.headCommonV2 title="用户注册" class="ver_reg"/>
+<!--/header--> 
+<!--主内容-->
+<div class="container">
+	<div class="reg_box">
+		<div class="step">
+			<ol class="step-1">
+				<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+				<li class="li-1">第一步：填写注册信息<i></i></li>
+				<li class="li-2">第二步：激活帐号<i></i></li>
+				<li class="li-3">第三步：补填信息<i></i></li>
+				<li class="li-4">第四步：注册成功<i></i></li>
+			</ol>
+		</div>
+		<div class="txtC">
+			<div class="activate_center  w500">
+			<img class="activate_ico" src="<@sp.static/>/img/v2/pay/reg/activate_ico.png" />
+			<p class="f14">亲爱的用户 <span class="blue">${loginName?default('')}</span>，你好！ </p>
+			<p class="f16b c_f60 nowrap">您的账号已注册但未激活,请登录后激活</p>
+			<form class="" method="post" id="inputActiveMobileForm" action="${rc.contextPath}/toSendActiveMessage4Temporary.htm">
+			<ul class="mod_list mt20">
+						<li>
+							<#if errMsg?has_content>
+							<span class="onError">${errMsg?default('')}</span>
+							</#if>
+						</li>
+						<li>
+							<label class="mod_side"><i class="red">*</i> 手机号码：</label>
+							<input class="inp_normal w150" id="mobile" value="${loginName?default('')}" name="mobile" type="text" /><span id="mobileTip"></span>
+						</li>
+						<li>
+							<label class="mod_side"><i class="red">*</i> 验证码：</label>
+							<input type="text" maxlength="4" class="inp_normal w50" name="code" autocomplete="off" disableautocomplete="" tabindex="10" id="code"> 
+							<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="换一张" name="img_code"  id="img_code" class="v_m" height="26" /><a href="javascript:void(0);" class="refush" id="refresh">换一张</a>
+							<span id="codeTip"></span>
+							</li>
+						<li><span class="btnD">
+							<button id="btnSubmit" type="submit">下一步</button>
+							</span>
+						</li>
+					</ul></form>
+		</div>
+		</div>
+	</div>
+</div>
+<!--/主内容--> 
+<!--footer -->
+<#include "/common/include/footerV2.html">
+</body>
+</html>

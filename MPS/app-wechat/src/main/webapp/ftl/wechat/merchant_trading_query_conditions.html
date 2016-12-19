@@ -1,0 +1,278 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<!-- 禁止iphone初始规模 -->
+<meta name="viewport" content="width=device-width; initial-scale=1.0">
+
+<title>商户登录--交易查询</title>
+
+<!-- main css -->
+<link href="<@sp.static/>/wechat/style/style.css" rel="stylesheet" type="text/css">
+<!-- media queries css -->
+<link href="<@sp.static/>/wechat/style/media-queries.css" rel="stylesheet" type="text/css">
+
+<!-- html5.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/html5.js"></script>
+<![endif]-->
+
+<!-- css3-mediaqueries.js for IE less than 9 -->
+<!--[if lt IE 9]>
+	<script src="<@sp.static/>/wechat/scripts/css3-mediaqueries.js"></script>
+<![endif]-->
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/jquery-1.8.3.js"></script>
+
+<script type="text/javascript" src="<@sp.static/>/wechat/scripts/My97DatePicker/WdatePicker.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$('[data-amount]').keypress(function(e){
+			if(e.which == 8 ||e.which == 0 )return true;
+			if(((e.which >= 45 && e.which <= 57) && e.ctrlKey == false && e.shiftKey == false) || e.which == 0 || e.which == 8) {
+				if(e.which == 45){
+					return false;
+				} else if(e.which == 46){
+					if($(this).val().indexOf(".") == -1 && $(this).val().length !=0) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+				return true;
+			} 
+			return false;
+		}).bind("paste",function(){return false;}).css({'imeMode':"disabled",'-moz-user-select':"none"});
+		$("#incomeTable tr:odd").addClass("gray");
+		//$("#startTime").simpleDatepicker({compare:true,compareTime:'endTime'});
+		$("#advancedSearch").hide();
+		//init end
+		$("#more").click(function(){ 
+			if($("#advancedSearch").is(":hidden")) {
+				$("#more").html("普通查询");
+				$("#isAdvance").val("1");
+				$(".down_ico").attr("class","up_ico");
+			}else {
+				$("#more").html("高级查询");
+				$("#isAdvance").val("");
+				$(".up_ico").attr("class","down_ico");
+				$("#payStartTime").val("");
+				$("#payEndTime").val("");
+				setTime("","");
+			}
+			$("#advancedSearch").toggle("fast");
+		});
+		$("#exportExcel").click(function(){ 
+			$("#export").val("1");
+			$("#incomeDetailForm").submit();
+			
+		});
+		$("[data-resend]").click(function(e) {
+			var seq = $(this).attr("data-seq");
+			$.pay.confirm('确定要补发这笔订单吗?',
+					{h:200,
+					t:'3',
+					confirm:function(){
+						$.ajax({
+							type:"GET",
+							url:"${rc.contextPath}/corp/sendnotify.htm?tradeOrderNo=" + seq,
+							success:function(data){
+					           if(data == "return_code=1") {
+					        	   $.pay.alert('补发成功');
+					           }else if(data == "return_code=5") {
+					        	   $.pay.alert('没有权限');
+					           }else {
+					        	   $.pay.alert('补单失败');
+					           }
+							}
+						}); 
+					},cancel:function(){
+			}});
+		});
+		$("[data-close]").click(function(e) {
+			var seq = $(this).attr("data-seq");
+			$.pay.confirm('确定要关闭这笔订单吗?',
+					{h:200,
+					t:'3',
+					confirm:function(){
+						$.ajax({
+							type:"GET",
+							url:"${rc.contextPath}/corp/closeorder.htm?tradeOrderNo=" + seq,
+							success:function(data){
+					           if(data == "return_code=1") {
+					        	   $.pay.alert('订单已经关闭');
+					           }else if(data == "return_code=5") {
+					        	   $.pay.alert('没有权限');
+					           }else {
+					        	   $.pay.alert('操作失败');
+					           }
+							}
+						}); 
+					},cancel:function(){
+			}});
+		});
+		<#if payStatus?has_content>
+			<#if (payStatus?size > 1)>
+				$("#payStatus").val("1,3,4,5,6");
+			<#else>
+				<#list payStatus as d>
+					<#if d='2'>
+						$("#payStatus").val("2");
+					<#elseif d='7'>
+						$("#payStatus").val("7");
+					</#if>
+				</#list>
+			</#if>
+		</#if>
+		<#if payChannel?has_content>
+			$("#payChannel").val("${payChannel}");
+		</#if>
+		<#if orderSeq?has_content>
+			$("#orderSeq").val("${orderSeq}");
+		</#if>
+		//adv
+		<#if serialNo?has_content>
+			$("#serialNo").val("${serialNo}");
+		</#if>
+		<#if notifyStatus?has_content>
+			$("#notifyStatus").val("${notifyStatus}");
+		</#if>
+		<#if sOrderAmount?has_content>
+			$("#sOrderAmount").val("${sOrderAmount * 0.001}");
+		</#if>
+		<#if eOrderAmount?has_content>
+			$("#eOrderAmount").val("${eOrderAmount * 0.001}");
+		</#if>
+		<#if isAdvance?has_content>
+			$("#advancedSearch").show();
+			$("#isAdvance").val("1");
+			$("#more").html("普通查询");
+			$(".down_ico").attr("class","up_ico");
+		</#if>
+		$("#submitId").click(function(){
+			$("#export").val("");
+		});
+		<#if orderStatus?has_content>
+			$("#orderStatus").val(${orderStatus});
+		</#if>
+		
+	});
+
+	function setTime(time,time2){
+		if(time != "" || time2 != ""){
+			$("#startTime").attr("disabled","disabled")
+			$("#endTime").attr("disabled","disabled")
+		}
+		else if(time == "" || time== null){
+			$('#startTime').removeAttr("disabled");
+			$('#endTime').removeAttr("disabled");
+		}
+	}
+
+</script>
+
+<!-- 表单提交 -->
+<script type="text/javascript">
+   	$(function(){
+   		$("#tradingQuerySub").click(function(){
+   			$("#incomeDetailForm").submit() ;
+   		}) ;
+   	}) ;
+   	
+   	//返回上一页
+   	$(function(){
+   		$("#clickGoBack").click(function(){
+   			window.history.go(-1) ;
+   		}) ;
+   	}) ;
+</script>
+</head>
+
+<body>
+	<div id="pagewrap" style="">
+    	<div id="content" style="">
+        	<!-- 头部提示 -->
+            <div class="tip_title">
+                <div class="tip_title_top"></div>
+                <div class="tip_title_center">
+                	<div style="width:15%;min-width:111px;height:72px;float:left;" id="clickGoBack">
+                    	<div class="go_back" style="float:left;padding-top:9px;">
+                            <!-- <img src="images/jt.png"/> -->
+                        </div>
+                    </div>
+                    <div id="tt" style="">
+                        <h2 style="line-height:52px;margin:auto;color:#FFFFFF;padding-right:55px;">交易查询</h2>
+                    </div>
+                </div>
+                <div class="tip_title_bottom"></div>
+            </div>
+
+            <div >
+            	<form action="${rc.contextPath}/fiIncomedetail.htm?method=queryIncomeDetail" method="post" name="incomeDetailForm" id="incomeDetailForm">
+            		<input type="hidden" name="export" id="export" value="" />
+					<input type="hidden" name="act" value="1" />
+					<input type="hidden" id="isAdvance" name="isAdvance" >
+                	<div class="cc_center">
+                        <div class="row">
+                            <div class="row_r">
+                                <span >订单号</span>
+                                <input type="text" id="merOrderNo" name="orderSeq" value="" />
+                            </div>
+                        </div>
+                        <div class="row_split"></div>
+                        <div class="row">
+                            <div class="row_r">
+                                <span >订单状态</span>
+                                <select name="orderStatus" id="orderStatus" onchange="">
+                                    <option value="" >全部</option>
+                                    <option value="0" >未付款</option>
+                                    <option value="1" >交易关闭</option>
+                                    <option value="2" >已付款</option>
+                                    <option value="3" >交易已退款</option>
+                                    <option value="4" >交易成功</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row_split"></div>
+                        <div class="row">
+                            <div class="row_r">
+                                <span >交易日期</span>
+								<!-- <input type="text" class="Wdate dateScreen" id="d531" onFocus="WdatePicker({})" style="width:105px;border:none;"/>
+                                <font>至</font>
+                                <input type="text" class="Wdate dateScreen" id="d531" onFocus="WdatePicker({})" style="width:105px;border:none;"/> -->
+                            </div>
+                            <div class="row_r">
+								<input type="text" class="Wdate dateScreen" id="start_gmtCreate"  name="startTime" onFocus="WdatePicker({})" style="width:105px;border:none;" 
+										       readonly="readonly" id="payStartTime"
+										       onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})"
+										       value="<#if startTime?has_content>${startTime?string("yyyy-MM-dd")}</#if>">
+                                <font>至</font>
+                                <input type="text" class="Wdate dateScreen" id="end_gmtCreate" name="endTime" onFocus="WdatePicker({})" style="width:105px;border:none;"
+										       readonly="readonly" id="payEndTime"
+										       onClick="WdatePicker({lang:'zh_CN',dateFmt:'yyyy-MM-dd'})"
+										       value="<#if endTime?has_content>${endTime?string("yyyy-MM-dd")}</#if>">
+                            </div>
+                        </div>
+                                       
+                    </div>
+
+                   <!-- 下一步按钮 -->
+                   <div class="common_button" style="padding:1px;" id="tradingQuerySub">
+                     <div style="width:42%;float:left;">&nbsp;</div>
+                     <div style="width:16%;float:left;">查询</div>
+                     <div style="width:42%;float:left;">&nbsp;</div>
+                   </div>
+                   <!-- <input type="submit" value="测试提交" /> -->
+           		</form>
+                
+            </div>
+            
+       	</div>
+    </div>
+    
+    
+	
+</body>
+</html>

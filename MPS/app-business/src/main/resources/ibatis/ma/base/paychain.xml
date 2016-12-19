@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="paychain">
+		<typeAlias alias="paychain" type="com.pay.base.model.PayChain" />
+
+		<resultMap id="payChainStatMap" class="com.pay.base.dto.PayChainStatRecordDto">
+				<result column="CREATE_DATE"   			property="createDate"          	jdbcType="TIMESTAMP" />  
+				<result column="OVERDUE_DATE"   		property="overdueDate"          jdbcType="TIMESTAMP" />  
+				<result column="RECEIPT_DESCRIPTION"   	property="description"          jdbcType="VARCHAR" />  
+				<result column="STATUS"   				property="status"          		jdbcType="NUMBER" />
+				<result column="PAY_CHAIN_NUMBER"   	property="chainNumber"          jdbcType="VARCHAR" />
+				<result column="COUNT_SUM"   			property="countAndSum"          jdbcType="VARCHAR" />
+				<result column="EFFECTIVE_DATE"   		property="effectiveDate"        jdbcType="NUMBER" />
+				<result column="PAY_CHAIN_NAME"   		property="payChainName"         jdbcType="VARCHAR" />	
+				
+		</resultMap>
+		 
+
+		<insert id="create" parameterClass="paychain">
+				<selectKey resultClass="java.lang.Long" keyProperty="payChainId">
+						SELECT SEQ_PAY_CHAIN.nextval as payChainId FROM dual
+				</selectKey>
+				insert into T_PAY_CHAIN
+				(
+				  ID                 ,
+				  PAY_CHAIN_NUMBER   ,
+				  RECEIPT_DESCRIPTION,
+				  STATUS             ,
+				  MEMBER_CODE        ,
+				  PAY_CHAIN_URL      ,
+				  UPDATE_DATE        ,
+				  GRAND_TOTAL_STATUS ,
+				  PAY_TOTAL_COUNT    ,
+				  PAY_TOTAL_AMOUNT   ,
+				  OVERDUE_DATE,
+				  EFFECTIVE_DATE,
+				  PAY_CHAIN_NAME
+				)
+				values
+				(
+					#payChainId#,
+					#payChainNumber#,
+					#receiptDesc#,
+					#status#,
+					#memberCode#,
+					#payChainUrl#,
+					#updateDate#,
+					#grandTotalStatus#,
+					#payTotalCount#,
+					#payTotalAmount#,
+					#overdueDate#,
+					#effectiveDate#,
+					#payChainName#
+				)
+		</insert>
+		
+		
+		<update id="updatePayChainStatus" parameterClass="paychain" >
+			UPDATE t_pay_chain SET update_date = SYSDATE,status = #status#
+				WHERE pay_chain_number = #payChainNumber# 
+		</update>
+		
+		
+		<select id="getChainNum"  resultClass="java.lang.Long">
+			select SEQ_PAY_CHAIN_NO.nextval from dual
+		</select>
+		
+		<select id="getOverDate"  resultClass="java.util.Date" parameterClass="int">
+			select sysdate+#value# from dual
+		</select>
+		
+		<select id="getPayChainByCode"  resultClass="paychain" parameterClass="string">
+			Select ID as payChainId,
+		       PAY_CHAIN_NUMBER as payChainNumber,
+		       RECEIPT_DESCRIPTION as receiptDesc,
+		       STATUS as status,
+		       MEMBER_CODE as memberCode,
+		       PAY_CHAIN_URL as payChainUrl,
+		       CREATE_DATE as createDate,
+		       UPDATE_DATE as updateDate,
+		       GRAND_TOTAL_STATUS as grandTotalStatus,
+		       PAY_TOTAL_COUNT as payTotalCount,
+		       PAY_TOTAL_AMOUNT as payTotalAmount,
+		       OVERDUE_DATE as overdueDate,
+		       EFFECTIVE_DATE as effectiveDate,
+		       PAY_CHAIN_NAME as payChainName
+		  from T_PAY_CHAIN
+		  where PAY_CHAIN_NUMBER = #payChainNumber#
+		</select>
+		
+		
+		<sql id="queryRecordCondition" >
+		 			 <isNotNull property="memberCode" open="AND">
+		                	 t1.MEMBER_CODE  =  #memberCode#
+		                 </isNotNull>
+		                 <isNotNull property="createBegin" open="AND">
+		                	 t1.create_date &gt; #createBegin#
+		                 </isNotNull>
+		                  <isNotNull property="createEnd" open="AND">
+		                	  t1.create_date &lt; #createEnd#
+		                 </isNotNull>
+		                  <isNotEmpty property="payChainNumber" open="AND" >
+		                	 t1.pay_chain_number = #payChainNumber#
+		                 </isNotEmpty>
+		                 <isNotEmpty property="status" open="AND" >
+		                	 t1.status = #status#
+		                 </isNotEmpty>
+		</sql>
+		<!--  查询记录 -->
+		<select id="queryPayChainRecords"  parameterClass="com.pay.base.dto.PayChainStatParamDto"  resultMap="payChainStatMap">
+			 select n_t.*, (SELECT COUNT(*) || '-' || NVL(SUM(t2.amount),0)/1000
+              FROM t_external_log t2
+             WHERE t2.card_no = n_t.pay_chain_number
+		           AND t2.PROCESS_STATUS = 1) count_sum 
+		           from ( select row_.*, rownum rownum_ from ( 
+      			    SELECT t1.create_date,
+                           t1.overdue_date,
+                           t1.pay_chain_number,
+                           t1.receipt_description,
+		                   t1.status,
+		       			   t1.effective_date,
+		       			   t1.pay_chain_name
+		                  FROM acc.t_pay_chain t1
+		                 WHERE 1=1 
+		                  <include refid="queryRecordCondition"/>
+                       ORDER BY t1.id DESC
+     ) row_ where ROWNUM &lt;= #pageSize# *#pageNo# ) n_t
+		     WHERE rownum_ > #pageSize# *(#pageNo# - 1)
+		</select>
+		
+		<!--  查询支付链条数 -->
+		<select id="queryPayChainRecords_count"  parameterClass="com.pay.base.dto.PayChainStatParamDto"  resultClass="int">
+			SELECT count(*)
+                  FROM t_pay_chain t1
+                 WHERE 1 = 1
+				    <include refid="queryRecordCondition"/>
+		</select>
+		
+		<!--  查询记录支付总数和总金额 -->
+		<select id="queryPayChainCountSum"  parameterClass="com.pay.base.dto.PayChainStatParamDto"  resultClass="com.pay.base.dto.PayChainStatDto">
+				select count(*) recordsPaySum,
+				       NVL(SUM(t2.amount),0)/1000 recordsAmountSum
+				  from t_pay_chain t1
+				  join t_external_log t2
+				    on (t1.pay_chain_number = t2.card_no)
+				 where 1 = 1
+				   and t2.process_status = 1
+				    <include refid="queryRecordCondition"/>
+		
+		</select>
+		
+		<select id="queryPayChainPayment" resultClass="com.pay.base.dto.PayChainPaymentDto" parameterClass="com.pay.base.dto.PayChainPaymentParamDto">
+			SELECT n_t.* FROM ( SELECT row_.*, ROWNUM rownum_ FROM ( 
+					      SELECT 
+					       t.update_date payDate,
+					       t.gateway_no gatewayNo,
+					       t.payer_name paymentName,
+					        NVL(t.amount, 0) / 1000 payAmount,
+					       t.remark remark ,
+					       t.order_no orderNo       
+					 FROM t_external_log  t 
+					 WHERE 1=1 
+					 AND t.card_no = #payChainNumber#
+					 AND t.external_type = 2
+					 AND t.process_status = 1
+					 ORDER BY t.id DESC
+		     ) row_ WHERE ROWNUM &lt;= #pageSize# *(#pageNo#) ) n_t WHERE rownum_ > #pageSize# *(#pageNo# - 1)
+		</select>
+		
+		<select id="queryPayChainPayment_count" resultClass="int" parameterClass="string">
+					      SELECT 
+					      count(*) c      
+					 FROM t_external_log  t 
+					 WHERE 1=1 
+					 AND t.card_no = #payChainNumber#
+					 AND t.external_type = 2
+					 AND t.process_status = 1
+		</select>
+		<select id="getMaxChainNum"  resultClass="java.lang.String">
+					select  case   substr(max(t.pay_chain_number),7,13)  when '9999999' then '1000000' else
+								substr(max(t.pay_chain_number+1),7,13) end from t_pay_chain t
+		</select>
+		<update id="updateEffectiveDate" parameterClass="map" >
+			update t_pay_chain  set EFFECTIVE_DATE = #effectiveDate#,OVERDUE_DATE = CREATE_DATE+#effDay# WHERE pay_chain_number = #payChainNumber#
+		</update>
+		
+		
+		
+</sqlMap>
+
+

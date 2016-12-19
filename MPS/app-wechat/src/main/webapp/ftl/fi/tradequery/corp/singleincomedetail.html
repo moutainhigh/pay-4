@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/gcpayment/js/My97DatePicker/WdatePicker.js"></script> 
+
+<!-- jquery validate -->
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/gcpayment/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+
+<script type="text/javascript" src="<@sp.static/>/gcpayment/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/gcpayment/css/main.css"/>
+<link href="<@sp.static/>/gcpayment/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/gcpayment/images/favicon.ico" rel="shortcut icon"/>
+
+<title>订单详情</title>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#closeDetail").click(function(){
+		window.close();
+	});
+});
+</script>
+</head>
+<body>
+<#include "/include/topbar.html">
+	<div class="header">
+		<div class="wrap clearfix">
+			<h1 class="l">
+				<img src="<@sp.static/>/gcpayment/images/logo.png"
+					alt="" title="" width="230" height="50" />
+			</h1>
+			<ul class="nav l">
+				<li class="nav-item"><a href="javascript:void(0)" title="商户控台">商户控台</a></li>
+			</ul>
+		</div>
+
+		<div class="menu">
+			<div class="wrap">
+			    <ul class="mainmenu clearfix">
+			    
+							<li id="topmenu_3" ><a href="${rc.contextPath}/corp/myAccount.htm">我的账户</a></li>
+			    		
+							<li id="topmenu_5" ><a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易管理</a></li>
+			    		
+							<li id="topmenu_1" ><a href="${rc.contextPath}/corp/operatorManage.htm?method=showOperatorView">操作员列表</a></li>
+			    		
+							<li id="topmenu_2" ><a href="${rc.contextPath}/corp/toupdateLoginPwd.htm?myAccount=2">安全中心</a></li>
+                            <li id="topmenu_6" ><a href="${rc.contextPath}/corp/cross/siteset.htm">添加域名</a></li>
+				</ul>						
+			        <ul class="submenu" id="secmenuul_5">
+			        <li id="secmenu_5_51" class="current">
+						<a href="${rc.contextPath}/corp/fiIncomedetail.htm">交易查询</a>
+					</li>
+					<li id="secmenu_3_32" class="other">
+						<a href="${rc.contextPath}/corp/reconcileDownload.htm">对账单下载</a>
+					</li>
+					<li id="secmenu_3_39" class="other">
+						<a href="${rc.contextPath}/corp/cross/trackingMgr.htm">发货单据</a>
+					</li>
+                    </ul>
+			</div>
+		</div>
+
+	</div>
+
+<div class="mainbox"><div class="wrap">
+    <div class="section01">
+    	<div class="tit">
+    		<span class="current">交易订单详情</span>
+    	</div>
+    	<div class="seccon">
+
+          						<#if map?has_content>
+						<table class="tab03" border="1">
+								<tbody>
+										<tr>
+											<td colspan="2" class="thead">订单交易详情</td>
+										</tr>
+										<tr>
+											<td class="type">交易流水号：</td>
+											<td>${map.tradeOrderNo!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">创建时间：</td>
+											<td>${map.createDate!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">结束时间：</td>
+											<td>${map.updateDate!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">交易类型：</td>
+											<td>
+												<#if map.tradeType?exists>
+													<#if map.tradeType?starts_with('00')>
+														担保交易
+													</#if>
+													<#if map.tradeType?starts_with('10')>
+														即时交易
+													</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">收/支：</td>
+											<td>${map.flow!('收')}</td>
+										</tr>
+										<tr>
+											<td class="type">商户订单号：</td>
+											<td>${map.orderId!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">交易内容：</td>
+											<td>${map.goodsName!('')}</td>
+										</tr>
+										<tr>
+											<td class="type">支付渠道：</td>
+											<td>
+												<#if map.payType?exists>
+													<#if map.payType="1">															gcpayment账户支付
+													<#elseif map.payType="2">
+														网银B2C普通
+													<#elseif map.payType="3">
+														网银B2B
+													<#elseif map.payType="4">
+														网银B2C大额
+													<#elseif map.payType="5">
+														借记卡大额
+													<#elseif map.payType="6">
+														信用卡大额
+													<#elseif map.payType="7">
+														预付卡支付
+													<#elseif map.payType="11">
+														充值卡
+													</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">支付状态：</td>
+											<td>
+												<#if map.status?exists>
+														<#if map.status?trim == "2">
+															成功
+														<#elseif map.status?trim == "7">
+															失败
+														<#elseif map.status?trim=='0'>
+															处理中							
+														</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">通知状态：</td>
+											<td>
+												<#if map.returnStatus?exists>
+													<#if map.returnStatus?trim == "1">
+														成功
+													<#elseif map.returnStatus?trim == "1">
+														失败
+													<#else>
+														${map.returnStatus!''}
+													</#if>
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">订单金额：</td>
+											<td>
+												${((map.orderAmount!(0)))?string(",##0.00")} 元
+											</td>
+										</tr>
+										<tr>
+											<td class="type">交易币种：</td>
+											<td>
+												${map.currencyCode?default("")}
+											</td>
+										</tr>
+										<tr>
+											<td class="type">手续费：</td>
+											<td>
+												<#if map.payeeFee?exists>
+													${((map.payeeFee!(0)))?string(",##0.00")} 元
+												</#if>
+											</td>
+										</tr>
+										<#if map.isRefund?exists>
+											<#if (map.isRefund > 0)>
+												<tr>
+													<td class="type">退款操作：</td>
+													<td>
+														已操作
+													</td>
+												</tr>
+											</#if>
+										</#if>
+										<tr>
+											<td class="type">备注：</td>
+											<td>
+												<#if map.remark?exists>
+												${map.remark!('')}
+												</#if>
+											</td>
+										</tr>
+										<tr>
+											<td class="type">操作：</td>
+											<td>
+											<a target="_blank" class="blues" href="${rc.contextPath}/corp/ebills/gatewaypay.htm?serialNo=${map.tradeOrderNo!('')}"></a>
+											</td>
+										</tr>
+										<#if map.payType?exists>
+											<#if map.payType!="1">
+											<tr>
+												<td class="type">资金渠道协议流水号：</td>
+												<td>
+													${map.bankProtocolNo!''}
+												</td>
+												</tr>
+												<tr>
+													<td class="type">资金渠道协议序列号：</td>
+													<td>
+														${map.bankSerialNo!''}
+													</td>
+												</tr>
+											</#if>
+										</#if>
+								</tbody>
+						</table>
+						<#else>
+						<div class="content txtC">
+							<div class="result_tips">
+								<div class="set_height clearfix">
+									<span class="pop_fail"></span>
+									<p class="words f14"><strong>无效订单</strong></p>
+									<p class="link">您可能需要：<a href="${rc.contextPath}/corp/myAccount.htm">返回我的账户</a>|<a href="${rc.contextPath}/index.htm">返回gcpayment支付首页</a></p>
+								</div>
+							</div>
+						</div>
+						</#if>
+    	</div>
+</div>
+</div></div>
+<#include "/include/myfoot.html">
+</body>
+</html>

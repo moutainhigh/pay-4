@@ -1,0 +1,233 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>退款交易详情</title>
+<#include "/common/macro/seoPerson.ftl"> 
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#closeDetail").click(function(){
+		window.close();
+	});
+});
+</script>
+<!--导航 str-->
+<@sp.head mCode="corp_refund_apply","bsp_myaccount"/>
+
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container"> 
+	<!--退款申请-->
+	<div class="mod_box_a mt10">
+
+		<p class="top"><i></i></p>
+		<div class="con_box has_bg">
+			<div class="tit_box">
+				<div class="title sub_nav3"><a href="#" class="cur">退款交易详情</a></div>
+			</div>
+			<table class="verify_table set_width">
+				<tbody>
+					<tr>
+						<td class="thead" colspan="2">退款记录</td>
+					</tr>
+					<#if refundOrder?has_content>
+						<tr>
+							<td class="type">退款流水号：</td>
+							<td>${refundOrder.refundOrderNo?default('')}</td>
+						</tr>
+						<tr>
+	
+							<td class="type">创建时间：</td>
+							<td>${refundOrder.strCreateDate?default('')}</td>
+						</tr>
+						<tr>
+							<td class="type">结束时间：</td>
+							<td>${refundOrder.strUpdateDate?default('')}</td>
+						</tr>
+	
+						<tr>
+							<td class="type">交易类型：</td>
+							<td>退款</td>
+						</tr>
+						<tr>
+							<td class="type">收/支：</td>
+							<td>支</td>
+	
+						</tr>
+						<tr>
+							<td class="type">退款渠道：</td>
+							<td>
+								<#if refundOrder.depositBackNo !=0  && (refundOrder.status="4" || refundOrder.status="5")>
+									退银行
+								<#else>
+									退帐户
+								</#if>
+							</td>
+						</tr>
+						<tr>
+							<td class="type">退款金额：</td>
+	
+							<td>${refundOrder.strRefundAmount?default('')}</td>
+						</tr>
+						<tr>
+							<td class="type">退回手续费：</td>
+							<td>${refundOrder.strPayeeFee?default('')}</td>
+						</tr>
+						<tr>
+	
+							<td class="type">实际支付金额：</td>
+							<td>${refundOrder.strActualRefund?default('')}</td>
+						</tr>
+						<tr>
+							<td class="type">退款状态：</td>
+							<td>
+								<#if refundOrder.status = "1">
+										退帐户处理中
+								<#elseif refundOrder.status = "2">
+									退帐户成功
+								<#elseif refundOrder.status = "3">
+									退帐户失败
+								<#elseif refundOrder.status = "4">
+									退帐户成功,充退处理中
+								<#elseif refundOrder.status = "5">
+									退帐户成功,充退成功
+								<#elseif refundOrder.status = "6">
+									退帐户成功,充退失败
+								</#if>
+							</td>
+						</tr>
+					</#if>
+			
+					<tr>
+						<td class="type">申请操作员：</td>
+						<td>${refundApply.creator?default('')}</td>
+					</tr>
+					<tr>
+						<td class="type">退款原因：</td>
+						<td>${refundApply.reason?default('')}</td>
+					</tr>
+				</tbody>
+			</table>
+			<table class="verify_table set_width">
+				<tbody>
+					<tr>
+						<td class="thead" colspan="2">复核记录</td>
+					</tr>
+					<tr>
+						<td class="type">复核时间：</td>
+						<td>${refundApply.updateDate?default('')}</td>
+
+					</tr>
+					<tr>
+						<td class="type">复核状态：</td>
+						<td>
+							<#if refundApply.status == 1>
+								申请待处理
+							<#elseif refundApply.status == 2>
+								申请已拒绝
+							<#elseif refundApply.status == 3>
+								申请已通过
+							</#if>
+						</td>
+					</tr>
+					<tr>
+						<td class="type">复核操作员：</td>
+
+						<td>
+							${refundApply.auditOperator?default('')}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<table class="verify_table set_width">
+				<tbody>
+					<tr>
+						<td class="thead" colspan="2">
+						<a href="${rc.contextPath}/corp/fiIncomedetail.htm?method=querySingleIncomeDetail&serialNo=${tradeOrder.tradeOrderNo}&partnerId=${refundApply.partnerId}" class="more blues">查看详情</a>订单记录
+					</td>
+
+					</tr>
+					<tr>
+						<td class="type">交易流水号：</td>
+						<td>${tradeOrder.tradeOrderNo?default('')}</td> 
+					</tr>
+					<tr>
+						<td class="type">创建时间：</td>
+
+						<td>${tradeOrder.createDate?datetime}</td>
+					</tr>
+					<tr>
+						<td class="type">结束时间：</td>
+						<td>${tradeOrder.updateDate?datetime}</td>
+					</tr>
+					<tr>
+
+						<td class="type">商户订单号：</td>
+						<td>${tradeOrder.orderId?default('')}</td>
+					</tr>
+					<tr>
+						<td class="type">支付渠道：</td>
+						<td>
+						<#if tradeOrder.payType?default("")=="1">
+								账户支付
+						<#elseif tradeOrder.payType?default("")=="2">
+							网银B2C普通
+						<#elseif tradeOrder.payType?default("")=="3">
+							网银B2B
+						<#elseif tradeOrder.payType?default("")=="4">
+							网银B2C大额
+						<#elseif tradeOrder.payType?default("")=="5">
+							借记卡大额
+						<#elseif tradeOrder.payType?default("")=="6">
+							信用卡大额
+						<#elseif tradeOrder.payType?default("")=="7">
+							易卡支付
+						</#if>
+						</td>
+					</tr>
+
+					<tr>
+						<td class="type">支付状态：</td>
+						<td>
+
+						<#if tradeOrder.status= 3>
+							支付成功
+						<#elseif tradeOrder.status= 4>
+							支付成功
+						<#else>
+							支付中
+						</#if>
+						</td>
+					</tr>
+					<tr>
+						<td class="type">订单金额：</td>
+						<td>${tradeOrder.strOrderAmount?default('')}</td>
+
+					</tr>
+					<tr>
+						<td class="type">手续费：</td>
+						<td>${tradeOrder.strPayeeFee?default('')}</td>
+					</tr>
+				</tbody>
+			</table>
+			<p class="btn_box"><span class="btn_yel">
+
+				<button id="closeDetail">关闭</button>
+				</span></p>
+		</div>
+		<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+</div>
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+
+</html>

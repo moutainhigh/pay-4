@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta http-equiv="Cache-Control" content="no-store"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<script type="text/javascript" src="<@sp.static/>/mps/js/jquery-1.4.2.min.js"></script>
+<!-- data picker controller -->
+<script  type="text/javascript" src="<@sp.static/>/mps/js/My97DatePicker/WdatePicker.js"></script> 
+<script  type="text/javascript" src="<@sp.static/>/mps/js/zidingyi.js"></script>
+<!-- jquery validate -->
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.min.js" type="text/javascript"></script>
+
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/messages_cn.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.form.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/customValidate.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.rule.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/zclip/jquery.zclip.js" type="text/javascript"></script>
+
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script src="<@sp.static/>/mps/js/jquery/plugins/upload/ajaxfileupload.js" type="text/javascript"></script>
+<script type="text/javascript" src="<@sp.static/>/mps/js/common.js"></script>
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/layout.css" />
+<link rel="stylesheet" type="text/css" href="<@sp.static/>/mps/css/main.css"/>
+<link href="<@sp.static/>/mps/js/jquery/plugins/validate/jquery.validate.css" type="text/css" rel="stylesheet" />
+<link type="image/x-icon" href="<@sp.static/>/mps/images/favicon.ico" rel="shortcut icon"/>
+<script type="text/javascript"
+	src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<title>提现</title>
+
+<script type="text/javascript" charset="utf-8">
+	function checkSubmit(){
+		  if(hasSecurityCtrl()){
+				  if(getPwdCtrlStrLength("paySafeEdit")<=0){
+						$('#pwdError').html('请输入支付密码');
+						return false;
+					}
+		        $("#payPwd").val(getPwdCtrlVal("paySafeEdit"));
+		    }
+		if($("#payPwd").val() == ''){
+			$('#pwdError').html('请输入支付密码');
+			return false;
+		}else {
+			$("#applyWithdrawBtn").attr("disabled", true);   
+			$("#applySpan").attr("class","btn_yel v_b b_off");
+			$("#confirmWithdrawForm").submit();
+		}
+	}
+	function showMsg(text) {
+		 $.pay.alert(text, {
+	          h : 160,
+	          t : '3' });
+	}
+	$(function(){
+		$("#findselect").click(function() {
+			payWin = $.pay.window("${rc.contextPath}/corp/selectfindmode.htm",{title:"选择找回方式",w:600,h:300,url:true,iframe:true,close : function() {}});
+		});
+		$("#payPwd").keyup(function(event) {
+			if(event.keyCode == 13) {
+				$("#confirmWithdrawForm").submit();
+			}
+		});
+	});
+	function backConfirm(){
+		var form = document.getElementById("confirmWithdrawForm");
+		$("#method").val("confirm");
+		$("#back").val("true");
+		form.action="${rc.contextPath}/corp/withdraw.htm?date="+ new Date();
+		form.submit();
+	}
+</script>
+</head>
+
+<body>
+
+	<#include "/include/topbar.html">
+	<@sp.head  mCode="corp_withdraw_01"/>
+
+	<div class="mainbox" style="padding-top: 20px">
+		<div class="wrap">
+			<div class="section01">
+			<div class="tit">
+				<span class="current" ><a href="${rc.contextPath}/corp/withdraw.htm">申请提现</a></span>
+			</div>
+			<div class="seccon">
+				<div class="seccon">
+					<div class="bgbox">
+						<table class="tab01">
+						    <thead>
+                                    <tr>
+                                      <td colspan="4">
+                                         <p class="words"> <strong class="col_black">您的提现申请已经提交成功。</strong></p>
+							<p>如果您的银行卡信息不正确导致提现失败，资金将自动退回到您的账户。</p>
+							<p>到账日期一般在2-3个工作日，具体到账日期视各银行具体情况而定。</p>
+                                      </td>
+                                    </tr>
+						    </thead>
+							<tbody>
+                               <tr>
+									<th align="right">交易流水号：</th>
+									<th align="left" class="col_black" >${command.orderId?default('')}</th>
+									<th align="right">日期：</th>
+									<th align="left" class="col_black" >${command.createDate?if_exists?string("yyyy-MM-dd HH:mm:ss")} </th>
+								    </tr>
+							</tbody>
+							<tfoot>
+							   <tr class="gray">
+								<td align="right">提现金额：</td>
+								<td class="col_black"  align="left"><strong class="red">${command.realoutAmountStr?default('')}</strong>&nbsp;&nbsp;${command.currencyCode?default('')}</td>
+								<td align="right">提现银行：</td>
+									<#assign startIndex = (command.payeeBankAcctCode?length)-4>
+									<#assign endIndex = command.payeeBankAcctCode?length>
+								<td class="col_black" align="left">${command.payeeBankName?default('')}（尾号<strong class="red">${command.payeeBankAcctCode?substring(startIndex,endIndex)}</strong>）</td>
+							</tr>
+							</tfoot>
+						</table>
+						</div>
+						</div>
+					</div>	
+					<div id="resultListDiv" class="listFence" >
+				     <div><font color="red"></font></div>
+					</div>
+				</div>	
+			</div>
+		</div>
+	</div>
+<#include "/include/myfoot.html">
+</body>
+</html>

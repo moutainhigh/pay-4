@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+
+<beans>
+	<bean id="specialMerchantSimpleUrlHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/specialMerchantAdd.do">specialMerchantController</prop>
+				<prop key="/specialMerchantAddForResult.do">specialMerchantController</prop>
+				<prop key="/specialMerchantEdit.do">specialMerchantController</prop>
+				<prop key="/specialMerchantEditForResult.do">specialMerchantController</prop>
+				<prop key="/specialMerchantInit.do">specialMerchantController</prop>
+				<prop key="/specialMerchantList.do">specialMerchantController</prop>
+				<prop key="/specialMerchantDel.do">specialMerchantController</prop>
+				<prop key="/specialMerchantNameValidate.do">specialMerchantController</prop>
+				<prop key="/specialMerchantDetail.do">specialMerchantController</prop>
+				
+				<prop key="/spCardInfoInit.do">spCardInfoController</prop>
+				<prop key="/spCardInfoList.do">spCardInfoController</prop>
+				<prop key="/spCardInfoRemove.do">spCardInfoController</prop>
+				<prop key="/spCardInfoModify.do">spCardInfoController</prop>
+				<prop key="/spCardInfoAdd.do">spCardInfoController</prop>
+				<prop key="/spCardInfoDetail.do">spCardInfoController</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="specialMerchantController" class="com.pay.poss.specialmerchant.controller.SpeicalMerchantController">
+		<property name="methodNameResolver">
+			<ref bean="specialMerchantParamResolver" />
+		</property>
+		<property name="specialMerchantService" ref="specialMerchantService"/>
+		<property name="cityService" ref="cityService" />
+		<property name="provinceService" ref="provinceService"/>
+		<property name="spEnumInfoService" ref="spEnumInfoService"/>
+		<property name="spCardInfoService" ref="spCardInfoService"/>
+		
+		<property name="smInitView" value="/specialmerchant/specialMerchantInit"/>
+		<property name="smListView" value="/specialmerchant/specialMerchantList"/>
+		<property name="smEditView" value="/specialmerchant/specialMerchantEdit"/>
+		<property name="smAddView" value="/specialmerchant/specialMerchantAdd"/>
+		<property name="smEditResultView" value="/specialmerchant/specialMerchantInit"/>
+		<property name="redirectView">
+			<value>redirect:/specialMerchantInit.do</value>
+		</property>
+		<property name="redirectAddView">
+			<value>redirect:/specialMerchantAdd.do</value>
+		</property>
+		<property name="redirectEditView">
+			<value>redirect:/specialMerchantEdit.do</value>
+		</property>
+		<property name="smDetailView" value="/specialmerchant/specialMerchantDetail"/>
+	</bean>
+	<bean id="specialMerchantParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/specialMerchantAdd.do">addSpecialMerchant</prop>
+				<prop key="/specialMerchantEdit.do">editSpecialMerchant</prop>
+				<prop key="/specialMerchantInit.do">initSpecialMerchant</prop>
+				<prop key="/specialMerchantList.do">listSpecialMerchant</prop>
+				<prop key="/specialMerchantDel.do">delSpecialMerchant</prop>
+				<prop key="/specialMerchantNameValidate.do">validateSpecialMerchantName</prop>
+				<prop key="/specialMerchantAddForResult.do">addSpecialMerchantForResult</prop>
+				<prop key="/specialMerchantEditForResult.do">editSpecialMerchantForResult</prop>
+				<prop key="/specialMerchantDetail.do">detailSpecialMerchant</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="spCardInfoController" class="com.pay.poss.specialmerchant.controller.SpCardInfoController">
+		<property name="methodNameResolver">
+			<ref bean="spCardInfoParamResolver" />
+		</property>
+		<property name="spCardInfoService" ref="spCardInfoService"/>
+		<property name="specialMerchantService" ref="specialMerchantService"/>
+		<property name="spEnumInfoService" ref="spEnumInfoService"/>
+		<property name="initSpCardView" value="/specialmerchant/spCardInfoInit"/>
+		<property name="listSpCardView" value="/specialmerchant/spCardInfoList"/>
+	</bean>
+	<bean id="spCardInfoParamResolver" class="org.springframework.web.servlet.mvc.multiaction.PropertiesMethodNameResolver">
+		<property name="mappings">
+			<props>
+				<prop key="/spCardInfoInit.do">initCardInfo</prop>
+				<prop key="/spCardInfoList.do">listCardInfo</prop>
+				<prop key="/spCardInfoRemove.do">removeCardInfo</prop>
+				<prop key="/spCardInfoModify.do">modifyCardInfo</prop>
+				<prop key="/spCardInfoAdd.do">addCardInfo</prop>
+				<prop key="/spCardInfoDetail.do">queryDetail</prop>
+			</props>
+		</property>
+	</bean>
+</beans>

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="acct">
+		<typeAlias alias="acct" type="com.pay.base.model.Acct" />
+		<typeAlias alias="acctInfo" type="com.pay.base.model.AcctInfo" />
+		<typeAlias alias="acctAttrid" type="com.pay.base.model.AcctAttrib" />
+
+		<insert id="create" parameterClass="acct">
+		insert into T_ACCT
+		(
+		ACCT_CODE,
+		MEMBER_CODE,
+		BALANCE,
+		STATUS,
+		FROZEN_AMOUNT,
+		CREATE_DATE,
+		UPDAE_DATE,
+		CREDIT_BALANCE,
+		DEBIT_BALANCE
+		)
+		values
+		(
+		#acctCode#,
+		#memberCode#,
+		0,
+		1,
+		0,
+		sysdate,
+		sysdate,
+		0,
+		0
+		)
+		</insert>
+		
+		<insert id="insertBatchAcct" parameterClass="acct">
+        insert into
+        T_ACCT
+        (
+		ACCT_CODE ,
+		MEMBER_CODE,
+		BALANCE,   
+		STATUS,      
+		FROZEN_AMOUNT,
+		CREATE_DATE,
+		UPDATE_DATE,
+		CREDIT_BALANCE,
+		DEBIT_BALANCE
+		 )
+        values
+        (
+				#acctCode#,
+				#memberCode#,
+				#balance#,
+				#status#,
+				#frozenAmount#,
+				#createDate#,
+				#updateDate#,
+				#creditBalance#,
+				#debitBalance#
+        )
+    </insert>
+		
+
+		<insert id="createAttrib" parameterClass="acctAttrid">
+				INSERT INTO T_ACCT_ATTRIB
+				(
+				ACCT_CODE,
+				ALLOW_DEPOSIT,
+				ALLOW_WITHDRAWAL,
+				ALLOW_TRANSFER_IN,
+				ALLOW_TRANSFER_OUT,
+				ALLOW_IN,
+				ALLOW_OUT,
+				DESCRIPTION,
+				FROZEN,
+				DEF_REC_ACCT,
+				CUR_CODE,
+				ACCT_LEVEL,
+				BALANCE_BY,
+				BEAR_INTEREST ,
+				PAY_ABLE,
+				ALLOW_OVERDRAFT,
+				NEED_PROTECT,
+				MANAGERABLE,
+				TYPE,
+				MEMBER_CODE,
+				MEMBER_ACCT_CODE,
+				SUBJECT_CODE)
+
+				SELECT 
+				SUBJECT_CODE || #memberCode# || ACCT_TYPE,
+				ALLOW_DEPOSIT,
+				ALLOW_WITHDRAWAL,
+				ALLOW_TRANSFER_IN,
+				ALLOW_TRANSFER_OUT,
+				ALLOW_IN,
+				ALLOW_OUT,
+				DESCRIPTION,
+				FROZEN,
+				DEF_REC_ACCT,
+				CUR_CODE,
+				ACCT_LEVEL,
+				BALANCE_BY,
+				BEAR_INTEREST,
+				PAY_ABLE,
+				ALLOW_OVERDRAFT,
+				NEED_PROTECT,
+				MANAGERABLE,
+				TYPE,
+				#memberCode#,
+				#memberCode# || ACCT_TYPE,
+				SUBJECT_CODE
+				FROM T_MEMBER_ACCT_TEMPLATE
+				WHERE TYPE = 1
+		</insert>
+		
+		<insert id="createMemberProduct" parameterClass="java.lang.Long">
+				insert into  t_member_product (id,member_code,product_id,creation_date,update_date)
+							select SEQ_MEMBER_PRODUCT_ID.Nextval, #memberCode#, p.product_id,sysdate,sysdate from t_product_acct_template p
+							where p.MEMBER_ACCT_TEMPLATE_ID=1
+		</insert>
+		
+		<select id="getAcctByMemberCode" parameterClass="java.util.Map" resultClass="acct">
+				SELECT taa.acct_code as acctCode,
+				       taa.member_code as memberCode,
+				       ta.balance as balance,
+				       ta.status as status,
+				       ta.frozen_amount as frozenAmount,
+				       ta.create_date as createDate,
+				       ta.update_date as updateDate,
+				       ta.credit_balance as creditBalance,
+				       ta.debit_balance as debitBalance
+				  FROM t_acct ta,t_acct_attrib taa 
+				  WHERE ta.acct_code = taa.acct_code 
+				  and taa.member_code = #memberCode#
+				  <isNotNull prepend="and" property="acctType">
+				  	taa.acct_type  = #acctType#
+				  </isNotNull>
+		</select>
+		
+		<!--添加账户排序 by tom.wang 2016年4月22日15:07:52  -->
+		<select id="getAcctInfoByMemberCode" parameterClass="java.util.Map" resultClass="acctInfo">
+                SELECT taa.acct_code as acctCode,
+                       taa.member_code as memberCode,
+                       ta.balance as balance,
+                       ta.status as status,
+                       ta.frozen_amount as frozenAmount,
+                       ta.credit_balance as creditBalance,
+                       ta.debit_balance as debitBalance,
+                       taa.ACCT_TYPE as acctType,
+                       taa.CUR_CODE as curCode,
+                       taa.ALLOW_DEPOSIT as allowDeposit,
+                       taa.ALLOW_WITHDRAWAL as allowWithdrawal,
+                       taa.ALLOW_TRANSFER_IN as allowTransferIn,
+                       taa.ALLOW_TRANSFER_OUT as allowTransferOut
+                FROM  t_acct ta,t_acct_attrib taa  
+                where ta.ACCT_CODE = taa.ACCT_CODE and
+                      ta.member_code=#memberCode# ORDER BY accttype
+		</select>
+		
+		<select id="getAcctInfoByAcctCode" parameterClass="java.util.Map" resultClass="acctInfo">
+                SELECT taa.acct_code as acctCode,
+                       taa.member_code as memberCode,
+                       ta.balance as balance,
+                       ta.status as status,
+                       ta.frozen_amount as frozenAmount,
+                       ta.credit_balance as creditBalance,
+                       ta.debit_balance as debitBalance,
+                       taa.ACCT_TYPE as acctType,
+                       taa.CUR_CODE as curCode,
+                       taa.ALLOW_DEPOSIT as allowDeposit,
+                       taa.ALLOW_WITHDRAWAL as allowWithdrawal,
+                       taa.ALLOW_TRANSFER_IN as allowTransferIn,
+                       taa.ALLOW_TRANSFER_OUT as allowTransferOut
+                FROM  t_acct ta,t_acct_attrib taa  
+                where ta.ACCT_CODE = taa.ACCT_CODE and
+                      ta.ACCT_CODE=#acctCode#
+		</select>
+		
+		<select id="getSonAcctByParentMember" parameterClass="java.util.Map" resultClass="acct">
+			SELECT acct_code      as acctCode,
+			       member_code    as memberCode,
+			       balance        as balance,
+			       status         as status,
+			       frozen_amount  as frozenAmount,
+			       create_date    as createDate,
+			       update_date    as updateDate,
+			       credit_balance as creditBalance,
+			       debit_balance  as debitBalance
+			  FROM t_acct t
+			 WHERE exists (select 1
+			          from t_member_relation r
+			         where r.father_member_code = #fatherMemberCode#
+			           and t.member_code = r.son_member_code
+			           <isNotNull prepend="and" property="acctType">
+						   r.son_zh_name = #sonMemberName#
+					　　</isNotNull>
+			           )
+		</select>
+		
+		<update id="updateAcctStatus" parameterClass="java.util.Map">
+			update t_acct
+			   set status = #status#,
+			   	   update_date = SYSDATE
+			 where acct_code = #acctCode#
+		</update>
+</sqlMap>

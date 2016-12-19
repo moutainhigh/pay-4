@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="idcVerifyBase">
+    <typeAlias alias="idcVerifyBase" type="com.pay.app.model.IdcVerifyBase"/>
+ 
+    <insert id="create" parameterClass="idcVerifyBase">
+    <selectKey resultClass="java.lang.Long" keyProperty="id">
+		select SEQ_IDC_VERIFY_BASE_ID.nextval from DUAL 
+	</selectKey>  
+        insert into T_IDC_VERIFY_BASE 
+        (
+        	ID, 
+        	MEMBER_CODE, 
+        	NAME, 
+        	PAPER_NO, 
+        	LINK_NO, 
+        	VERIFY_FLAG,
+        	CREATED_DATE, 
+        	PAPER_TYPE, 
+        	IS_PAPER_FILE,
+        	STATUS
+        )
+        values 
+        (
+        	#id#, 
+        	#memberCode#, 
+        	#name#, 
+        	#paperNo#, 
+        	#linkNo#, 
+        	#verifyFlag#, 
+        	#createdDate#,
+            #paperType#, 
+            #isPaperFile#,
+            #status#
+         )
+    </insert>
+    
+    
+    <select id="getVerifyListByMemberCode" resultClass="idcVerifyBase">
+    	Select   	
+    		ID, 
+        	MEMBER_CODE as memberCode, 
+        	NAME, 
+        	PAPER_NO as paperNo, 
+        	LINK_NO as linkNo, 
+        	VERIFY_FLAG as verifyFlag,
+        	CREATED_DATE as createdDate, 
+        	PAPER_TYPE as paperType, 
+        	IS_PAPER_FILE as isPaperFile,
+        	STATUS
+    	   	From  T_IDC_VERIFY_BASE
+    	 Where MEMBER_CODE=#memberCode#
+    </select>
+    
+    
+    <select id="queryIdcById" resultClass="idcVerifyBase">
+    	Select  
+    	
+    		ID, 
+        	MEMBER_CODE as memberCode, 
+        	NAME, 
+        	PAPER_NO as paperNo, 
+        	LINK_NO as linkNo, 
+        	VERIFY_FLAG as verifyFlag,
+        	CREATED_DATE as createdDate, 
+        	PAPER_TYPE as paperType, 
+        	IS_PAPER_FILE as isPaperFile,
+        	STATUS
+    	   	From  T_IDC_VERIFY_BASE
+    	 Where ID=#id#
+    </select>
+    
+    <update id="updateIdc" parameterClass="idcVerifyBase">
+			Update T_IDC_VERIFY_BASE Set
+			<dynamic>
+                        <isNotEmpty property="isPaperFile">
+                                IS_PAPER_FILE = #isPaperFile#,
+                        </isNotEmpty>
+                         <isNotEmpty property="status">
+                                STATUS = #status#,
+                        </isNotEmpty>                        
+                </dynamic>
+				PAPER_TYPE = 1 Where ID=#id#
+	</update>
+    
+    
+    <sql id="cloumnsSegment">
+    		ID  as id,
+        	MEMBER_CODE as memberCode, 
+        	NAME as name,
+        	PAPER_NO as paperNo, 
+        	LINK_NO as linkNo, 
+        	VERIFY_FLAG as verifyFlag,
+        	CREATED_DATE as createdDate, 
+        	PAPER_TYPE as paperType, 
+        	IS_PAPER_FILE as isPaperFile,
+        	STATUS as status
+    </sql>
+    
+    
+    <select id="querylastIdcVerify" resultClass="idcVerifyBase" parameterClass="idcVerifyBase">
+    	select 
+    	<include refid="cloumnsSegment"/>
+    	FROM t_idc_verify_base t
+			where name = #name#
+			and paper_no = #paperNo#
+			and status = 1
+			and rownum = 1
+    </select>
+    
+    
+    
+    
+</sqlMap>

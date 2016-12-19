@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="multipartResolver"
+       class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- set the max upload size100MB -->
+        <property name="maxUploadSize">
+        	<value>104857600</value>
+    	</property>
+	    <property name="maxInMemorySize">
+	        <value>4096</value>
+	    </property>
+   	</bean>
+	<bean id="AdvertiseManageHandlerMapping"
+		class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+		<property name="mappings">
+			<props>
+				<prop key="/advertiseManage.do">advertiseManageController</prop>
+				<prop key="/advertisePhotoManage.do">advertisePhotoManageController</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="advertiseManageController"
+		class="com.pay.poss.featuremenu.controller.AdvertiseManageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="initAdvertise">		
+			<value>/advertisemanage/addAdvertise</value>
+		</property>	
+		<property name="addAdvertise">		
+			<value>/advertisemanage/addAdvertise</value>
+		</property>	
+		<property name="advertiseList">		
+			<value>/advertisemanage/advertiseList</value>
+		</property>	
+		<property name="getAdvertise">		
+			<value>/advertisemanage/editAdvertise</value>
+		</property>	
+		<property name="updateAdvertise">		
+			<value>/advertisemanage/editAdvertise</value>
+		</property>	
+		
+		<property name="advertiseService" ref="poss-advertiseService" />
+	</bean>
+
+
+
+	<bean id="advertisePhotoManageController"
+		class="com.pay.poss.featuremenu.controller.AdvertisePhotoManageController">
+		<property name="methodNameResolver">
+			<ref bean="paramResolver" />
+		</property>
+		
+		<property name="initAdvertisePhoto">		
+			<value>/advertisemanage/addAdvertisePhoto</value>
+		</property>	
+		<property name="addAdvertisePhoto">		
+			<value>/advertisemanage/addAdvertisePhoto</value>
+		</property>	
+		<property name="advertisePhotoList">		
+			<value>/advertisemanage/advertisePhotoList</value>
+		</property>	
+		<property name="getAdvertisePhoto">		
+			<value>/advertisemanage/editAdvertisePhoto</value>
+		</property>	
+		<property name="updateAdvertisePhoto">		
+			<value>/advertisemanage/editAdvertisePhoto</value>
+		</property>	
+		
+		<property name="advertiseService" ref="poss-advertiseService" />
+	</bean>
+	
+</beans>
+
+

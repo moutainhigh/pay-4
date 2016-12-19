@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="transLog">
+	<typeAlias alias="transLog" type="com.pay.base.model.TransLog" />
+
+	<insert id="create" parameterClass="com.pay.base.model.TransLog">
+		<selectKey resultClass="java.lang.Long" keyProperty="id">
+			select SEQ_Trans_TRANS_ID.nextval as ID from dual 
+		</selectKey>
+				insert into
+		t_trans_log
+		(
+		trans_id,
+		serial_no,
+		pay_type,
+		pay_date,
+		confirm_date,
+		status,
+		amount,
+		recv_acct,
+		pay_acct,
+		relatx_serial_no,
+		acct_type,
+		update_date,
+		create_date,
+		Link_Id
+		)
+		values
+		(
+		#id#,
+		#serialNo#,
+		#payType#,
+		#payDate#,
+		#confirmDate#,
+		#status#,
+		#amount#,
+		#recvAcct#,
+		#payAcct#,
+		#relatxSerialNo#,
+		#acctType#,
+		#updateDate#,
+		#createDate#,
+		#linkId#
+		)
+	</insert>
+	
+	<select id="getTransLogBySerialNo"  parameterClass="java.lang.Long" resultClass="transLog">
+		Select  
+		trans_id  	as  id,
+		serial_no	as  serialNo,
+		pay_type	as  payType,
+		pay_date	as  payDate,
+		confirm_date	as  confirmDate,
+		status	as  status,
+		amount	as  amount,
+		recv_acct	as  recvAcct,
+		pay_acct	as  payAcct,
+		relatx_serial_no	as  relatxSerialNo,
+		acct_type	as  acctType,
+		update_date	as  updateDate,
+		create_date	as  createDate,
+		Link_Id as linkId	FROM t_trans_log Where Serial_no = #serialNo#
+	</select>
+	
+	<update id="updateLinkId">
+		update t_trans_log Set Link_id = #linkId# Where trans_id = #id#
+	</update>
+	
+
+</sqlMap>

@@ -1,0 +1,158 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/hessian/hessian.properties</value>
+			</list>
+		</property>
+		<property name="order" value="1" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="fileEncoding">
+			<value>UTF-8</value>
+		</property>
+	</bean>
+
+	<bean id="client-channelService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${hessian.channelUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+	
+	<bean id="client-txncoreService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${hessian.txncoreUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+	
+	<bean id="client-riskService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${hessian.riskUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+
+	<bean id="settleCoreService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${settle.txncoreUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+	
+	<bean id="orderCoreService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${order.txncoreUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+
+	<bean id="client-gatewayService"
+		class="org.springframework.remoting.caucho.HessianProxyFactoryBean">
+		<property name="serviceUrl" value="${hessian.gatewayUrl}" />
+		<property name="serviceInterface" value="com.pay.inf.service.HessianInvokeService" />
+	</bean>
+
+	<bean id="gatewayClientService" class="com.pay.poss.client.GatewayClientService">
+		<property name="invokeService" ref="client-gatewayService" />
+	</bean>
+	
+	<bean id="riskClientService" class="com.pay.poss.client.RiskClientService">
+		<property name="invokeService" ref="client-riskService" />
+	</bean>
+
+	<bean id="channelClientService" class="com.pay.poss.client.ChannelClientService">
+		<property name="invokeService" ref="client-channelService" />
+		<property name="memberService" ref="acc-memberService" />
+	</bean>
+
+	<bean id="txncoreClientService" class="com.pay.poss.client.CrosspayTxncoreClientService">
+		<property name="invokeService" ref="orderCoreService" />
+		<property name="txncoreService" ref="client-txnCoreService" />
+	</bean>
+
+	<bean id="crosspayWebsiteConfigService" class="com.pay.poss.client.CrosspayWebsiteConfigService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+
+	<bean id="gatewayOrderQueryService" class="com.pay.poss.client.GatewayOrderQueryService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+
+	<bean id="currencyRateService" class="com.pay.poss.client.CurrencyRateService">
+		<property name="invokeService" ref="settleCoreService" />
+	</bean>
+
+	<bean id="capitalPoolManageService" class="com.pay.poss.client.CapitalPoolManageService">
+		<property name="invokeService" ref="settleCoreService" />
+	</bean>
+
+	<bean id="expressTrackingService" class="com.pay.poss.client.ExpressTrackingService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+
+	<bean id="txncore-reconciliationService" class="com.pay.poss.client.ReconciliationService">
+		<property name="invokeService" ref="settleCoreService" />
+	</bean>
+
+	<bean id="txncore-reportService" class="com.pay.poss.client.ReportService">
+		<property name="invokeService" ref="settleCoreService" />
+		<property name="redisClient" ref="redisClient"></property>	
+	</bean>
+
+	<bean id="fi-chargeBackService" class="com.pay.poss.client.ChargeBackService">
+		<property name="orderInvokeService" ref="orderCoreService" />
+		<property name="settleInvokeService" ref="settleCoreService" />
+	</bean>
+	
+	<bean id="configurationDCCService" class="com.pay.dcc.service.impl.ConfigurationDCCServiceImpl" />
+	
+	<bean id="configurationEDCService" class="com.pay.dcc.service.impl.ConfigurationEDCServiceImpl" />
+	
+	<bean id="reconcileService" class="com.pay.poss.client.ReconcileService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+	<bean id="merchantTradeCountQueryService" class="com.pay.poss.client.MerchantTradeCountQueryService">
+		<property name="invokeService" ref="settleCoreService" />
+	</bean>
+	
+	<bean id="cardBindQueryService" class="com.pay.poss.client.CardBindService">
+		<property name="invokeService" ref="settleCoreService" />
+		<property name="txncoreService" ref="client-txnCoreService" />
+	</bean>
+	
+	<bean id="refundExceptionBatchTxncoreClientService" class="com.pay.poss.client.RefundExceptionBatchTxncoreClientService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+	<bean id="bouncedQueryService" class="com.pay.poss.client.BouncedQueryService">
+		<property name="invokeService" ref="orderCoreService" />
+		<property name="settleCoreService" ref="settleCoreService" />
+	</bean>
+	<bean id="fiExceptionCardDetailService" class="com.pay.poss.client.FiExceptionCardDetailService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+	<bean id="fraudBouncedQueryService" class="com.pay.poss.client.FraudBouncedQueryService">
+		<property name="invokeService" ref="orderCoreService" />
+		<property name="enterpriseBaseService" ref="acc-enterpriseBaseService" />
+		<property name="chargeBackService" ref="fi-chargeBackService" />
+		<property name="bouncedQueryService" ref="bouncedQueryService" />
+	</bean>
+	<!-- 订单授信服务 -->
+	<bean id="orderCreditCoreService" class="com.pay.poss.client.OrderCreditCoreService">
+		<property name="invokeService" ref="settleCoreService" />
+	</bean>
+	
+	<bean id="kfPayService" class="com.pay.poss.client.KfPayService">
+		<property name="invokeService" ref="settleCoreService" />
+	</bean>
+	
+	<!-- 商户下单邮件通知服务  add by davis.guo at 2016-08-31 -->
+	<bean id="acctOrderEmailNotifyService" class="com.pay.poss.client.AcctOrderEmailNotifyService">
+		<property name="invokeService" ref="orderCoreService" />
+	</bean>
+</beans>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="chargeback-entry">
+    <typeAlias alias="chargeBackEntryDto" type="com.pay.pe.accumulated.chargebackentry.dto.ChargeBackEntryDto"/>
+    
+    <sql id="SELECT_CHARGEBACK_ENTRY">
+  	select e.acct_code acctCode,
+       e.crdr,
+       e.value,
+       e.mablance_by mablanceBy,
+       e.payment_service_code paymentServiceCode,
+       e.currency_code currencyCode,
+       e.exchange_rate exchangeRate,
+       e.creation_date creationDate,
+       e.entry_code entryCode,
+       e.dealid,
+       e.status,
+       e.text,
+       e.voucher_code voucherCode,
+       e.transaction_date transactionDate,
+       e.deal_type dealType
+ 	from 
+       accumulated_chargeback_entry    e  
+	 where 1=1
+    </sql>
+    
+   
+    <sql id="CHARGEBACK_ENTRY_CONDITION">
+  	    <isNotNull prepend="AND" property="voucherCode">
+            e.voucher_code=#voucherCode#
+        </isNotNull>
+
+  	</sql>
+  	
+  	<select id="selectAccumulatedChargebackEntry" parameterClass="java.util.Map" resultClass="chargeBackEntryDto">
+  		<include refid="SELECT_CHARGEBACK_ENTRY"/>
+  		<include refid="CHARGEBACK_ENTRY_CONDITION"/>
+  	</select>
+ 	
+ 	<update id="updateChargeBackLogStatus" parameterClass="java.util.Map">
+ 	 	update accumulated_chargeback_log l 
+ 	 	set l.update_date=sysdate,
+ 	 		l.status=#status# 
+ 	 	where l.voucher_code=#voucherCode#  	
+ 	</update>
+ 	
+ 
+</sqlMap>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

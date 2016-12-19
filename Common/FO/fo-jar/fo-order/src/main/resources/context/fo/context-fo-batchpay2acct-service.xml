@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jms="http://www.springframework.org/schema/jms"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-2.5.xsd
+            http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms-2.5.xsd">
+       
+    <bean id="fo-order-batchPay2AcctOrderService" class="com.pay.fo.order.service.batchpay2acct.impl.BatchPay2AcctOrderServiceImpl">
+		<property name="batchPaymentOrderProcessService" ref="fo-order-batchPaymentOrderProcessService"/>
+		<property name="orderAfterProcessService" ref="fo-order-orderAfterProcessService"></property>
+		<property name="orderCallbackService" ref="fo-order-batchPay2AcctOrderCallbackService"></property>
+		<property name="reqAccountingService" ref="fundout-batchPay2acctAccounting" />
+		<property name="successAccountingService" ref="fundout-batchPay2ItemAcctSuccessAccounting" />
+		<property name="failAccountingService" ref="fundout-batchPay2ItemAcctFailAccounting" />
+		<property name="payToAcctOrderProcessService" ref="fo-order-payToAcctOrderProcessService"></property>
+		<property name="batchPaymentOrderService" ref="fo-order-batchPaymentOrderService"/>
+		<property name="queueName" value="fundout.batchpayment.api.active"></property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"></property>
+	</bean> 
+	<bean id="fo-order-batchPay2AcctOrderValidateService" class="com.pay.fo.order.service.batchpay2acct.impl.BatchPay2AcctOrderValidateServiceImpl">
+		<property name="payToAcctOrderService" ref="fo-order-payToAcctOrderService"></property>
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+	</bean>         
+	<bean id="fo-order-batchPay2AcctRequestService" class="com.pay.fo.order.service.batchpay2acct.impl.BatchPay2AcctRequestServiceImpl">
+		<property name="batchPaymentReqBaseInfoService" ref="fo-order-batchPaymentReqBaseInfoService" />
+		<property name="batchPaymentToAcctReqDetailService" ref="fo-order-batchPaymentToAcctReqDetailService" />
+		<property name="foRcLimitFacade" ref="fundout-forclimitfacade" />
+		<property name="paymentValidateService" ref="fo-order-paymentValidateService"/>
+		<property name="batchPay2AcctOrderService" ref="fo-order-batchPay2AcctOrderService"></property>
+		<property name="reqEmailTemplateId" value="${batch2acct.request.email}"></property>
+		<property name="passEmailTempalteId" value="${batch2acct.auditingPass.email}"></property>
+		<property name="rejectEmailTempalteId" value="${batch2acct.auditingFail.email}"></property>
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService"></property>
+		<property name="reqAccountingService" ref="fundout-batchPay2acctAccounting"/>
+	</bean>
+	
+	<!-- 批量付款到银行订单回调处理 -->
+	<bean id="fo-order-batchPay2AcctOrderCallbackService" class="com.pay.fo.order.service.batchpay2acct.callback.BatchPay2AcctOrderCallbackServiceImpl" parent="fo-order-abstractOrderCallbackService">
+		<property name="payToAcctOrderProcessService" ref="fo-order-payToAcctOrderProcessService"></property>
+		<property name="batchPaymentOrderProcessService" ref="fo-order-batchPaymentOrderProcessService"></property>
+		<property name="queueName" value="fundout.batchpayment.request.active"></property>
+	</bean>
+</beans>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fipartnerconfig">
+	<typeAlias alias="partnerConfig" type="com.pay.txncore.model.PartnerConfig"/>
+    <resultMap id="partnerConfig" class="partnerConfig">
+        <result column="REMARK" property="remark" jdbcType="VARCHAR"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        <result column="VALUE" property="value" jdbcType="VARCHAR"/>
+        <result column="PARTNER_CONFIG_NO" property="partnerConfigNo" jdbcType="DECIMAL"/>
+        <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL"/>
+        <result column="PARAM_CODE" property="paramCode" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Column_List">
+		REMARK,DESCRIPTION,VALUE,PARTNER_CONFIG_NO,MEMBER_CODE,
+		PARAM_CODE
+    </sql>
+    
+     <insert id="create" parameterClass="partnerConfig">
+	<selectKey resultClass="java.lang.Long" keyProperty="partnerConfigNo">
+		SELECT
+			116 || TO_CHAR(SYSDATE, 'yymmddhh24mi')
+			||LPAD(SEQ_PARTNER_CONFIG_NO.nextval, 6, 0) FROM DUAL
+	</selectKey>
+	 	INSERT INTO PARTNER_CONFIG(
+			PARTNER_CONFIG_NO,REMARK,DESCRIPTION,VALUE,MEMBER_CODE,
+			PARAM_CODE
+        )
+        VALUES(
+            #partnerConfigNo#,#remark#,#description#,#value#,#memberCode#,
+			#paramCode#
+		)
+	</insert>
+    
+
+    <update id="update" parameterClass="partnerConfig">
+        UPDATE PARTNER_CONFIG
+        <dynamic prepend="SET"> 
+        <isNotNull prepend="," property="remark">
+            REMARK = #remark#
+        </isNotNull>
+        <isNotNull prepend="," property="description">
+            DESCRIPTION = #description#
+        </isNotNull>
+        <isNotNull prepend="," property="value">
+            VALUE = #value#
+        </isNotNull>
+      
+        <isNotNull prepend="," property="memberCode">
+            MEMBER_CODE = #memberCode#
+        </isNotNull>
+        <isNotNull prepend="," property="paramCode">
+            PARAM_CODE = #paramCode#
+        </isNotNull>
+        </dynamic>
+        <dynamic prepend="WHERE">
+          <isNotNull prepend="and" property="partnerConfigNo">
+            PARTNER_CONFIG_NO = #partnerConfigNo#
+          </isNotNull>
+        </dynamic>
+    </update>
+    
+    <delete id="deleteByPrimaryKey" parameterClass="java.lang.Long">
+        DELETE FROM PARTNER_CONFIG  where PARTNER_CONFIG_NO = #partnerConfigNo#     
+    </delete>
+    
+    <delete id="deleteBySelective" parameterClass="partnerConfig">
+        DELETE FROM PARTNER_CONFIG        
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="value">
+            VALUE = #value# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerConfigNo">
+            PARTNER_CONFIG_NO = #partnerConfigNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paramCode">
+            PARAM_CODE = #paramCode# 
+        </isNotNull>
+        </dynamic>
+    </delete>
+
+    <select id="findById" resultMap="partnerConfig"
+        parameterClass="java.lang.Long">
+        SELECT 
+			REMARK,DESCRIPTION,VALUE,PARTNER_CONFIG_NO,MEMBER_CODE,
+			PARAM_CODE
+        FROM PARTNER_CONFIG
+        WHERE PARTNER_CONFIG_NO=#partnerConfigNo#
+    </select>
+    
+    <select id="findBySelective" resultMap="partnerConfig" parameterClass="partnerConfig">
+        SELECT 
+			REMARK,DESCRIPTION,VALUE,PARTNER_CONFIG_NO,MEMBER_CODE,
+			PARAM_CODE
+        FROM PARTNER_CONFIG
+        <dynamic prepend="WHERE"> 
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="value">
+            VALUE = #value# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerConfigNo">
+            PARTNER_CONFIG_NO = #partnerConfigNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paramCode">
+            PARAM_CODE = #paramCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+
+    <select id="countByExample"  resultClass="java.lang.Integer">
+        SELECT count(*) FROM PARTNER_CONFIG
+        <dynamic prepend="WHERE">
+        <isNotNull prepend="AND" property="remark">
+            REMARK = #remark# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="description">
+            DESCRIPTION = #description# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="value">
+            VALUE = #value# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="partnerConfigNo">
+            PARTNER_CONFIG_NO = #partnerConfigNo# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="memberCode">
+            MEMBER_CODE = #memberCode# 
+        </isNotNull>
+        <isNotNull prepend="AND" property="paramCode">
+            PARAM_CODE = #paramCode# 
+        </isNotNull>
+        </dynamic>
+    </select>
+</sqlMap>

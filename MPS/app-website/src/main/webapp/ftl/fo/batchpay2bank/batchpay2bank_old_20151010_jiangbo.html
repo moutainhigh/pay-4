@@ -1,0 +1,343 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>iPayLinks支付-批量付款到银行</title>
+		<style type="text/css">
+			.my-dialog .ui-dialog-titlebar-close{
+			 	display: none;
+			}
+		</style>
+		<#include "/common/macro/seoPerson.ftl">
+		<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+		<link type="text/css" rel="stylesheet" href="/static/js/pay/datepicker/skin/WdatePicker.css?v=${cssVersion}.css">
+		<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css" rel="stylesheet" type="text/css">
+		<link href="<@sp.static/>/css/validator/validator.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery.pstrength.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/datepicker/WdatePicker.js"></script>
+		<script type="text/javascript" src="<@sp.static/>/js/pay/pay2acct/mydiv.js"></script>
+		<script type="text/javascript">
+			$(document).ready(function(){
+				
+				$("#btn").click(function(){
+					checkInfo();
+				});
+				$("#paymentFile").click(function(){
+					$("#paymentFileTip").css("display","none");
+					$("#paymentFileTip").html("");
+				});
+
+				$("#randCode").click(function(){
+					$("#randError").css("display","none");
+					$("#randError").html("");
+				});
+			});
+			
+			function initExcuteHour(){
+				
+				
+				$.ajaxSetup({ 
+					  async: false 
+				}); 
+				
+				var dateStr = $("#excuteDateStr").val();
+				
+				
+				if(dateStr==''){
+					$("#excuteDateError").text("请选择时间");
+					$("#excuteHour").empty();
+					return;
+				}
+				var url = "${rc.contextPath}/corp/batchpay2bank.htm";
+				var data = {"method":"getStartHour","dateStr":dateStr};
+				jQuery.post(url+"?date="+new Date(),data,function(response){
+					if(""!=response){
+						var startHour = response;
+						$("#excuteHour").empty();
+						if(startHour==24){
+							$("#excuteDateError").text("请选择下一个工作日");
+						}
+						if(startHour == -1){
+							$("#excuteDateError").text("选择的时间必须大于当前时间");
+							return;
+						}
+						for(var i = startHour; i<24;i++){
+							$("#excuteDateError").text("");
+							$("#excuteHour").append("<option value='"+i+"'>"+i+"</option>");  
+						}
+						$("#excuteHour").append("<option value=''></option>"); 
+					}
+					;
+					
+				});
+				
+				$.ajaxSetup({ 
+					  async: true 
+				}); 
+				
+			}
+
+			function checkInfo(){
+				
+				var paymentFile=$("#paymentFile").val();
+
+				if(paymentFile.length>0){
+					var fileName=paymentFile.substring(paymentFile.lastIndexOf("\\")+1);
+					var expand=fileName.substring(fileName.lastIndexOf(".")+1);
+					if(fileName.length>0 && (expand!="xls") && (expand!="csv")){
+						$("#paymentFileTip").css("display","inline");
+						$("#paymentFileTip").html("文件类型不正确，请选择扩展名为.xls或.csv的文件重新上传");
+						return false;
+					}else if(fileName.length>0 && (expand=="xls")){
+						$("#fileType").val("xls");
+					}else if(fileName.length>0 && (expand=="csv")){
+						$("#fileType").val("csv");
+					}
+				} else {
+					$("#paymentFileTip").css("display","inline");
+					$("#paymentFileTip").html("请选择要上传的Excel文件");
+					return false;
+				}
+
+				if($("#businessBatchNo").val().length<1){
+					$("#businessBatchNoError").css("display","inline");
+					$("#businessBatchNoError").html("请输入业务批次号");
+					return false;
+					
+				}else if(getLength($("#businessBatchNo").val())>30){
+					$("#businessBatchNoError").css("display","inline");
+					$("#businessBatchNoError").html("业务批次号长度不能大于30个字符");
+					return false;
+				}else{
+					$("#businessBatchNoError").html("");
+				}
+				
+				if($("#randCode").val().length<1){
+					$("#randError").css("display","block");
+					$("#randError").html("请输入验证码");
+					
+					return false;
+				}
+				var processType = $('input:radio[name="processType"]:checked').val();; 
+				if(processType==1){
+					if($("#excuteDateStr").val()=='' || $("#excuteHour").val()==''){
+						$("#excuteDateError").text("请选择时间");
+						return false;
+					}else{
+						$("#excuteDateError").text("");
+					}
+				}
+
+				$("#btn").attr("disabled","disabled");
+				$("#paymentFileName").val(paymentFile);
+				$("#frm").submit();
+				var win=$.mydiv.window($("#uploading").html());
+			}
+
+			function downloadTemplate(){
+				window.location="${rc.contextPath}/corp/batchpay2bankdownload.htm?method=downloadTemplateFile&type=Excel";
+			}
+			function downloadCsvTemplate(){
+				window.location="${rc.contextPath}/corp/batchpay2bankdownload.htm?method=downloadTemplateFile&type=Csv"
+			}
+			function getLength(content){
+				var strc = 0;
+				for(var i=0;i<content.length;i++){
+			      if(content.charCodeAt(i)>255){
+			    	  strc += 2;
+			      }else{
+			    	  strc++;
+			      }
+				}
+				return strc
+			}
+			function showDesc(){
+				$("#configDescDiv").show();
+			}
+			function hiddenDesc(){
+				$("#configDescDiv").hide();
+			}
+			function selectProcessType(objValue){
+				if(objValue==1){
+					$("#excuteDateConfigDiv").show();
+					$("#viewSpan").show();
+				}else{
+					$("#excuteDateConfigDiv").hide();
+					$("#viewSpan").hide();
+				}
+				
+			}
+			function confirmExcute(){
+				var date = $("#excuteDateStr").val();
+				var hour = $("#excuteHour").val();
+				if(date != ''&& hour != ''){
+					$("#excuteDateError").text("");
+					$("#excuteDateSpanAdd").hide();
+					var arr1 = date.split("-");
+					
+					if(hour<10){
+						hour = "0"+hour;
+					}
+					var fmtDate = arr1[0]+"年"+arr1[1]+"月"+arr1[2]+"日"+hour+"点";
+					$("#excuteDateFmtValue").text(fmtDate);
+					$("#excuteDateSpanEdit").show();
+				}else{
+					$("#excuteDateError").text("请选择时间");
+				}
+			}
+			function editExcute(){
+				$("#excuteDateSpanAdd").show();
+				$("#excuteDateFmtValue").text('');
+				$("#excuteDateSpanEdit").hide();
+			}
+			
+		</script>
+	</head>
+	<body>
+		<!--导航 str-->
+		<@sp.head mCode="corp_pay2account,bsp_corp_pay2account"/>
+		
+		<!--导航 end--> 
+		<!--主内容 str -->
+		<div class="container">
+			<div>
+				<!--box str -->
+				<div class="mod_box_a">
+					<p class="top"><i></i></p>
+					<div class="con_box has_bg">
+						<div class="tit_box">
+							<div class="title sub_nav3">
+								<#if sp.hasProduct('PAY2ACCT')>
+									<a href="${rc.contextPath}/corp/pay2account.htm">单笔付款到账户</a><span>|</span>
+								<#else>
+								</#if>
+								<#if sp.hasProduct('PAY2BANK')>
+									<a href="${rc.contextPath}/corp/pay2bank.htm">单笔付款到银行</a><span>|</span>
+								<#else>
+								</#if>
+								<#if sp.hasProduct('BATCH2ACCT')>
+									<a href="${rc.contextPath}/corp/batchpay2acct.htm">批量付款到账户</a><span>|</span>
+								<#else>
+								</#if>
+								<a href="${rc.contextPath}/corp/batchpay2bank.htm" class="cur">批量付款到银行</a>
+							</div>
+						</div>
+						<div class="step">
+							<ol class="step-1">
+								<!-- 改变ol里的step-数字 即可 1.2.3.4 -->
+								<li class="li-1 last"><span><i>1</i>上传付款文件</span></li>
+								<li class="li-2 last"><i>2</i>确认付款信息</li>
+								<li class="li-3 last"><span><i>3</i>提交付款信息</span></li>
+							</ol>
+						</div>
+						<div class="ico_txtBox mt5"><i class="warn_ico"></i>
+						如果您还没有模板文件，请先下载 
+						<a  href="#"  onclick="downloadTemplate();return false;" class="red ml20"><i class="ico_excel"></i> Excel 批量付款到银行模板。</a>
+						<a  href="#"  onclick="downloadCsvTemplate();return false;" class="red ml20"><i class="ico_excel"></i> Csv 批量付款到银行模板。</a></div>
+						<form class="pad_center" action="${rc.contextPath}/corp/batchpay2bank.htm" method="post"  enctype="multipart/form-data" id="frm">
+							<input type="hidden" name="token" id="token" value="${command.token?default('')}"/>
+							<input type="hidden" name="method" id="method" value="confirm"/>
+							<input type="text" name="testtxt" style="display: none;"/>
+							<ul class="form_list up_file">
+								<li><label class="form_side">选择账户：</label><select><option>人民币账户</option></select></li>
+								<li>
+									<label class="form_side">可用余额：</label><strong class="red font14">${command.currentBanlanceStr?default("0.00")}</strong>  元
+								</li>
+								<li>
+									<label class="form_side">*上传付款文件：</label>
+									<input type="hidden" name="fileType" id="fileType">
+									<input type="file" size="30" name="paymentFile" id="paymentFile"/>
+									<input type="hidden" name="paymentFileName" id="paymentFileName"/>
+									<br/><p id="paymentFileTip" class="red"></p>
+									</li>
+								<li>
+									<label class="form_side">*业务批次号：</label><input type="text" class="inp_normal blod" name="businessBatchNo" id="businessBatchNo" value="${command.businessBatchNo?default('')}" /><span class="red" id="businessBatchNoError" name="businessBatchNoError"></span>
+									<p id="businessBatchNoTip" class="c_999">必须与上传文件中的填写的业务批次号一致</p>
+								</li>
+								<li class="txt_pop batchToBank" style="display: none;">
+									<label class="form_side">批次处理时间：</label>
+									<span id="excuteDateSpanAdd">
+									<input type="radio" name="processType" value="0" id="processType1" checked="checked" onclick="selectProcessType(this.value);"><label for="processType1"> 默认</label><input type="radio" class="ml20" name="processType" id="processType2" value="1" onclick="selectProcessType(this.value);" ><label for="processType2" > 设置</label> 
+									<span class="blue ml20 pointer" id="viewSpan" style="display: none;" onclick="showDesc();">查看说明</span>
+										<div id="configDescDiv" class="txt_pop_con"  style="display: none" > <span class="close_pop" title="关闭" onclick="hiddenDesc();">X</span>
+											<p class="c_666">设置说明：设置业务处理时间点后，iPayLinks支付将在该时间点进行批量付款到银行操作，请商户根据自身需求进行设置。</p>
+											<p class="c_999">例：应用场景A--对于每天都有批量付款到银行的商户，当在节假日休息时，无法登录iPayLinks支付进行操作，可提前通过上传模板文件并设置批次处理时间，由iPayLinks支付帮您完成批量付款到银行操作。</p>
+										</div>
+									<div class="setTime" id="excuteDateConfigDiv" style="display: none;" >时间：
+									<input class="Wdate inp_normal w100" readonly="readonly" id="excuteDateStr" onchange="initExcuteHour();" name="excuteDateStr" type="text"  onClick="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'${command.currentDate}'});" gtbfieldid="109" value="${command.excuteDateStr?default('')}" >
+									<select class="inp_normal" id="excuteHour" name="excuteHour" >
+										<#list 0..23 as hour>
+										<option value="${hour}">${hour}</option>
+										</#list>
+									</select> 点
+									<a class="btn_grey ml20" href="#"><span onclick="confirmExcute();">确定</span></a>
+									</span>
+									<span id="excuteDateSpanEdit" style="display: none"><span id="excuteDateFmtValue"></span> <span class="ml20 blue pointer" onclick="editExcute();">修改</span>
+									</span>
+									<p class="red" style="padding-left: 40px" id="excuteDateError" name="excuteDateError"></p>
+									</div>
+								</li>
+								<li><label class="form_side">*验证码：</label>
+									<input class="inp_normal" type="text" name="randCode" maxlength="4"
+										id="randCode" value="${rand?default('')}"/>
+										<img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()"
+										alt="" name="code" width="80" height="24" id="code"
+										style="vertical-align: top ;" /> <span class="refresh"><a
+										href="javascript:refushCode();">看不清，换一张</a> </span>
+									<p id="randError" class="red">${randError?default('')}</p>
+								</li>
+								<li class="btn"><span class="btn_yel">
+									<button type="button" id="btn">下一步</button>
+									</span></li>
+							</ul>
+							<script>
+								function refushCode() {
+									var d = new Date();
+									var src = "${rc.contextPath}/validatecode/validatecode.htm?date="
+											+ d.getTime();
+									document.getElementById("code").src = src;
+								}
+							</script>
+						</form>
+					</div>
+					<p class="bot"><i></i></p>
+				</div>
+				<!--box end --> 
+			</div>
+			<div id="uploading" style="display: none;"><br><br>系统正在对您上传的信息进行处理，请稍候......</div>
+		</div>
+		<!--主内容 end --> 
+		
+		<!--footer -->
+		<#include "/common/include/footer.html">
+	</body>
+</html>
+<script type="text/javascript">
+<#if message?exists>
+	var message = '${message}';
+	if(''!=message&&null!=message){
+		$.pay.alert(message, {
+			h : 160,
+			w : 450,
+			t : '3',
+			close:function(){
+		}});
+	}
+</#if>
+	var processType = ${command.processType?default(0)};
+	selectProcessType(processType);
+	if(processType==1){
+		$("#processType1").attr("checked","");
+		$("#processType2").attr("checked","checked");
+		confirmExcute();
+	}else{
+		$("#processType1").attr("checked","checked");
+		$("#processType2").attr("checked","");
+		editExcute();
+	}
+</script>

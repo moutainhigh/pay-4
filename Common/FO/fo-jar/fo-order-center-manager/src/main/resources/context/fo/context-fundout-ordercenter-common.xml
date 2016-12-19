@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="context_ordercenter_total_dao"
+		class="com.pay.poss.dao.ordercenter.common.impl.OrderCenterTotalDaoImpl"
+		parent="PLATFORM.DEFAULT.DAOSERVICE">
+		<property name="namespace" value="ordercentercommon" />
+	</bean>
+
+	<bean id="context_ordercenter_total_service"
+		class="com.pay.poss.service.ordercenter.common.OrderCenterTotalServiceImpl">
+		<property name="orderCenterTotalDao" ref="context_ordercenter_total_dao" />
+	</bean>
+	
+	<!-- 通用订单查询抽象服务 -->
+	<bean id="context_ordercenter_abstractCommonService"
+		class="com.pay.poss.service.ordercenter.common.AbstractOrderCenterCommonService"
+		abstract="true">
+		<property name="peService" ref="peService"></property>
+		<property name="memberQueryService" ref="acc-memberQueryService" />
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+       	<property name="withdrawOrderAuditService" ref="wdOrdAuditService" />
+	</bean>
+	
+</beans>

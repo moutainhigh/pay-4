@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+			
+	<bean id="fo-balancewarningConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" p:ignoreUnresolvablePlaceholders="true" p:order="1">
+		<property name="locations">
+			<list>
+				<value>file:/opt/pay/config/poss/context-poss.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="acc-balanceWarning" class="com.pay.fo.quartz.balancewarning.BalanceWarningTaskExecutor">
+		<property name="accountQueryService" ref="acc-accountQueryService" />
+		<property name="balanceWarningService" ref="acc_balanceWarningService" />
+		<property name="notifyFacadeService" ref="fundout-withdraw-notifyFacadeService" />
+	</bean>
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="acc-balanceWarning-cronTrigger"></ref>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="acc-balanceWarning-jobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="acc-balanceWarning" />
+		<property name="targetMethod" value="balanceWarning" />
+	</bean>
+	
+	<bean id="acc-balanceWarning-cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="acc-balanceWarning-jobDetail" />
+		<property name="cronExpression">
+			<value>0 0/5 * * * ?</value> 
+		</property>
+	</bean>
+</beans>

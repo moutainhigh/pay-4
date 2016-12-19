@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="CHARGE_BACK_CONFIG" >
+
+	<typeAlias alias="chargeBackConfig" type="com.pay.txncore.model.ChargeBackConfig"/>
+	<resultMap id="BaseResultMap" class="chargeBackConfig" >
+	    <result column="ID" property="id" jdbcType="DECIMAL" />
+	    <result column="FIRST_PERCENT" property="firstPercent" jdbcType="VARCHAR" />
+	    <result column="FIRST_COST" property="firstCost" jdbcType="VARCHAR" />
+	    <result column="SECOND_PERCENT" property="secondPercent" jdbcType="VARCHAR" />
+	    <result column="THIRD_PERCENT" property="thirdPercent" jdbcType="VARCHAR" />
+	    <result column="SECOND_COST" property="secondCost" jdbcType="VARCHAR" />
+	    <result column="FOUR_PERCENT" property="fourPercent" jdbcType="VARCHAR" />
+	    <result column="FOUR_COST" property="fourCost" jdbcType="VARCHAR" />
+	    <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+	    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+	    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+	    <result column="MEMBER_CODE" property="memberCode" jdbcType="DECIMAL" />
+	</resultMap>
+	
+  <sql id="Criteria_Where_Clause" >
+      <isNotNull prepend="and" property="firstPercent" >
+        FIRST_PERCENT = #firstPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="firstCost" >
+        FIRST_COST = #firstCost:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="secondPercent" >
+        SECOND_PERCENT = #secondPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="thirdPercent" >
+        THIRD_PERCENT = #thirdPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="secondCost" >
+        SECOND_COST = #secondCost:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="fourPercent" >
+        FOUR_PERCENT = #fourPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="fourCost" >
+        FOUR_COST = #fourCost:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="and" property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="and" property="memberCode" >
+        MEMBER_CODE = #memberCode#
+      </isNotNull>
+  </sql>
+  
+  <select id="findByCriteria" resultMap="BaseResultMap" parameterClass="chargeBackConfig" >
+    select * from CHARGE_BACK_CONFIG where 1=1 
+     <include refid="CHARGE_BACK_CONFIG.Criteria_Where_Clause" />
+  </select>
+  
+  <select id="findById" resultMap="BaseResultMap" parameterClass="java.lang.Integer" >
+    select * from CHARGE_BACK_CONFIG
+    where ID = #id:DECIMAL#
+  </select>
+  
+  <insert id="create" parameterClass="chargeBackConfig" >
+  	<selectKey resultClass="java.lang.Integer" keyProperty="id">
+		SELECT	SEQ_CHARGE_BACK_CONFIG_ID.nextval FROM DUAL
+	</selectKey>
+    insert into CHARGE_BACK_CONFIG (ID, FIRST_PERCENT, FIRST_COST, SECOND_PERCENT, THIRD_PERCENT,
+      SECOND_COST, FOUR_PERCENT, FOUR_COST, OPERATOR, CREATE_DATE, UPDATE_DATE,MEMBER_CODE)
+    values (#id:DECIMAL#, #firstPercent:VARCHAR#, #firstCost:VARCHAR#, #secondPercent:VARCHAR#,
+      #thirdPercent:VARCHAR#, #secondCost:VARCHAR#, #fourPercent:VARCHAR#, #fourCost:VARCHAR#,
+      #operator:VARCHAR#, #createDate:TIMESTAMP#, #updateDate:TIMESTAMP#,#memberCode#)
+  </insert>
+  
+  <select id="countByCriteria" parameterClass="chargeBackConfig" resultClass="java.lang.Integer" >
+    select count(*) from CHARGE_BACK_CONFIG where 1=1 
+    <include refid="CHARGE_BACK_CONFIG.Criteria_Where_Clause" />
+  </select>
+  
+  <update id="update" parameterClass="chargeBackConfig" >
+    update CHARGE_BACK_CONFIG
+    <dynamic prepend="set" >
+      <isNotNull prepend="," property="firstPercent" >
+        FIRST_PERCENT = #firstPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="firstCost" >
+        FIRST_COST = #firstCost:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="secondPercent" >
+        SECOND_PERCENT = #secondPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="thirdPercent" >
+        THIRD_PERCENT = #thirdPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="secondCost" >
+        SECOND_COST = #secondCost:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="fourPercent" >
+        FOUR_PERCENT = #fourPercent:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="fourCost" >
+        FOUR_COST = #fourCost:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="operator" >
+        OPERATOR = #operator:VARCHAR#
+      </isNotNull>
+      <isNotNull prepend="," property="createDate" >
+        CREATE_DATE = #createDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="updateDate" >
+        UPDATE_DATE = #updateDate:TIMESTAMP#
+      </isNotNull>
+      <isNotNull prepend="," property="memberCode" >
+        MEMBER_CODE = #memberCode#
+      </isNotNull>      
+    </dynamic>
+    where ID = #id:DECIMAL#
+  </update>
+  
+</sqlMap>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="workorderrepair">
+
+	<resultMap id="workorderRepairDTO" class="com.pay.fo.order.model.base.FundoutOrder" >
+    <result column="ORDER_ID" property="orderId" jdbcType="DECIMAL" />
+    <result column="ORDER_TYPE" property="orderType" jdbcType="DECIMAL" />
+    <result column="ORDER_SMALLTYPE" property="orderSmallType" jdbcType="VARCHAR" />
+    <result column="ORDER_STATUS" property="orderStatus" jdbcType="DECIMAL" />
+    <result column="ORDER_AMOUNT" property="orderAmount" jdbcType="DECIMAL" />
+    <result column="IS_PAYERPAYFEE" property="isPayerPayFee" jdbcType="DECIMAL" />
+    <result column="FEE" property="fee" jdbcType="DECIMAL" />
+    <result column="REALPAY_AMOUNT" property="realpayAmount" jdbcType="DECIMAL" />
+    <result column="REALOUT_AMOUNT" property="realoutAmount" jdbcType="DECIMAL" />
+    <result column="PAYER_NAME" property="payerName" jdbcType="VARCHAR" />
+    <result column="PAYER_LOGINNAME" property="payerLoginName" jdbcType="VARCHAR" />
+    <result column="PAYER_MEMBERCODE" property="payerMemberCode" jdbcType="DECIMAL" />
+    <result column="PAYER_MEMBERTYPE" property="payerMemberType" jdbcType="DECIMAL" />
+    <result column="PAYER_ACCTCODE" property="payerAcctCode" jdbcType="VARCHAR" />
+    <result column="PAYER_ACCTTYPE" property="payerAcctType" jdbcType="DECIMAL" />
+    <result column="PAYEE_NAME" property="payeeName" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANKACCTCODE" property="payeeBankAcctCode" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANKACCTTYPE" property="payeeBankAcctType" jdbcType="DECIMAL" />
+    <result column="PAYEE_BANKCODE" property="payeeBankCode" jdbcType="DECIMAL" />
+    <result column="PAYEE_BANKNAME" property="payeeBankName" jdbcType="VARCHAR" />
+    <result column="PAYEE_OPENINGBANKNAME" property="payeeOpeningBankName" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANKPROVINCE" property="payeeBankProvince" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANKPROVINCENAME" property="payeeBankProvinceName" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANKCITY" property="payeeBankCity" jdbcType="VARCHAR" />
+    <result column="PAYEE_BANKCITYNAME" property="payeeBankCityName" jdbcType="VARCHAR" />
+    <result column="PAYMENT_REASON" property="paymentReason" jdbcType="VARCHAR" />
+    <result column="FAILED_REASON" property="failedReason" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="TRADE_ALIAS" property="tradeAlias" jdbcType="VARCHAR" />
+    <result column="TRADE_TYPE" property="tradeType" jdbcType="DECIMAL" />
+    <result column="PAYEE_MOBILE" property="payeeMobile" jdbcType="VARCHAR" />
+    <result column="BANK_ORDERID" property="bankOrderId" jdbcType="VARCHAR" />
+    <result column="FOREIGN_ORDERID" property="foreignOrderId" jdbcType="VARCHAR" />
+    <result column="FUNDOUT_BANKCODE" property="fundoutBankCode" jdbcType="DECIMAL" />
+    <result column="FUNDOUT_BANKNAME" property="fundoutBankName" jdbcType="VARCHAR" />
+    <result column="FUNDOUT_MODE" property="fundoutMode" jdbcType="DECIMAL" />
+    <result column="PRIORITY" property="priority" jdbcType="DECIMAL" />
+    <result column="PARENT_ORDERID" property="parentOrderId" jdbcType="DECIMAL" />
+  </resultMap>
+
+   	<select id="getWorkordersByCondition" parameterClass="hashMap" resultMap="workorderRepairDTO">
+	SELECT A.*
+    FROM FO.FUNDOUT_ORDER A,FO.WITHDRAW_WORKORDER W
+    WHERE A.ORDER_ID = W.ORDER_SEQ(+)
+    AND A.ORDER_STATUS = 101
+    AND W.WORKORDER_KY IS NULL
+			  <isNotEmpty prepend="AND" property="startDate">
+	              a.CREATE_DATE &gt;= to_date(#startDate#,'yyyy-MM-dd') 
+	          </isNotEmpty>
+	          <isNotEmpty prepend="AND" property="endDate">
+	              a.CREATE_DATE &lt; to_date(#endDate#,'yyyy-MM-dd') +1 
+	          </isNotEmpty>
+	          <isNotEmpty prepend="AND" property="sequenceId">
+	              a.ORDER_ID = #sequenceId# 
+	          </isNotEmpty>
+   	</select>
+   	
+   	<!-- 查询工单信息  统计条数-->
+   	<select id="getWorkordersByCondition_COUNT" parameterClass="hashMap" resultClass="java.lang.Integer">
+	SELECT COUNT(1)
+    FROM FO.FUNDOUT_ORDER A,FO.WITHDRAW_WORKORDER W
+    WHERE A.ORDER_ID = W.ORDER_SEQ(+)
+    AND A.ORDER_STATUS = 101
+    AND W.WORKORDER_KY IS NULL
+			  <isNotEmpty prepend="AND" property="startDate">
+	              a.CREATE_DATE &gt;= to_date(#startDate#,'yyyy-MM-dd') 
+	          </isNotEmpty>
+	          <isNotEmpty prepend="AND" property="endDate">
+	              a.CREATE_DATE &lt; to_date(#endDate#,'yyyy-MM-dd') +1 
+	          </isNotEmpty>
+	          <isNotEmpty prepend="AND" property="sequenceId">
+	              a.ORDER_ID = #sequenceId# 
+	          </isNotEmpty>
+   	</select>
+
+</sqlMap>

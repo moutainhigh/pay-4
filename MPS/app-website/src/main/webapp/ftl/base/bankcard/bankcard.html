@@ -1,0 +1,366 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<#include "/common/macro/seoPerson.ftl">
+<title>${add_bankAcct}${title}</title>
+<meta name="Keywords" content="${add_bankAcct_Keywords}" />
+<meta name="Description" content="${add_bankAcct_Description}" />
+<meta http-equiv="pragma" content="no-cache">
+<meta http-equiv="cache-control" content="no-cache">
+<meta http-equiv="expires" content="0">
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/per_account.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/dialog/jquery-ui.custom.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/common.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/pay-dialog.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/website.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/jquery-ui.js"></script>
+
+<script>
+
+function isBankNameRight(sId,obj){
+	var bkText=$("#bankId").find("option:selected").text(); 
+	if($(obj).val().indexOf(bkText)<0){
+			return "开户行名称不正确";
+		}
+	return true;
+}
+
+function checkBankNo(sId,obj){
+	var bankCode =$("#bankId").val();
+	var bankNo = $("#bankAcct").val();
+	if(bankCode != '' && bankNo != ''){                   
+      $.get("${rc.contextPath}/app/checkBankCard.htm?method=checkBankNo",{bankCode:bankCode,bankId:bankNo}, 
+      function(result){
+          if(result == 1){
+        	  $("#bankAcctIdCardBinTip").html("您输入的卡号非借记卡！");
+        	   //$("#sub_button").attr("disabled", true);
+          }
+          else if(result == 2){
+        	  $("#bankAcctIdCardBinTip").html("您输入的卡号与开户行不匹配！");
+        	//   $("#sub_button").attr("disabled", true);	 
+          }
+          else{
+        	  //$("#sub_button").attr("disabled", false);
+        	  $("#bankAcctIdCardBinTip").html("");
+          }
+
+      });
+    }
+	
+}
+
+function checkSearch(){
+	if($("#bankId").val() == '' || $("#bankId").val().length < 1){
+		$("#bankIdTip").html("<font color='red'>请选择需要添加的银行。</font>");
+		$("#bankIdTip").addClass('onshow');			
+		return false;
+	}
+	if($("#province").val() == '' || $("#province").val().length < 1){
+		$("#provinceTip").html("<font color='red'>请选择银行所在地区。</font>");
+		$("#provinceTip").addClass('onshow');			
+		return false;
+	}
+	if($("#city").val() == '' || $("#city").val().length < 1){
+		$("#provinceTip").html("<font color='red'>请选择银行所在地区。</font>");
+		$("#provinceTip").addClass('onshow');			
+		return false;
+	}
+}
+
+function loadBanks(defaultBankNo){
+	var bank = $("#bankId").find("option:selected").text();
+	var province = $("#province").find("option:selected").text();
+	var city = $("#city").find("option:selected").text();
+	var bankV =  $("#bankId").val();
+	var provinceV =  $("#province").val();
+	var cityV =  $("#city").val();
+	if(bankV.length && cityV.length && provinceV.length){
+		$("#branchBankId").load("${rc.contextPath}/app/getBanks.htm",{method:"readioBanksFO",bank:bank,province:province,city:city,"defaultBankNo":defaultBankNo});
+	}
+	
+}
+
+function loadCitys(provinceId,defaultCityId){
+	var submitObj = {};
+	submitObj.method="city";
+	submitObj.provinceId = provinceId;
+	if(defaultCityId ){
+		submitObj.defaultCity = defaultCityId;
+	}
+	$("#city").load("${rc.contextPath}/province.htm",submitObj);
+}
+
+$(function(){
+
+	$("#menu li").mouseover(
+		    function(){
+		        $(this).toggleClass("current");
+		    }
+		);
+
+		$("#menu li").mouseout(
+		    function(){
+		        $(this).toggleClass("current");
+		    }
+		); 
+		
+		$("#contclose").click(function(){
+				$("#contDiv").hide();
+		});
+
+	
+	$("#searchBank").click(function(){
+		$("#add_auto").hide();
+		if(checkSearch() == false){
+			$("#contDiv").hide();
+			return false;
+		}
+		var bank = $("#bankId").find("option:selected").text();
+		var province = $("#province").find("option:selected").text();
+		var city = $("#city").find("option:selected").text();
+		//alert("yy");
+		$("#contDiv").load("${rc.contextPath}/app/getBanks.htm?method=readioBanksFO",{bank:bank,province:province,city:city});
+		$("#contDiv").show();
+	});
+	
+
+	$("#getBankForKey").click(function(){
+		var strs = $("#bankKeywords").val();
+		if(checkSearch() == false){//|| "" == strs || null == strs
+			return false;
+		}
+		var bank = $("#bankId").find("option:selected").text();
+		var province = $("#province").find("option:selected").text();
+		var city = $("#city").find("option:selected").text();
+		if("" == strs || null == strs)
+		{
+			loadBanks()
+		}
+		else{
+				$("#branchBankId").load("${rc.contextPath}/app/getBanks.htm?method=queryBanksFO",{strs:strs,bank:bank,province:province,city:city});
+		}
+	});
+	
+	$("#bankForm").submit(function(){
+
+		var bankCode =$("#bankId").val();
+		var bankNo = $("#bankAcct").val();
+		$("#branchBankName").val( $("#branchBankId").find("option:selected").text());
+	//	alert($("#branchBankId").find("option:selected").text());
+		var res;
+		if(bankCode != '' && bankNo != ''){ 
+			res =$.ajax({
+				url:"${rc.contextPath}/app/checkBankCard.htm?method=checkBankNo",
+				data:{bankCode:bankCode,bankId:bankNo},
+				async: false
+			}).responseText;		                  
+	    }
+			if(res == 1){
+			   $("#bankAcctIdCardBinTip").html("您输入的卡号非借记卡！");
+			   return  false;
+		   }
+			else if(res == 2){
+			   $("#bankAcctIdCardBinTip").html("您输入的卡号与开户行不匹配！");
+			   return  false;
+		   }else{
+		  	 return  true;
+		   }
+	});
+
+	
+	$.formValidator.initConfig({formid:"bankForm",onerror:function(msg,obj){
+		//alert(msg);
+	 }});
+
+
+	
+$("#bankAcctId").blur(function(){
+	checkBankNo();
+});
+    $("#bankAcctId").formValidator({tipid:"bankAcctIdTip",onshow:"<span>此银行卡的开户人姓名必须为<span class=\"red\">${memberName}</span>，否则提现会失败。</span>",onfocus:"银行卡号不能为空",oncorrect:" "})
+	.inputValidator({min:8,max:32,empty:false,onerror:"银行卡号位数必须8-32位,请确认"})
+	.regexValidator({regexp:"^\\d{8,32}$",onerror:"银行卡号只能输入整数，请重新输入"});
+	
+
+	$("#city").formValidator({tipid:"provinceTip",onshow:" ",onfocus:" ",oncorrect:" "})
+	.inputValidator({min:1,empty:false,onerror:"请选择银行所在地区"})
+	.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"包含非法字符，请重新输入"});
+
+	$("#branchBankId").formValidator({tipid:"branchBankIdTip",onshow:"选择开户行名称错误，可能导致出款失败。",onfocus:"请选择开户行名称",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"请选择开户行名称"})
+		//.functionValidator({fun:isBankNameRight});
+		
+	//new PCAS("province","city");
+	
+	$("#bankId").formValidator({tipid:"bankIdTip",onshow:" ",onfocus:" ",oncorrect:" "})
+		.inputValidator({min:1,empty:false,onerror:"请选择需要添加的银行。"})
+
+$("#otherbank").click(function(){
+		
+		if($("#other-bank").attr("class") == 'bankshow'){
+				
+				$("#other-bank").hide();
+				$("#other-bank").removeClass("bankshow");
+				$("#other-bank").removeClass("hide");
+				$("#other-bank").addClass("bankhide");
+			}else{
+				
+				$("#other-bank").removeClass("hide");
+				$("#other-bank").removeClass("bankhide");
+				$("#other-bank").addClass("bankshow");
+				$("#other-bank").show();
+			}
+		
+		});	
+
+   
+
+	var province = $("#pv").attr("value");
+	var city = $("#cy").attr("value");
+	
+	$("#city").load("${rc.contextPath}/province.htm?method=city&provinceId="+province+"&defaultCity="+city);
+	if(province!='' || city!=''){
+		$("#city").load("${rc.contextPath}/province.htm?method=city&provinceId="+province+"&defaultCity="+city);
+	}
+
+	$("#province").change(function(){
+		loadCitys($("#province").val());
+	});		
+	$("#city").change(loadBanks);
+	$("#bankId").change(loadBanks);
+
+<#if defaultInfo?exists>
+$("#id").val("${defaultInfo.id}");  
+var setTimer1 = null;
+	setTimeout(function(){
+			  $("#bankAcctId").val("${defaultInfo.bankAcctId}");  
+			  $("#bankId").val("${defaultInfo.bankId}");  
+			  $("#province").val("${defaultInfo.province}"); 
+			  loadCitys("${defaultInfo.province}","${defaultInfo.city}");
+			  setTimeout(function(){ 
+				 loadBanks("${defaultInfo.branchBankId?default('')}");
+			  },500);
+		
+		},100);
+
+
+<#else>
+var province = $("#pv").val();
+var city = $("#cy").val();
+loadCitys(province,city);
+</#if>
+});
+
+</script>
+
+</head>
+<body>
+<!--导航 str-->
+<@sp.head mCode="app_accountInfo"/>
+<!--导航 end--> 
+<!--主内容 str -->
+<div class="container">
+
+
+		<!--自适应box str -->
+		<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box ">
+					<h3 class="title f14"><strong>添加银行账户</strong></h3>
+					<a class="red qus" style="display:none">使用遇到问题?</a> </div>
+				<div class="content">
+					
+						<div class="ico_txtBox"><i class="warn_ico"></i>目前支持工行、建行、招行、农行等 <span class="red">${bankNum}家银行</font> 的借记卡。</div>
+						
+						<div class="titlebox" style="display:none"> <a class="offp" ></a>
+							<ul>
+							<li>中国工商银行</li><li>中国农业银行</li><li>中国建设银行</li><li>中国银行</li><li>中国交通银行</li><li>招商银行</li><li>中信银行</li><li>中国邮政储蓄银行</li><li>民生银行</li><li>兴业银行</li>
+							<li>广发银行</li><li>华夏银行</li><li>深圳发展银行</li><li>北京银行</li><li>东亚银行</li><li>浦东发展银行</li>&nbsp;&nbsp;
+							</ul>
+						</div>
+						<form class="mod_form pad_center" method="post" id="bankForm" action="${rc.contextPath}/app/addBankCard.htm?method=addBankCard">
+						
+							<ul class="form_list">
+								<li>
+									<label class="form_side">银行账户类型：</label>
+									<strong>借记卡</strong> </li>
+								<li>
+									<label class="form_side">开户人姓名：</label>
+									<strong>${memberName}</strong> 
+								</li>
+								<li>
+									<label class="form_side"><span>*</span>银行名称：</label>
+									<select id="bankId" name="bankId" class="inp_normal w150">
+									<option value="">请选择银行</option>
+									<#if bankList?exists>
+										<#list bankList as list>
+											<#if list.bankName != "中国银联">
+											<option value="${list.bankId?default(0)}">${list.bankName?default('')}</option>
+											</#if>
+										</#list>
+									</#if>
+									</select>
+									<em id="bankIdTip"></em>
+								</li>
+								<li>
+									<label class="form_side"><span>*</span>开户银行所在地：</label>
+									<select name="province" id="province" class="inp_normal w150">
+										<option value="" selected>---请选择省/直辖市---</option>
+										<#list provinceList as province>
+											<option value="${province.provincecode}">${province.provincename}</option>
+										</#list>
+									</select>
+									<select name="city" id="city" class="inp_normal w150">										
+											<option value="" selected>---请选择城市---</option>					
+									</select>
+									<em id="provinceTip"></em>
+								</li>	
+								
+																																
+								<li  id="get_add">
+								
+									<label class="form_side"><span>*</span>开户行名称：</label>
+									<input type="text" id="bankKeywords" name="bankKeywords" class="inp_normal"  value="" style="width:135px;">
+									<a class="red ml10" id="getBankForKey" name="getBankForKey" href="#">按所填关键字过滤</a>
+									<span class="gray_txt">如：高安支行，如果您无法确定，建议您致电银行客服询问。</span>
+										<select id="branchBankId" name="branchBankId" class="inp_normal" style="width:346px;">
+											<option value="" selected>---请选择开户行---</option>
+										</select>
+										<span id="branchBankIdTip" class="c_666">选择开户行名称错误，可能导致出款失败。</span>
+								</li>
+				
+								<li>
+									<label class="form_side"><span>*</span>银行卡号：</label>
+									<input type="text" id="bankAcctId"  class="inp_normal w200" name="bankAcctId" size="41" maxLength="32"/>
+									<em id="bankAcctIdTip"></em>
+									<p id="bankAcctIdCardBinTip" class="g_tips red"></p>
+								</li>
+								<li class="btn"><span class="btn_yel"><button id="sub_button" type="submit">保存账户</button></span></li>
+							</ul>
+								<input type="hidden" id="memberName" name="memberName" value="${memberName}">
+							<input type="hidden" name="id" id="id" value="" />
+							<input type="hidden" id="pv" value="" />
+						<input type="hidden" id="cy" value="" />
+						<input type="hidden" name="branchBankName" id="branchBankName" value="" />
+						
+							
+						</form>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+	</div>
+</div>
+<!--主内容 end -->
+
+<!--footer -->
+<#include "/common/include/footer.html">
+</body>
+</html>

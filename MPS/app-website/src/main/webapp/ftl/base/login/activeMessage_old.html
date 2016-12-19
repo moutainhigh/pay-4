@@ -1,0 +1,304 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<#import "/spring.ftl" as sp />
+<#escape x as x?html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+<#include "/common/macro/seoPerson.ftl">
+<title>${active_message_fill}${title}</title>
+<meta name="Keywords" content="${active_message_fill_Keywords}" />
+<meta name="Description" content="${active_message_fill_Description}" />
+<link href="<@sp.static/>/css/pay/public.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/style.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/validator/validator.css?v=${cssVersion}.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/jquery-1.3.2.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidator.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/common/plugins/formValidatorRegex.js"></script>
+<script type="text/javascript" src="<@sp.static/>/js/pay/area/provinceArea.js"></script>
+
+ <script type="text/javascript">
+    $(function(){
+        $.formValidator.initConfig({formid:"messageForm",onerror:function(msg){}});
+        
+        $("#email").formValidator({tipid:"emailTip",onshow:"Email是您找回个人信息的主要途径之一",onfocus:"Email不能为空,请确认",oncorrect:"Email合法"})
+        		   .inputValidator({min:1,empty:false,onerror:"Email不能为空,请确认"})
+        		   .regexValidator({regexp:"email",datatype:"enum",onerror:"Email格式不正确"});
+		
+        $("#mobileNo").formValidator({tipid:"mobileNoTip",empty:true,onshow:"请填写您的真实号码，找回个人信息的途径",onfocus:"手机号码可以为空",oncorrect:"手机号码合法"})
+				 	  .regexValidator({regexp:"mobile",datatype:"enum",onerror:"手机号码格式不正确且必须为11位数字"});
+
+        $("#verifyName").formValidator({tipid:"verifyNameTip",onshow:"填入真实的姓名将利于您个人信息的找回及iPayLinks支付活动的奖品领取",onfocus:"真实姓名不能为空",oncorrect:"真实姓名合法"})
+        				.inputValidator({min:2,max:10,empty:false,onerror:"真实姓名不能为空且最多5个中文字符,请确认"})
+        				.regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"输入非法字符"});
+		
+        $("#payPwd").formValidator({tipid:"payPwdTip",onshow:"支付密码会在付退款、修改账户等多处使用。建议与登录密码不同。",onfocus:"支付密码不能为空",oncorrect:"支付密码合法"})
+        				 .inputValidator({min:8,max:20,empty:false,onerror:"支持8-20位字母加数字且至少要包含一个字符，并区分大小写,请确认"})
+        				 .regexValidator({regexp:"paypwd",datatype:"enum",onerror:"支付密码只支持8-20位字母加数字且至少要包含一个字符"});
+
+        $("#payPwdConfirm").formValidator({tipid:"payPwdConfirmTip",onshow:"两次填写的密码必须一致",onfocus:"确认支付密码不能为空",oncorrect:"确认支付密码合法"})
+        .inputValidator({min:8,max:20,empty:false,onerror:"支持8-20位字母加数字且至少要包含一个字符，并区分大小写,请确认"})
+        .compareValidator({desid:"payPwd",operateor:"=",onerror:"两次密码不一致,请确认"});    
+
+        $("#questionId").formValidator({tipid:"questionIdTip",onshow:"安全保护问题可用于找回登录密码等",onfocus:"请选择安全保护问题",oncorrect:" "})
+        .inputValidator({min:1,empty:false,onerror:"请选择安全保护问题"});
+
+        $("#answer").formValidator({tipid:"answerTip",onshow:"由2-32个字符组成",onfocus:"答案不能为空",oncorrect:" "})
+        .inputValidator({min:2,max:32,empty:false,onerror:"答案只能由2-32个字符组成""})
+        .regexValidator({regexp:"nocharacters",datatype:"enum",onerror:"输入非法字符"});
+
+        $("#cardNo").formValidator({tipid:"cardNoTip",empty:true,onshow:"请填写真实的证件号码可以为空。身份证号码是15或18位数字",onfocus:"请填写真实的证件号码。身份证号码是15或18位数字",oncorrect:" "});
+       
+        <#if criteria.cardType?default(0)==1>
+        $("#cardNo").formValidator(
+                {tipid:"cardNoTip",
+                onshow:"请填写真实的证件号码可以为空。身份证号码是15或18位数字",
+                onfocus:"请填写真实的证件号码。身份证号码是15或18位数字",
+                empty:true,
+                oncorrect:"输入正确"}).
+                inputValidator({min:1,onerror: "请输入身份证号码!"}).
+                functionValidator({fun:isCardID});
+        </#if>
+        $("#cardType").change(function(){
+				if($(this).val()=='1'){
+					 $("#cardNo").formValidator(
+				                {tipid:"cardNoTip",
+				                onshow:"请填写真实的证件号码可以为空。身份证号码是15或18位数字",
+				                onfocus:"请填写真实的证件号码。身份证号码是15或18位数字",
+				                empty:true,
+				                oncorrect:"输入正确"}).
+				                inputValidator({min:1,onerror: "请输入身份证号码!"}).
+				                functionValidator({fun:isCardID});
+					 //$("#cardNo").formValidator({tipid:"cardNoTip",empty:true,onshow:"请填写真实的证件号码可以为空。身份证号码是15或18位数字",onfocus:"请填写真实的证件号码。身份证号码是15或18位数字",oncorrect:" "})
+			         //   .regexValidator({regexp:"idcard",datatype:"enum",onerror:"身份证号码格式不正确，只能为15或18位数字"});
+					}else{
+						 $("#cardNo").unFormValidator(true);
+					}	
+		});
+
+		
+
+        $("#qq").formValidator({tipid:"qqTip",empty:true,onshow:"请填写您的真实QQ，方便今后客服与您联系，可以为空",onfocus:"如要填写请填写正确",oncorrect:" "})
+        	.regexValidator({regexp:"qq",datatype:"enum",onerror:"QQ只能为数字"});   
+
+        $("#msn").formValidator({tipid:"msnTip",empty:true,onshow:"请填写您的真实MSN，方便今后客服与您联系，可以为空",onfocus:"如要填写请填写正确",oncorrect:" "})
+    		.regexValidator({regexp:"email",datatype:"enum",onerror:"MSN格式不正确与Email格式相同"}); 
+
+        $("#postCode").formValidator({tipid:"postCodeTip",empty:true,onshow:"请填写您的真实邮编，方便投递，可以为空",onfocus:"如要填写请填写正确",oncorrect:""})
+			.regexValidator({regexp:"zipcode",datatype:"enum",onerror:"邮编格式不正确，只能为6位数字"});
+
+        $("#randCode").formValidator({tipid:"randCodeTip",onshow:"请输入图中4位字母",onfocus:"请填写验证码",oncorrect:" "})
+        .inputValidator({min:1,max:4,empty:false,onerror:"请输入图中4位字母"});
+        
+        
+        $("#refush").click(function(){
+        		var d = new Date();
+        		var src = "${rc.contextPath}/validatecode/validatecode.htm?date=" + d.getTime();
+				$("#code").attr("src",src);
+				return false;
+        });
+
+        $("#btnSubmit").click(function(){
+				$("#messageForm").submit();
+				return false;
+            });
+
+        $("#item-2").click(function(){
+			if(this.checked){
+				$("#btnSubmit").show();
+			}else{
+				$("#btnSubmit").hide();
+				}
+		});
+
+        var province = $("#pv").attr("value");
+        var city = $("#cy").attr("value");
+        new PCAS("province","city");
+        if(province!="" && province!="--请选择省份自治--"){
+        	 new PCAS("province","city",province);
+        	 if(city!=null){
+        	     new PCAS("province","city",province,city);
+              }
+        }
+    });
+    </script>
+
+<#if msgStr?has_content>
+<script type="text/javascript">
+alert("${msgStr?default("")}");
+</script>
+</#if>
+</head>
+
+<body>
+	<div class="outer">
+			<@sp.head channel=2 />
+		<!-- header end -->
+		
+		<div class="content clearfix pay-complete">
+		<h2 class="top-tit">激活信息填写</h2>
+					<form id="messageForm" method="post" action="${rc.contextPath}/app/accountActive.htm" >
+		
+		<div class="mode">
+            <div class="tit">
+            <h2>重要信息</h2>
+          </div>
+		  
+		  <div class="attestation-info-t">
+		   <p class="icon-warn-smal">Email是您获取官方信息、找回密码的主要途径，请正确填写。</p>
+		  </div>
+            <div class="basic-info">
+            <ul class="form form-info">
+                <li> <em><span class="obvious">*</span>E-mail：</em>
+                <input id="email" name="email" type="text" class="txt" value="${criteria.email?default('')}">
+				<label id="emailTip"></label>
+              </li>
+                <li> <em><span class="obvious">*</span>手机号码：</em>
+                <input id="mobileNo" name="mobileNo" type="text" class="txt" value="${criteria.mobileNo?default('')}">
+				<label id="mobileNoTip"></label>
+                </li>
+              </ul>
+          </div>
+          </div>
+		  
+		  <div class="mode">
+            <div class="tit">
+              <h2>重要信息</h2>
+            </div>
+            <div class="basic-info">
+              <ul class="form form-info">
+                <li> <em><span class="obvious">*</span>真实姓名：</em>
+                 <input id="verifyName" name="verifyName" type="text" class="txt" value="${criteria.verifyName?default('')}">
+								<label id="verifyNameTip"></label></li>
+                <li> <em><span class="obvious">*</span>支付密码：</em>
+                 <input id="payPwd" name="payPwd" type="password" class="txt" value="">
+								<label id="payPwdTip"></label> </li>
+                <li> <em><span class="obvious">*</span>确认支付密码：</em>
+                  <input id="payPwdConfirm" name="payPwdConfirm" type="password" class="txt" value="">
+								<label id="payPwdConfirmTip"></label></li>
+                <li> <em><span class="obvious">*</span>设置安全保护问题：</em>
+                 <#assign questionId = criteria.questionId?default('0')/>
+                  <select name="questionId" id="questionId" class="select">
+						<option selected="selected" value="0">==请选择安全保护问题==</option>
+						<option <#if questionId=='1'> selected="selected" </#if> value="1">您的出生地是？</option>
+						<option <#if questionId=='2'> selected="selected" </#if> value="2">您父亲的姓名是？</option>
+						<option <#if questionId=='3'> selected="selected" </#if> value="3">你父亲的生日是？</option>
+						<option <#if questionId=='4'> selected="selected" </#if> value="4">您母亲的姓名是？</option>
+						<option <#if questionId=='5'> selected="selected" </#if> value="5">您母亲的生日是？</option>
+						<option <#if questionId=='6'> selected="selected" </#if> value="6">您配偶的姓名是？</option>
+						<option <#if questionId=='7'> selected="selected" </#if> value="7">您配偶的生日是？</option>
+						<option <#if questionId=='8'> selected="selected" </#if> value="8">您孩子的名字是？</option>
+						<option <#if questionId=='9'> selected="selected" </#if> value="9">您小学的学校名称是？</option>
+						<option <#if questionId=='10'> selected="selected" </#if> value="10">您小学的班主任的名字是？</option>
+                  </select><label id="questionIdTip"></label> </li>
+                <li> <em><span class="obvious">*</span>您的答案：</em>
+                 <input id="answer" name="answer" type="text" class="txt" value="${criteria.answer?default('')}">
+				 <label id="answerTip"></label></li>
+              </ul>
+            </div>
+          </div>
+		  
+		  
+		  <div class="mode">
+					<div class="tit">
+						<h2>完善全部信息，增加账户安全▼</h2>
+					</div>
+					<div class="basic-info">
+						<ul class="form form-info">
+							<li>
+								<em>设置问候语：</em><input name="salutatory" type="text" class="txt" value="${criteria.salutatory?default('')}">
+								<span>登录后问候语将出现在首页左侧个人信息区，若您没有看到正确的登录问候语，请及时举报</span>
+							</li>
+							<li>
+								<em>证件类型：</em>
+								<#assign cardType = criteria.cardType?default(0)/>
+								<select name="cardType" id="cardType" class="select"><option value="">证件类型</option>
+								<option  <#if cardType==1> selected="selected" </#if> value="1">身份证</option>
+								<option  <#if cardType==2> selected="selected" </#if> value="2">护照</option>
+								<option  <#if cardType==3> selected="selected" </#if> value="3">军官证</option>
+								<option  <#if cardType==4> selected="selected" </#if> value="4">港澳台居民大陆通行证</option>
+								</select>
+								<span>安全保护问题可用于找回登录密码等</span>
+							</li>
+							<li>
+								<em>证件号码：</em><input id="cardNo" name="cardNo" type="text" class="txt" value="${criteria.cardNo?default('')}">
+								<label id="cardNoTip">请填写真实的证件号码。身份证号码是15或18位数字</label>
+						
+							</li>
+							<li>
+								<em>固定电话：</em><input id="aptoticPhone" name="aptoticPhone" type="text" class="txt" value="${criteria.aptoticPhone?default('')}" maxLength="12">
+								<span>请填写您的真实号码，方便今后客服与您联系</span>
+							</li>
+							<li>
+								<em>传真：</em><input name="faxes" type="text" class="txt" value="${criteria.faxes?default('')}">
+								<span>请填写您的真实传真，方便今后客服与您联系</span>
+							</li>
+							<li>
+								<em>QQ：</em><input id="qq" name="qq" type="text" class="txt" value="${criteria.qq?default('')}">
+								<label id="qqTip"></label>
+						   </li>
+							<li>
+								<em>MSN：</em><input id="msn" name="msn" type="text" class="txt" value="${criteria.msn?default('')}">
+								<label id="msnTip"></label>
+							</li>
+							<li>
+							<input type="hidden" id="pv" value="${criteria.province?default('')}">
+							<input type="hidden" id="cy" value="${criteria.city?default('')}">
+								<em>省份：</em>
+								<div class="fl">
+									<select name="province" id="province"></select>
+								</div>
+								<div class="fl">
+									<span>城市：</span>
+									<select name="city" id="city"></select>
+								</div>
+							</li>
+							<li>
+								<em>地址：</em><input name="address" type="text" class="txt" value="${criteria.address?default('')}">
+								<span>请填写您的真实地址，方便今后的奖品发送</span>
+							</li>
+							<li>
+								<em>邮编：</em><input id="postCode" name="postCode" type="text" class="txt" value="${criteria.postCode?default('')}">
+								<label id="postCodeTip"></label>
+							</li>
+							<li>
+								<em>验证码：</em><div class="fl"><input id="randCode" disableautocomplete autocomplete="off" name="randCode" type="text" class="bor"></div>
+								<div class="fl auth-code">
+								 <img src="${rc.contextPath}/validatecode/validatecode.htm?date=new Date()" alt="附加码" name="code" width="68" height="23" id="code" style="vertical-align: top" /> 
+								 <span class="textGray text12"><a id="refush" href="javascript:void(0);">换一张</a> </span></div>
+								<label id="randCodeTip"></label>
+							</li>
+							
+							
+						</ul>
+					</div>
+				</div>
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  <div class="mode">
+            <div class="tit">
+              <h2>payay用户条款</h2>
+            </div>
+            <div class="basic-info">
+			  <textarea>用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式用户条款字体样式</textarea>
+			  <p class="bottom"><input type="checkbox" id="item-2" checked="checked">我已阅读并同意遵守<a class="obvious" href="javascript:void(0);payapay用户条款</a></p>
+			  <p class="bottom-btn"><button id="btnSubmit" class="red-btn" >提交信息</button></p>
+			  
+            </div>
+          </div>
+		  
+		  </form>
+		  
+		 </div>
+		<!-- content end -->
+		
+	</div>
+	<!-- outer end -->
+	<#include "/common/include/footer.html">
+</body>
+</#escape>
+</html>

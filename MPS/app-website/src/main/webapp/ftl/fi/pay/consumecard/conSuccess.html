@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>iPayLinks支付收银台</title>
+<link href="<@sp.static/>/css/pay/public.css" rel="stylesheet" type="text/css">
+<link href="<@sp.static/>/css/pay/pay.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<@sp.headCommon />
+<!--主内容 start --> 
+<div class="container"> 
+	<div class="mod_box_a">
+			<p class="top"><i></i></p>
+			<div class="con_box has_bg">
+				<div class="tit_box">
+					<h3 class="title f14">收银台</h3>
+				</div>
+				<div class="content txtC">
+					<div class="result_tips">
+						<div class="set_height clearfix">
+							<!--icon调用的class   pop_s:√  pop_war:! pop_fail:X-->
+							<span class="pop_s"></span>
+								<p class="words f14"><strong><span class="green">支付成功</span></strong></p>
+								<#if totalAmount?exists> 
+									<p class="words f14">已成功支付订单<span class="red">${totalAmount?default('')}</span> 元
+									,销卡结余金额将扣除相应手续费后，返还至您iPayLinks账户内！</p>
+								<#else>
+									<p class="words f14">订单支付成功</p>
+								</#if>
+								<p class="link mt10">您可能需要：
+								<#if returnUrl?exists>
+									<a href="javascript:document.notifyForm.submit();">返回商户页面</a>|
+								</#if>
+									<a href="${rc.contextPath}/corp/myAccount.htm">返回账户首页</a>|
+									<a href="${rc.contextPath}/index.htm">iPayLinks支付首页</a>
+								</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="bot"><i></i></p>
+		</div>
+</div>
+<!--主内容 end --> 
+
+<#if returnUrl?exists>
+<script type="text/javascript">
+  <!--最初的时间-->
+  var time = 10;
+  returnUrlByTime();
+  <!--动态时间的显示函数-->
+  function returnUrlByTime(){
+   <!--时间递减-->
+   if(--time > 0){
+	  // document.getElementById("layer").innerHTML = time;
+	   <!--每隔1秒调用该函数-->
+	   window.setTimeout('returnUrlByTime()', 1000);
+   } else {
+   		<!--显示动态时间的层-->
+   		document.notifyForm.submit();
+   }
+  }
+ </script>
+ </#if>
+<!--footer -->
+<#include "/common/include/footer.html">
+
+<#if returnUrl?exists>
+	<form name="notifyForm" action="${returnUrl?default('')}" method="post">
+		<#if notifyParamMap?exists>
+			<#list notifyParamMap?keys as paramKey>  
+				<input type="hidden" name="${paramKey?default('')}" value="${notifyParamMap[paramKey]?default('')}"/>
+			</#list>
+		</#if>
+	</form>
+</#if>
+</body>
+</html>

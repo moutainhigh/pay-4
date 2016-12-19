@@ -1,0 +1,117 @@
+ <label class="label_side">面&nbsp;&nbsp;&nbsp;值：</label>
+<#if (mpl?size > 3)>
+  <#list mpl as m>
+       <#if (m_index < 3)>
+            <input class="radio" type="radio" value="${m.chargeAmount}" name="chargeAmount1" id="m_${m_index}">
+            <label  for="m_${m_index}">${m.chargeAmount}元</label>
+       <#else>
+         <#if (m_index ==3)>
+	         <p class="other_m">
+	         <input  class="radio" type="radio"  value="0" name="chargeAmount1" id="m_${m_index}">
+	         <label  for="m_${m_index}">其它</label>
+	         <select name="sel_chargeAmount" id="sel_chargeAmount">
+	         <option value="${m.chargeAmount}">${m.chargeAmount}元</option>
+	      <#else>
+	           <option value="${m.chargeAmount}">${m.chargeAmount}元</option>
+         </#if>
+       </#if>
+  </#list>  
+     </select> 
+     </p>
+<#else>
+     <#list mpl as m>
+         <input  class="radio" type="radio" value="${m.chargeAmount}" name="chargeAmount1" id="m_${m_index}">
+         <label for="m_${m_index}">${m.chargeAmount}元</label>
+     </#list>  
+     <input type="hidden" id="mpl_size" value="${mpl?size}">
+</#if>
+ 
+ <script type="text/javascript">
+	$(function(){
+          //default radio
+		 
+		  if($('#chargeAmount_next').val() != ""){
+			   var j=0;
+         	  $('input[type=radio]').each(function(i){
+         		  if($(this).val() ==$('#chargeAmount_next').val()){
+             		   j=1;
+         		      return;
+             	   }
+         	   });
+        	      if(j>0){
+        	    	$('input[type=radio]').each(function(i){
+           		       if($(this).val() ==$('#chargeAmount_next').val()){
+           			     $('input[type=radio]').get(i).checked = true;
+           		          return;
+               	     }
+           	        });
+            	   }
+        	      else{
+            	      // $('input[type=radio]').get(1).checked = true;
+        	    	  if($('#mpl_size').val()>1){
+                  	      $('input[type=radio]').get(1).checked = true;
+                        }else {
+                      	  $('input[type=radio]').get(0).checked = true;
+                        }
+            	       var v = $('input[type=radio]:checked').val();
+            		   $('#chargeAmount_next').val(v);
+            	   }
+	             
+		   }else{
+			   $('input[type=radio]').get(1).checked = true;
+		   }
+		   
+		  $('#chargeAmount_next').val($('input[type=radio]:checked').val());
+		 
+           //radio click
+		  $('input[name=chargeAmount1]').click(function(){
+			  if($(this).val() == 0){ 
+				 var v= $('#sel_chargeAmount').val();
+				  // var v = $("select[name=sel_chargeAmount]option[selected]").text();
+				   //alert(v);
+				 $('#chargeAmount').val(v);
+			  }else{
+				  $('#chargeAmount').val($(this).val());
+			  }
+			  $('#chargeAmount_next').val($(this).val());
+			  loadDiscount();
+		   });
+		   
+
+          $('#sel_chargeAmount').change(function(){
+        	  var v = $('input[type=radio]:checked').val();
+        	  
+        	  $('input[type=radio]').get(3).checked = true;
+        	 
+            	  $('#chargeAmount').val($(this).val());
+            
+              
+        	  loadDiscount();
+        	 // var radiovalue=$("input:radio:checked").val(); 
+            });
+			 
+
+		  //set #chargeAmount value
+	        $('input[type=radio]').each(function(j){
+			        if($(this).attr('checked') == true)
+			         {
+				        if($(this).val() ==0){
+				        	
+				        	$('#chargeAmount').val($('#sel_chargeAmount').val());
+				        	
+					     }else
+					     {
+					    	 $('#chargeAmount').val($(this).val());
+						 }  
+			    	     loadDiscount(); 
+			    	     return ;
+			        }
+			 });
+		   
+		  
+    });
+    
+</script>
+ 
+ 
+   
